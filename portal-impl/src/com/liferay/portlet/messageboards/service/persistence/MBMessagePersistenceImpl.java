@@ -603,7 +603,7 @@ public class MBMessagePersistenceImpl extends BasePersistenceImpl<MBMessage>
 				mbMessage.setBody(SanitizerUtil.sanitize(companyId, groupId,
 						userId,
 						com.liferay.portlet.messageboards.model.MBMessage.class.getName(),
-						messageId, ContentTypes.TEXT_HTML, Sanitizer.MODE_ALL,
+						messageId, ContentTypes.TEXT_PLAIN, Sanitizer.MODE_ALL,
 						mbMessage.getBody(), null));
 			}
 			catch (SanitizerException se) {

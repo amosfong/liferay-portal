@@ -93,6 +93,10 @@ request.setAttribute("view.jsp-repositoryId", String.valueOf(repositoryId));
 				</div>
 			</div>
 
+			<div class="document-library-breadcrumb" id="<portlet:namespace />breadcrumbContainer">
+				<liferay-util:include page="/html/portlet/document_library/breadcrumb.jsp" />
+			</div>
+
 			<liferay-portlet:renderURL varImpl="editFileEntryURL">
 				<portlet:param name="struts_action" value="/document_library/edit_file_entry" />
 			</liferay-portlet:renderURL>
@@ -111,10 +115,6 @@ request.setAttribute("view.jsp-repositoryId", String.valueOf(repositoryId));
 			</aui:form>
 		</aui:column>
 	</aui:layout>
-
-	<div class="document-library-breadcrumb" id="<portlet:namespace />breadcrumbContainer">
-		<liferay-util:include page="/html/portlet/document_library/breadcrumb.jsp" />
-	</div>
 </div>
 
 <%
@@ -147,7 +147,7 @@ if (folder != null) {
 		function(action, url) {
 			document.<portlet:namespace />fm2.method = "post";
 			document.<portlet:namespace />fm2.<portlet:namespace /><%= Constants.CMD %>.value = action;
-			document.<portlet:namespace />fm2.<portlet:namespace />folderIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>Checkbox', '<portlet:namespace /><%= RowChecker.ROW_IDS  + StringPool.UNDERLINE + Folder.class.getName() %>Checkbox');
+			document.<portlet:namespace />fm2.<portlet:namespace />folderIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>Checkbox', '<portlet:namespace /><%= RowChecker.ROW_IDS + StringPool.UNDERLINE + Folder.class.getName() %>Checkbox');
 			document.<portlet:namespace />fm2.<portlet:namespace />fileEntryIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>Checkbox', '<portlet:namespace /><%= RowChecker.ROW_IDS + StringPool.UNDERLINE + FileEntry.class.getName() %>Checkbox');
 			document.<portlet:namespace />fm2.<portlet:namespace />fileShortcutIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>Checkbox', '<portlet:namespace /><%= RowChecker.ROW_IDS + StringPool.UNDERLINE + DLFileShortcut.class.getName() %>Checkbox');
 
@@ -322,7 +322,7 @@ if (folder != null) {
 
 						entriesContainer.plug(A.Plugin.ParseContent);
 						entriesContainer.setContent(entries);
-					},
+					}
 				}
 			}
 		);

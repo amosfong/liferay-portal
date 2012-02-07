@@ -310,8 +310,8 @@ public class LayoutSetLocalServiceUtil {
 	* However, this method can only enable the layout set prototype's link if
 	* the layout set prototype's current uuid is not <code>null</code>. Setting
 	* the <code>layoutSetPrototypeLinkEnabled</code> to <code>true</code> when
-	* the layout set prototype's current uuid is <code>null</code> will result
-	* in an <code>IllegalStateException</code>.
+	* the layout set prototype's current uuid is <code>null</code> will have no
+	* effect.
 	* </p>
 	*
 	* @param groupId the primary key of the group
@@ -336,14 +336,6 @@ public class LayoutSetLocalServiceUtil {
 	/**
 	* Updates the state of the layout set prototype link.
 	*
-	* <p>
-	* <strong>Important:</strong> Setting
-	* <code>layoutSetPrototypeLinkEnabled</code> to <code>true</code> and
-	* <code>layoutSetPrototypeUuid</code> to <code>null</code> when the layout
-	* set prototype's current uuid is <code>null</code> will result in an
-	* <code>IllegalStateException</code>.
-	* </p>
-	*
 	* @param groupId the primary key of the group
 	* @param privateLayout whether the layout set is private to the group
 	* @param layoutSetPrototypeLinkEnabled whether the layout set prototype is
@@ -363,25 +355,27 @@ public class LayoutSetLocalServiceUtil {
 			layoutSetPrototypeLinkEnabled, layoutSetPrototypeUuid);
 	}
 
-	public static void updateLogo(long groupId, boolean privateLayout,
-		boolean logo, java.io.File file)
+	public static com.liferay.portal.model.LayoutSet updateLogo(long groupId,
+		boolean privateLayout, boolean logo, java.io.File file)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		getService().updateLogo(groupId, privateLayout, logo, file);
+		return getService().updateLogo(groupId, privateLayout, logo, file);
 	}
 
-	public static void updateLogo(long groupId, boolean privateLayout,
-		boolean logo, java.io.InputStream is)
+	public static com.liferay.portal.model.LayoutSet updateLogo(long groupId,
+		boolean privateLayout, boolean logo, java.io.InputStream is)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		getService().updateLogo(groupId, privateLayout, logo, is);
+		return getService().updateLogo(groupId, privateLayout, logo, is);
 	}
 
-	public static void updateLogo(long groupId, boolean privateLayout,
-		boolean logo, java.io.InputStream is, boolean cleanUpStream)
+	public static com.liferay.portal.model.LayoutSet updateLogo(long groupId,
+		boolean privateLayout, boolean logo, java.io.InputStream is,
+		boolean cleanUpStream)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		getService().updateLogo(groupId, privateLayout, logo, is, cleanUpStream);
+		return getService()
+				   .updateLogo(groupId, privateLayout, logo, is, cleanUpStream);
 	}
 
 	public static com.liferay.portal.model.LayoutSet updateLookAndFeel(

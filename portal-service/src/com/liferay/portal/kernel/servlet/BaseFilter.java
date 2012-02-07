@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class BaseFilter implements LiferayFilter {
 
 	public void destroy() {
+		LiferayFilterTracker.removeLiferayFilter(this);
 	}
 
 	public void doFilter(
@@ -66,6 +67,8 @@ public abstract class BaseFilter implements LiferayFilter {
 
 	public void init(FilterConfig filterConfig) {
 		_filterConfig = filterConfig;
+
+		LiferayFilterTracker.addLiferayFilter(this);
 	}
 
 	public boolean isFilterEnabled() {
@@ -76,6 +79,10 @@ public abstract class BaseFilter implements LiferayFilter {
 		HttpServletRequest request, HttpServletResponse response) {
 
 		return _filterEnabled;
+	}
+
+	public void setFilterEnabled(boolean filterEnabled) {
+		_filterEnabled = filterEnabled;
 	}
 
 	protected abstract Log getLog();

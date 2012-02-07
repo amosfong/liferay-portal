@@ -21,9 +21,31 @@ import com.liferay.portlet.unitconverter.model.Conversion;
  */
 public class ConverterUtil {
 
-	public static int TEMPERATURE_CELSIUS = 1;
+	public static final int TEMPERATURE_CELSIUS = 1;
 
-	public static int TEMPERATURE_FAHRENHEIHT = 2;
+	public static final int TEMPERATURE_FAHRENHEIHT = 2;
+
+	public static double convertArea(int fromId, int toId, double fromValue) {
+		return (fromValue / _AREA[fromId]) * _AREA[toId];
+	}
+
+	public static double convertLength(int fromId, int toId, double fromValue) {
+		return (fromValue / _LENGTH[fromId]) * _LENGTH[toId];
+	}
+
+	public static double convertMass(int fromId, int toId, double fromValue) {
+		return (fromValue / _MASS[fromId]) * _MASS[toId];
+	}
+
+	public static double convertTemperature(
+		int fromId, int toId, double fromValue) {
+
+		return _fromTemperature(toId, _toTemperature(fromId, fromValue));
+	}
+
+	public static double convertVolume(int fromId, int toId, double fromValue) {
+		return (fromValue / _VOLUME[fromId]) * _VOLUME[toId];
+	}
 
 	public static Conversion getConversion(
 		int type, int fromId, int toId, double fromValue) {
@@ -47,28 +69,6 @@ public class ConverterUtil {
 		}
 
 		return new Conversion(type, fromId, toId, fromValue, toValue);
-	}
-
-	public static double convertArea(int fromId, int toId, double fromValue) {
-		return (fromValue / _AREA[fromId]) * _AREA[toId];
-	}
-
-	public static double convertLength(int fromId, int toId, double fromValue) {
-		return (fromValue / _LENGTH[fromId]) * _LENGTH[toId];
-	}
-
-	public static double convertMass(int fromId, int toId, double fromValue) {
-		return (fromValue / _MASS[fromId]) * _MASS[toId];
-	}
-
-	public static double convertTemperature(
-		int fromId, int toId, double fromValue) {
-
-		return _fromTemperature(toId, _toTemperature(fromId, fromValue));
-	}
-
-	public static double convertVolume(int fromId, int toId, double fromValue) {
-		return (fromValue / _VOLUME[fromId]) * _VOLUME[toId];
 	}
 
 	private final static double _fromTemperature(int toId, double fromValue) {
@@ -113,7 +113,7 @@ public class ConverterUtil {
 		}
 	}
 
-	private final static double _AREA[] = new double[] {
+	private static final double _AREA[] = new double[] {
 		1.0,				// Square Kilometer
 		1000000.0,			// Square Meter
 		10000000000.0,		// Square Centimeter
@@ -126,7 +126,7 @@ public class ConverterUtil {
 		247.1054,			// Acre
 	};
 
-	private final static double _LENGTH[] = new double[] {
+	private static final double _LENGTH[] = new double[] {
 		1.0,				// Meter
 		1000.0,				// Millimeter
 		100.0,				// Centimeter
@@ -140,7 +140,7 @@ public class ConverterUtil {
 		13.12336			// Handbreath
 	};
 
-	private final static double _MASS[] = new double[] {
+	private static final double _MASS[] = new double[] {
 		1.0,				// Kilogram
 		2.204623,			// Pound
 		0.00110,			// Ton
@@ -152,7 +152,7 @@ public class ConverterUtil {
 		1763.698, 			// Gerah
 	};
 
-	private final static double _VOLUME[] = new double[] {
+	private static final double _VOLUME[] = new double[] {
 		1.0,				// Liter
 		1000,				// Cubic Centimeter
 		61.02374,			// Cubic Inch (Liquid Measure)

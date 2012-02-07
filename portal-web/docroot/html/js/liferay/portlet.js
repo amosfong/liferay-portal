@@ -7,6 +7,7 @@
 
 	var Portlet = {
 		list: [],
+		runtimePortletIds: [],
 
 		isStatic: function(portletId) {
 			var instance = this;
@@ -283,7 +284,7 @@
 				{
 					after: {
 						success: function() {
-							if (!data.preventNotification) {
+							if (!data || !data.preventNotification) {
 								Liferay.fire('updatedLayout');
 							}
 						}

@@ -525,6 +525,7 @@ Liferay.Service.registerClass(
 		getCategories: true,
 		getCategory: true,
 		getChildCategories: true,
+		getJSONSearch: true,
 		getJSONVocabularyCategories: true,
 		getVocabularyCategories: true,
 		getVocabularyCategoriesCount: true,
@@ -850,6 +851,8 @@ Liferay.Service.registerClass(
 		deleteStructure: true,
 		fetchStructure: true,
 		getStructure: true,
+		search: true,
+		searchCount: true,
 		updateStructure: true
 	}
 );
@@ -862,6 +865,8 @@ Liferay.Service.registerClass(
 		deleteTemplate: true,
 		getTemplate: true,
 		getTemplates: true,
+		search: true,
+		searchCount: true,
 		updateTemplate: true
 	}
 );

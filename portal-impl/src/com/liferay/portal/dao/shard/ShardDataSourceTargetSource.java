@@ -57,8 +57,17 @@ public class ShardDataSourceTargetSource implements TargetSource {
 	public void releaseTarget(Object target) throws Exception {
 	}
 
+	public void resetDataSource() {
+		DataSource dataSource = _dataSources.get(
+			PropsValues.SHARD_DEFAULT_NAME);
+
+		_dataSource.set(dataSource);
+	}
+
 	public void setDataSource(String shardName) {
-		_dataSource.set(_dataSources.get(shardName));
+		DataSource dataSource = _dataSources.get(shardName);
+
+		_dataSource.set(dataSource);
 	}
 
 	public void setDataSources(Map<String, DataSource> dataSources) {
@@ -76,6 +85,11 @@ public class ShardDataSourceTargetSource implements TargetSource {
 		}
 	}
 
+	private static Log _log = LogFactoryUtil.getLog(
+		ShardDataSourceTargetSource.class);
+
+	private static String[] _availableShardNames;
+
 	private static ThreadLocal<DataSource> _dataSource =
 		new ThreadLocal<DataSource>() {
 
@@ -86,10 +100,6 @@ public class ShardDataSourceTargetSource implements TargetSource {
 
 	};
 
-	private static Log _log = LogFactoryUtil.getLog(
-		ShardDataSourceTargetSource.class);
-
-	private static String[] _availableShardNames;
 	private static Map<String, DataSource> _dataSources;
 
 }

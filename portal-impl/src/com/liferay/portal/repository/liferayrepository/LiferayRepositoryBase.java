@@ -36,13 +36,12 @@ import com.liferay.portlet.documentlibrary.service.DLFileVersionService;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
 import com.liferay.portlet.documentlibrary.service.DLFolderService;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
+import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Alexander Chow
@@ -152,26 +151,12 @@ public abstract class LiferayRepositoryBase extends LiferayBase {
 		for (DDMStructure ddmStructure : ddmStructures) {
 			String namespace = String.valueOf(ddmStructure.getStructureId());
 
-			Set<String> fieldNames = ddmStructure.getFieldNames();
-
 			Fields fields = (Fields)serviceContext.getAttribute(
 				Fields.class.getName() + ddmStructure.getStructureId());
 
 			if (fields == null) {
-				fields = new Fields();
-
-				for (String name : fieldNames) {
-					Field field = new Field();
-
-					field.setName(name);
-
-					String value = ParamUtil.getString(
-						serviceContext, namespace + name);
-
-					field.setValue(value);
-
-					fields.put(field);
-				}
+				fields = DDMUtil.getFields(
+					ddmStructure.getStructureId(), namespace, serviceContext);
 			}
 
 			fieldsMap.put(ddmStructure.getStructureKey(), fields);
@@ -212,6 +197,15 @@ public abstract class LiferayRepositoryBase extends LiferayBase {
 
 	protected abstract void initByRepositoryId(long repositoryId);
 
+	protected boolean isDefaultRepository() {
+		if (_groupId == _repositoryId) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	protected void setDlFolderId(long dlFolderId) {
 		_dlFolderId = dlFolderId;
 	}
@@ -222,15 +216,6 @@ public abstract class LiferayRepositoryBase extends LiferayBase {
 
 	protected void setRepositoryId(long repositoryId) {
 		_repositoryId = repositoryId;
-	}
-
-	protected boolean isDefaultRepository() {
-		if (_groupId == _repositoryId) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	protected long toFolderId(long folderId) {

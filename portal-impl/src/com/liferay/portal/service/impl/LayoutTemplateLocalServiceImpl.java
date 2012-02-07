@@ -491,8 +491,8 @@ public class LayoutTemplateLocalServiceImpl
 	}
 
 	public void uninstallLayoutTemplates(String themeId) {
-		Map<String, LayoutTemplate> _themesStandard =
-			_getThemesStandard(themeId);
+		Map<String, LayoutTemplate> _themesStandard = _getThemesStandard(
+			themeId);
 
 		for (Map.Entry<String, LayoutTemplate> entry :
 				_themesStandard.entrySet()) {
@@ -601,8 +601,8 @@ public class LayoutTemplateLocalServiceImpl
 
 		if (customEl != null) {
 			readLayoutTemplate(
-				servletContextName, servletContext, layoutTemplateIds,
-				customEl, false, null, pluginPackage);
+				servletContextName, servletContext, layoutTemplateIds, customEl,
+				false, null, pluginPackage);
 		}
 
 		return layoutTemplateIds;
@@ -611,17 +611,17 @@ public class LayoutTemplateLocalServiceImpl
 	private static Log _log = LogFactoryUtil.getLog(
 		LayoutTemplateLocalServiceImpl.class);
 
-	private static Map<String, LayoutTemplate> _portalStandard =
-		new LinkedHashMap<String, LayoutTemplate>();
 	private static Map<String, LayoutTemplate> _portalCustom =
 		new LinkedHashMap<String, LayoutTemplate>();
-
-	private static Map<String, LayoutTemplate> _warStandard =
-		new LinkedHashMap<String, LayoutTemplate>();
-	private static Map<String, LayoutTemplate> _warCustom =
+	private static Map<String, LayoutTemplate> _portalStandard =
 		new LinkedHashMap<String, LayoutTemplate>();
 
 	private static Map<String, Map<String, LayoutTemplate>> _themes =
 		new LinkedHashMap<String, Map<String, LayoutTemplate>>();
+
+	private static Map<String, LayoutTemplate> _warCustom =
+		new LinkedHashMap<String, LayoutTemplate>();
+	private static Map<String, LayoutTemplate> _warStandard =
+		new LinkedHashMap<String, LayoutTemplate>();
 
 }

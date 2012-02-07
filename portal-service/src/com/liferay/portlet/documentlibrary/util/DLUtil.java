@@ -94,8 +94,7 @@ public class DLUtil {
 		portletURL.setParameter(
 			"struts_action", "/document_library/view_file_entry");
 		portletURL.setParameter(
-			"fileEntryId",
-			String.valueOf(dlFileShortcut.getToFileEntryId()));
+			"fileEntryId", String.valueOf(dlFileShortcut.getToFileEntryId()));
 
 		PortalUtil.addPortletBreadcrumbEntry(
 			request, dlFileShortcut.getToTitle(), portletURL.toString());
@@ -136,11 +135,10 @@ public class DLUtil {
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
 		portletURL.setParameter("struts_action", "/document_library/view");
-		portletURL.setParameter("viewEntries", Boolean.TRUE.toString());
-		portletURL.setParameter("viewFolders", Boolean.TRUE.toString());
 
 		Map<String, Object> data = new HashMap<String, Object>();
 
+		data.put("direction-right", Boolean.TRUE.toString());
 		data.put("folder-id", _getDefaultFolderId(request));
 
 		PortalUtil.addPortletBreadcrumbEntry(
@@ -184,6 +182,7 @@ public class DLUtil {
 
 			Map<String, Object> data = new HashMap<String, Object>();
 
+			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", ancestorFolder.getFolderId());
 
 			PortalUtil.addPortletBreadcrumbEntry(
@@ -203,6 +202,7 @@ public class DLUtil {
 
 			Map<String, Object> data = new HashMap<String, Object>();
 
+			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", folderId);
 
 			PortalUtil.addPortletBreadcrumbEntry(
@@ -235,15 +235,8 @@ public class DLUtil {
 			portletURL.setParameter("struts_action", strutsAction);
 			portletURL.setParameter("groupId", String.valueOf(groupId));
 
-			Map<String, Object> data = new HashMap<String, Object>();
-
-			data.put("folder-id", _getDefaultFolderId(request));
-			data.put("view-entries", Boolean.TRUE.toString());
-			data.put("view-folders", Boolean.TRUE.toString());
-
 			PortalUtil.addPortletBreadcrumbEntry(
-				request, themeDisplay.translate("home"), portletURL.toString(),
-				data);
+				request, themeDisplay.translate("home"), portletURL.toString());
 		}
 		else {
 			portletURL.setParameter("struts_action", "/document_library/view");
@@ -385,29 +378,53 @@ public class DLUtil {
 		String queryString) {
 
 		return getPreviewURL(
-			fileEntry, fileVersion, themeDisplay, queryString, true);
+			fileEntry, fileVersion, themeDisplay, queryString, true, true);
 	}
 
+	/**
+	 * @deprecated {@link #getPreviewURL(FileEntry, FileVersion, ThemeDisplay,
+	 *             String, boolean, boolean)}
+	 */
 	public static String getPreviewURL(
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
 		String queryString, boolean appendToken) {
 
-		StringBundler sb = new StringBundler(13);
+		return getPreviewURL(
+			fileEntry, fileVersion, themeDisplay, queryString, true, true);
+	}
 
-		sb.append(themeDisplay.getPortalURL());
-		sb.append(themeDisplay.getPathContext());
+	public static String getPreviewURL(
+		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
+		String queryString, boolean appendVersion, boolean absoluteURL) {
+
+		StringBundler sb = new StringBundler(15);
+
+		if (absoluteURL) {
+			sb.append(themeDisplay.getPortalURL());
+			sb.append(themeDisplay.getPathContext());
+		}
+
 		sb.append("/documents/");
 		sb.append(fileEntry.getRepositoryId());
 		sb.append(StringPool.SLASH);
 		sb.append(fileEntry.getFolderId());
 		sb.append(StringPool.SLASH);
-		sb.append(
-			HttpUtil.encodeURL(HtmlUtil.unescape(fileEntry.getTitle()), true));
-		sb.append("?version=");
-		sb.append(fileVersion.getVersion());
+		sb.append(HttpUtil.encodeURL(HtmlUtil.unescape(fileEntry.getTitle())));
+		sb.append(StringPool.SLASH);
+		sb.append(fileEntry.getUuid());
 
-		if (appendToken) {
-			sb.append("&t=");
+		if (appendVersion) {
+			sb.append("?version=");
+			sb.append(fileVersion.getVersion());
+		}
+
+		if (ImageProcessorUtil.isImageSupported(fileVersion)) {
+			if (appendVersion) {
+				sb.append("&t=");
+			}
+			else {
+				sb.append("?t=");
+			}
 
 			Date modifiedDate = fileVersion.getModifiedDate();
 
@@ -418,7 +435,7 @@ public class DLUtil {
 
 		String previewURL = sb.toString();
 
-		if (themeDisplay.isAddSessionIdToURL()) {
+		if ((themeDisplay != null) && (themeDisplay.isAddSessionIdToURL())) {
 			return PortalUtil.getURLWithSessionId(
 				previewURL, themeDisplay.getSessionId());
 		}
@@ -482,11 +499,19 @@ public class DLUtil {
 	}
 
 	public static String getThumbnailSrc(
-			FileEntry fileEntry, DLFileShortcut fileShortcut,
+			FileEntry fileEntry, DLFileShortcut dlFileShortcut,
 			ThemeDisplay themeDisplay)
 		throws Exception {
 
-		FileVersion fileVersion = fileEntry.getFileVersion();
+		return getThumbnailSrc(
+			fileEntry, fileEntry.getFileVersion(), dlFileShortcut,
+			themeDisplay);
+	}
+
+	public static String getThumbnailSrc(
+			FileEntry fileEntry, FileVersion fileVersion,
+			DLFileShortcut dlFileShortcut, ThemeDisplay themeDisplay)
+		throws Exception {
 
 		StringBundler sb = new StringBundler(4);
 
@@ -497,7 +522,7 @@ public class DLUtil {
 
 		String thumbnailSrc = sb.toString();
 
-		if (fileShortcut == null) {
+		if (dlFileShortcut == null) {
 			String thumbnailQueryString = null;
 
 			if (ImageProcessorUtil.hasImages(fileVersion)) {
@@ -512,7 +537,8 @@ public class DLUtil {
 
 			if (Validator.isNotNull(thumbnailQueryString)) {
 				thumbnailSrc = getPreviewURL(
-					fileEntry, fileVersion, themeDisplay, thumbnailQueryString);
+					fileEntry, fileVersion, themeDisplay, thumbnailQueryString,
+					true, true);
 			}
 		}
 

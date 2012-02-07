@@ -47,56 +47,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PortletURLUtil {
 
-	public static PortletURL getCurrent(
-		PortletRequest portletRequest, MimeResponse mimeResponse) {
-
-		PortletURL portletURL = mimeResponse.createRenderURL();
-
-		Enumeration<String> enu = portletRequest.getParameterNames();
-
-		while (enu.hasMoreElements()) {
-			String param = enu.nextElement();
-			String[] values = portletRequest.getParameterValues(param);
-
-			boolean addParam = true;
-
-			// Don't set paramter values that are over 32 kb. See LEP-1755.
-
-			for (int i = 0; i < values.length; i++) {
-				if (values[i].length() > _CURRENT_URL_PARAMETER_THRESHOLD) {
-					addParam = false;
-
-					break;
-				}
-			}
-
-			if (addParam) {
-				portletURL.setParameter(param, values);
-			}
-		}
-
-		return portletURL;
-	}
-
-	public static PortletURL clone(
-			PortletURL portletURL, MimeResponse mimeResponse)
-		throws PortletException {
-
-		LiferayPortletURL liferayPortletURL = (LiferayPortletURL)portletURL;
-
-		return clone(
-			liferayPortletURL, liferayPortletURL.getLifecycle(), mimeResponse);
-	}
-
-	public static PortletURL clone(
-			PortletURL portletURL, String lifecycle, MimeResponse mimeResponse)
-		throws PortletException {
-
-		LiferayPortletURL liferayPortletURL = (LiferayPortletURL)portletURL;
-
-		return clone(liferayPortletURL, lifecycle, mimeResponse);
-	}
-
 	public static PortletURL clone(
 			LiferayPortletURL liferayPortletURL, String lifecycle,
 			MimeResponse mimeResponse)
@@ -128,6 +78,56 @@ public class PortletURLUtil {
 		newURLImpl.setParameters(liferayPortletURL.getParameterMap());
 
 		return newURLImpl;
+	}
+
+	public static PortletURL clone(
+			PortletURL portletURL, MimeResponse mimeResponse)
+		throws PortletException {
+
+		LiferayPortletURL liferayPortletURL = (LiferayPortletURL)portletURL;
+
+		return clone(
+			liferayPortletURL, liferayPortletURL.getLifecycle(), mimeResponse);
+	}
+
+	public static PortletURL clone(
+			PortletURL portletURL, String lifecycle, MimeResponse mimeResponse)
+		throws PortletException {
+
+		LiferayPortletURL liferayPortletURL = (LiferayPortletURL)portletURL;
+
+		return clone(liferayPortletURL, lifecycle, mimeResponse);
+	}
+
+	public static PortletURL getCurrent(
+		PortletRequest portletRequest, MimeResponse mimeResponse) {
+
+		PortletURL portletURL = mimeResponse.createRenderURL();
+
+		Enumeration<String> enu = portletRequest.getParameterNames();
+
+		while (enu.hasMoreElements()) {
+			String param = enu.nextElement();
+			String[] values = portletRequest.getParameterValues(param);
+
+			boolean addParam = true;
+
+			// Don't set paramter values that are over 32 kb. See LEP-1755.
+
+			for (int i = 0; i < values.length; i++) {
+				if (values[i].length() > _CURRENT_URL_PARAMETER_THRESHOLD) {
+					addParam = false;
+
+					break;
+				}
+			}
+
+			if (addParam) {
+				portletURL.setParameter(param, values);
+			}
+		}
+
+		return portletURL;
 	}
 
 	public static String getRefreshURL(
@@ -276,7 +276,7 @@ public class PortletURLUtil {
 
 	private static final int _CURRENT_URL_PARAMETER_THRESHOLD = 32768;
 
-	private static String[] _PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS =
+	private static final String[] _PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS =
 		PropsUtil.getArray(
 			PropsKeys.PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS);
 

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.struts;
 
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
@@ -120,14 +121,6 @@ public class PortletAction extends Action {
 		}
 	}
 
-	public ActionForward strutsExecute(
-			ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response)
-		throws Exception {
-
-		return super.execute(mapping, form, request, response);
-	}
-
 	public void processAction(
 			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -169,6 +162,14 @@ public class PortletAction extends Action {
 		portletRequestDispatcher.forward(resourceRequest, resourceResponse);
 	}
 
+	public ActionForward strutsExecute(
+			ActionMapping mapping, ActionForm form, HttpServletRequest request,
+			HttpServletResponse response)
+		throws Exception {
+
+		return super.execute(mapping, form, request, response);
+	}
+
 	protected void addSuccessMessage(
 		ActionRequest actionRequest, ActionResponse actionResponse) {
 
@@ -207,10 +208,6 @@ public class PortletAction extends Action {
 		}
 	}
 
-	protected void setForward(PortletRequest portletRequest, String forward) {
-		portletRequest.setAttribute(getForwardKey(portletRequest), forward);
-	}
-
 	protected ModuleConfig getModuleConfig(PortletRequest portletRequest) {
 		return (ModuleConfig)portletRequest.getAttribute(Globals.MODULE_KEY);
 	}
@@ -235,9 +232,31 @@ public class PortletAction extends Action {
 		return _CHECK_METHOD_ON_PROCESS_ACTION;
 	}
 
-	protected void sendRedirect(
+	protected boolean redirectToLogin(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws IOException {
+
+		if (actionRequest.getRemoteUser() == null) {
+			HttpServletRequest request = PortalUtil.getHttpServletRequest(
+				actionRequest);
+
+			SessionErrors.add(request, PrincipalException.class.getName());
+
+			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+			actionResponse.sendRedirect(themeDisplay.getURLSignIn());
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected void sendRedirect(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws IOException, SystemException {
 
 		sendRedirect(actionRequest, actionResponse, null);
 	}
@@ -245,7 +264,7 @@ public class PortletAction extends Action {
 	protected void sendRedirect(
 			ActionRequest actionRequest, ActionResponse actionResponse,
 			String redirect)
-		throws IOException {
+		throws IOException, SystemException {
 
 		if (SessionErrors.isEmpty(actionRequest)) {
 			ThemeDisplay themeDisplay =
@@ -265,7 +284,8 @@ public class PortletAction extends Action {
 			catch (Exception e) {
 			}
 
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
+			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+				themeDisplay.getCompanyId(), portletId);
 
 			if (hasPortletId || portlet.isAddDefaultResource()) {
 				addSuccessMessage(actionRequest, actionResponse);
@@ -309,26 +329,8 @@ public class PortletAction extends Action {
 		}
 	}
 
-	protected boolean redirectToLogin(
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws IOException {
-
-		if (actionRequest.getRemoteUser() == null) {
-			HttpServletRequest request = PortalUtil.getHttpServletRequest(
-				actionRequest);
-
-			SessionErrors.add(request, PrincipalException.class.getName());
-
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-			actionResponse.sendRedirect(themeDisplay.getURLSignIn());
-
-			return true;
-		}
-		else {
-			return false;
-		}
+	protected void setForward(PortletRequest portletRequest, String forward) {
+		portletRequest.setAttribute(getForwardKey(portletRequest), forward);
 	}
 
 	protected void writeJSON(

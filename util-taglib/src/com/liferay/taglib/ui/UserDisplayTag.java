@@ -132,17 +132,17 @@ public class UserDisplayTag extends TagSupport {
 		}
 	}
 
-	private static final String _START_PAGE =
-		"/html/taglib/ui/user_display/start.jsp";
-
 	private static final String _END_PAGE =
 		"/html/taglib/ui/user_display/end.jsp";
 
-	private String _startPage;
+	private static final String _START_PAGE =
+		"/html/taglib/ui/user_display/start.jsp";
+
+	private int _displayStyle = 1;
 	private String _endPage;
+	private String _startPage;
+	private String _url;
 	private long _userId;
 	private String _userName;
-	private String _url;
-	private int _displayStyle = 1;
 
 }

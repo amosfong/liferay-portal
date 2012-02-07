@@ -358,8 +358,8 @@ public interface Portal {
 	 *
 	 * @param  completeURL the complete URL of the page
 	 * @param  themeDisplay the current theme display
-	 * @param  layout the layout. If it is null, then it is generated for the
-	 * 		   current layout
+	 * @param  layout the layout. If it is <code>null</code>, then it is
+	 *         generated for the current layout
 	 * @return the canonical URL
 	 * @throws PortalException if a friendly URL or the group could not be
 	 *         retrieved
@@ -592,8 +592,18 @@ public interface Portal {
 			ExpandoBridge expandoBridge, PortletRequest portletRequest)
 		throws PortalException, SystemException;
 
+	public Map<String, Serializable> getExpandoBridgeAttributes(
+			ExpandoBridge expandoBridge,
+			UploadPortletRequest uploadPortletRequest)
+		throws PortalException, SystemException;
+
 	public Serializable getExpandoValue(
 			PortletRequest portletRequest, String name, int type,
+			String displayType)
+		throws PortalException, SystemException;
+
+	public Serializable getExpandoValue(
+			UploadPortletRequest uploadPortletRequest, String name, int type,
 			String displayType)
 		throws PortalException, SystemException;
 
@@ -986,6 +996,11 @@ public interface Portal {
 	public boolean isAllowAddPortletDefaultResource(
 			HttpServletRequest request, Portlet portlet)
 		throws PortalException, SystemException;
+
+	public boolean isCDNDynamicResourcesEnabled(HttpServletRequest request)
+		throws PortalException, SystemException;
+
+	public boolean isCDNDynamicResourcesEnabled(long companyId);
 
 	/**
 	 * @deprecated As of 6.1, renamed to {@link #isGroupAdmin(User, long)}

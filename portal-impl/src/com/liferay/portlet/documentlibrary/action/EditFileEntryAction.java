@@ -308,8 +308,8 @@ public class EditFileEntryAction extends PortletAction {
 
 		for (String selectedFileName : selectedFileNames) {
 			addMultipleFileEntries(
-				actionRequest, actionResponse, selectedFileName,
-				validFileNames, invalidFileNameKVPs);
+				actionRequest, actionResponse, selectedFileName, validFileNames,
+				invalidFileNameKVPs);
 		}
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
@@ -390,80 +390,6 @@ public class EditFileEntryAction extends PortletAction {
 		}
 	}
 
-	protected String getAddMultipleFileEntriesErrorMessage(
-			ThemeDisplay themeDisplay, Exception e)
-		throws Exception {
-
-		String errorMessage = null;
-
-		if (e instanceof AssetCategoryException) {
-			AssetCategoryException ace = (AssetCategoryException)e;
-
-			AssetVocabulary assetVocabulary = ace.getVocabulary();
-
-			String vocabularyTitle = StringPool.BLANK;
-
-			if (assetVocabulary != null) {
-				vocabularyTitle = assetVocabulary.getTitle(
-					themeDisplay.getLocale());
-			}
-
-			if (ace.getType() == AssetCategoryException.AT_LEAST_ONE_CATEGORY) {
-				errorMessage = LanguageUtil.format(
-					themeDisplay.getLocale(),
-					"please-select-at-least-one-category-for-x",
-					vocabularyTitle);
-			}
-			else if (ace.getType() ==
-						AssetCategoryException.TOO_MANY_CATEGORIES) {
-
-				errorMessage = LanguageUtil.format(
-					themeDisplay.getLocale(),
-					"you-cannot-select-more-than-one-category-for-x",
-					vocabularyTitle);
-			}
-		}
-		else if (e instanceof DuplicateFileException) {
-			errorMessage = LanguageUtil.get(
-				themeDisplay.getLocale(),
-				"the-folder-you-selected-already-has-an-entry-with-this-name." +
-					"-please-select-a-different-folder");
-		}
-		else if (e instanceof FileExtensionException) {
-			errorMessage = LanguageUtil.format(
-				themeDisplay.getLocale(),
-				"please-enter-a-file-with-a-valid-extension-x",
-				StringUtil.merge(
-					PrefsPropsUtil.getStringArray(
-						PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)));
-		}
-		else if (e instanceof FileNameException) {
-			errorMessage = LanguageUtil.get(
-				themeDisplay.getLocale(),
-				"please-enter-a-file-with-a-valid-file-name");
-		}
-		else if (e instanceof FileSizeException) {
-			long maxSizeMB = PrefsPropsUtil.getLong(
-				PropsKeys.DL_FILE_MAX_SIZE) / 1024 / 1024;
-
-			errorMessage = LanguageUtil.format(
-				themeDisplay.getLocale(),
-				"file-size-is-larger-than-x-megabytes", maxSizeMB);
-		}
-		else if (e instanceof InvalidFileEntryTypeException) {
-			errorMessage = LanguageUtil.get(
-				themeDisplay.getLocale(),
-				"the-document-type-you-selected-is-not-valid-for-this-folder");
-		}
-		else {
-			errorMessage = LanguageUtil.get(
-				themeDisplay.getLocale(),
-				"an-unexpected-error-occurred-while-saving-your-document");
-		}
-
-		return errorMessage;
-	}
-
 	protected void addTempFileEntry(ActionRequest actionRequest)
 		throws Exception {
 
@@ -536,15 +462,19 @@ public class EditFileEntryAction extends PortletAction {
 
 		long fileEntryId = ParamUtil.getLong(actionRequest, "fileEntryId");
 
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			actionRequest);
+
 		if (fileEntryId > 0) {
-			DLAppServiceUtil.checkOutFileEntry(fileEntryId);
+			DLAppServiceUtil.checkOutFileEntry(fileEntryId, serviceContext);
 		}
 		else {
 			long[] fileEntryIds = StringUtil.split(
 				ParamUtil.getString(actionRequest, "fileEntryIds"), 0L);
 
 			for (int i = 0; i < fileEntryIds.length; i++) {
-				DLAppServiceUtil.checkOutFileEntry(fileEntryIds[i]);
+				DLAppServiceUtil.checkOutFileEntry(
+					fileEntryIds[i], serviceContext);
 			}
 		}
 	}
@@ -596,6 +526,80 @@ public class EditFileEntryAction extends PortletAction {
 		}
 
 		writeJSON(actionRequest, actionResponse, jsonObject);
+	}
+
+	protected String getAddMultipleFileEntriesErrorMessage(
+			ThemeDisplay themeDisplay, Exception e)
+		throws Exception {
+
+		String errorMessage = null;
+
+		if (e instanceof AssetCategoryException) {
+			AssetCategoryException ace = (AssetCategoryException)e;
+
+			AssetVocabulary assetVocabulary = ace.getVocabulary();
+
+			String vocabularyTitle = StringPool.BLANK;
+
+			if (assetVocabulary != null) {
+				vocabularyTitle = assetVocabulary.getTitle(
+					themeDisplay.getLocale());
+			}
+
+			if (ace.getType() == AssetCategoryException.AT_LEAST_ONE_CATEGORY) {
+				errorMessage = LanguageUtil.format(
+					themeDisplay.getLocale(),
+					"please-select-at-least-one-category-for-x",
+					vocabularyTitle);
+			}
+			else if (ace.getType() ==
+						AssetCategoryException.TOO_MANY_CATEGORIES) {
+
+				errorMessage = LanguageUtil.format(
+					themeDisplay.getLocale(),
+					"you-cannot-select-more-than-one-category-for-x",
+					vocabularyTitle);
+			}
+		}
+		else if (e instanceof DuplicateFileException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getLocale(),
+				"the-folder-you-selected-already-has-an-entry-with-this-name." +
+					"-please-select-a-different-folder");
+		}
+		else if (e instanceof FileExtensionException) {
+			errorMessage = LanguageUtil.format(
+				themeDisplay.getLocale(),
+				"please-enter-a-file-with-a-valid-extension-x",
+				StringUtil.merge(
+					PrefsPropsUtil.getStringArray(
+						PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)));
+		}
+		else if (e instanceof FileNameException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getLocale(),
+				"please-enter-a-file-with-a-valid-file-name");
+		}
+		else if (e instanceof FileSizeException) {
+			long maxSizeMB = PrefsPropsUtil.getLong(
+				PropsKeys.DL_FILE_MAX_SIZE) / 1024 / 1024;
+
+			errorMessage = LanguageUtil.format(
+				themeDisplay.getLocale(),
+				"file-size-is-larger-than-x-megabytes", maxSizeMB);
+		}
+		else if (e instanceof InvalidFileEntryTypeException) {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getLocale(),
+				"the-document-type-you-selected-is-not-valid-for-this-folder");
+		}
+		else {
+			errorMessage = LanguageUtil.get(
+				themeDisplay.getLocale(),
+				"an-unexpected-error-occurred-while-saving-your-document");
+		}
+
+		return errorMessage;
 	}
 
 	protected void moveFileEntries(ActionRequest actionRequest)
@@ -710,7 +714,7 @@ public class EditFileEntryAction extends PortletAction {
 			inputStream = uploadPortletRequest.getFileAsStream("file");
 
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				DLFileEntry.class.getName(), actionRequest);
+				DLFileEntry.class.getName(), uploadPortletRequest);
 
 			FileEntry fileEntry = null;
 
@@ -735,8 +739,8 @@ public class EditFileEntryAction extends PortletAction {
 
 				fileEntry = DLAppServiceUtil.updateFileEntryAndCheckIn(
 					fileEntryId, sourceFileName, contentType, title,
-					description, changeLog, majorVersion, inputStream,
-					size, serviceContext);
+					description, changeLog, majorVersion, inputStream, size,
+					serviceContext);
 			}
 			else {
 
@@ -744,8 +748,8 @@ public class EditFileEntryAction extends PortletAction {
 
 				fileEntry = DLAppServiceUtil.updateFileEntry(
 					fileEntryId, sourceFileName, contentType, title,
-					description, changeLog, majorVersion, inputStream,
-					size, serviceContext);
+					description, changeLog, majorVersion, inputStream, size,
+					serviceContext);
 			}
 
 			AssetPublisherUtil.addRecentFolderId(

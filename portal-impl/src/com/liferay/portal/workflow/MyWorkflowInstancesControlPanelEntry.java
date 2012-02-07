@@ -16,9 +16,7 @@ package com.liferay.portal.workflow;
 
 import com.liferay.portal.kernel.workflow.WorkflowInstanceManagerUtil;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.util.PortletKeys;
 
 /**
  * @author Miguel Pastor
@@ -33,20 +31,12 @@ public class MyWorkflowInstancesControlPanelEntry
 
 		if (WorkflowInstanceManagerUtil.getWorkflowInstanceCount(
 				permissionChecker.getCompanyId(), permissionChecker.getUserId(),
-				null, null, Boolean.FALSE) > 0) {
+				null, null, null) > 0) {
 
 			return true;
 		}
 
-		if (WorkflowInstanceManagerUtil.getWorkflowInstanceCount(
-				permissionChecker.getCompanyId(), permissionChecker.getUserId(),
-				null, null, Boolean.TRUE) > 0) {
-
-			return true;
-		}
-
-		return permissionChecker.hasPermission(
-			0, PortletKeys.MY_WORKFLOW_INSTANCES, 0, ActionKeys.VIEW);
+		return false;
 	}
 
 }

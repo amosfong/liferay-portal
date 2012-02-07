@@ -61,6 +61,8 @@ public abstract class BasePropMethodImpl implements Method {
 
 	public static final QName GETLASTMODIFIED = createQName("getlastmodified");
 
+	public static final QName ISREADONLY = createQName("isreadonly");
+
 	public static final QName LOCKDISCOVERY = createQName("lockdiscovery");
 
 	public static final QName RESOURCETYPE = createQName("resourcetype");
@@ -178,6 +180,23 @@ public abstract class BasePropMethodImpl implements Method {
 
 				hasFailure = true;
 			}
+		}
+
+		if (props.contains(ISREADONLY)) {
+			props.remove(ISREADONLY);
+
+			Lock lock = resource.getLock();
+
+			if ((lock == null) || resource.isLocked()) {
+				DocUtil.add(
+					successPropElement, ISREADONLY, Boolean.FALSE.toString());
+			}
+			else {
+				DocUtil.add(
+					successPropElement, ISREADONLY, Boolean.TRUE.toString());
+			}
+
+			hasSuccess = true;
 		}
 
 		if (props.contains(LOCKDISCOVERY)) {
@@ -399,15 +418,14 @@ public abstract class BasePropMethodImpl implements Method {
 
 	private static final List<QName> _ALL_COLLECTION_PROPS = Arrays.asList(
 		new QName[] {
-			CREATIONDATE, DISPLAYNAME, GETLASTMODIFIED,
-			GETCONTENTTYPE, LOCKDISCOVERY, RESOURCETYPE
+			CREATIONDATE, DISPLAYNAME, GETLASTMODIFIED, GETCONTENTTYPE,
+			LOCKDISCOVERY, RESOURCETYPE
 		});
 
 	private static final List<QName> _ALL_SIMPLE_PROPS = Arrays.asList(
 		new QName[] {
-			CREATIONDATE, DISPLAYNAME, GETLASTMODIFIED,
-			GETCONTENTTYPE, GETCONTENTLENGTH, LOCKDISCOVERY,
-			RESOURCETYPE
+			CREATIONDATE, DISPLAYNAME, GETLASTMODIFIED, GETCONTENTTYPE,
+			GETCONTENTLENGTH, ISREADONLY, LOCKDISCOVERY, RESOURCETYPE
 		});
 
 	private static Log _log = LogFactoryUtil.getLog(BasePropMethodImpl.class);

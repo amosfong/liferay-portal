@@ -170,6 +170,12 @@ public class LayoutPermissionImpl implements LayoutPermission {
 			layout = virtualLayout.getWrappedModel();
 		}
 
+		if (actionId.equals(ActionKeys.DELETE) &&
+			!SitesUtil.isLayoutDeleteable(layout)) {
+
+			return false;
+		}
+
 		Group group = layout.getGroup();
 
 		if (!group.isLayoutSetPrototype() &&
@@ -332,6 +338,12 @@ public class LayoutPermissionImpl implements LayoutPermission {
 			}
 		}
 
+		if (layout.isPrivateLayout() &&
+			!permissionChecker.isGroupMember(group.getGroupId())) {
+
+			return false;
+		}
+
 		// User private layouts are only viewable by the user and anyone who can
 		// update the user. The user must also be active.
 
@@ -405,8 +417,7 @@ public class LayoutPermissionImpl implements LayoutPermission {
 					permissionChecker, group.getGroupId(),
 					ActionKeys.MANAGE_LAYOUTS) ||
 				 GroupPermissionUtil.contains(
-					permissionChecker, group.getGroupId(),
-					ActionKeys.UPDATE)) {
+					permissionChecker, group.getGroupId(), ActionKeys.UPDATE)) {
 
 				return true;
 			}

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.Image;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSet;
@@ -81,11 +82,27 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 
 			layoutSet.setLogo(liveLayoutSet.getLogo());
 			layoutSet.setLogoId(liveLayoutSet.getLogoId());
+
+			if (liveLayoutSet.isLogo()) {
+				Image logoImage = imageLocalService.getImage(
+					liveLayoutSet.getLogoId());
+
+				long logoId = counterLocalService.increment();
+
+				imageLocalService.updateImage(
+					logoId, logoImage.getTextObj(), logoImage.getType(),
+					logoImage.getHeight(), logoImage.getWidth(),
+					logoImage.getSize());
+
+				layoutSet.setLogoId(logoId);
+			}
+
 			layoutSet.setThemeId(liveLayoutSet.getThemeId());
 			layoutSet.setColorSchemeId(liveLayoutSet.getColorSchemeId());
 			layoutSet.setWapThemeId(liveLayoutSet.getWapThemeId());
 			layoutSet.setWapColorSchemeId(liveLayoutSet.getWapColorSchemeId());
 			layoutSet.setCss(liveLayoutSet.getCss());
+			layoutSet.setSettings(liveLayoutSet.getSettings());
 		}
 		else {
 			layoutSet.setThemeId(
@@ -97,6 +114,7 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 			layoutSet.setWapColorSchemeId(
 				ColorSchemeImpl.getDefaultWapColorSchemeId());
 			layoutSet.setCss(StringPool.BLANK);
+			layoutSet.setSettings(StringPool.BLANK);
 		}
 
 		layoutSetPersistence.update(layoutSet, false);
@@ -213,8 +231,8 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 	 * However, this method can only enable the layout set prototype's link if
 	 * the layout set prototype's current uuid is not <code>null</code>. Setting
 	 * the <code>layoutSetPrototypeLinkEnabled</code> to <code>true</code> when
-	 * the layout set prototype's current uuid is <code>null</code> will result
-	 * in an <code>IllegalStateException</code>.
+	 * the layout set prototype's current uuid is <code>null</code> will have no
+	 * effect.
 	 * </p>
 	 *
 	 * @param      groupId the primary key of the group
@@ -239,14 +257,6 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 	/**
 	 * Updates the state of the layout set prototype link.
 	 *
-	 * <p>
-	 * <strong>Important:</strong> Setting
-	 * <code>layoutSetPrototypeLinkEnabled</code> to <code>true</code> and
-	 * <code>layoutSetPrototypeUuid</code> to <code>null</code> when the layout
-	 * set prototype's current uuid is <code>null</code> will result in an
-	 * <code>IllegalStateException</code>.
-	 * </p>
-	 *
 	 * @param  groupId the primary key of the group
 	 * @param  privateLayout whether the layout set is private to the group
 	 * @param  layoutSetPrototypeLinkEnabled whether the layout set prototype is
@@ -269,12 +279,8 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 			layoutSetPrototypeUuid = layoutSet.getLayoutSetPrototypeUuid();
 		}
 
-		if (Validator.isNull(layoutSetPrototypeUuid) &&
-			layoutSetPrototypeLinkEnabled) {
-
-			throw new IllegalStateException(
-				"Cannot set layoutSetPrototypeLinkEnabled to true when " +
-					"layoutSetPrototypeUuid is null");
+		if (Validator.isNull(layoutSetPrototypeUuid)) {
+			layoutSetPrototypeLinkEnabled = false;
 		}
 
 		layoutSet.setLayoutSetPrototypeLinkEnabled(
@@ -284,7 +290,7 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 		layoutSetPersistence.update(layoutSet, false);
 	}
 
-	public void updateLogo(
+	public LayoutSet updateLogo(
 			long groupId, boolean privateLayout, boolean logo, File file)
 		throws PortalException, SystemException {
 
@@ -299,17 +305,17 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 			}
 		}
 
-		updateLogo(groupId, privateLayout, logo, is);
+		return updateLogo(groupId, privateLayout, logo, is);
 	}
 
-	public void updateLogo(
+	public LayoutSet updateLogo(
 			long groupId, boolean privateLayout, boolean logo, InputStream is)
 		throws PortalException, SystemException {
 
-		updateLogo(groupId, privateLayout, logo, is, true);
+		return updateLogo(groupId, privateLayout, logo, is, true);
 	}
 
-	public void updateLogo(
+	public LayoutSet updateLogo(
 			long groupId, boolean privateLayout, boolean logo, InputStream is,
 			boolean cleanUpStream)
 		throws PortalException, SystemException {
@@ -329,8 +335,9 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 				layoutSet.setLogoId(logoId);
 			}
 		}
-
-		layoutSetPersistence.update(layoutSet, false);
+		else {
+			layoutSet.setLogoId(0);
+		}
 
 		if (logo) {
 			imageLocalService.updateImage(
@@ -339,6 +346,8 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 		else {
 			imageLocalService.deleteImage(layoutSet.getLogoId());
 		}
+
+		return layoutSetPersistence.update(layoutSet, false);
 	}
 
 	public LayoutSet updateLookAndFeel(

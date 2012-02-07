@@ -192,24 +192,24 @@ public class TableIteratorTag extends TagSupport {
 		}
 	}
 
-	private static final String _START_PAGE =
-		"/html/taglib/ui/table_iterator/start.jsp";
-
 	private static final String _BODY_PAGE =
 		"/html/taglib/ui/table_iterator/body.jsp";
 
 	private static final String _END_PAGE =
 		"/html/taglib/ui/table_iterator/end.jsp";
 
-	private String _startPage;
+	private static final String _START_PAGE =
+		"/html/taglib/ui/table_iterator/start.jsp";
+
 	private String _bodyPage;
 	private String _endPage;
 	private List<?> _list;
 	private int _listPos;
+	private String _rowBreak = "<br />";
 	private int _rowLength;
 	private String _rowPadding = "0";
 	private String _rowValign = "middle";
-	private String _rowBreak = "<br />";
+	private String _startPage;
 	private String _width = StringPool.BLANK;
 
 }

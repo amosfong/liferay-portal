@@ -601,8 +601,7 @@ public class StagingImpl implements Staging {
 
 		while (parentLayoutId > 0) {
 			parentLayout = LayoutLocalServiceUtil.getLayout(
-				layout.getGroupId(), layout.isPrivateLayout(),
-				parentLayoutId);
+				layout.getGroupId(), layout.isPrivateLayout(), parentLayoutId);
 
 			try {
 				LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
@@ -689,6 +688,12 @@ public class StagingImpl implements Staging {
 			PortletDataHandlerKeys.IGNORE_LAST_PUBLISH_DATE,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_SETTINGS,
+			new String[] {Boolean.FALSE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.LOGO,
+			new String[] {Boolean.FALSE.toString()});
+		parameterMap.put(
 			PortletDataHandlerKeys.PERMISSIONS,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
@@ -749,6 +754,20 @@ public class StagingImpl implements Staging {
 
 			parameterMap.put(
 				PortletDataHandlerKeys.DELETE_PORTLET_DATA,
+				new String[] {Boolean.FALSE.toString()});
+		}
+
+		if (!parameterMap.containsKey(
+				PortletDataHandlerKeys.LAYOUT_SET_SETTINGS)) {
+
+			parameterMap.put(
+				PortletDataHandlerKeys.LAYOUT_SET_SETTINGS,
+				new String[] {Boolean.FALSE.toString()});
+		}
+
+		if (!parameterMap.containsKey(PortletDataHandlerKeys.LOGO)) {
+			parameterMap.put(
+				PortletDataHandlerKeys.LOGO,
 				new String[] {Boolean.FALSE.toString()});
 		}
 
@@ -1354,8 +1373,8 @@ public class StagingImpl implements Staging {
 			try {
 				LayoutSetBranchLocalServiceUtil.addLayoutSetBranch(
 					userId, targetGroupId, false,
-					LayoutSetBranchConstants.MASTER_BRANCH_NAME,
-					description, true, LayoutSetBranchConstants.ALL_BRANCHES,
+					LayoutSetBranchConstants.MASTER_BRANCH_NAME, description,
+					true, LayoutSetBranchConstants.ALL_BRANCHES,
 					serviceContext);
 			}
 			catch (LayoutSetBranchNameException lsbne) {
@@ -1373,8 +1392,8 @@ public class StagingImpl implements Staging {
 			try {
 				LayoutSetBranchLocalServiceUtil.addLayoutSetBranch(
 					userId, targetGroupId, true,
-					LayoutSetBranchConstants.MASTER_BRANCH_NAME,
-					description, true, LayoutSetBranchConstants.ALL_BRANCHES,
+					LayoutSetBranchConstants.MASTER_BRANCH_NAME, description,
+					true, LayoutSetBranchConstants.ALL_BRANCHES,
 					serviceContext);
 			}
 			catch (LayoutSetBranchNameException lsbne) {

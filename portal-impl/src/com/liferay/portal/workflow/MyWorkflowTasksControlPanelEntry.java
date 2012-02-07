@@ -16,9 +16,7 @@ package com.liferay.portal.workflow;
 
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.util.PortletKeys;
 
 /**
  * @author Miguel Pastor
@@ -31,35 +29,21 @@ public class MyWorkflowTasksControlPanelEntry
 			PermissionChecker permissionChecker, Portlet portlet)
 		throws Exception {
 
-		long companyId = permissionChecker.getCompanyId();
-		long userId = permissionChecker.getUserId();
-
 		if (WorkflowTaskManagerUtil.getWorkflowTaskCountByUser(
-				companyId, userId, Boolean.FALSE) > 0) {
-
-			return true;
-		}
-
-		if (WorkflowTaskManagerUtil.getWorkflowTaskCountByUser(
-				companyId, userId, Boolean.TRUE) > 0) {
+				permissionChecker.getCompanyId(), permissionChecker.getUserId(),
+				null) > 0) {
 
 			return true;
 		}
 
 		if (WorkflowTaskManagerUtil.getWorkflowTaskCountByUserRoles(
-				companyId, userId, Boolean.FALSE) > 0) {
+				permissionChecker.getCompanyId(), permissionChecker.getUserId(),
+				null) > 0) {
 
 			return true;
 		}
 
-		if (WorkflowTaskManagerUtil.getWorkflowTaskCountByUserRoles(
-				companyId, userId, Boolean.TRUE) > 0) {
-
-			return true;
-		}
-
-		return permissionChecker.hasPermission(
-			0, PortletKeys.MY_WORKFLOW_TASKS, 0, ActionKeys.VIEW);
+		return false;
 	}
 
 }

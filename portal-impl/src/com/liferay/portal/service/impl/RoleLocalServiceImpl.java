@@ -1234,7 +1234,7 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 			setRolePermissions(
 				role, portletId,
 				new String[] {
-					ActionKeys.ACCESS_IN_CONTROL_PANEL, ActionKeys.VIEW
+					ActionKeys.ACCESS_IN_CONTROL_PANEL
 				});
 		}
 	}

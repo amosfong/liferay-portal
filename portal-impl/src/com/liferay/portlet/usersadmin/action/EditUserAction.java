@@ -74,6 +74,7 @@ import com.liferay.portal.service.UserServiceUtil;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.InvokerPortletImpl;
@@ -415,17 +416,15 @@ public class EditUserAction extends PortletAction {
 			actionRequest, "publicLayoutSetPrototypeId");
 		long privateLayoutSetPrototypeId = ParamUtil.getLong(
 			actionRequest, "privateLayoutSetPrototypeId");
-		boolean privateLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
-			actionRequest, "privateLayoutSetPrototypeLinkEnabled",
-			(privateLayoutSetPrototypeId > 0));
 		boolean publicLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
-			actionRequest, "publicLayoutSetPrototypeLinkEnabled",
-			(publicLayoutSetPrototypeId > 0));
+			actionRequest, "publicLayoutSetPrototypeLinkEnabled");
+		boolean privateLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
+			actionRequest, "privateLayoutSetPrototypeLinkEnabled");
 
 		SitesUtil.updateLayoutSetPrototypesLinks(
 			user.getGroup(), publicLayoutSetPrototypeId,
-			privateLayoutSetPrototypeId, privateLayoutSetPrototypeLinkEnabled,
-			publicLayoutSetPrototypeLinkEnabled);
+			privateLayoutSetPrototypeId, publicLayoutSetPrototypeLinkEnabled,
+			privateLayoutSetPrototypeLinkEnabled);
 
 		return user;
 	}
@@ -444,7 +443,7 @@ public class EditUserAction extends PortletAction {
 		long[] deleteUserIds = StringUtil.split(
 			ParamUtil.getString(actionRequest, "deleteUserIds"), 0L);
 
-		for (int i = 0; i < deleteUserIds.length; i++) {
+		for (long deleteUserId : deleteUserIds) {
 			if (cmd.equals(Constants.DEACTIVATE) ||
 				cmd.equals(Constants.RESTORE)) {
 
@@ -454,10 +453,10 @@ public class EditUserAction extends PortletAction {
 					status = WorkflowConstants.STATUS_INACTIVE;
 				}
 
-				UserServiceUtil.updateStatus(deleteUserIds[i], status);
+				UserServiceUtil.updateStatus(deleteUserId, status);
 			}
 			else {
-				UserServiceUtil.deleteUser(deleteUserIds[i]);
+				UserServiceUtil.deleteUser(deleteUserId);
 			}
 		}
 	}
@@ -675,21 +674,24 @@ public class EditUserAction extends PortletAction {
 			}
 		}
 
-		long publicLayoutSetPrototypeId = ParamUtil.getLong(
-			actionRequest, "publicLayoutSetPrototypeId");
-		long privateLayoutSetPrototypeId = ParamUtil.getLong(
-			actionRequest, "privateLayoutSetPrototypeId");
-		boolean privateLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
-			actionRequest, "privateLayoutSetPrototypeLinkEnabled",
-			(privateLayoutSetPrototypeId > 0));
-		boolean publicLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
-			actionRequest, "publicLayoutSetPrototypeLinkEnabled",
-			(publicLayoutSetPrototypeId > 0));
+		String portletId = serviceContext.getPortletId();
 
-		SitesUtil.updateLayoutSetPrototypesLinks(
-			user.getGroup(), publicLayoutSetPrototypeId,
-			privateLayoutSetPrototypeId, privateLayoutSetPrototypeLinkEnabled,
-			publicLayoutSetPrototypeLinkEnabled);
+		if (!portletId.equals(PortletKeys.MY_ACCOUNT)) {
+			long publicLayoutSetPrototypeId = ParamUtil.getLong(
+				actionRequest, "publicLayoutSetPrototypeId");
+			long privateLayoutSetPrototypeId = ParamUtil.getLong(
+				actionRequest, "privateLayoutSetPrototypeId");
+			boolean publicLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
+				actionRequest, "publicLayoutSetPrototypeLinkEnabled");
+			boolean privateLayoutSetPrototypeLinkEnabled = ParamUtil.getBoolean(
+				actionRequest, "privateLayoutSetPrototypeLinkEnabled");
+
+			SitesUtil.updateLayoutSetPrototypesLinks(
+				user.getGroup(), publicLayoutSetPrototypeId,
+				privateLayoutSetPrototypeId,
+				publicLayoutSetPrototypeLinkEnabled,
+				privateLayoutSetPrototypeLinkEnabled);
+		}
 
 		Company company = PortalUtil.getCompany(actionRequest);
 

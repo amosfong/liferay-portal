@@ -86,6 +86,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -866,8 +867,26 @@ public class ServiceBuilder {
 		}
 		else {
 			String refPackage = name.substring(0, pos);
-			String refPackageDir = StringUtil.replace(refPackage, ".", "/");
 			String refEntity = name.substring(pos + 1, name.length());
+
+			if (refPackage.equals(_packagePath)) {
+				pos = _ejbList.indexOf(new Entity(refEntity));
+
+				if (pos == -1) {
+					throw new RuntimeException(
+						"Cannot find " + refEntity + " in " +
+							ListUtil.toString(_ejbList, Entity.NAME_ACCESSOR));
+				}
+
+				entity = _ejbList.get(pos);
+
+				_entityPool.put(name, entity);
+
+				return entity;
+			}
+
+			String refPackageDir = StringUtil.replace(refPackage, ".", "/");
+
 			String refFileName =
 				_implDir + "/" + refPackageDir + "/service.xml";
 
@@ -1490,9 +1509,9 @@ public class ServiceBuilder {
 		JavaParameter[] parameters = method.getParameters();
 
 		for (JavaParameter javaParameter : parameters) {
-			String parameterTypeName =
-				javaParameter.getType().getValue() +
-					_getDimensions(javaParameter.getType());
+			Type type = javaParameter.getType();
+
+			String parameterTypeName = type.getValue() + _getDimensions(type);
 
 			if (parameterTypeName.equals(
 					"com.liferay.portal.kernel.util.UnicodeProperties") ||
@@ -1505,7 +1524,8 @@ public class ServiceBuilder {
 				parameterTypeName.startsWith("java.io") ||
 				//parameterTypeName.startsWith("java.util.List") ||
 				//parameterTypeName.startsWith("java.util.Locale") ||
-				parameterTypeName.startsWith("java.util.Map") ||
+				(parameterTypeName.startsWith("java.util.Map") &&
+					!_isStringLocaleMap(javaParameter)) ||
 				parameterTypeName.startsWith("java.util.Properties") ||
 				parameterTypeName.startsWith("javax")) {
 
@@ -3526,9 +3546,7 @@ public class ServiceBuilder {
 				_createSQLTables(sqlFile, createTableSQL, entity, true);
 
 				_updateSQLFile(
-					"update-6.0.6-6.1.0.sql", createTableSQL, entity);
-				_updateSQLFile(
-					"update-6.0.12-6.1.0.sql", createTableSQL, entity);
+					"update-6.1.0-6.1.1.sql", createTableSQL, entity);
 			}
 		}
 
@@ -4369,6 +4387,28 @@ public class ServiceBuilder {
 		}
 
 		return false;
+	}
+
+	private boolean _isStringLocaleMap(JavaParameter javaParameter) {
+		Type type = javaParameter.getType();
+
+		Type[] actualArgumentTypes = type.getActualTypeArguments();
+
+		if (actualArgumentTypes.length != 2) {
+			return false;
+		}
+
+		if (!_isTypeValue(actualArgumentTypes[0], Locale.class.getName()) ||
+			!_isTypeValue(actualArgumentTypes[1], String.class.getName())) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean _isTypeValue(Type type, String value) {
+		return value.equals(type.getValue());
 	}
 
 	private List<Entity> _mergeReferenceList(List<Entity> referenceList) {

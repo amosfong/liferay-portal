@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upload;
 
+import com.liferay.portal.kernel.upload.FileItem;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.upload.UploadServletRequest;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -164,6 +165,33 @@ public class UploadPortletRequestImpl
 		return fullFileName;
 	}
 
+	public Map<String, FileItem[]> getMultipartParameterMap() {
+		Map<String, FileItem[]> map = new HashMap<String, FileItem[]>();
+
+		if (!(_uploadServletRequest instanceof UploadServletRequestImpl)) {
+			return map;
+		}
+
+		UploadServletRequestImpl uploadServletRequestImpl =
+			(UploadServletRequestImpl)_uploadServletRequest;
+
+		Map<String, FileItem[]> multipartParameterMap =
+			uploadServletRequestImpl.getMultipartParameterMap();
+
+		for (String name : multipartParameterMap.keySet()) {
+			if (name.startsWith(_namespace)) {
+				map.put(
+					name.substring(_namespace.length(), name.length()),
+					multipartParameterMap.get(name));
+			}
+			else {
+				map.put(name, multipartParameterMap.get(name));
+			}
+		}
+
+		return map;
+	}
+
 	@Override
 	public String getParameter(String name) {
 		String parameter = _uploadServletRequest.getParameter(
@@ -224,7 +252,7 @@ public class UploadPortletRequestImpl
 		return parameterValues;
 	}
 
-	public long getSize(String name) {
+	public Long getSize(String name) {
 		Long size = _uploadServletRequest.getSize(_namespace.concat(name));
 
 		if (size == null) {
@@ -232,13 +260,13 @@ public class UploadPortletRequestImpl
 		}
 
 		if (size == null) {
-			return 0;
+			return Long.valueOf(0);
 		}
 
 		return size;
 	}
 
-	public boolean isFormField(String name) {
+	public Boolean isFormField(String name) {
 		Boolean formField = _uploadServletRequest.isFormField(
 			_namespace.concat(name));
 

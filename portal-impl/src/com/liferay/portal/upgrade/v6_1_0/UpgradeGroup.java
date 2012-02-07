@@ -24,6 +24,7 @@ import com.liferay.portal.upgrade.v6_1_0.util.GroupTable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Hugo Huijser
@@ -33,18 +34,43 @@ public class UpgradeGroup extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (isSupportsAlterColumnType()) {
+		try {
 			runSQL("alter_column_type Group_ name VARCHAR(150) null");
 		}
-		else {
+		catch (SQLException sqle) {
 			upgradeTable(
 				GroupTable.TABLE_NAME, GroupTable.TABLE_COLUMNS,
-				GroupTable.TABLE_SQL_CREATE,
-				GroupTable.TABLE_SQL_ADD_INDEXES);
+				GroupTable.TABLE_SQL_CREATE, GroupTable.TABLE_SQL_ADD_INDEXES);
 		}
 
 		updateName();
 		updateSite();
+	}
+
+	protected long getClassNameId(String className) throws Exception {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getConnection();
+
+			ps = con.prepareStatement(
+				"select classNameId from ClassName_ where value = ?");
+
+			ps.setString(1, className);
+
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				return rs.getLong("classNameId");
+			}
+
+			return 0;
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
 	}
 
 	protected void updateName() throws Exception {
@@ -123,32 +149,6 @@ public class UpgradeGroup extends UpgradeProcess {
 				runSQL(
 					"update Group_ set site = TRUE where groupId = " + groupId);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
-	}
-
-	protected long getClassNameId(String className) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getConnection();
-
-			ps = con.prepareStatement(
-				"select classNameId from ClassName_ where value = ?");
-
-			ps.setString(1, className);
-
-			rs = ps.executeQuery();
-
-			if (rs.next()) {
-				return rs.getLong("classNameId");
-			}
-
-			return 0;
 		}
 		finally {
 			DataAccess.cleanUp(con, ps, rs);

@@ -478,7 +478,7 @@ if (Validator.isNotNull(content)) {
 		</table>
 
 		<div class="journal-article-general-fields">
-			<aui:input languageId="<%= Validator.isNotNull(toLanguageId) ? toLanguageId : defaultLanguageId %>" name="title">
+			<aui:input defaultLanguageId="<%= Validator.isNotNull(toLanguageId) ? toLanguageId : defaultLanguageId %>" languageId="<%= Validator.isNotNull(toLanguageId) ? toLanguageId : defaultLanguageId %>" name="title">
 				<c:if test="<%= classNameId == 0 %>">
 					<aui:validator name="required" />
 				</c:if>
@@ -536,7 +536,7 @@ if (Validator.isNotNull(content)) {
 							for (int i = 0; i < availableLocales.length ; i++) {
 					%>
 
-								<input id= "<portlet:namespace />availableLocales<%= HtmlUtil.escapeAttribute(availableLocales[i]) %>" name="<portlet:namespace />available_locales" type="hidden" value="<%= HtmlUtil.escapeAttribute(availableLocales[i]) %>" />
+								<input id="<portlet:namespace />availableLocales<%= HtmlUtil.escapeAttribute(availableLocales[i]) %>" name="<portlet:namespace />available_locales" type="hidden" value="<%= HtmlUtil.escapeAttribute(availableLocales[i]) %>" />
 
 					<%
 							}
@@ -569,7 +569,7 @@ if (Validator.isNotNull(content)) {
 			</c:choose>
 
 			<c:if test="<%= Validator.isNull(toLanguageId) %>">
-				<aui:input inlineLabel="left" label="searchable" name="indexable" />
+				<aui:input label="searchable" name="indexable" />
 			</c:if>
 		</div>
 	</td>
@@ -617,9 +617,13 @@ if (Validator.isNotNull(content)) {
 			if (cmd == '<%= Constants.DELETE_TRANSLATION %>') {
 				var availableLocales = A.one('#<portlet:namespace />availableLocales' + newLanguageId);
 
-				availableLocales.remove();
+				if (availableLocales) {
+					availableLocales.remove();
+				}
 
-				translationLink.remove();
+				if (translationLink) {
+					translationLink.remove();
+				}
 			}
 			else if (!translationLink) {
 				statusNode.removeClass('workflow-status-approved');

@@ -15,6 +15,8 @@
 package com.liferay.portalweb.portlet.documentlibrarydisplay.document;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
+import com.liferay.portalweb.portlet.documentlibrarydisplay.document.adddldocumentdld.AddDLDocumentDLDTests;
+import com.liferay.portalweb.portlet.documentlibrarydisplay.document.deletedldocumentmultipledldactions.DeleteDLDocumentMultipleDLDActionsTests;
 import com.liferay.portalweb.portlet.documentlibrarydisplay.document.searchfolderdocument.SearchFolderDocumentTests;
 import com.liferay.portalweb.portlet.documentlibrarydisplay.document.viewfolderdocument.ViewFolderDocumentTests;
 
@@ -29,6 +31,8 @@ public class DocumentTestPlan extends BaseTestSuite {
 	public static Test suite() {
 		TestSuite testSuite = new TestSuite();
 
+		testSuite.addTest(AddDLDocumentDLDTests.suite());
+		testSuite.addTest(DeleteDLDocumentMultipleDLDActionsTests.suite());
 		testSuite.addTest(SearchFolderDocumentTests.suite());
 		testSuite.addTest(ViewFolderDocumentTests.suite());
 

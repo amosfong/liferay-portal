@@ -25,7 +25,7 @@ public class StringPool {
 
 	public static final String APOSTROPHE = "'";
 
-	public static String[] ASCII_TABLE = new String[128];
+	public static final String[] ASCII_TABLE = new String[128];
 
 	public static final String AT = "@";
 
@@ -81,9 +81,9 @@ public class StringPool {
 
 	public static final String DOUBLE_UNDERLINE = "__";
 
-	public static final String EXCLAMATION = "!";
-
 	public static final String EQUAL = "=";
+
+	public static final String EXCLAMATION = "!";
 
 	public static final String FALSE = "false";
 

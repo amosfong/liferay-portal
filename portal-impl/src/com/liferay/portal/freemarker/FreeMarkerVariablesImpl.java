@@ -16,6 +16,7 @@ package com.liferay.portal.freemarker;
 
 import com.liferay.portal.kernel.freemarker.FreeMarkerContext;
 import com.liferay.portal.kernel.freemarker.FreeMarkerVariables;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.language.UnicodeLanguageUtil;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
@@ -169,6 +170,11 @@ public class FreeMarkerVariablesImpl implements FreeMarkerVariables {
 		freeMarkerContext.put(
 			"journalContentUtil", JournalContentUtil.getJournalContent());
 
+		// JSON factory util
+
+		freeMarkerContext.put(
+			"jsonFactoryUtil", JSONFactoryUtil.getJSONFactory());
+
 		// Language util
 
 		freeMarkerContext.put("languageUtil", LanguageUtil.getLanguage());
@@ -229,8 +235,7 @@ public class FreeMarkerVariablesImpl implements FreeMarkerVariables {
 		UtilLocator utilLocator = UtilLocator.getInstance();
 
 		freeMarkerContext.put(
-			"saxReaderUtil",
-			utilLocator.findUtil(SAXReader.class.getName()));
+			"saxReaderUtil", utilLocator.findUtil(SAXReader.class.getName()));
 
 		// Service locator
 
@@ -252,8 +257,7 @@ public class FreeMarkerVariablesImpl implements FreeMarkerVariables {
 		// Static class util
 
 		freeMarkerContext.put(
-			"staticUtil",
-			BeansWrapper.getDefaultInstance().getStaticModels());
+			"staticUtil", BeansWrapper.getDefaultInstance().getStaticModels());
 
 		// String util
 

@@ -165,13 +165,12 @@ public class SitesUtil {
 
 		targetLayout = LayoutLocalServiceUtil.updateLayout(
 			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
-			targetLayout.getLayoutId(),
-			targetLayout.getParentLayoutId(), targetLayout.getNameMap(),
-			targetLayout.getTitleMap(), targetLayout.getDescriptionMap(),
-			targetLayout.getKeywordsMap(), targetLayout.getRobotsMap(),
-			layoutPrototypeLayout.getType(), targetLayout.getHidden(),
-			targetLayout.getFriendlyURL(), targetLayout.getIconImage(), null,
-			serviceContext);
+			targetLayout.getLayoutId(), targetLayout.getParentLayoutId(),
+			targetLayout.getNameMap(), targetLayout.getTitleMap(),
+			targetLayout.getDescriptionMap(), targetLayout.getKeywordsMap(),
+			targetLayout.getRobotsMap(), layoutPrototypeLayout.getType(),
+			targetLayout.getHidden(), targetLayout.getFriendlyURL(),
+			targetLayout.getIconImage(), null, serviceContext);
 
 		targetLayout = LayoutLocalServiceUtil.updateLayout(
 			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
@@ -208,8 +207,8 @@ public class SitesUtil {
 			ServiceContext serviceContext)
 		throws Exception {
 
-		Map<String, String[]> parameterMap =
-			getLayoutSetPrototypeParameters(serviceContext);
+		Map<String, String[]> parameterMap = getLayoutSetPrototypeParameters(
+			serviceContext);
 
 		parameterMap.put(
 			PortletDataHandlerKeys.DELETE_MISSING_LAYOUTS,
@@ -493,8 +492,8 @@ public class SitesUtil {
 			serviceContext);
 
 		return LayoutLocalServiceUtil.exportLayoutsAsFile(
-			layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
-			null, parameterMap, null, null);
+			layoutSet.getGroupId(), layoutSet.isPrivateLayout(), null,
+			parameterMap, null, null);
 	}
 
 	public static Map<String, String[]> getLayoutSetPrototypeParameters(
@@ -519,11 +518,17 @@ public class SitesUtil {
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_SETTINGS,
+			new String[] {Boolean.FALSE.toString()});
+		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE,
 			new String[] {
 				PortletDataHandlerKeys.
 					LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE
 			});
+		parameterMap.put(
+			PortletDataHandlerKeys.LOGO,
+			new String[] {Boolean.FALSE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.PERFORM_DIRECT_BINARY_IMPORT,
 			new String[] {Boolean.TRUE.toString()});
@@ -572,8 +577,40 @@ public class SitesUtil {
 			parameterMap, layoutSet, serviceContext);
 
 		LayoutServiceUtil.importLayouts(
-			layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
-			parameterMap, inputStream);
+			layoutSet.getGroupId(), layoutSet.isPrivateLayout(), parameterMap,
+			inputStream);
+	}
+
+	public static boolean isLayoutDeleteable(Layout layout) {
+		try {
+			if (layout instanceof VirtualLayout) {
+				return false;
+			}
+
+			if (Validator.isNull(layout.getSourcePrototypeLayoutUuid())) {
+				return true;
+			}
+
+			LayoutSet layoutSet = layout.getLayoutSet();
+
+			if (!layoutSet.isLayoutSetPrototypeLinkActive()) {
+				return true;
+			}
+
+			if (LayoutLocalServiceUtil.hasLayoutSetPrototypeLayout(
+					layoutSet.getLayoutSetPrototypeUuid(),
+					layout.getSourcePrototypeLayoutUuid())) {
+
+				return false;
+			}
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
+
+		return true;
 	}
 
 	public static boolean isLayoutModifiedSinceLastMerge(Layout layout)
@@ -1106,8 +1143,8 @@ public class SitesUtil {
 			Group layoutSetPrototypeGroup = layoutSetPrototype.getGroup();
 
 			file = LayoutLocalServiceUtil.exportLayoutsAsFile(
-				layoutSetPrototypeGroup.getGroupId(), true, null,
-				parameterMap, null, null);
+				layoutSetPrototypeGroup.getGroupId(), true, null, parameterMap,
+				null, null);
 
 			newFile = true;
 		}
@@ -1198,7 +1235,7 @@ public class SitesUtil {
 			if (layoutSetPrototype != null) {
 				layoutSetPrototypeUuid = layoutSetPrototype.getUuid();
 
-				// Merge without creating a link
+				// Merge without enabling the link
 
 				if (!layoutSetPrototypeLinkEnabled &&
 					(layoutSetPrototypeId > 0)) {

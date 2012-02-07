@@ -46,7 +46,7 @@ import java.util.Set;
 
 import jodd.io.findfile.ClassFinder;
 import jodd.io.findfile.FindFile;
-import jodd.io.findfile.WildcardFindFile;
+import jodd.io.findfile.RegExpFindFile;
 
 import jodd.util.ClassLoaderUtil;
 
@@ -61,8 +61,8 @@ public class JSONWebServiceConfigurator extends ClassFinder {
 
 	public JSONWebServiceConfigurator(String servletContextPath) {
 		setIncludedJars(
-			"*portal-impl.jar", "*portal-service.jar", "*_wl_cls_gen.jar",
-			"*-portlet-service*.jar");
+			"*_wl_cls_gen.jar", "*-hook-service*.jar", "*-portlet-service*.jar",
+			"*-web-service*.jar", "*portal-impl.jar", "*portal-service.jar");
 
 		_servletContextPath = servletContextPath;
 	}
@@ -129,7 +129,8 @@ public class JSONWebServiceConfigurator extends ClassFinder {
 
 			classPathFiles[0] = classPathFile;
 
-			FindFile findFile = new WildcardFindFile("*-portlet-service*.jar");
+			FindFile findFile = new RegExpFindFile(
+				".*-(hook|portlet|web)-service.*\\.jar");
 
 			findFile.searchPath(libDir);
 
@@ -406,8 +407,8 @@ public class JSONWebServiceConfigurator extends ClassFinder {
 	private ClassLoader _classLoader;
 	private Set<String> _invalidHttpMethods = SetUtil.fromArray(
 		PropsValues.JSONWS_WEB_SERVICE_INVALID_HTTP_METHODS);
-	private byte[] _jsonWebServiceAnnotationBytes =
-		getTypeSignatureBytes(JSONWebService.class);
+	private byte[] _jsonWebServiceAnnotationBytes = getTypeSignatureBytes(
+		JSONWebService.class);
 	private JSONWebServiceMappingResolver _jsonWebServiceMappingResolver =
 		new JSONWebServiceMappingResolver();
 	private int _registeredActionsCount;

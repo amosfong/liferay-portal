@@ -185,6 +185,8 @@ public abstract class BaseBSFPortlet extends GenericPortlet {
 		bsfManager.exec(getScriptingEngineLanguage(), "(java)", 1, 1, script);
 	}
 
+	protected abstract String getFileParam();
+
 	protected String getGlobalScript() throws IOException {
 		if (globalFiles.length == 0) {
 			return StringPool.BLANK;
@@ -211,8 +213,6 @@ public abstract class BaseBSFPortlet extends GenericPortlet {
 
 		return sb.toString();
 	}
-
-	protected abstract String getFileParam();
 
 	protected abstract String getScriptingEngineClassName();
 
@@ -255,13 +255,13 @@ public abstract class BaseBSFPortlet extends GenericPortlet {
 		_log.error(message, t);
 	}
 
-	protected String editFile;
-	protected String helpFile;
-	protected String viewFile;
 	protected String actionFile;
-	protected String resourceFile;
-	protected String[] globalFiles;
 	protected BSFManager bsfManager;
+	protected String editFile;
+	protected String[] globalFiles;
+	protected String helpFile;
+	protected String resourceFile;
+	protected String viewFile;
 
 	private static Log _log = LogFactoryUtil.getLog(BaseBSFPortlet.class);
 

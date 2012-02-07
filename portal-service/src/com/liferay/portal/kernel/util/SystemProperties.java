@@ -30,11 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SystemProperties {
 
-	public static final String SYSTEM_PROPERTIES_LOAD =
-		"system.properties.load";
-
 	public static final String SYSTEM_PROPERTIES_FINAL =
 		"system.properties.final";
+
+	public static final String SYSTEM_PROPERTIES_LOAD =
+		"system.properties.load";
 
 	public static final String TMP_DIR = "java.io.tmpdir";
 
@@ -46,12 +46,6 @@ public class SystemProperties {
 		}
 
 		return value;
-	}
-
-	public static void set(String key, String value) {
-		System.setProperty(key, value);
-
-		_instance._properties.put(key, value);
 	}
 
 	public static String[] getArray(String key) {
@@ -67,6 +61,12 @@ public class SystemProperties {
 
 	public static Properties getProperties() {
 		return PropertiesUtil.fromMap(_instance._properties);
+	}
+
+	public static void set(String key, String value) {
+		System.setProperty(key, value);
+
+		_instance._properties.put(key, value);
 	}
 
 	private SystemProperties() {

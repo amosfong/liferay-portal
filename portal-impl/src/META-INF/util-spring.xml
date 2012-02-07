@@ -138,6 +138,11 @@
 			<bean class="com.liferay.portal.facebook.FacebookConnectImpl" />
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.kernel.format.PhoneNumberFormatUtil" class="com.liferay.portal.kernel.format.PhoneNumberFormatUtil">
+		<property name="phoneNumberFormat">
+			<bean class="com.liferay.portal.format.PhoneNumberFormatImpl" />
+		</property>
+	</bean>
 	<bean id="com.liferay.portal.kernel.freemarker.FreeMarkerEngine" class="com.liferay.portal.freemarker.FreeMarkerEngineImpl" />
 	<bean id="com.liferay.portal.kernel.freemarker.FreeMarkerEngineUtil" class="com.liferay.portal.kernel.freemarker.FreeMarkerEngineUtil">
 		<property name="freeMarkerEngine" ref="com.liferay.portal.kernel.freemarker.FreeMarkerEngine" />
@@ -335,6 +340,11 @@
 	<bean id="com.liferay.portal.kernel.util.MultiValueMapFactoryUtil" class="com.liferay.portal.kernel.util.MultiValueMapFactoryUtil">
 		<property name="multiValueMapFactory">
 			<bean class="com.liferay.portal.util.MultiValueMapFactoryImpl" />
+		</property>
+	</bean>
+	<bean id="com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil" class="com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil">
+		<property name="orderByComparatorFactory">
+			<bean class="com.liferay.portal.util.OrderByComparatorFactoryImpl" />
 		</property>
 	</bean>
 	<bean id="com.liferay.portal.kernel.uuid.PortalUUID" class="com.liferay.portal.uuid.PortalUUIDImpl" />
@@ -655,6 +665,11 @@
 	<bean id="com.liferay.portlet.dynamicdatamapping.util.DDMIndexerUtil" class="com.liferay.portlet.dynamicdatamapping.util.DDMIndexerUtil">
 		<property name="DDMIndexer">
 			<bean class="com.liferay.portlet.dynamicdatamapping.util.DDMIndexerImpl" />
+		</property>
+	</bean>
+	<bean id="com.liferay.portlet.dynamicdatamapping.util.DDMUtil" class="com.liferay.portlet.dynamicdatamapping.util.DDMUtil">
+		<property name="DDM">
+			<bean class="com.liferay.portlet.dynamicdatamapping.util.DDMImpl" />
 		</property>
 	</bean>
 	<bean id="com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil" class="com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil">

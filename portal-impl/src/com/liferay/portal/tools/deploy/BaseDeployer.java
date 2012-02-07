@@ -706,6 +706,53 @@ public class BaseDeployer implements Deployer {
 			srcFile, null, null, displayName, override, pluginPackage);
 	}
 
+	public boolean deployFile(
+			File srcFile, File mergeDir, File deployDir, String displayName,
+			boolean overwrite, PluginPackage pluginPackage)
+		throws Exception {
+
+		boolean undeployOnRedeploy = false;
+
+		try {
+			undeployOnRedeploy = PrefsPropsUtil.getBoolean(
+				PropsKeys.HOT_UNDEPLOY_ON_REDEPLOY,
+				PropsValues.HOT_UNDEPLOY_ON_REDEPLOY);
+		}
+		catch (Exception e) {
+
+			// This will only happen when running the deploy tool in Ant in the
+			// classical way where the WAR file is actually massaged and
+			// packaged.
+
+		}
+
+		if (undeployOnRedeploy) {
+			DeployUtil.undeploy(appServerType, deployDir);
+		}
+
+		if (!overwrite && UpToDateTask.isUpToDate(srcFile, deployDir)) {
+			if (_log.isInfoEnabled()) {
+				_log.info(deployDir + " is already up to date");
+			}
+
+			return false;
+		}
+
+		File tempDir = new File(
+			SystemProperties.get(SystemProperties.TMP_DIR) + File.separator +
+				Time.getTimestamp());
+
+		ExpandTask.expand(srcFile, tempDir);
+
+		deployDirectory(
+			tempDir, mergeDir, deployDir, displayName, overwrite,
+			pluginPackage);
+
+		DeleteTask.deleteDirectory(tempDir);
+
+		return true;
+	}
+
 	public void deployFile(File srcFile, String specifiedContext)
 		throws Exception {
 
@@ -848,59 +895,11 @@ public class BaseDeployer implements Deployer {
 		}
 	}
 
-	public boolean deployFile(
-			File srcFile, File mergeDir, File deployDir, String displayName,
-			boolean overwrite, PluginPackage pluginPackage)
-		throws Exception {
-
-		boolean undeployOnRedeploy = false;
-
-		try {
-			undeployOnRedeploy = PrefsPropsUtil.getBoolean(
-				PropsKeys.HOT_UNDEPLOY_ON_REDEPLOY,
-				PropsValues.HOT_UNDEPLOY_ON_REDEPLOY);
-		}
-		catch (Exception e) {
-
-			// This will only happen when running the deploy tool in Ant in the
-			// classical way where the WAR file is actually massaged and
-			// packaged.
-
-		}
-
-		if (undeployOnRedeploy) {
-			DeployUtil.undeploy(appServerType, deployDir);
-		}
-
-		if (!overwrite && UpToDateTask.isUpToDate(srcFile, deployDir)) {
-			if (_log.isInfoEnabled()) {
-				_log.info(deployDir + " is already up to date");
-			}
-
-			return false;
-		}
-
-		File tempDir = new File(
-			SystemProperties.get(SystemProperties.TMP_DIR) + File.separator +
-				Time.getTimestamp());
-
-		ExpandTask.expand(srcFile, tempDir);
-
-		deployDirectory(
-			tempDir, mergeDir, deployDir, displayName, overwrite,
-			pluginPackage);
-
-		DeleteTask.deleteDirectory(tempDir);
-
-		return true;
-	}
-
 	public String downloadJar(String jar) throws Exception {
 		String tmpDir = SystemProperties.get(SystemProperties.TMP_DIR);
 
 		File file = new File(
-			tmpDir + "/liferay/com/liferay/portal/deploy/dependencies/" +
-				jar);
+			tmpDir + "/liferay/com/liferay/portal/deploy/dependencies/" + jar);
 
 		if (!file.exists()) {
 			synchronized (this) {

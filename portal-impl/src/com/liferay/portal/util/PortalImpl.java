@@ -1667,6 +1667,49 @@ public class PortalImpl implements Portal {
 		return attributes;
 	}
 
+	public Map<String, Serializable> getExpandoBridgeAttributes(
+			ExpandoBridge expandoBridge,
+			UploadPortletRequest uploadPortletRequest)
+		throws PortalException, SystemException {
+
+		Map<String, Serializable> attributes =
+			new HashMap<String, Serializable>();
+
+		List<String> names = new ArrayList<String>();
+
+		Enumeration<String> enu = uploadPortletRequest.getParameterNames();
+
+		while (enu.hasMoreElements()) {
+			String param = enu.nextElement();
+
+			if (param.indexOf("ExpandoAttributeName--") != -1) {
+				String name = ParamUtil.getString(uploadPortletRequest, param);
+
+				names.add(name);
+			}
+		}
+
+		for (String name : names) {
+			int type = expandoBridge.getAttributeType(name);
+
+			UnicodeProperties properties = expandoBridge.getAttributeProperties(
+				name);
+
+			String displayType = GetterUtil.getString(
+				properties.getProperty(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE),
+				ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX);
+
+			Serializable value = getExpandoValue(
+				uploadPortletRequest, "ExpandoAttribute--" + name + "--", type,
+				displayType);
+
+			attributes.put(name, value);
+		}
+
+		return attributes;
+	}
+
 	public Serializable getExpandoValue(
 			PortletRequest portletRequest, String name, int type,
 			String displayType)
@@ -1786,6 +1829,130 @@ public class PortalImpl implements Portal {
 		}
 		else {
 			value = ParamUtil.getString(portletRequest, name);
+		}
+
+		return value;
+	}
+
+	public Serializable getExpandoValue(
+			UploadPortletRequest uploadPortletRequest, String name, int type,
+			String displayType)
+		throws PortalException, SystemException {
+
+		Serializable value = null;
+
+		if (type == ExpandoColumnConstants.BOOLEAN) {
+			value = ParamUtil.getBoolean(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.BOOLEAN_ARRAY) {
+		}
+		else if (type == ExpandoColumnConstants.DATE) {
+			int valueDateMonth = ParamUtil.getInteger(
+				uploadPortletRequest, name + "Month");
+			int valueDateDay = ParamUtil.getInteger(
+				uploadPortletRequest, name + "Day");
+			int valueDateYear = ParamUtil.getInteger(
+				uploadPortletRequest, name + "Year");
+			int valueDateHour = ParamUtil.getInteger(
+				uploadPortletRequest, name + "Hour");
+			int valueDateMinute = ParamUtil.getInteger(
+				uploadPortletRequest, name + "Minute");
+			int valueDateAmPm = ParamUtil.getInteger(
+				uploadPortletRequest, name + "AmPm");
+
+			if (valueDateAmPm == Calendar.PM) {
+				valueDateHour += 12;
+			}
+
+			TimeZone timeZone = null;
+
+			User user = getUser(uploadPortletRequest);
+
+			if (user != null) {
+				timeZone = user.getTimeZone();
+			}
+
+			value = getDate(
+				valueDateMonth, valueDateDay, valueDateYear, valueDateHour,
+				valueDateMinute, timeZone, new ValueDataException());
+		}
+		else if (type == ExpandoColumnConstants.DATE_ARRAY) {
+		}
+		else if (type == ExpandoColumnConstants.DOUBLE) {
+			value = ParamUtil.getDouble(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.DOUBLE_ARRAY) {
+			String[] values = uploadPortletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getDoubleValues(values);
+		}
+		else if (type == ExpandoColumnConstants.FLOAT) {
+			value = ParamUtil.getFloat(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.FLOAT_ARRAY) {
+			String[] values = uploadPortletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getFloatValues(values);
+		}
+		else if (type == ExpandoColumnConstants.INTEGER) {
+			value = ParamUtil.getInteger(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.INTEGER_ARRAY) {
+			String[] values = uploadPortletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getIntegerValues(values);
+		}
+		else if (type == ExpandoColumnConstants.LONG) {
+			value = ParamUtil.getLong(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.LONG_ARRAY) {
+			String[] values = uploadPortletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getLongValues(values);
+		}
+		else if (type == ExpandoColumnConstants.SHORT) {
+			value = ParamUtil.getShort(uploadPortletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.SHORT_ARRAY) {
+			String[] values = uploadPortletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getShortValues(values);
+		}
+		else if (type == ExpandoColumnConstants.STRING_ARRAY) {
+			value = uploadPortletRequest.getParameterValues(name);
+		}
+		else {
+			value = ParamUtil.getString(uploadPortletRequest, name);
 		}
 
 		return value;
@@ -2003,14 +2170,12 @@ public class PortalImpl implements Portal {
 		addPageSubtitle(journalArticle.getTitle(locale), request);
 		addPageDescription(journalArticle.getDescription(locale), request);
 
-		List<AssetTag> assetTags =
-			AssetTagLocalServiceUtil.getTags(
-				JournalArticle.class.getName(), journalArticle.getPrimaryKey());
+		List<AssetTag> assetTags = AssetTagLocalServiceUtil.getTags(
+			JournalArticle.class.getName(), journalArticle.getPrimaryKey());
 
 		if (!assetTags.isEmpty()) {
 			addPageKeywords(
-				ListUtil.toString(assetTags, AssetTag.NAME_ACCESSOR),
-				request);
+				ListUtil.toString(assetTags, AssetTag.NAME_ACCESSOR), request);
 		}
 
 		return layoutActualURL;
@@ -2107,9 +2272,8 @@ public class PortalImpl implements Portal {
 			if (Validator.isNotNull(queryString) &&
 				layoutActualURL.contains(StringPool.QUESTION)) {
 
-				layoutActualURL =
-					layoutActualURL.concat(StringPool.AMPERSAND).concat(
-						queryString);
+				layoutActualURL = layoutActualURL.concat(
+					StringPool.AMPERSAND).concat(queryString);
 			}
 		}
 
@@ -3005,8 +3169,7 @@ public class PortalImpl implements Portal {
 
 				if (friendlyURLMapper.isCheckMappingWithPrefix()) {
 					friendlyURLMapper.populateParams(
-						url.substring(pos + 2), actualParams,
-						requestContext);
+						url.substring(pos + 2), actualParams, requestContext);
 				}
 				else {
 					friendlyURLMapper.populateParams(
@@ -3605,7 +3768,7 @@ public class PortalImpl implements Portal {
 			String minifierType = StringPool.BLANK;
 
 			if (uri.endsWith(".css") || uri.endsWith("css.jsp") ||
-				uri.matches(".*/css/.*\\.jsp")) {
+				(uri.endsWith(".jsp") && uri.contains("/css/"))) {
 
 				if (themeDisplay.isThemeCssFastLoad()) {
 					minifierType = "css";
@@ -4140,8 +4303,7 @@ public class PortalImpl implements Portal {
 			"[$CLASS_NAME_ID_COM.LIFERAY.PORTLET.MESSAGEBOARDS.MODEL." +
 				"MBTHREAD$]",
 			"[$CLASS_NAME_ID_COM.LIFERAY.PORTLET.WIKI.MODEL.WIKIPAGE$]",
-			"[$RESOURCE_SCOPE_COMPANY$]",
-			"[$RESOURCE_SCOPE_GROUP$]",
+			"[$RESOURCE_SCOPE_COMPANY$]", "[$RESOURCE_SCOPE_GROUP$]",
 			"[$RESOURCE_SCOPE_GROUP_TEMPLATE$]",
 			"[$RESOURCE_SCOPE_INDIVIDUAL$]",
 			"[$SOCIAL_RELATION_TYPE_BI_COWORKER$]",
@@ -4154,28 +4316,20 @@ public class PortalImpl implements Portal {
 			"[$SOCIAL_RELATION_TYPE_UNI_FOLLOWER$]",
 			"[$SOCIAL_RELATION_TYPE_UNI_PARENT$]",
 			"[$SOCIAL_RELATION_TYPE_UNI_SUBORDINATE$]",
-			"[$SOCIAL_RELATION_TYPE_UNI_SUPERVISOR$]",
-			"[$FALSE$]",
-			"[$TRUE$]"
+			"[$SOCIAL_RELATION_TYPE_UNI_SUPERVISOR$]", "[$FALSE$]", "[$TRUE$]"
 		};
 
 		DB db = DBFactoryUtil.getDB();
 
 		Object[] customSqlValues = new Object[] {
-			getClassNameId(Group.class),
-			getClassNameId(Layout.class),
-			getClassNameId(Organization.class),
-			getClassNameId(Role.class),
-			getClassNameId(User.class),
-			getClassNameId(UserGroup.class),
+			getClassNameId(Group.class), getClassNameId(Layout.class),
+			getClassNameId(Organization.class), getClassNameId(Role.class),
+			getClassNameId(User.class), getClassNameId(UserGroup.class),
 			getClassNameId(BlogsEntry.class),
 			getClassNameId(BookmarksEntry.class),
-			getClassNameId(CalEvent.class),
-			getClassNameId(DLFileEntry.class),
-			getClassNameId(MBMessage.class),
-			getClassNameId(MBThread.class),
-			getClassNameId(WikiPage.class),
-			ResourceConstants.SCOPE_COMPANY,
+			getClassNameId(CalEvent.class), getClassNameId(DLFileEntry.class),
+			getClassNameId(MBMessage.class), getClassNameId(MBThread.class),
+			getClassNameId(WikiPage.class), ResourceConstants.SCOPE_COMPANY,
 			ResourceConstants.SCOPE_GROUP,
 			ResourceConstants.SCOPE_GROUP_TEMPLATE,
 			ResourceConstants.SCOPE_INDIVIDUAL,
@@ -4189,8 +4343,7 @@ public class PortalImpl implements Portal {
 			SocialRelationConstants.TYPE_UNI_FOLLOWER,
 			SocialRelationConstants.TYPE_UNI_PARENT,
 			SocialRelationConstants.TYPE_UNI_SUBORDINATE,
-			SocialRelationConstants.TYPE_UNI_SUPERVISOR,
-			db.getTemplateFalse(),
+			SocialRelationConstants.TYPE_UNI_SUPERVISOR, db.getTemplateFalse(),
 			db.getTemplateTrue()
 		};
 
@@ -4221,7 +4374,9 @@ public class PortalImpl implements Portal {
 			}
 		}
 
-		if (layout.isTypePanel()) {
+		if (layout.isTypePanel() &&
+			isPanelSelectedPortlet(themeDisplay, portletId)) {
+
 			return true;
 		}
 
@@ -4355,6 +4510,26 @@ public class PortalImpl implements Portal {
 		}
 
 		return false;
+	}
+
+	public boolean isCDNDynamicResourcesEnabled(HttpServletRequest request)
+		throws PortalException, SystemException {
+
+		Company company = getCompany(request);
+
+		return isCDNDynamicResourcesEnabled(company.getCompanyId());
+	}
+
+	public boolean isCDNDynamicResourcesEnabled(long companyId) {
+		try {
+			return PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.CDN_DYNAMIC_RESOURCES_ENABLED,
+				PropsValues.CDN_DYNAMIC_RESOURCES_ENABLED);
+		}
+		catch (SystemException e) {
+		}
+
+		return PropsValues.CDN_DYNAMIC_RESOURCES_ENABLED;
 	}
 
 	/**
@@ -4787,10 +4962,9 @@ public class PortalImpl implements Portal {
 				Layout layout = themeDisplay.getLayout();
 
 				if (!layout.isTypeControlPanel() &&
-					!PortletPermissionUtil.contains(
-						themeDisplay.getPermissionChecker(),
-						themeDisplay.getPlid(), portlet.getPortletId(),
-						ActionKeys.ADD_TO_PAGE) &&
+					!LayoutPermissionUtil.contains(
+						themeDisplay.getPermissionChecker(), layout,
+						ActionKeys.UPDATE) &&
 					!PortletPermissionUtil.contains(
 						themeDisplay.getPermissionChecker(),
 						themeDisplay.getPlid(), portlet.getPortletId(),
@@ -4906,11 +5080,11 @@ public class PortalImpl implements Portal {
 			HttpServletResponse response)
 		throws IOException, ServletException {
 
-		if (_log.isInfoEnabled()) {
+		if (_log.isDebugEnabled()) {
 			String currentURL = (String)request.getAttribute(
 				WebKeys.CURRENT_URL);
 
-			_log.info(
+			_log.debug(
 				"Current URL " + currentURL + " generates exception: " +
 					e.getMessage());
 		}
@@ -4920,18 +5094,18 @@ public class PortalImpl implements Portal {
 				_logWebServerServlet.warn(e, e);
 			}
 		}
-		else if ((e instanceof PortalException) && _log.isInfoEnabled()) {
+		else if ((e instanceof PortalException) && _log.isDebugEnabled()) {
 			if ((e instanceof NoSuchLayoutException) ||
 				(e instanceof PrincipalException)) {
 
 				String msg = e.getMessage();
 
 				if (Validator.isNotNull(msg)) {
-					_log.info(msg);
+					_log.debug(msg);
 				}
 			}
 			else {
-				_log.info(e, e);
+				_log.debug(e, e);
 			}
 		}
 		else if ((e instanceof SystemException) && _log.isWarnEnabled()) {
@@ -5337,8 +5511,8 @@ public class PortalImpl implements Portal {
 				int count =
 					ResourcePermissionLocalServiceUtil.
 						getResourcePermissionsCount(
-							companyId, name,
-							ResourceConstants.SCOPE_INDIVIDUAL, primaryKey);
+							companyId, name, ResourceConstants.SCOPE_INDIVIDUAL,
+							primaryKey);
 
 				if (count == 0) {
 					throw new NoSuchResourceException();
@@ -5346,8 +5520,8 @@ public class PortalImpl implements Portal {
 			}
 			else if (!portlet.isUndeployedPortlet()) {
 				ResourceLocalServiceUtil.getResource(
-					companyId, name,
-					ResourceConstants.SCOPE_INDIVIDUAL, primaryKey);
+					companyId, name, ResourceConstants.SCOPE_INDIVIDUAL,
+					primaryKey);
 			}
 		}
 		catch (NoSuchResourceException nsre) {
@@ -5877,6 +6051,24 @@ public class PortalImpl implements Portal {
 		TicketLocalServiceUtil.updateTicket(ticket, false);
 
 		return true;
+	}
+
+	protected boolean isPanelSelectedPortlet(
+		ThemeDisplay themeDisplay, String portletId) {
+
+		Layout layout = themeDisplay.getLayout();
+
+		String panelSelectedPortlets = layout.getTypeSettingsProperty(
+			"panelSelectedPortlets");
+
+		if (Validator.isNotNull(panelSelectedPortlets)) {
+			String[] panelSelectedPortletsArray = StringUtil.split(
+				panelSelectedPortlets);
+
+			return ArrayUtil.contains(panelSelectedPortletsArray, portletId);
+		}
+
+		return false;
 	}
 
 	protected void notifyPortalPortEventListeners(int portalPort) {

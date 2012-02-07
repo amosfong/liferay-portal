@@ -76,7 +76,6 @@ else {
 	assetClassPK = fileEntry.getFileEntryId();
 }
 
-String fileUrl = themeDisplay.getPortalURL() + themeDisplay.getPathContext() + "/documents/" + themeDisplay.getScopeGroupId() + StringPool.SLASH + folderId + StringPool.SLASH + HttpUtil.encodeURL(fileEntry.getTitle(), true);
 String webDavUrl = StringPool.BLANK;
 
 if (portletDisplay.isWebDAVEnabled()) {
@@ -183,7 +182,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 						<%
 						DLFileShortcut dlFileShortcut = null;
 
-						String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, dlFileShortcut, themeDisplay);
+						String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, fileVersion, dlFileShortcut, themeDisplay);
 
 						if (layoutAssetEntry != null) {
 							AssetEntry incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(layoutAssetEntry.getClassName(), assetClassPK);
@@ -368,7 +367,11 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 									</c:when>
 									<c:when test="<%= hasAudio || hasVideo %>">
 										<div class="lfr-preview-file lfr-preview-video" id="<portlet:namespace />previewFile">
-											<div class="lfr-preview-file-content lfr-preview-video-content" id="<portlet:namespace />previewFileContent"></div>
+											<div class="lfr-preview-file-content lfr-preview-video-content">
+												<div class="lfr-preview-file-video-current-column">
+													<div id="<portlet:namespace />previewFileContent"></div>
+												</div>
+											</div>
 										</div>
 
 										<liferay-util:include page="/html/portlet/document_library/player.jsp" />
@@ -476,7 +479,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 						<label><liferay-ui:message key="url" /></label>
 
 						<liferay-ui:input-resource
-							url='<%= themeDisplay.getPortalURL() + themeDisplay.getPathContext() + "/documents/" + themeDisplay.getScopeGroupId() + StringPool.SLASH + fileEntry.getUuid() %>'
+							url="<%= DLUtil.getPreviewURL(fileEntry, fileEntry.getFileVersion(), themeDisplay, StringPool.BLANK, false, true) %>"
 						/>
 					</div>
 
@@ -851,7 +854,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 						submitForm(document.<portlet:namespace />fm);
 					},
 					icon: 'lock',
-					label: '<%= UnicodeLanguageUtil.get(pageContext, "checkout") %>'
+					label: '<%= UnicodeLanguageUtil.get(pageContext, "checkout[document]") %>'
 				}
 			);
 		</c:if>
@@ -865,7 +868,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 						submitForm(document.<portlet:namespace />fm);
 					},
 					icon: 'undo',
-					label: '<%= UnicodeLanguageUtil.get(pageContext, "cancel-checkout") %>'
+					label: '<%= UnicodeLanguageUtil.get(pageContext, "cancel-checkout[document]") %>'
 				},
 				{
 

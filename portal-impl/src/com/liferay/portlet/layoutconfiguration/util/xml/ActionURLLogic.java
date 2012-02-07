@@ -29,11 +29,11 @@ import javax.portlet.RenderResponse;
  */
 public class ActionURLLogic extends RuntimeLogic {
 
-	public static final String OPEN_TAG = "<runtime-action-url";
-
 	public static final String CLOSE_1_TAG = "</runtime-action-url>";
 
 	public static final String CLOSE_2_TAG = "/>";
+
+	public static final String OPEN_TAG = "<runtime-action-url";
 
 	public ActionURLLogic(RenderResponse renderResponse) {
 		_renderResponseImpl = (RenderResponseImpl)renderResponse;
@@ -84,7 +84,7 @@ public class ActionURLLogic extends RuntimeLogic {
 		return liferayPortletURL.toString();
 	}
 
-	private RenderResponseImpl _renderResponseImpl;
 	private String _lifecycle = PortletRequest.ACTION_PHASE;
+	private RenderResponseImpl _renderResponseImpl;
 
 }

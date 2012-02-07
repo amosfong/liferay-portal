@@ -184,8 +184,8 @@ public class StrutsPortlet extends LiferayPortlet {
 			// Call processAction of com.liferay.portal.struts.PortletAction
 
 			try {
-				PortletRequestProcessor processor =
-					_getPortletRequestProcessor(actionRequest);
+				PortletRequestProcessor processor = _getPortletRequestProcessor(
+					actionRequest);
 
 				processor.process(actionRequest, actionResponse, path);
 			}
@@ -209,8 +209,8 @@ public class StrutsPortlet extends LiferayPortlet {
 		// Call serveResource of com.liferay.portal.struts.PortletAction
 
 		try {
-			PortletRequestProcessor processor =
-				_getPortletRequestProcessor(resourceRequest);
+			PortletRequestProcessor processor = _getPortletRequestProcessor(
+				resourceRequest);
 
 			processor.process(resourceRequest, resourceResponse);
 		}
@@ -233,8 +233,8 @@ public class StrutsPortlet extends LiferayPortlet {
 		}
 
 		try {
-			PortletRequestProcessor processor =
-				_getPortletRequestProcessor(renderRequest);
+			PortletRequestProcessor processor = _getPortletRequestProcessor(
+				renderRequest);
 
 			processor.process(renderRequest, renderResponse);
 		}
@@ -254,6 +254,7 @@ public class StrutsPortlet extends LiferayPortlet {
 
 	protected String aboutAction;
 	protected String configAction;
+	protected boolean copyRequestParameters;
 	protected String editAction;
 	protected String editDefaultsAction;
 	protected String editGuestAction;
@@ -261,7 +262,6 @@ public class StrutsPortlet extends LiferayPortlet {
 	protected String previewAction;
 	protected String printAction;
 	protected String viewAction;
-	protected boolean copyRequestParameters;
 
 	private PortletRequestProcessor _getPortletRequestProcessor(
 		PortletRequest portletRequest) {

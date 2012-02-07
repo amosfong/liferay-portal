@@ -27,23 +27,6 @@ import java.io.ObjectOutputStream;
  */
 public class Base64 {
 
-	public static String encode(byte raw[]) {
-		return encode(raw, 0, raw.length);
-	}
-
-	public static String encode(byte raw[], int offset, int length) {
-		int lastIndex = Math.min(raw.length, offset + length);
-
-		StringBuilder sb = new StringBuilder(
-			((lastIndex - offset) / 3 + 1) * 4);
-
-		for (int i = offset; i < lastIndex; i += 3) {
-			sb.append(encodeBlock(raw, i, lastIndex));
-		}
-
-		return sb.toString();
-	}
-
 	public static byte[] decode(String base64) {
 		if (Validator.isNull(base64)) {
 			return new byte[0];
@@ -77,18 +60,31 @@ public class Base64 {
 		return raw;
 	}
 
+	public static String encode(byte raw[]) {
+		return encode(raw, 0, raw.length);
+	}
+
+	public static String encode(byte raw[], int offset, int length) {
+		int lastIndex = Math.min(raw.length, offset + length);
+
+		StringBuilder sb = new StringBuilder(
+			((lastIndex - offset) / 3 + 1) * 4);
+
+		for (int i = offset; i < lastIndex; i += 3) {
+			sb.append(encodeBlock(raw, i, lastIndex));
+		}
+
+		return sb.toString();
+	}
+
 	public static String fromURLSafe(String base64) {
 		return StringUtil.replace(
 			base64,
 			new String[] {
-				StringPool.MINUS,
-				StringPool.STAR,
-				StringPool.UNDERLINE
+				StringPool.MINUS, StringPool.STAR, StringPool.UNDERLINE
 			},
 			new String[] {
-				StringPool.PLUS,
-				StringPool.EQUAL,
-				StringPool.SLASH
+				StringPool.PLUS, StringPool.EQUAL, StringPool.SLASH
 			});
 	}
 
@@ -136,15 +132,41 @@ public class Base64 {
 		return StringUtil.replace(
 			base64,
 			new String[] {
-				StringPool.PLUS,
-				StringPool.EQUAL,
-				StringPool.SLASH
+				StringPool.PLUS, StringPool.EQUAL, StringPool.SLASH
 			},
 			new String[] {
-				StringPool.MINUS,
-				StringPool.STAR,
-				StringPool.UNDERLINE
+				StringPool.MINUS, StringPool.STAR, StringPool.UNDERLINE
 			});
+	}
+
+	protected static char[] encodeBlock(byte raw[], int offset, int lastIndex) {
+		int block = 0;
+		int slack = lastIndex - offset - 1;
+		int end = slack < 2 ? slack : 2;
+
+		for (int i = 0; i <= end; i++) {
+			byte b = raw[offset + i];
+
+			int neuter = b >= 0 ? ((int) (b)) : b + 256;
+			block += neuter << 8 * (2 - i);
+		}
+
+		char base64[] = new char[4];
+
+		for (int i = 0; i < 4; i++) {
+			int sixbit = block >>> 6 * (3 - i) & 0x3f;
+			base64[i] = getChar(sixbit);
+		}
+
+		if (slack < 1) {
+			base64[2] = CharPool.EQUAL;
+		}
+
+		if (slack < 2) {
+			base64[3] = CharPool.EQUAL;
+		}
+
+		return base64;
 	}
 
 	protected static char getChar(int sixbit) {
@@ -189,36 +211,6 @@ public class Base64 {
 		}
 
 		return c != CharPool.EQUAL ? -1 : 0;
-	}
-
-	protected static char[] encodeBlock(byte raw[], int offset, int lastIndex) {
-		int block = 0;
-		int slack = lastIndex - offset - 1;
-		int end = slack < 2 ? slack : 2;
-
-		for (int i = 0; i <= end; i++) {
-			byte b = raw[offset + i];
-
-			int neuter = b >= 0 ? ((int) (b)) : b + 256;
-			block += neuter << 8 * (2 - i);
-		}
-
-		char base64[] = new char[4];
-
-		for (int i = 0; i < 4; i++) {
-			int sixbit = block >>> 6 * (3 - i) & 0x3f;
-			base64[i] = getChar(sixbit);
-		}
-
-		if (slack < 1) {
-			base64[2] = CharPool.EQUAL;
-		}
-
-		if (slack < 2) {
-			base64[3] = CharPool.EQUAL;
-		}
-
-		return base64;
 	}
 
 	private static Object _stringToObject(

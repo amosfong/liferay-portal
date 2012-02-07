@@ -53,9 +53,8 @@ public class EditRecordFileAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form,
-			PortletConfig portletConfig, ActionRequest actionRequest,
-			ActionResponse actionResponse)
+			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
+			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -124,20 +123,19 @@ public class EditRecordFileAction extends PortletAction {
 	protected JSONObject updateRecordFieldFile(PortletRequest request)
 		throws Exception {
 
-		long recordId = ParamUtil.getLong(request, "recordId");
-
-		DDLRecord record = DDLRecordLocalServiceUtil.getRecord(recordId);
-
-		String fieldName = ParamUtil.getString(request, "fieldName");
-
 		UploadPortletRequest uploadPortletRequest =
 			PortalUtil.getUploadPortletRequest(request);
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
-			DDLRecord.class.getName(), request);
+			DDLRecord.class.getName(), uploadPortletRequest);
 
-		DDLUtil.uploadRecordFieldFile(
-			record, fieldName, uploadPortletRequest, serviceContext);
+		long recordId = ParamUtil.getLong(serviceContext, "recordId");
+
+		DDLRecord record = DDLRecordLocalServiceUtil.getRecord(recordId);
+
+		String fieldName = ParamUtil.getString(serviceContext, "fieldName");
+
+		DDLUtil.uploadRecordFieldFile(record, fieldName, serviceContext);
 
 		String fieldValue = String.valueOf(record.getFieldValue(fieldName));
 

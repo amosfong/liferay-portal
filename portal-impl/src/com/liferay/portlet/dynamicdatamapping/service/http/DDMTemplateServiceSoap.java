@@ -16,10 +16,14 @@ package com.liferay.portlet.dynamicdatamapping.service.http;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateServiceUtil;
 
 import java.rmi.RemoteException;
+
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * <p>
@@ -65,6 +69,35 @@ import java.rmi.RemoteException;
  * @generated
  */
 public class DDMTemplateServiceSoap {
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap addTemplate(
+		long groupId, long structureId, java.lang.String[] nameMapLanguageIds,
+		java.lang.String[] nameMapValues,
+		java.lang.String[] descriptionMapLanguageIds,
+		java.lang.String[] descriptionMapValues, java.lang.String type,
+		java.lang.String mode, java.lang.String language,
+		java.lang.String script,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(nameMapLanguageIds,
+					nameMapValues);
+			Map<Locale, String> descriptionMap = LocalizationUtil.getLocalizationMap(descriptionMapLanguageIds,
+					descriptionMapValues);
+
+			com.liferay.portlet.dynamicdatamapping.model.DDMTemplate returnValue =
+				DDMTemplateServiceUtil.addTemplate(groupId, structureId,
+					nameMap, descriptionMap, type, mode, language, script,
+					serviceContext);
+
+			return com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap[] copyTemplates(
 		long structureId, long newStructureId, java.lang.String type,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -118,6 +151,111 @@ public class DDMTemplateServiceSoap {
 				DDMTemplateServiceUtil.getTemplates(structureId, type, mode);
 
 			return com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap[] search(
+		long companyId, long groupId, long structureId,
+		java.lang.String keywords, java.lang.String type,
+		java.lang.String mode, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> returnValue =
+				DDMTemplateServiceUtil.search(companyId, groupId, structureId,
+					keywords, type, mode, start, end, orderByComparator);
+
+			return com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap[] search(
+		long companyId, long groupId, long structureId, java.lang.String name,
+		java.lang.String description, java.lang.String type,
+		java.lang.String mode, java.lang.String language, boolean andOperator,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> returnValue =
+				DDMTemplateServiceUtil.search(companyId, groupId, structureId,
+					name, description, type, mode, language, andOperator,
+					start, end, orderByComparator);
+
+			return com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int searchCount(long companyId, long groupId,
+		long structureId, java.lang.String keywords, java.lang.String type,
+		java.lang.String mode) throws RemoteException {
+		try {
+			int returnValue = DDMTemplateServiceUtil.searchCount(companyId,
+					groupId, structureId, keywords, type, mode);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int searchCount(long companyId, long groupId,
+		long structureId, java.lang.String name, java.lang.String description,
+		java.lang.String type, java.lang.String mode,
+		java.lang.String language, boolean andOperator)
+		throws RemoteException {
+		try {
+			int returnValue = DDMTemplateServiceUtil.searchCount(companyId,
+					groupId, structureId, name, description, type, mode,
+					language, andOperator);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap updateTemplate(
+		long templateId, java.lang.String[] nameMapLanguageIds,
+		java.lang.String[] nameMapValues,
+		java.lang.String[] descriptionMapLanguageIds,
+		java.lang.String[] descriptionMapValues, java.lang.String type,
+		java.lang.String mode, java.lang.String language,
+		java.lang.String script,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(nameMapLanguageIds,
+					nameMapValues);
+			Map<Locale, String> descriptionMap = LocalizationUtil.getLocalizationMap(descriptionMapLanguageIds,
+					descriptionMapValues);
+
+			com.liferay.portlet.dynamicdatamapping.model.DDMTemplate returnValue =
+				DDMTemplateServiceUtil.updateTemplate(templateId, nameMap,
+					descriptionMap, type, mode, language, script, serviceContext);
+
+			return com.liferay.portlet.dynamicdatamapping.model.DDMTemplateSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

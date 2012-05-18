@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,25 +36,40 @@ public class AccountServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.AccountServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static AccountService getService() {
 		if (_service == null) {
 			_service = (AccountService)PortalBeanLocatorUtil.locate(AccountService.class.getName());
 
 			ReferenceRegistry.registerReference(AccountServiceUtil.class,
 				"_service");
-			MethodCache.remove(AccountService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AccountService service) {
-		MethodCache.remove(AccountService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AccountServiceUtil.class, "_service");
-		MethodCache.remove(AccountService.class);
 	}
 
 	private static AccountService _service;

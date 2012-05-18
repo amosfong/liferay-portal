@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class OrgLaborLocalServiceUtil {
 		com.liferay.portal.model.OrgLabor orgLabor)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteOrgLabor(orgLabor);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -300,20 +303,15 @@ public class OrgLaborLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(OrgLaborLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(OrgLaborLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(OrgLaborLocalService service) {
-		MethodCache.remove(OrgLaborLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(OrgLaborLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(OrgLaborLocalService.class);
 	}
 
 	private static OrgLaborLocalService _service;

@@ -15,7 +15,6 @@
 package com.liferay.portlet.dynamicdatalists.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DDLRecordSetLocalServiceUtil {
 		com.liferay.portlet.dynamicdatalists.model.DDLRecordSet ddlRecordSet)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDDLRecordSet(ddlRecordSet);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -448,20 +451,15 @@ public class DDLRecordSetLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DDLRecordSetLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DDLRecordSetLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DDLRecordSetLocalService service) {
-		MethodCache.remove(DDLRecordSetLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DDLRecordSetLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DDLRecordSetLocalService.class);
 	}
 
 	private static DDLRecordSetLocalService _service;

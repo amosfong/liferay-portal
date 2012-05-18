@@ -396,11 +396,14 @@ public class JSONServiceAction extends JSONAction {
 			}
 		}
 		else if (typeNameOrClassDescriptor.equals(
-			"java.util.Map<java.util.Locale, java.lang.String>")) {
+					"java.util.Map<java.util.Locale, java.lang.String>")) {
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(value);
 
 			return LocalizationUtil.deserialize(jsonObject);
+		}
+		else if (typeNameOrClassDescriptor.startsWith("java.util.Map")) {
+			return JSONFactoryUtil.looseDeserializeSafe(value);
 		}
 		else {
 			_log.error(
@@ -417,11 +420,11 @@ public class JSONServiceAction extends JSONAction {
 			String[] parameterTypes)
 		throws Exception {
 
-		String parameterNames = StringUtil.merge(parameters);
+		String parameterTypesNames = StringUtil.merge(parameterTypes);
 
 		String key =
 			clazz.getName() + "_METHOD_NAME_" + methodName + "_PARAMETERS_" +
-				parameterNames;
+				parameterTypesNames;
 
 		Object[] methodAndParameterTypes = _methodCache.get(key);
 
@@ -465,7 +468,7 @@ public class JSONServiceAction extends JSONAction {
 						_log.error(
 							"Obscure method name for class " + clazz +
 								", method " + methodName + ", and parameters " +
-									parameterNames);
+									parameterTypesNames);
 
 						return null;
 					}
@@ -489,7 +492,7 @@ public class JSONServiceAction extends JSONAction {
 		else {
 			_log.error(
 				"No method found for class " + clazz + ", method " +
-					methodName + ", and parameters " + parameterNames);
+					methodName + ", and parameters " + parameterTypesNames);
 
 			return null;
 		}

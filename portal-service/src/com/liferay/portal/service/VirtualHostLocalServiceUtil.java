@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class VirtualHostLocalServiceUtil {
 		com.liferay.portal.model.VirtualHost virtualHost)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteVirtualHost(virtualHost);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -301,20 +304,15 @@ public class VirtualHostLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(VirtualHostLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(VirtualHostLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(VirtualHostLocalService service) {
-		MethodCache.remove(VirtualHostLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(VirtualHostLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(VirtualHostLocalService.class);
 	}
 
 	private static VirtualHostLocalService _service;

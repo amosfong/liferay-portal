@@ -85,6 +85,10 @@ public class SocialActivityLocalServiceWrapper
 		return _socialActivityLocalService.deleteSocialActivity(socialActivity);
 	}
 
+	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return _socialActivityLocalService.dynamicQuery();
+	}
+
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
 	*
@@ -460,7 +464,8 @@ public class SocialActivityLocalServiceWrapper
 	* @throws SystemException if a system exception occurred
 	*/
 	public void deleteUserActivities(long userId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		_socialActivityLocalService.deleteUserActivities(userId);
 	}
 

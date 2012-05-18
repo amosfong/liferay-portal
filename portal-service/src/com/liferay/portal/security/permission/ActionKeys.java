@@ -41,6 +41,8 @@ public class ActionKeys {
 
 	public static final String ADD_DISCUSSION = "ADD_DISCUSSION";
 
+	public static final String ADD_DISPLAY_STYLE = "ADD_DISPLAY_STYLE";
+
 	public static final String ADD_DOCUMENT = "ADD_DOCUMENT";
 
 	public static final String ADD_DOCUMENT_TYPE = "ADD_DOCUMENT_TYPE";
@@ -190,6 +192,8 @@ public class ActionKeys {
 	public static final String MANAGE_ORDERS = "MANAGE_ORDERS";
 
 	public static final String MANAGE_STAGING = "MANAGE_STAGING";
+
+	public static final String MANAGE_SUBGROUPS = "MANAGE_SUBGROUPS";
 
 	public static final String MANAGE_SUBORGANIZATIONS =
 		"MANAGE_SUBORGANIZATIONS";

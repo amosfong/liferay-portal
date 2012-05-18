@@ -15,7 +15,6 @@
 package com.liferay.portlet.shopping.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class ShoppingItemPriceLocalServiceUtil {
 		com.liferay.portlet.shopping.model.ShoppingItemPrice shoppingItemPrice)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteShoppingItemPrice(shoppingItemPrice);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -277,20 +280,15 @@ public class ShoppingItemPriceLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ShoppingItemPriceLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ShoppingItemPriceLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ShoppingItemPriceLocalService service) {
-		MethodCache.remove(ShoppingItemPriceLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ShoppingItemPriceLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ShoppingItemPriceLocalService.class);
 	}
 
 	private static ShoppingItemPriceLocalService _service;

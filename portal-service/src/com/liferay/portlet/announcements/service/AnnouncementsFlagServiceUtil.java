@@ -15,7 +15,6 @@
 package com.liferay.portlet.announcements.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,25 @@ public class AnnouncementsFlagServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.announcements.service.impl.AnnouncementsFlagServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static void addFlag(long entryId, int value)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -62,20 +80,15 @@ public class AnnouncementsFlagServiceUtil {
 
 			ReferenceRegistry.registerReference(AnnouncementsFlagServiceUtil.class,
 				"_service");
-			MethodCache.remove(AnnouncementsFlagService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AnnouncementsFlagService service) {
-		MethodCache.remove(AnnouncementsFlagService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AnnouncementsFlagServiceUtil.class,
-			"_service");
-		MethodCache.remove(AnnouncementsFlagService.class);
 	}
 
 	private static AnnouncementsFlagService _service;

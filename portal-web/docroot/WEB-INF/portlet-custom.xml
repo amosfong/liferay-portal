@@ -6,6 +6,10 @@
 		<display-name>My Account</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/my_account/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/my_account/view</value>
 		</init-param>
@@ -22,6 +26,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/search/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/search/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -51,6 +59,10 @@
 			<value>/html/portlet/calendar/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/calendar/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/calendar/view</value>
 		</init-param>
@@ -70,6 +82,10 @@
 		<portlet-name>9</portlet-name>
 		<display-name>Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/admin/view</value>
@@ -108,6 +124,10 @@
 		<display-name>Directory</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/directory/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/directory/view</value>
 		</init-param>
@@ -130,6 +150,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/journal/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/journal/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -158,6 +182,10 @@
 		<init-param>
 			<name>edit-guest-action</name>
 			<value>/currency_converter/edit</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/currency_converter/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -195,6 +223,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/message_boards/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/message_boards/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -247,6 +279,10 @@
 			<value>com.liferay.portlet.documentlibrary</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/document_library/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/document_library/view</value>
 		</init-param>
@@ -273,6 +309,10 @@
 		<display-name>Dictionary</display-name>
 		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/dictionary/</value>
+		</init-param>
+		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/dictionary/view.jsp</value>
 		</init-param>
@@ -292,6 +332,10 @@
 		<portlet-name>25</portlet-name>
 		<display-name>Polls</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/polls/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/polls/view</value>
@@ -313,6 +357,10 @@
 		<display-name>Translator</display-name>
 		<portlet-class>com.liferay.portlet.translator.TranslatorPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/translator/</value>
+		</init-param>
+		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/translator/view.jsp</value>
 		</init-param>
@@ -332,6 +380,10 @@
 		<portlet-name>27</portlet-name>
 		<display-name>Unit Converter</display-name>
 		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/unit_converter/</value>
+		</init-param>
 		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/unit_converter/view.jsp</value>
@@ -357,6 +409,10 @@
 			<value>/html/portlet/bookmarks/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/bookmarks/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/bookmarks/view</value>
 		</init-param>
@@ -380,6 +436,10 @@
 		<display-name>My Sites</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/my_sites/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/my_sites/view</value>
 		</init-param>
@@ -399,6 +459,10 @@
 		<portlet-name>30</portlet-name>
 		<display-name>Network</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/network/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/network/view</value>
@@ -422,6 +486,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/image_gallery_display/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/image_gallery_display/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -454,6 +522,10 @@
 			<value>/html/portlet/blogs/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/blogs/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/blogs/view</value>
 		</init-param>
@@ -484,6 +556,10 @@
 			<value>/html/portlet/shopping/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/shopping/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/shopping/view</value>
 		</init-param>
@@ -506,6 +582,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/wiki/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/wiki/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -536,6 +616,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/rss/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/rss/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -596,6 +680,10 @@
 			<name>config-template</name>
 			<value>/html/portlet/iframe/configuration.jsp</value>
 		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/iframe/</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
@@ -642,6 +730,10 @@
 		<portlet-name>49</portlet-name>
 		<display-name>Site Redirector</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/my_sites/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/my_sites/view</value>
@@ -694,6 +786,10 @@
 			<value>/html/portlet/wiki_display/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/wiki_display/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/wiki_display/view</value>
 		</init-param>
@@ -716,6 +812,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/journal_content/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/journal_content/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -748,6 +848,10 @@
 			<value>/html/portlet/login/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/login/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/login/login</value>
 		</init-param>
@@ -775,6 +879,10 @@
 			<value>/html/portlet/polls_display/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/polls_display/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/polls_display/view</value>
 		</init-param>
@@ -794,6 +902,10 @@
 		<portlet-name>61</portlet-name>
 		<display-name>Loan Calculator</display-name>
 		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/loan_calculator/</value>
+		</init-param>
 		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/loan_calculator/view.jsp</value>
@@ -819,6 +931,10 @@
 			<value>/html/portlet/journal_articles/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/journal_articles/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/journal_articles/view</value>
 		</init-param>
@@ -838,6 +954,10 @@
 		<portlet-name>64</portlet-name>
 		<display-name>Recent Documents</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/recent_documents/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/recent_documents/view</value>
@@ -978,6 +1098,10 @@
 			<value>/html/portlet/amazon_rankings/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/amazon_rankings/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/amazon_rankings/view</value>
 		</init-param>
@@ -1009,6 +1133,10 @@
 		<display-name>Password Generator</display-name>
 		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/password_generator/</value>
+		</init-param>
+		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/password_generator/view.jsp</value>
 		</init-param>
@@ -1031,6 +1159,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/navigation/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/navigation/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1060,6 +1192,10 @@
 			<value>/html/portlet/breadcrumb/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/breadcrumb/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/breadcrumb/view</value>
 		</init-param>
@@ -1085,6 +1221,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/journal_content_search/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/journal_content_search/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1114,6 +1254,10 @@
 			<value>/html/portlet/language/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/language/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/language/view</value>
 		</init-param>
@@ -1137,6 +1281,10 @@
 		<display-name>Alerts</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/announcements/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/alerts/view</value>
 		</init-param>
@@ -1156,6 +1304,10 @@
 		<portlet-name>84</portlet-name>
 		<display-name>Announcements</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/announcements/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/announcements/view</value>
@@ -1181,6 +1333,10 @@
 			<value>/html/portlet/site_map/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/site_map/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/site_map/view</value>
 		</init-param>
@@ -1203,6 +1359,10 @@
 		<portlet-name>86</portlet-name>
 		<display-name>Portlet Configuration</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/portlet_configuration/</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
@@ -1213,6 +1373,10 @@
 		<portlet-name>87</portlet-name>
 		<display-name>Layout Configuration</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layout_configuration/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/layout_configuration/view</value>
@@ -1227,6 +1391,10 @@
 		<portlet-name>88</portlet-name>
 		<display-name>Layouts Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layouts_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/layouts_admin/edit_layouts</value>
@@ -1244,6 +1412,10 @@
 		<portlet-name>90</portlet-name>
 		<display-name>Portal</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portal/</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
@@ -1254,6 +1426,10 @@
 		<portlet-name>97</portlet-name>
 		<display-name>Quick Note</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/quick_note/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/quick_note/view</value>
@@ -1281,6 +1457,10 @@
 		<display-name>Software Repository</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/software_catalog/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/software_catalog/view</value>
 		</init-param>
@@ -1301,6 +1481,10 @@
 		<display-name>Asset Tag Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_tag_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/asset_tag_admin/view</value>
 		</init-param>
@@ -1320,6 +1504,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/invitation/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/invitation/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1346,6 +1534,10 @@
 			<value>/html/portlet/asset_publisher/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_publisher/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/asset_publisher/view</value>
 		</init-param>
@@ -1366,6 +1558,7 @@
 		<supported-public-render-parameter>categoryId</supported-public-render-parameter>
 		<supported-public-render-parameter>resetCur</supported-public-render-parameter>
 		<supported-public-render-parameter>tag</supported-public-render-parameter>
+		<supported-public-render-parameter>tags</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>102</portlet-name>
@@ -1374,6 +1567,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/xsl_content/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/xsl_content/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1393,21 +1590,31 @@
 		<security-role-ref>
 			<role-name>user</role-name>
 		</security-role-ref>
+		<supported-public-render-parameter>tags</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>103</portlet-name>
 		<display-name>Tags Compiler</display-name>
-		<portlet-class>com.liferay.portlet.tagscompiler.TagsCompilerPortlet</portlet-class>
+		<portlet-class>com.liferay.portal.kernel.portlet.LiferayPortlet</portlet-class>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
 		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
+		<portlet-info>
+			<title>Tags Compiler</title>
+			<short-title>Tags Compiler</short-title>
+			<keywords>Tags Compiler</keywords>
+		</portlet-info>
+		<supported-public-render-parameter>tags</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>104</portlet-name>
 		<display-name>Update Manager</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/update_manager/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/update_manager/view</value>
@@ -1425,6 +1632,10 @@
 		<portlet-name>107</portlet-name>
 		<display-name>Page Comments</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/page_comments/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/page_comments/view</value>
@@ -1445,6 +1656,10 @@
 		<portlet-name>108</portlet-name>
 		<display-name>Page Ratings</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/page_ratings/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/page_ratings/view</value>
@@ -1468,6 +1683,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/document_library_display/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/document_library_display/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1511,6 +1730,10 @@
 		<display-name>Plugin Installer</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/plugin_installer/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/plugin_installer/view</value>
 		</init-param>
@@ -1528,6 +1751,10 @@
 		<display-name>Portlet CSS</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/portlet_css/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/portlet_css/view</value>
 		</init-param>
@@ -1544,6 +1771,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/recent_bloggers/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/recent_bloggers/</value>
 		</init-param>
 		<init-param>
 			<name>view-template</name>
@@ -1573,6 +1804,10 @@
 			<value>/html/portlet/blogs_aggregator/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/blogs_aggregator/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/blogs_aggregator/view</value>
 		</init-param>
@@ -1598,6 +1833,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/activities/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/activities/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1627,6 +1866,10 @@
 			<value>/html/portlet/nested_portlets/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/nested_portlets/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/nested_portlets/view</value>
 		</init-param>
@@ -1649,6 +1892,10 @@
 		<portlet-name>119</portlet-name>
 		<display-name>Asset</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset/</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
@@ -1669,6 +1916,10 @@
 		<portlet-name>121</portlet-name>
 		<display-name>Requests</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/requests/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/requests/view</value>
@@ -1697,6 +1948,10 @@
 			<value>/html/portlet/asset_categories_navigation/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_categories_navigation/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/asset_categories_navigation/view</value>
 		</init-param>
@@ -1721,6 +1976,10 @@
 		<portlet-name>124</portlet-name>
 		<display-name>Social</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/social/</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
@@ -1731,6 +1990,10 @@
 		<portlet-name>125</portlet-name>
 		<display-name>Users Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/users_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/users_admin/view</value>
@@ -1749,6 +2012,10 @@
 		<display-name>User Groups Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/user_groups_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/user_groups_admin/view</value>
 		</init-param>
@@ -1765,6 +2032,10 @@
 		<portlet-name>128</portlet-name>
 		<display-name>Roles Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/roles_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/roles_admin/view</value>
@@ -1783,6 +2054,10 @@
 		<display-name>Password Policies Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/password_policies_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/password_policies_admin/view</value>
 		</init-param>
@@ -1799,6 +2074,10 @@
 		<portlet-name>130</portlet-name>
 		<display-name>Portal Settings</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/portal_settings/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/portal_settings/view</value>
@@ -1817,6 +2096,10 @@
 		<display-name>Monitoring</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/monitoring/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/monitoring/view</value>
 		</init-param>
@@ -1833,6 +2116,10 @@
 		<portlet-name>132</portlet-name>
 		<display-name>Plugins Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/plugins_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/plugins_admin/view</value>
@@ -1851,6 +2138,10 @@
 		<display-name>Portlet Sharing</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/portlet_sharing/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/portlet_sharing/view</value>
 		</init-param>
@@ -1864,6 +2155,10 @@
 		<portlet-name>134</portlet-name>
 		<display-name>Sites Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/sites_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/sites_admin/view</value>
@@ -1882,6 +2177,10 @@
 		<display-name>Admin Instances</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/admin_instances/view</value>
 		</init-param>
@@ -1898,6 +2197,10 @@
 		<portlet-name>136</portlet-name>
 		<display-name>Admin Plugins</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/admin_plugins/view</value>
@@ -1916,6 +2219,10 @@
 		<display-name>Admin Server</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/admin_server/view</value>
 		</init-param>
@@ -1933,6 +2240,10 @@
 		<display-name>Expando</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/expando/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/expando/view</value>
 		</init-param>
@@ -1946,6 +2257,10 @@
 		<portlet-name>140</portlet-name>
 		<display-name>My Pages</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layouts_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/my_pages/view</value>
@@ -1963,6 +2278,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/asset_tags_navigation/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_tags_navigation/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -1990,6 +2309,10 @@
 		<display-name>Flags</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/flags/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/flags/edit_entry</value>
 		</init-param>
@@ -2012,6 +2335,10 @@
 		<portlet-name>143</portlet-name>
 		<display-name>Page Flags</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/page_flags/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/page_flags/view</value>
@@ -2036,6 +2363,10 @@
 		<display-name>Ratings</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/ratings/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/ratings/rate_entry</value>
 		</init-param>
@@ -2059,6 +2390,10 @@
 		<display-name>Dockbar</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/dockbar/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/dockbar/view</value>
 		</init-param>
@@ -2079,6 +2414,10 @@
 		<display-name>Page Templates</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layout_prototypes/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/layout_prototypes/view</value>
 		</init-param>
@@ -2095,6 +2434,10 @@
 		<portlet-name>147</portlet-name>
 		<display-name>Asset Category Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_category_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/asset_category_admin/view</value>
@@ -2115,6 +2458,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/asset_tags_navigation/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_tags_navigation/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -2164,6 +2511,10 @@
 		<display-name>Site Templates</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layout_set_prototypes/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/layout_set_prototypes/view</value>
 		</init-param>
@@ -2180,6 +2531,10 @@
 		<portlet-name>150</portlet-name>
 		<display-name>Workflow Tasks</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_tasks/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/workflow_tasks/view</value>
@@ -2198,6 +2553,10 @@
 		<display-name>Workflow</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_definitions/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/workflow_definitions/view</value>
 		</init-param>
@@ -2214,6 +2573,10 @@
 		<portlet-name>152</portlet-name>
 		<display-name>Workflow Configuration</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_definition_links/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/workflow_definition_links/view</value>
@@ -2234,6 +2597,10 @@
 		<portlet-name>153</portlet-name>
 		<display-name>My Workflow Tasks</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_tasks/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/my_workflow_tasks/view</value>
@@ -2259,6 +2626,10 @@
 			<value>/html/portlet/wiki/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/wiki/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/wiki_admin/view_nodes</value>
 		</init-param>
@@ -2276,6 +2647,10 @@
 		<display-name>Group Pages</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/layouts_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/group_pages/edit_layouts</value>
 		</init-param>
@@ -2289,6 +2664,10 @@
 		<portlet-name>157</portlet-name>
 		<display-name>Workflow Instances</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_instances/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/workflow_instances/view</value>
@@ -2310,6 +2689,10 @@
 		<display-name>My Workflow Instances</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/workflow_instances/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/my_workflow_instances/view</value>
 		</init-param>
@@ -2330,6 +2713,10 @@
 		<display-name>Control Panel Menu</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/control_panel_menu/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/control_panel_menu/view</value>
 		</init-param>
@@ -2343,6 +2730,10 @@
 		<portlet-name>161</portlet-name>
 		<display-name>Blogs</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/blogs_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/blogs_admin/view</value>
@@ -2360,6 +2751,10 @@
 		<portlet-name>162</portlet-name>
 		<display-name>Message Boards Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/message_boards_admin/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/message_boards_admin/view</value>
@@ -2380,6 +2775,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/login/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/login/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -2405,6 +2804,10 @@
 		<display-name>Site Settings</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/sites_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/sites_admin/edit_site</value>
 		</init-param>
@@ -2418,6 +2821,10 @@
 		<portlet-name>166</portlet-name>
 		<display-name>Dynamic Data Mapping</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/dynamic_data_mapping/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/dynamic_data_mapping/view</value>
@@ -2441,6 +2848,10 @@
 		<init-param>
 			<name>ddm-resource</name>
 			<value>com.liferay.portlet.dynamicdatalists</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/dynamic_data_lists/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -2471,6 +2882,10 @@
 			<value>com.liferay.portlet.dynamicdatalists</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/dynamic_data_list_display/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/dynamic_data_list_display/view</value>
 		</init-param>
@@ -2491,6 +2906,10 @@
 		<display-name>Staging Bar</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/staging_bar/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/staging_bar/view</value>
 		</init-param>
@@ -2510,6 +2929,10 @@
 		<portlet-name>172</portlet-name>
 		<display-name>Asset Browser</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_browser/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/asset_browser/view</value>
@@ -2536,6 +2959,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/asset_publisher/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_publisher/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -2578,6 +3005,10 @@
 		<display-name>Site Memberships Admin</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/site_admin/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/site_admin/edit_site_assignments</value>
 		</init-param>
@@ -2597,6 +3028,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/asset_publisher/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/asset_publisher/</value>
 		</init-param>
 		<init-param>
 			<name>view-action</name>
@@ -2635,6 +3070,10 @@
 		<display-name>License Manager</display-name>
 		<portlet-class>com.liferay.util.bridges.mvc.MVCPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/license_manager/</value>
+		</init-param>
+		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/license_manager/view.jsp</value>
 		</init-param>
@@ -2651,6 +3090,10 @@
 		<portlet-name>177</portlet-name>
 		<display-name>Mobile Device Rules</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/mobile_device_rules/</value>
+		</init-param>
 		<init-param>
 			<name>view-action</name>
 			<value>/mobile_device_rules/view</value>
@@ -2672,6 +3115,10 @@
 		<display-name>Mobile Device Rules</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/mobile_device_rules/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/mobile_device_rules/view</value>
 		</init-param>
@@ -2692,6 +3139,10 @@
 		<display-name>Social Activity</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/social_activity/</value>
+		</init-param>
+		<init-param>
 			<name>view-action</name>
 			<value>/social_activity/view</value>
 		</init-param>
@@ -2711,6 +3162,10 @@
 		<init-param>
 			<name>config-template</name>
 			<value>/html/portlet/user_statistics/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/user_statistics/</value>
 		</init-param>
 		<init-param>
 			<name>view-template</name>
@@ -2770,6 +3225,10 @@
 			<value>/html/portlet/group_statistics/configuration.jsp</value>
 		</init-param>
 		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/group_statistics/</value>
+		</init-param>
+		<init-param>
 			<name>view-template</name>
 			<value>/html/portlet/group_statistics/view.jsp</value>
 		</init-param>
@@ -2781,6 +3240,30 @@
 		<security-role-ref>
 			<role-name>guest</role-name>
 		</security-role-ref>
+		<security-role-ref>
+			<role-name>power-user</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>user</role-name>
+		</security-role-ref>
+	</portlet>
+	<portlet>
+		<portlet-name>182</portlet-name>
+		<display-name>Trash</display-name>
+		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/trash/</value>
+		</init-param>
+		<init-param>
+			<name>view-action</name>
+			<value>/trash/view</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
 		<security-role-ref>
 			<role-name>power-user</role-name>
 		</security-role-ref>
@@ -3016,6 +3499,10 @@
 	<public-render-parameter>
 		<identifier>tag</identifier>
 		<qname xmlns:x="http://www.liferay.com/public-render-parameters">x:tag</qname>
+	</public-render-parameter>
+	<public-render-parameter>
+		<identifier>tags</identifier>
+		<qname xmlns:x="http://www.liferay.com/public-render-parameters">x:tags</qname>
 	</public-render-parameter>
 	<public-render-parameter>
 		<identifier>nodeId</identifier>

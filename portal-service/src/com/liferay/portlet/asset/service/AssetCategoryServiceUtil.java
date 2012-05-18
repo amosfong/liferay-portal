@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,25 @@ public class AssetCategoryServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.asset.service.impl.AssetCategoryServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static com.liferay.portlet.asset.model.AssetCategory addCategory(
 		long parentCategoryId,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
@@ -206,20 +224,15 @@ public class AssetCategoryServiceUtil {
 
 			ReferenceRegistry.registerReference(AssetCategoryServiceUtil.class,
 				"_service");
-			MethodCache.remove(AssetCategoryService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AssetCategoryService service) {
-		MethodCache.remove(AssetCategoryService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AssetCategoryServiceUtil.class,
-			"_service");
-		MethodCache.remove(AssetCategoryService.class);
 	}
 
 	private static AssetCategoryService _service;

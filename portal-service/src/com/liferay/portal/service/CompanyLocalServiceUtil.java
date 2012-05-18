@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class CompanyLocalServiceUtil {
 		com.liferay.portal.model.Company company)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteCompany(company);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -769,20 +772,15 @@ public class CompanyLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(CompanyLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(CompanyLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(CompanyLocalService service) {
-		MethodCache.remove(CompanyLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(CompanyLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(CompanyLocalService.class);
 	}
 
 	private static CompanyLocalService _service;

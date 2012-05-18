@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class PasswordPolicyRelLocalServiceUtil {
 		com.liferay.portal.model.PasswordPolicyRel passwordPolicyRel)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deletePasswordPolicyRel(passwordPolicyRel);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -336,20 +339,15 @@ public class PasswordPolicyRelLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PasswordPolicyRelLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PasswordPolicyRelLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PasswordPolicyRelLocalService service) {
-		MethodCache.remove(PasswordPolicyRelLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PasswordPolicyRelLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PasswordPolicyRelLocalService.class);
 	}
 
 	private static PasswordPolicyRelLocalService _service;

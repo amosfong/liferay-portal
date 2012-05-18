@@ -15,7 +15,6 @@
 package com.liferay.portlet.messageboards.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MBStatsUserLocalServiceUtil {
 		com.liferay.portlet.messageboards.model.MBStatsUser mbStatsUser)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMBStatsUser(mbStatsUser);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -339,20 +342,15 @@ public class MBStatsUserLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MBStatsUserLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MBStatsUserLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MBStatsUserLocalService service) {
-		MethodCache.remove(MBStatsUserLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MBStatsUserLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MBStatsUserLocalService.class);
 	}
 
 	private static MBStatsUserLocalService _service;

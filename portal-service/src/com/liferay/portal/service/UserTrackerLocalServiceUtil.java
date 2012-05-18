@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class UserTrackerLocalServiceUtil {
 		com.liferay.portal.model.UserTracker userTracker)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteUserTracker(userTracker);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -286,20 +289,15 @@ public class UserTrackerLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(UserTrackerLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(UserTrackerLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(UserTrackerLocalService service) {
-		MethodCache.remove(UserTrackerLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(UserTrackerLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(UserTrackerLocalService.class);
 	}
 
 	private static UserTrackerLocalService _service;

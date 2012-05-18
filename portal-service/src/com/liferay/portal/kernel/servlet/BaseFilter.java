@@ -17,6 +17,8 @@ package com.liferay.portal.kernel.servlet;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.servlet.filters.invoker.FilterMapping;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
@@ -87,15 +89,18 @@ public abstract class BaseFilter implements LiferayFilter {
 	public void init(FilterConfig filterConfig) {
 		_filterConfig = filterConfig;
 
-		ServletContext servletContext = _filterConfig.getServletContext();
+		if (_TCK_URL) {
+			ServletContext servletContext = _filterConfig.getServletContext();
 
-		_invokerEnabled = GetterUtil.get(
-			servletContext.getInitParameter("liferay-invoker-enabled"), true);
+			_invokerEnabled = GetterUtil.get(
+				servletContext.getInitParameter("liferay-invoker-enabled"),
+				true);
 
-		if (!_invokerEnabled) {
-			_filterMapping = new FilterMapping(
-				this, filterConfig, new ArrayList<String>(0),
-				new ArrayList<String>(0));
+			if (!_invokerEnabled) {
+				_filterMapping = new FilterMapping(
+					this, filterConfig, new ArrayList<String>(0),
+					new ArrayList<String>(0));
+			}
 		}
 
 		LiferayFilterTracker.addLiferayFilter(this);
@@ -191,9 +196,12 @@ public abstract class BaseFilter implements LiferayFilter {
 
 	private static final String _DEPTHER = "DEPTHER";
 
+	private static final boolean _TCK_URL = GetterUtil.getBoolean(
+		PropsUtil.get(PropsKeys.TCK_URL));
+
 	private FilterConfig _filterConfig;
 	private boolean _filterEnabled = true;
 	private FilterMapping _filterMapping;
-	private boolean _invokerEnabled;
+	private boolean _invokerEnabled = true;
 
 }

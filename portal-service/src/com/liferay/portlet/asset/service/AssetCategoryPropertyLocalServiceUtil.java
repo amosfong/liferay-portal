@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class AssetCategoryPropertyLocalServiceUtil {
 		com.liferay.portlet.asset.model.AssetCategoryProperty assetCategoryProperty)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAssetCategoryProperty(assetCategoryProperty);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -335,20 +338,15 @@ public class AssetCategoryPropertyLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AssetCategoryPropertyLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AssetCategoryPropertyLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AssetCategoryPropertyLocalService service) {
-		MethodCache.remove(AssetCategoryPropertyLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AssetCategoryPropertyLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AssetCategoryPropertyLocalService.class);
 	}
 
 	private static AssetCategoryPropertyLocalService _service;

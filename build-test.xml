@@ -247,28 +247,7 @@
 
 				<antcall target="create-ant-script">
 					<param name="ant.script.file.name" value="build-test-${test.ant.script.command}-@{test.ant.script.version}.xml" />
-					<param name="ant.script.template" value="ant-script-db-upgrade-@{test.ant.script.version}.xml" />
-				</antcall>
-			</sequential>
-		</for>
-	</target>
-
-	<target name="build-test-ant-script-db-upgrade-smoke">
-		<if>
-			<isset property="test.ant.script.evaluate.logs" />
-			<then>
-				<property name="test.ant.script.file.evaluate.logs" value="&lt;param name=&quot;test.evaluate.logs&quot; value=&quot;true&quot; /&gt;" />
-			</then>
-			<else>
-				<property name="test.ant.script.file.evaluate.logs" value=" " />
-			</else>
-		</if>
-
-		<for list="${test.ant.script.versions}" param="test.ant.script.version">
-			<sequential>
-				<antcall target="create-ant-script">
-					<param name="ant.script.template" value="ant-script-db-upgrade-smoke.xml" />
-					<param name="ant.script.file.name" value="build-test-db-upgrade-smoke-@{test.ant.script.version}.xml" />
+					<param name="ant.script.template" value="${test.ant.script.template}" />
 					<param name="test.ant.script.version" value="@{test.ant.script.version}" />
 				</antcall>
 			</sequential>
@@ -276,7 +255,7 @@
 	</target>
 
 	<target name="build-test-ant-scripts">
-		<property name="build-test-ant-scripts.version" value="1" />
+		<property name="build-test-ant-scripts.version" value="5" />
 
 		<if>
 			<available file="portal-web/test-ant-scripts/version" />
@@ -572,165 +551,176 @@
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-address" />
 			<param name="test.ant.script.suite" value="Address" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-announcements" />
 			<param name="test.ant.script.suite" value="Announcements" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-announcements-delivery" />
 			<param name="test.ant.script.suite" value="AnnouncementsDelivery" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-bookmarks" />
 			<param name="test.ant.script.suite" value="Bookmarks" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-calendar" />
 			<param name="test.ant.script.suite" value="Calendar" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-community" />
 			<param name="test.ant.script.suite" value="Community" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-document-library" />
 			<param name="test.ant.script.suite" value="DocumentLibrary" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-expando" />
 			<param name="test.ant.script.plugin.portlets" value="web-form-portlet" />
 			<param name="test.ant.script.suite" value="Expando" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-groups" />
 			<param name="test.ant.script.suite" value="Groups" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-message-boards" />
 			<param name="test.ant.script.suite" value="MessageBoards" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-organizations" />
 			<param name="test.ant.script.suite" value="Organizations" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-portlet-permissions" />
 			<param name="test.ant.script.suite" value="PortletPermissions" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-shopping" />
 			<param name="test.ant.script.suite" value="Shopping" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
-		<antcall target="build-test-ant-script-db-upgrade-smoke">
+		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-smoke" />
 			<param name="test.ant.script.evaluate.logs" value="true" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,latest" />
+			<param name="test.ant.script.suite" value="Smoke" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-social" />
 			<param name="test.ant.script.plugin.portlets" value="social-networking-portlet" />
 			<param name="test.ant.script.suite" value="Social" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-staging-community" />
 			<param name="test.ant.script.suite" value="StagingCommunity" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-staging-organization" />
 			<param name="test.ant.script.suite" value="StagingOrganization" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-tags" />
 			<param name="test.ant.script.suite" value="Tags" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-web-content" />
 			<param name="test.ant.script.suite" value="WebContent" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script-db-upgrade">
 			<param name="test.ant.script.command" value="db-upgrade-wiki" />
 			<param name="test.ant.script.suite" value="Wiki" />
-			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12" />
+			<param name="test.ant.script.template" value="ant-script-db-upgrade.xml" />
+			<param name="test.ant.script.versions" value="5.2.3,5.2.5,5.2.7,5.2.8,5.2.9,6.0.6,6.0.10,6.0.11,6.0.12,6.1.0" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-components-blogs" />
-			<param name="test.ant.script.suite" value="DemoComponentsBlogsTestSuite" />
-		</antcall>
-
-		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-components-message-boards" />
-			<param name="test.ant.script.suite" value="DemoComponentsMessageBoardsTestSuite" />
-		</antcall>
-
-		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-devcon-6100-dynamic-data" />
+			<param name="test.ant.script.command" value="demo-dynamic-data" />
 			<param name="test.ant.script.plugin.portlets" value="kaleo-designer-portlet,kaleo-forms-portlet" />
 			<param name="test.ant.script.plugin.webs" value="kaleo-web" />
-			<param name="test.ant.script.suite" value="DemoDevcon6100DynamicDataTestSuite" />
+			<param name="test.ant.script.suite" value="DemoDynamicDataTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-devcon-6100-fundamentals" />
+			<param name="test.ant.script.command" value="demo-fundamentals" />
 			<param name="test.ant.script.plugin.portlets" value="knowledge-base-portlet,test-misc-portlet,wsrp-portlet" />
 			<param name="test.ant.script.plugin.portlets.properties" value="admin.kb.article.sections=Application Server,Authentication,Content Management,Database,Development,Plugins,Portlets,Security,Server Configuration,User Interface$${line.separator}admin.kb.article.default.sections=" />
 			<param name="test.ant.script.properties" value="mime.types.content.disposition.inline=pdf" />
-			<param name="test.ant.script.suite" value="DemoDevcon6100FundamentalsTestSuite" />
+			<param name="test.ant.script.suite" value="DemoFundamentalsTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-devcon-6100-media" />
+			<param name="test.ant.script.command" value="demo-media" />
 			<param name="test.ant.script.plugin.webs" value="kaleo-web" />
-			<param name="test.ant.script.suite" value="DemoDevcon6100MediaTestSuite" />
+			<param name="test.ant.script.suite" value="DemoMediaTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-devcon-6100-site-management" />
+			<param name="test.ant.script.command" value="demo-site-management" />
 			<param name="test.ant.script.plugin.webs" value="kaleo-web" />
-			<param name="test.ant.script.suite" value="DemoDevcon6100SiteManagementTestSuite" />
+			<param name="test.ant.script.suite" value="DemoSiteManagementTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="demo-devcon-6100-user-admin" />
-			<param name="test.ant.script.suite" value="DemoDevcon6100UserAdminTestSuite" />
+			<param name="test.ant.script.command" value="demo-user-admin" />
+			<param name="test.ant.script.suite" value="DemoUserAdminTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
@@ -1615,6 +1605,11 @@
 		</antcall>
 
 		<antcall target="build-test-ant-script">
+			<param name="test.ant.script.command" value="portal-web-user-statistics" />
+			<param name="test.ant.script.suite" value="PortalWebUserStatisticsTestSuite" />
+		</antcall>
+
+		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="portal-web-web-content-display" />
 			<param name="test.ant.script.suite" value="PortalWebWebContentDisplayTestSuite" />
 		</antcall>
@@ -1847,6 +1842,12 @@
 		</antcall>
 
 		<antcall target="build-test-ant-script">
+			<param name="test.ant.script.command" value="social-office-home-upcoming-tasks" />
+			<param name="test.ant.script.social.office" value="true" />
+			<param name="test.ant.script.suite" value="SocialOfficeHomeUpcomingTasksTestSuite" />
+		</antcall>
+
+		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="social-office-home-whats-happening" />
 			<param name="test.ant.script.social.office" value="true" />
 			<param name="test.ant.script.suite" value="SocialOfficeHomeWhatsHappeningTestSuite" />
@@ -1990,12 +1991,12 @@
 				<isset property="skip.delete-liferay-home" />
 			</not>
 			<then>
-				<delete dir="${user.home}/liferay"/>
+				<delete dir="${user.home}/liferay" />
 			</then>
 		</if>
 
 		<delete includeemptydirs="true">
-			<fileset dir="${app.server.parent.dir}" excludes="*.zip"/>
+			<fileset dir="${app.server.parent.dir}" excludes="*.zip" />
 		</delete>
 	</target>
 
@@ -2285,6 +2286,25 @@
 		</exec>
 	</target>
 
+	<target name="merge-test-results">
+		<mkdir dir="test-results" />
+
+		<junitreport todir="test-results">
+			<fileset dir="portal-impl/test-results">
+				<include name="**/TEST-*.xml" />
+			</fileset>
+			<fileset dir="portal-service/test-results">
+				<include name="**/TEST-*.xml" />
+			</fileset>
+			<fileset dir="util-java/test-results">
+				<include name="**/TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="test-results/html" />
+		</junitreport>
+
+		<echo message="A report with all the test results can be found at test-results/html/index.html." />
+	</target>
+
 	<target name="prepare-common">
 		<antcall target="prepare-portal-properties" inheritAll="false" />
 
@@ -2465,8 +2485,8 @@ locale.prepend.friendly.url.style=0
 
 auth.token.check.enabled=false
 
-permissions.user.check.algorithm=5
-permissions.view.dynamic.inheritance=false
+#permissions.user.check.algorithm=5
+#permissions.view.dynamic.inheritance=false
 
 image.hook.impl=com.liferay.portal.image.DatabaseHook
 
@@ -2538,8 +2558,8 @@ locale.prepend.friendly.url.style=0
 
 auth.token.check.enabled=false
 
-permissions.user.check.algorithm=5
-permissions.view.dynamic.inheritance=false
+#permissions.user.check.algorithm=5
+#permissions.view.dynamic.inheritance=false
 
 image.hook.impl=com.liferay.portal.image.DatabaseHook
 
@@ -2655,10 +2675,18 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		</if>
 
 		<if>
+			<isset property="set.permission.algorithm.5" />
+			<then>
+				<replace file="portal-impl/src/portal-ext.properties" token="#permissions.user.check.algorithm=5" value="permissions.user.check.algorithm=5" />
+				<replace file="portal-impl/src/portal-ext.properties" token="#permissions.view.dynamic.inheritance=false" value="permissions.view.dynamic.inheritance=false" />
+			</then>
+		</if>
+
+		<if>
 			<isset property="set.permission.algorithm.6" />
 			<then>
-				<replace file="portal-impl/src/portal-ext.properties" token="permissions.user.check.algorithm=5" value=""/>
-				<replace file="portal-impl/src/portal-ext.properties" token="permissions.view.dynamic.inheritance=false" value=""/>
+				<replace file="portal-impl/src/portal-ext.properties" token="permissions.user.check.algorithm=5" value="" />
+				<replace file="portal-impl/src/portal-ext.properties" token="permissions.view.dynamic.inheritance=false" value="" />
 			</then>
 		</if>
 	</target>
@@ -3046,7 +3074,7 @@ file.
 								<isset property="skip.delete-liferay-home" />
 							</not>
 							<then>
-								<delete dir="${user.home}/liferay"/>
+								<delete dir="${user.home}/liferay" />
 							</then>
 						</if>
 
@@ -3139,10 +3167,10 @@ file.
 		<copy file="${sql.dir}${sql.file}" tofile="${sql.file}" />
 
 		<replace file="${sql.file}">
-			<replacefilter token="drop database lportal;" value="drop database ${db.schema};"/>
-			<replacefilter token="create database lportal;" value="create database ${db.schema} pagesize 8192;"/>
-			<replacefilter token="create database lportal pagesize 8192;" value="create database ${db.schema} pagesize 8192;"/>
-			<replacefilter token="connect to lportal;" value="connect to ${db.schema} USER ${db.username} USING ${db.password};"/>
+			<replacefilter token="drop database lportal;" value="drop database ${db.schema};" />
+			<replacefilter token="create database lportal;" value="create database ${db.schema} pagesize 8192;" />
+			<replacefilter token="create database lportal pagesize 8192;" value="create database ${db.schema} pagesize 8192;" />
+			<replacefilter token="connect to lportal;" value="connect to ${db.schema} USER ${db.username} USING ${db.password};" />
 		</replace>
 
 		<exec executable="${plink.executable}">
@@ -3209,16 +3237,16 @@ file.
 			<isset property="test.database.collate" />
 			<then>
 				<replace file="${sql.file}">
-					<replacefilter token="drop database if exists lportal;" value="drop database if exists ${db.schema};"/>
-					<replacefilter token="create database lportal character set utf8;" value="create database ${db.schema} character set utf8 collate utf8_bin;"/>
-					<replacefilter token="use lportal;" value="use ${db.schema};"/>
+					<replacefilter token="drop database if exists lportal;" value="drop database if exists ${db.schema};" />
+					<replacefilter token="create database lportal character set utf8;" value="create database ${db.schema} character set utf8 collate utf8_bin;" />
+					<replacefilter token="use lportal;" value="use ${db.schema};" />
 				</replace>
 			</then>
 			<else>
 				<replace file="${sql.file}">
-					<replacefilter token="drop database if exists lportal;" value="drop database if exists ${db.schema};"/>
-					<replacefilter token="create database lportal character set utf8;" value="create database ${db.schema} character set utf8;"/>
-					<replacefilter token="use lportal;" value="use ${db.schema};"/>
+					<replacefilter token="drop database if exists lportal;" value="drop database if exists ${db.schema};" />
+					<replacefilter token="create database lportal character set utf8;" value="create database ${db.schema} character set utf8;" />
+					<replacefilter token="use lportal;" value="use ${db.schema};" />
 				</replace>
 			</else>
 		</if>
@@ -3308,9 +3336,9 @@ file.
 		<copy file="${sql.dir}${sql.file}" tofile="${sql.file}" />
 
 		<replace file="${sql.file}">
-			<replacefilter token="drop database lportal;" value="drop database ${db.schema};"/>
-			<replacefilter token="create database lportal encoding = 'UNICODE';" value="create database ${db.schema} encoding = 'UNICODE';"/>
-			<replacefilter token="\c lportal;" value="\c ${db.schema};"/>
+			<replacefilter token="drop database lportal;" value="drop database ${db.schema};" />
+			<replacefilter token="create database lportal encoding = 'UNICODE';" value="create database ${db.schema} encoding = 'UNICODE';" />
+			<replacefilter token="\c lportal;" value="\c ${db.schema};" />
 		</replace>
 
 		<exec executable="${plink.executable}">
@@ -3377,9 +3405,9 @@ file.
 		<copy file="${sql.dir}${sql.file}" tofile="${sql.file}" />
 
 		<replace file="${sql.file}">
-			<replacefilter token="drop database lportal;" value="drop database ${db.schema};"/>
-			<replacefilter token="create database lportal;" value="create database ${db.schema};"/>
-			<replacefilter token="use lportal;" value="use ${db.schema};"/>
+			<replacefilter token="drop database lportal;" value="drop database ${db.schema};" />
+			<replacefilter token="create database lportal;" value="create database ${db.schema};" />
+			<replacefilter token="use lportal;" value="use ${db.schema};" />
 		</replace>
 
 		<exec executable="${plink.executable}">
@@ -3434,9 +3462,9 @@ file.
 
 		<replace file="${sql.file}">
 			<replacefilter token="use master" value="use master${line.separator}dump transaction master with no_log${line.separator}go${line.separator}if exists (select * from master.dbo.sysdatabases where name = &quot;${db.schema}&quot;)${line.separator}begin${line.separator}drop database ${db.schema}${line.separator}end${line.separator}go${line.separator}create database ${db.schema} on ${db.device.name} = &quot;250m&quot;${line.separator}go" />
-			<replacefilter token="exec sp_dboption 'lportal', 'allow nulls by default' , true" value="exec sp_dboption '${db.schema}', 'allow nulls by default' , true"/>
-			<replacefilter token="exec sp_dboption 'lportal', 'select into/bulkcopy/pllsort' , true" value="exec sp_dboption '${db.schema}', 'select into/bulkcopy/pllsort' , true"/>
-			<replacefilter token="use lportal" value="use ${db.schema}${line.separator}go"/>
+			<replacefilter token="exec sp_dboption 'lportal', 'allow nulls by default' , true" value="exec sp_dboption '${db.schema}', 'allow nulls by default' , true" />
+			<replacefilter token="exec sp_dboption 'lportal', 'select into/bulkcopy/pllsort' , true" value="exec sp_dboption '${db.schema}', 'select into/bulkcopy/pllsort' , true" />
+			<replacefilter token="use lportal" value="use ${db.schema}${line.separator}go" />
 		</replace>
 
 		<exec executable="${plink.executable}">
@@ -3796,9 +3824,9 @@ file.
 
 		<antcall target="revert-test-properties" />
 
-		<antcall target="test-integration" inheritAll="false"/>
+		<antcall target="test-integration" inheritAll="false" />
 
-		<antcall target="test-unit" inheritAll="false"/>
+		<antcall target="test-unit" inheritAll="false" />
 
 		<ant dir="sql" target="test-sample-sql" inheritAll="false" />
 

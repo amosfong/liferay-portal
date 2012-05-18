@@ -14,12 +14,47 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.model.CountryConstants;
+
+import java.util.Locale;
+
 /**
  * @author Brian Wing Shun Chan
+ * @author Hugo Huijser
  */
 public class CountryImpl extends CountryBaseImpl {
 
 	public CountryImpl() {
 	}
+
+	public String getName(Locale locale) {
+		String name = LanguageUtil.get(
+			locale, CountryConstants.NAME_PREFIX + getName());
+
+		if (!name.startsWith(CountryConstants.NAME_PREFIX)) {
+			return name;
+		}
+
+		return getName();
+	}
+
+	public String getNameCurrentLanguageId() {
+		return _nameCurrentLanguageId;
+	}
+
+	@JSON
+	public String getNameCurrentValue() {
+		Locale locale = getLocale(_nameCurrentLanguageId);
+
+		return getName(locale);
+	}
+
+	public void setNameCurrentLanguageId(String languageId) {
+		_nameCurrentLanguageId = languageId;
+	}
+
+	private String _nameCurrentLanguageId;
 
 }

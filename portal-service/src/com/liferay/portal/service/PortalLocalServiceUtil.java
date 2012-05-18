@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -62,20 +61,15 @@ public class PortalLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PortalLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PortalLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PortalLocalService service) {
-		MethodCache.remove(PortalLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PortalLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PortalLocalService.class);
 	}
 
 	private static PortalLocalService _service;

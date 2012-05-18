@@ -60,6 +60,7 @@ import com.liferay.portlet.documentlibrary.FileMimeTypeException;
 import com.liferay.portlet.documentlibrary.FileNameException;
 import com.liferay.portlet.documentlibrary.FileSizeException;
 import com.liferay.portlet.documentlibrary.InvalidFileEntryTypeException;
+import com.liferay.portlet.documentlibrary.InvalidFileVersionException;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.NoSuchFileVersionException;
 import com.liferay.portlet.documentlibrary.NoSuchFolderException;
@@ -97,6 +98,7 @@ import org.apache.struts.action.ActionMapping;
  * @author Brian Wing Shun Chan
  * @author Alexander Chow
  * @author Sergio González
+ * @author Manuel de la Peña
  */
 public class EditFileEntryAction extends PortletAction {
 
@@ -135,7 +137,7 @@ public class EditFileEntryAction extends PortletAction {
 				addTempFileEntry(actionRequest);
 			}
 			else if (cmd.equals(Constants.DELETE)) {
-				deleteFileEntries(actionRequest);
+				deleteFileEntries(actionRequest, false);
 			}
 			else if (cmd.equals(Constants.DELETE_TEMP)) {
 				deleteTempFileEntry(actionRequest, actionResponse);
@@ -151,6 +153,9 @@ public class EditFileEntryAction extends PortletAction {
 			}
 			else if (cmd.equals(Constants.MOVE)) {
 				moveFileEntries(actionRequest);
+			}
+			else if (cmd.equals(Constants.MOVE_TO_TRASH)) {
+				deleteFileEntries(actionRequest, true);
 			}
 			else if (cmd.equals(Constants.REVERT)) {
 				revertFileEntry(actionRequest);
@@ -179,6 +184,7 @@ public class EditFileEntryAction extends PortletAction {
 		}
 		catch (Exception e) {
 			if (e instanceof DuplicateLockException ||
+				e instanceof InvalidFileVersionException ||
 				e instanceof NoSuchFileEntryException ||
 				e instanceof PrincipalException) {
 
@@ -189,7 +195,7 @@ public class EditFileEntryAction extends PortletAction {
 						actionRequest, dle.getClass().getName(), dle.getLock());
 				}
 				else {
-					SessionErrors.add(actionRequest, e.getClass().getName());
+					SessionErrors.add(actionRequest, e.getClass());
 				}
 
 				setForward(actionRequest, "portlet.document_library.error");
@@ -206,7 +212,7 @@ public class EditFileEntryAction extends PortletAction {
 				if (!cmd.equals(Constants.ADD_MULTIPLE) &&
 					!cmd.equals(Constants.ADD_TEMP)) {
 
-					SessionErrors.add(actionRequest, e.getClass().getName());
+					SessionErrors.add(actionRequest, e.getClass());
 
 					return;
 				}
@@ -240,7 +246,7 @@ public class EditFileEntryAction extends PortletAction {
 						ServletResponseConstants.SC_FILE_SIZE_EXCEPTION);
 				}
 
-				SessionErrors.add(actionRequest, e.getClass().getName());
+				SessionErrors.add(actionRequest, e.getClass());
 			}
 			else if (e instanceof AssetCategoryException ||
 					 e instanceof AssetTagException) {
@@ -267,7 +273,7 @@ public class EditFileEntryAction extends PortletAction {
 				e instanceof NoSuchFileVersionException ||
 				e instanceof PrincipalException) {
 
-				SessionErrors.add(renderRequest, e.getClass().getName());
+				SessionErrors.add(renderRequest, e.getClass());
 
 				return mapping.findForward("portlet.document_library.error");
 			}
@@ -480,20 +486,35 @@ public class EditFileEntryAction extends PortletAction {
 		}
 	}
 
-	protected void deleteFileEntries(ActionRequest actionRequest)
+	protected void deleteFileEntries(
+			ActionRequest actionRequest, boolean moveToTrash)
 		throws Exception {
 
 		long fileEntryId = ParamUtil.getLong(actionRequest, "fileEntryId");
+		String version = ParamUtil.getString(actionRequest, "version");
 
-		if (fileEntryId > 0) {
-			DLAppServiceUtil.deleteFileEntry(fileEntryId);
+		if ((fileEntryId > 0) && Validator.isNotNull(version)) {
+			DLAppServiceUtil.deleteFileVersion(fileEntryId, version);
 		}
 		else {
-			long[] deleteFileEntryIds = StringUtil.split(
-				ParamUtil.getString(actionRequest, "deleteEntryIds"), 0L);
+			long[] deleteFileEntryIds = null;
 
-			for (int i = 0; i < deleteFileEntryIds.length; i++) {
-				DLAppServiceUtil.deleteFileEntry(deleteFileEntryIds[i]);
+			if (fileEntryId > 0) {
+				deleteFileEntryIds = new long[] {fileEntryId};
+			}
+			else {
+				deleteFileEntryIds = StringUtil.split(
+					ParamUtil.getString(actionRequest, "deleteFileEntryIds"),
+					0L);
+			}
+
+			for (long deleteFileEntryId : deleteFileEntryIds) {
+				if (moveToTrash) {
+					DLAppServiceUtil.moveFileEntryToTrash(deleteFileEntryId);
+				}
+				else {
+					DLAppServiceUtil.deleteFileEntry(deleteFileEntryId);
+				}
 			}
 		}
 	}

@@ -15,7 +15,6 @@
 package com.liferay.portlet.shopping.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class ShoppingCartLocalServiceUtil {
 		com.liferay.portlet.shopping.model.ShoppingCart shoppingCart)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteShoppingCart(shoppingCart);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -302,20 +305,15 @@ public class ShoppingCartLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ShoppingCartLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ShoppingCartLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ShoppingCartLocalService service) {
-		MethodCache.remove(ShoppingCartLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ShoppingCartLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ShoppingCartLocalService.class);
 	}
 
 	private static ShoppingCartLocalService _service;

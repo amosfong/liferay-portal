@@ -32,6 +32,24 @@ public class DLAppServiceWrapper implements DLAppService,
 	}
 
 	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public java.lang.String getBeanIdentifier() {
+		return _dlAppService.getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public void setBeanIdentifier(java.lang.String beanIdentifier) {
+		_dlAppService.setBeanIdentifier(beanIdentifier);
+	}
+
+	/**
 	* Adds a file entry and associated metadata. It is created based on a byte
 	* array.
 	*
@@ -479,6 +497,22 @@ public class DLAppServiceWrapper implements DLAppService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_dlAppService.deleteFileShortcut(fileShortcutId);
+	}
+
+	/**
+	* Deletes the file version. File versions can only be deleted if it is
+	* approved and there are other approved file versions available. This
+	* method is only supported by the Liferay repository.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @param version the version label of the file version
+	* @throws PortalException if the file version could not be found or invalid
+	* @throws SystemException if a system exception occurred
+	*/
+	public void deleteFileVersion(long fileEntryId, java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_dlAppService.deleteFileVersion(fileEntryId, version);
 	}
 
 	/**
@@ -1662,6 +1696,20 @@ public class DLAppServiceWrapper implements DLAppService,
 	}
 
 	/**
+	* Moves the file entry with the primary key to the trash portlet.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @throws PortalException if the file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.kernel.repository.model.FileEntry moveFileEntryToTrash(
+		long fileEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlAppService.moveFileEntryToTrash(fileEntryId);
+	}
+
+	/**
 	* Moves the folder to the new parent folder with the primary key.
 	*
 	* @param folderId the primary key of the folder
@@ -1719,6 +1767,19 @@ public class DLAppServiceWrapper implements DLAppService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlAppService.refreshFolderLock(lockUuid, companyId,
 			expirationTime);
+	}
+
+	/**
+	* Moves the file entry with the primary key to the trash portlet.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @throws PortalException if the file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public void restoreFileEntryFromTrash(long fileEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_dlAppService.restoreFileEntryFromTrash(fileEntryId);
 	}
 
 	/**

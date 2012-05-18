@@ -15,7 +15,6 @@
 package com.liferay.portlet.mobiledevicerules.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MDRActionLocalServiceUtil {
 		com.liferay.portlet.mobiledevicerules.model.MDRAction mdrAction)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMDRAction(mdrAction);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -386,20 +389,15 @@ public class MDRActionLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MDRActionLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MDRActionLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MDRActionLocalService service) {
-		MethodCache.remove(MDRActionLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MDRActionLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MDRActionLocalService.class);
 	}
 
 	private static MDRActionLocalService _service;

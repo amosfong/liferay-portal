@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class PasswordTrackerLocalServiceUtil {
 		com.liferay.portal.model.PasswordTracker passwordTracker)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deletePasswordTracker(passwordTracker);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -294,20 +297,15 @@ public class PasswordTrackerLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PasswordTrackerLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PasswordTrackerLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PasswordTrackerLocalService service) {
-		MethodCache.remove(PasswordTrackerLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PasswordTrackerLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PasswordTrackerLocalService.class);
 	}
 
 	private static PasswordTrackerLocalService _service;

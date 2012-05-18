@@ -96,7 +96,7 @@ public class EditTemplateAction extends PortletAction {
 			if (e instanceof NoSuchTemplateException ||
 				e instanceof PrincipalException) {
 
-				SessionErrors.add(actionRequest, e.getClass().getName());
+				SessionErrors.add(actionRequest, e.getClass());
 
 				setForward(actionRequest, "portlet.dynamic_data_mapping.error");
 			}
@@ -125,7 +125,7 @@ public class EditTemplateAction extends PortletAction {
 			if (e instanceof NoSuchTemplateException ||
 				e instanceof PrincipalException) {
 
-				SessionErrors.add(renderRequest, e.getClass().getName());
+				SessionErrors.add(renderRequest, e.getClass());
 
 				return mapping.findForward(
 					"portlet.dynamic_data_mapping.error");
@@ -226,8 +226,8 @@ public class EditTemplateAction extends PortletAction {
 
 		if (templateId <= 0) {
 			template = DDMTemplateServiceUtil.addTemplate(
-				groupId, classNameId, classPK, nameMap, descriptionMap, type,
-				mode, language, script, serviceContext);
+				groupId, classNameId, classPK, null, nameMap, descriptionMap,
+				type, mode, language, script, serviceContext);
 		}
 		else {
 			template = DDMTemplateServiceUtil.updateTemplate(

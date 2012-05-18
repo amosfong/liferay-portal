@@ -15,7 +15,6 @@
 package com.liferay.portlet.flags.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,25 @@ public class FlagsEntryServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.flags.service.impl.FlagsEntryServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static void addEntry(java.lang.String className, long classPK,
 		java.lang.String reporterEmailAddress, long reportedUserId,
 		java.lang.String contentTitle, java.lang.String contentURL,
@@ -53,20 +71,15 @@ public class FlagsEntryServiceUtil {
 
 			ReferenceRegistry.registerReference(FlagsEntryServiceUtil.class,
 				"_service");
-			MethodCache.remove(FlagsEntryService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(FlagsEntryService service) {
-		MethodCache.remove(FlagsEntryService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(FlagsEntryServiceUtil.class,
-			"_service");
-		MethodCache.remove(FlagsEntryService.class);
 	}
 
 	private static FlagsEntryService _service;

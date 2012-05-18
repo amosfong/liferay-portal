@@ -30,6 +30,24 @@ public class UserGroupServiceWrapper implements UserGroupService,
 	}
 
 	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public java.lang.String getBeanIdentifier() {
+		return _userGroupService.getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public void setBeanIdentifier(java.lang.String beanIdentifier) {
+		_userGroupService.setBeanIdentifier(beanIdentifier);
+	}
+
+	/**
 	* Adds the user groups to the group.
 	*
 	* @param groupId the primary key of the group
@@ -138,7 +156,9 @@ public class UserGroupServiceWrapper implements UserGroupService,
 	* @throws SystemException if a system exception occurred
 	*/
 	public java.util.List<com.liferay.portal.model.UserGroup> getUserUserGroups(
-		long userId) throws com.liferay.portal.kernel.exception.SystemException {
+		long userId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _userGroupService.getUserUserGroups(userId);
 	}
 

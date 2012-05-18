@@ -15,7 +15,6 @@
 package com.liferay.portlet.bookmarks.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,25 @@ public class BookmarksFolderServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.bookmarks.service.impl.BookmarksFolderServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static com.liferay.portlet.bookmarks.model.BookmarksFolder addFolder(
 		long parentFolderId, java.lang.String name,
 		java.lang.String description,
@@ -106,20 +124,15 @@ public class BookmarksFolderServiceUtil {
 
 			ReferenceRegistry.registerReference(BookmarksFolderServiceUtil.class,
 				"_service");
-			MethodCache.remove(BookmarksFolderService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(BookmarksFolderService service) {
-		MethodCache.remove(BookmarksFolderService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(BookmarksFolderServiceUtil.class,
-			"_service");
-		MethodCache.remove(BookmarksFolderService.class);
 	}
 
 	private static BookmarksFolderService _service;

@@ -52,10 +52,14 @@ public class PortalHibernateConfiguration extends LocalSessionFactoryBean {
 			new ProxyFactory.ClassLoaderProvider() {
 
 				public ClassLoader get(ProxyFactory proxyFactory) {
-					return Thread.currentThread().getContextClassLoader();
+					Thread currentThread = Thread.currentThread();
+
+					return currentThread.getContextClassLoader();
 				}
 
 			};
+
+		setBeanClassLoader(getConfigurationClassLoader());
 
 		return super.buildSessionFactory();
 	}
@@ -71,7 +75,9 @@ public class PortalHibernateConfiguration extends LocalSessionFactoryBean {
 	}
 
 	protected ClassLoader getConfigurationClassLoader() {
-		return getClass().getClassLoader();
+		Class<?> clazz = getClass();
+
+		return clazz.getClassLoader();
 	}
 
 	protected String[] getConfigurationResources() {

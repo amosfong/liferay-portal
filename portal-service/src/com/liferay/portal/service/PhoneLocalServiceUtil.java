@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class PhoneLocalServiceUtil {
 		com.liferay.portal.model.Phone phone)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deletePhone(phone);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -301,20 +304,15 @@ public class PhoneLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PhoneLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PhoneLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PhoneLocalService service) {
-		MethodCache.remove(PhoneLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PhoneLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PhoneLocalService.class);
 	}
 
 	private static PhoneLocalService _service;

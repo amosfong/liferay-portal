@@ -36,6 +36,7 @@ import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.PortalPermissionUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.service.permission.RolePermissionUtil;
+import com.liferay.portal.service.permission.UserPermissionUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.UniqueList;
 
@@ -58,6 +59,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	/**
 	 * Adds a group.
 	 *
+	 * @param  parentGroupId the primary key of the parent group
 	 * @param  liveGroupId the primary key of the live group
 	 * @param  name the entity's name
 	 * @param  description the group's description (optionally
@@ -79,22 +81,23 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public Group addGroup(
-			long liveGroupId, String name, String description, int type,
-			String friendlyURL, boolean site, boolean active,
-			ServiceContext serviceContext)
+			long parentGroupId, long liveGroupId, String name,
+			String description, int type, String friendlyURL, boolean site,
+			boolean active, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		GroupPermissionUtil.check(
 			getPermissionChecker(), liveGroupId, ActionKeys.UPDATE);
 
 		return groupLocalService.addGroup(
-			getUserId(), null, 0, liveGroupId, name, description, type,
-			friendlyURL, site, active, serviceContext);
+			getUserId(), parentGroupId, null, 0, liveGroupId, name, description,
+			type, friendlyURL, site, active, serviceContext);
 	}
 
 	/**
 	 * Adds the group using the group default live group ID.
 	 *
+	 * @param  parentGroupId the primary key of the parent group
 	 * @param  name the entity's name
 	 * @param  description the group's description (optionally
 	 *         <code>null</code>)
@@ -114,16 +117,39 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public Group addGroup(
+			long parentGroupId, String name, String description, int type,
+			String friendlyURL, boolean site, boolean active,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		if (!GroupPermissionUtil.contains(
+				getPermissionChecker(), parentGroupId,
+				ActionKeys.MANAGE_SUBGROUPS) &&
+			!PortalPermissionUtil.contains(
+				getPermissionChecker(), ActionKeys.ADD_COMMUNITY)) {
+
+			throw new PrincipalException(
+				"User " + getUserId() + " does not have permissions to add " +
+					"a site with parent " + parentGroupId);
+		}
+
+		return groupLocalService.addGroup(
+			getUserId(), parentGroupId, null, 0, name, description, type,
+			friendlyURL, site, active, serviceContext);
+	}
+
+	/**
+	 * @deprecated {@link #addGroup(long, String, String, int, String, boolean,
+	 *             boolean, ServiceContext)}
+	 */
+	public Group addGroup(
 			String name, String description, int type, String friendlyURL,
 			boolean site, boolean active, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		PortalPermissionUtil.check(
-			getPermissionChecker(), ActionKeys.ADD_COMMUNITY);
-
-		return groupLocalService.addGroup(
-			getUserId(), null, 0, name, description, type, friendlyURL, site,
-			active, serviceContext);
+		return addGroup(
+			GroupConstants.DEFAULT_PARENT_GROUP_ID, name, description, type,
+			friendlyURL, site, active, serviceContext);
 	}
 
 	/**
@@ -545,7 +571,16 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public boolean hasUserGroup(long userId, long groupId)
-		throws SystemException {
+		throws PortalException, SystemException {
+
+		try {
+			UserPermissionUtil.check(
+				getPermissionChecker(), userId, ActionKeys.VIEW);
+		}
+		catch (PrincipalException e) {
+			GroupPermissionUtil.check(
+				getPermissionChecker(), groupId, ActionKeys.VIEW_MEMBERS);
+		}
 
 		return groupLocalService.hasUserGroup(userId, groupId);
 	}
@@ -640,7 +675,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		RolePermissionUtil.check(
-			getPermissionChecker(), roleId, ActionKeys.UPDATE);
+			getPermissionChecker(), roleId, ActionKeys.ASSIGN_MEMBERS);
 
 		groupLocalService.setRoleGroups(roleId, groupIds);
 	}
@@ -658,7 +693,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		RolePermissionUtil.check(
-			getPermissionChecker(), roleId, ActionKeys.UPDATE);
+			getPermissionChecker(), roleId, ActionKeys.ASSIGN_MEMBERS);
 
 		groupLocalService.unsetRoleGroups(roleId, groupIds);
 	}
@@ -685,29 +720,10 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	}
 
 	/**
-	 * Updates the group's type settings.
-	 *
-	 * @param  groupId the primary key of the group
-	 * @param  typeSettings the group's new type settings (optionally
-	 *         <code>null</code>)
-	 * @return the group
-	 * @throws PortalException if the user did not have permission to update the
-	 *         group or if a group with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Group updateGroup(long groupId, String typeSettings)
-		throws PortalException, SystemException {
-
-		GroupPermissionUtil.check(
-			getPermissionChecker(), groupId, ActionKeys.UPDATE);
-
-		return groupLocalService.updateGroup(groupId, typeSettings);
-	}
-
-	/**
 	 * Updates the group.
 	 *
 	 * @param  groupId the primary key of the group
+	 * @param  parentGroupId the primary key of the parent group
 	 * @param  name the group's new name
 	 * @param  description the group's new description (optionally
 	 *         <code>null</code>)
@@ -726,16 +742,37 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public Group updateGroup(
-			long groupId, String name, String description, int type,
-			String friendlyURL, boolean active, ServiceContext serviceContext)
+			long groupId, long parentGroupId, String name, String description,
+			int type, String friendlyURL, boolean active,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		GroupPermissionUtil.check(
 			getPermissionChecker(), groupId, ActionKeys.UPDATE);
 
 		return groupLocalService.updateGroup(
-			groupId, name, description, type, friendlyURL, active,
-			serviceContext);
+			groupId, parentGroupId, name, description, type, friendlyURL,
+			active, serviceContext);
+	}
+
+	/**
+	 * Updates the group's type settings.
+	 *
+	 * @param  groupId the primary key of the group
+	 * @param  typeSettings the group's new type settings (optionally
+	 *         <code>null</code>)
+	 * @return the group
+	 * @throws PortalException if the user did not have permission to update the
+	 *         group or if a group with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Group updateGroup(long groupId, String typeSettings)
+		throws PortalException, SystemException {
+
+		GroupPermissionUtil.check(
+			getPermissionChecker(), groupId, ActionKeys.UPDATE);
+
+		return groupLocalService.updateGroup(groupId, typeSettings);
 	}
 
 	protected List<Group> filterGroups(List<Group> groups)

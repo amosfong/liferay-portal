@@ -15,7 +15,6 @@
 package com.liferay.portlet.announcements.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class AnnouncementsEntryLocalServiceUtil {
 		com.liferay.portlet.announcements.model.AnnouncementsEntry announcementsEntry)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAnnouncementsEntry(announcementsEntry);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -436,20 +439,15 @@ public class AnnouncementsEntryLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AnnouncementsEntryLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AnnouncementsEntryLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AnnouncementsEntryLocalService service) {
-		MethodCache.remove(AnnouncementsEntryLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AnnouncementsEntryLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AnnouncementsEntryLocalService.class);
 	}
 
 	private static AnnouncementsEntryLocalService _service;

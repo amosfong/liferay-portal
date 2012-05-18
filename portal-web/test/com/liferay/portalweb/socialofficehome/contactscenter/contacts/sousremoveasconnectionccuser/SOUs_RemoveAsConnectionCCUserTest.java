@@ -101,11 +101,11 @@ public class SOUs_RemoveAsConnectionCCUserTest extends BaseTestCase {
 				"//div[contains(@class, 'contacts-profile')]/div/div[2]/div[3]"));
 		assertFalse(selenium.isElementPresent(
 				"//div[contains(@class, 'contacts-center-home-content')]"));
-		assertEquals(RuntimeVariables.replace("Remove as Connection"),
+		assertEquals(RuntimeVariables.replace("Remove Connection"),
 			selenium.getText(
 				"//button[@id='_1_WAR_contactsportlet_removeConnectionButton']"));
 		selenium.clickAt("//button[@id='_1_WAR_contactsportlet_removeConnectionButton']",
-			RuntimeVariables.replace("Remove as Connection"));
+			RuntimeVariables.replace("Remove Connection"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -114,7 +114,7 @@ public class SOUs_RemoveAsConnectionCCUserTest extends BaseTestCase {
 
 			try {
 				if (selenium.isVisible(
-							"//button[@id='_1_WAR_contactsportlet_addConnectionButton']/a/span")) {
+							"//button[@id='_1_WAR_contactsportlet_addConnectionButton']")) {
 					break;
 				}
 			}
@@ -124,9 +124,9 @@ public class SOUs_RemoveAsConnectionCCUserTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Add as Connection"),
+		assertEquals(RuntimeVariables.replace("Add Connection"),
 			selenium.getText(
-				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']/a/span"));
+				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']"));
 		assertFalse(selenium.isVisible(
 				"//button[@id='_1_WAR_contactsportlet_removeConnectionButton']"));
 	}

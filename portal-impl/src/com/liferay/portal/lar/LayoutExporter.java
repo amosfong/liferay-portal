@@ -614,7 +614,7 @@ public class LayoutExporter {
 		JournalPortletDataHandlerImpl.exportArticle(
 			portletDataContext, layoutElement, layoutElement, layoutElement,
 			dlFileEntryTypesElement, dlFoldersElement, dlFilesElement,
-			dlFileRanksElement, article, false);
+			dlFileRanksElement, article, null, false);
 	}
 
 	protected void exportLayout(
@@ -633,10 +633,12 @@ public class LayoutExporter {
 
 		LayoutRevision layoutRevision = null;
 
-		if (LayoutStagingUtil.isBranchingLayout(layout)) {
-			ServiceContext serviceContext =
-				ServiceContextThreadLocal.getServiceContext();
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
 
+		boolean exportLAR = ParamUtil.getBoolean(serviceContext, "exportLAR");
+
+		if (!exportLAR && LayoutStagingUtil.isBranchingLayout(layout)) {
 			long layoutSetBranchId = ParamUtil.getLong(
 				serviceContext, "layoutSetBranchId");
 
@@ -648,7 +650,7 @@ public class LayoutExporter {
 				layoutSetBranchId, true, layout.getPlid());
 
 			if (layoutRevision == null) {
-					return;
+				return;
 			}
 
 			LayoutStagingHandler layoutStagingHandler =

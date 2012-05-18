@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SocialActivityLocalServiceUtil {
 		com.liferay.portlet.social.model.SocialActivity socialActivity)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSocialActivity(socialActivity);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -468,7 +471,8 @@ public class SocialActivityLocalServiceUtil {
 	* @throws SystemException if a system exception occurred
 	*/
 	public static void deleteUserActivities(long userId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteUserActivities(userId);
 	}
 
@@ -1092,20 +1096,15 @@ public class SocialActivityLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SocialActivityLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SocialActivityLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SocialActivityLocalService service) {
-		MethodCache.remove(SocialActivityLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SocialActivityLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SocialActivityLocalService.class);
 	}
 
 	private static SocialActivityLocalService _service;

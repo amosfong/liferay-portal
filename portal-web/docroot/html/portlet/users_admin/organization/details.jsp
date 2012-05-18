@@ -290,7 +290,8 @@ if (parentOrganization != null) {
 			{
 				select: '<portlet:namespace />countryId',
 				selectData: Liferay.Address.getCountries,
-				selectDesc: 'name',
+				selectDesc: 'nameCurrentValue',
+				selectSort: '<%= true %>',
 				selectId: 'countryId',
 				selectVal: '<%= countryId %>'
 			},

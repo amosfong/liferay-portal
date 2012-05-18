@@ -2,7 +2,7 @@ Liferay.Util.portletTitleEdit = function() {
 };
 
 if (!themeDisplay.isStatePopUp()) {
-	AUI().ready('aui-live-search', 'aui-overlay-context-panel', 'event-mouseenter', 'liferay-message', 'liferay-store', 'node-focusmanager', 'transition',
+	AUI().ready('aui-live-search', 'aui-overlay-context-panel', 'event-mouseenter', 'liferay-message', 'liferay-panel', 'liferay-store', 'node-focusmanager', 'transition',
 		function(A) {
 			var body = A.getBody();
 
@@ -44,8 +44,6 @@ if (!themeDisplay.isStatePopUp()) {
 					instance._renderUI();
 
 					instance._bindUI();
-
-					instance._createDataConnection();
 
 					instance._createCancelButton();
 
@@ -126,12 +124,6 @@ if (!themeDisplay.isStatePopUp()) {
 							instance._searchActive = false;
 						}
 					);
-				},
-
-				_createDataConnection: function() {
-					var instance = this;
-
-					Liferay.Store('autoLoad', false);
 				},
 
 				_createFocusManager: function() {
@@ -316,12 +308,7 @@ if (!themeDisplay.isStatePopUp()) {
 						},
 						function() {
 							if (persist) {
-								instance._saveData.set(
-									'data',
-									{
-										'control-panel-sidebar-minimized': newVal
-									}
-								).start();
+								Liferay.Store('control-panel-sidebar-minimized', newVal);
 							}
 
 							body.addClass(CSS_DISPLAY_PANEL_COLUMNS);

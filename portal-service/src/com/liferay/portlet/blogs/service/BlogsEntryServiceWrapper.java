@@ -31,6 +31,24 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		_blogsEntryService = blogsEntryService;
 	}
 
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public java.lang.String getBeanIdentifier() {
+		return _blogsEntryService.getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public void setBeanIdentifier(java.lang.String beanIdentifier) {
+		_blogsEntryService.setBeanIdentifier(beanIdentifier);
+	}
+
 	public com.liferay.portlet.blogs.model.BlogsEntry addEntry(
 		java.lang.String title, java.lang.String description,
 		java.lang.String content, int displayDateMonth, int displayDateDay,
@@ -164,6 +182,18 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		return _blogsEntryService.getOrganizationEntriesRSS(organizationId,
 			displayDate, status, max, type, version, displayStyle, feedURL,
 			entryURL, themeDisplay);
+	}
+
+	public void moveEntryToTrash(long entryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_blogsEntryService.moveEntryToTrash(entryId);
+	}
+
+	public void restoreEntryFromTrash(long entryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_blogsEntryService.restoreEntryFromTrash(entryId);
 	}
 
 	public void subscribe(long groupId)

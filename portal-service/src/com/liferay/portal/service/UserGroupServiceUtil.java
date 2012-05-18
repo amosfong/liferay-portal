@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,24 @@ public class UserGroupServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.UserGroupServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
 
 	/**
 	* Adds the user groups to the group.
@@ -148,7 +165,9 @@ public class UserGroupServiceUtil {
 	* @throws SystemException if a system exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.UserGroup> getUserUserGroups(
-		long userId) throws com.liferay.portal.kernel.exception.SystemException {
+		long userId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getUserUserGroups(userId);
 	}
 
@@ -207,20 +226,15 @@ public class UserGroupServiceUtil {
 
 			ReferenceRegistry.registerReference(UserGroupServiceUtil.class,
 				"_service");
-			MethodCache.remove(UserGroupService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(UserGroupService service) {
-		MethodCache.remove(UserGroupService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(UserGroupServiceUtil.class,
-			"_service");
-		MethodCache.remove(UserGroupService.class);
 	}
 
 	private static UserGroupService _service;

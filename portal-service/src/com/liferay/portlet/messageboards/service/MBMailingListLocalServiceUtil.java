@@ -15,7 +15,6 @@
 package com.liferay.portlet.messageboards.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MBMailingListLocalServiceUtil {
 		com.liferay.portlet.messageboards.model.MBMailingList mbMailingList)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMBMailingList(mbMailingList);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -352,20 +355,15 @@ public class MBMailingListLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MBMailingListLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MBMailingListLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MBMailingListLocalService service) {
-		MethodCache.remove(MBMailingListLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MBMailingListLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MBMailingListLocalService.class);
 	}
 
 	private static MBMailingListLocalService _service;

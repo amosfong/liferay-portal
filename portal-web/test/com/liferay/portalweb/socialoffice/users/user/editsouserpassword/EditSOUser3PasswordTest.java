@@ -29,6 +29,24 @@ public class EditSOUser3PasswordTest extends BaseTestCase {
 			case 1:
 				selenium.open("/web/guest/home/");
 				loadRequiredJavaScriptModules();
+
+				for (int second = 0;; second++) {
+					if (second >= 90) {
+						fail("timeout");
+					}
+
+					try {
+						if (selenium.isVisible(
+									"//li[@id='_145_mySites']/a/span")) {
+							break;
+						}
+					}
+					catch (Exception e) {
+					}
+
+					Thread.sleep(1000);
+				}
+
 				assertEquals(RuntimeVariables.replace("Go to"),
 					selenium.getText("//li[@id='_145_mySites']/a/span"));
 				selenium.mouseOver("//li[@id='_145_mySites']/a/span");
@@ -138,8 +156,20 @@ public class EditSOUser3PasswordTest extends BaseTestCase {
 					selenium.getText("//div[@class='portlet-msg-success']"));
 				selenium.open("/web/guest/home/");
 				loadRequiredJavaScriptModules();
-				assertTrue(selenium.isVisible("//li[@id='_145_userMenu']/a"));
-				selenium.mouseOver("//li[@id='_145_userMenu']/a");
+
+				boolean socialOfficeSignOut1Present = selenium.isElementPresent(
+						"//li[@id='_145_userMenu']");
+
+				if (!socialOfficeSignOut1Present) {
+					label = 3;
+
+					continue;
+				}
+
+				assertTrue(selenium.isVisible("//li[@id='_145_userMenu']"));
+				selenium.mouseOver("//li[@id='_145_userMenu']");
+
+			case 3:
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -163,6 +193,23 @@ public class EditSOUser3PasswordTest extends BaseTestCase {
 				loadRequiredJavaScriptModules();
 				selenium.open("/web/guest/home/");
 				loadRequiredJavaScriptModules();
+
+				for (int second = 0;; second++) {
+					if (second >= 90) {
+						fail("timeout");
+					}
+
+					try {
+						if (selenium.isVisible("link=Sign In")) {
+							break;
+						}
+					}
+					catch (Exception e) {
+					}
+
+					Thread.sleep(1000);
+				}
+
 				selenium.clickAt("link=Sign In",
 					RuntimeVariables.replace("Sign In"));
 				selenium.waitForPageToLoad("30000");
@@ -197,8 +244,20 @@ public class EditSOUser3PasswordTest extends BaseTestCase {
 				loadRequiredJavaScriptModules();
 				selenium.open("/web/guest/home/");
 				loadRequiredJavaScriptModules();
-				assertTrue(selenium.isVisible("//li[@id='_145_userMenu']/a"));
-				selenium.mouseOver("//li[@id='_145_userMenu']/a");
+
+				boolean socialOfficeSignOut2Present = selenium.isElementPresent(
+						"//li[@id='_145_userMenu']");
+
+				if (!socialOfficeSignOut2Present) {
+					label = 4;
+
+					continue;
+				}
+
+				assertTrue(selenium.isVisible("//li[@id='_145_userMenu']"));
+				selenium.mouseOver("//li[@id='_145_userMenu']");
+
+			case 4:
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -222,6 +281,23 @@ public class EditSOUser3PasswordTest extends BaseTestCase {
 				loadRequiredJavaScriptModules();
 				selenium.open("/web/guest/home/");
 				loadRequiredJavaScriptModules();
+
+				for (int second = 0;; second++) {
+					if (second >= 90) {
+						fail("timeout");
+					}
+
+					try {
+						if (selenium.isVisible("link=Sign In")) {
+							break;
+						}
+					}
+					catch (Exception e) {
+					}
+
+					Thread.sleep(1000);
+				}
+
 				selenium.clickAt("link=Sign In",
 					RuntimeVariables.replace("Sign In"));
 				selenium.waitForPageToLoad("30000");

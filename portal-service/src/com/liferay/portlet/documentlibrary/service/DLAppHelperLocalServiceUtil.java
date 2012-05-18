@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -124,11 +123,26 @@ public class DLAppHelperLocalServiceUtil {
 		getService().moveFileEntry(fileEntry);
 	}
 
+	public static com.liferay.portal.kernel.repository.model.FileEntry moveFileEntryToTrash(
+		long userId,
+		com.liferay.portal.kernel.repository.model.FileEntry fileEntry)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().moveFileEntryToTrash(userId, fileEntry);
+	}
+
 	public static void moveFolder(
 		com.liferay.portal.kernel.repository.model.Folder folder)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().moveFolder(folder);
+	}
+
+	public static void restoreFileEntryFromTrash(long userId,
+		com.liferay.portal.kernel.repository.model.FileEntry fileEntry)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().restoreFileEntryFromTrash(userId, fileEntry);
 	}
 
 	public static com.liferay.portlet.asset.model.AssetEntry updateAsset(
@@ -186,13 +200,13 @@ public class DLAppHelperLocalServiceUtil {
 	public static void updateStatus(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		com.liferay.portal.kernel.repository.model.FileVersion latestFileVersion,
-		int status,
+		int oldStatus, int newStatus,
 		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService()
-			.updateStatus(userId, fileEntry, latestFileVersion, status,
-			workflowContext);
+			.updateStatus(userId, fileEntry, latestFileVersion, oldStatus,
+			newStatus, workflowContext);
 	}
 
 	public static DLAppHelperLocalService getService() {
@@ -201,20 +215,15 @@ public class DLAppHelperLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLAppHelperLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLAppHelperLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLAppHelperLocalService service) {
-		MethodCache.remove(DLAppHelperLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLAppHelperLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLAppHelperLocalService.class);
 	}
 
 	private static DLAppHelperLocalService _service;

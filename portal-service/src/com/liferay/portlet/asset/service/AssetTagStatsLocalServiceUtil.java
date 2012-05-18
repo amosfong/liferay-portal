@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class AssetTagStatsLocalServiceUtil {
 		com.liferay.portlet.asset.model.AssetTagStats assetTagStats)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAssetTagStats(assetTagStats);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -393,20 +396,15 @@ public class AssetTagStatsLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AssetTagStatsLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AssetTagStatsLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AssetTagStatsLocalService service) {
-		MethodCache.remove(AssetTagStatsLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AssetTagStatsLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AssetTagStatsLocalService.class);
 	}
 
 	private static AssetTagStatsLocalService _service;

@@ -15,6 +15,7 @@
 package com.liferay.portal.service;
 
 import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.portal.NoSuchLayoutException;
 import com.liferay.portal.jcr.JCRFactoryUtil;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.messaging.MessageBus;
@@ -23,10 +24,17 @@ import com.liferay.portal.kernel.messaging.sender.MessageSender;
 import com.liferay.portal.kernel.messaging.sender.SynchronousMessageSender;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineUtil;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
+import com.liferay.portal.model.Group;
+import com.liferay.portal.model.GroupConstants;
+import com.liferay.portal.model.Layout;
+import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.impl.PortletImpl;
@@ -40,8 +48,15 @@ import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
+import com.liferay.portlet.blogs.asset.BlogsEntryAssetRendererFactory;
+import com.liferay.portlet.blogs.trash.BlogsEntryTrashHandler;
+import com.liferay.portlet.blogs.util.BlogsIndexer;
+import com.liferay.portlet.blogs.workflow.BlogsEntryWorkflowHandler;
 import com.liferay.portlet.bookmarks.util.BookmarksIndexer;
 import com.liferay.portlet.directory.workflow.UserWorkflowHandler;
+import com.liferay.portlet.documentlibrary.asset.DLFileEntryAssetRendererFactory;
+import com.liferay.portlet.documentlibrary.trash.DLFileEntryTrashHandler;
 import com.liferay.portlet.documentlibrary.util.DLIndexer;
 import com.liferay.portlet.documentlibrary.workflow.DLFileEntryWorkflowHandler;
 import com.liferay.portlet.journal.workflow.JournalArticleWorkflowHandler;
@@ -65,10 +80,61 @@ import java.util.Set;
  * @author Brian Wing Shun Chan
  * @author Michael Young
  * @author Alexander Chow
+ * @author Manuel de la Peña
  */
 public class ServiceTestUtil {
 
 	public static final int THREAD_COUNT = 25;
+
+	public static Group addGroup(long parentGroupId, String name)
+		throws Exception {
+
+		Group group = GroupLocalServiceUtil.fetchGroup(
+			TestPropsValues.getCompanyId(), name);
+
+		if (group != null) {
+			return group;
+		}
+
+		String description = "This is a test group.";
+		int type = GroupConstants.TYPE_SITE_OPEN;
+		String friendlyURL =
+			StringPool.SLASH + FriendlyURLNormalizerUtil.normalize(name);
+		boolean site = true;
+		boolean active = true;
+
+		return GroupLocalServiceUtil.addGroup(
+			TestPropsValues.getUserId(), parentGroupId, null, 0, name,
+			description, type, friendlyURL, site, active, getServiceContext());
+	}
+
+	public static Group addGroup(String name) throws Exception {
+		return addGroup(GroupConstants.DEFAULT_PARENT_GROUP_ID, name);
+	}
+
+	public static Layout addLayout(long groupId, String name) throws Exception {
+		String friendlyURL =
+			StringPool.SLASH + FriendlyURLNormalizerUtil.normalize(name);
+
+		Layout layout = null;
+
+		try {
+			layout = LayoutLocalServiceUtil.getFriendlyURLLayout(
+				groupId, false, friendlyURL);
+
+			return layout;
+		}
+		catch (NoSuchLayoutException nsle) {
+		}
+
+		String description = "This is a test page.";
+
+		return LayoutLocalServiceUtil.addLayout(
+			TestPropsValues.getUserId(), groupId, false,
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, name, null, description,
+			LayoutConstants.TYPE_PORTLET, false, friendlyURL,
+			getServiceContext());
+	}
 
 	public static User addUser(
 			String screenName, boolean autoScreenName, long[] groupIds)
@@ -114,6 +180,16 @@ public class ServiceTestUtil {
 
 	public static void destroyServices() {
 		FileUtil.delete(PropsValues.LIFERAY_HOME + "/data");
+	}
+
+	public static SearchContext getSearchContext() throws Exception {
+		SearchContext searchContext = new SearchContext();
+
+		searchContext.setCompanyId(TestPropsValues.getCompanyId());
+		searchContext.setGroupIds(new long[] {TestPropsValues.getGroupId()});
+		searchContext.setUserId(TestPropsValues.getUserId());
+
+		return searchContext;
 	}
 
 	public static ServiceContext getServiceContext() throws Exception {
@@ -169,6 +245,7 @@ public class ServiceTestUtil {
 
 		// Indexers
 
+		IndexerRegistryUtil.register(new BlogsIndexer());
 		IndexerRegistryUtil.register(new ContactIndexer());
 		IndexerRegistryUtil.register(new UserIndexer());
 		IndexerRegistryUtil.register(new BookmarksIndexer());
@@ -225,8 +302,21 @@ public class ServiceTestUtil {
 			e.printStackTrace();
 		}
 
+		// Asset
+
+		AssetRendererFactoryRegistryUtil.register(
+			new BlogsEntryAssetRendererFactory());
+		AssetRendererFactoryRegistryUtil.register(
+			new DLFileEntryAssetRendererFactory());
+
+		// Trash
+
+		TrashHandlerRegistryUtil.register(new BlogsEntryTrashHandler());
+		TrashHandlerRegistryUtil.register(new DLFileEntryTrashHandler());
+
 		// Workflow
 
+		WorkflowHandlerRegistryUtil.register(new BlogsEntryWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(new DLFileEntryWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(
 			new JournalArticleWorkflowHandler());

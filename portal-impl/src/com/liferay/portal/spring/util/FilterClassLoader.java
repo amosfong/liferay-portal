@@ -37,9 +37,8 @@ public class FilterClassLoader extends ClassLoader {
 
 			return portalClassLoader.loadClass(name);
 		}
-		else {
-			return super.loadClass(name);
-		}
+
+		return super.loadClass(name);
 	}
 
 }

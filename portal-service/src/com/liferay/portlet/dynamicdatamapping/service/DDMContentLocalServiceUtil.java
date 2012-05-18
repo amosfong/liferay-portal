@@ -15,7 +15,6 @@
 package com.liferay.portlet.dynamicdatamapping.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DDMContentLocalServiceUtil {
 		com.liferay.portlet.dynamicdatamapping.model.DDMContent ddmContent)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDDMContent(ddmContent);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -348,20 +351,15 @@ public class DDMContentLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DDMContentLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DDMContentLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DDMContentLocalService service) {
-		MethodCache.remove(DDMContentLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DDMContentLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DDMContentLocalService.class);
 	}
 
 	private static DDMContentLocalService _service;

@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DLFileRankLocalServiceUtil {
 		com.liferay.portlet.documentlibrary.model.DLFileRank dlFileRank)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDLFileRank(dlFileRank);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -321,20 +324,15 @@ public class DLFileRankLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLFileRankLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLFileRankLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLFileRankLocalService service) {
-		MethodCache.remove(DLFileRankLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLFileRankLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLFileRankLocalService.class);
 	}
 
 	private static DLFileRankLocalService _service;

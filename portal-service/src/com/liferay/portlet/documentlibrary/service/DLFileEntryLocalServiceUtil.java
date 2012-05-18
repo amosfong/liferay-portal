@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DLFileEntryLocalServiceUtil {
 		com.liferay.portlet.documentlibrary.model.DLFileEntry dlFileEntry)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDLFileEntry(dlFileEntry);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -426,6 +429,13 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().deleteFileEntry(userId, fileEntryId);
 	}
 
+	public static void deleteFileVersion(long userId, long fileEntryId,
+		java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteFileVersion(userId, fileEntryId, version);
+	}
+
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry fetchFileEntryByAnyImageId(
 		long imageId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -485,6 +495,12 @@ public class DLFileEntryLocalServiceUtil {
 		int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getFileEntries(start, end);
+	}
+
+	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getFileEntries(
+		long groupId, long folderId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getFileEntries(groupId, folderId);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getFileEntries(
@@ -713,20 +729,15 @@ public class DLFileEntryLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLFileEntryLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLFileEntryLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLFileEntryLocalService service) {
-		MethodCache.remove(DLFileEntryLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLFileEntryLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLFileEntryLocalService.class);
 	}
 
 	private static DLFileEntryLocalService _service;

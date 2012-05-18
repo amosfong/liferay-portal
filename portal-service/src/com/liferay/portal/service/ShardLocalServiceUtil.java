@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class ShardLocalServiceUtil {
 		com.liferay.portal.model.Shard shard)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteShard(shard);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -278,20 +281,15 @@ public class ShardLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ShardLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ShardLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ShardLocalService service) {
-		MethodCache.remove(ShardLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ShardLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ShardLocalService.class);
 	}
 
 	private static ShardLocalService _service;

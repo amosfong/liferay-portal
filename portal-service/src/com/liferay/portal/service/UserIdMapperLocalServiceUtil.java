@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class UserIdMapperLocalServiceUtil {
 		com.liferay.portal.model.UserIdMapper userIdMapper)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteUserIdMapper(userIdMapper);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -301,20 +304,15 @@ public class UserIdMapperLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(UserIdMapperLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(UserIdMapperLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(UserIdMapperLocalService service) {
-		MethodCache.remove(UserIdMapperLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(UserIdMapperLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(UserIdMapperLocalService.class);
 	}
 
 	private static UserIdMapperLocalService _service;

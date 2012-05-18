@@ -42,6 +42,15 @@ String mode = BeanParamUtil.getString(template, request, "mode", "create");
 String type = BeanParamUtil.getString(template, request, "type", "detail");
 String script = BeanParamUtil.getString(template, request, "script");
 
+if (Validator.isNull(script)) {
+	if (classNameId == PortalUtil.getClassNameId(AssetEntry.class)) {
+		script = ContentUtil.get(PropsUtil.get(PropsKeys.ASSET_PUBLISHER_DISPLAY_STYLES_TEMPLATE_CONTENT));
+	}
+	else if (!type.equals("detail")) {
+		script = ContentUtil.get(PropsUtil.get(PropsKeys.DYNAMIC_DATA_MAPPING_TEMPLATE_LANGUAGE_CONTENT, new Filter(DDMTemplateConstants.LANG_TYPE_VM)));
+	}
+}
+
 JSONArray scriptJSONArray = null;
 
 if (type.equals("detail") && Validator.isNotNull(script)) {
@@ -85,6 +94,12 @@ if (Validator.isNotNull(structureAvailableFields)) {
 		else {
 			title = LanguageUtil.format(pageContext, "new-template-for-structure-x", structure.getName(locale), false);
 		}
+	}
+	else if (template != null) {
+		title = template.getName(locale);
+	}
+	else {
+		title = LanguageUtil.get(pageContext, "new-display-style");
 	}
 	%>
 

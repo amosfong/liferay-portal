@@ -15,7 +15,6 @@
 package com.liferay.portlet.dynamicdatamapping.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DDMStorageLinkLocalServiceUtil {
 		com.liferay.portlet.dynamicdatamapping.model.DDMStorageLink ddmStorageLink)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDDMStorageLink(ddmStorageLink);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -330,20 +333,15 @@ public class DDMStorageLinkLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DDMStorageLinkLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DDMStorageLinkLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DDMStorageLinkLocalService service) {
-		MethodCache.remove(DDMStorageLinkLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DDMStorageLinkLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DDMStorageLinkLocalService.class);
 	}
 
 	private static DDMStorageLinkLocalService _service;

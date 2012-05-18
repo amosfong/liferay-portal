@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -92,6 +91,10 @@ public class SocialActivityAchievementLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .deleteSocialActivityAchievement(socialActivityAchievement);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -336,20 +339,15 @@ public class SocialActivityAchievementLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SocialActivityAchievementLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SocialActivityAchievementLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SocialActivityAchievementLocalService service) {
-		MethodCache.remove(SocialActivityAchievementLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SocialActivityAchievementLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SocialActivityAchievementLocalService.class);
 	}
 
 	private static SocialActivityAchievementLocalService _service;

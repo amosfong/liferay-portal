@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class TicketLocalServiceUtil {
 		com.liferay.portal.model.Ticket ticket)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteTicket(ticket);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -288,20 +291,15 @@ public class TicketLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(TicketLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(TicketLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(TicketLocalService service) {
-		MethodCache.remove(TicketLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(TicketLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(TicketLocalService.class);
 	}
 
 	private static TicketLocalService _service;

@@ -14,12 +14,11 @@
 
 package com.liferay.portal.spring.context;
 
-import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
-import com.liferay.portal.kernel.util.AggregateClassLoader;
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.spring.util.FilterClassLoader;
+import com.liferay.portal.kernel.spring.util.SpringFactoryUtil;
 
+import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
@@ -29,18 +28,31 @@ public class PortletBeanFactoryPostProcessor
 	implements BeanFactoryPostProcessor {
 
 	public void postProcessBeanFactory(
-		ConfigurableListableBeanFactory beanFactory) {
+		ConfigurableListableBeanFactory configurableListableBeanFactory) {
 
-		ClassLoader beanClassLoader =
-			AggregateClassLoader.getAggregateClassLoader(
-				new ClassLoader[] {
-					PortletClassLoaderUtil.getClassLoader(),
-					PortalClassLoaderUtil.getClassLoader()
-				});
+		configurableListableBeanFactory.setBeanClassLoader(
+			PortletApplicationContext.getBeanClassLoader());
 
-		beanClassLoader = new FilterClassLoader(beanClassLoader);
+		String[] names =
+			configurableListableBeanFactory.getBeanDefinitionNames();
 
-		beanFactory.setBeanClassLoader(beanClassLoader);
+		for (String name : names) {
+			if (!name.contains(SpringFactoryUtil.class.getName())) {
+				continue;
+			}
+
+			try {
+				Object bean = configurableListableBeanFactory.getBean(name);
+
+				if (bean instanceof BeanPostProcessor) {
+					configurableListableBeanFactory.addBeanPostProcessor(
+						(BeanPostProcessor)bean);
+				}
+			}
+			catch (BeanIsAbstractException biae) {
+				continue;
+			}
+		}
 	}
 
 }

@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -147,20 +146,15 @@ public class SocialRequestInterpreterLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SocialRequestInterpreterLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SocialRequestInterpreterLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SocialRequestInterpreterLocalService service) {
-		MethodCache.remove(SocialRequestInterpreterLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SocialRequestInterpreterLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SocialRequestInterpreterLocalService.class);
 	}
 
 	private static SocialRequestInterpreterLocalService _service;

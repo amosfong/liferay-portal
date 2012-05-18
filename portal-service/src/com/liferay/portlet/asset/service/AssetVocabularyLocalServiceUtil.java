@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class AssetVocabularyLocalServiceUtil {
 		com.liferay.portlet.asset.model.AssetVocabulary assetVocabulary)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAssetVocabulary(assetVocabulary);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -446,20 +449,15 @@ public class AssetVocabularyLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AssetVocabularyLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AssetVocabularyLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AssetVocabularyLocalService service) {
-		MethodCache.remove(AssetVocabularyLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AssetVocabularyLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AssetVocabularyLocalService.class);
 	}
 
 	private static AssetVocabularyLocalService _service;

@@ -23,7 +23,7 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class SOUs_RepostMicroblogsContentProfileTest extends BaseTestCase {
 	public void testSOUs_RepostMicroblogsContentProfile()
 		throws Exception {
-		selenium.open("/web/joebloggs/profile");
+		selenium.open("/web/joebloggs/so/profile");
 		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
@@ -73,7 +73,7 @@ public class SOUs_RepostMicroblogsContentProfileTest extends BaseTestCase {
 		}
 
 		assertEquals(RuntimeVariables.replace(
-				"Do You Want to Repost This Entry?"),
+				"Do you want to repost this entry?"),
 			selenium.getText("//div[@class='repost-header']"));
 		assertEquals(RuntimeVariables.replace("Joe Bloggs"),
 			selenium.getText("//div[@class='user-name']/span"));

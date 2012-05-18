@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.deploy.hot.HotDeployException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
-import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.util.AggregateClassLoader;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -93,16 +92,18 @@ public class PluginPackageHotDeployListener extends BaseHotDeployListener {
 			_log.debug("Invoking deploy for " + servletContextName);
 		}
 
-		if (servletContext.getResource(
-				"/WEB-INF/liferay-theme-loader.xml") != null) {
-
-			return;
-		}
-
 		PluginPackage pluginPackage =
 			PluginPackageUtil.readPluginPackageServletContext(servletContext);
 
 		if (pluginPackage == null) {
+			return;
+		}
+
+		if (servletContext.getResource(
+				"/WEB-INF/liferay-theme-loader.xml") != null) {
+
+			PluginPackageUtil.registerInstalledPluginPackage(pluginPackage);
+
 			return;
 		}
 
@@ -112,18 +113,13 @@ public class PluginPackageHotDeployListener extends BaseHotDeployListener {
 
 		PluginPackageUtil.registerInstalledPluginPackage(pluginPackage);
 
-		ClassLoader portletClassLoader = hotDeployEvent.getContextClassLoader();
+		ClassLoader classLoader = hotDeployEvent.getContextClassLoader();
 
-		servletContext.setAttribute(
-			PortletServlet.PORTLET_CLASS_LOADER, portletClassLoader);
+		initServiceComponent(servletContext, classLoader);
 
-		ServletContextPool.put(servletContextName, servletContext);
+		registerClpMessageListeners(servletContext, classLoader);
 
-		initServiceComponent(servletContext, portletClassLoader);
-
-		registerClpMessageListeners(servletContext, portletClassLoader);
-
-		reconfigureCaches(portletClassLoader);
+		reconfigureCaches(classLoader);
 
 		if (_log.isInfoEnabled()) {
 			_log.info(

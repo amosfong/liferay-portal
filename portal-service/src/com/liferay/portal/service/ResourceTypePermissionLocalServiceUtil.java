@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -90,6 +89,10 @@ public class ResourceTypePermissionLocalServiceUtil {
 		com.liferay.portal.model.ResourceTypePermission resourceTypePermission)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteResourceTypePermission(resourceTypePermission);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -349,20 +352,15 @@ public class ResourceTypePermissionLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ResourceTypePermissionLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ResourceTypePermissionLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ResourceTypePermissionLocalService service) {
-		MethodCache.remove(ResourceTypePermissionLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ResourceTypePermissionLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ResourceTypePermissionLocalService.class);
 	}
 
 	private static ResourceTypePermissionLocalService _service;

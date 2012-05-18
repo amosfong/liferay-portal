@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DLSyncLocalServiceUtil {
 		com.liferay.portlet.documentlibrary.model.DLSync dlSync)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDLSync(dlSync);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -319,20 +322,15 @@ public class DLSyncLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLSyncLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLSyncLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLSyncLocalService service) {
-		MethodCache.remove(DLSyncLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLSyncLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLSyncLocalService.class);
 	}
 
 	private static DLSyncLocalService _service;

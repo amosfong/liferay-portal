@@ -15,7 +15,6 @@
 package com.liferay.portlet.expando.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,25 @@ public class ExpandoColumnServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.expando.service.impl.ExpandoColumnServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
+
 	public static com.liferay.portlet.expando.model.ExpandoColumn addColumn(
 		long tableId, java.lang.String name, int type)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -86,20 +104,15 @@ public class ExpandoColumnServiceUtil {
 
 			ReferenceRegistry.registerReference(ExpandoColumnServiceUtil.class,
 				"_service");
-			MethodCache.remove(ExpandoColumnService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ExpandoColumnService service) {
-		MethodCache.remove(ExpandoColumnService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ExpandoColumnServiceUtil.class,
-			"_service");
-		MethodCache.remove(ExpandoColumnService.class);
 	}
 
 	private static ExpandoColumnService _service;

@@ -17,7 +17,8 @@
 				(startPeriod + ? >= ?) AND
 				(endPeriod = -1) AND
 				(User_.defaultUser != [$TRUE$]) AND
-				(User_.status = 0)
+				(User_.status = 0) AND
+				(SocialActivityCounter.active_ = [$TRUE$])
 		]]>
 	</sql>
 	<sql id="com.liferay.portlet.social.service.persistence.SocialActivityCounterFinder.findAC_ByG_N_S_E_1">
@@ -31,7 +32,8 @@
 				(name = ?) AND
 				(startPeriod >= ?) AND
 				(startPeriod <= ?) AND
-				(startPeriod + ? <= ?)
+				(startPeriod + ? <= ? + 1) AND
+				(active_ = [$TRUE$])
 			GROUP BY
 				name, startPeriod, endPeriod
 			ORDER BY
@@ -49,7 +51,8 @@
 				(name = ?) AND
 				(startPeriod >= ?) AND
 				(startPeriod <= ?) AND
-				(startPeriod + ? <= ?)
+				(startPeriod + ? <= ? + 1) AND
+				(active_ = [$TRUE$])
 			GROUP BY
 				classNameId, name
 			ORDER BY
@@ -67,7 +70,8 @@
 				(classNameId = ?) AND
 				(classPK IN ([$CLASS_PK$])) AND
 				(name IN ([$NAME$])) AND
-				(endPeriod = -1)
+				(endPeriod = -1) AND
+				(active_ = [$TRUE$])
 			ORDER BY
 				classPK
 		]]>
@@ -88,7 +92,8 @@
 				(startPeriod >= ?) AND
 				(endPeriod = -1) AND
 				(User_.defaultUser != [$TRUE$]) AND
-				(User_.status = 0)
+				(User_.status = 0) AND
+				(active_ = [$TRUE$])
 			GROUP BY
 				classPK
 			ORDER BY

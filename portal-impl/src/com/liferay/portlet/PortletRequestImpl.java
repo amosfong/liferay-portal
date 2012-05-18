@@ -108,6 +108,8 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		_request.removeAttribute(JavaConstants.JAVAX_PORTLET_REQUEST);
 		_request.removeAttribute(JavaConstants.JAVAX_PORTLET_RESPONSE);
 		_request.removeAttribute(PortletRequest.LIFECYCLE_PHASE);
+		_request.removeAttribute(WebKeys.PORTLET_ID);
+		_request.removeAttribute(WebKeys.PORTLET_CONTENT);
 	}
 
 	public void defineObjects(
@@ -836,7 +838,7 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 		InvokerPortlet invokerPortlet, String portletNamespace, String name) {
 
 		if (name.startsWith(portletNamespace) &&
-			!invokerPortlet.isFacesPortlet()) {
+			((invokerPortlet == null) || !invokerPortlet.isFacesPortlet())) {
 
 			name = name.substring(portletNamespace.length());
 		}

@@ -523,6 +523,10 @@
 			<forward name="portlet.document_library.error" path="portlet.document_library.error" />
 		</action>
 
+		<action path="/document_library/restore_entry" type="com.liferay.portlet.trash.action.EditEntryAction">
+			<forward name="portlet.document_library.view" path="portlet.document_library.view" />
+		</action>
+
 		<action path="/document_library/search" type="com.liferay.portlet.documentlibrary.action.SearchAction">
 			<forward name="portlet.document_library.view" path="portlet.document_library.view" />
 		</action>
@@ -744,6 +748,11 @@
 			<forward name="portlet.document_library.error" path="portlet.document_library.error" />
 		</action>
 
+		<action path="/image_gallery_display/edit_shortcut" type="com.liferay.portlet.documentlibrary.action.EditFileShortcutAction">
+			<forward name="portlet.document_library.edit_file_shortcut" path="portlet.document_library.edit_file_shortcut" />
+			<forward name="portlet.document_library.error" path="portlet.document_library.error" />
+		</action>
+
 		<action path="/image_gallery_display/embedded_player" forward="portlet.image_gallery_display.embedded_player" />
 
 		<action path="/image_gallery_display/find_folder" type="com.liferay.portlet.documentlibrary.action.FindFolderAction" />
@@ -812,6 +821,11 @@
 			<forward name="portlet.journal.error" path="portlet.journal.error" />
 		</action>
 
+		<action path="/journal/edit_folder" type="com.liferay.portlet.journal.action.EditFolderAction">
+			<forward name="portlet.journal.edit_folder" path="portlet.journal.edit_folder" />
+			<forward name="portlet.journal.error" path="portlet.journal.error" />
+		</action>
+
 		<action path="/journal/edit_structure" type="com.liferay.portlet.journal.action.EditStructureAction">
 			<forward name="portlet.journal.edit_structure" path="portlet.journal.edit_structure" />
 			<forward name="portlet.journal.error" path="portlet.journal.error" />
@@ -840,6 +854,11 @@
 
 		<action path="/journal/get_template_content" type="com.liferay.portlet.journal.action.GetTemplateContentAction" />
 
+		<action path="/journal/move_folder" type="com.liferay.portlet.journal.action.EditFolderAction">
+			<forward name="portlet.journal.edit_folder" path="portlet.journal.move_folder" />
+			<forward name="portlet.journal.error" path="portlet.journal.error" />
+		</action>
+
 		<action path="/journal/rss" type="com.liferay.portlet.journal.action.RSSAction" />
 
 		<action path="/journal/select_display_page" type="com.liferay.portlet.layoutsadmin.action.EditLayoutsAction" />
@@ -848,6 +867,8 @@
 			<forward name="portlet.document_library.error" path="portlet.document_library.error" />
 			<forward name="portlet.document_library.view" path="portlet.journal.select_document_library" />
 		</action>
+
+		<action path="/journal/select_folder" forward="portlet.journal.select_folder" />
 
 		<action path="/journal/select_structure" forward="portlet.journal.select_structure" />
 
@@ -869,6 +890,14 @@
 			<forward name="portlet.journal.error" path="portlet.journal.error" />
 			<forward name="portlet.journal.edit_article" path="portlet.journal.view_article_history" />
 		</action>
+
+		<action path="/journal/view_feeds" forward="portlet.journal.view_feeds" />
+
+		<action path="/journal/view_recent" forward="portlet.journal.view_recent" />
+
+		<action path="/journal/view_structures" forward="portlet.journal.view_structures" />
+
+		<action path="/journal/view_templates" forward="portlet.journal.view_templates" />
 
 		<!-- Journal Articles -->
 
@@ -1823,6 +1852,20 @@
 		<action path="/staging_bar/view_layout_revisions" forward="portlet.staging_bar.view_layout_revisions" />
 
 		<action path="/staging_bar/view_layout_set_branches" forward="portlet.staging_bar.view_layout_set_branches" />
+
+		<!-- Trash -->
+
+		<action path="/trash/edit_discussion" type="com.liferay.portlet.messageboards.action.EditDiscussionAction">
+			<forward name="portlet.message_boards.error" path="portlet.trash.error" />
+		</action>
+
+		<action path="/trash/edit_entry" type="com.liferay.portlet.trash.action.EditEntryAction">
+			<forward name="portlet.trash.view" path="portlet.trash.view" />
+		</action>
+
+		<action path="/trash/view" forward="portlet.trash.view" />
+
+		<action path="/trash/view_content" forward="portlet.trash.view_content" />
 
 		<!-- Update Manager -->
 

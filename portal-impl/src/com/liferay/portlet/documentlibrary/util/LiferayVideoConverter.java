@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 
 import com.xuggle.xuggler.Configuration;
 import com.xuggle.xuggler.IAudioResampler;
@@ -37,8 +36,6 @@ import com.xuggle.xuggler.IVideoResampler;
 
 import java.io.File;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -50,12 +47,12 @@ import java.util.Properties;
 public class LiferayVideoConverter extends LiferayConverter {
 
 	public LiferayVideoConverter(
-		String inputURL, String outputURL, String tempFileName,
+		String inputURL, String outputURL, String videoContainer,
 		Properties videoProperties, Properties ffpresetProperties) {
 
 		_inputURL = inputURL;
 		_outputURL = outputURL;
-		_tempFileName = tempFileName;
+		_videoContainer = videoContainer;
 		_ffpresetProperties = ffpresetProperties;
 
 		_height = GetterUtil.getInteger(
@@ -64,12 +61,9 @@ public class LiferayVideoConverter extends LiferayConverter {
 		_width = GetterUtil.getInteger(
 			videoProperties.getProperty(
 				PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH), _width);
-		_previewVideoContainers = StringUtil.split(
-			videoProperties.getProperty(
-				PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_CONTAINERS));
 
-		initVideoBitRateMap(videoProperties);
-		initVideoFrameRateMap(videoProperties);
+		initVideoBitRate(videoProperties);
+		initVideoFrameRate(videoProperties);
 	}
 
 	@Override
@@ -93,8 +87,8 @@ public class LiferayVideoConverter extends LiferayConverter {
 	protected void createMP4FastStart() {
 		File videoFile = new File(_outputURL);
 
-		if (_outputVideoFormat.equals("mp4") && videoFile.exists()) {
-			File tempFile = new File(_tempFileName);
+		if (_videoContainer.equals("mp4") && videoFile.exists()) {
+			File tempFile = new File(_outputURL + ".tmp");
 
 			try {
 				JQTFastStart.convert(videoFile, tempFile);
@@ -128,11 +122,6 @@ public class LiferayVideoConverter extends LiferayConverter {
 		if (inputStreamsCount < 0) {
 			throw new RuntimeException("Input URL does not have any streams");
 		}
-
-		IContainerFormat iContainerFormat =
-			_outputIContainer.getContainerFormat();
-
-		_outputVideoFormat = iContainerFormat.getOutputFormatShortName();
 
 		IAudioResampler[] iAudioResamplers =
 			new IAudioResampler[inputStreamsCount];
@@ -281,56 +270,61 @@ public class LiferayVideoConverter extends LiferayConverter {
 		return _inputIContainer;
 	}
 
-	protected void initVideoBitRateMap(Properties videoProperties) {
-		_videoBitRateMap = new HashMap<String, Integer>();
+	protected int getVideoBitRate(int originalBitRate) {
+		return getProperty(originalBitRate, _videoBitRate, _VIDEO_BIT_RATE_MAX);
+	}
 
-		for (String previewVideoContainer : _previewVideoContainers) {
-			int videoBitRate = GetterUtil.getInteger(
-				videoProperties.getProperty(
-					PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_BIT_RATE
-						+ "[" + previewVideoContainer + "]"));
+	protected ICodec getVideoEncodingICodec(
+		ICodec.Type inputICodecType, String outputURL) {
 
-			if (videoBitRate > _VIDEO_BIT_RATE_MAX) {
-				videoBitRate = _VIDEO_BIT_RATE_MAX;
-			}
+		IContainerFormat iContainerFormat =
+			_outputIContainer.getContainerFormat();
 
-			if (videoBitRate > 0) {
-				_videoBitRateMap.put(previewVideoContainer, videoBitRate);
+		String outputFormat = iContainerFormat.getOutputFormatShortName();
 
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Bit rate for " + previewVideoContainer + " set to " +
-							videoBitRate);
-				}
-			}
+		if (outputFormat.equals("mp4")) {
+			return ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_H264);
+		}
+		else {
+			return ICodec.guessEncodingCodec(
+				null, null, outputURL, null, inputICodecType);
 		}
 	}
 
-	protected void initVideoFrameRateMap(Properties videoProperties) {
-		_videoFrameRateMap = new HashMap<String, IRational>();
+	protected IRational getVideoFrameRate(IRational originalFrameRate) {
+		if (_videoFrameRate != null) {
+			originalFrameRate = _videoFrameRate;
+		}
 
-		for (String previewVideoContainer : _previewVideoContainers) {
-			int numerator = GetterUtil.getInteger(
-				videoProperties.getProperty(
-					PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_FRAME_RATE_NUMERATOR +
-						"[" + previewVideoContainer + "]"));
-			int denominator = GetterUtil.getInteger(
-				videoProperties.getProperty(
-					PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_FRAME_RATE_DENOMINATOR
-						+ StringPool.OPEN_BRACKET + previewVideoContainer
-							+ StringPool.CLOSE_BRACKET));
+		return originalFrameRate;
+	}
 
-			if ((numerator > 0) && (denominator > 0)) {
-				IRational iRational = IRational.make(numerator, denominator);
+	protected void initVideoBitRate(Properties videoProperties) {
+		_videoBitRate = getProperty(
+			videoProperties, PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_BIT_RATE,
+			"video bit rate", _videoContainer, _VIDEO_BIT_RATE_DEFAULT,
+			_VIDEO_BIT_RATE_MAX);
+	}
 
-				_videoFrameRateMap.put(previewVideoContainer, iRational);
+	protected void initVideoFrameRate(Properties videoProperties) {
+		int numerator = GetterUtil.getInteger(
+			videoProperties.getProperty(
+				PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_FRAME_RATE_NUMERATOR +
+					"[" + _videoContainer + "]"));
+		int denominator = GetterUtil.getInteger(
+			videoProperties.getProperty(
+				PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO_FRAME_RATE_DENOMINATOR
+					+ StringPool.OPEN_BRACKET + _videoContainer
+						+ StringPool.CLOSE_BRACKET));
 
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Frame rate for " + previewVideoContainer + " set to " +
-							iRational.getNumerator() + "/" +
-								iRational.getDenominator());
-				}
+		if ((numerator > 0) && (denominator > 0)) {
+			_videoFrameRate = IRational.make(numerator, denominator);
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Default frame rate for " + _videoContainer +
+						" configured to " + _videoFrameRate.getNumerator() +
+							"/" + _videoFrameRate.getDenominator());
 			}
 		}
 	}
@@ -344,7 +338,15 @@ public class LiferayVideoConverter extends LiferayConverter {
 			ICodec.Type inputICodecType, String outputURL, int index)
 		throws Exception {
 
-		IStream outputIStream = outputIContainer.addNewStream(index);
+		ICodec iCodec = getVideoEncodingICodec(inputICodecType, outputURL);
+
+		if (iCodec == null) {
+			throw new RuntimeException(
+				"Unable to determine " + inputICodecType + " encoder for " +
+					outputURL);
+		}
+
+		IStream outputIStream = outputIContainer.addNewStream(iCodec);
 
 		outputIStreams[index] = outputIStream;
 
@@ -358,35 +360,13 @@ public class LiferayVideoConverter extends LiferayConverter {
 			_log.info("Original video bitrate " + bitRate);
 		}
 
-		if (bitRate == 0) {
-			bitRate = GetterUtil.getInteger(
-				_videoBitRateMap.get(_outputVideoFormat),
-				_VIDEO_BIT_RATE_DEFAULT);
-		}
-		else if (bitRate > _VIDEO_BIT_RATE_MAX) {
-			bitRate = _VIDEO_BIT_RATE_MAX;
-		}
+		bitRate = getVideoBitRate(bitRate);
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Modified video bitrate " + bitRate);
 		}
 
 		outputIStreamCoder.setBitRate(bitRate);
-
-		ICodec iCodec = ICodec.guessEncodingCodec(
-			null, null, outputURL, null, inputICodecType);
-
-		if (_outputVideoFormat.equals("mp4")) {
-			iCodec = ICodec.findEncodingCodec(ICodec.ID.CODEC_ID_H264);
-		}
-
-		if (iCodec == null) {
-			throw new RuntimeException(
-				"Unable to determine " + inputICodecType + " encoder for " +
-					outputURL);
-		}
-
-		outputIStreamCoder.setCodec(iCodec);
 
 		IRational iRational = inputIStreamCoder.getFrameRate();
 
@@ -396,9 +376,7 @@ public class LiferayVideoConverter extends LiferayConverter {
 					iRational.getDenominator());
 		}
 
-		if (_videoFrameRateMap.containsKey(_outputVideoFormat)) {
-			iRational = _videoFrameRateMap.get(_outputVideoFormat);
-		}
+		iRational = getVideoFrameRate(iRational);
 
 		if (_log.isInfoEnabled()) {
 			_log.info(
@@ -457,11 +435,9 @@ public class LiferayVideoConverter extends LiferayConverter {
 	private String _inputURL;
 	private IContainer _outputIContainer;
 	private String _outputURL;
-	private String _outputVideoFormat;
-	private String[] _previewVideoContainers;
-	private String _tempFileName;
-	private Map<String, Integer> _videoBitRateMap;
-	private Map<String, IRational> _videoFrameRateMap;
+	private int _videoBitRate;
+	private String _videoContainer;
+	private IRational _videoFrameRate;
 	private int _width = 320;
 
 }

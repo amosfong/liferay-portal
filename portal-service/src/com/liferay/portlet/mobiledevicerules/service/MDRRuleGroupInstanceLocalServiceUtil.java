@@ -15,7 +15,6 @@
 package com.liferay.portlet.mobiledevicerules.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MDRRuleGroupInstanceLocalServiceUtil {
 		com.liferay.portlet.mobiledevicerules.model.MDRRuleGroupInstance mdrRuleGroupInstance)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMDRRuleGroupInstance(mdrRuleGroupInstance);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -399,20 +402,15 @@ public class MDRRuleGroupInstanceLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MDRRuleGroupInstanceLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MDRRuleGroupInstanceLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MDRRuleGroupInstanceLocalService service) {
-		MethodCache.remove(MDRRuleGroupInstanceLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MDRRuleGroupInstanceLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MDRRuleGroupInstanceLocalService.class);
 	}
 
 	private static MDRRuleGroupInstanceLocalService _service;

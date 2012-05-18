@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -67,20 +66,15 @@ public class QuartzLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(QuartzLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(QuartzLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(QuartzLocalService service) {
-		MethodCache.remove(QuartzLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(QuartzLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(QuartzLocalService.class);
 	}
 
 	private static QuartzLocalService _service;

@@ -15,7 +15,6 @@
 package com.liferay.portlet.calendar.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class CalEventLocalServiceUtil {
 		com.liferay.portlet.calendar.model.CalEvent calEvent)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteCalEvent(calEvent);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -510,20 +513,15 @@ public class CalEventLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(CalEventLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(CalEventLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(CalEventLocalService service) {
-		MethodCache.remove(CalEventLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(CalEventLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(CalEventLocalService.class);
 	}
 
 	private static CalEventLocalService _service;

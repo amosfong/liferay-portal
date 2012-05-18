@@ -100,9 +100,9 @@ public class SOUs_ViewRemoveAsConnectionCCUserTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("test@liferay.com"),
 			selenium.getText(
 				"//div[contains(@class, 'contacts-profile')]/div/div[2]/div[3]"));
-		assertEquals(RuntimeVariables.replace("Add as Connection"),
+		assertEquals(RuntimeVariables.replace("Add Connection"),
 			selenium.getText(
-				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']/a/span"));
+				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']"));
 		assertFalse(selenium.isVisible(
 				"//button[@id='_1_WAR_contactsportlet_removeConnectionButton']"));
 	}

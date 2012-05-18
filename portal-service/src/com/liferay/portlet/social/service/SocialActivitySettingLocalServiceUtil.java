@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SocialActivitySettingLocalServiceUtil {
 		com.liferay.portlet.social.model.SocialActivitySetting socialActivitySetting)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSocialActivitySetting(socialActivitySetting);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -265,6 +268,17 @@ public class SocialActivitySettingLocalServiceUtil {
 		getService().setBeanIdentifier(beanIdentifier);
 	}
 
+	public static void deleteActivitySetting(long groupId,
+		java.lang.String className, long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteActivitySetting(groupId, className, classPK);
+	}
+
+	public static void deleteActivitySettings(long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteActivitySettings(groupId);
+	}
+
 	public static com.liferay.portlet.social.model.SocialActivityDefinition getActivityDefinition(
 		long groupId, java.lang.String className, int activityType)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -289,6 +303,11 @@ public class SocialActivitySettingLocalServiceUtil {
 		return getService().isEnabled(groupId, classNameId);
 	}
 
+	public static boolean isEnabled(long groupId, long classNameId, long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().isEnabled(groupId, classNameId, classPK);
+	}
+
 	public static void updateActivitySetting(long groupId,
 		java.lang.String className, boolean enabled)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -304,6 +323,13 @@ public class SocialActivitySettingLocalServiceUtil {
 		getService()
 			.updateActivitySetting(groupId, className, activityType,
 			activityCounterDefinition);
+	}
+
+	public static void updateActivitySetting(long groupId,
+		java.lang.String className, long classPK, boolean enabled)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().updateActivitySetting(groupId, className, classPK, enabled);
 	}
 
 	public static void updateActivitySettings(long groupId,
@@ -322,20 +348,15 @@ public class SocialActivitySettingLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SocialActivitySettingLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SocialActivitySettingLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SocialActivitySettingLocalService service) {
-		MethodCache.remove(SocialActivitySettingLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SocialActivitySettingLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SocialActivitySettingLocalService.class);
 	}
 
 	private static SocialActivitySettingLocalService _service;

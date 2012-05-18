@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class ImageLocalServiceUtil {
 		com.liferay.portal.model.Image image)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteImage(image);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -369,20 +372,15 @@ public class ImageLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ImageLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ImageLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ImageLocalService service) {
-		MethodCache.remove(ImageLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ImageLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ImageLocalService.class);
 	}
 
 	private static ImageLocalService _service;

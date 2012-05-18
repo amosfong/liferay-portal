@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SocialRelationLocalServiceUtil {
 		com.liferay.portlet.social.model.SocialRelation socialRelation)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSocialRelation(socialRelation);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -556,20 +559,15 @@ public class SocialRelationLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SocialRelationLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SocialRelationLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SocialRelationLocalService service) {
-		MethodCache.remove(SocialRelationLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SocialRelationLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SocialRelationLocalService.class);
 	}
 
 	private static SocialRelationLocalService _service;

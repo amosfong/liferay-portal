@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class WebDAVPropsLocalServiceUtil {
 		com.liferay.portal.model.WebDAVProps webDAVProps)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteWebDAVProps(webDAVProps);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -288,20 +291,15 @@ public class WebDAVPropsLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(WebDAVPropsLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(WebDAVPropsLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(WebDAVPropsLocalService service) {
-		MethodCache.remove(WebDAVPropsLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(WebDAVPropsLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(WebDAVPropsLocalService.class);
 	}
 
 	private static WebDAVPropsLocalService _service;

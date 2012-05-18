@@ -15,7 +15,6 @@
 package com.liferay.portlet.softwarecatalog.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SCFrameworkVersionLocalServiceUtil {
 		com.liferay.portlet.softwarecatalog.model.SCFrameworkVersion scFrameworkVersion)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSCFrameworkVersion(scFrameworkVersion);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -387,20 +390,15 @@ public class SCFrameworkVersionLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SCFrameworkVersionLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SCFrameworkVersionLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SCFrameworkVersionLocalService service) {
-		MethodCache.remove(SCFrameworkVersionLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SCFrameworkVersionLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SCFrameworkVersionLocalService.class);
 	}
 
 	private static SCFrameworkVersionLocalService _service;

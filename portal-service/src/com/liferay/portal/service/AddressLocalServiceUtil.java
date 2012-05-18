@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class AddressLocalServiceUtil {
 		com.liferay.portal.model.Address address)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAddress(address);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -306,20 +309,15 @@ public class AddressLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AddressLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AddressLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AddressLocalService service) {
-		MethodCache.remove(AddressLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AddressLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AddressLocalService.class);
 	}
 
 	private static AddressLocalService _service;

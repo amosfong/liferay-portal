@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class AssetEntryLocalServiceUtil {
 		com.liferay.portlet.asset.model.AssetEntry assetEntry)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteAssetEntry(assetEntry);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -399,6 +402,25 @@ public class AssetEntryLocalServiceUtil {
 				   .incrementViewCounter(userId, className, classPK, increment);
 	}
 
+	public static void moveEntryToTrash(
+		com.liferay.portlet.asset.model.AssetEntry entry)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().moveEntryToTrash(entry);
+	}
+
+	public static void moveEntryToTrash(long entryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().moveEntryToTrash(entryId);
+	}
+
+	public static void moveEntryToTrash(java.lang.String className, long classPK)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().moveEntryToTrash(className, classPK);
+	}
+
 	public static void reindex(
 		java.util.List<com.liferay.portlet.asset.model.AssetEntry> entries)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -501,20 +523,15 @@ public class AssetEntryLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(AssetEntryLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(AssetEntryLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(AssetEntryLocalService service) {
-		MethodCache.remove(AssetEntryLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(AssetEntryLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(AssetEntryLocalService.class);
 	}
 
 	private static AssetEntryLocalService _service;

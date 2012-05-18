@@ -15,7 +15,6 @@
 package com.liferay.portlet.softwarecatalog.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SCLicenseLocalServiceUtil {
 		com.liferay.portlet.softwarecatalog.model.SCLicense scLicense)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSCLicense(scLicense);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -347,20 +350,15 @@ public class SCLicenseLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SCLicenseLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SCLicenseLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SCLicenseLocalService service) {
-		MethodCache.remove(SCLicenseLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SCLicenseLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SCLicenseLocalService.class);
 	}
 
 	private static SCLicenseLocalService _service;

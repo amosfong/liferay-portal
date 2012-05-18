@@ -31,10 +31,37 @@ public class MBThreadServiceWrapper implements MBThreadService,
 		_mbThreadService = mbThreadService;
 	}
 
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public java.lang.String getBeanIdentifier() {
+		return _mbThreadService.getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public void setBeanIdentifier(java.lang.String beanIdentifier) {
+		_mbThreadService.setBeanIdentifier(beanIdentifier);
+	}
+
 	public void deleteThread(long threadId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_mbThreadService.deleteThread(threadId);
+	}
+
+	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
+		long groupId, long userId, java.util.Date modifiedDate, int status,
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadService.getGroupThreads(groupId, userId, modifiedDate,
+			status, start, end);
 	}
 
 	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
@@ -61,6 +88,13 @@ public class MBThreadServiceWrapper implements MBThreadService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mbThreadService.getGroupThreads(groupId, userId, status, start,
 			end);
+	}
+
+	public int getGroupThreadsCount(long groupId, long userId,
+		java.util.Date modifiedDate, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadService.getGroupThreadsCount(groupId, userId,
+			modifiedDate, status);
 	}
 
 	public int getGroupThreadsCount(long groupId, long userId, int status)

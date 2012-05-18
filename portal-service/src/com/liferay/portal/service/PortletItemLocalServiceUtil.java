@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class PortletItemLocalServiceUtil {
 		com.liferay.portal.model.PortletItem portletItem)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deletePortletItem(portletItem);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -308,20 +311,15 @@ public class PortletItemLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PortletItemLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PortletItemLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PortletItemLocalService service) {
-		MethodCache.remove(PortletItemLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PortletItemLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PortletItemLocalService.class);
 	}
 
 	private static PortletItemLocalService _service;

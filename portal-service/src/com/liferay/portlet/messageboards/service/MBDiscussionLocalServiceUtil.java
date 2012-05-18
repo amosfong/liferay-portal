@@ -15,7 +15,6 @@
 package com.liferay.portlet.messageboards.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MBDiscussionLocalServiceUtil {
 		com.liferay.portlet.messageboards.model.MBDiscussion mbDiscussion)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMBDiscussion(mbDiscussion);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -297,20 +300,15 @@ public class MBDiscussionLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MBDiscussionLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MBDiscussionLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MBDiscussionLocalService service) {
-		MethodCache.remove(MBDiscussionLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MBDiscussionLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MBDiscussionLocalService.class);
 	}
 
 	private static MBDiscussionLocalService _service;

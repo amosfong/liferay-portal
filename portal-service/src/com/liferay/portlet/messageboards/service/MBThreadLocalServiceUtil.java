@@ -15,7 +15,6 @@
 package com.liferay.portlet.messageboards.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MBThreadLocalServiceUtil {
 		com.liferay.portlet.messageboards.model.MBThread mbThread)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMBThread(mbThread);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -445,20 +448,15 @@ public class MBThreadLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MBThreadLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MBThreadLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MBThreadLocalService service) {
-		MethodCache.remove(MBThreadLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MBThreadLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MBThreadLocalService.class);
 	}
 
 	private static MBThreadLocalService _service;

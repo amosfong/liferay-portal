@@ -114,7 +114,7 @@ public class UnblockCCUserTest extends BaseTestCase {
 
 			try {
 				if (selenium.isVisible(
-							"//button[@id='_1_WAR_contactsportlet_addConnectionButton']/a/span")) {
+							"//button[@id='_1_WAR_contactsportlet_addConnectionButton']")) {
 					break;
 				}
 			}
@@ -124,9 +124,9 @@ public class UnblockCCUserTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Add as Connection"),
+		assertEquals(RuntimeVariables.replace("Add Connection"),
 			selenium.getText(
-				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']/a/span"));
+				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']"));
 		assertEquals(RuntimeVariables.replace("Follow"),
 			selenium.getText(
 				"//button[@id='_1_WAR_contactsportlet_followButton']"));

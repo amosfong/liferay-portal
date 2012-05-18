@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,24 @@ public class DLAppServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.documentlibrary.service.impl.DLAppServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
 
 	/**
 	* Adds a file entry and associated metadata. It is created based on a byte
@@ -494,6 +511,23 @@ public class DLAppServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteFileShortcut(fileShortcutId);
+	}
+
+	/**
+	* Deletes the file version. File versions can only be deleted if it is
+	* approved and there are other approved file versions available. This
+	* method is only supported by the Liferay repository.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @param version the version label of the file version
+	* @throws PortalException if the file version could not be found or invalid
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void deleteFileVersion(long fileEntryId,
+		java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteFileVersion(fileEntryId, version);
 	}
 
 	/**
@@ -1696,6 +1730,20 @@ public class DLAppServiceUtil {
 	}
 
 	/**
+	* Moves the file entry with the primary key to the trash portlet.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @throws PortalException if the file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.kernel.repository.model.FileEntry moveFileEntryToTrash(
+		long fileEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().moveFileEntryToTrash(fileEntryId);
+	}
+
+	/**
 	* Moves the folder to the new parent folder with the primary key.
 	*
 	* @param folderId the primary key of the folder
@@ -1753,6 +1801,19 @@ public class DLAppServiceUtil {
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .refreshFolderLock(lockUuid, companyId, expirationTime);
+	}
+
+	/**
+	* Moves the file entry with the primary key to the trash portlet.
+	*
+	* @param fileEntryId the primary key of the file entry
+	* @throws PortalException if the file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void restoreFileEntryFromTrash(long fileEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().restoreFileEntryFromTrash(fileEntryId);
 	}
 
 	/**
@@ -2119,19 +2180,15 @@ public class DLAppServiceUtil {
 
 			ReferenceRegistry.registerReference(DLAppServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLAppService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLAppService service) {
-		MethodCache.remove(DLAppService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLAppServiceUtil.class, "_service");
-		MethodCache.remove(DLAppService.class);
 	}
 
 	private static DLAppService _service;

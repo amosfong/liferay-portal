@@ -15,7 +15,6 @@
 package com.liferay.portlet.expando.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class ExpandoTableLocalServiceUtil {
 		com.liferay.portlet.expando.model.ExpandoTable expandoTable)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteExpandoTable(expandoTable);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -446,20 +449,15 @@ public class ExpandoTableLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ExpandoTableLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ExpandoTableLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ExpandoTableLocalService service) {
-		MethodCache.remove(ExpandoTableLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ExpandoTableLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ExpandoTableLocalService.class);
 	}
 
 	private static ExpandoTableLocalService _service;

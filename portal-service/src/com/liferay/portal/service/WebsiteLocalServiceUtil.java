@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class WebsiteLocalServiceUtil {
 		com.liferay.portal.model.Website website)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteWebsite(website);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -298,20 +301,15 @@ public class WebsiteLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(WebsiteLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(WebsiteLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(WebsiteLocalService service) {
-		MethodCache.remove(WebsiteLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(WebsiteLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(WebsiteLocalService.class);
 	}
 
 	private static WebsiteLocalService _service;

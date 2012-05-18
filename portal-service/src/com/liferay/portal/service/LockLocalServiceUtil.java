@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -86,6 +85,10 @@ public class LockLocalServiceUtil {
 		com.liferay.portal.model.Lock lock)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteLock(lock);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -373,20 +376,15 @@ public class LockLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(LockLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(LockLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(LockLocalService service) {
-		MethodCache.remove(LockLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(LockLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(LockLocalService.class);
 	}
 
 	private static LockLocalService _service;

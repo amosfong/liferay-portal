@@ -37,7 +37,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 @JSONWebService
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
-public interface GroupService {
+public interface GroupService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -45,8 +45,23 @@ public interface GroupService {
 	 */
 
 	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public java.lang.String getBeanIdentifier();
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public void setBeanIdentifier(java.lang.String beanIdentifier);
+
+	/**
 	* Adds a group.
 	*
+	* @param parentGroupId the primary key of the parent group
 	* @param liveGroupId the primary key of the live group
 	* @param name the entity's name
 	* @param description the group's description (optionally
@@ -67,9 +82,9 @@ public interface GroupService {
 	valid friendly URL could not be created for the group
 	* @throws SystemException if a system exception occurred
 	*/
-	public com.liferay.portal.model.Group addGroup(long liveGroupId,
-		java.lang.String name, java.lang.String description, int type,
-		java.lang.String friendlyURL, boolean site, boolean active,
+	public com.liferay.portal.model.Group addGroup(long parentGroupId,
+		long liveGroupId, java.lang.String name, java.lang.String description,
+		int type, java.lang.String friendlyURL, boolean site, boolean active,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
@@ -77,6 +92,7 @@ public interface GroupService {
 	/**
 	* Adds the group using the group default live group ID.
 	*
+	* @param parentGroupId the primary key of the parent group
 	* @param name the entity's name
 	* @param description the group's description (optionally
 	<code>null</code>)
@@ -94,6 +110,17 @@ public interface GroupService {
 	information was invalid, if a layout could not be found, or if a
 	valid friendly URL could not be created for the group
 	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.Group addGroup(long parentGroupId,
+		java.lang.String name, java.lang.String description, int type,
+		java.lang.String friendlyURL, boolean site, boolean active,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* @deprecated {@link #addGroup(long, String, String, int, String, boolean,
+	boolean, ServiceContext)}
 	*/
 	public com.liferay.portal.model.Group addGroup(java.lang.String name,
 		java.lang.String description, int type, java.lang.String friendlyURL,
@@ -355,7 +382,8 @@ public interface GroupService {
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public boolean hasUserGroup(long userId, long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
 	* Returns a name ordered range of all the site groups and organization
@@ -465,25 +493,10 @@ public interface GroupService {
 			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Updates the group's type settings.
-	*
-	* @param groupId the primary key of the group
-	* @param typeSettings the group's new type settings (optionally
-	<code>null</code>)
-	* @return the group
-	* @throws PortalException if the user did not have permission to update the
-	group or if a group with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.Group updateGroup(long groupId,
-		java.lang.String typeSettings)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Updates the group.
 	*
 	* @param groupId the primary key of the group
+	* @param parentGroupId the primary key of the parent group
 	* @param name the group's new name
 	* @param description the group's new description (optionally
 	<code>null</code>)
@@ -502,9 +515,25 @@ public interface GroupService {
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portal.model.Group updateGroup(long groupId,
-		java.lang.String name, java.lang.String description, int type,
-		java.lang.String friendlyURL, boolean active,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		long parentGroupId, java.lang.String name,
+		java.lang.String description, int type, java.lang.String friendlyURL,
+		boolean active, com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Updates the group's type settings.
+	*
+	* @param groupId the primary key of the group
+	* @param typeSettings the group's new type settings (optionally
+	<code>null</code>)
+	* @return the group
+	* @throws PortalException if the user did not have permission to update the
+	group or if a group with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.Group updateGroup(long groupId,
+		java.lang.String typeSettings)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 }

@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class RoleLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteRole(role);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -1053,20 +1056,15 @@ public class RoleLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(RoleLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(RoleLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(RoleLocalService service) {
-		MethodCache.remove(RoleLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(RoleLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(RoleLocalService.class);
 	}
 
 	private static RoleLocalService _service;

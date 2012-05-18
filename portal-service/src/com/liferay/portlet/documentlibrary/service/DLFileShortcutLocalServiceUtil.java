@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DLFileShortcutLocalServiceUtil {
 		com.liferay.portlet.documentlibrary.model.DLFileShortcut dlFileShortcut)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDLFileShortcut(dlFileShortcut);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -385,20 +388,15 @@ public class DLFileShortcutLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLFileShortcutLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLFileShortcutLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLFileShortcutLocalService service) {
-		MethodCache.remove(DLFileShortcutLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLFileShortcutLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLFileShortcutLocalService.class);
 	}
 
 	private static DLFileShortcutLocalService _service;

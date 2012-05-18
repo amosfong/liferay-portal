@@ -15,7 +15,6 @@
 package com.liferay.portlet.dynamicdatamapping.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DDMStructureLocalServiceUtil {
 		com.liferay.portlet.dynamicdatamapping.model.DDMStructure ddmStructure)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDDMStructure(ddmStructure);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -534,20 +537,15 @@ public class DDMStructureLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DDMStructureLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DDMStructureLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DDMStructureLocalService service) {
-		MethodCache.remove(DDMStructureLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DDMStructureLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DDMStructureLocalService.class);
 	}
 
 	private static DDMStructureLocalService _service;

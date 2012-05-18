@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.JavaProps;
+import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -84,10 +84,14 @@ public class InitUtil {
 			e.printStackTrace();
 		}
 
+		// Properties
+
+		com.liferay.portal.kernel.util.PropsUtil.setProps(new PropsImpl());
+
 		// Log4J
 
-		if (GetterUtil.getBoolean(SystemProperties.get(
-				"log4j.configure.on.startup"), true)) {
+		if (GetterUtil.getBoolean(
+				SystemProperties.get("log4j.configure.on.startup"), true)) {
 
 			ClassLoader classLoader = InitUtil.class.getClassLoader();
 
@@ -122,7 +126,7 @@ public class InitUtil {
 
 		// Java properties
 
-		JavaProps.isJDK5();
+		JavaDetector.isJDK5();
 
 		// ROME
 

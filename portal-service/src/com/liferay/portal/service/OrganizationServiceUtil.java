@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,24 @@ public class OrganizationServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.OrganizationServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
 
 	/**
 	* Adds the organizations to the group.
@@ -245,7 +262,8 @@ public class OrganizationServiceUtil {
 	* @throws SystemException if a system exception occurred
 	*/
 	public static long getOrganizationId(long companyId, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getOrganizationId(companyId, name);
 	}
 
@@ -475,20 +493,15 @@ public class OrganizationServiceUtil {
 
 			ReferenceRegistry.registerReference(OrganizationServiceUtil.class,
 				"_service");
-			MethodCache.remove(OrganizationService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(OrganizationService service) {
-		MethodCache.remove(OrganizationService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(OrganizationServiceUtil.class,
-			"_service");
-		MethodCache.remove(OrganizationService.class);
 	}
 
 	private static OrganizationService _service;

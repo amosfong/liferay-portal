@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class ResourceActionLocalServiceUtil {
 		com.liferay.portal.model.ResourceAction resourceAction)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteResourceAction(resourceAction);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -303,20 +306,15 @@ public class ResourceActionLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(ResourceActionLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(ResourceActionLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(ResourceActionLocalService service) {
-		MethodCache.remove(ResourceActionLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(ResourceActionLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(ResourceActionLocalService.class);
 	}
 
 	private static ResourceActionLocalService _service;

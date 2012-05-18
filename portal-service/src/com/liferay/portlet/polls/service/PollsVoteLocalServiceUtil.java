@@ -15,7 +15,6 @@
 package com.liferay.portlet.polls.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class PollsVoteLocalServiceUtil {
 		com.liferay.portlet.polls.model.PollsVote pollsVote)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deletePollsVote(pollsVote);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -305,20 +308,15 @@ public class PollsVoteLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(PollsVoteLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(PollsVoteLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PollsVoteLocalService service) {
-		MethodCache.remove(PollsVoteLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PollsVoteLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(PollsVoteLocalService.class);
 	}
 
 	private static PollsVoteLocalService _service;

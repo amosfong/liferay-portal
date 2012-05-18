@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -90,6 +89,10 @@ public class UserGroupLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteUserGroup(userGroup);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -645,20 +648,15 @@ public class UserGroupLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(UserGroupLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(UserGroupLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(UserGroupLocalService service) {
-		MethodCache.remove(UserGroupLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(UserGroupLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(UserGroupLocalService.class);
 	}
 
 	private static UserGroupLocalService _service;

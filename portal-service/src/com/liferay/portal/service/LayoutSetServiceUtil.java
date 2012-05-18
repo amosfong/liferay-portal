@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,24 @@ public class LayoutSetServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.LayoutSetServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
 
 	/**
 	* Updates the state of the layout set prototype link.
@@ -114,20 +131,15 @@ public class LayoutSetServiceUtil {
 
 			ReferenceRegistry.registerReference(LayoutSetServiceUtil.class,
 				"_service");
-			MethodCache.remove(LayoutSetService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(LayoutSetService service) {
-		MethodCache.remove(LayoutSetService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(LayoutSetServiceUtil.class,
-			"_service");
-		MethodCache.remove(LayoutSetService.class);
 	}
 
 	private static LayoutSetService _service;

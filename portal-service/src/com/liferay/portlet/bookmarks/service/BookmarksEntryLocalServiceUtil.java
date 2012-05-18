@@ -15,7 +15,6 @@
 package com.liferay.portlet.bookmarks.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class BookmarksEntryLocalServiceUtil {
 		com.liferay.portlet.bookmarks.model.BookmarksEntry bookmarksEntry)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteBookmarksEntry(bookmarksEntry);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -406,20 +409,15 @@ public class BookmarksEntryLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(BookmarksEntryLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(BookmarksEntryLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(BookmarksEntryLocalService service) {
-		MethodCache.remove(BookmarksEntryLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(BookmarksEntryLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(BookmarksEntryLocalService.class);
 	}
 
 	private static BookmarksEntryLocalService _service;

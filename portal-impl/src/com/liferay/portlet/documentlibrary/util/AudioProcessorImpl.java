@@ -37,9 +37,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemEnv;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xuggler.XugglerUtil;
 import com.liferay.portal.log.Log4jLogFactoryImpl;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileVersion;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
@@ -120,9 +120,7 @@ public class AudioProcessorImpl
 		}
 
 		try {
-			if (PrefsPropsUtil.getBoolean(
-					PropsKeys.XUGGLER_ENABLED, PropsValues.XUGGLER_ENABLED)) {
-
+			if (XugglerUtil.isEnabled()) {
 				return _audioMimeTypes.contains(mimeType);
 			}
 		}
@@ -263,10 +261,7 @@ public class AudioProcessorImpl
 		try {
 			audioTempFile = FileUtil.createTempFile(fileVersion.getExtension());
 
-			if (!PrefsPropsUtil.getBoolean(
-					PropsKeys.XUGGLER_ENABLED, PropsValues.XUGGLER_ENABLED) ||
-				_hasAudio(fileVersion)) {
-
+			if (!XugglerUtil.isEnabled() || _hasAudio(fileVersion)) {
 				return;
 			}
 
@@ -339,8 +334,10 @@ public class AudioProcessorImpl
 						ServerDetector.getServerId(),
 						PropsUtil.get(PropsKeys.LIFERAY_HOME),
 						Log4JUtil.getCustomLogSettings(),
-						srcFile.getCanonicalPath(),
-						destFile.getCanonicalPath());
+						srcFile.getCanonicalPath(), destFile.getCanonicalPath(),
+						containerType,
+						PropsUtil.getProperties(
+							PropsKeys.DL_FILE_ENTRY_PREVIEW_AUDIO, false));
 
 				Future<String> future = ProcessExecutor.execute(
 					ClassPathUtil.getPortalClassPath(), processCallable);
@@ -349,7 +346,10 @@ public class AudioProcessorImpl
 			}
 			else {
 				LiferayConverter liferayConverter = new LiferayAudioConverter(
-					srcFile.getCanonicalPath(), destFile.getCanonicalPath());
+					srcFile.getCanonicalPath(), destFile.getCanonicalPath(),
+					containerType,
+					PropsUtil.getProperties(
+						PropsKeys.DL_FILE_ENTRY_PREVIEW_AUDIO, false));
 
 				liferayConverter.convert();
 			}
@@ -440,13 +440,16 @@ public class AudioProcessorImpl
 		public LiferayAudioProcessCallable(
 			String serverId, String liferayHome,
 			Map<String, String> customLogSettings, String inputURL,
-			String outputURL) {
+			String outputURL, String audioContainer,
+			Properties audioProperties) {
 
 			_serverId = serverId;
 			_liferayHome = liferayHome;
 			_customLogSettings = customLogSettings;
 			_inputURL = inputURL;
 			_outputURL = outputURL;
+			_audioContainer = audioContainer;
+			_audioProperties = audioProperties;
 		}
 
 		public String call() throws ProcessException {
@@ -464,7 +467,7 @@ public class AudioProcessorImpl
 
 			try {
 				LiferayConverter liferayConverter = new LiferayAudioConverter(
-					_inputURL, _outputURL);
+					_inputURL, _outputURL, _audioContainer, _audioProperties);
 
 				liferayConverter.convert();
 			}
@@ -475,6 +478,8 @@ public class AudioProcessorImpl
 			return StringPool.BLANK;
 		}
 
+		private String _audioContainer;
+		private Properties _audioProperties;
 		private Map<String, String> _customLogSettings;
 		private String _inputURL;
 		private String _liferayHome;

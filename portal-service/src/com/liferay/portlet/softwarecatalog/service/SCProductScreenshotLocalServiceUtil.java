@@ -15,7 +15,6 @@
 package com.liferay.portlet.softwarecatalog.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class SCProductScreenshotLocalServiceUtil {
 		com.liferay.portlet.softwarecatalog.model.SCProductScreenshot scProductScreenshot)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteSCProductScreenshot(scProductScreenshot);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -310,20 +313,15 @@ public class SCProductScreenshotLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(SCProductScreenshotLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(SCProductScreenshotLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(SCProductScreenshotLocalService service) {
-		MethodCache.remove(SCProductScreenshotLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(SCProductScreenshotLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(SCProductScreenshotLocalService.class);
 	}
 
 	private static SCProductScreenshotLocalService _service;

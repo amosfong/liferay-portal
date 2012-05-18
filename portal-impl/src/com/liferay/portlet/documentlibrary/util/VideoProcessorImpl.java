@@ -40,9 +40,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemEnv;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xuggler.XugglerUtil;
 import com.liferay.portal.log.Log4jLogFactoryImpl;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileVersion;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
@@ -129,9 +129,7 @@ public class VideoProcessorImpl
 		}
 
 		try {
-			if (PrefsPropsUtil.getBoolean(
-					PropsKeys.XUGGLER_ENABLED, PropsValues.XUGGLER_ENABLED)) {
-
+			if (XugglerUtil.isEnabled()) {
 				return _videoMimeTypes.contains(mimeType);
 			}
 		}
@@ -362,10 +360,7 @@ public class VideoProcessorImpl
 	}
 
 	private void _generateVideo(FileVersion fileVersion) throws Exception {
-		if (!PrefsPropsUtil.getBoolean(
-				PropsKeys.XUGGLER_ENABLED, PropsValues.XUGGLER_ENABLED) ||
-			_hasVideo(fileVersion)) {
-
+		if (!XugglerUtil.isEnabled() || _hasVideo(fileVersion)) {
 			return;
 		}
 
@@ -473,7 +468,7 @@ public class VideoProcessorImpl
 					PropsUtil.get(PropsKeys.LIFERAY_HOME),
 					Log4JUtil.getCustomLogSettings(),
 					srcFile.getCanonicalPath(), destFile.getCanonicalPath(),
-					FileUtil.createTempFileName(),
+					containerType,
 					PropsUtil.getProperties(
 						PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO, false),
 					PropsUtil.getProperties(PropsKeys.XUGGLER_FFPRESET, true));
@@ -486,7 +481,7 @@ public class VideoProcessorImpl
 		else {
 			LiferayConverter liferayConverter = new LiferayVideoConverter(
 				srcFile.getCanonicalPath(), destFile.getCanonicalPath(),
-				FileUtil.createTempFileName(),
+				containerType,
 				PropsUtil.getProperties(
 					PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO, false),
 				PropsUtil.getProperties(PropsKeys.XUGGLER_FFPRESET, true));
@@ -576,7 +571,7 @@ public class VideoProcessorImpl
 		public LiferayVideoProcessCallable(
 			String serverId, String liferayHome,
 			Map<String, String> customLogSettings, String inputURL,
-			String outputURL, String tempFileName, Properties videoProperties,
+			String outputURL, String videoContainer, Properties videoProperties,
 			Properties ffpresetProperties) {
 
 			_serverId = serverId;
@@ -584,7 +579,7 @@ public class VideoProcessorImpl
 			_customLogSettings = customLogSettings;
 			_inputURL = inputURL;
 			_outputURL = outputURL;
-			_tempFileName = tempFileName;
+			_videoContainer = videoContainer;
 			_videoProperties = videoProperties;
 			_ffpresetProperties = ffpresetProperties;
 		}
@@ -604,7 +599,7 @@ public class VideoProcessorImpl
 
 			try {
 				LiferayConverter liferayConverter = new LiferayVideoConverter(
-					_inputURL, _outputURL, _tempFileName, _videoProperties,
+					_inputURL, _outputURL, _videoContainer, _videoProperties,
 					_ffpresetProperties);
 
 				liferayConverter.convert();
@@ -622,7 +617,7 @@ public class VideoProcessorImpl
 		private String _liferayHome;
 		private String _outputURL;
 		private String _serverId;
-		private String _tempFileName;
+		private String _videoContainer;
 		private Properties _videoProperties;
 
 	}

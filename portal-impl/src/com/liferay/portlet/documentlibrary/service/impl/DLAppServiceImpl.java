@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.documentlibrary.service.impl;
 
+import com.liferay.portal.InvalidRepositoryException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -36,6 +37,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TempFileUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Lock;
+import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.spring.transaction.TransactionCommitCallbackUtil;
@@ -43,6 +45,7 @@ import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.base.DLAppServiceBaseImpl;
+import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
 import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 import com.liferay.portlet.documentlibrary.util.DLProcessorRegistryUtil;
@@ -647,6 +650,24 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		dlFileShortcutService.deleteFileShortcut(fileShortcutId);
+	}
+
+	/**
+	 * Deletes the file version. File versions can only be deleted if it is
+	 * approved and there are other approved file versions available. This
+	 * method is only supported by the Liferay repository.
+	 *
+	 * @param  fileEntryId the primary key of the file entry
+	 * @param  version the version label of the file version
+	 * @throws PortalException if the file version could not be found or invalid
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void deleteFileVersion(long fileEntryId, String version)
+		throws PortalException, SystemException {
+
+		Repository repository = getRepository(0, fileEntryId, 0);
+
+		repository.deleteFileVersion(fileEntryId, version);
 	}
 
 	/**
@@ -1948,6 +1969,33 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 	}
 
 	/**
+	 * Moves the file entry with the primary key to the trash portlet.
+	 *
+	 * @param  fileEntryId the primary key of the file entry
+	 * @throws PortalException if the file entry could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public FileEntry moveFileEntryToTrash(long fileEntryId)
+		throws PortalException, SystemException {
+
+		Repository repository = getRepository(0, fileEntryId, 0);
+
+		if (!(repository instanceof LiferayRepository)) {
+			throw new InvalidRepositoryException(
+				"Repository " + repository.getRepositoryId() +
+					" does not support trash operations");
+		}
+
+		FileEntry fileEntry = repository.getFileEntry(fileEntryId);
+
+		DLFileEntryPermission.check(
+			getPermissionChecker(), fileEntry, ActionKeys.DELETE);
+
+		return dlAppHelperLocalService.moveFileEntryToTrash(
+			getUserId(), fileEntry);
+	}
+
+	/**
 	 * Moves the folder to the new parent folder with the primary key.
 	 *
 	 * @param  folderId the primary key of the folder
@@ -2036,6 +2084,33 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 
 		return repository.refreshFolderLock(
 			lockUuid, companyId, expirationTime);
+	}
+
+	/**
+	 * Moves the file entry with the primary key to the trash portlet.
+	 *
+	 * @param  fileEntryId the primary key of the file entry
+	 * @throws PortalException if the file entry could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void restoreFileEntryFromTrash(long fileEntryId)
+		throws PortalException, SystemException {
+
+		Repository repository = getRepository(0, fileEntryId, 0);
+
+		if (!(repository instanceof LiferayRepository)) {
+			throw new InvalidRepositoryException(
+				"Repository " + repository.getRepositoryId() +
+					" does not support trash operations");
+		}
+
+		FileEntry fileEntry = repository.getFileEntry(fileEntryId);
+
+		DLFileEntryPermission.check(
+			getPermissionChecker(), fileEntry, ActionKeys.UPDATE);
+
+		dlAppHelperLocalService.restoreFileEntryFromTrash(
+			getUserId(), fileEntry);
 	}
 
 	/**

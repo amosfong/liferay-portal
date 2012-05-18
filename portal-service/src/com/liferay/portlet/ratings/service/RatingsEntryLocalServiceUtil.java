@@ -15,7 +15,6 @@
 package com.liferay.portlet.ratings.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class RatingsEntryLocalServiceUtil {
 		com.liferay.portlet.ratings.model.RatingsEntry ratingsEntry)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteRatingsEntry(ratingsEntry);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -325,20 +328,15 @@ public class RatingsEntryLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(RatingsEntryLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(RatingsEntryLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(RatingsEntryLocalService service) {
-		MethodCache.remove(RatingsEntryLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(RatingsEntryLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(RatingsEntryLocalService.class);
 	}
 
 	private static RatingsEntryLocalService _service;

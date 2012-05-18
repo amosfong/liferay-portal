@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class DLFileEntryMetadataLocalServiceUtil {
 		com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata dlFileEntryMetadata)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteDLFileEntryMetadata(dlFileEntryMetadata);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -319,20 +322,15 @@ public class DLFileEntryMetadataLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(DLFileEntryMetadataLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(DLFileEntryMetadataLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(DLFileEntryMetadataLocalService service) {
-		MethodCache.remove(DLFileEntryMetadataLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(DLFileEntryMetadataLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(DLFileEntryMetadataLocalService.class);
 	}
 
 	private static DLFileEntryMetadataLocalService _service;

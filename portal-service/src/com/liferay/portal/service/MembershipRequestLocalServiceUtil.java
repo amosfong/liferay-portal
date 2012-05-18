@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MembershipRequestLocalServiceUtil {
 		com.liferay.portal.model.MembershipRequest membershipRequest)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMembershipRequest(membershipRequest);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -329,20 +332,15 @@ public class MembershipRequestLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MembershipRequestLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MembershipRequestLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MembershipRequestLocalService service) {
-		MethodCache.remove(MembershipRequestLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MembershipRequestLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MembershipRequestLocalService.class);
 	}
 
 	private static MembershipRequestLocalService _service;

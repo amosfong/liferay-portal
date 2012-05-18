@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.theme.ThemeDisplay;
 
 import java.util.Locale;
 
@@ -38,6 +39,8 @@ public interface AssetRenderer {
 
 	public static final String TEMPLATE_FULL_CONTENT = "full_content";
 
+	public String getAssetRendererFactoryClassName();
+
 	public String[] getAvailableLocales() throws Exception;
 
 	public long getClassPK();
@@ -51,6 +54,8 @@ public interface AssetRenderer {
 	public String getSummary(Locale locale);
 
 	public String getTitle(Locale locale);
+
+	public String getURLDownload(ThemeDisplay themeDisplay);
 
 	public PortletURL getURLEdit(
 			LiferayPortletRequest liferayPortletRequest,

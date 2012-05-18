@@ -15,7 +15,6 @@
 package com.liferay.portlet.messageboards.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class MBBanLocalServiceUtil {
 		com.liferay.portlet.messageboards.model.MBBan mbBan)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteMBBan(mbBan);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -331,20 +334,15 @@ public class MBBanLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(MBBanLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(MBBanLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(MBBanLocalService service) {
-		MethodCache.remove(MBBanLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(MBBanLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(MBBanLocalService.class);
 	}
 
 	private static MBBanLocalService _service;

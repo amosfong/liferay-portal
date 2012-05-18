@@ -15,7 +15,6 @@
 package com.liferay.portal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -37,6 +36,24 @@ public class PermissionServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.PermissionServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+
+	/**
+	* Returns the Spring bean ID for this bean.
+	*
+	* @return the Spring bean ID for this bean
+	*/
+	public static java.lang.String getBeanIdentifier() {
+		return getService().getBeanIdentifier();
+	}
+
+	/**
+	* Sets the Spring bean ID for this bean.
+	*
+	* @param beanIdentifier the Spring bean ID for this bean
+	*/
+	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
+		getService().setBeanIdentifier(beanIdentifier);
+	}
 
 	/**
 	* Checks to see if the group has permission to the service.
@@ -80,20 +97,15 @@ public class PermissionServiceUtil {
 
 			ReferenceRegistry.registerReference(PermissionServiceUtil.class,
 				"_service");
-			MethodCache.remove(PermissionService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(PermissionService service) {
-		MethodCache.remove(PermissionService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(PermissionServiceUtil.class,
-			"_service");
-		MethodCache.remove(PermissionService.class);
 	}
 
 	private static PermissionService _service;

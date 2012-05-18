@@ -67,7 +67,7 @@ public class EditPermissionsAction extends EditConfigurationAction {
 		}
 		catch (Exception e) {
 			if (e instanceof PrincipalException) {
-				SessionErrors.add(actionRequest, e.getClass().getName());
+				SessionErrors.add(actionRequest, e.getClass());
 
 				setForward(
 					actionRequest, "portlet.portlet_configuration.error");
@@ -184,6 +184,8 @@ public class EditPermissionsAction extends EditConfigurationAction {
 			selResource = modelResource;
 		}
 
+		long resourceGroupId = ParamUtil.getLong(
+			actionRequest, "resourceGroupId", themeDisplay.getScopeGroupId());
 		String resourcePrimKey = ParamUtil.getString(
 			actionRequest, "resourcePrimKey");
 
@@ -199,9 +201,8 @@ public class EditPermissionsAction extends EditConfigurationAction {
 			}
 
 			ResourceBlockServiceUtil.setIndividualScopePermissions(
-				themeDisplay.getCompanyId(), themeDisplay.getScopeGroupId(),
-				selResource, GetterUtil.getLong(resourcePrimKey),
-				roleIdsToActionIds);
+				themeDisplay.getCompanyId(), resourceGroupId, selResource,
+				GetterUtil.getLong(resourcePrimKey), roleIdsToActionIds);
 		}
 		else {
 			for (long roleId : roleIds) {
@@ -211,8 +212,8 @@ public class EditPermissionsAction extends EditConfigurationAction {
 			}
 
 			ResourcePermissionServiceUtil.setIndividualResourcePermissions(
-				themeDisplay.getScopeGroupId(), themeDisplay.getCompanyId(),
-				selResource, resourcePrimKey, roleIdsToActionIds);
+				resourceGroupId, themeDisplay.getCompanyId(), selResource,
+				resourcePrimKey, roleIdsToActionIds);
 		}
 
 		if (PropsValues.PERMISSIONS_PROPAGATION_ENABLED) {

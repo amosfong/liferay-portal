@@ -84,6 +84,10 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 		return _assetEntryLocalService.deleteAssetEntry(assetEntry);
 	}
 
+	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return _assetEntryLocalService.dynamicQuery();
+	}
+
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
 	*
@@ -389,6 +393,25 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _assetEntryLocalService.incrementViewCounter(userId, className,
 			classPK, increment);
+	}
+
+	public void moveEntryToTrash(
+		com.liferay.portlet.asset.model.AssetEntry entry)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_assetEntryLocalService.moveEntryToTrash(entry);
+	}
+
+	public void moveEntryToTrash(long entryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_assetEntryLocalService.moveEntryToTrash(entryId);
+	}
+
+	public void moveEntryToTrash(java.lang.String className, long classPK)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_assetEntryLocalService.moveEntryToTrash(className, classPK);
 	}
 
 	public void reindex(

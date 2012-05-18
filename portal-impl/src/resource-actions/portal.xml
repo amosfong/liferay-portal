@@ -3,6 +3,23 @@
 
 <resource-action-mapping>
 	<portlet-resource>
+		<portlet-name>2</portlet-name>
+		<permissions>
+			<supports>
+				<action-key>ACCESS_IN_CONTROL_PANEL</action-key>
+				<action-key>CONFIGURATION</action-key>
+				<action-key>VIEW</action-key>
+			</supports>
+			<site-member-defaults />
+			<guest-defaults />
+			<guest-unsupported>
+				<action-key>ACCESS_IN_CONTROL_PANEL</action-key>
+				<action-key>CONFIGURATION</action-key>
+				<action-key>VIEW</action-key>
+			</guest-unsupported>
+		</permissions>
+	</portlet-resource>
+	<portlet-resource>
 		<portlet-name>11</portlet-name>
 		<permissions>
 			<supports>
@@ -244,6 +261,23 @@
 		</permissions>
 	</portlet-resource>
 	<portlet-resource>
+		<portlet-name>140</portlet-name>
+		<permissions>
+			<supports>
+				<action-key>ACCESS_IN_CONTROL_PANEL</action-key>
+				<action-key>CONFIGURATION</action-key>
+				<action-key>VIEW</action-key>
+			</supports>
+			<site-member-defaults />
+			<guest-defaults />
+			<guest-unsupported>
+				<action-key>ACCESS_IN_CONTROL_PANEL</action-key>
+				<action-key>CONFIGURATION</action-key>
+				<action-key>VIEW</action-key>
+			</guest-unsupported>
+		</permissions>
+	</portlet-resource>
+	<portlet-resource>
 		<portlet-name>146</portlet-name>
 		<permissions>
 			<supports>
@@ -304,6 +338,7 @@
 				<action-key>MANAGE_ARCHIVED_SETUPS</action-key>
 				<action-key>MANAGE_LAYOUTS</action-key>
 				<action-key>MANAGE_STAGING</action-key>
+				<action-key>MANAGE_SUBGROUPS</action-key>
 				<action-key>MANAGE_TEAMS</action-key>
 				<action-key>PERMISSIONS</action-key>
 				<action-key>PUBLISH_STAGING</action-key>
@@ -328,6 +363,7 @@
 				<action-key>MANAGE_ARCHIVED_SETUPS</action-key>
 				<action-key>MANAGE_LAYOUTS</action-key>
 				<action-key>MANAGE_STAGING</action-key>
+				<action-key>MANAGE_SUBGROUPS</action-key>
 				<action-key>MANAGE_TEAMS</action-key>
 				<action-key>PERMISSIONS</action-key>
 				<action-key>PUBLISH_STAGING</action-key>

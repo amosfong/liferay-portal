@@ -15,7 +15,6 @@
 package com.liferay.portlet.wiki.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class WikiPageLocalServiceUtil {
 		com.liferay.portlet.wiki.model.WikiPage wikiPage)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteWikiPage(wikiPage);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -739,20 +742,15 @@ public class WikiPageLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(WikiPageLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(WikiPageLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(WikiPageLocalService service) {
-		MethodCache.remove(WikiPageLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(WikiPageLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(WikiPageLocalService.class);
 	}
 
 	private static WikiPageLocalService _service;

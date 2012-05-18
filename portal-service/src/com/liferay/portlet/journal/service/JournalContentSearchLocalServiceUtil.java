@@ -15,7 +15,6 @@
 package com.liferay.portlet.journal.service;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -88,6 +87,10 @@ public class JournalContentSearchLocalServiceUtil {
 		com.liferay.portlet.journal.model.JournalContentSearch journalContentSearch)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().deleteJournalContentSearch(journalContentSearch);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery() {
+		return getService().dynamicQuery();
 	}
 
 	/**
@@ -370,20 +373,15 @@ public class JournalContentSearchLocalServiceUtil {
 
 			ReferenceRegistry.registerReference(JournalContentSearchLocalServiceUtil.class,
 				"_service");
-			MethodCache.remove(JournalContentSearchLocalService.class);
 		}
 
 		return _service;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void setService(JournalContentSearchLocalService service) {
-		MethodCache.remove(JournalContentSearchLocalService.class);
-
-		_service = service;
-
-		ReferenceRegistry.registerReference(JournalContentSearchLocalServiceUtil.class,
-			"_service");
-		MethodCache.remove(JournalContentSearchLocalService.class);
 	}
 
 	private static JournalContentSearchLocalService _service;

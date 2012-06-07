@@ -94,9 +94,25 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFileShortcut> getFileShortcuts(
+		long groupId, long folderId, boolean active, int status)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* @deprecated {@Link #getFileShortcuts(long, long, int, boolean)}
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFileShortcut> getFileShortcuts(
 		long groupId, long folderId, int status)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getFileShortcutsCount(long groupId, long folderId,
+		boolean active, int status)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* @deprecated {@Link #getFileShortcutsCount(long, long, int, boolean)}
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFileShortcutsCount(long groupId, long folderId, int status)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -115,13 +131,34 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public com.liferay.portlet.documentlibrary.model.DLFileShortcut moveFileShortcutToTrash(
+		long userId,
+		com.liferay.portlet.documentlibrary.model.DLFileShortcut dlFileShortcut)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
 	public void moveFolder(
 		com.liferay.portal.kernel.repository.model.Folder folder)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public com.liferay.portal.kernel.repository.model.Folder moveFolderToTrash(
+		long userId, com.liferay.portal.kernel.repository.model.Folder folder)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
 	public void restoreFileEntryFromTrash(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void restoreFileShortcutFromTrash(long userId,
+		com.liferay.portlet.documentlibrary.model.DLFileShortcut dlFileShortcut)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void restoreFolderFromTrash(long userId,
+		com.liferay.portal.kernel.repository.model.Folder folder)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
@@ -142,14 +179,16 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 
 	public void updateFileEntry(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
-		com.liferay.portal.kernel.repository.model.FileVersion fileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion sourceFileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion destinationFileVersion,
 		long assetClassPk)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	public void updateFileEntry(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
-		com.liferay.portal.kernel.repository.model.FileVersion fileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion sourceFileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion destinationFileVersion,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
@@ -165,6 +204,11 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 		com.liferay.portal.kernel.repository.model.FileVersion latestFileVersion,
 		int oldStatus, int newStatus,
 		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void updateStatuses(com.liferay.portal.model.User user,
+		java.util.List<java.lang.Object> dlFileEntriesAndDLFolders, int status)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 }

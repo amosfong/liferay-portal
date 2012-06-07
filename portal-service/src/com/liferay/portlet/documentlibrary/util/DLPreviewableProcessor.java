@@ -22,6 +22,8 @@ import com.liferay.portal.kernel.io.FileFilter;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.MessageBusException;
+import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -111,6 +113,19 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 
 	public void cleanUp(FileVersion fileVersion) {
 		deleteFiles(fileVersion, getThumbnailType());
+	}
+
+	public void copy(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		if (sourceFileVersion.getFileVersionId() ==
+				destinationFileVersion.getFileVersionId()) {
+
+			return;
+		}
+
+		copyPreviews(sourceFileVersion, destinationFileVersion);
+		copyThumbnails(sourceFileVersion, destinationFileVersion);
 	}
 
 	public void exportGeneratedFiles(
@@ -229,6 +244,99 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		}
 
 		DLStoreUtil.addFile(companyId, REPOSITORY_ID, filePath, false, is);
+	}
+
+	protected void copyPreviews(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		try {
+			String[] previewTypes = getPreviewTypes();
+
+			for (String previewType : previewTypes) {
+				if (hasPreview(sourceFileVersion, previewType) &&
+					!hasPreview(destinationFileVersion, previewType)) {
+
+					String previewFilePath = getPreviewFilePath(
+						destinationFileVersion, previewType);
+
+					InputStream is = doGetPreviewAsStream(
+						sourceFileVersion, previewType);
+
+					addFileToStore(
+						destinationFileVersion.getCompanyId(), PREVIEW_PATH,
+						previewFilePath, is);
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+	}
+
+	protected void copyThumbnails(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		try {
+			if (isThumbnailEnabled(THUMBNAIL_INDEX_DEFAULT)) {
+				if (hasThumbnail(sourceFileVersion, THUMBNAIL_INDEX_DEFAULT) &&
+					!hasThumbnail(
+						destinationFileVersion, THUMBNAIL_INDEX_DEFAULT)) {
+
+					InputStream is = doGetThumbnailAsStream(
+						sourceFileVersion, THUMBNAIL_INDEX_DEFAULT);
+
+					String thumbnailFilePath = getThumbnailFilePath(
+						destinationFileVersion,
+						getThumbnailType(destinationFileVersion),
+						THUMBNAIL_INDEX_DEFAULT);
+
+					addFileToStore(
+						destinationFileVersion.getCompanyId(), THUMBNAIL_PATH,
+						thumbnailFilePath, is);
+				}
+			}
+
+			if (isThumbnailEnabled(THUMBNAIL_INDEX_CUSTOM_1)) {
+				if (hasThumbnail(sourceFileVersion, THUMBNAIL_INDEX_CUSTOM_1) &&
+					!hasThumbnail(
+						destinationFileVersion, THUMBNAIL_INDEX_CUSTOM_1)) {
+
+					InputStream is = doGetThumbnailAsStream(
+						sourceFileVersion, THUMBNAIL_INDEX_CUSTOM_1);
+
+					String thumbnailFilePath = getThumbnailFilePath(
+						destinationFileVersion,
+						getThumbnailType(destinationFileVersion),
+						THUMBNAIL_INDEX_CUSTOM_1);
+
+					addFileToStore(
+						destinationFileVersion.getCompanyId(), THUMBNAIL_PATH,
+						thumbnailFilePath, is);
+				}
+			}
+
+			if (isThumbnailEnabled(THUMBNAIL_INDEX_CUSTOM_2)) {
+				if (hasThumbnail(sourceFileVersion, THUMBNAIL_INDEX_CUSTOM_2) &&
+					!hasThumbnail(
+						destinationFileVersion, THUMBNAIL_INDEX_CUSTOM_2)) {
+
+					InputStream is = doGetThumbnailAsStream(
+						sourceFileVersion, THUMBNAIL_INDEX_CUSTOM_2);
+
+					String thumbnailFilePath = getThumbnailFilePath(
+						destinationFileVersion,
+						getThumbnailType(destinationFileVersion),
+						THUMBNAIL_INDEX_CUSTOM_2);
+
+					addFileToStore(
+						destinationFileVersion.getCompanyId(), THUMBNAIL_PATH,
+						thumbnailFilePath, is);
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
 	}
 
 	protected abstract void doExportGeneratedFiles(
@@ -1003,6 +1111,27 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		}
 
 		return false;
+	}
+
+	protected void sendGenerationMessage(
+		String destinationName, boolean synchronous,
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		Object[] payload = {sourceFileVersion, destinationFileVersion};
+
+		if (synchronous) {
+			try {
+				MessageBusUtil.sendSynchronousMessage(destinationName, payload);
+			}
+			catch (MessageBusException mbe) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(mbe, mbe);
+				}
+			}
+		}
+		else {
+			MessageBusUtil.sendMessage(destinationName, payload);
+		}
 	}
 
 	protected void storeThumbnailImages(FileVersion fileVersion, File file)

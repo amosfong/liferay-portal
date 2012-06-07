@@ -350,7 +350,7 @@ public interface DLFolderLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long, String[],
 	boolean, QueryDefinition)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -360,8 +360,7 @@ public interface DLFolderLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	boolean, QueryDefinition)}
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long, long, String[], boolean, QueryDefinition)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
@@ -379,7 +378,7 @@ public interface DLFolderLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
@@ -388,7 +387,7 @@ public interface DLFolderLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
@@ -467,6 +466,13 @@ public interface DLFolderLocalService extends BaseLocalService,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	public void updateLastPostDate(long folderId, java.util.Date lastPostDate)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public com.liferay.portlet.documentlibrary.model.DLFolder updateStatus(
+		long userId, long folderId, int status,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
+		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 }

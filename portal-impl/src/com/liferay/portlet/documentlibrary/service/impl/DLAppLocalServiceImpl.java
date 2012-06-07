@@ -129,7 +129,8 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	}
 
 	/**
-	 * Adds a file entry and associated metadata based on a {@link File} object.
+	 * Adds a file entry and associated metadata based on a {@link java.io.File}
+	 * object.
 	 *
 	 * <p>
 	 * This method takes two file names, the <code>sourceFileName</code> and the
@@ -190,8 +191,8 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	}
 
 	/**
-	 * Adds a file entry and associated metadata based on an {@link InputStream}
-	 * object.
+	 * Adds a file entry and associated metadata based on an {@link
+	 * java.io.InputStream} object.
 	 *
 	 * <p>
 	 * This method takes two file names, the <code>sourceFileName</code> and the
@@ -755,10 +756,11 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	}
 
 	/**
-	 * Updates a file entry and associated metadata based on a {@link File}
-	 * object. If the file data is <code>null</code>, then only the associated
-	 * metadata (i.e., <code>title</code>, <code>description</code>, and
-	 * parameters in the <code>serviceContext</code>) will be updated.
+	 * Updates a file entry and associated metadata based on a {@link
+	 * java.io.File} object. If the file data is <code>null</code>, then only
+	 * the associated metadata (i.e., <code>title</code>,
+	 * <code>description</code>, and parameters in the
+	 * <code>serviceContext</code>) will be updated.
 	 *
 	 * <p>
 	 * This method takes two file names, the <code>sourceFileName</code> and the
@@ -814,13 +816,14 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 		DLProcessorRegistryUtil.cleanUp(fileEntry.getLatestFileVersion());
 
 		dlAppHelperLocalService.updateFileEntry(
-			userId, fileEntry, fileEntry.getFileVersion(), serviceContext);
+			userId, fileEntry, null, fileEntry.getFileVersion(),
+			serviceContext);
 
 		return fileEntry;
 	}
 
 	/**
-	 * Updates a file entry and associated metadata based on an {@link
+	 * Updates a file entry and associated metadata based on an {@link java.io.
 	 * InputStream} object. If the file data is <code>null</code>, then only the
 	 * associated metadata (i.e., <code>title</code>, <code>description</code>,
 	 * and parameters in the <code>serviceContext</code>) will be updated.
@@ -868,16 +871,23 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		LocalRepository localRepository = getLocalRepository(0, fileEntryId, 0);
 
+		FileEntry oldFileEntry = localRepository.getFileEntry(fileEntryId);
+
+		FileVersion oldFileVersion = oldFileEntry.getFileVersion();
+
 		FileEntry fileEntry = localRepository.updateFileEntry(
 			userId, fileEntryId, sourceFileName, mimeType, title, description,
 			changeLog, majorVersion, is, size, serviceContext);
 
 		if (is != null) {
 			DLProcessorRegistryUtil.cleanUp(fileEntry.getLatestFileVersion());
+
+			oldFileVersion = null;
 		}
 
 		dlAppHelperLocalService.updateFileEntry(
-			userId, fileEntry, fileEntry.getFileVersion(), serviceContext);
+			userId, fileEntry, oldFileVersion, fileEntry.getFileVersion(),
+			serviceContext);
 
 		return fileEntry;
 	}
@@ -1092,7 +1102,7 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 			long userId, long fileEntryId, long newFolderId,
 			LocalRepository fromLocalRepository,
 			LocalRepository toLocalRepository, ServiceContext serviceContext)
-		throws SystemException, PortalException {
+		throws PortalException, SystemException {
 
 		FileEntry sourceFileEntry = fromLocalRepository.getFileEntry(
 			fileEntryId);

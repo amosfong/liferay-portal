@@ -1372,6 +1372,7 @@
 		<field name="userId" type="long" />
 		<field name="createDate" type="Date" />
 		<field name="fileEntryId" type="long" />
+		<field name="active" type="boolean" />
 	</model>
 	<model name="com.liferay.portlet.documentlibrary.model.DLFileShortcut">
 		<field name="uuid" type="String" />
@@ -1385,6 +1386,7 @@
 		<field name="repositoryId" type="long" />
 		<field name="folderId" type="long" />
 		<field name="toFileEntryId" type="long" />
+		<field name="active" type="boolean" />
 		<field name="status" type="int" />
 		<field name="statusByUserId" type="long" />
 		<field name="statusByUserName" type="String" />
@@ -1444,6 +1446,10 @@
 		<field name="lastPostDate" type="Date" />
 		<field name="defaultFileEntryTypeId" type="long" />
 		<field name="overrideFileEntryTypes" type="boolean" />
+		<field name="status" type="int" />
+		<field name="statusByUserId" type="long" />
+		<field name="statusByUserName" type="String" />
+		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.documentlibrary.model.DLSync">
 		<field name="syncId" type="long" />

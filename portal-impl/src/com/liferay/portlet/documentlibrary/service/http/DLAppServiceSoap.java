@@ -194,7 +194,7 @@ public class DLAppServiceSoap {
 	* @throws PortalException if the file entry could not be found
 	* @throws SystemException if a system exception occurred
 	* @see #checkInFileEntry(long, boolean, String, ServiceContext)
-	* @see #checkOutFileEntry(long)
+	* @see #checkOutFileEntry(long, ServiceContext)
 	*/
 	public static void cancelCheckOut(long fileEntryId)
 		throws RemoteException {
@@ -230,7 +230,7 @@ public class DLAppServiceSoap {
 	* @throws PortalException if the file entry could not be found
 	* @throws SystemException if a system exception occurred
 	* @see #cancelCheckOut(long)
-	* @see #checkOutFileEntry(long)
+	* @see #checkOutFileEntry(long, ServiceContext)
 	*/
 	public static void checkInFileEntry(long fileEntryId, boolean majorVersion,
 		java.lang.String changeLog,
@@ -268,7 +268,7 @@ public class DLAppServiceSoap {
 	* @throws PortalException if the file entry could not be found
 	* @throws SystemException if a system exception occurred
 	* @see #cancelCheckOut(long)
-	* @see #checkOutFileEntry(long, String, long)
+	* @see #checkOutFileEntry(long, String, long, ServiceContext)
 	*/
 	public static void checkInFileEntry(long fileEntryId,
 		java.lang.String lockUuid) throws RemoteException {
@@ -1124,6 +1124,53 @@ public class DLAppServiceSoap {
 	}
 
 	/**
+	* Returns an ordered range of all the immediate subfolders of the parent
+	* folder.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end -
+	* start</code> instances. <code>start</code> and <code>end</code> are not
+	* primary keys, they are indexes in the result set. Thus, <code>0</code>
+	* refers to the first result in the set. Setting both <code>start</code>
+	* and <code>end</code> to {@link
+	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* result set.
+	* </p>
+	*
+	* @param repositoryId the primary key of the folder's repository
+	* @param parentFolderId the primary key of the folder's parent folder
+	* @param status the workflow status
+	* @param includeMountFolders whether to include mount folders for
+	third-party repositories
+	* @param start the lower bound of the range of results
+	* @param end the upper bound of the range of results (not inclusive)
+	* @param obc the comparator to order the folders (optionally
+	<code>null</code>)
+	* @return the range of immediate subfolders of the parent folder ordered by
+	comparator <code>obc</code>
+	* @throws PortalException if the parent folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.kernel.repository.model.FolderSoap[] getFolders(
+		long repositoryId, long parentFolderId, int status,
+		boolean includeMountFolders, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.kernel.repository.model.Folder> returnValue =
+				DLAppServiceUtil.getFolders(repositoryId, parentFolderId,
+					status, includeMountFolders, start, end, obc);
+
+			return com.liferay.portal.kernel.repository.model.FolderSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
 	* Returns a range of all the immediate subfolders of the parent folder.
 	*
 	* <p>
@@ -1292,6 +1339,34 @@ public class DLAppServiceSoap {
 		try {
 			int returnValue = DLAppServiceUtil.getFoldersCount(repositoryId,
 					parentFolderId, includeMountFolders);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns the number of immediate subfolders of the parent folder,
+	* optionally including mount folders for third-party repositories.
+	*
+	* @param repositoryId the primary key of the folder's repository
+	* @param parentFolderId the primary key of the folder's parent folder
+	* @param status the workflow status
+	* @param includeMountFolders whether to include mount folders for
+	third-party repositories
+	* @return the number of immediate subfolders of the parent folder
+	* @throws PortalException if the parent folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int getFoldersCount(long repositoryId, long parentFolderId,
+		int status, boolean includeMountFolders) throws RemoteException {
+		try {
+			int returnValue = DLAppServiceUtil.getFoldersCount(repositoryId,
+					parentFolderId, status, includeMountFolders);
 
 			return returnValue;
 		}
@@ -1891,6 +1966,28 @@ public class DLAppServiceSoap {
 	}
 
 	/**
+	* Moves the file shortcut with the primary key to the trash portlet.
+	*
+	* @param fileShortcutId the primary key of the file shortcut
+	* @throws PortalException if the file shortcut could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.documentlibrary.model.DLFileShortcutSoap moveFileShortcutToTrash(
+		long fileShortcutId) throws RemoteException {
+		try {
+			com.liferay.portlet.documentlibrary.model.DLFileShortcut returnValue =
+				DLAppServiceUtil.moveFileShortcutToTrash(fileShortcutId);
+
+			return com.liferay.portlet.documentlibrary.model.DLFileShortcutSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
 	* Moves the folder to the new parent folder with the primary key.
 	*
 	* @param folderId the primary key of the folder
@@ -1918,7 +2015,28 @@ public class DLAppServiceSoap {
 	}
 
 	/**
-	* Moves the file entry with the primary key to the trash portlet.
+	* Moves the folder with the primary key to the trash portlet.
+	*
+	* @param folderId the primary key of the folder
+	* @throws PortalException if the folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.kernel.repository.model.FolderSoap moveFolderToTrash(
+		long folderId) throws RemoteException {
+		try {
+			com.liferay.portal.kernel.repository.model.Folder returnValue = DLAppServiceUtil.moveFolderToTrash(folderId);
+
+			return com.liferay.portal.kernel.repository.model.FolderSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Restores the file entry with the primary key from the trash portlet.
 	*
 	* @param fileEntryId the primary key of the file entry
 	* @throws PortalException if the file entry could not be found
@@ -1928,6 +2046,44 @@ public class DLAppServiceSoap {
 		throws RemoteException {
 		try {
 			DLAppServiceUtil.restoreFileEntryFromTrash(fileEntryId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Restores the file shortcut with the primary key from the trash portlet.
+	*
+	* @param fileShortcutId the primary key of the file shortcut
+	* @throws PortalException if the file shortcut could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void restoreFileShortcutFromTrash(long fileShortcutId)
+		throws RemoteException {
+		try {
+			DLAppServiceUtil.restoreFileShortcutFromTrash(fileShortcutId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Restores the folder with the primary key from the trash portlet.
+	*
+	* @param folderId the primary key of the folder
+	* @throws PortalException if the folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void restoreFolderFromTrash(long folderId)
+		throws RemoteException {
+		try {
+			DLAppServiceUtil.restoreFolderFromTrash(folderId);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

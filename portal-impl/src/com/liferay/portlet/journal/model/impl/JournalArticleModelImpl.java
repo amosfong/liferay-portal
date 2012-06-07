@@ -133,8 +133,9 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 	public static long STRUCTUREID_COLUMN_BITMASK = 1024L;
 	public static long TEMPLATEID_COLUMN_BITMASK = 2048L;
 	public static long URLTITLE_COLUMN_BITMASK = 4096L;
-	public static long UUID_COLUMN_BITMASK = 8192L;
-	public static long VERSION_COLUMN_BITMASK = 16384L;
+	public static long USERID_COLUMN_BITMASK = 8192L;
+	public static long UUID_COLUMN_BITMASK = 16384L;
+	public static long VERSION_COLUMN_BITMASK = 32768L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -574,6 +575,14 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 	}
 
 	public void setUserId(long userId) {
+		_columnBitmask |= USERID_COLUMN_BITMASK;
+
+		if (!_setOriginalUserId) {
+			_setOriginalUserId = true;
+
+			_originalUserId = _userId;
+		}
+
 		_userId = userId;
 	}
 
@@ -583,6 +592,10 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 
 	public void setUserUuid(String userUuid) {
 		_userUuid = userUuid;
+	}
+
+	public long getOriginalUserId() {
+		return _originalUserId;
 	}
 
 	@JSON
@@ -1252,17 +1265,15 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 
 	@Override
 	public ExpandoBridge getExpandoBridge() {
-		if (_expandoBridge == null) {
-			_expandoBridge = ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
-					JournalArticle.class.getName(), getPrimaryKey());
-		}
-
-		return _expandoBridge;
+		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
+			JournalArticle.class.getName(), getPrimaryKey());
 	}
 
 	@Override
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
-		getExpandoBridge().setAttributes(serviceContext);
+		ExpandoBridge expandoBridge = getExpandoBridge();
+
+		expandoBridge.setAttributes(serviceContext);
 	}
 
 	@Override
@@ -1383,6 +1394,10 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 		journalArticleModelImpl._originalCompanyId = journalArticleModelImpl._companyId;
 
 		journalArticleModelImpl._setOriginalCompanyId = false;
+
+		journalArticleModelImpl._originalUserId = journalArticleModelImpl._userId;
+
+		journalArticleModelImpl._setOriginalUserId = false;
 
 		journalArticleModelImpl._originalFolderId = journalArticleModelImpl._folderId;
 
@@ -1852,6 +1867,8 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 	private boolean _setOriginalCompanyId;
 	private long _userId;
 	private String _userUuid;
+	private long _originalUserId;
+	private boolean _setOriginalUserId;
 	private String _userName;
 	private Date _createDate;
 	private Date _modifiedDate;
@@ -1899,7 +1916,6 @@ public class JournalArticleModelImpl extends BaseModelImpl<JournalArticle>
 	private String _statusByUserUuid;
 	private String _statusByUserName;
 	private Date _statusDate;
-	private transient ExpandoBridge _expandoBridge;
 	private long _columnBitmask;
 	private JournalArticle _escapedModelProxy;
 }

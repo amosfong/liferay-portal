@@ -233,10 +233,11 @@ create index IX_6E00A2EC on DLFileEntryTypes_DLFolders (folderId);
 create unique index IX_38F0315 on DLFileRank (companyId, userId, fileEntryId);
 create index IX_A65A1F8B on DLFileRank (fileEntryId);
 create index IX_BAFB116E on DLFileRank (groupId, userId);
+create index IX_4E96195B on DLFileRank (groupId, userId, active_);
 create index IX_EED06670 on DLFileRank (userId);
 
-create index IX_B0051937 on DLFileShortcut (groupId, folderId);
-create index IX_ECCE311D on DLFileShortcut (groupId, folderId, status);
+create index IX_348DC3B2 on DLFileShortcut (groupId, folderId, active_);
+create index IX_17EE3098 on DLFileShortcut (groupId, folderId, active_, status);
 create index IX_4B7247F6 on DLFileShortcut (toFileEntryId);
 create index IX_4831EBE4 on DLFileShortcut (uuid_);
 create index IX_29AE81C4 on DLFileShortcut (uuid_, companyId);
@@ -252,9 +253,11 @@ create unique index IX_C99B2650 on DLFileVersion (uuid_, groupId);
 
 create index IX_A74DB14C on DLFolder (companyId);
 create index IX_F2EA1ACE on DLFolder (groupId);
+create index IX_C6081B20 on DLFolder (groupId, mountPoint, parentFolderId);
+create index IX_86893A06 on DLFolder (groupId, mountPoint, parentFolderId, status);
 create index IX_49C37475 on DLFolder (groupId, parentFolderId);
-create index IX_2A048EA0 on DLFolder (groupId, parentFolderId, mountPoint);
 create unique index IX_902FD874 on DLFolder (groupId, parentFolderId, name);
+create index IX_24946E5B on DLFolder (groupId, parentFolderId, status);
 create index IX_51556082 on DLFolder (parentFolderId, name);
 create index IX_EE29C715 on DLFolder (repositoryId);
 create index IX_CBC408D8 on DLFolder (uuid_);
@@ -295,6 +298,7 @@ create unique index IX_5DE0BE11 on Group_ (companyId, classNameId, liveGroupId, 
 create unique index IX_5BDDB872 on Group_ (companyId, friendlyURL);
 create unique index IX_BBCA55B on Group_ (companyId, liveGroupId, name);
 create unique index IX_5AA68501 on Group_ (companyId, name);
+create index IX_5D75499E on Group_ (companyId, parentGroupId);
 create index IX_16218A38 on Group_ (liveGroupId);
 create index IX_7B590A7A on Group_ (type_, active_);
 
@@ -329,6 +333,7 @@ create index IX_2E207659 on JournalArticle (groupId, structureId);
 create index IX_8DEAE14E on JournalArticle (groupId, templateId);
 create index IX_22882D02 on JournalArticle (groupId, urlTitle);
 create index IX_D2D249E8 on JournalArticle (groupId, urlTitle, status);
+create index IX_D19C1B9F on JournalArticle (groupId, userId);
 create index IX_33F49D16 on JournalArticle (resourcePrimKey);
 create index IX_3E2765FC on JournalArticle (resourcePrimKey, status);
 create index IX_EF9B7028 on JournalArticle (smallImageId);
@@ -355,6 +360,7 @@ create index IX_7CC7D73E on JournalContentSearch (groupId, privateLayout, articl
 create index IX_B3B318DC on JournalContentSearch (groupId, privateLayout, layoutId);
 create index IX_7ACC74C9 on JournalContentSearch (groupId, privateLayout, layoutId, portletId);
 create unique index IX_C3AA93B8 on JournalContentSearch (groupId, privateLayout, layoutId, portletId, articleId);
+create index IX_8DAF8A35 on JournalContentSearch (portletId);
 
 create index IX_35A2DB2F on JournalFeed (groupId);
 create unique index IX_65576CBC on JournalFeed (groupId, feedId);
@@ -364,6 +370,7 @@ create unique index IX_39031F51 on JournalFeed (uuid_, groupId);
 
 create index IX_E6E2725D on JournalFolder (companyId);
 create index IX_742DEC1F on JournalFolder (groupId);
+create index IX_E988689E on JournalFolder (groupId, name);
 create index IX_190483C6 on JournalFolder (groupId, parentFolderId);
 create unique index IX_65026705 on JournalFolder (groupId, parentFolderId, name);
 create index IX_63BDFA69 on JournalFolder (uuid_);
@@ -529,6 +536,7 @@ create unique index IX_46665CC4 on MDRRuleGroup (uuid_, groupId);
 
 create index IX_C95A08D8 on MDRRuleGroupInstance (classNameId, classPK);
 create unique index IX_808A0036 on MDRRuleGroupInstance (classNameId, classPK, ruleGroupId);
+create index IX_AFF28547 on MDRRuleGroupInstance (groupId);
 create index IX_22DAB85C on MDRRuleGroupInstance (groupId, classNameId, classPK);
 create index IX_BF3E642B on MDRRuleGroupInstance (ruleGroupId);
 create index IX_B6A6BD91 on MDRRuleGroupInstance (uuid_);
@@ -783,6 +791,7 @@ create unique index IX_B35F73D5 on TrashEntry (classNameId, classPK);
 create index IX_2674F2A8 on TrashEntry (companyId);
 create index IX_526A032A on TrashEntry (groupId);
 
+create index IX_630A643B on TrashVersion (classNameId, classPK);
 create index IX_55D44577 on TrashVersion (entryId);
 
 create index IX_524FEFCE on UserGroup (companyId);

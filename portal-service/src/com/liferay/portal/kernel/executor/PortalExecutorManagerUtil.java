@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.executor;
 
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
+import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +52,17 @@ public class PortalExecutorManagerUtil {
 	}
 
 	public static PortalExecutorManager getPortalExecutorManager() {
+		PortalRuntimePermission.checkGetBeanProperty(
+			PortalExecutorManagerUtil.class);
+
 		return _portalExecutorManager;
+	}
+
+	public static ThreadPoolExecutor registerPortalExecutor(
+		String name, ThreadPoolExecutor threadPoolExecutor) {
+
+		return getPortalExecutorManager().registerPortalExecutor(
+			name, threadPoolExecutor);
 	}
 
 	public static void shutdown() {
@@ -72,6 +83,8 @@ public class PortalExecutorManagerUtil {
 
 	public void setPortalExecutorManager(
 		PortalExecutorManager portalExecutorManager) {
+
+		PortalRuntimePermission.checkSetBeanProperty(getClass());
 
 		_portalExecutorManager = portalExecutorManager;
 	}

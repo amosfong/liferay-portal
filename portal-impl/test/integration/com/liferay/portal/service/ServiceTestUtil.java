@@ -57,6 +57,8 @@ import com.liferay.portlet.bookmarks.util.BookmarksIndexer;
 import com.liferay.portlet.directory.workflow.UserWorkflowHandler;
 import com.liferay.portlet.documentlibrary.asset.DLFileEntryAssetRendererFactory;
 import com.liferay.portlet.documentlibrary.trash.DLFileEntryTrashHandler;
+import com.liferay.portlet.documentlibrary.trash.DLFileShortcutTrashHandler;
+import com.liferay.portlet.documentlibrary.trash.DLFolderTrashHandler;
 import com.liferay.portlet.documentlibrary.util.DLIndexer;
 import com.liferay.portlet.documentlibrary.workflow.DLFileEntryWorkflowHandler;
 import com.liferay.portlet.journal.workflow.JournalArticleWorkflowHandler;
@@ -313,6 +315,8 @@ public class ServiceTestUtil {
 
 		TrashHandlerRegistryUtil.register(new BlogsEntryTrashHandler());
 		TrashHandlerRegistryUtil.register(new DLFileEntryTrashHandler());
+		TrashHandlerRegistryUtil.register(new DLFileShortcutTrashHandler());
+		TrashHandlerRegistryUtil.register(new DLFolderTrashHandler());
 
 		// Workflow
 

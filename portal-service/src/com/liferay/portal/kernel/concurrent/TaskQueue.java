@@ -113,39 +113,41 @@ public class TaskQueue<E> {
 		_putLock.lock();
 
 		try {
-			if (_count.get() < _capacity) {
+
+			// Take a snapshot of count before enqueue
+
+			count = _count.get();
+
+			if (count < _capacity) {
 				_enqueue(element);
 
-				count = _count.getAndIncrement();
+				_count.getAndIncrement();
 
-				_takeLock.lock();
+				if (count == 0) {
 
-				try {
-					hasWaiterMarker[0] = _takeLock.hasWaiters(
-						_notEmptyCondition);
+					// Signal takers right after enqueue to increase the
+					// possibility of a concurrent token
 
-					if (!hasWaiterMarker[0] && (count >= _count.get())) {
-						hasWaiterMarker[0] = true;
+					_takeLock.lock();
+
+					try {
+						_notEmptyCondition.signal();
+					}
+					finally {
+						_takeLock.unlock();
 					}
 				}
-				finally {
-					_takeLock.unlock();
+
+				// After enqueue, a non-increasing count implies a concurrent
+				// token because there are spare threads
+
+				if (count >= _count.get()) {
+					hasWaiterMarker[0] = true;
 				}
 			}
 		}
 		finally {
 			_putLock.unlock();
-		}
-
-		if (count == 0) {
-			_takeLock.lock();
-
-			try {
-				_notEmptyCondition.signal();
-			}
-			finally {
-				_takeLock.unlock();
-			}
 		}
 
 		return count >= 0;
@@ -321,7 +323,7 @@ public class TaskQueue<E> {
 	private final Condition _notEmptyCondition;
 	private final ReentrantLock _putLock = new ReentrantLock();
 	private Node<E> _tailNode;
-	private final ReentrantLock _takeLock = new ReentrantLock();
+	private final ReentrantLock _takeLock = new ReentrantLock(true);
 
 	private static class Node<E> {
 

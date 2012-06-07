@@ -257,7 +257,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 	}
 </style>
 
-<aui:form action='<%= portletURL.toString() + "&etag=0" %>' method="post" name="exportPagesFm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "refreshDialog();" %>' >
+<aui:form action='<%= portletURL.toString() + "&etag=0&strip=0" %>' method="post" name="exportPagesFm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "refreshDialog();" %>' >
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= cmd %>" />
 	<aui:input name="tabs1" type="hidden" value="<%= tabs1 %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
@@ -265,6 +265,36 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 	<aui:input name="layoutSetBranchName" type="hidden" value="<%= layoutSetBranchName %>" />
 	<aui:input name="lastImportUserName" type="hidden" value="<%= user.getFullName() %>" />
 	<aui:input name="lastImportUserUuid" type="hidden" value="<%= String.valueOf(user.getUserUuid()) %>" />
+
+	<liferay-ui:error exception="<%= LayoutPrototypeException.class %>">
+
+		<%
+		LayoutPrototypeException lpe = (LayoutPrototypeException)errorException;
+		%>
+
+		<liferay-ui:message key="the-pages-could-not-be-published-because-one-or-more-required-page-templates-could-not-be-found-on-the-remote-system.-please-import-the-following-templates-manually" />
+
+		<ul>
+
+			<%
+			List<Tuple> missingLayoutPrototypes = lpe.getMissingLayoutPrototypes();
+
+			for (Tuple missingLayoutPrototype : missingLayoutPrototypes) {
+				String layoutPrototypeClassName = (String)missingLayoutPrototype.getObject(0);
+				String layoutPrototypeUuid = (String)missingLayoutPrototype.getObject(1);
+				String layoutPrototypeName = (String)missingLayoutPrototype.getObject(2);
+			%>
+
+			<li>
+				<%= ResourceActionsUtil.getModelResource(locale, layoutPrototypeClassName) %>: <strong><%= layoutPrototypeName %></strong> (<%= layoutPrototypeUuid %>)
+			</li>
+
+			<%
+			}
+			%>
+
+		</ul>
+	</liferay-ui:error>
 
 	<liferay-ui:error exception="<%= RemoteExportException.class %>">
 
@@ -458,7 +488,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 				var dialog = A.DialogManager.findByChild('#<portlet:namespace />exportPagesFm');
 
 				if (dialog) {
-					dialog.io.set('uri', '<%= portletURL.toString() + "&etag=0" %>');
+					dialog.io.set('uri', '<%= portletURL.toString() + "&etag=0&strip=0" %>');
 
 					dialog.io.set(
 						'form',

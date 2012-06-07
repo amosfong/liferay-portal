@@ -36,7 +36,8 @@ public interface PDFProcessor {
 			Element fileEntryElement)
 		throws Exception;
 
-	public void generateImages(FileVersion fileVersion)
+	public void generateImages(
+			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
 		throws Exception;
 
 	public InputStream getPreviewAsStream(FileVersion fileVersion, int index)
@@ -66,6 +67,7 @@ public interface PDFProcessor {
 
 	public boolean isSupported(String mimeType);
 
-	public void trigger(FileVersion fileVersion);
+	public void trigger(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion);
 
 }

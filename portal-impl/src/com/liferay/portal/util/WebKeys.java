@@ -186,6 +186,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String JOURNAL_STRUCTURE_EL_PARENT_ID = "JOURNAL_STRUCTURE_EL_PARENT_ID";
 
+	public static final String JOURNAL_STRUCTURE_EL_REPEAT_COUNT_MAP = "JOURNAL_STRUCTURE_EL_REPEAT_COUNT_MAP";
+
 	public static final String JOURNAL_STRUCTURE_EL_REPEATABLE = "JOURNAL_STRUCTURE_EL_REPEATABLE";
 
 	public static final String JOURNAL_STRUCTURE_EL_REPEATABLE_PROTOTYPE = "JOURNAL_STRUCTURE_EL_REPEATABLE_PROTOTYPE";
@@ -315,6 +317,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String PORTAL_PREFERENCES = "PORTAL_PREFERENCES";
 
 	public static final String PORTAL_REQUEST_DATA_SAMPLE = "PORTAL_REQUEST_DATA_SAMPLE";
+
+	public static final String PORTLET_AJAX_RENDER = "PORTLET_AJAX_RENDER";
 
 	public static final String PORTLET_BREADCRUMBS = "PORTLET_BREADCRUMBS";
 
@@ -477,7 +481,5 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String WSRP_NEW_SESSION = "WSRP_NEW_SESSION";
 
 	public static final String WSRP_PRODUCER = "WSRP_PRODUCER";
-
-	public static final String XUGGLER_INSTALL_STATUS = "XUGGLER_INSTALL_STATUS";
 
 }

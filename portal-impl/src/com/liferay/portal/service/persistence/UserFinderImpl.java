@@ -240,7 +240,7 @@ public class UserFinderImpl
 			Group group = GroupLocalServiceUtil.fetchGroup(groupId);
 
 			if ((group != null) && group.isOrganization()) {
-				organizationIds.add(groupId);
+				organizationIds.add(group.getOrganizationId());
 			}
 
 			List<Organization> organizations = GroupUtil.getOrganizations(
@@ -251,7 +251,9 @@ public class UserFinderImpl
 			}
 
 			params2.remove("usersGroups");
-			params2.put("usersOrgs", organizationIds);
+			params2.put(
+				"usersOrgs",
+				organizationIds.toArray(new Long[organizationIds.size()]));
 
 			params3 = new LinkedHashMap<String, Object>(params1);
 
@@ -460,7 +462,7 @@ public class UserFinderImpl
 			Group group = GroupLocalServiceUtil.fetchGroup(groupId);
 
 			if ((group != null) && group.isOrganization()) {
-				organizationIds.add(groupId);
+				organizationIds.add(group.getOrganizationId());
 			}
 
 			List<Organization> organizations = GroupUtil.getOrganizations(
@@ -471,7 +473,9 @@ public class UserFinderImpl
 			}
 
 			params2.remove("usersGroups");
-			params2.put("usersOrgs", organizationIds);
+			params2.put(
+				"usersOrgs",
+				organizationIds.toArray(new Long[organizationIds.size()]));
 
 			params3 = new LinkedHashMap<String, Object>(params1);
 

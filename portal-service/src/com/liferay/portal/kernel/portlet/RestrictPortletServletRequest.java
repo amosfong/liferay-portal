@@ -94,19 +94,19 @@ public class RestrictPortletServletRequest
 	public void mergeSharedAttributes() {
 		ServletRequest servletRequest = getRequest();
 
-		Lock mergeLock = (Lock)servletRequest.getAttribute(
+		Lock lock = (Lock)servletRequest.getAttribute(
 			WebKeys.PARALLEL_RENDERING_MERGE_LOCK);
 
-		if (mergeLock != null) {
-			mergeLock.lock();
+		if (lock != null) {
+			lock.lock();
 		}
 
 		try {
 			doMergeSharedAttributes(servletRequest);
 		}
 		finally {
-			if (mergeLock != null) {
-				mergeLock.unlock();
+			if (lock != null) {
+				lock.unlock();
 			}
 		}
 	}
@@ -157,7 +157,7 @@ public class RestrictPortletServletRequest
 				}
 				else {
 					Mergeable<Object> masterMergeable =
-						(Mergeable<Object>)value;
+						(Mergeable<Object>)masterValue;
 					Mergeable<Object> slaveMergeable = (Mergeable<Object>)value;
 
 					masterMergeable.merge(slaveMergeable);

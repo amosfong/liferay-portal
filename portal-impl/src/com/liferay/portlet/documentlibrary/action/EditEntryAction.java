@@ -249,7 +249,12 @@ public class EditEntryAction extends PortletAction {
 			ParamUtil.getString(actionRequest, "folderIds"), 0L);
 
 		for (long deleteFolderId : deleteFolderIds) {
-			DLAppServiceUtil.deleteFolder(deleteFolderId);
+			if (moveToTrash) {
+				DLAppServiceUtil.moveFolderToTrash(deleteFolderId);
+			}
+			else {
+				DLAppServiceUtil.deleteFolder(deleteFolderId);
+			}
 		}
 
 		// Delete file shortcuts before file entries. See LPS-21348.
@@ -258,7 +263,12 @@ public class EditEntryAction extends PortletAction {
 			ParamUtil.getString(actionRequest, "fileShortcutIds"), 0L);
 
 		for (long deleteFileShortcutId : deleteFileShortcutIds) {
-			DLAppServiceUtil.deleteFileShortcut(deleteFileShortcutId);
+			if (moveToTrash) {
+				DLAppServiceUtil.moveFileShortcutToTrash(deleteFileShortcutId);
+			}
+			else {
+				DLAppServiceUtil.deleteFileShortcut(deleteFileShortcutId);
+			}
 		}
 
 		long[] deleteFileEntryIds = StringUtil.split(

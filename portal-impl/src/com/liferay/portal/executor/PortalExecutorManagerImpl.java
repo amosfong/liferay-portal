@@ -19,6 +19,10 @@ import com.liferay.portal.kernel.executor.PortalExecutorFactory;
 import com.liferay.portal.kernel.executor.PortalExecutorManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.pacl.PACLConstants;
+import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
+
+import java.security.Permission;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -36,23 +40,23 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 	public void afterPropertiesSet() {
 		if (_portalExecutorFactory == null) {
 			throw new IllegalArgumentException(
-				"portal executor factory is null");
+				"Portal executor factory is null");
 		}
 	}
 
 	public <T> Future<T> execute(String name, Callable<T> callable) {
-		ThreadPoolExecutor portalExecutor = getPortalExecutor(name);
+		ThreadPoolExecutor threadPoolExecutor = getPortalExecutor(name);
 
-		return portalExecutor.submit(callable);
+		return threadPoolExecutor.submit(callable);
 	}
 
 	public <T> T execute(
 			String name, Callable<T> callable, long timeout, TimeUnit timeUnit)
 		throws ExecutionException, InterruptedException, TimeoutException {
 
-		ThreadPoolExecutor portalExecutor = getPortalExecutor(name);
+		ThreadPoolExecutor threadPoolExecutor = getPortalExecutor(name);
 
-		Future<T> future = portalExecutor.submit(callable);
+		Future<T> future = threadPoolExecutor.submit(callable);
 
 		return future.get(timeout, timeUnit);
 	}
@@ -64,22 +68,62 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 	public ThreadPoolExecutor getPortalExecutor(
 		String name, boolean createIfAbsent) {
 
-		ThreadPoolExecutor portalExecutor = _portalExecutors.get(name);
+		SecurityManager securityManager = System.getSecurityManager();
 
-		if ((portalExecutor == null) && createIfAbsent) {
-			synchronized (_portalExecutors) {
-				portalExecutor = _portalExecutors.get(name);
+		if (securityManager != null) {
+			Permission permission = new PortalRuntimePermission(
+				PACLConstants.PORTAL_RUNTIME_PERMISSION_THREAD_POOL_EXECUTOR,
+				name);
 
-				if (portalExecutor == null) {
-					portalExecutor =
+			securityManager.checkPermission(permission);
+		}
+
+		ThreadPoolExecutor threadPoolExecutor = _threadPoolExecutors.get(name);
+
+		if ((threadPoolExecutor == null) && createIfAbsent) {
+			synchronized (_threadPoolExecutors) {
+				threadPoolExecutor = _threadPoolExecutors.get(name);
+
+				if (threadPoolExecutor == null) {
+					threadPoolExecutor =
 						_portalExecutorFactory.createPortalExecutor(name);
 
-					_portalExecutors.put(name, portalExecutor);
+					_threadPoolExecutors.put(name, threadPoolExecutor);
 				}
 			}
 		}
 
-		return portalExecutor;
+		return threadPoolExecutor;
+	}
+
+	public ThreadPoolExecutor registerPortalExecutor(
+		String name, ThreadPoolExecutor threadPoolExecutor) {
+
+		SecurityManager securityManager = System.getSecurityManager();
+
+		if (securityManager != null) {
+			Permission permission = new PortalRuntimePermission(
+				PACLConstants.PORTAL_RUNTIME_PERMISSION_THREAD_POOL_EXECUTOR,
+				name);
+
+			securityManager.checkPermission(permission);
+		}
+
+		ThreadPoolExecutor oldThreadPoolExecutor = _threadPoolExecutors.get(
+			name);
+
+		if (oldThreadPoolExecutor == null) {
+			synchronized (_threadPoolExecutors) {
+				oldThreadPoolExecutor = _threadPoolExecutors.get(name);
+
+				if (oldThreadPoolExecutor == null) {
+					oldThreadPoolExecutor = _threadPoolExecutors.put(
+						name, threadPoolExecutor);
+				}
+			}
+		}
+
+		return oldThreadPoolExecutor;
 	}
 
 	public void setPortalExecutorFactory(
@@ -89,12 +133,12 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 	}
 
 	public void setPortalExecutors(
-		Map<String, ThreadPoolExecutor> portalExecutors) {
+		Map<String, ThreadPoolExecutor> threadPoolExecutors) {
 
-		if (portalExecutors != null) {
-			_portalExecutors =
+		if (threadPoolExecutors != null) {
+			_threadPoolExecutors =
 				new ConcurrentHashMap<String, ThreadPoolExecutor>(
-					portalExecutors);
+					threadPoolExecutors);
 		}
 	}
 
@@ -103,16 +147,40 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 	}
 
 	public void shutdown(boolean interrupt) {
-		for (ThreadPoolExecutor portalExecutor : _portalExecutors.values()) {
+		for (Map.Entry<String, ThreadPoolExecutor> entry :
+				_threadPoolExecutors.entrySet()) {
+
+			try {
+				SecurityManager securityManager = System.getSecurityManager();
+
+				if (securityManager != null) {
+					String name = entry.getKey();
+
+					Permission permission = new PortalRuntimePermission(
+						PACLConstants.
+							PORTAL_RUNTIME_PERMISSION_THREAD_POOL_EXECUTOR,
+						name);
+
+					securityManager.checkPermission(permission);
+				}
+			}
+			catch (SecurityException se) {
+				_log.error(se, se);
+
+				continue;
+			}
+
+			ThreadPoolExecutor threadPoolExecutor = entry.getValue();
+
 			if (interrupt) {
-				portalExecutor.shutdownNow();
+				threadPoolExecutor.shutdownNow();
 			}
 			else {
-				portalExecutor.shutdown();
+				threadPoolExecutor.shutdown();
 			}
 		}
 
-		_portalExecutors.clear();
+		_threadPoolExecutors.clear();
 	}
 
 	public void shutdown(String name) {
@@ -120,9 +188,20 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 	}
 
 	public void shutdown(String name, boolean interrupt) {
-		ThreadPoolExecutor portalExecutor = _portalExecutors.remove(name);
+		SecurityManager securityManager = System.getSecurityManager();
 
-		if (portalExecutor == null) {
+		if (securityManager != null) {
+			Permission permission = new PortalRuntimePermission(
+				PACLConstants.PORTAL_RUNTIME_PERMISSION_THREAD_POOL_EXECUTOR,
+				name);
+
+			securityManager.checkPermission(permission);
+		}
+
+		ThreadPoolExecutor threadPoolExecutor = _threadPoolExecutors.remove(
+			name);
+
+		if (threadPoolExecutor == null) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("No portal executor found for name " + name);
 			}
@@ -131,10 +210,10 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 		}
 
 		if (interrupt) {
-			portalExecutor.shutdownNow();
+			threadPoolExecutor.shutdownNow();
 		}
 		else {
-			portalExecutor.shutdown();
+			threadPoolExecutor.shutdown();
 		}
 	}
 
@@ -142,7 +221,7 @@ public class PortalExecutorManagerImpl implements PortalExecutorManager {
 		PortalExecutorManagerImpl.class);
 
 	private PortalExecutorFactory _portalExecutorFactory;
-	private Map<String, ThreadPoolExecutor> _portalExecutors =
+	private Map<String, ThreadPoolExecutor> _threadPoolExecutors =
 		new ConcurrentHashMap<String, ThreadPoolExecutor>();
 
 }

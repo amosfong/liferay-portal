@@ -397,7 +397,7 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 	}
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long, String[],
 	boolean, QueryDefinition)}
 	*/
 	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
@@ -409,8 +409,7 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 	}
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	boolean, QueryDefinition)}
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long, long, String[], boolean, QueryDefinition)}
 	*/
 	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
 		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
@@ -432,7 +431,7 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
 		long folderId, int status, boolean includeMountFolders)
@@ -443,7 +442,7 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
 		long folderId, int status, java.lang.String[] mimeTypes,
@@ -553,6 +552,16 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_dlFolderLocalService.updateLastPostDate(folderId, lastPostDate);
+	}
+
+	public com.liferay.portlet.documentlibrary.model.DLFolder updateStatus(
+		long userId, long folderId, int status,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.updateStatus(userId, folderId, status,
+			workflowContext, serviceContext);
 	}
 
 	/**

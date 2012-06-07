@@ -511,6 +511,20 @@ public class GroupLocalServiceUtil {
 		return getService().getGroup(companyId, name);
 	}
 
+	public static java.lang.String getGroupDescriptiveName(
+		com.liferay.portal.model.Group group, java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getGroupDescriptiveName(group, locale);
+	}
+
+	public static java.lang.String getGroupDescriptiveName(long groupId,
+		java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getGroupDescriptiveName(groupId, locale);
+	}
+
 	/**
 	* Returns the groups with the matching primary keys.
 	*

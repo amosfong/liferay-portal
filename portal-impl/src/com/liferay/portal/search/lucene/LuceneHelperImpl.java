@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.cluster.ClusterEvent;
 import com.liferay.portal.kernel.cluster.ClusterEventListener;
 import com.liferay.portal.kernel.cluster.ClusterEventType;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterLinkUtil;
 import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
@@ -31,6 +32,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncPrintWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.proxy.MessageValuesThreadLocal;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -67,6 +69,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
@@ -466,10 +469,33 @@ public class LuceneHelperImpl implements LuceneHelper {
 		IndexAccessor indexAccessor = _indexAccessors.get(companyId);
 
 		if (indexAccessor == null) {
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Skip loading Lucene index files for company " + companyId +
+						" in favor of lazy loading");
+			}
+
 			return;
 		}
 
+		StopWatch stopWatch = null;
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				"Start loading Lucene index files for company " + companyId);
+
+			stopWatch = new StopWatch();
+
+			stopWatch.start();
+		}
+
 		indexAccessor.loadIndex(inputStream);
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				"Finished loading index files for company " + companyId +
+					" in " + stopWatch.getTime() + " ms");
+		}
 	}
 
 	public void loadIndexesFromCluster(long companyId) throws SystemException {
@@ -610,24 +636,33 @@ public class LuceneHelperImpl implements LuceneHelper {
 				indexAccessor = new IndexAccessorImpl(companyId);
 
 				if (isLoadIndexFromClusterEnabled()) {
-					indexAccessor = new SynchronizedIndexAccessorImpl(
-						indexAccessor);
-				}
+					boolean clusterForwardMessage = GetterUtil.getBoolean(
+						MessageValuesThreadLocal.getValue(
+							ClusterLinkUtil.CLUSTER_FORWARD_MESSAGE));
 
-				if (isLoadIndexFromClusterEnabled()) {
-					try {
-						_loadIndexFromCluster(
-							indexAccessor,
-							IndexAccessor.DEFAULT_LAST_GENERATION);
+					if (clusterForwardMessage) {
+						if (_log.isInfoEnabled()) {
+							_log.info(
+								"Skip Luncene index files cluster loading " +
+									"since this is a manual reindex request");
+						}
 					}
-					catch (Exception e) {
-						_log.error(
-							"Unable to load index for company " +
-								indexAccessor.getCompanyId(),
-							e);
-					}
+					else {
+						indexAccessor = new SynchronizedIndexAccessorImpl(
+							indexAccessor);
 
-					indexAccessor.enableDumpIndex();
+						try {
+							_loadIndexFromCluster(
+								indexAccessor,
+								indexAccessor.getLastGeneration());
+						}
+						catch (Exception e) {
+							_log.error(
+								"Unable to load index for company " +
+									indexAccessor.getCompanyId(),
+								e);
+						}
+					}
 				}
 
 				_indexAccessors.put(companyId, indexAccessor);

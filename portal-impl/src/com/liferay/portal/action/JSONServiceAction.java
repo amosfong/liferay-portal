@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -83,7 +84,7 @@ public class JSONServiceAction extends JSONAction {
 		String className = ParamUtil.getString(request, "serviceClassName");
 		String methodName = ParamUtil.getString(request, "serviceMethodName");
 
-		checkMethodPublicAccess(
+		checkMethodGuestAccess(
 			request, methodName, PropsValues.JSON_SERVICE_PUBLIC_METHODS);
 
 		String[] serviceParameters = getStringArrayFromJSON(
@@ -146,7 +147,7 @@ public class JSONServiceAction extends JSONAction {
 		return null;
 	}
 
-	protected void checkMethodPublicAccess(
+	protected void checkMethodGuestAccess(
 			HttpServletRequest request, String methodName,
 			String[] publicMethods)
 		throws PrincipalException {
@@ -160,7 +161,8 @@ public class JSONServiceAction extends JSONAction {
 		String remoteUser = request.getRemoteUser();
 
 		if (remoteUser == null) {
-			throw new PrincipalException("Public access denied");
+			throw new PrincipalException(
+				"Please sign in to invoke this method");
 		}
 	}
 
@@ -420,11 +422,23 @@ public class JSONServiceAction extends JSONAction {
 			String[] parameterTypes)
 		throws Exception {
 
+		StringBundler sb = new StringBundler(5);
+
+		sb.append(clazz.getName());
+		sb.append("_METHOD_NAME_");
+		sb.append(methodName);
+		sb.append("_PARAMETERS_");
+
 		String parameterTypesNames = StringUtil.merge(parameterTypes);
 
-		String key =
-			clazz.getName() + "_METHOD_NAME_" + methodName + "_PARAMETERS_" +
-				parameterTypesNames;
+		if (Validator.isNull(parameterTypesNames)) {
+			sb.append(parameters.length);
+		}
+		else {
+			sb.append(parameterTypesNames);
+		}
+
+		String key = sb.toString();
 
 		Object[] methodAndParameterTypes = _methodCache.get(key);
 
@@ -465,10 +479,12 @@ public class JSONServiceAction extends JSONAction {
 						}
 					}
 					else if (method != null) {
+						String parametersString = StringUtil.merge(parameters);
+
 						_log.error(
 							"Obscure method name for class " + clazz +
 								", method " + methodName + ", and parameters " +
-									parameterTypesNames);
+									parametersString);
 
 						return null;
 					}
@@ -490,9 +506,11 @@ public class JSONServiceAction extends JSONAction {
 			return methodAndParameterTypes;
 		}
 		else {
+			String parametersString = StringUtil.merge(parameters);
+
 			_log.error(
 				"No method found for class " + clazz + ", method " +
-					methodName + ", and parameters " + parameterTypesNames);
+					methodName + ", and parameters " + parametersString);
 
 			return null;
 		}

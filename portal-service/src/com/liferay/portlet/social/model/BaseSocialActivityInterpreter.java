@@ -45,6 +45,9 @@ public abstract class BaseSocialActivityInterpreter
 		return null;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	protected String cleanContent(String content) {
 		return StringUtil.shorten(HtmlUtil.extractText(content), 200);
 	}

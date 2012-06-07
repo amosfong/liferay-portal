@@ -56,7 +56,6 @@ import com.liferay.portal.service.base.OrganizationLocalServiceBaseImpl;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.comparator.OrganizationNameComparator;
-import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
 
@@ -170,6 +169,7 @@ public class OrganizationLocalServiceImpl
 		organization.setCountryId(countryId);
 		organization.setStatusId(statusId);
 		organization.setComments(comments);
+		organization.setExpandoBridgeAttributes(serviceContext);
 
 		organizationPersistence.update(organization, false);
 
@@ -198,14 +198,6 @@ public class OrganizationLocalServiceImpl
 			updateAsset(
 				userId, organization, serviceContext.getAssetCategoryIds(),
 				serviceContext.getAssetTagNames());
-		}
-
-		// Expando
-
-		if (serviceContext != null) {
-			ExpandoBridge expandoBridge = organization.getExpandoBridge();
-
-			expandoBridge.setAttributes(serviceContext);
 		}
 
 		// Indexer
@@ -907,8 +899,6 @@ public class OrganizationLocalServiceImpl
 	 * @throws PortalException if an organization with the primary key could not
 	 *         be found
 	 * @throws SystemException if a system exception occurred
-	 * @see    com.liferay.portal.service.persistence.OrganizationPersistence#rebuildTree(
-	 *         long, boolean)
 	 */
 	public void rebuildTree(long companyId)
 		throws PortalException, SystemException {
@@ -1611,6 +1601,7 @@ public class OrganizationLocalServiceImpl
 		organization.setCountryId(countryId);
 		organization.setStatusId(statusId);
 		organization.setComments(comments);
+		organization.setExpandoBridgeAttributes(serviceContext);
 
 		organizationPersistence.update(organization, false);
 
@@ -1636,14 +1627,6 @@ public class OrganizationLocalServiceImpl
 				serviceContext.getUserId(), organization,
 				serviceContext.getAssetCategoryIds(),
 				serviceContext.getAssetTagNames());
-		}
-
-		// Expando
-
-		if (serviceContext != null) {
-			ExpandoBridge expandoBridge = organization.getExpandoBridge();
-
-			expandoBridge.setAttributes(serviceContext);
 		}
 
 		// Indexer

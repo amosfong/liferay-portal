@@ -2164,10 +2164,38 @@ public class ServiceBuilder {
 		JavaClass javaClass = _getJavaClass(
 			_outputPath + "/model/impl/" + entity.getName() + "Impl.java");
 
+		Map<String, JavaMethod> methods = new HashMap<String, JavaMethod>();
+
+		for (JavaMethod method : javaClass.getMethods()) {
+			methods.put(method.getDeclarationSignature(false), method);
+		}
+
+		Type superClass = javaClass.getSuperClass();
+
+		String superClassValue = superClass.getValue();
+
+		while (!superClassValue.endsWith("BaseModelImpl")) {
+			int pos = superClassValue.lastIndexOf(StringPool.PERIOD);
+
+			if (pos > 0) {
+				superClassValue = superClassValue.substring(pos + 1);
+			}
+
+			javaClass = _getJavaClass(
+				_outputPath + "/model/impl/" + superClassValue + ".java");
+
+			for (JavaMethod method : _getMethods(javaClass)) {
+				methods.remove(method.getDeclarationSignature(false));
+			}
+
+			superClass = javaClass.getSuperClass();
+			superClassValue = superClass.getValue();
+		}
+
 		Map<String, Object> context = _getContext();
 
 		context.put("entity", entity);
-		context.put("methods", _getMethods(javaClass));
+		context.put("methods", methods.values());
 
 		// Content
 

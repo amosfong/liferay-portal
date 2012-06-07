@@ -201,7 +201,6 @@
 		<echo file="app.server.${user.name}.properties">
 			app.server.type=tomcat
 
-			app.server.tomcat.dir=${app.server.parent.dir}/tomcat-6.0.35
 			app.server.tomcat.version=6.0.35
 			app.server.tomcat.zip.url=http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.zip
 		</echo>
@@ -923,6 +922,16 @@ release was successful.</echo>
 		</replace>
 
 		<replace file="${app.server.jboss.dir}/standalone/configuration/standalone.xml">
+			<replacetoken><![CDATA[</extensions>]]></replacetoken>
+			<replacevalue><![CDATA[</extensions>
+				<system-properties>
+					<property name="org.apache.catalina.connector.URI_ENCODING" value="UTF-8" />
+					<property name="org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING" value="true" />
+				</system-properties>]]>
+			</replacevalue>
+		</replace>
+
+		<replace file="${app.server.jboss.dir}/standalone/configuration/standalone.xml">
 			<replacetoken><![CDATA[<deployment-scanner ]]></replacetoken>
 			<replacevalue><![CDATA[<deployment-scanner deployment-timeout="120" ]]></replacevalue>
 		</replace>
@@ -1033,13 +1042,18 @@ release was successful.</echo>
 		<replace file="${app.server.parent.dir}/jonas-${app.server.jonas.version}/conf/jonas.properties">
 			<replacefilter token="HSQL1" value="" />
 			<replacefilter token="jtm,db,resource,ejb3,jaxws,web,ear,depmonitor" value="jtm,resource,ejb3,jaxws,web,ear,validation,depmonitor" />
-			<replacefilter token="jonas.development    true" value="jonas.development    false" />
+			<!--<replacefilter token="jonas.development    true" value="jonas.development    false" />-->
 		</replace>
 
 		<replace file="${app.server.parent.dir}/jonas-${app.server.jonas.version}/conf/tomcat6-server.xml">
 			<replacefilter token="9000" value="8080" />
 			<replacefilter token="9009" value="8009" />
 			<replacefilter token="9043" value="8443" />
+		</replace>
+
+		<replace file="${app.server.jonas.dir}/conf/tomcat6-server.xml">
+			<replacetoken><![CDATA[autoDeploy="false"]]></replacetoken>
+			<replacevalue><![CDATA[autoDeploy="true"]]></replacevalue>
 		</replace>
 
 		<replace file="${app.server.parent.dir}/jonas-${app.server.jonas.version}/conf/osgi/defaults.properties">
@@ -1096,22 +1110,7 @@ release was successful.</echo>
 			</then>
 		</if>
 
-		<script classpathref="project.classpath" language="beanshell">
-			String appServerTomcatDir = project.getProperty("app.server.tomcat.dir");
-
-			int forwardSlashPos = appServerTomcatDir.lastIndexOf("/");
-			int backSlashPos = appServerTomcatDir.lastIndexOf("\\");
-
-			int pos = forwardSlashPos;
-
-			if ((backSlashPos != -1) &amp;&amp; (backSlashPos > forwardSlashPos)) {
-				pos = backSlashPos;
-			}
-
-			String appServerTomcatDirName = appServerTomcatDir.substring(pos + 1);
-
-			project.setProperty("app.server.tomcat.dir.name", appServerTomcatDirName);
-		</script>
+		<basename file="${app.server.tomcat.dir}" property="app.server.tomcat.dir.name" />
 
 		<unzip
 			dest="${app.server.parent.dir}"
@@ -1137,10 +1136,6 @@ release was successful.</echo>
 	</target>
 
 	<target name="unzip-weblogic">
-		<var name="wl.home" value="${app.server.weblogic.dir}/wlserver" />
-
-		<delete dir="${app.server.weblogic.dir}" />
-
 		<if>
 			<not>
 				<available file="${app.server.parent.dir}/${app.server.weblogic.zip.name}" />
@@ -1148,11 +1143,17 @@ release was successful.</echo>
 			<then>
 				<mkdir dir="${app.server.parent.dir}" />
 
-				<echo>Please download the WebLogic zip file from ${app.server.weblogic.zip.url} and
+				<fail>
+.
+
+Please download the WebLogic zip file from ${app.server.weblogic.zip.url} and
 place it here: ${app.server.parent.dir}/${app.server.weblogic.zip.name}. Then
-rerun this task.</echo>
+rerun this task.
+				</fail>
 			</then>
 		</if>
+
+		<delete dir="${app.server.weblogic.dir}" />
 
 		<unzip
 			dest="${app.server.weblogic.dir}"
@@ -1165,7 +1166,7 @@ rerun this task.</echo>
 
 		<mkdir dir="${tstamp.value}" />
 
-		<echo file="${tstamp.value}/create-weblogic-domain.py">readTemplate('${wl.home}/common/templates/domains/wls.jar')
+		<echo file="${tstamp.value}/create-weblogic-domain.py">readTemplate('${app.server.weblogic.wlserver.dir}/common/templates/domains/wls.jar')
 
 set('Name', '${app.server.weblogic.instance.name}')
 
@@ -1186,7 +1187,7 @@ closeTemplate()</echo>
 			<os family="windows" />
 			<then>
 				<exec dir="${app.server.weblogic.dir}" executable="cmd">
-					<env key="MW_HOME" value="${app.server.weblogic.dir}" />
+					<env key="MW_HOME" value="${app.server.weblogic.dir.windows}" />
 					<arg value="/c" />
 					<arg value="configure.cmd" />
 				</exec>
@@ -1195,9 +1196,9 @@ closeTemplate()</echo>
 
 set "USER_MEM_ARGS=-Xmx1024m -XX:PermSize=256m"
 
-set "MW_HOME=${app.server.weblogic.dir}"
+set "MW_HOME=${app.server.weblogic.dir.windows}"
 
-set "WL_HOME=${wl.home}"
+set "WL_HOME=${app.server.weblogic.wlserver.dir.windows}"
 
 call %WL_HOME%/common/bin/commEnv.cmd
 
@@ -1214,7 +1215,7 @@ set "CLASSPATH=%FMWCONFIG_CLASSPATH%"
 
 set "USER_MEM_ARGS=-Xmx1024m -XX:PermSize=512m"
 
-set "MW_HOME=${app.server.weblogic.dir}"
+set "MW_HOME=${app.server.weblogic.dir.windows}"
 
 call startWebLogic.cmd</echo>
 			</then>
@@ -1230,7 +1231,7 @@ export USER_MEM_ARGS="-Xmx1024m -XX:PermSize=256m"
 
 export MW_HOME="${app.server.weblogic.dir}"
 
-export WL_HOME="${wl.home}"
+export WL_HOME="${app.server.weblogic.wlserver.dir}"
 
 source ${WL_HOME}/common/bin/commEnv.sh
 
@@ -1261,6 +1262,126 @@ sh startWebLogic.sh</echo>
 				/>
 			</else>
 		</if>
+
+		<delete dir="${tstamp.value}" />
+	</target>
+
+	<target name="unzip-websphere">
+		<if>
+			<or>
+				<not>
+					<available file="${app.server.parent.dir}/${app.server.websphere.fix.pack.jdk.name}" />
+				</not>
+				<not>
+					<available file="${app.server.parent.dir}/${app.server.websphere.fix.pack.was.name}" />
+				</not>
+				<not>
+					<available file="${app.server.parent.dir}/${app.server.websphere.update.installer.zip.name}" />
+				</not>
+				<not>
+					<available file="${app.server.parent.dir}/${app.server.websphere.zip.name}" />
+				</not>
+			</or>
+			<then>
+				<mkdir dir="${app.server.parent.dir}" />
+
+				<fail>
+.
+
+Please download ${app.server.websphere.fix.jdk.name},
+${app.server.websphere.fix.pack.was.name},
+${app.server.websphere.update.installer.zip.name}, and
+${app.server.websphere.zip.name} from ${app.server.websphere.zip.url} and put
+them in ${app.server.parent.dir}. Then rerun this task.
+				</fail>
+			</then>
+		</if>
+
+		<delete dir="${app.server.websphere.dir}" />
+
+		<tstamp>
+			<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
+		</tstamp>
+
+		<unzip
+			dest="${tstamp.value}/was"
+			src="${app.server.parent.dir}/${app.server.websphere.zip.name}"
+		/>
+
+		<echo file="${tstamp.value}/was/WAS/liferay-responsefile.txt">
+			-OPT disableOSPrereqChecking="true"
+			-OPT feature="noFeature"
+			-OPT installLocation="${app.server.websphere.dir}"
+			-OPT installType="installNew"
+			-OPT PROF_cellName=liferay-cell
+			-OPT PROF_enableAdminSecurity="false"
+			-OPT PROF_enableService="false"
+			-OPT PROF_isDefault="true"
+			-OPT PROF_isDeveloperServer="true"
+			-OPT PROF_nodeName=liferay-node
+			-OPT PROF_omitAction="defaultAppDeployAndConfig"
+			-OPT PROF_omitAction="deployAdminConsole"
+			-OPT PROF_omitAction="samplesInstallAndConfig"
+			-OPT PROF_portsFile="liferay-portdef.props"
+			-OPT PROF_profileName="liferay"
+			-OPT PROF_winserviceCheck="false"
+			-OPT profileType="standAlone"
+			-OPT silentInstallLicenseAcceptance="true"
+		</echo>
+
+		<echo file="${tstamp.value}/was/WAS/liferay-portdef.props">
+			WC_defaulthost=8080
+		</echo>
+
+		<echo>Installing application server. This may take a few minutes.</echo>
+
+		<exec dir="${tstamp.value}/was/WAS" executable="cmd.exe">
+			<arg line="/c install.exe -options liferay-responsefile.txt -silent" />
+		</exec>
+
+		<replace file="${app.server.websphere.instance.dir}/config/cells/liferay-cell/nodes/liferay-node/servers/server1/server.xml">
+			<replacetoken><![CDATA[disableJIT="false">]]></replacetoken>
+			<replacevalue><![CDATA[disableJIT="false" maximumHeapSize="1024">]]></replacevalue>
+		</replace>
+
+		<unzip
+			dest="${tstamp.value}/updi"
+			src="${app.server.parent.dir}/${app.server.websphere.update.installer.zip.name}"
+		/>
+
+		<echo file="${tstamp.value}/updi/UpdateInstaller/liferay-responsefile.txt">
+			-OPT installLocation="${app.server.websphere.dir}/UpdateInstaller"
+			-OPT silentInstallLicenseAcceptance="true"
+			-OPT skipStartMenu=true
+		</echo>
+
+		<echo>Installing update installer.</echo>
+
+		<exec dir="${tstamp.value}/updi/UpdateInstaller" executable="cmd.exe">
+			<arg line="/c install.exe -options liferay-responsefile.txt -silent" />
+		</exec>
+
+		<echo file="${app.server.websphere.dir}/UpdateInstaller/liferay-responsefile.txt">
+			-W maintenance.package="${app.server.parent.dir}/${app.server.websphere.fix.pack.jdk.name};${app.server.parent.dir}/${app.server.websphere.fix.pack.was.name}"
+			-W product.location="${app.server.websphere.dir}"
+			-W update.type="install"
+		</echo>
+
+		<echo>Installing fix pack.</echo>
+
+		<if>
+			<available file="${app.server.websphere.dir}/UpdateInstaller/update.exe" />
+			<then>
+				<property name="update.executable" value="update.exe" />
+			</then>
+			<else>
+				<property name="update.executable" value="update.bat" />
+			</else>
+		</if>
+
+		<exec dir="${app.server.websphere.dir}/UpdateInstaller" executable="cmd.exe">
+			<arg line="/c ${update.executable} -options liferay-responsefile.txt -silent" />
+		</exec>
 
 		<delete dir="${tstamp.value}" />
 	</target>

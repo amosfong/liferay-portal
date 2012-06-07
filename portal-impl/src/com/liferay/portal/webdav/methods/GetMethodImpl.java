@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.webdav.WebDAVStorage;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -37,29 +38,30 @@ public class GetMethodImpl implements Method {
 
 		try {
 			WebDAVStorage storage = webDavRequest.getWebDAVStorage();
+			HttpServletRequest request = webDavRequest.getHttpServletRequest();
 			HttpServletResponse response =
 				webDavRequest.getHttpServletResponse();
 
 			Resource resource = storage.getResource(webDavRequest);
 
-			if (resource != null) {
-				try {
-					is = resource.getContentAsStream();
-				}
-				catch (Exception e) {
-					if (_log.isErrorEnabled()) {
-						_log.error(e.getMessage());
-					}
+			if (resource == null) {
+				return HttpServletResponse.SC_NOT_FOUND;
+			}
+
+			try {
+				is = resource.getContentAsStream();
+			}
+			catch (Exception e) {
+				if (_log.isErrorEnabled()) {
+					_log.error(e.getMessage());
 				}
 			}
 
-			int status = HttpServletResponse.SC_NOT_FOUND;
-
 			if (is != null) {
 				try {
-					response.setContentType(resource.getContentType());
-
-					ServletResponseUtil.write(response, is);
+					ServletResponseUtil.sendFile(
+						request, response, resource.getDisplayName(), is,
+						resource.getSize(), resource.getContentType());
 				}
 				catch (Exception e) {
 					if (_log.isWarnEnabled()) {
@@ -67,10 +69,10 @@ public class GetMethodImpl implements Method {
 					}
 				}
 
-				status = HttpServletResponse.SC_OK;
+				return HttpServletResponse.SC_OK;
 			}
 
-			return status;
+			return HttpServletResponse.SC_NOT_FOUND;
 		}
 		catch (Exception e) {
 			throw new WebDAVException(e);

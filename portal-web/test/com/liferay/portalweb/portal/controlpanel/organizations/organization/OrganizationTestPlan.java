@@ -16,11 +16,11 @@ package com.liferay.portalweb.portal.controlpanel.organizations.organization;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.addorganization.AddOrganizationTests;
-import com.liferay.portalweb.portal.controlpanel.organizations.organization.addorganizationmultiple.AddOrganizationMultipleTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.addorganizationnameduplicate.AddOrganizationNameDuplicateTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.addorganizationnamenull.AddOrganizationNameNullTests;
+import com.liferay.portalweb.portal.controlpanel.organizations.organization.addorganizations.AddOrganizationsTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.advancedsearchorganization.AdvancedSearchOrganizationTests;
-import com.liferay.portalweb.portal.controlpanel.organizations.organization.assignmembersorganization.AssignMembersOrganizationTests;
+import com.liferay.portalweb.portal.controlpanel.organizations.organization.assignmembersorganizationuser.AssignMembersOrganizationUserTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.deleteorganization.DeleteOrganizationTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.deleteorganizationassignmembers.DeleteOrganizationAssignMembersTests;
 import com.liferay.portalweb.portal.controlpanel.organizations.organization.removemembersorganization.RemoveMembersOrganizationTests;
@@ -38,11 +38,11 @@ public class OrganizationTestPlan extends BaseTestSuite {
 		TestSuite testSuite = new TestSuite();
 
 		testSuite.addTest(AddOrganizationTests.suite());
-		testSuite.addTest(AddOrganizationMultipleTests.suite());
 		testSuite.addTest(AddOrganizationNameDuplicateTests.suite());
 		testSuite.addTest(AddOrganizationNameNullTests.suite());
+		testSuite.addTest(AddOrganizationsTests.suite());
 		testSuite.addTest(AdvancedSearchOrganizationTests.suite());
-		testSuite.addTest(AssignMembersOrganizationTests.suite());
+		testSuite.addTest(AssignMembersOrganizationUserTests.suite());
 		testSuite.addTest(DeleteOrganizationTests.suite());
 		testSuite.addTest(DeleteOrganizationAssignMembersTests.suite());
 		testSuite.addTest(RemoveMembersOrganizationTests.suite());

@@ -836,7 +836,7 @@ public class PortalImpl implements Portal {
 	}
 
 	public Locale[] getAlternateLocales(HttpServletRequest request)
-		throws SystemException, PortalException {
+		throws PortalException, SystemException {
 
 		Locale[] availableLocales = LanguageUtil.getAvailableLocales();
 
@@ -1811,6 +1811,20 @@ public class PortalImpl implements Portal {
 			}
 
 			value = GetterUtil.getLongValues(values);
+		}
+		else if (type == ExpandoColumnConstants.NUMBER) {
+			value = ParamUtil.getNumber(portletRequest, name);
+		}
+		else if (type == ExpandoColumnConstants.NUMBER_ARRAY) {
+			String[] values = portletRequest.getParameterValues(name);
+
+			if (displayType.equals(
+					ExpandoColumnConstants.PROPERTY_DISPLAY_TYPE_TEXT_BOX)) {
+
+				values = StringUtil.splitLines(values[0]);
+			}
+
+			value = GetterUtil.getNumberValues(values);
 		}
 		else if (type == ExpandoColumnConstants.SHORT) {
 			value = ParamUtil.getShort(portletRequest, name);
@@ -4058,6 +4072,7 @@ public class PortalImpl implements Portal {
 			strutsAction.equals("/image_gallery_display/edit_image") ||
 			strutsAction.equals("/wiki/edit_page_attachment") ||
 			strutsAction.equals("/wiki_admin/edit_page_attachment") ||
+			strutsAction.equals("/wiki_display/edit_page_attachment") ||
 			actionName.equals("addFile")) {
 
 			try {
@@ -4655,6 +4670,10 @@ public class PortalImpl implements Portal {
 			if (isControlPanelPortlet(portletId, category, themeDisplay)) {
 				return true;
 			}
+		}
+
+		if (portletId.equals(PortletKeys.LAYOUTS_ADMIN)) {
+			return true;
 		}
 
 		return false;

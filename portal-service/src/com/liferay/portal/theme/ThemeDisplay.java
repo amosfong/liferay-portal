@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.mobile.device.Device;
 import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
+import com.liferay.portal.kernel.util.Mergeable;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 import com.liferay.portal.kernel.util.Validator;
@@ -55,7 +56,8 @@ import javax.portlet.PortletURL;
 /**
  * @author Brian Wing Shun Chan
  */
-public class ThemeDisplay implements Serializable {
+public class ThemeDisplay
+	implements Cloneable, Mergeable<ThemeDisplay>, Serializable {
 
 	public ThemeDisplay() {
 		if (_log.isDebugEnabled()) {
@@ -63,6 +65,21 @@ public class ThemeDisplay implements Serializable {
 		}
 
 		_portletDisplay.setThemeDisplay(this);
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		ThemeDisplay themeDisplay = (ThemeDisplay)super.clone();
+
+		PortletDisplay portletDisplay = new PortletDisplay();
+
+		_portletDisplay.copyTo(portletDisplay);
+
+		themeDisplay._portletDisplay = portletDisplay;
+
+		portletDisplay.setThemeDisplay(themeDisplay);
+
+		return themeDisplay;
 	}
 
 	public Account getAccount() {
@@ -693,6 +710,17 @@ public class ThemeDisplay implements Serializable {
 
 	public boolean isWidget() {
 		return _widget;
+	}
+
+	public ThemeDisplay merge(ThemeDisplay themeDisplay) {
+		if ((themeDisplay == null) || (themeDisplay == this)) {
+			return this;
+		}
+
+		_includePortletCssJs = themeDisplay._includePortletCssJs;
+		_includeServiceJs = themeDisplay._includeServiceJs;
+
+		return this;
 	}
 
 	public void setAccount(Account account) {

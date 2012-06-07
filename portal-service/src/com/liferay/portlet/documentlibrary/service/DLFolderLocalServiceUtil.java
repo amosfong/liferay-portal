@@ -409,7 +409,7 @@ public class DLFolderLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long, String[],
 	boolean, QueryDefinition)}
 	*/
 	public static java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
@@ -422,8 +422,7 @@ public class DLFolderLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	boolean, QueryDefinition)}
+	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long, long, String[], boolean, QueryDefinition)}
 	*/
 	public static java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
 		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
@@ -447,7 +446,7 @@ public class DLFolderLocalServiceUtil {
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	public static int getFoldersAndFileEntriesAndFileShortcutsCount(
 		long groupId, long folderId, int status, boolean includeMountFolders)
@@ -459,7 +458,7 @@ public class DLFolderLocalServiceUtil {
 
 	/**
 	* @deprecated {@link #getFoldersAndFileEntriesAndFileShortcutsCount(long,
-	long, String[], boolean, QueryDefinition)
+	long, String[], boolean, QueryDefinition)}
 	*/
 	public static int getFoldersAndFileEntriesAndFileShortcutsCount(
 		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
@@ -573,6 +572,17 @@ public class DLFolderLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().updateLastPostDate(folderId, lastPostDate);
+	}
+
+	public static com.liferay.portlet.documentlibrary.model.DLFolder updateStatus(
+		long userId, long folderId, int status,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .updateStatus(userId, folderId, status, workflowContext,
+			serviceContext);
 	}
 
 	public static DLFolderLocalService getService() {

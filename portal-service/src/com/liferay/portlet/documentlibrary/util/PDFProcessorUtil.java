@@ -15,6 +15,7 @@
 package com.liferay.portlet.documentlibrary.util;
 
 import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 
 import java.io.InputStream;
 
@@ -23,13 +24,17 @@ import java.io.InputStream;
  */
 public class PDFProcessorUtil {
 
-	public static void generateImages(FileVersion fileVersion)
+	public static void generateImages(
+			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
 		throws Exception {
 
-		getPDFProcessor().generateImages(fileVersion);
+		getPDFProcessor().generateImages(
+			sourceFileVersion, destinationFileVersion);
 	}
 
 	public static PDFProcessor getPDFProcessor() {
+		PortalRuntimePermission.checkGetBeanProperty(PDFProcessorUtil.class);
+
 		return _pdfProcessor;
 	}
 
@@ -79,11 +84,15 @@ public class PDFProcessorUtil {
 		return getPDFProcessor().isSupported(mimeType);
 	}
 
-	public static void trigger(FileVersion fileVersion) {
-		getPDFProcessor().trigger(fileVersion);
+	public static void trigger(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		getPDFProcessor().trigger(sourceFileVersion, destinationFileVersion);
 	}
 
 	public void setPDFProcessor(PDFProcessor pdfProcessor) {
+		PortalRuntimePermission.checkSetBeanProperty(getClass());
+
 		_pdfProcessor = pdfProcessor;
 	}
 

@@ -37,7 +37,9 @@ public interface ImageProcessor {
 			Element fileEntryElement)
 		throws Exception;
 
-	public void generateImages(FileVersion fileVersion);
+	public void generateImages(
+			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
+		throws Exception;
 
 	public Set<String> getImageMimeTypes();
 
@@ -76,6 +78,7 @@ public interface ImageProcessor {
 			String type)
 		throws Exception;
 
-	public void trigger(FileVersion fileVersion);
+	public void trigger(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion);
 
 }

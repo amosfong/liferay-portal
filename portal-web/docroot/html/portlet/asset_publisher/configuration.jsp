@@ -535,7 +535,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 							</aui:fieldset>
 						</div>
 
-						<aui:input label='<%= LanguageUtil.format(pageContext, "show-only-assets-with-x-as-its-display-page", layout.getName(locale), false) %>' name="preferences--showOnlyLayoutAssets--" type="checkbox" value="<%= showOnlyLayoutAssets %>" />
+						<aui:input label='<%= LanguageUtil.format(pageContext, "show-only-assets-with-x-as-its-display-page", HtmlUtil.escape(layout.getName(locale)), false) %>' name="preferences--showOnlyLayoutAssets--" type="checkbox" value="<%= showOnlyLayoutAssets %>" />
 
 						<aui:input label="include-tags-specified-in-the-url" name="preferences--mergeUrlTags--" type="checkbox" value="<%= mergeUrlTags %>" />
 
@@ -567,7 +567,6 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 									<aui:option label="expiration-date" selected='<%= orderByColumn1.equals("expirationDate") %>' value="expirationDate" />
 									<aui:option label="priority" selected='<%= orderByColumn1.equals("priority") %>'><liferay-ui:message key="priority" /></aui:option>
 									<aui:option label="view-count" selected='<%= orderByColumn1.equals("viewCount") %>' value="viewCount" />
-									<aui:option label="ratings" selected='<%= orderByColumn1.equals("ratings") %>'><liferay-ui:message key="ratings" /></aui:option>
 								</aui:select>
 
 								<aui:select inlineField="<%= true %>" label="" name="preferences--orderByType1--">

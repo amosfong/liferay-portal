@@ -1390,7 +1390,7 @@ public class SourceFormatter {
 						}
 
 						if (_isInJavaTermTypeGroup(
-								javaTermType, _TYPE_VARIABLE_NOT_STATIC)) {
+								javaTermType, _TYPE_VARIABLE_NOT_FINAL)) {
 
 							char firstChar = javaTermName.charAt(0);
 
@@ -1519,6 +1519,23 @@ public class SourceFormatter {
 				}
 			}
 
+			if ((line.contains(" && ") || line.contains(" || ")) &&
+				line.endsWith(StringPool.OPEN_PARENTHESIS)) {
+
+				_sourceFormatterHelper.printError(
+					fileName, "line break: " + fileName + " " + lineCount);
+			}
+
+			if (line.contains(StringPool.COMMA) &&
+				!line.contains(StringPool.CLOSE_PARENTHESIS) &&
+				!line.contains(StringPool.GREATER_THAN) &&
+				!line.contains(StringPool.QUOTE) &&
+				line.endsWith(StringPool.OPEN_PARENTHESIS)) {
+
+				_sourceFormatterHelper.printError(
+					fileName, "line break: " + fileName + " " + lineCount);
+			}
+
 			if (line.contains("    ") && !line.matches("\\s*\\*.*")) {
 				if (!fileName.endsWith("StringPool.java")) {
 					_sourceFormatterHelper.printError(
@@ -1598,7 +1615,9 @@ public class SourceFormatter {
 							line, addedToPreviousLine, StringPool.BLANK);
 					}
 				}
-				else if (line.endsWith(StringPool.OPEN_CURLY_BRACE)) {
+				else if (line.endsWith(StringPool.OPEN_CURLY_BRACE) &&
+						 !previousLine.contains(" class ")) {
+
 					lineToSkipIfEmpty = lineCount + 1;
 				}
 			}
@@ -1614,6 +1633,7 @@ public class SourceFormatter {
 						Validator.isNotNull(trimmedLine) &&
 						!trimmedLine.equals(");") &&
 						!trimmedLine.startsWith(StringPool.CLOSE_CURLY_BRACE) &&
+						!trimmedLine.startsWith(StringPool.DOUBLE_SLASH) &&
 						!trimmedLine.startsWith("catch ") &&
 						!trimmedLine.startsWith("else ") &&
 						!trimmedLine.startsWith("finally ") &&
@@ -2411,7 +2431,8 @@ public class SourceFormatter {
 				return new String[] {previousLine + StringPool.SPACE + line};
 			}
 
-			if (previousLine.endsWith(StringPool.EQUAL) &&
+			if ((previousLine.endsWith(StringPool.EQUAL) ||
+				 trimmedPreviousLine.equals("return")) &&
 				line.endsWith(StringPool.SEMICOLON)) {
 
 				return new String[] {previousLine + StringPool.SPACE + line};
@@ -2425,7 +2446,9 @@ public class SourceFormatter {
 				return new String[] {previousLine + StringPool.SPACE + line};
 			}
 
-			if (line.startsWith("throws ") &&
+			if ((line.startsWith("extends ") ||
+				 line.startsWith("implements ") ||
+				 line.startsWith("throws")) &&
 				line.endsWith(StringPool.OPEN_CURLY_BRACE) &&
 				(lineTabCount == (previousLineTabCount + 1))) {
 
@@ -2722,23 +2745,33 @@ public class SourceFormatter {
 					_getConstructorOrMethodName(line, pos),
 					_TYPE_METHOD_PROTECTED_STATIC);
 			}
+
+			if (line.startsWith(StringPool.TAB + "protected static class ")) {
+				return new Tuple(
+					_getClassName(line), _TYPE_CLASS_PROTECTED_STATIC);
+			}
 		}
 		else if (line.startsWith(StringPool.TAB + "protected ")) {
-			if ((pos != -1) && !line.contains(StringPool.EQUAL)) {
-				int spaceCount = StringUtil.count(
-					line.substring(0, pos), StringPool.SPACE);
+			if (pos != -1) {
+				if (!line.contains(StringPool.EQUAL)) {
+					int spaceCount = StringUtil.count(
+						line.substring(0, pos), StringPool.SPACE);
 
-				if (spaceCount == 1) {
-					return new Tuple(
-						_getConstructorOrMethodName(line, pos),
-						_TYPE_CONSTRUCTOR_PROTECTED);
-				}
+					if (spaceCount == 1) {
+						return new Tuple(
+							_getConstructorOrMethodName(line, pos),
+							_TYPE_CONSTRUCTOR_PROTECTED);
+					}
 
-				if (spaceCount > 1) {
-					return new Tuple(
-						_getConstructorOrMethodName(line, pos),
-						_TYPE_METHOD_PROTECTED);
+					if (spaceCount > 1) {
+						return new Tuple(
+							_getConstructorOrMethodName(line, pos),
+							_TYPE_METHOD_PROTECTED);
+					}
 				}
+			}
+			else if (line.startsWith(StringPool.TAB + "protected class ")) {
+				return new Tuple(_getClassName(line), _TYPE_CLASS_PROTECTED);
 			}
 
 			return new Tuple(_getVariableName(line), _TYPE_VARIABLE_PROTECTED);
@@ -3427,19 +3460,23 @@ public class SourceFormatter {
 		"tiles"
 	};
 
-	private static final int _TYPE_CLASS_PRIVATE = 22;
+	private static final int _TYPE_CLASS_PRIVATE = 24;
 
-	private static final int _TYPE_CLASS_PRIVATE_STATIC = 21;
+	private static final int _TYPE_CLASS_PRIVATE_STATIC = 23;
+
+	private static final int _TYPE_CLASS_PROTECTED = 16;
+
+	private static final int _TYPE_CLASS_PROTECTED_STATIC = 15;
 
 	private static final int _TYPE_CLASS_PUBLIC = 8;
 
 	private static final int _TYPE_CLASS_PUBLIC_STATIC = 7;
 
-	private static final int _TYPE_CONSTRUCTOR_PRIVATE = 16;
+	private static final int _TYPE_CONSTRUCTOR_PRIVATE = 18;
 
 	private static final int _TYPE_CONSTRUCTOR_PROTECTED = 10;
 
-	private static final int _TYPE_CONSTRUCTOR_PUBLIC = 5;
+	private static final int _TYPE_CONSTRUCTOR_PUBLIC = 4;
 
 	private static final int[] _TYPE_METHOD = {
 		SourceFormatter._TYPE_METHOD_PRIVATE,
@@ -3450,19 +3487,19 @@ public class SourceFormatter {
 		SourceFormatter._TYPE_METHOD_PUBLIC_STATIC
 	};
 
-	private static final int _TYPE_METHOD_PRIVATE = 17;
+	private static final int _TYPE_METHOD_PRIVATE = 19;
 
-	private static final int _TYPE_METHOD_PRIVATE_STATIC = 15;
+	private static final int _TYPE_METHOD_PRIVATE_STATIC = 17;
 
 	private static final int _TYPE_METHOD_PROTECTED = 11;
 
 	private static final int _TYPE_METHOD_PROTECTED_STATIC = 9;
 
-	private static final int _TYPE_METHOD_PUBLIC = 6;
+	private static final int _TYPE_METHOD_PUBLIC = 5;
 
-	private static final int _TYPE_METHOD_PUBLIC_STATIC = 4;
+	private static final int _TYPE_METHOD_PUBLIC_STATIC = 3;
 
-	private static final int[] _TYPE_VARIABLE_NOT_STATIC = {
+	private static final int[] _TYPE_VARIABLE_NOT_FINAL = {
 		SourceFormatter._TYPE_VARIABLE_PRIVATE,
 		SourceFormatter._TYPE_VARIABLE_PRIVATE_STATIC,
 		SourceFormatter._TYPE_VARIABLE_PROTECTED,
@@ -3471,11 +3508,11 @@ public class SourceFormatter {
 		SourceFormatter._TYPE_VARIABLE_PUBLIC_STATIC
 	};
 
-	private static final int _TYPE_VARIABLE_PRIVATE = 20;
+	private static final int _TYPE_VARIABLE_PRIVATE = 22;
 
-	private static final int _TYPE_VARIABLE_PRIVATE_STATIC = 19;
+	private static final int _TYPE_VARIABLE_PRIVATE_STATIC = 21;
 
-	private static final int _TYPE_VARIABLE_PRIVATE_STATIC_FINAL = 18;
+	private static final int _TYPE_VARIABLE_PRIVATE_STATIC_FINAL = 20;
 
 	private static final int _TYPE_VARIABLE_PROTECTED = 14;
 
@@ -3483,7 +3520,7 @@ public class SourceFormatter {
 
 	private static final int _TYPE_VARIABLE_PROTECTED_STATIC_FINAL = 12;
 
-	private static final int _TYPE_VARIABLE_PUBLIC = 3;
+	private static final int _TYPE_VARIABLE_PUBLIC = 6;
 
 	private static final int _TYPE_VARIABLE_PUBLIC_STATIC = 2;
 

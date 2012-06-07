@@ -835,7 +835,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Trash
 
-		trashEntryLocalService.deleteTrashEntry(trashEntry.getEntryId());
+		trashEntryLocalService.deleteEntry(trashEntry.getEntryId());
 	}
 
 	public void subscribe(long userId, long groupId)
@@ -1029,16 +1029,15 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		blogsEntryPersistence.update(entry, false);
 
+		// Statistics
+
+		blogsStatsUserLocalService.updateStatsUser(
+			entry.getGroupId(), entry.getUserId(), entry.getDisplayDate());
+
 		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			BlogsEntry.class);
 
 		if (status == WorkflowConstants.STATUS_APPROVED) {
-
-			// Statistics
-
-			blogsStatsUserLocalService.updateStatsUser(
-				entry.getGroupId(), user.getUserId(), entry.getDisplayDate());
-
 			if (oldStatus != WorkflowConstants.STATUS_APPROVED) {
 
 				// Asset

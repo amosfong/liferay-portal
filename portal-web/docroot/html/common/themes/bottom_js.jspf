@@ -120,11 +120,12 @@ if (layout != null) {
 			function() {
 				new Liferay.Navigation(
 					{
+						hasAddLayoutPermission: <%= GroupPermissionUtil.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_LAYOUT) %>,
 						hasPermission: <%= GroupPermissionUtil.contains(permissionChecker, scopeGroupId, ActionKeys.MANAGE_LAYOUTS) %>,
 						layoutIds: [
 
 							<%
-							for (int i = 0; i < layouts.size(); i++) {
+							for (int i = 0; (layouts != null) && (i < layouts.size()); i++) {
 								Layout curLayout = (Layout)layouts.get(i);
 
 								boolean updateable = SitesUtil.isLayoutUpdateable(curLayout);

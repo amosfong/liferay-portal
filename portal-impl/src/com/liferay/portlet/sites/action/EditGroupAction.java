@@ -233,7 +233,8 @@ public class EditGroupAction extends PortletAction {
 			(groupId == themeDisplay.getScopeGroupId()) ||
 			(groupId == getRefererGroupId(themeDisplay))) {
 
-			throw new RequiredGroupException(String.valueOf(groupId));
+			throw new RequiredGroupException(
+				String.valueOf(groupId), RequiredGroupException.CURRENT_GROUP);
 		}
 
 		Group group = GroupServiceUtil.getGroup(groupId);
@@ -256,7 +257,7 @@ public class EditGroupAction extends PortletAction {
 	protected String updateCloseRedirect(
 			String closeRedirect, Group group, ThemeDisplay themeDisplay,
 			String oldFriendlyURL, String oldStagingFriendlyURL)
-		throws SystemException, PortalException {
+		throws PortalException, SystemException {
 
 		if (Validator.isNull(closeRedirect) || (group == null)) {
 			return closeRedirect;

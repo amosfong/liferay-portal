@@ -1917,6 +1917,9 @@
 				<temporal>TIMESTAMP</temporal>
 			</basic>
 			<basic name="fileEntryId" />
+			<basic name="active">
+				<column name="ACTIVE_" />
+			</basic>
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -1942,6 +1945,9 @@
 			<basic name="repositoryId" />
 			<basic name="folderId" />
 			<basic name="toFileEntryId" />
+			<basic name="active">
+				<column name="ACTIVE_" />
+			</basic>
 			<basic name="status" />
 			<basic name="statusByUserId" />
 			<basic name="statusByUserName" />
@@ -2024,9 +2030,16 @@
 			</basic>
 			<basic name="defaultFileEntryTypeId" />
 			<basic name="overrideFileEntryTypes" />
+			<basic name="status" />
+			<basic name="statusByUserId" />
+			<basic name="statusByUserName" />
+			<basic name="statusDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
+			<transient name="statusByUserUuid" />
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
@@ -4179,6 +4192,8 @@
 			<transient name="integerArray" />
 			<transient name="long" />
 			<transient name="longArray" />
+			<transient name="number" />
+			<transient name="numberArray" />
 			<transient name="short" />
 			<transient name="shortArray" />
 			<transient name="string" />

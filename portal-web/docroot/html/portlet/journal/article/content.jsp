@@ -683,7 +683,7 @@ if (Validator.isNotNull(content)) {
 						dialog: {
 							width:680
 						},
-						id: '<portlet:namespace />structureSelector',
+						id: '<portlet:namespace />templateSelector',
 						title: '<%= UnicodeLanguageUtil.get(pageContext, "template") %>',
 						uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/journal/select_template" /><portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" /><portlet:param name="structureId" value="<%= String.valueOf(structureId) %>" /></portlet:renderURL>'
 					}
@@ -919,6 +919,27 @@ private void _format(long groupId, Element contentParentElement, Element xsdPare
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_META_DATA, elMetaData);
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_NAME, elName);
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_PARENT_ID, elParentStructureId);
+
+			if (elRepeatable || _hasRepeatedParent(contentElement)) {
+				Map <String, Integer> repeatCountMap = (Map<String, Integer>)request.getAttribute(WebKeys.JOURNAL_STRUCTURE_EL_REPEAT_COUNT_MAP);
+
+				if (repeatCountMap == null) {
+					repeatCountMap = new HashMap<String, Integer>();
+				}
+
+				Integer repeatCount = repeatCountMap.get(elName);
+
+				if (repeatCount == null) {
+					repeatCount = 0;
+				}
+
+				repeatCount++;
+
+				repeatCountMap.put(elName, repeatCount);
+
+				request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_REPEAT_COUNT_MAP, repeatCountMap);
+			}
+
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_REPEATABLE, String.valueOf(elRepeatable));
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_REPEATABLE_PROTOTYPE, String.valueOf(repeatablePrototype));
 			request.setAttribute(WebKeys.JOURNAL_STRUCTURE_EL_TYPE, elType);

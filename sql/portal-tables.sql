@@ -595,7 +595,8 @@ create table DLFileRank (
 	companyId LONG,
 	userId LONG,
 	createDate DATE null,
-	fileEntryId LONG
+	fileEntryId LONG,
+	active_ BOOLEAN
 );
 
 create table DLFileShortcut (
@@ -610,6 +611,7 @@ create table DLFileShortcut (
 	repositoryId LONG,
 	folderId LONG,
 	toFileEntryId LONG,
+	active_ BOOLEAN,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -659,7 +661,11 @@ create table DLFolder (
 	description STRING null,
 	lastPostDate DATE null,
 	defaultFileEntryTypeId LONG,
-	overrideFileEntryTypes BOOLEAN
+	overrideFileEntryTypes BOOLEAN,
+	status INTEGER,
+	statusByUserId LONG,
+	statusByUserName VARCHAR(75) null,
+	statusDate DATE null
 );
 
 create table DLSync (

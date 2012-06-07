@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.cache.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -90,6 +91,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -301,6 +303,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		group.setFriendlyURL(friendlyURL);
 		group.setSite(site);
 		group.setActive(active);
+
+		if ((serviceContext != null) && (classNameId == groupClassNameId) &&
+			!user.isDefaultUser()) {
+
+			group.setExpandoBridgeAttributes(serviceContext);
+		}
 
 		groupPersistence.update(group, false);
 
@@ -559,7 +567,16 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		if (PortalUtil.isSystemGroup(group.getName())) {
 			throw new RequiredGroupException(
-				String.valueOf(group.getGroupId()));
+				String.valueOf(group.getGroupId()),
+				RequiredGroupException.SYSTEM_GROUP);
+		}
+
+		if (groupPersistence.countByC_P(
+				group.getCompanyId(), group.getGroupId()) > 0) {
+
+			throw new RequiredGroupException(
+				String.valueOf(group.getGroupId()),
+				RequiredGroupException.PARENT_GROUP);
 		}
 
 		// Layout set branches
@@ -925,6 +942,88 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 
 		return groupLocalService.loadGetGroup(companyId, name);
+	}
+
+	public String getGroupDescriptiveName(Group group, Locale locale)
+		throws PortalException, SystemException {
+
+		String name = group.getName();
+
+		if (group.isCompany()) {
+			name = LanguageUtil.get(locale, "global");
+		}
+		else if (group.isControlPanel()) {
+			name = LanguageUtil.get(locale, "control-panel");
+		}
+		else if (group.isLayout()) {
+			Layout layout = layoutLocalService.getLayout(group.getClassPK());
+
+			name = layout.getName(locale);
+		}
+		else if (group.isLayoutPrototype()) {
+			LayoutPrototype layoutPrototype =
+				layoutPrototypeLocalService.getLayoutPrototype(
+					group.getClassPK());
+
+			name = layoutPrototype.getName(locale);
+		}
+		else if (group.isLayoutSetPrototype()) {
+			LayoutSetPrototype layoutSetPrototype =
+				layoutSetPrototypePersistence.findByPrimaryKey(
+					group.getClassPK());
+
+			name = layoutSetPrototype.getName(locale);
+		}
+		else if (group.isOrganization()) {
+			long organizationId = group.getOrganizationId();
+
+			Organization organization =
+				organizationPersistence.findByPrimaryKey(organizationId);
+
+			name = organization.getName();
+
+			Group organizationGroup = organization.getGroup();
+
+			if (organizationGroup.isStaged() && group.isStagingGroup()) {
+				name = name + " (" + LanguageUtil.get(locale, "staging") + ")";
+			}
+		}
+		else if (group.isUser()) {
+			long userId = group.getClassPK();
+
+			User user = userPersistence.findByPrimaryKey(userId);
+
+			name = user.getFullName();
+		}
+		else if (group.isUserGroup()) {
+			long userGroupId = group.getClassPK();
+
+			UserGroup userGroup = userGroupPersistence.findByPrimaryKey(
+				userGroupId);
+
+			name = userGroup.getName();
+		}
+		else if (group.isUserPersonalSite()) {
+			name = LanguageUtil.get(locale, "user-personal-site");
+		}
+		else if (name.equals(GroupConstants.GUEST)) {
+			Company company = companyPersistence.findByPrimaryKey(
+				group.getCompanyId());
+
+			Account account = company.getAccount();
+
+			name = account.getName();
+		}
+
+		return name;
+	}
+
+	public String getGroupDescriptiveName(long groupId, Locale locale)
+		throws PortalException, SystemException {
+
+		Group group = groupPersistence.findByPrimaryKey(groupId);
+
+		return getGroupDescriptiveName(group, locale);
 	}
 
 	/**
@@ -1950,16 +2049,21 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				group.getGroupId(), group.getCompanyId(), name, group.isSite());
 		}
 		else if (className.equals(Organization.class.getName())) {
-			name = getOrgGroupName(classPK, name);
+			Organization organization =
+				organizationPersistence.findByPrimaryKey(classPK);
+
+			name = getOrgGroupName(classPK, organization.getName());
 		}
 		else if (!GroupConstants.USER_PERSONAL_SITE.equals(name)) {
 			name = String.valueOf(classPK);
 		}
 
 		if (PortalUtil.isSystemGroup(group.getName()) &&
-			!group.getName().equals(name)) {
+			!name.equals(group.getName())) {
 
-			throw new RequiredGroupException();
+			throw new RequiredGroupException(
+				String.valueOf(group.getGroupId()),
+				RequiredGroupException.SYSTEM_GROUP);
 		}
 
 		validateFriendlyURL(
@@ -1972,6 +2076,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		group.setType(type);
 		group.setFriendlyURL(friendlyURL);
 		group.setActive(active);
+
+		if ((serviceContext != null) && group.isSite()) {
+			group.setExpandoBridgeAttributes(serviceContext);
+		}
 
 		groupPersistence.update(group, false);
 

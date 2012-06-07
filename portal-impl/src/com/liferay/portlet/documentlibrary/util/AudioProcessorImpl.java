@@ -18,8 +18,6 @@ import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
-import com.liferay.portal.kernel.messaging.MessageBusException;
-import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.process.ClassPathUtil;
 import com.liferay.portal.kernel.process.ProcessCallable;
 import com.liferay.portal.kernel.process.ProcessException;
@@ -69,8 +67,11 @@ public class AudioProcessorImpl
 		return _instance;
 	}
 
-	public void generateAudio(FileVersion fileVersion) throws Exception {
-		_instance._generateAudio(fileVersion);
+	public void generateAudio(
+			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
+		throws Exception {
+
+		_instance._generateAudio(sourceFileVersion, destinationFileVersion);
 	}
 
 	public Set<String> getAudioMimeTypes() {
@@ -96,7 +97,7 @@ public class AudioProcessorImpl
 			hasAudio = _instance._hasAudio(fileVersion);
 
 			if (!hasAudio && _instance.isSupported(fileVersion)) {
-				_instance._queueGeneration(fileVersion);
+				_instance._queueGeneration(null, fileVersion);
 			}
 		}
 		catch (Exception e) {
@@ -130,8 +131,10 @@ public class AudioProcessorImpl
 		return false;
 	}
 
-	public void trigger(FileVersion fileVersion) {
-		_instance._queueGeneration(fileVersion);
+	public void trigger(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		_instance._queueGeneration(sourceFileVersion, destinationFileVersion);
 	}
 
 	@Override
@@ -243,9 +246,13 @@ public class AudioProcessorImpl
 		FileUtil.mkdirs(PREVIEW_TMP_PATH);
 	}
 
-	private void _generateAudio(FileVersion fileVersion) throws Exception {
+	private void _generateAudio(
+			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
+		throws Exception {
+
 		String tempFileId = DLUtil.getTempFileId(
-			fileVersion.getFileEntryId(), fileVersion.getVersion());
+			destinationFileVersion.getFileEntryId(),
+			destinationFileVersion.getVersion());
 
 		File[] previewTempFiles = new File[_PREVIEW_TYPES.length];
 
@@ -259,19 +266,26 @@ public class AudioProcessorImpl
 		InputStream inputStream = null;
 
 		try {
-			audioTempFile = FileUtil.createTempFile(fileVersion.getExtension());
+			if (sourceFileVersion != null) {
+				copy(sourceFileVersion, destinationFileVersion);
 
-			if (!XugglerUtil.isEnabled() || _hasAudio(fileVersion)) {
 				return;
 			}
 
-			if (!hasPreviews(fileVersion)) {
+			if (!XugglerUtil.isEnabled() || _hasAudio(destinationFileVersion)) {
+				return;
+			}
+
+			audioTempFile = FileUtil.createTempFile(
+				destinationFileVersion.getExtension());
+
+			if (!hasPreviews(destinationFileVersion)) {
 				File file = null;
 
-				if (fileVersion instanceof LiferayFileVersion) {
+				if (destinationFileVersion instanceof LiferayFileVersion) {
 					try {
 						LiferayFileVersion liferayFileVersion =
-							(LiferayFileVersion)fileVersion;
+							(LiferayFileVersion)destinationFileVersion;
 
 						file = liferayFileVersion.getFile(false);
 					}
@@ -280,7 +294,8 @@ public class AudioProcessorImpl
 				}
 
 				if (file == null) {
-					inputStream = fileVersion.getContentStream(false);
+					inputStream = destinationFileVersion.getContentStream(
+						false);
 
 					FileUtil.write(audioTempFile, inputStream);
 
@@ -288,7 +303,8 @@ public class AudioProcessorImpl
 				}
 
 				try {
-					_generateAudioXuggler(fileVersion, file, previewTempFiles);
+					_generateAudioXuggler(
+						destinationFileVersion, file, previewTempFiles);
 				}
 				catch (Exception e) {
 					_log.error(e, e);
@@ -300,7 +316,7 @@ public class AudioProcessorImpl
 		finally {
 			StreamUtil.cleanUp(inputStream);
 
-			_fileVersionIds.remove(fileVersion.getFileVersionId());
+			_fileVersionIds.remove(destinationFileVersion.getFileVersionId());
 
 			for (int i = 0; i < previewTempFiles.length; i++) {
 				FileUtil.delete(previewTempFiles[i]);
@@ -392,31 +408,22 @@ public class AudioProcessorImpl
 		return hasPreviews(fileVersion);
 	}
 
-	private void _queueGeneration(FileVersion fileVersion) {
-		if (_fileVersionIds.contains(fileVersion.getFileVersionId()) ||
-			!isSupported(fileVersion)) {
+	private void _queueGeneration(
+		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		if (_fileVersionIds.contains(
+				destinationFileVersion.getFileVersionId()) ||
+			!isSupported(destinationFileVersion)) {
 
 			return;
 		}
 
-		_fileVersionIds.add(fileVersion.getFileVersionId());
+		_fileVersionIds.add(destinationFileVersion.getFileVersionId());
 
-		if (PropsValues.DL_FILE_ENTRY_PROCESSORS_TRIGGER_SYNCHRONOUSLY) {
-			try {
-				MessageBusUtil.sendSynchronousMessage(
-					DestinationNames.DOCUMENT_LIBRARY_AUDIO_PROCESSOR,
-					fileVersion);
-			}
-			catch (MessageBusException mbe) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(mbe, mbe);
-				}
-			}
-		}
-		else {
-			MessageBusUtil.sendMessage(
-				DestinationNames.DOCUMENT_LIBRARY_AUDIO_PROCESSOR, fileVersion);
-		}
+		sendGenerationMessage(
+			DestinationNames.DOCUMENT_LIBRARY_AUDIO_PROCESSOR,
+			PropsValues.DL_FILE_ENTRY_PROCESSORS_TRIGGER_SYNCHRONOUSLY,
+			sourceFileVersion, destinationFileVersion);
 	}
 
 	private static final String[] _PREVIEW_TYPES =

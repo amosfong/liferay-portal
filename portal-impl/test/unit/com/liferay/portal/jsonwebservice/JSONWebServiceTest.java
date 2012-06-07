@@ -108,8 +108,7 @@ public class JSONWebServiceTest extends BaseJSONWebServiceTestCase {
 		}
 
 		mockHttpServletRequest = createHttpRequest(
-			"/foo/use2/+foo-data:" +
-				"com.liferay.portal.jsonwebservice.dependencies.FooDataImpl");
+			"/foo/use2/+foo-data:" + FooDataImpl.class.getName());
 
 		jsonWebServiceAction = lookupJSONWebServiceAction(
 			mockHttpServletRequest);

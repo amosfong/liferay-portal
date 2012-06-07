@@ -237,7 +237,7 @@ if (layout.isTypeControlPanel()) {
 
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "export";
 
-		submitForm(document.<portlet:namespace />fm, '<portlet:actionURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /></portlet:actionURL>&etag=0', false);
+		submitForm(document.<portlet:namespace />fm, '<portlet:actionURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /></portlet:actionURL>&etag=0&strip=0', false);
 	}
 
 	function <portlet:namespace />importData() {

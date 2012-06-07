@@ -501,6 +501,20 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 		return _groupLocalService.getGroup(companyId, name);
 	}
 
+	public java.lang.String getGroupDescriptiveName(
+		com.liferay.portal.model.Group group, java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.getGroupDescriptiveName(group, locale);
+	}
+
+	public java.lang.String getGroupDescriptiveName(long groupId,
+		java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.getGroupDescriptiveName(groupId, locale);
+	}
+
 	/**
 	* Returns the groups with the matching primary keys.
 	*

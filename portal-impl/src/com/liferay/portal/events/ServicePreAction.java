@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.SessionParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -434,6 +435,17 @@ public class ServicePreAction extends Action {
 
 			if (!signedIn && PropsValues.AUTH_FORWARD_BY_REDIRECT) {
 				request.setAttribute(WebKeys.REQUESTED_LAYOUT, layout);
+			}
+
+			String ppid = ParamUtil.getString(request, "p_p_id");
+
+			if (Validator.isNull(controlPanelCategory) &&
+				Validator.isNotNull(ppid) &&
+				(LiferayWindowState.isPopUp(request) ||
+				 LiferayWindowState.isExclusive(request))) {
+
+				controlPanelCategory =
+					_CONTROL_PANEL_CATEGORY_PORTLET_PREFIX + ppid;
 			}
 
 			boolean viewableGroup = LayoutPermissionUtil.contains(
@@ -1913,35 +1925,27 @@ public class ServicePreAction extends Action {
 
 		ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-		// Parallel render
+		// Ajaxable render
 
-		boolean parallelRenderEnable = true;
+		if (PropsValues.LAYOUT_AJAX_RENDER_ENABLE) {
+			boolean portletAjaxRender = ParamUtil.getBoolean(
+				request, "p_p_ajax", true);
 
-		Layout layout = themeDisplay.getLayout();
-
-		if (layout != null) {
-			LayoutTypePortlet layoutTypePortlet =
-				themeDisplay.getLayoutTypePortlet();
-
-			List<String> portletIds = layoutTypePortlet.getPortletIds();
-
-			if (portletIds.size() == 1) {
-				String portletId = portletIds.get(0);
-
-				Portlet portlet = PortletLocalServiceUtil.getPortletById(
-					portletId);
-
-				if ((portlet != null) && !portlet.isAjaxable()) {
-					parallelRenderEnable = false;
-				}
-			}
+			request.setAttribute(
+				WebKeys.PORTLET_AJAX_RENDER, portletAjaxRender);
 		}
 
-		Boolean parallelRenderEnableObj = Boolean.valueOf(ParamUtil.getBoolean(
-			request, "p_p_parallel", parallelRenderEnable));
+		// Parallel render
 
-		request.setAttribute(
-			WebKeys.PORTLET_PARALLEL_RENDER, parallelRenderEnableObj);
+		if (PropsValues.LAYOUT_PARALLEL_RENDER_ENABLE &&
+			ServerDetector.isTomcat()) {
+
+			boolean portletParallelRender = ParamUtil.getBoolean(
+				request, "p_p_parallel", true);
+
+			request.setAttribute(
+				WebKeys.PORTLET_PARALLEL_RENDER, portletParallelRender);
+		}
 
 		// Main Journal article
 

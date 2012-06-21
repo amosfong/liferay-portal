@@ -72,6 +72,19 @@ public class DLAppHelperLocalServiceUtil {
 		getService().addFolder(folder, serviceContext);
 	}
 
+	public static void cancelCheckOut(long userId,
+		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
+		com.liferay.portal.kernel.repository.model.FileVersion sourceFileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion destinationFileVersion,
+		com.liferay.portal.kernel.repository.model.FileVersion draftFileVersion,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService()
+			.cancelCheckOut(userId, fileEntry, sourceFileVersion,
+			destinationFileVersion, draftFileVersion, serviceContext);
+	}
+
 	public static void checkAssetEntry(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		com.liferay.portal.kernel.repository.model.FileVersion fileVersion)
@@ -108,7 +121,7 @@ public class DLAppHelperLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@Link #getFileShortcuts(long, long, int, boolean)}
+	* @deprecated {@link #getFileShortcuts(long, long, boolean, int)}
 	*/
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileShortcut> getFileShortcuts(
 		long groupId, long folderId, int status)
@@ -124,7 +137,7 @@ public class DLAppHelperLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@Link #getFileShortcutsCount(long, long, int, boolean)}
+	* @deprecated {@link #getFileShortcutsCount(long, long, boolean, int)}
 	*/
 	public static int getFileShortcutsCount(long groupId, long folderId,
 		int status) throws com.liferay.portal.kernel.exception.SystemException {

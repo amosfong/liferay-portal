@@ -170,9 +170,9 @@
 			}
 		);
 	}
+</aui:script>
 
-	var A = AUI();
-
+<aui:script use="aui-base">
 	var buttons = A.all('.delete-articles-button, .expire-articles-button');
 
 	if (buttons.size()) {

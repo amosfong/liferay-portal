@@ -25,7 +25,17 @@ portletURL.setParameter("struts_action", "/dynamic_data_mapping/view");
 portletURL.setParameter("tabs1", tabs1);
 %>
 
-<liferay-ui:error exception="<%= RequiredStructureException.class %>" message="required-structures-could-not-be-deleted" />
+<liferay-ui:error exception="<%= RequiredStructureException.class %>">
+	<liferay-ui:message key="required-structures-could-not-be-deleted" />
+
+	<%
+	RequiredStructureException rse = (RequiredStructureException)errorException;
+	%>
+
+	<c:if test="<%= rse.getType() == RequiredStructureException.REFERENCED_TEMPLATE %>">
+		<liferay-ui:message key="they-are-referenced-by-templates" />
+	</c:if>
+</liferay-ui:error>
 
 <c:if test="<%= showToolbar %>">
 	<liferay-util:include page="/html/portlet/dynamic_data_mapping/toolbar.jsp">
@@ -38,7 +48,26 @@ portletURL.setParameter("tabs1", tabs1);
 	<aui:input name="redirect" type="hidden" value="<%= portletURL.toString() %>" />
 	<aui:input name="deleteStructureIds" type="hidden" />
 
+	<%
+	String orderByCol = ParamUtil.getString(request, "orderByCol");
+	String orderByType = ParamUtil.getString(request, "orderByType");
+
+	if (Validator.isNotNull(orderByCol) && Validator.isNotNull(orderByType)) {
+		portalPreferences.setValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-col", orderByCol);
+		portalPreferences.setValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-type", orderByType);
+	}
+	else {
+		orderByCol = portalPreferences.getValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-col", "name");
+		orderByType = portalPreferences.getValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-type", "asc");
+	}
+
+	OrderByComparator orderByComparator = DDMUtil.getStructureOrderByComparator(orderByCol, orderByType);
+	%>
+
 	<liferay-ui:search-container
+		orderByCol="<%= orderByCol %>"
+		orderByComparator="<%= orderByComparator %>"
+		orderByType="<%= orderByType %>"
 		rowChecker="<%= new RowChecker(renderResponse) %>"
 		searchContainer="<%= new StructureSearch(renderRequest, portletURL) %>"
 	>
@@ -94,6 +123,8 @@ portletURL.setParameter("tabs1", tabs1);
 			<liferay-ui:search-container-column-text
 				href="<%= rowHREF %>"
 				name="name"
+				orderable="<%= true %>"
+				orderableProperty="name"
 				value="<%= HtmlUtil.escape(structure.getName(locale)) %>"
 			/>
 
@@ -123,6 +154,8 @@ portletURL.setParameter("tabs1", tabs1);
 				buffer="buffer"
 				href="<%= rowHREF %>"
 				name="modified-date"
+				orderable="<%= true %>"
+				orderableProperty="modified-date"
 			>
 
 				<%
@@ -164,6 +197,45 @@ portletURL.setParameter("tabs1", tabs1);
 				uri: uri
 			}
 		);
+	}
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />deleteStructures',
+		function() {
+			if (confirm('<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-delete-this") %>')) {
+				document.<portlet:namespace />fm.method = "post";
+				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.DELETE %>";
+				document.<portlet:namespace />fm.<portlet:namespace />deleteStructureIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
+
+				submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/dynamic_data_mapping/edit_structure" /></portlet:actionURL>");
+			}
+		},
+		['liferay-util-list-fields']
+	);
+</aui:script>
+
+<aui:script use="aui-base">
+	var buttons = A.all('.delete-structures-button');
+
+	if (buttons.size()) {
+		var toggleDisabled = A.bind(Liferay.Util.toggleDisabled, Liferay.Util, ':button');
+
+		var resultsGrid = A.one('.results-grid');
+
+		if (resultsGrid) {
+			resultsGrid.delegate(
+					'click',
+					function(event) {
+						var disabled = (resultsGrid.one(':checked') == null);
+
+						toggleDisabled(disabled);
+					},
+					':checkbox'
+			);
+		}
+
+		toggleDisabled(true);
 	}
 
 	Liferay.provide(

@@ -17,6 +17,7 @@ package com.liferay.portlet.dynamicdatamapping.util;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
@@ -72,6 +73,18 @@ public class DDMUtil {
 
 	public static String getFileUploadPath(BaseModel<?> baseModel) {
 		return getDDM().getFileUploadPath(baseModel);
+	}
+
+	public static OrderByComparator getStructureOrderByComparator(
+		String orderByCol, String orderByType) {
+
+		return getDDM().getStructureOrderByComparator(orderByCol, orderByType);
+	}
+
+	public static OrderByComparator getTemplateOrderByComparator(
+		String orderByCol, String orderByType) {
+
+		return getDDM().getTemplateOrderByComparator(orderByCol, orderByType);
 	}
 
 	public static void sendFieldFile(

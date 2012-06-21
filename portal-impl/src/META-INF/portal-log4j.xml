@@ -339,7 +339,7 @@
 	</category>
 
 	<category name="com.liferay.portal.kernel.util.ClassUtil">
-		<priority value="DEBUG" />
+		<priority value="ERROR" />
 	</category>
 
 	<category name="com.liferay.portal.kernel.util.JavaDetector">
@@ -363,7 +363,7 @@
 	</category>
 
 	<category name="com.liferay.portal.kernel.servlet.ServletResponseUtil">
-		<priority value="INFO" />
+		<priority value="ERROR" />
 	</category>
 
 	<category name="com.liferay.portal.lar">
@@ -419,6 +419,14 @@
 	</category>
 
 	<category name="com.liferay.portal.search.lucene.LuceneIndexWriterImpl">
+		<priority value="ERROR" />
+	</category>
+
+	<category name="com.liferay.portal.security.auth.EmailAddressGeneratorFactory">
+		<priority value="ERROR" />
+	</category>
+
+	<category name="com.liferay.portal.security.auth.EmailAddressValidatorFactory">
 		<priority value="ERROR" />
 	</category>
 
@@ -714,6 +722,10 @@
 		<priority value="ERROR" />
 	</category>
 
+	<category name="com.liferay.portal.sharepoint">
+		<priority value="ERROR" />
+	</category>
+
 	<category name="com.liferay.portal.spring">
 		<priority value="ERROR" />
 	</category>
@@ -854,15 +866,7 @@
 		<priority value="ERROR" />
 	</category>
 
-	<category name="com.liferay.portal.velocity.ClassLoaderVelocityResourceListener">
-		<priority value="ERROR" />
-	</category>
-
 	<category name="com.liferay.portal.velocity.LiferayResourceLoader">
-		<priority value="ERROR" />
-	</category>
-
-	<category name="com.liferay.portal.velocity.ServletVelocityResourceListener">
 		<priority value="ERROR" />
 	</category>
 
@@ -927,6 +931,10 @@
 	</category>
 
 	<category name="com.liferay.portlet.documentlibrary.lar">
+		<priority value="WARN" />
+	</category>
+
+	<category name="com.liferay.portlet.documentlibrary.sharepoint">
 		<priority value="WARN" />
 	</category>
 
@@ -1068,14 +1076,6 @@
 
 	<category name="com.liferay.util.portlet.PortletRequestUtil">
 		<priority value="INFO" />
-	</category>
-
-	<category name="com.liferay.util.servlet.ServletRequestUtil">
-		<priority value="INFO" />
-	</category>
-
-	<category name="com.liferay.util.servlet.ServletResponseUtil">
-		<priority value="ERROR" />
 	</category>
 
 	<category name="com.mchange">

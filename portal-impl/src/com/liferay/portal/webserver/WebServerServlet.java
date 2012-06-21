@@ -33,6 +33,8 @@ import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateContextType;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.template.TemplateResource;
+import com.liferay.portal.kernel.template.TemplateResourceLoaderUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -356,8 +358,7 @@ public class WebServerServlet extends HttpServlet {
 		else if (pathArray.length == 3) {
 			long groupId = GetterUtil.getLong(pathArray[0]);
 			long folderId = GetterUtil.getLong(pathArray[1]);
-
-			String fileName = pathArray[2];
+			String fileName = HttpUtil.decodeURL(pathArray[2]);
 
 			if (fileName.contains(StringPool.QUESTION)) {
 				fileName = fileName.substring(
@@ -1092,8 +1093,12 @@ public class WebServerServlet extends HttpServlet {
 			List<WebServerEntry> webServerEntries)
 		throws Exception {
 
+		TemplateResource templateResource =
+			TemplateResourceLoaderUtil.getTemplateResource(
+				TemplateManager.FREEMARKER, _TEMPLATE_FTL);
+
 		Template template = TemplateManagerUtil.getTemplate(
-			TemplateManager.FREEMARKER, _TEMPLATE_FTL,
+			TemplateManager.FREEMARKER, templateResource,
 			TemplateContextType.RESTRICTED);
 
 		template.put("dateFormat", _dateFormat);
@@ -1186,7 +1191,7 @@ public class WebServerServlet extends HttpServlet {
 		else if (pathArray.length == 3) {
 			long groupId = GetterUtil.getLong(pathArray[0]);
 			long folderId = GetterUtil.getLong(pathArray[1]);
-			String fileName = pathArray[2];
+			String fileName = HttpUtil.decodeURL(pathArray[2]);
 
 			try {
 				DLAppLocalServiceUtil.getFileEntry(groupId, folderId, fileName);

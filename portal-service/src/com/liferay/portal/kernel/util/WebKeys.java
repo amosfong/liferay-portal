@@ -137,6 +137,8 @@ public interface WebKeys {
 
 	public static final String THEME_DISPLAY = "LIFERAY_SHARED_THEME_DISPLAY";
 
+	public static final String UNIQUE_ELEMENT_IDS = "LIFERAY_SHARED_UNIQUE_ELEMENT_IDS";
+
 	public static final String UPLOAD_EXCEPTION = "UPLOAD_EXCEPTION";
 
 	public static final String USER = "USER";
@@ -146,8 +148,6 @@ public interface WebKeys {
 	public static final String USER_PASSWORD = "USER_PASSWORD";
 
 	public static final String USER_UUID = "USER_UUID";
-
-	public static final String VELOCITY_TAGLIB = "VELOCITY_TAGLIB";
 
 	public static final String VISITED_GROUP_ID_PREVIOUS = "LIFERAY_SHARED_VISITED_GROUP_ID_PREVIOUS";
 

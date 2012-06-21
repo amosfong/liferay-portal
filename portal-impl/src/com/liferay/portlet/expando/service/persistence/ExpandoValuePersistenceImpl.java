@@ -502,6 +502,7 @@ public class ExpandoValuePersistenceImpl extends BasePersistenceImpl<ExpandoValu
 		if (isNew || !ExpandoValueModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((expandoValueModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TABLEID.getColumnBitmask()) != 0) {
@@ -696,6 +697,7 @@ public class ExpandoValuePersistenceImpl extends BasePersistenceImpl<ExpandoValu
 					};
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_R, args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_R, args);
 
 				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_R,
@@ -714,6 +716,7 @@ public class ExpandoValuePersistenceImpl extends BasePersistenceImpl<ExpandoValu
 					};
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_T_C_C, args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_T_C_C, args);
 
 				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_T_C_C,

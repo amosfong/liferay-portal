@@ -520,6 +520,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 		if (isNew || !JournalContentSearchModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((journalContentSearchModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_PORTLETID.getColumnBitmask()) != 0) {
@@ -710,6 +711,7 @@ public class JournalContentSearchPersistenceImpl extends BasePersistenceImpl<Jou
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_P_L_P_A,
 					args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_G_P_L_P_A,
 					args);
 

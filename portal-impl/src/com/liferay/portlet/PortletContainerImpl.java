@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.portlet.PortletContainer;
 import com.liferay.portal.kernel.portlet.PortletContainerException;
 import com.liferay.portal.kernel.portlet.PortletModeFactory;
 import com.liferay.portal.kernel.portlet.WindowStateFactory;
-import com.liferay.portal.kernel.servlet.DirectRequestDispatcherUtil;
+import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.StringServletResponse;
 import com.liferay.portal.kernel.upload.UploadServletRequest;
@@ -474,11 +474,9 @@ public class PortletContainerImpl implements PortletContainer {
 				AuthTokenUtil.check(request);
 			}
 
-			ActionRequestImpl actionRequestImpl =
-				ActionRequestFactory.create(
-					request, portlet, invokerPortlet, portletContext,
-					windowState, portletMode, portletPreferences,
-					layout.getPlid());
+			ActionRequestImpl actionRequestImpl = ActionRequestFactory.create(
+				request, portlet, invokerPortlet, portletContext, windowState,
+				portletMode, portletPreferences, layout.getPlid());
 
 			User user = PortalUtil.getUser(request);
 
@@ -731,7 +729,8 @@ public class PortletContainerImpl implements PortletContainer {
 		}
 
 		RequestDispatcher requestDispatcher =
-			DirectRequestDispatcherUtil.getRequestDispatcher(request, path);
+			DirectRequestDispatcherFactoryUtil.getRequestDispatcher(
+				request, path);
 
 		StringServletResponse stringServletResponse = null;
 
@@ -875,10 +874,9 @@ public class PortletContainerImpl implements PortletContainer {
 			portletDisplay.setWebDAVEnabled(false);
 		}
 
-		ResourceRequestImpl resourceRequestImpl =
-			ResourceRequestFactory.create(
-				request, portlet, invokerPortlet, portletContext, windowState,
-				portletMode, portletPreferences, layout.getPlid());
+		ResourceRequestImpl resourceRequestImpl = ResourceRequestFactory.create(
+			request, portlet, invokerPortlet, portletContext, windowState,
+			portletMode, portletPreferences, layout.getPlid());
 
 		long companyId = PortalUtil.getCompanyId(request);
 

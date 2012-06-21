@@ -36523,10 +36523,6 @@ This action ensures that all requests are secure. Extend this and override the <
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 		<method>
 			<name>processTemplate</name>
@@ -36620,10 +36616,6 @@ This action ensures that all requests are secure. Extend this and override the <
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 	</javadoc>
 	<javadoc>
@@ -99383,6 +99375,9 @@ Calling these methods will throw an
 			<name>isExpired</name>
 		</method>
 		<method>
+			<name>isInTrash</name>
+		</method>
+		<method>
 			<name>isPending</name>
 		</method>
 	</javadoc>
@@ -104584,6 +104579,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
 			</param>
 			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>entryClassPK</name>
 				<type>long</type>
 			</param>
@@ -105127,6 +105126,25 @@ Calling these methods will throw an
 			</param>
 			<param>
 				<name>baseModel</name>
+				<type>com.liferay.portal.model.BaseModel</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getBaseModelDocument</name>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>baseModel</name>
+				<type>com.liferay.portal.model.BaseModel</type>
+			</param>
+			<param>
+				<name>workflowedBaseModel</name>
 				<type>com.liferay.portal.model.BaseModel</type>
 			</param>
 			<throws>
@@ -108723,6 +108741,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
 			</param>
 			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>entryClassPK</name>
 				<type>long</type>
 			</param>
@@ -110092,6 +110114,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
 			</param>
 			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>entryClassPK</name>
 				<type>long</type>
 			</param>
@@ -110539,6 +110565,10 @@ Calling these methods will throw an
 			<param>
 				<name>permissionChecker</name>
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
 			</param>
 			<param>
 				<name>entryClassPK</name>
@@ -124760,10 +124790,6 @@ See http://issues.liferay.com/browse/LPS-13878.
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 		<method>
 			<name>processTemplate</name>
@@ -151617,9 +151643,27 @@ Localized values are cached in this class rather than in the value object since 
 		</method>
 	</javadoc>
 	<javadoc>
+		<name>ProgressStatusConstants</name>
+		<type>com.liferay.portal.kernel.util.ProgressStatusConstants</type>
+		<author><![CDATA[Sergio González]]></author>
+		<field>
+			<name>COPYING</name>
+		</field>
+		<field>
+			<name>DOWNLOADING</name>
+		</field>
+		<field>
+			<name>ERROR</name>
+		</field>
+		<field>
+			<name>PREPARED</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>ProgressTracker</name>
 		<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 		<author><![CDATA[Jorge Ferrer]]></author>
+		<author><![CDATA[Sergio González]]></author>
 		<method>
 			<name>ProgressTracker</name>
 			<param>
@@ -151643,32 +151687,94 @@ Localized values are cached in this class rather than in the value object since 
 			</param>
 		</method>
 		<method>
+			<name>ProgressTracker</name>
+			<param>
+				<name>session</name>
+				<type>javax.servlet.http.HttpSession</type>
+			</param>
+			<param>
+				<name>progressId</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>ProgressTracker</name>
+			<param>
+				<name>portletSession</name>
+				<type>javax.portlet.PortletSession</type>
+			</param>
+			<param>
+				<name>progressId</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>addProgress</name>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>percent</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>message</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>finish</name>
 		</method>
 		<method>
-			<name>getProgress</name>
+			<name>getMessage</name>
+		</method>
+		<method>
+			<name>getPercent</name>
+		</method>
+		<method>
+			<name>getStatus</name>
+		</method>
+		<method>
+			<name>initialize</name>
+		</method>
+		<method>
+			<name>setPercent</name>
+			<param>
+				<name>percent</name>
+				<type>int</type>
+			</param>
+		</method>
+		<method>
+			<name>setStatus</name>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
 		</method>
 		<method>
 			<name>start</name>
-		</method>
-		<method>
-			<name>updateProgress</name>
-			<param>
-				<name>percentage</name>
-				<type>int</type>
-			</param>
 		</method>
 		<field>
 			<name>PERCENT</name>
 		</field>
 		<field>
-			<name>_portletRequest</name>
+			<name>_percent</name>
+		</field>
+		<field>
+			<name>_portletSession</name>
+		</field>
+		<field>
+			<name>_progress</name>
 		</field>
 		<field>
 			<name>_progressId</name>
 		</field>
 		<field>
-			<name>_request</name>
+			<name>_session</name>
+		</field>
+		<field>
+			<name>_status</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -155135,6 +155241,9 @@ Localized values are cached in this class rather than in the value object since 
 			<name>PERMISSIONS_INLINE_SQL_CHECK_ENABLED</name>
 		</field>
 		<field>
+			<name>PERMISSIONS_INLINE_SQL_RESOURCE_BLOCK_QUERY_THRESHHOLD</name>
+		</field>
+		<field>
 			<name>PERMISSIONS_LIST_FILTER</name>
 		</field>
 		<field>
@@ -158432,6 +158541,9 @@ See http://issues.liferay.com/browse/LPS-6072.
 			<name>_UNSAFE_CREATE_LIMIT</name>
 		</field>
 		<field>
+			<name>serialVersionUID</name>
+		</field>
+		<field>
 			<name>_stringBuilderThreadLocal</name>
 		</field>
 		<field>
@@ -160351,7 +160463,7 @@ safePath("http://www.liferay.com") returns "http:/www.liferay.com"
 		</method>
 		<method>
 			<name>shorten</name>
-			<comment><![CDATA[Returns a string representing the original string shortened to 20 characters, with suffix "..." appended to it.
+			<comment><![CDATA[Returns a string representing the original string appended with suffix "..." and then shortened to 20 characters.
 
 <p>
 The suffix is only added if the original string exceeds 20 characters. If the original string exceeds 20 characters and it contains whitespace, the string is shortened at the first whitespace character.
@@ -160363,7 +160475,7 @@ Examples:
 
 <pre>
 <code>
-shorten("12345678901234567890xyz") returns "12345678901234567890..."
+shorten("12345678901234567890xyz") returns "12345678901234567..."
 shorten("1 345678901234567890xyz") returns "1..."
 shorten(" 2345678901234567890xyz") returns "..."
 shorten("12345678901234567890") returns "12345678901234567890"
@@ -160381,7 +160493,7 @@ shorten(" 2345678901234567890") returns " 2345678901234567890"
 		</method>
 		<method>
 			<name>shorten</name>
-			<comment><![CDATA[Returns a string representing the original string shortened to the specified length, with suffix "..." appended to it.
+			<comment><![CDATA[Returns a string representing the original string appended with suffix "..." and then shortened to the specified length.
 
 <p>
 The suffix is only added if the original string exceeds the specified length. If the original string exceeds the specified length and it contains whitespace, the string is shortened at the first whitespace character.
@@ -160393,11 +160505,11 @@ Examples:
 
 <pre>
 <code>
-shorten("123456", 5) returns "12345..."
-shorten("1 3456", 5) returns "1..."
-shorten(" 23456", 5) returns "..."
-shorten("12345", 5) returns "12345"
-shorten(" 1234", 5) returns " 1234"
+shorten("123456789", 8) returns "12345..."
+shorten("1 3456789", 8) returns "1..."
+shorten(" 23456789", 8) returns "..."
+shorten("12345678", 8) returns "12345678"
+shorten(" 1234567", 8) returns " 1234567"
 </code>
 </pre>]]></comment>
 			<param>
@@ -160416,7 +160528,7 @@ shorten(" 1234", 5) returns " 1234"
 		</method>
 		<method>
 			<name>shorten</name>
-			<comment><![CDATA[Returns a string representing the original string shortened to the specified length, with the specified suffix appended to it.
+			<comment><![CDATA[Returns a string representing the original string appended with the specified suffix and then shortened to the specified length.
 
 <p>
 The suffix is only added if the original string exceeds the specified length. If the original string exceeds the specified length and it contains whitespace, the string is shortened at the first whitespace character.
@@ -160428,11 +160540,11 @@ Examples:
 
 <pre>
 <code>
-shorten("123456", 5, "... etc.") returns "12345... etc."
-shorten("1 3456", 5, "... etc.") returns "1... etc."
-shorten(" 23456", 5, "... etc.") returns "... etc."
-shorten("12345", 5, "... etc.") returns "12345"
-shorten(" 1234", 5, "... etc.") returns " 1234"
+shorten("12345678901234", 13, "... etc.") returns "12345... etc."
+shorten("1 345678901234", 13, "... etc.") returns "1... etc."
+shorten(" 2345678901234", 13, "... etc.") returns "... etc."
+shorten("1234567890123", 13, "... etc.") returns "1234567890123"
+shorten(" 123456789012", 13, "... etc.") returns " 123456789012"
 </code>
 </pre>]]></comment>
 			<param>
@@ -160456,7 +160568,7 @@ shorten(" 1234", 5, "... etc.") returns " 1234"
 		</method>
 		<method>
 			<name>shorten</name>
-			<comment><![CDATA[Returns a string representing the original string shortened to 20 characters, with the specified suffix appended to it.
+			<comment><![CDATA[Returns a string representing the original string appended with the specified suffix and then shortened to 20 characters.
 
 <p>
 The suffix is only added if the original string exceeds 20 characters. If the original string exceeds 20 characters and it contains whitespace, the string is shortened at the first whitespace character.
@@ -160468,7 +160580,7 @@ Examples:
 
 <pre>
 <code>
-shorten("12345678901234567890xyz", "... etc.") returns "12345678901234567890... etc."
+shorten("12345678901234567890xyz", "... etc.") returns "123456789012... etc."
 shorten("1 345678901234567890xyz", "... etc.") returns "1... etc."
 shorten(" 2345678901234567890xyz", "... etc.") returns "... etc."
 shorten("12345678901234567890", "... etc.") returns "12345678901234567890"
@@ -166075,9 +166187,6 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 			<name>USER_UUID</name>
 		</field>
 		<field>
-			<name>VELOCITY_TAGLIB</name>
-		</field>
-		<field>
 			<name>VISITED_GROUP_ID_PREVIOUS</name>
 		</field>
 		<field>
@@ -166088,6 +166197,9 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 		</field>
 		<field>
 			<name>WINDOW_STATE</name>
+		</field>
+		<field>
+			<name>XUGGLER_INSTALL_STATUS</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -175751,8 +175863,8 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>xugglerInstallStatus</name>
-				<type>com.liferay.portal.kernel.xuggler.XugglerInstallStatus</type>
+				<name>progressTracker</name>
+				<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 			</param>
 			<throws>
 				<name>Exception</name>
@@ -175817,8 +175929,8 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>xugglerInstallStatus</name>
-				<type>com.liferay.portal.kernel.xuggler.XugglerInstallStatus</type>
+				<name>progressTracker</name>
+				<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 			</param>
 			<throws>
 				<name>Exception</name>
@@ -183744,6 +183856,139 @@ Holds context information that is used during exporting and importing portlet da
 		</field>
 	</javadoc>
 	<javadoc>
+		<name>MicrosoftTranslator</name>
+		<type>com.liferay.portal.microsofttranslator.MicrosoftTranslator</type>
+		<author><![CDATA[Hugo Huijser]]></author>
+		<method>
+			<name>MicrosoftTranslator</name>
+		</method>
+		<method>
+			<name>MicrosoftTranslator</name>
+			<param>
+				<name>clientId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>clientSecret</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>getMicrosoftTranslatorAuthenticator</name>
+		</method>
+		<method>
+			<name>translate</name>
+			<param>
+				<name>fromLanguage</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>toLanguage</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>fromText</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<field>
+			<name>_microsoftTranslatorAuthenticator</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>MicrosoftTranslatorAuthenticator</name>
+		<type>com.liferay.portal.microsofttranslator.MicrosoftTranslatorAuthenticator</type>
+		<author><![CDATA[Hugo Huijser]]></author>
+		<method>
+			<name>MicrosoftTranslatorAuthenticator</name>
+		</method>
+		<method>
+			<name>MicrosoftTranslatorAuthenticator</name>
+			<param>
+				<name>clientId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>clientSecret</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>getAccessToken</name>
+		</method>
+		<method>
+			<name>getError</name>
+		</method>
+		<method>
+			<name>init</name>
+			<param>
+				<name>manual</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<method>
+			<name>doInit</name>
+		</method>
+		<method>
+			<name>isStale</name>
+		</method>
+		<field>
+			<name>_DATA_MARK_ACCESS_URI</name>
+		</field>
+		<field>
+			<name>_log</name>
+		</field>
+		<field>
+			<name>_accessToken</name>
+		</field>
+		<field>
+			<name>_clientId</name>
+		</field>
+		<field>
+			<name>_clientSecret</name>
+		</field>
+		<field>
+			<name>_error</name>
+		</field>
+		<field>
+			<name>_initTime</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>MicrosoftTranslatorFactoryImpl</name>
+		<type>com.liferay.portal.microsofttranslator.MicrosoftTranslatorFactoryImpl</type>
+		<author><![CDATA[Hugo Huijser]]></author>
+		<method>
+			<name>translate</name>
+			<param>
+				<name>fromLanguage</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>toLanguage</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>fromText</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>getMicrosoftTranslator</name>
+		</method>
+		<field>
+			<name>_microsoftTranslator</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>DefaultDeviceRecognitionProvider</name>
 		<type>com.liferay.portal.mobile.device.DefaultDeviceRecognitionProvider</type>
 		<author><![CDATA[Milen Dyankov]]></author>
@@ -189115,6 +189360,9 @@ See http://issues.liferay.com/browse/LPS-15016.
 		</method>
 		<method>
 			<name>isExpired</name>
+		</method>
+		<method>
+			<name>isInTrash</name>
 		</method>
 		<method>
 			<name>isPending</name>
@@ -212141,6 +212389,13 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</throws>
 		</method>
 		<method>
+			<name>isAllVersionsSearchableSupported</name>
+			<param>
+				<name>session</name>
+				<type>org.apache.chemistry.opencmis.client.api.Session</type>
+			</param>
+		</method>
+		<method>
 			<name>processException</name>
 			<param>
 				<name>e</name>
@@ -212979,6 +213234,9 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 		</method>
 		<method>
 			<name>isExpired</name>
+		</method>
+		<method>
+			<name>isInTrash</name>
 		</method>
 		<method>
 			<name>isPending</name>
@@ -216384,6 +216642,9 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			<name>isExpired</name>
 		</method>
 		<method>
+			<name>isInTrash</name>
+		</method>
+		<method>
 			<name>isPending</name>
 		</method>
 		<method>
@@ -218828,6 +219089,9 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 		</method>
 		<method>
 			<name>isExpired</name>
+		</method>
+		<method>
+			<name>isInTrash</name>
 		</method>
 		<method>
 			<name>isPending</name>
@@ -238312,6 +238576,25 @@ For example, if the class name and primary key of a blog entry were passed to th
 			</param>
 		</method>
 		<method>
+			<name>getOwnerResourceBlockIdsSQL</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>checkGroupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>className</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>ownerResourceBlockIds</name>
+				<type>java.util.Set</type>
+			</param>
+		</method>
+		<method>
 			<name>getResourceBlockIds</name>
 			<param>
 				<name>companyId</name>
@@ -238342,6 +238625,29 @@ For example, if the class name and primary key of a blog entry were passed to th
 		</method>
 		<method>
 			<name>getUserId</name>
+		</method>
+		<method>
+			<name>getUserResourceBlockIdsSQL</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>checkGroupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>roleIds</name>
+				<type>long[]</type>
+			</param>
+			<param>
+				<name>className</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>userResourceBlockIds</name>
+				<type>java.util.Set</type>
+			</param>
 		</method>
 		<method>
 			<name>replacePermissionCheckBlocks</name>
@@ -238406,6 +238712,9 @@ For example, if the class name and primary key of a blog entry were passed to th
 		</field>
 		<field>
 			<name>FILTER_BY_RESOURCE_BLOCK_ID_OWNER</name>
+		</field>
+		<field>
+			<name>FIND_BY_RESOURCE_BLOCK_ID</name>
 		</field>
 		<field>
 			<name>JOIN_RESOURCE_PERMISSION</name>
@@ -243183,7 +243492,7 @@ The {@link com.liferay.portal.model.PortletPreferencesIds} can be used to look u
 			<param>
 				<name>workflowAction</name>
 				<type>int</type>
-				<comment><![CDATA[workflow action to take (default is {@link com.liferay.portal.kernel.workflow.WorkflowConstants.ACTION_PUBLISH})]]></comment>
+				<comment><![CDATA[workflow action to take (default is {@link com.liferay.portal.kernel.workflow.WorkflowConstants#ACTION_PUBLISH})]]></comment>
 			</param>
 		</method>
 		<method>
@@ -307066,6 +307375,20 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		<method>
 			<name>loadContext</name>
 		</method>
+		<method>
+			<name>loadContext</name>
+			<param>
+				<name>extraConfigLocations</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
+		<method>
+			<name>_loadContext</name>
+			<param>
+				<name>configLocations</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
 	</javadoc>
 	<javadoc>
 		<name>LayoutStagingImpl</name>
@@ -310736,10 +311059,6 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 		<method>
 			<name>processTemplate</name>
@@ -310835,10 +311154,6 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 		<method>
 			<name>prepareTiles</name>
@@ -310948,37 +311263,35 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		<name>NavItem</name>
 		<type>com.liferay.portal.theme.NavItem</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
-		<method>
-			<name>fromLayout</name>
-			<param>
-				<name>vars</name>
-				<type>com.liferay.portal.theme.RequestVars</type>
-			</param>
-			<param>
-				<name>layout</name>
-				<type>com.liferay.portal.model.Layout</type>
-			</param>
-		</method>
+		<author><![CDATA[Shuyang Zhou]]></author>
 		<method>
 			<name>fromLayouts</name>
 			<param>
-				<name>vars</name>
-				<type>com.liferay.portal.theme.RequestVars</type>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
 			<param>
 				<name>layouts</name>
 				<type>java.util.List</type>
 			</param>
+			<param>
+				<name>templateContext</name>
+				<type>com.liferay.portal.kernel.templateparser.TemplateContext</type>
+			</param>
 		</method>
 		<method>
 			<name>NavItem</name>
 			<param>
-				<name>vars</name>
-				<type>com.liferay.portal.theme.RequestVars</type>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
 			<param>
 				<name>layout</name>
 				<type>com.liferay.portal.model.Layout</type>
+			</param>
+			<param>
+				<name>templateContext</name>
+				<type>com.liferay.portal.kernel.templateparser.TemplateContext</type>
 			</param>
 		</method>
 		<method>
@@ -311065,6 +311378,10 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		</method>
 		<method>
 			<name>isSelected</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
 		</method>
 		<field>
 			<name>_methodKey</name>
@@ -311076,7 +311393,13 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<name>_layout</name>
 		</field>
 		<field>
-			<name>_vars</name>
+			<name>_request</name>
+		</field>
+		<field>
+			<name>_templateContext</name>
+		</field>
+		<field>
+			<name>_themeDisplay</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -312462,9 +312785,6 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<name>isIncludePortletCssJs</name>
 		</method>
 		<method>
-			<name>isIncludeServiceJs</name>
-		</method>
-		<method>
 			<name>isIsolated</name>
 		</method>
 		<method>
@@ -312712,13 +313032,6 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<name>setIncludePortletCssJs</name>
 			<param>
 				<name>includePortletCssJs</name>
-				<type>boolean</type>
-			</param>
-		</method>
-		<method>
-			<name>setIncludeServiceJs</name>
-			<param>
-				<name>includeServiceJs</name>
 				<type>boolean</type>
 			</param>
 		</method>
@@ -332762,6 +333075,24 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<type>boolean</type>
 			</param>
 		</method>
+		<method>
+			<name>initWithSpring</name>
+			<param>
+				<name>force</name>
+				<type>boolean</type>
+			</param>
+			<param>
+				<name>extraConfigLocations</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
+		<method>
+			<name>initWithSpring</name>
+			<param>
+				<name>extraConfigLocations</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
 		<field>
 			<name>_PRINT_TIME</name>
 		</field>
@@ -332815,8 +333146,8 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>installStatus</name>
-				<type>com.liferay.portal.kernel.progress.InstallStatus</type>
+				<name>progressTracker</name>
+				<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 			</param>
 			<throws>
 				<name>Exception</name>
@@ -332869,10 +333200,10 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			</throws>
 		</method>
 		<method>
-			<name>setInstallStatus</name>
+			<name>setProgressStatus</name>
 			<param>
-				<name>installStatus</name>
-				<type>com.liferay.portal.kernel.progress.InstallStatus</type>
+				<name>progressTracker</name>
+				<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 			</param>
 			<param>
 				<name>status</name>
@@ -349650,6 +349981,12 @@ Preserved parameters are parameters that should be sent with every request as th
 			<name>MESSAGE_BOARDS_THREAD_VIEWS_DEFAULT</name>
 		</field>
 		<field>
+			<name>MICROSOFT_TRANSLATOR_CLIENT_ID</name>
+		</field>
+		<field>
+			<name>MICROSOFT_TRANSLATOR_CLIENT_SECRET</name>
+		</field>
+		<field>
 			<name>MIME_TYPES_CONTENT_DISPOSITION_INLINE</name>
 		</field>
 		<field>
@@ -349936,6 +350273,9 @@ Preserved parameters are parameters that should be sent with every request as th
 		</field>
 		<field>
 			<name>PERMISSIONS_INLINE_SQL_CHECK_ENABLED</name>
+		</field>
+		<field>
+			<name>PERMISSIONS_INLINE_SQL_RESOURCE_BLOCK_QUERY_THRESHHOLD</name>
 		</field>
 		<field>
 			<name>PERMISSIONS_LIST_FILTER</name>
@@ -351394,7 +351734,7 @@ Preserved parameters are parameters that should be sent with every request as th
 				<name>scopeGroupId</name>
 				<type>long</type>
 			</param>
-			<see><![CDATA[{@link com.liferay.portal.kernel.search.BaseIndexer#getParentGroupId(long)}]]></see>
+			<see><![CDATA[com.liferay.portal.kernel.search.BaseIndexer#getParentGroupId(long)]]></see>
 		</method>
 		<method>
 			<name>setServiceContext</name>
@@ -352412,9 +352752,6 @@ Preserved parameters are parameters that should be sent with every request as th
 		</field>
 		<field>
 			<name>WSRP_PRODUCER</name>
-		</field>
-		<field>
-			<name>XUGGLER_INSTALL_STATUS</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -354549,10 +354886,6 @@ Preserved parameters are parameters that should be sent with every request as th
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 		<method>
 			<name>processTemplate</name>
@@ -354636,10 +354969,6 @@ Preserved parameters are parameters that should be sent with every request as th
 				<name>request</name>
 				<type>javax.servlet.http.HttpServletRequest</type>
 			</param>
-			<throws>
-				<name>TemplateException</name>
-				<type>com.liferay.portal.kernel.template.TemplateException</type>
-			</throws>
 		</method>
 	</javadoc>
 	<javadoc>
@@ -354969,8 +355298,27 @@ This class looks at every blog comment to see if it is a trackback and verifies 
 		<name>VerifyJournal</name>
 		<type>com.liferay.portal.verify.VerifyJournal</type>
 		<author><![CDATA[Alexander Chow]]></author>
+		<author><![CDATA[Shinn Lok]]></author>
 		<method>
 			<name>doVerify</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>verifyContentSearch</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>verifyContentSearch</name>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
 			<throws>
 				<name>Exception</name>
 				<type>java.lang.Exception</type>
@@ -361541,8 +361889,8 @@ This class looks at every blog comment to see if it is a trackback and verifies 
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>xugglerInstallStatus</name>
-				<type>com.liferay.portal.kernel.xuggler.XugglerInstallStatus</type>
+				<name>progressTracker</name>
+				<type>com.liferay.portal.kernel.util.ProgressTracker</type>
 			</param>
 			<throws>
 				<name>Exception</name>
@@ -395540,6 +395888,10 @@ Useful when paginating results. Returns a maximum of <code>end - start</code> in
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
 			</param>
 			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>entryClassPK</name>
 				<type>long</type>
 			</param>
@@ -408684,7 +409036,7 @@ This contains several utility methods for the purpose of determining folder IDs 
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
-			<deprecated><![CDATA[{@Link #getFileShortcuts(long, long, int, boolean)}]]></deprecated>
+			<deprecated><![CDATA[{@link #getFileShortcuts(long, long, boolean, int)}]]></deprecated>
 		</method>
 		<method>
 			<name>getFileShortcutsCount</name>
@@ -408727,7 +409079,7 @@ This contains several utility methods for the purpose of determining folder IDs 
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
-			<deprecated><![CDATA[{@Link #getFileShortcutsCount(long, long, int, boolean)}]]></deprecated>
+			<deprecated><![CDATA[{@link #getFileShortcutsCount(long, long, boolean, int)}]]></deprecated>
 		</method>
 		<method>
 			<name>getNoAssetFileEntries</name>
@@ -435190,6 +435542,10 @@ This method is useful when optimizing low-level file operations like copy. The c
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
 			</param>
 			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>entryClassPK</name>
 				<type>long</type>
 			</param>
@@ -443040,6 +443396,288 @@ The raw metadata extraction is done asynchronously.
 		</field>
 	</javadoc>
 	<javadoc>
+		<name>DDLDisplayPortletDataHandlerImpl</name>
+		<type>com.liferay.portlet.dynamicdatalists.lar.DDLDisplayPortletDataHandlerImpl</type>
+		<author><![CDATA[Michael C. Han]]></author>
+		<method>
+			<name>isAlwaysExportable</name>
+		</method>
+		<method>
+			<name>doDeleteData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>doExportData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>doImportData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<param>
+				<name>data</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<field>
+			<name>_ALWAYS_EXPORTABLE</name>
+		</field>
+		<field>
+			<name>_log</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>DDLPortletDataHandler</name>
+		<type>com.liferay.portlet.dynamicdatalists.lar.DDLPortletDataHandler</type>
+		<author><![CDATA[Michael C. Han]]></author>
+		<method>
+			<name>exportRecordSet</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>recordSetsElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<param>
+				<name>recordSet</name>
+				<type>com.liferay.portlet.dynamicdatalists.model.DDLRecordSet</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>importRecordSet</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>recordSetElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+	</javadoc>
+	<javadoc>
+		<name>DDLPortletDataHandlerImpl</name>
+		<type>com.liferay.portlet.dynamicdatalists.lar.DDLPortletDataHandlerImpl</type>
+		<author><![CDATA[Michael C. Han]]></author>
+		<method>
+			<name>exportRecordSet</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>recordSetsElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<param>
+				<name>recordSet</name>
+				<type>com.liferay.portlet.dynamicdatalists.model.DDLRecordSet</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>importRecordSet</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>recordSetElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>isAlwaysExportable</name>
+		</method>
+		<method>
+			<name>doDeleteData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>doExportData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>doImportData</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>portletId</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>portletPreferences</name>
+				<type>javax.portlet.PortletPreferences</type>
+			</param>
+			<param>
+				<name>data</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>getRecordSetPath</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>recordSet</name>
+				<type>com.liferay.portlet.dynamicdatalists.model.DDLRecordSet</type>
+			</param>
+		</method>
+		<method>
+			<name>importDDMStructures</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>ddmStructureReferencesElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>importDDMTemplates</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>ddmTemplateReferencesElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<field>
+			<name>_ALWAYS_EXPORTABLE</name>
+		</field>
+		<field>
+			<name>_NAMESPACE</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>DDLPortletDataHandlerUtil</name>
+		<type>com.liferay.portlet.dynamicdatalists.lar.DDLPortletDataHandlerUtil</type>
+		<author><![CDATA[Michael C. Han]]></author>
+		<method>
+			<name>getDDLPortletDataHandler</name>
+		</method>
+		<method>
+			<name>setDDLPortletDataHandler</name>
+			<param>
+				<name>ddlPortletDataHandler</name>
+				<type>com.liferay.portlet.dynamicdatalists.lar.DDLPortletDataHandler</type>
+			</param>
+		</method>
+		<field>
+			<name>_ddlPortletDataHandler</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>DDLRecordConstants</name>
 		<type>com.liferay.portlet.dynamicdatalists.model.DDLRecordConstants</type>
 		<author><![CDATA[Marcellus Tavares]]></author>
@@ -448542,7 +449180,7 @@ The raw metadata extraction is done asynchronously.
 			</throws>
 		</method>
 		<method>
-			<name>deleteStructure</name>
+			<name>deleteStructures</name>
 			<param>
 				<name>actionRequest</name>
 				<type>javax.portlet.ActionRequest</type>
@@ -448646,7 +449284,7 @@ The raw metadata extraction is done asynchronously.
 			</throws>
 		</method>
 		<method>
-			<name>deleteTemplate</name>
+			<name>deleteTemplates</name>
 			<param>
 				<name>actionRequest</name>
 				<type>javax.portlet.ActionRequest</type>
@@ -448715,30 +449353,6 @@ The raw metadata extraction is done asynchronously.
 			</throws>
 		</method>
 		<method>
-			<name>importStructure</name>
-			<param>
-				<name>portletDataContext</name>
-				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
-			</param>
-			<param>
-				<name>structureElement</name>
-				<type>com.liferay.portal.kernel.xml.Element</type>
-			</param>
-			<throws>
-				<name>Exception</name>
-				<type>java.lang.Exception</type>
-			</throws>
-		</method>
-		<method>
-			<name>getExportControls</name>
-		</method>
-		<method>
-			<name>getImportControls</name>
-		</method>
-		<method>
-			<name>isAlwaysExportable</name>
-		</method>
-		<method>
 			<name>exportTemplate</name>
 			<param>
 				<name>portletDataContext</name>
@@ -448756,6 +449370,45 @@ The raw metadata extraction is done asynchronously.
 				<name>Exception</name>
 				<type>java.lang.Exception</type>
 			</throws>
+		</method>
+		<method>
+			<name>importStructure</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>structureElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>importTemplate</name>
+			<param>
+				<name>portletDataContext</name>
+				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
+			</param>
+			<param>
+				<name>templateElement</name>
+				<type>com.liferay.portal.kernel.xml.Element</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>getExportControls</name>
+		</method>
+		<method>
+			<name>getImportControls</name>
+		</method>
+		<method>
+			<name>isAlwaysExportable</name>
 		</method>
 		<method>
 			<name>getStructurePath</name>
@@ -448778,21 +449431,6 @@ The raw metadata extraction is done asynchronously.
 				<name>template</name>
 				<type>com.liferay.portlet.dynamicdatamapping.model.DDMTemplate</type>
 			</param>
-		</method>
-		<method>
-			<name>importTemplate</name>
-			<param>
-				<name>portletDataContext</name>
-				<type>com.liferay.portal.kernel.lar.PortletDataContext</type>
-			</param>
-			<param>
-				<name>templateElement</name>
-				<type>com.liferay.portal.kernel.xml.Element</type>
-			</param>
-			<throws>
-				<name>Exception</name>
-				<type>java.lang.Exception</type>
-			</throws>
 		</method>
 		<method>
 			<name>doDeleteData</name>
@@ -449112,6 +449750,13 @@ The raw metadata extraction is done asynchronously.
 			<throws>
 				<name>StructureFieldException</name>
 				<type>com.liferay.portlet.dynamicdatamapping.StructureFieldException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getTemplates</name>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
 		<method>
@@ -481648,6 +482293,17 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<name>getLayoutIdsCount</name>
 			<param>
 				<name>articleId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletContentSearches</name>
+			<param>
+				<name>portletId</name>
 				<type>java.lang.String</type>
 			</param>
 			<throws>
@@ -514495,6 +515151,10 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<param>
 				<name>permissionChecker</name>
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>entryClassName</name>
+				<type>java.lang.String</type>
 			</param>
 			<param>
 				<name>entryClassPK</name>
@@ -549145,6 +549805,7 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 		<name>TranslationWebCacheItem</name>
 		<type>com.liferay.portlet.translator.util.TranslationWebCacheItem</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
+		<author><![CDATA[Hugo Huijser]]></author>
 		<method>
 			<name>TranslationWebCacheItem</name>
 			<param>
@@ -572926,6 +573587,78 @@ This class is a JSF converter that can be used to convert phone numbers. Since p
 		</field>
 		<field>
 			<name>_width</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>ProgressTag</name>
+		<type>com.liferay.taglib.ui.ProgressTag</type>
+		<author><![CDATA[Iliyan Peychev]]></author>
+		<author><![CDATA[Sergio González]]></author>
+		<method>
+			<name>setHeight</name>
+			<param>
+				<name>height</name>
+				<type>int</type>
+			</param>
+		</method>
+		<method>
+			<name>setId</name>
+			<param>
+				<name>id</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>setMessage</name>
+			<param>
+				<name>message</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>setSessionKey</name>
+			<param>
+				<name>sessionKey</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>setUpdatePeriod</name>
+			<param>
+				<name>updatePeriod</name>
+				<type>java.lang.Integer</type>
+			</param>
+		</method>
+		<method>
+			<name>cleanUp</name>
+		</method>
+		<method>
+			<name>getPage</name>
+		</method>
+		<method>
+			<name>setAttributes</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+		</method>
+		<field>
+			<name>_PAGE</name>
+		</field>
+		<field>
+			<name>_height</name>
+		</field>
+		<field>
+			<name>_id</name>
+		</field>
+		<field>
+			<name>_message</name>
+		</field>
+		<field>
+			<name>_sessionKey</name>
+		</field>
+		<field>
+			<name>_updatePeriod</name>
 		</field>
 	</javadoc>
 	<javadoc>

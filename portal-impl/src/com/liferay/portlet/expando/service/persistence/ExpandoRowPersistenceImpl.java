@@ -332,6 +332,7 @@ public class ExpandoRowPersistenceImpl extends BasePersistenceImpl<ExpandoRow>
 		if (isNew || !ExpandoRowModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((expandoRowModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TABLEID.getColumnBitmask()) != 0) {
@@ -372,6 +373,7 @@ public class ExpandoRowPersistenceImpl extends BasePersistenceImpl<ExpandoRow>
 					};
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_T_C, args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_T_C, args);
 
 				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_T_C,

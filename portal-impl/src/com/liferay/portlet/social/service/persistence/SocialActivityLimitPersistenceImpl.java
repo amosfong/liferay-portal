@@ -386,6 +386,7 @@ public class SocialActivityLimitPersistenceImpl extends BasePersistenceImpl<Soci
 		if (isNew || !SocialActivityLimitModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((socialActivityLimitModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
@@ -459,6 +460,7 @@ public class SocialActivityLimitPersistenceImpl extends BasePersistenceImpl<Soci
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_U_C_C_A_A,
 					args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_G_U_C_C_A_A,
 					args);
 

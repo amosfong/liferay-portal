@@ -394,15 +394,15 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 
 		DLProcessorRegistryUtil.cleanUp(fileEntry.getLatestFileVersion());
 
-		repository.cancelCheckOut(fileEntryId);
+		FileVersion draftFileVersion = repository.cancelCheckOut(fileEntryId);
 
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
 
-		dlAppHelperLocalService.updateFileEntry(
+		dlAppHelperLocalService.cancelCheckOut(
 			getUserId(), fileEntry, null, fileEntry.getFileVersion(),
-			serviceContext);
+			draftFileVersion, serviceContext);
 	}
 
 	/**
@@ -2250,7 +2250,7 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 		FileEntry fileEntry = repository.getFileEntry(fileEntryId);
 
 		DLFileEntryPermission.check(
-			getPermissionChecker(), fileEntry, ActionKeys.UPDATE);
+			getPermissionChecker(), fileEntry, ActionKeys.DELETE);
 
 		dlAppHelperLocalService.restoreFileEntryFromTrash(
 			getUserId(), fileEntry);
@@ -2939,7 +2939,7 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 
 	protected Repository getRepository(
 			long folderId, ServiceContext serviceContext)
-		throws PortalException, SystemException{
+		throws PortalException, SystemException {
 
 		Repository repository = null;
 
@@ -2973,7 +2973,7 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 	protected Folder moveFolders(
 			long folderId, long parentFolderId, Repository fromRepository,
 			Repository toRepository, ServiceContext serviceContext)
-		throws PortalException, SystemException{
+		throws PortalException, SystemException {
 
 		Folder folder = fromRepository.getFolder(folderId);
 

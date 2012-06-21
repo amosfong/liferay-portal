@@ -580,6 +580,7 @@ public class SocialRequestPersistenceImpl extends BasePersistenceImpl<SocialRequ
 		if (isNew || !SocialRequestModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((socialRequestModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
@@ -810,6 +811,7 @@ public class SocialRequestPersistenceImpl extends BasePersistenceImpl<SocialRequ
 					};
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
 
 				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
@@ -831,6 +833,7 @@ public class SocialRequestPersistenceImpl extends BasePersistenceImpl<SocialRequ
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_C_C_T_R,
 					args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_U_C_C_T_R,
 					args);
 

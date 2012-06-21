@@ -1847,6 +1847,12 @@ public class StagingImpl implements Staging {
 
 		validate(remoteAddress, remoteGroupId, remotePort, secureConnection);
 
+		if (group.isCompany()) {
+			updateGroupTypeSettingsProperties(
+				group, remoteAddress, remoteGroupId, remotePort,
+				secureConnection);
+		}
+
 		String range = ParamUtil.getString(portletRequest, "range");
 
 		Date startDate = null;
@@ -2039,6 +2045,27 @@ public class StagingImpl implements Staging {
 		}
 
 		return remoteAddress;
+	}
+
+	protected void updateGroupTypeSettingsProperties(
+			Group group, String remoteAddress, long remoteGroupId,
+			int remotePort, boolean secureConnection)
+		throws Exception {
+
+		UnicodeProperties typeSettingsProperties =
+			group.getTypeSettingsProperties();
+
+		typeSettingsProperties.setProperty("remoteAddress", remoteAddress);
+		typeSettingsProperties.setProperty(
+			"remoteGroupId", String.valueOf(remoteGroupId));
+		typeSettingsProperties.setProperty(
+			"remotePort", String.valueOf(remotePort));
+		typeSettingsProperties.setProperty(
+			"secureConnection", String.valueOf(secureConnection));
+
+		group.setTypeSettingsProperties(typeSettingsProperties);
+
+		GroupLocalServiceUtil.updateGroup(group);
 	}
 
 	protected void validate(

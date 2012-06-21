@@ -120,6 +120,33 @@ public class DLAppHelperLocalServiceImpl
 		}
 	}
 
+	public void cancelCheckOut(
+			long userId, FileEntry fileEntry, FileVersion sourceFileVersion,
+			FileVersion destinationFileVersion, FileVersion draftFileVersion,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		updateFileEntry(
+			userId, fileEntry, sourceFileVersion, destinationFileVersion,
+			serviceContext);
+
+		if (draftFileVersion == null) {
+			return;
+		}
+
+		AssetEntry draftAssetEntry = null;
+
+		try {
+			draftAssetEntry = assetEntryLocalService.getEntry(
+				DLFileEntryConstants.getClassName(),
+				draftFileVersion.getPrimaryKey());
+
+			assetEntryLocalService.deleteEntry(draftAssetEntry.getEntryId());
+		}
+		catch (NoSuchEntryException nsee) {
+		}
+	}
+
 	public void checkAssetEntry(
 			long userId, FileEntry fileEntry, FileVersion fileVersion)
 		throws PortalException, SystemException {
@@ -296,7 +323,7 @@ public class DLAppHelperLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@Link #getFileShortcuts(long, long, int, boolean)}
+	 * @deprecated {@link #getFileShortcuts(long, long, boolean, int)}
 	 */
 	public List<DLFileShortcut> getFileShortcuts(
 			long groupId, long folderId, int status)
@@ -314,7 +341,7 @@ public class DLAppHelperLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@Link #getFileShortcutsCount(long, long, int, boolean)}
+	 * @deprecated {@link #getFileShortcutsCount(long, long, boolean, int)}
 	 */
 	public int getFileShortcutsCount(long groupId, long folderId, int status)
 		throws SystemException {
@@ -979,7 +1006,7 @@ public class DLAppHelperLocalServiceImpl
 			else if (object instanceof DLFolder) {
 				DLFolder dlFolder = (DLFolder)object;
 
-				if (dlFolder.getStatus() == WorkflowConstants.STATUS_IN_TRASH) {
+				if (dlFolder.isInTrash()) {
 					continue;
 				}
 

@@ -67,7 +67,7 @@ if (PrefsPropsUtil.getBoolean(PropsKeys.OPENOFFICE_SERVER_ENABLED, PropsValues.O
 
 long assetClassPK = 0;
 
-if (!fileVersion.isApproved() && !fileVersion.getVersion().equals(DLFileEntryConstants.VERSION_DEFAULT) && !(fileVersion.getStatus() == WorkflowConstants.STATUS_IN_TRASH)) {
+if (!fileVersion.isApproved() && !fileVersion.getVersion().equals(DLFileEntryConstants.VERSION_DEFAULT) && !fileVersion.isInTrash()) {
 	assetClassPK = fileVersion.getFileVersionId();
 	title = fileVersion.getTitle();
 	extension = fileVersion.getExtension();
@@ -186,7 +186,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 							String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, fileVersion, dlFileShortcut, themeDisplay);
 
 							if (layoutAssetEntry != null) {
-								AssetEntry incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(layoutAssetEntry.getClassName(), assetClassPK);
+								AssetEntry incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(layoutAssetEntry.getClassName(), fileEntry.getFileEntryId());
 
 								if (incrementAssetEntry != null) {
 									layoutAssetEntry = incrementAssetEntry;
@@ -638,7 +638,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 								headerNames.add("date");
 								headerNames.add("size");
 
-								if (showNonApprovedDocuments) {
+								if (showNonApprovedDocuments && !portletId.equals(PortletKeys.TRASH)) {
 									headerNames.add("status");
 								}
 
@@ -684,7 +684,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 
 									// Status
 
-									if (showNonApprovedDocuments) {
+									if (showNonApprovedDocuments && !portletId.equals(PortletKeys.TRASH)) {
 										row.addText(LanguageUtil.get(pageContext, WorkflowConstants.toLabel(curFileVersion.getStatus())));
 									}
 

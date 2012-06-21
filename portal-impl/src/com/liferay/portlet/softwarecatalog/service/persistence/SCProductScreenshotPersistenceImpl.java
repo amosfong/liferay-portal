@@ -375,6 +375,7 @@ public class SCProductScreenshotPersistenceImpl extends BasePersistenceImpl<SCPr
 		if (isNew || !SCProductScreenshotModelImpl.COLUMN_BITMASK_ENABLED) {
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
+
 		else {
 			if ((scProductScreenshotModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_PRODUCTENTRYID.getColumnBitmask()) != 0) {
@@ -428,6 +429,7 @@ public class SCProductScreenshotPersistenceImpl extends BasePersistenceImpl<SCPr
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_THUMBNAILID,
 					args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_THUMBNAILID,
 					args);
 
@@ -445,6 +447,7 @@ public class SCProductScreenshotPersistenceImpl extends BasePersistenceImpl<SCPr
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FULLIMAGEID,
 					args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_FULLIMAGEID,
 					args);
 
@@ -462,6 +465,7 @@ public class SCProductScreenshotPersistenceImpl extends BasePersistenceImpl<SCPr
 					};
 
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_P_P, args);
+
 				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_P_P, args);
 
 				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_P_P,

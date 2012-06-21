@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Address;
 import com.liferay.portal.model.EmailAddress;
@@ -82,7 +83,6 @@ import com.liferay.portal.util.comparator.UserGroupNameComparator;
 import com.liferay.portal.util.comparator.UserJobTitleComparator;
 import com.liferay.portal.util.comparator.UserLastNameComparator;
 import com.liferay.portal.util.comparator.UserScreenNameComparator;
-import com.liferay.util.UniqueList;
 
 import java.util.ArrayList;
 import java.util.Collections;

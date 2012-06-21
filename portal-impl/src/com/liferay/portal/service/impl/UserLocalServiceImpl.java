@@ -97,6 +97,8 @@ import com.liferay.portal.security.auth.AuthPipeline;
 import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.security.auth.EmailAddressGenerator;
 import com.liferay.portal.security.auth.EmailAddressGeneratorFactory;
+import com.liferay.portal.security.auth.EmailAddressValidator;
+import com.liferay.portal.security.auth.EmailAddressValidatorFactory;
 import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.security.auth.FullNameValidator;
@@ -1451,14 +1453,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 				throw new PasswordExpiredException();
 			}
-		}
-
-		// Check if warning message should be sent
-
-		if (isPasswordExpiringSoon(user)) {
-			user.setPasswordReset(true);
-
-			userPersistence.update(user, false);
 		}
 
 		// Check if user should be forced to change password on first login
@@ -3278,9 +3272,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			"[$EMAIL_VERIFICATION_CODE$]", ticket.getKey(),
 			"[$EMAIL_VERIFICATION_URL$]", verifyEmailAddressURL,
 			"[$REMOTE_ADDRESS$]", serviceContext.getRemoteAddr(),
-			"[$REMOTE_HOST$]", serviceContext.getRemoteHost(), "[$USER_AGENT$]",
-			serviceContext.getUserAgent(), "[$USER_ID$]", user.getUserId(),
-			"[$USER_SCREENNAME$]", user.getScreenName());
+			"[$REMOTE_HOST$]", serviceContext.getRemoteHost(), "[$USER_ID$]",
+			user.getUserId(), "[$USER_SCREENNAME$]", user.getScreenName());
 		subscriptionSender.setFrom(fromAddress, fromName);
 		subscriptionSender.setHtmlFormat(true);
 		subscriptionSender.setMailId("user", user.getUserId());
@@ -3429,8 +3422,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		subscriptionSender.setContextAttributes(
 			"[$PASSWORD_RESET_URL$]", passwordResetURL, "[$REMOTE_ADDRESS$]",
 			serviceContext.getRemoteAddr(), "[$REMOTE_HOST$]",
-			serviceContext.getRemoteHost(), "[$USER_AGENT$]",
-			serviceContext.getUserAgent(), "[$USER_ID$]", user.getUserId(),
+			serviceContext.getRemoteHost(), "[$USER_ID$]", user.getUserId(),
 			"[$USER_PASSWORD$]", newPassword, "[$USER_SCREENNAME$]",
 			user.getScreenName());
 		subscriptionSender.setFrom(fromAddress, fromName);
@@ -5652,10 +5644,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			return;
 		}
 
-		if (!Validator.isEmailAddress(emailAddress) ||
-			emailAddress.startsWith("root@") ||
-			emailAddress.startsWith("postmaster@")) {
+		EmailAddressValidator emailAddressValidator =
+			EmailAddressValidatorFactory.getInstance();
 
+		if (!emailAddressValidator.validate(companyId, emailAddress)) {
 			throw new UserEmailAddressException();
 		}
 

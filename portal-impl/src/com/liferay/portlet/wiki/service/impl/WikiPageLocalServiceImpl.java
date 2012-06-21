@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileUtil;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
@@ -73,7 +74,6 @@ import com.liferay.portlet.wiki.util.WikiCacheUtil;
 import com.liferay.portlet.wiki.util.WikiUtil;
 import com.liferay.portlet.wiki.util.comparator.PageCreateDateComparator;
 import com.liferay.portlet.wiki.util.comparator.PageVersionComparator;
-import com.liferay.util.UniqueList;
 
 import java.io.File;
 import java.io.IOException;
@@ -586,7 +586,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	}
 
 	public void deleteTempPageAttachment(
-		long userId, String fileName, String tempFolderName) {
+			long userId, String fileName, String tempFolderName)
+		throws PortalException {
 
 		TempFileUtil.deleteTempFile(userId, fileName, tempFolderName);
 	}

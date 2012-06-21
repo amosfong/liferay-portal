@@ -81,6 +81,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -102,6 +103,8 @@ import com.liferay.portal.security.auth.AutoLogin;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.security.auth.EmailAddressGenerator;
 import com.liferay.portal.security.auth.EmailAddressGeneratorFactory;
+import com.liferay.portal.security.auth.EmailAddressValidator;
+import com.liferay.portal.security.auth.EmailAddressValidatorFactory;
 import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.security.auth.FullNameValidator;
@@ -138,7 +141,6 @@ import com.liferay.portlet.documentlibrary.store.Store;
 import com.liferay.portlet.documentlibrary.store.StoreFactory;
 import com.liferay.portlet.documentlibrary.util.DLProcessor;
 import com.liferay.portlet.documentlibrary.util.DLProcessorRegistryUtil;
-import com.liferay.util.UniqueList;
 import com.liferay.util.log4j.Log4JUtil;
 
 import java.io.File;
@@ -239,10 +241,11 @@ public class HookHotDeployListener
 		"theme.portlet.decorate.default", "theme.portlet.sharing.default",
 		"theme.shortcut.icon", "upgrade.processes",
 		"user.notification.event.confirmation.enabled",
-		"users.email.address.generator", "users.email.address.required",
-		"users.form.add.identification", "users.form.add.main",
-		"users.form.add.miscellaneous", "users.form.my.account.identification",
-		"users.form.my.account.main", "users.form.my.account.miscellaneous",
+		"users.email.address.generator", "users.email.address.validator",
+		"users.email.address.required", "users.form.add.identification",
+		"users.form.add.main", "users.form.add.miscellaneous",
+		"users.form.my.account.identification", "users.form.my.account.main",
+		"users.form.my.account.miscellaneous",
 		"users.form.update.identification", "users.form.update.main",
 		"users.form.update.miscellaneous", "users.full.name.generator",
 		"users.full.name.validator", "users.image.max.height",
@@ -441,6 +444,12 @@ public class HookHotDeployListener
 				PropsKeys.USERS_EMAIL_ADDRESS_GENERATOR)) {
 
 			EmailAddressGeneratorFactory.setInstance(null);
+		}
+
+		if (portalProperties.containsKey(
+				PropsKeys.USERS_EMAIL_ADDRESS_VALIDATOR)) {
+
+			EmailAddressValidatorFactory.setInstance(null);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.USERS_FULL_NAME_GENERATOR)) {
@@ -1790,6 +1799,21 @@ public class HookHotDeployListener
 					emailAddressGeneratorClassName);
 
 			EmailAddressGeneratorFactory.setInstance(emailAddressGenerator);
+		}
+
+		if (portalProperties.containsKey(
+				PropsKeys.USERS_EMAIL_ADDRESS_VALIDATOR)) {
+
+			String emailAddressValidatorClassName =
+				portalProperties.getProperty(
+					PropsKeys.USERS_EMAIL_ADDRESS_VALIDATOR);
+
+			EmailAddressValidator emailAddressValidator =
+				(EmailAddressValidator)newInstance(
+					portletClassLoader, EmailAddressValidator.class,
+					emailAddressValidatorClassName);
+
+			EmailAddressValidatorFactory.setInstance(emailAddressValidator);
 		}
 
 		if (portalProperties.containsKey(PropsKeys.USERS_FULL_NAME_GENERATOR)) {

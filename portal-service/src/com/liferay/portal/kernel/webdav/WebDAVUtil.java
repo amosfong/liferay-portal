@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Namespace;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -187,6 +188,8 @@ public class WebDAVUtil {
 
 		// Communities
 
+		List<Group> groups = new UniqueList<Group>();
+
 		LinkedHashMap<String, Object> params =
 			new LinkedHashMap<String, Object>();
 
@@ -195,9 +198,10 @@ public class WebDAVUtil {
 		OrderByComparator orderByComparator = new GroupFriendlyURLComparator(
 			true);
 
-		List<Group> groups = GroupLocalServiceUtil.search(
-			user.getCompanyId(), null, null, params, QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS, orderByComparator);
+		groups.addAll(
+			GroupLocalServiceUtil.search(
+				user.getCompanyId(), null, null, params, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, orderByComparator));
 
 		// Organizations
 

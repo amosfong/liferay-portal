@@ -579925,6 +579925,7 @@ See http://issues.liferay.com/browse/LPS-7864.
 		<type>com.liferay.util.UniqueList</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
 		<author><![CDATA[Shuyang Zhou]]></author>
+		<deprecated><![CDATA[{@link com.liferay.portal.kernel.util.UniqueList}]]></deprecated>
 		<method>
 			<name>UniqueList</name>
 		</method>
@@ -579942,56 +579943,6 @@ See http://issues.liferay.com/browse/LPS-7864.
 				<type>int</type>
 			</param>
 		</method>
-		<method>
-			<name>add</name>
-			<param>
-				<name>e</name>
-				<type>E</type>
-			</param>
-		</method>
-		<method>
-			<name>add</name>
-			<param>
-				<name>index</name>
-				<type>int</type>
-			</param>
-			<param>
-				<name>e</name>
-				<type>E</type>
-			</param>
-		</method>
-		<method>
-			<name>addAll</name>
-			<param>
-				<name>c</name>
-				<type>java.util.Collection</type>
-			</param>
-		</method>
-		<method>
-			<name>addAll</name>
-			<param>
-				<name>index</name>
-				<type>int</type>
-			</param>
-			<param>
-				<name>c</name>
-				<type>java.util.Collection</type>
-			</param>
-		</method>
-		<method>
-			<name>set</name>
-			<param>
-				<name>index</name>
-				<type>int</type>
-			</param>
-			<param>
-				<name>e</name>
-				<type>E</type>
-			</param>
-		</method>
-		<field>
-			<name>_STACK_TRACE_COLLECTIONS</name>
-		</field>
 	</javadoc>
 	<javadoc>
 		<name>Version</name>

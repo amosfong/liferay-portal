@@ -22,19 +22,16 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Jorge Ferrer
@@ -67,6 +64,10 @@ public abstract class BaseAssetRenderer implements AssetRenderer {
 			WebKeys.THEME_DISPLAY);
 
 		return getIconPath(themeDisplay);
+	}
+
+	public String getRestorePath(RenderRequest renderRequest) {
+		return null;
 	}
 
 	public String getURLDownload(ThemeDisplay themeDisplay) {
@@ -148,31 +149,24 @@ public abstract class BaseAssetRenderer implements AssetRenderer {
 		return false;
 	}
 
+	public String renderActions(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws Exception {
+
+		return null;
+	}
+
 	protected long getControlPanelPlid(
 			LiferayPortletRequest liferayPortletRequest)
 		throws PortalException, SystemException {
 
-		HttpServletRequest request =
-			liferayPortletRequest.getHttpServletRequest();
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
-			themeDisplay.getCompanyId(), GroupConstants.CONTROL_PANEL);
-
-		return LayoutLocalServiceUtil.getDefaultPlid(
-			controlPanelGroup.getGroupId(), true);
+		return PortalUtil.getControlPanelPlid(liferayPortletRequest);
 	}
 
 	protected long getControlPanelPlid(ThemeDisplay themeDisplay)
 		throws PortalException, SystemException {
 
-		Group controlPanelGroup = GroupLocalServiceUtil.getGroup(
-			themeDisplay.getCompanyId(), GroupConstants.CONTROL_PANEL);
-
-		return LayoutLocalServiceUtil.getDefaultPlid(
-			controlPanelGroup.getGroupId(), true);
+		return PortalUtil.getControlPanelPlid(themeDisplay.getCompanyId());
 	}
 
 	protected String getIconPath(ThemeDisplay themeDisplay) {

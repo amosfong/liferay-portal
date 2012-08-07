@@ -39,22 +39,23 @@ portletURL.setParameter("tabs1", tabs1);
 portletURL.setParameter("backURL", backURL);
 portletURL.setParameter("classNameId", String.valueOf(classNameId));
 portletURL.setParameter("classPK", String.valueOf(classPK));
+
+String title = StringPool.BLANK;
+
+if (!portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
+	if (structure != null) {
+		title = LanguageUtil.format(pageContext, (Validator.isNull(templateHeaderTitle) ? "templates-for-structure-x" : templateHeaderTitle), structure.getName(locale), false);
+	}
+	else {
+		title = "application-display-templates";
+	}
+}
 %>
 
-<c:choose>
-	<c:when test="<%= (structure != null) %>">
-		<liferay-ui:header
-			backURL="<%= backURL %>"
-			title='<%= LanguageUtil.format(pageContext, (Validator.isNull(templateHeaderTitle) ? "templates-for-structure-x" : templateHeaderTitle), structure.getName(locale), false) %>'
-		/>
-	</c:when>
-	<c:otherwise>
-		<liferay-ui:header
-			backURL="<%= backURL %>"
-			title="display-styles"
-		/>
-	</c:otherwise>
-</c:choose>
+<liferay-ui:header
+	backURL="<%= backURL %>"
+	title="<%= title %>"
+/>
 
 <liferay-util:include page="/html/portlet/dynamic_data_mapping/template_toolbar.jsp">
 	<liferay-util:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
@@ -76,7 +77,7 @@ portletURL.setParameter("classPK", String.valueOf(classPK));
 		portalPreferences.setValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-type", orderByType);
 	}
 	else {
-		orderByCol = portalPreferences.getValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-col", "name");
+		orderByCol = portalPreferences.getValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-col", "id");
 		orderByType = portalPreferences.getValue(PortletKeys.DYNAMIC_DATA_MAPPING, "entries-order-by-type", "asc");
 	}
 
@@ -139,36 +140,54 @@ portletURL.setParameter("classPK", String.valueOf(classPK));
 			<liferay-ui:search-container-column-text
 				href="<%= rowHREF %>"
 				name="id"
+				orderable="<%= true %>"
+				orderableProperty="id"
 				property="templateId"
 			/>
 
 			<liferay-ui:search-container-column-text
 				href="<%= rowHREF %>"
 				name="name"
-				orderable="<%= true %>"
-				orderableProperty="name"
-				value="<%= LanguageUtil.get(pageContext, template.getName(locale)) %>"
+				value="<%= HtmlUtil.escape(LanguageUtil.get(pageContext, template.getName(locale))) %>"
 			/>
 
-			<c:if test="<%= Validator.isNull(templateTypeValue) %>">
+			<c:if test="<%= Validator.isNull(templateTypeValue) && (classNameId == 0) %>">
+
+				<%
+				String value = null;
+
+				if (portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
+					PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(template.getClassNameId());
+
+					value = portletDisplayTemplateHandler.getName(locale);
+				}
+				else if (Validator.isNull(templateTypeValue)) {
+					value = LanguageUtil.get(pageContext, template.getType());
+				}
+				%>
+
 				<liferay-ui:search-container-column-text
 					href="<%= rowHREF %>"
 					name="type"
-					value="<%= LanguageUtil.get(pageContext, template.getType()) %>"
+					value="<%= value %>"
 				/>
 			</c:if>
 
-			<liferay-ui:search-container-column-text
-				href="<%= rowHREF %>"
-				name="mode"
-				value="<%= LanguageUtil.get(pageContext, template.getMode()) %>"
-			/>
+			<c:if test="<%= !portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES) %>">
+				<liferay-ui:search-container-column-text
+					href="<%= rowHREF %>"
+					name="mode"
+					value="<%= LanguageUtil.get(pageContext, template.getMode()) %>"
+				/>
+			</c:if>
 
-			<liferay-ui:search-container-column-text
-				href="<%= rowHREF %>"
-				name="language"
-				value="<%= LanguageUtil.get(pageContext, template.getLanguage()) %>"
-			/>
+			<c:if test="<%= !portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES) %>">
+				<liferay-ui:search-container-column-text
+					href="<%= rowHREF %>"
+					name="language"
+					value="<%= LanguageUtil.get(pageContext, template.getLanguage()) %>"
+				/>
+			</c:if>
 
 			<liferay-ui:search-container-column-text
 				buffer="buffer"

@@ -227,7 +227,18 @@ Liferay = window.Liferay || {};
 				instance._ioRequest(instance.actionUrl, config);
 
 				if (xHR) {
-					return eval('(' + xHR.responseText + ')');
+					var value;
+
+					if (typeof xHR.responseText == 'unknown') {
+						var data = config.data;
+
+						value = 'IE6 could not access the response for: ' + data.serviceMethodName;
+					}
+					else {
+						value = eval('(' + xHR.responseText + ')');
+					}
+
+					return value;
 				}
 			},
 
@@ -375,6 +386,35 @@ Liferay = window.Liferay || {};
 	);
 
 	Liferay.Service = Service;
+
+	var components = {};
+	var componentsFn = {};
+
+	Liferay.component = function(id, value) {
+		var retVal;
+
+		if (arguments.length == 1) {
+			var component = components[id];
+
+			if (component && Lang.isFunction(component)) {
+				componentsFn[id] = component;
+
+				component = component();
+
+				components[id] = component;
+			}
+
+			retVal = component;
+		}
+		else {
+			retVal = (components[id] = value);
+		}
+
+		return retVal;
+	};
+
+	Liferay._components = components;
+	Liferay._componentsFn = components;
 
 	Liferay.Template = {
 		PORTLET: '<div class="portlet"><div class="portlet-topper"><div class="portlet-title"></div></div><div class="portlet-content"></div><div class="forbidden-action"></div></div>'

@@ -100,6 +100,10 @@ public class PollsVoteModelImpl extends BaseModelImpl<PollsVote>
 	 * @return the normal model instance
 	 */
 	public static PollsVote toModel(PollsVoteSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		PollsVote model = new PollsVoteImpl();
 
 		model.setVoteId(soapModel.getVoteId());
@@ -122,6 +126,10 @@ public class PollsVoteModelImpl extends BaseModelImpl<PollsVote>
 	 * @return the normal model instances
 	 */
 	public static List<PollsVote> toModels(PollsVoteSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<PollsVote> models = new ArrayList<PollsVote>(soapModels.length);
 
 		for (PollsVoteSoap soapModel : soapModels) {
@@ -370,17 +378,6 @@ public class PollsVoteModelImpl extends BaseModelImpl<PollsVote>
 	}
 
 	@Override
-	public PollsVote toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (PollsVote)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			PollsVote.class.getName(), getPrimaryKey());
@@ -391,6 +388,17 @@ public class PollsVoteModelImpl extends BaseModelImpl<PollsVote>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public PollsVote toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (PollsVote)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

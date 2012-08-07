@@ -97,6 +97,10 @@ public class AnnouncementsDeliveryModelImpl extends BaseModelImpl<AnnouncementsD
 	 */
 	public static AnnouncementsDelivery toModel(
 		AnnouncementsDeliverySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		AnnouncementsDelivery model = new AnnouncementsDeliveryImpl();
 
 		model.setDeliveryId(soapModel.getDeliveryId());
@@ -118,6 +122,10 @@ public class AnnouncementsDeliveryModelImpl extends BaseModelImpl<AnnouncementsD
 	 */
 	public static List<AnnouncementsDelivery> toModels(
 		AnnouncementsDeliverySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<AnnouncementsDelivery> models = new ArrayList<AnnouncementsDelivery>(soapModels.length);
 
 		for (AnnouncementsDeliverySoap soapModel : soapModels) {
@@ -332,17 +340,6 @@ public class AnnouncementsDeliveryModelImpl extends BaseModelImpl<AnnouncementsD
 	}
 
 	@Override
-	public AnnouncementsDelivery toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (AnnouncementsDelivery)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			AnnouncementsDelivery.class.getName(), getPrimaryKey());
@@ -353,6 +350,17 @@ public class AnnouncementsDeliveryModelImpl extends BaseModelImpl<AnnouncementsD
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public AnnouncementsDelivery toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (AnnouncementsDelivery)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

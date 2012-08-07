@@ -15,15 +15,16 @@
 package com.liferay.portlet.layoutconfiguration.util;
 
 import com.liferay.portal.kernel.executor.CopyThreadLocalCallable;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.portlet.PortletContainerException;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
 import com.liferay.portal.kernel.portlet.RestrictPortletServletRequest;
-import com.liferay.portal.kernel.servlet.PipingServletResponse;
+import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.WebKeys;
+
+import java.io.IOException;
 
 import java.util.concurrent.Callable;
 
@@ -107,14 +108,28 @@ public class PortletRenderer {
 			HttpServletRequest request, HttpServletResponse response)
 		throws PortletContainerException {
 
-		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+		BufferCacheServletResponse bufferCacheServletResponse =
+			new BufferCacheServletResponse(response);
 
-		PipingServletResponse pipingServletResponse =
-			new PipingServletResponse(response, unsyncStringWriter);
+		Object portletParallelRender = request.getAttribute(
+			WebKeys.PORTLET_PARALLEL_RENDER);
 
-		PortletContainerUtil.render(request, pipingServletResponse, _portlet);
+		request.setAttribute(WebKeys.PORTLET_PARALLEL_RENDER, Boolean.FALSE);
 
-		return unsyncStringWriter.getStringBundler();
+		try {
+			PortletContainerUtil.render(
+				request, bufferCacheServletResponse, _portlet);
+
+			return bufferCacheServletResponse.getStringBundler();
+		}
+		catch (IOException ioe) {
+			throw new PortletContainerException(ioe);
+		}
+		finally {
+			request.setAttribute(
+				WebKeys.PORTLET_PARALLEL_RENDER, portletParallelRender);
+		}
+
 	}
 
 	private static final String _RENDER_PATH =

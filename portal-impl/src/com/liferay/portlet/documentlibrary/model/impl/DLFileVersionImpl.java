@@ -111,6 +111,25 @@ public class DLFileVersionImpl extends DLFileVersionBaseImpl {
 		return DLUtil.getFileIcon(getExtension());
 	}
 
+	public DLFolder getTrashFolder() {
+		DLFolder dlFolder = getFolder();
+
+		if (dlFolder.isInTrash()) {
+			return dlFolder;
+		}
+
+		return dlFolder.getTrashFolder();
+	}
+
+	public boolean isInTrashFolder() {
+		if (getTrashFolder() != null) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	@Override
 	public void setExtraSettings(String extraSettings) {
 		_extraSettingsProperties = null;

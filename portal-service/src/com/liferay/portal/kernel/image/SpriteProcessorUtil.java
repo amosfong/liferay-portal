@@ -16,8 +16,9 @@ package com.liferay.portal.kernel.image;
 
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 
-import java.io.File;
 import java.io.IOException;
+
+import java.net.URL;
 
 import java.util.List;
 import java.util.Properties;
@@ -30,16 +31,14 @@ import javax.servlet.ServletContext;
 public class SpriteProcessorUtil {
 
 	public static Properties generate(
-			ServletContext servletContext, List<File> imageFiles,
+			ServletContext servletContext, List<URL> imageURLs,
 			String spriteFileName, String spritePropertiesFileName,
-			String spritePropertiesRootPath, int maxHeight, int maxWidth,
-			int maxSize)
+			String rootPath, int maxHeight, int maxWidth, int maxSize)
 		throws IOException {
 
 		return getSpriteProcessor().generate(
-			servletContext, imageFiles, spriteFileName,
-			spritePropertiesFileName, spritePropertiesRootPath, maxHeight,
-			maxWidth, maxSize);
+			servletContext, imageURLs, spriteFileName, spritePropertiesFileName,
+			rootPath, maxHeight, maxWidth, maxSize);
 	}
 
 	public static SpriteProcessor getSpriteProcessor() {

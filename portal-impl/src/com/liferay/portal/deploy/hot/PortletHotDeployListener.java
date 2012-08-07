@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
-import com.liferay.portal.kernel.servlet.FileTimestampUtil;
 import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.ServletContextProvider;
@@ -333,8 +332,8 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			else {
 				if (!portletAppInitialized) {
 					initPortletApp(
-						portlet, servletContextName, servletContext,
-						classLoader);
+						servletContextName, servletContext, classLoader,
+						portlet);
 
 					portletAppInitialized = true;
 				}
@@ -440,7 +439,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		JavadocManagerUtil.load(servletContextName, classLoader);
 
 		DirectServletRegistryUtil.clearServlets();
-		FileTimestampUtil.reset();
 
 		_portlets.put(
 			servletContextName,
@@ -515,7 +513,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		JavadocManagerUtil.unload(servletContextName);
 
 		DirectServletRegistryUtil.clearServlets();
-		FileTimestampUtil.reset();
 
 		if (_log.isInfoEnabled()) {
 			if (portlets.size() == 1) {
@@ -544,8 +541,8 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 	}
 
 	protected void initPortletApp(
-			Portlet portlet, String servletContextName,
-			ServletContext servletContext, ClassLoader classLoader)
+			String servletContextName, ServletContext servletContext,
+			ClassLoader classLoader, Portlet portlet)
 		throws Exception {
 
 		PortletContextBag portletContextBag = new PortletContextBag(

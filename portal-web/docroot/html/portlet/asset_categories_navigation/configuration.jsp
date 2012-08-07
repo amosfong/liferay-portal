@@ -18,6 +18,8 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
+
+PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetCategory.class.getName());
 %>
 
 <liferay-portlet:actionURL portletConfiguration="true" var="configurationURL" />
@@ -28,8 +30,8 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 	<aui:fieldset>
 		<aui:select label="vocabularies" name="preferences--allAssetVocabularies--">
-			<aui:option label="all" selected='<%= allAssetVocabularies %>' value="<%= true %>" />
-			<aui:option label="filter[action]" selected='<%= !allAssetVocabularies %>' value="<%= false %>" />
+			<aui:option label="all" selected="<%= allAssetVocabularies %>" value="<%= true %>" />
+			<aui:option label="filter[action]" selected="<%= !allAssetVocabularies %>" value="<%= false %>" />
 		</aui:select>
 
 		<aui:input name="preferences--assetVocabularyIds--" type="hidden" />
@@ -41,13 +43,13 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 		List<KeyValuePair> typesLeftList = new ArrayList<KeyValuePair>();
 
-		for (long vocabularyId : assetVocabularyIds) {
+		for (long assetVocabularyId : assetVocabularyIds) {
 			try {
-				AssetVocabulary vocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(vocabularyId);
+				AssetVocabulary assetVocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(assetVocabularyId);
 
-				vocabulary = vocabulary.toEscapedModel();
+				assetVocabulary = assetVocabulary.toEscapedModel();
 
-				typesLeftList.add(new KeyValuePair(String.valueOf(vocabularyId), _getTitle(vocabulary, themeDisplay)));
+				typesLeftList.add(new KeyValuePair(String.valueOf(assetVocabularyId), _getTitle(assetVocabulary, themeDisplay)));
 			}
 			catch (NoSuchVocabularyException nsve) {
 			}
@@ -59,13 +61,13 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 		Arrays.sort(assetVocabularyIds);
 
-		for (long vocabularyId : availableAssetVocabularyIdsSet) {
-			if (Arrays.binarySearch(assetVocabularyIds, vocabularyId) < 0) {
-				AssetVocabulary vocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(vocabularyId);
+		for (long assetVocabularyId : availableAssetVocabularyIdsSet) {
+			if (Arrays.binarySearch(assetVocabularyIds, assetVocabularyId) < 0) {
+				AssetVocabulary assetVocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(assetVocabularyId);
 
-				vocabulary = vocabulary.toEscapedModel();
+				assetVocabulary = assetVocabulary.toEscapedModel();
 
-				typesRightList.add(new KeyValuePair(String.valueOf(vocabularyId), _getTitle(vocabulary, themeDisplay)));
+				typesRightList.add(new KeyValuePair(String.valueOf(assetVocabularyId), _getTitle(assetVocabulary, themeDisplay)));
 			}
 		}
 
@@ -83,6 +85,21 @@ String redirect = ParamUtil.getString(request, "redirect");
 				rightTitle="available"
 			/>
 		</div>
+
+		<div class="display-template">
+			<liferay-ui:ddm-template-menu
+				classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
+				preferenceName="displayTemplate"
+				preferenceValue="<%= displayTemplate %>"
+				showDisplayStyle="<%= true %>"
+			/>
+
+			<liferay-ui:ddm-template-selector
+				classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
+				message='<%= LanguageUtil.format(pageContext, "manage-display-templates-for-x", themeDisplay.getScopeGroupName(), false) %>'
+				refreshURL="<%= configurationURL %>"
+			/>
+		</div>
 	</aui:fieldset>
 
 	<aui:button-row>
@@ -94,7 +111,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 	Liferay.provide(
 		window,
 		'<portlet:namespace />saveConfiguration',
-		function(){
+		function() {
 			if (document.<portlet:namespace />fm.<portlet:namespace />assetVocabularyIds) {
 				document.<portlet:namespace />fm.<portlet:namespace />assetVocabularyIds.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace />currentAssetVocabularyIds);
 			}
@@ -108,10 +125,10 @@ String redirect = ParamUtil.getString(request, "redirect");
 </aui:script>
 
 <%!
-private String _getTitle(AssetVocabulary vocabulary, ThemeDisplay themeDisplay) {
-	String title = vocabulary.getTitle(themeDisplay.getLanguageId());
+private String _getTitle(AssetVocabulary assetVocabulary, ThemeDisplay themeDisplay) {
+	String title = assetVocabulary.getTitle(themeDisplay.getLanguageId());
 
-	if (vocabulary.getGroupId() == themeDisplay.getCompanyGroupId()) {
+	if (assetVocabulary.getGroupId() == themeDisplay.getCompanyGroupId()) {
 		title += " (" + LanguageUtil.get(themeDisplay.getLocale(), "global") + ")";
 	}
 

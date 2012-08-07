@@ -103,6 +103,10 @@ public class AssetCategoryPropertyModelImpl extends BaseModelImpl<AssetCategoryP
 	 */
 	public static AssetCategoryProperty toModel(
 		AssetCategoryPropertySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		AssetCategoryProperty model = new AssetCategoryPropertyImpl();
 
 		model.setCategoryPropertyId(soapModel.getCategoryPropertyId());
@@ -126,6 +130,10 @@ public class AssetCategoryPropertyModelImpl extends BaseModelImpl<AssetCategoryP
 	 */
 	public static List<AssetCategoryProperty> toModels(
 		AssetCategoryPropertySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<AssetCategoryProperty> models = new ArrayList<AssetCategoryProperty>(soapModels.length);
 
 		for (AssetCategoryPropertySoap soapModel : soapModels) {
@@ -382,17 +390,6 @@ public class AssetCategoryPropertyModelImpl extends BaseModelImpl<AssetCategoryP
 	}
 
 	@Override
-	public AssetCategoryProperty toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (AssetCategoryProperty)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			AssetCategoryProperty.class.getName(), getPrimaryKey());
@@ -403,6 +400,17 @@ public class AssetCategoryPropertyModelImpl extends BaseModelImpl<AssetCategoryP
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public AssetCategoryProperty toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (AssetCategoryProperty)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

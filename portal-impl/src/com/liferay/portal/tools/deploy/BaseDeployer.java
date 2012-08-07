@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.plugin.License;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.servlet.PluginContextListener;
+import com.liferay.portal.kernel.servlet.PortalClassLoaderServlet;
 import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.servlet.SecurePluginContextListener;
 import com.liferay.portal.kernel.servlet.SecureServlet;
@@ -53,6 +54,7 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.webserver.DynamicResourceServlet;
 import com.liferay.util.ant.CopyTask;
 import com.liferay.util.ant.DeleteTask;
 import com.liferay.util.ant.ExpandTask;
@@ -183,7 +185,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		jars.add(path);
 	}
 
-	public void autoDeploy(AutoDeploymentContext autoDeploymentContext)
+	public int autoDeploy(AutoDeploymentContext autoDeploymentContext)
 		throws AutoDeployException {
 
 		List<String> wars = new ArrayList<String>();
@@ -195,7 +197,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		this.wars = wars;
 
 		try {
-			deployFile(autoDeploymentContext);
+			return deployFile(autoDeploymentContext);
 		}
 		catch (Exception e) {
 			throw new AutoDeployException(e);
@@ -460,6 +462,23 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			FileUtil.copyFile(
 				utilTaglibDTD, srcFile + "/WEB-INF/tld/liferay-util.tld", true);
 		}
+	}
+
+	public void copyTomcatContextXml(File targetDir) throws Exception {
+		if (!appServerType.equals(ServerDetector.TOMCAT_ID)) {
+			return;
+		}
+
+		String contextPath = DeployUtil.getResourcePath("context.xml");
+
+		String content = FileUtil.read(contextPath);
+
+		if (!PropsValues.AUTO_DEPLOY_UNPACK_WAR) {
+			content = StringUtil.replace(
+				content, "antiResourceLocking=\"true\"", StringPool.BLANK);
+		}
+
+		FileUtil.write(new File(targetDir, "META-INF/context.xml"), content);
 	}
 
 	public void copyXmls(
@@ -735,7 +754,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			srcFile, null, null, displayName, override, pluginPackage);
 	}
 
-	public void deployFile(AutoDeploymentContext autoDeploymentContext)
+	public int deployFile(AutoDeploymentContext autoDeploymentContext)
 		throws Exception {
 
 		File srcFile = autoDeploymentContext.getFile();
@@ -834,19 +853,30 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				deployDirFile);
 
 			if ((pluginPackage != null) && (previousPluginPackage != null)) {
-				if (_log.isInfoEnabled()) {
-					String name = pluginPackage.getName();
-					String previousVersion = previousPluginPackage.getVersion();
-					String version = pluginPackage.getVersion();
+				String name = pluginPackage.getName();
+				String previousVersion = previousPluginPackage.getVersion();
+				String version = pluginPackage.getVersion();
 
+				if (_log.isInfoEnabled()) {
 					_log.info(
 						"Updating " + name + " from version " +
 							previousVersion + " to version " + version);
 				}
 
-				if (pluginPackage.isLaterVersionThan(previousPluginPackage)) {
-					overwrite = true;
+				if (pluginPackage.isPreviousVersionThan(
+						previousPluginPackage)) {
+
+					if (_log.isInfoEnabled()) {
+						_log.info(
+							"Not updating " + name + " because version " +
+								previousVersion + " is newer than version " +
+									version);
+					}
+
+					return AutoDeployer.CODE_SKIP_NEWER_VERSION;
 				}
+
+				overwrite = true;
 			}
 
 			File mergeDirFile = new File(
@@ -875,6 +905,8 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 					postDeploy(destDir, deployDir);
 				}
 			}
+
+			return AutoDeployer.CODE_DEFAULT;
 		}
 		catch (Exception e) {
 			if (pluginPackage != null) {
@@ -995,6 +1027,49 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		return displayName;
 	}
 
+	public String getDynamicResourceServletContent() {
+		StringBundler sb = new StringBundler();
+
+		sb.append("<servlet>");
+		sb.append("<servlet-name>");
+		sb.append("Dynamic Resource Servlet");
+		sb.append("</servlet-name>");
+		sb.append("<servlet-class>");
+		sb.append(PortalClassLoaderServlet.class.getName());
+		sb.append("</servlet-class>");
+		sb.append("<init-param>");
+		sb.append("<param-name>");
+		sb.append("servlet-class");
+		sb.append("</param-name>");
+		sb.append("<param-value>");
+		sb.append(DynamicResourceServlet.class.getName());
+		sb.append("</param-value>");
+		sb.append("</init-param>");
+		sb.append("<load-on-startup>1</load-on-startup>");
+		sb.append("</servlet>");
+
+		for (String allowedPath :
+				PropsValues.DYNAMIC_RESOURCE_SERVLET_ALLOWED_PATHS) {
+
+			sb.append("<servlet-mapping>");
+			sb.append("<servlet-name>");
+			sb.append("Dynamic Resource Servlet");
+			sb.append("</servlet-name>");
+			sb.append("<url-pattern>");
+			sb.append(allowedPath);
+
+			if (!allowedPath.endsWith(StringPool.SLASH)) {
+				sb.append(StringPool.SLASH);
+			}
+
+			sb.append(StringPool.STAR);
+			sb.append("</url-pattern>");
+			sb.append("</servlet-mapping>");
+		}
+
+		return sb.toString();
+	}
+
 	public String getExtraContent(
 			double webXmlVersion, File srcFile, String displayName)
 		throws Exception {
@@ -1018,6 +1093,8 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		sb.append("SerializableSessionAttributeListener");
 		sb.append("</listener-class>");
 		sb.append("</listener>");
+
+		sb.append(getDynamicResourceServletContent());
 
 		File serverConfigWsdd = new File(
 			srcFile + "/WEB-INF/server-config.wsdd");
@@ -1545,6 +1622,10 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		return filterMap;
 	}
 
+	/**
+	 * @see {@link PluginPackageUtil#_readPluginPackageServletContext(
+	 *      javax.servlet.ServletContext)}
+	 */
 	public PluginPackage readPluginPackage(File file) {
 		if (!file.exists()) {
 			return null;
@@ -1768,7 +1849,10 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			String servletClass = GetterUtil.getString(
 				servletClassElement.getText());
 
-			if (servletClass.equals(PortletServlet.class.getName())) {
+			if (servletClass.equals(
+					PortalClassLoaderServlet.class.getName()) ||
+				servletClass.equals(PortletServlet.class.getName())) {
+
 				continue;
 			}
 

@@ -103,6 +103,10 @@ public class OrgLaborModelImpl extends BaseModelImpl<OrgLabor>
 	 * @return the normal model instance
 	 */
 	public static OrgLabor toModel(OrgLaborSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		OrgLabor model = new OrgLaborImpl();
 
 		model.setOrgLaborId(soapModel.getOrgLaborId());
@@ -133,6 +137,10 @@ public class OrgLaborModelImpl extends BaseModelImpl<OrgLabor>
 	 * @return the normal model instances
 	 */
 	public static List<OrgLabor> toModels(OrgLaborSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<OrgLabor> models = new ArrayList<OrgLabor>(soapModels.length);
 
 		for (OrgLaborSoap soapModel : soapModels) {
@@ -474,17 +482,6 @@ public class OrgLaborModelImpl extends BaseModelImpl<OrgLabor>
 	}
 
 	@Override
-	public OrgLabor toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (OrgLabor)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(0,
 			OrgLabor.class.getName(), getPrimaryKey());
@@ -495,6 +492,17 @@ public class OrgLaborModelImpl extends BaseModelImpl<OrgLabor>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public OrgLabor toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (OrgLabor)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

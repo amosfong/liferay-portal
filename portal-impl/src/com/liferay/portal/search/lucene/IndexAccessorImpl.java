@@ -47,6 +47,10 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LogMergePolicy;
 import org.apache.lucene.index.MergePolicy;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.MMapDirectory;
@@ -91,15 +95,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 			return;
 		}
 
-		close();
-
-		if (PropsValues.INDEX_FORCE_GC_BEFORE_DELETE) {
-			System.gc();
-		}
-
 		_deleteDirectory();
-
-		_initIndexWriter();
 	}
 
 	public void deleteDocuments(Term term) throws IOException {
@@ -160,19 +156,34 @@ public class IndexAccessorImpl implements IndexAccessor {
 		IndexCommitSerializationUtil.deserializeIndex(
 			inputStream, tempDirectory);
 
-		close();
-
-		if (PropsValues.INDEX_FORCE_GC_BEFORE_DELETE) {
-			System.gc();
-		}
-
 		_deleteDirectory();
 
-		for (String file : tempDirectory.listAll()) {
-			tempDirectory.copy(getLuceneDir(), file, file);
+		IndexReader indexReader = IndexReader.open(tempDirectory, false);
+
+		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+
+		try {
+			TopDocs topDocs = indexSearcher.search(
+				new MatchAllDocsQuery(), indexReader.numDocs());
+
+			ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
+			for (ScoreDoc scoreDoc : scoreDocs) {
+				Document document = indexSearcher.doc(scoreDoc.doc);
+
+				addDocument(document);
+			}
+		}
+		catch (IllegalArgumentException iae) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(iae.getMessage());
+			}
 		}
 
-		_initIndexWriter();
+		indexSearcher.close();
+
+		indexReader.flush();
+		indexReader.close();
 
 		tempDirectory.close();
 
@@ -245,17 +256,17 @@ public class IndexAccessorImpl implements IndexAccessor {
 		String path = _getPath();
 
 		try {
-			Directory directory = _getDirectory(path);
+			_indexWriter.deleteAll();
 
-			directory.close();
+			// Ensuring that all the changes has been applied to the index
+
+			_indexWriter.commit();
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Could not close directory " + path);
+				_log.warn("Could not delete index in directory " + path);
 			}
 		}
-
-		FileUtil.deltree(path);
 	}
 
 	private void _deleteRam() {

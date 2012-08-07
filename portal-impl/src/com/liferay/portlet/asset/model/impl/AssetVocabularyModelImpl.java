@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.asset.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
@@ -110,6 +111,10 @@ public class AssetVocabularyModelImpl extends BaseModelImpl<AssetVocabulary>
 	 * @return the normal model instance
 	 */
 	public static AssetVocabulary toModel(AssetVocabularySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		AssetVocabulary model = new AssetVocabularyImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -136,6 +141,10 @@ public class AssetVocabularyModelImpl extends BaseModelImpl<AssetVocabulary>
 	 */
 	public static List<AssetVocabulary> toModels(
 		AssetVocabularySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<AssetVocabulary> models = new ArrayList<AssetVocabulary>(soapModels.length);
 
 		for (AssetVocabularySoap soapModel : soapModels) {
@@ -609,17 +618,6 @@ public class AssetVocabularyModelImpl extends BaseModelImpl<AssetVocabulary>
 	}
 
 	@Override
-	public AssetVocabulary toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (AssetVocabulary)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			AssetVocabulary.class.getName(), getPrimaryKey());
@@ -630,6 +628,26 @@ public class AssetVocabularyModelImpl extends BaseModelImpl<AssetVocabulary>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setTitle(getTitle(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setDescription(getDescription(defaultImportLocale),
+			defaultImportLocale, defaultImportLocale);
+	}
+
+	@Override
+	public AssetVocabulary toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (AssetVocabulary)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

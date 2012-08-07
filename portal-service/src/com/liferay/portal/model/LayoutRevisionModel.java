@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
@@ -1002,6 +1003,13 @@ public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
 	public boolean isApproved();
 
 	/**
+	 * Returns <code>true</code> if this layout revision is denied.
+	 *
+	 * @return <code>true</code> if this layout revision is denied; <code>false</code> otherwise
+	 */
+	public boolean isDenied();
+
+	/**
 	 * Returns <code>true</code> if this layout revision is a draft.
 	 *
 	 * @return <code>true</code> if this layout revision is a draft; <code>false</code> otherwise
@@ -1016,6 +1024,20 @@ public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
 	public boolean isExpired();
 
 	/**
+	 * Returns <code>true</code> if this layout revision is inactive.
+	 *
+	 * @return <code>true</code> if this layout revision is inactive; <code>false</code> otherwise
+	 */
+	public boolean isInactive();
+
+	/**
+	 * Returns <code>true</code> if this layout revision is incomplete.
+	 *
+	 * @return <code>true</code> if this layout revision is incomplete; <code>false</code> otherwise
+	 */
+	public boolean isIncomplete();
+
+	/**
 	 * Returns <code>true</code> if this layout revision is in the Recycle Bin.
 	 *
 	 * @return <code>true</code> if this layout revision is in the Recycle Bin; <code>false</code> otherwise
@@ -1028,6 +1050,13 @@ public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
 	 * @return <code>true</code> if this layout revision is pending; <code>false</code> otherwise
 	 */
 	public boolean isPending();
+
+	/**
+	 * Returns <code>true</code> if this layout revision is scheduled.
+	 *
+	 * @return <code>true</code> if this layout revision is scheduled; <code>false</code> otherwise
+	 */
+	public boolean isScheduled();
 
 	public boolean isNew();
 
@@ -1046,6 +1075,9 @@ public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
 	public ExpandoBridge getExpandoBridge();
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
+
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException;
 
 	public Object clone();
 

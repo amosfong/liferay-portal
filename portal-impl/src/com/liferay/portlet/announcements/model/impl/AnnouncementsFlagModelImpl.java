@@ -98,6 +98,10 @@ public class AnnouncementsFlagModelImpl extends BaseModelImpl<AnnouncementsFlag>
 	 * @return the normal model instance
 	 */
 	public static AnnouncementsFlag toModel(AnnouncementsFlagSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		AnnouncementsFlag model = new AnnouncementsFlagImpl();
 
 		model.setFlagId(soapModel.getFlagId());
@@ -117,6 +121,10 @@ public class AnnouncementsFlagModelImpl extends BaseModelImpl<AnnouncementsFlag>
 	 */
 	public static List<AnnouncementsFlag> toModels(
 		AnnouncementsFlagSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<AnnouncementsFlag> models = new ArrayList<AnnouncementsFlag>(soapModels.length);
 
 		for (AnnouncementsFlagSoap soapModel : soapModels) {
@@ -298,17 +306,6 @@ public class AnnouncementsFlagModelImpl extends BaseModelImpl<AnnouncementsFlag>
 	}
 
 	@Override
-	public AnnouncementsFlag toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (AnnouncementsFlag)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(0,
 			AnnouncementsFlag.class.getName(), getPrimaryKey());
@@ -319,6 +316,17 @@ public class AnnouncementsFlagModelImpl extends BaseModelImpl<AnnouncementsFlag>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public AnnouncementsFlag toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (AnnouncementsFlag)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

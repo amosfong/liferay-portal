@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.DuplicateDirectoryException;
 import com.liferay.portlet.documentlibrary.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
@@ -47,14 +48,15 @@ import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.FieldConstants;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil;
+import com.liferay.portlet.dynamicdatamapping.util.comparator.StructureIdComparator;
 import com.liferay.portlet.dynamicdatamapping.util.comparator.StructureModifiedDateComparator;
-import com.liferay.portlet.dynamicdatamapping.util.comparator.StructureNameComparator;
+import com.liferay.portlet.dynamicdatamapping.util.comparator.TemplateIdComparator;
 import com.liferay.portlet.dynamicdatamapping.util.comparator.TemplateModifiedDateComparator;
-import com.liferay.portlet.dynamicdatamapping.util.comparator.TemplateNameComparator;
 
 import java.io.InputStream;
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -114,33 +116,42 @@ public class DDMImpl implements DDM {
 
 			String fieldDataType = ddmStructure.getFieldDataType(fieldName);
 			String fieldType = ddmStructure.getFieldType(fieldName);
-			String fieldValue = (String)serviceContext.getAttribute(
+			Serializable fieldValue = serviceContext.getAttribute(
 				fieldNamespace + fieldName);
 
-			if (fieldDataType.equals(FieldConstants.FILE_UPLOAD)) {
+			if (fieldDataType.equals(FieldConstants.DATE)) {
+				int fieldValueMonth = GetterUtil.getInteger(
+					serviceContext.getAttribute(
+						fieldNamespace + fieldName + "Month"));
+				int fieldValueYear = GetterUtil.getInteger(
+					serviceContext.getAttribute(
+						fieldNamespace + fieldName + "Year"));
+				int fieldValueDay = GetterUtil.getInteger(
+					serviceContext.getAttribute(
+						fieldNamespace + fieldName + "Day"));
+
+				Date fieldValueDate = PortalUtil.getDate(
+					fieldValueMonth, fieldValueDay, fieldValueYear);
+
+				if (fieldValueDate != null) {
+					fieldValue = String.valueOf(fieldValueDate.getTime());
+				}
+			}
+
+			if ((fieldValue == null) ||
+				fieldDataType.equals(FieldConstants.FILE_UPLOAD)) {
+
 				continue;
 			}
 
 			if (fieldType.equals(DDMImpl.TYPE_RADIO) ||
 				fieldType.equals(DDMImpl.TYPE_SELECT)) {
 
-				Object value = serviceContext.getAttribute(
-					fieldNamespace + fieldName);
-
-				String[] fieldValues = {};
-
-				if (value instanceof String) {
-					fieldValues = new String[] {String.valueOf(value)};
-				}
-				else if (value instanceof String[]) {
-					fieldValues = (String[])value;
+				if (fieldValue instanceof String) {
+					fieldValue = new String[] {String.valueOf(fieldValue)};
 				}
 
-				fieldValue = JSONFactoryUtil.serialize(fieldValues);
-			}
-
-			if (fieldValue == null) {
-				continue;
+				fieldValue = JSONFactoryUtil.serialize(fieldValue);
 			}
 
 			Serializable fieldValueSerializable =
@@ -223,11 +234,11 @@ public class DDMImpl implements DDM {
 
 		OrderByComparator orderByComparator = null;
 
-		if (orderByCol.equals("modified-date")) {
-			orderByComparator = new StructureModifiedDateComparator(orderByAsc);
+		if (orderByCol.equals("id")) {
+			orderByComparator = new StructureIdComparator(orderByAsc);
 		}
-		else if (orderByCol.equals("name")) {
-			orderByComparator = new StructureNameComparator(orderByAsc);
+		else if (orderByCol.equals("modified-date")) {
+			orderByComparator = new StructureModifiedDateComparator(orderByAsc);
 		}
 
 		return orderByComparator;
@@ -244,11 +255,11 @@ public class DDMImpl implements DDM {
 
 		OrderByComparator orderByComparator = null;
 
-		if (orderByCol.equals("modified-date")) {
-			orderByComparator = new TemplateModifiedDateComparator(orderByAsc);
+		if (orderByCol.equals("id")) {
+			orderByComparator = new TemplateIdComparator(orderByAsc);
 		}
-		else if (orderByCol.equals("name")) {
-			orderByComparator = new TemplateNameComparator(orderByAsc);
+		else if (orderByCol.equals("modified-date")) {
+			orderByComparator = new TemplateModifiedDateComparator(orderByAsc);
 		}
 
 		return orderByComparator;

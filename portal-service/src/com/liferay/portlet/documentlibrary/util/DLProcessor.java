@@ -34,6 +34,8 @@ import com.liferay.portal.kernel.xml.Element;
  */
 public interface DLProcessor {
 
+	public void afterPropertiesSet() throws Exception;
+
 	public void cleanUp(FileEntry fileEntry);
 
 	public void cleanUp(FileVersion fileVersion);

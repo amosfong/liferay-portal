@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
@@ -114,6 +115,10 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	 * @return the normal model instance
 	 */
 	public static DDMStructure toModel(DDMStructureSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		DDMStructure model = new DDMStructureImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -142,6 +147,10 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	 * @return the normal model instances
 	 */
 	public static List<DDMStructure> toModels(DDMStructureSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<DDMStructure> models = new ArrayList<DDMStructure>(soapModels.length);
 
 		for (DDMStructureSoap soapModel : soapModels) {
@@ -725,17 +734,6 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	}
 
 	@Override
-	public DDMStructure toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (DDMStructure)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			DDMStructure.class.getName(), getPrimaryKey());
@@ -746,6 +744,26 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setName(getName(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setDescription(getDescription(defaultImportLocale),
+			defaultImportLocale, defaultImportLocale);
+	}
+
+	@Override
+	public DDMStructure toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (DDMStructure)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

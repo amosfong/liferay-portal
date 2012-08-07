@@ -21,6 +21,8 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 PollsQuestion question = (PollsQuestion)request.getAttribute(WebKeys.POLLS_QUESTION);
 
+question = question.toEscapedModel();
+
 List<PollsChoice> choices = PollsChoiceLocalServiceUtil.getChoices(question.getQuestionId());
 
 boolean hasVoted = PollsUtil.hasVoted(request, question.getQuestionId());
@@ -64,7 +66,7 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 		<br /><br />
 
 		<c:choose>
-			<c:when test='<%= !viewResults && !question.isExpired() && !hasVoted && PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>'>
+			<c:when test="<%= !viewResults && !question.isExpired() && !hasVoted && PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>">
 				<aui:field-wrapper>
 
 					<%
@@ -103,7 +105,7 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 				</aui:button-row>
 
 				<%
-				PortalUtil.addPortletBreadcrumbEntry(request, question.getTitle(locale), currentURL);
+				PortalUtil.addPortletBreadcrumbEntry(request, HtmlUtil.unescape(question.getTitle(locale)), currentURL);
 				%>
 
 			</c:when>
@@ -125,7 +127,7 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 				</aui:button-row>
 
 				<%
-				PortalUtil.addPortletBreadcrumbEntry(request, question.getTitle(locale), viewQuestionURL.toString());
+				PortalUtil.addPortletBreadcrumbEntry(request, HtmlUtil.unescape(question.getTitle(locale)), viewQuestionURL.toString());
 				PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "results"), currentURL);
 				%>
 

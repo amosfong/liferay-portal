@@ -112,6 +112,10 @@ public class SCProductEntryModelImpl extends BaseModelImpl<SCProductEntry>
 	 * @return the normal model instance
 	 */
 	public static SCProductEntry toModel(SCProductEntrySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		SCProductEntry model = new SCProductEntryImpl();
 
 		model.setProductEntryId(soapModel.getProductEntryId());
@@ -141,6 +145,10 @@ public class SCProductEntryModelImpl extends BaseModelImpl<SCProductEntry>
 	 * @return the normal model instances
 	 */
 	public static List<SCProductEntry> toModels(SCProductEntrySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<SCProductEntry> models = new ArrayList<SCProductEntry>(soapModels.length);
 
 		for (SCProductEntrySoap soapModel : soapModels) {
@@ -582,17 +590,6 @@ public class SCProductEntryModelImpl extends BaseModelImpl<SCProductEntry>
 	}
 
 	@Override
-	public SCProductEntry toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (SCProductEntry)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			SCProductEntry.class.getName(), getPrimaryKey());
@@ -603,6 +600,17 @@ public class SCProductEntryModelImpl extends BaseModelImpl<SCProductEntry>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public SCProductEntry toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (SCProductEntry)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

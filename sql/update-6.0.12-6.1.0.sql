@@ -11,11 +11,12 @@ alter table BlogsEntry add smallImageId VARCHAR(75) null;
 alter table BlogsEntry add smallImageURL STRING null;
 
 alter table BookmarksEntry add resourceBlockId LONG;
-alter table BookmarksEntry add description VARCHAR(75) null;
+alter table BookmarksEntry add description STRING null;
 
 COMMIT_TRANSACTION;
 
 update BookmarksEntry set description = comments;
+
 alter table BookmarksEntry drop column comments;
 
 alter table BookmarksFolder add resourceBlockId LONG;
@@ -277,10 +278,10 @@ alter table Layout add sourcePrototypeLayoutUuid VARCHAR(75) null;
 alter table Layout drop column layoutPrototypeId;
 alter table Layout drop column dlFolderId;
 
+COMMIT_TRANSACTION;
+
 update Layout set createDate = CURRENT_TIMESTAMP;
 update Layout set modifiedDate = CURRENT_TIMESTAMP;
-
-COMMIT_TRANSACTION;
 
 create table LayoutBranch (
 	LayoutBranchId LONG not null primary key,
@@ -499,6 +500,9 @@ create table ResourceBlockPermission (
 	actionIds LONG
 );
 
+drop index IX_8D83D0CE on ResourcePermission; 
+drop index IX_4A1F4402 on ResourcePermission; 
+
 create table ResourceTypePermission (
 	resourceTypePermissionId LONG not null primary key,
 	companyId LONG,
@@ -675,7 +679,7 @@ create table QUARTZ_SIMPLE_TRIGGERS (
 	primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
 );
 
-CREATE TABLE QUARTZ_SIMPROP_TRIGGERS (
+create table QUARTZ_SIMPROP_TRIGGERS (
 	SCHED_NAME VARCHAR(120) not null,
 	TRIGGER_NAME VARCHAR(200) not null,
 	TRIGGER_GROUP VARCHAR(200) not null,

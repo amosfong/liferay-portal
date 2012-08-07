@@ -25,8 +25,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.LocaleThreadLocal;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -354,12 +352,10 @@ public class SitesUtil {
 			ServiceContext serviceContext =
 				ServiceContextThreadLocal.getServiceContext();
 
-			Locale locale = LocaleThreadLocal.getThemeDisplayLocale();
-
 			updateLayoutScopes(
 				serviceContext.getUserId(), sourceLayout, targetLayout,
 				sourcePreferences, targetPreferences, sourcePortletId,
-				LocaleUtil.toLanguageId(locale));
+				serviceContext.getLanguageId());
 		}
 	}
 
@@ -956,15 +952,17 @@ public class SitesUtil {
 		}
 
 		try {
-			Map<String, String[]> parameterMap = null;
-
 			boolean importData = true;
 
-			if (lastMergeTime > 0) {
+			long lastResetTime = GetterUtil.getLong(
+				settingsProperties.getProperty("last-reset-time"));
+
+			if ((lastMergeTime > 0) || (lastResetTime > 0)) {
 				importData = false;
 			}
 
-			parameterMap = getLayoutSetPrototypesParameters(importData);
+			Map<String, String[]> parameterMap =
+				getLayoutSetPrototypesParameters(importData);
 
 			importLayoutSetPrototype(
 				layoutSetPrototype, layoutSet.getGroupId(),
@@ -1009,6 +1007,9 @@ public class SitesUtil {
 			layoutSet.getSettingsProperties();
 
 		settingsProperties.remove("last-merge-time");
+
+		settingsProperties.setProperty(
+			"last-reset-time", String.valueOf(System.currentTimeMillis()));
 
 		LayoutSetLocalServiceUtil.updateLayoutSet(layoutSet, false);
 	}
@@ -1163,7 +1164,7 @@ public class SitesUtil {
 
 		File file = null;
 
-		StringBundler sb = new StringBundler(importData ? 4 : 4);
+		StringBundler sb = new StringBundler(importData ? 4 : 3);
 
 		sb.append(_TEMP_DIR);
 		sb.append(layoutSetPrototype.getUuid());

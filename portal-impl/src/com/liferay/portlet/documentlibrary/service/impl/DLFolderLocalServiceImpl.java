@@ -40,6 +40,7 @@ import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.base.DLFolderLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
+import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 
 import java.io.Serializable;
 
@@ -143,6 +144,9 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFileEntryLocalService.deleteFileEntries(
 			groupId, DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
+		dlFileShortcutLocalService.deleteFileShortcuts(
+			groupId, DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
 		try {
 			DLStoreUtil.deleteDirectory(
 				group.getCompanyId(), groupId, StringPool.BLANK);
@@ -157,9 +161,21 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	public void deleteFolder(long folderId)
 		throws PortalException, SystemException {
 
+		deleteFolder(folderId, true);
+	}
+
+	public void deleteFolder(long folderId, boolean includeTrashedEntries)
+		throws PortalException, SystemException {
+
 		DLFolder dlFolder = dlFolderPersistence.findByPrimaryKey(folderId);
 
-		deleteFolder(dlFolder);
+		deleteFolder(dlFolder, includeTrashedEntries);
+	}
+
+	public DLFolder fetchFolder(long groupId, long parentFolderId, String name)
+		throws SystemException {
+
+		return dlFolderPersistence.fetchByG_P_N(groupId, parentFolderId, name);
 	}
 
 	public List<DLFolder> getCompanyFolders(long companyId, int start, int end)
@@ -578,6 +594,12 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		DLFolder dlFolder = dlFolderPersistence.findByPrimaryKey(folderId);
 
+		if (dlFolder.isInTrash() &&
+			(status == WorkflowConstants.STATUS_APPROVED)) {
+
+			dlFolder.setName(DLAppUtil.stripTrashNamespace(dlFolder.getName()));
+		}
+
 		dlFolder.setStatus(status);
 		dlFolder.setStatusByUserId(user.getUserId());
 		dlFolder.setStatusByUserName(user.getFullName());
@@ -596,6 +618,15 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		dlAppHelperLocalService.updateStatuses(
 			user, foldersAndFileEntriesAndFileShortcuts, status);
+
+		// Trash
+
+		if (status == WorkflowConstants.STATUS_IN_TRASH) {
+			trashEntryLocalService.addTrashEntry(
+				userId, dlFolder.getGroupId(), DLFolderConstants.getClassName(),
+				dlFolder.getFolderId(), WorkflowConstants.STATUS_APPROVED, null,
+				null);
+		}
 
 		return dlFolder;
 	}
@@ -645,13 +676,22 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	protected void deleteFolder(DLFolder dlFolder)
 		throws PortalException, SystemException {
 
+		deleteFolder(dlFolder, true);
+	}
+
+	protected void deleteFolder(
+			DLFolder dlFolder, boolean includeTrashedEntries)
+		throws PortalException, SystemException {
+
 		// Folders
 
 		List<DLFolder> dlFolders = dlFolderPersistence.findByG_P(
 			dlFolder.getGroupId(), dlFolder.getFolderId());
 
 		for (DLFolder curDLFolder : dlFolders) {
-			deleteFolder(curDLFolder);
+			if (includeTrashedEntries || !curDLFolder.isInTrash()) {
+				deleteFolder(curDLFolder, includeTrashedEntries);
+			}
 		}
 
 		// Resources
@@ -668,12 +708,19 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		// File entries
 
 		dlFileEntryLocalService.deleteFileEntries(
-			dlFolder.getGroupId(), dlFolder.getFolderId());
+			dlFolder.getGroupId(), dlFolder.getFolderId(),
+			includeTrashedEntries);
 
 		// File entry types
 
 		dlFileEntryTypeLocalService.unsetFolderFileEntryTypes(
 			dlFolder.getFolderId());
+
+		// File shortcuts
+
+		dlFileShortcutLocalService.deleteFileShortcuts(
+			dlFolder.getGroupId(), dlFolder.getFolderId(),
+			includeTrashedEntries);
 
 		// Expando
 

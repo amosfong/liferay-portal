@@ -60,7 +60,8 @@ import java.util.List;
  * primary key of the specific repository. If the repository is a default
  * Liferay repository, the <code>repositoryId</code> is the <code>groupId</code>
  * or <code>scopeGroupId</code>. Otherwise, the <code>repositoryId</code> will
- * correspond to values obtained from {@link RepositoryLocalServiceUtil}.
+ * correspond to values obtained from {@link
+ * com.liferay.portal.service.RepositoryLocalServiceUtil}.
  * </p>
  *
  * @author Alexander Chow
@@ -966,17 +967,15 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 	 * @param  serviceContext the service context to be applied. In a Liferay
 	 *         repository, it may include:  <ul> <li> defaultFileEntryTypeId -
 	 *         the file entry type to default all Liferay file entries to </li>
-	 *         <li> fileEntryTypeSearchContainerPrimaryKeys - a comma-delimited
-	 *         list of file entry type primary keys allowed in the given folder
-	 *         and all descendants </li> <li> mountPoint - boolean specifying
-	 *         whether folder is a facade for mounting a third-party repository
-	 *         </li> <li> overrideFileEntryTypes - boolean specifying whether to
-	 *         override ancestral folder's restriction of file entry types
-	 *         allowed </li> <li> workflowDefinitionXYZ - the workflow
-	 *         definition name specified per file entry type. The parameter name
-	 *         must be the string <code>workflowDefinition</code> appended by
-	 *         the <code>fileEntryTypeId</code> (optionally <code>0</code>).
-	 *         </li> </ul>
+	 *         <li> dlFileEntryTypesSearchContainerPrimaryKeys - a
+	 *         comma-delimited list of file entry type primary keys allowed in
+	 *         the given folder and all descendants </li> <li>
+	 *         overrideFileEntryTypes - boolean specifying whether to override
+	 *         ancestral folder's restriction of file entry types allowed </li>
+	 *         <li> workflowDefinitionXYZ - the workflow definition name
+	 *         specified per file entry type. The parameter name must be the
+	 *         string <code>workflowDefinition</code> appended by the <code>
+	 *         fileEntryTypeId</code> (optionally <code>0</code>). </li> </ul>
 	 * @return the folder
 	 * @throws PortalException if the current or new parent folder could not be
 	 *         found, or if the new parent folder's information was invalid

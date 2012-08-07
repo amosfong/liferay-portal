@@ -102,6 +102,10 @@ public class RatingsEntryModelImpl extends BaseModelImpl<RatingsEntry>
 	 * @return the normal model instance
 	 */
 	public static RatingsEntry toModel(RatingsEntrySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		RatingsEntry model = new RatingsEntryImpl();
 
 		model.setEntryId(soapModel.getEntryId());
@@ -124,6 +128,10 @@ public class RatingsEntryModelImpl extends BaseModelImpl<RatingsEntry>
 	 * @return the normal model instances
 	 */
 	public static List<RatingsEntry> toModels(RatingsEntrySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<RatingsEntry> models = new ArrayList<RatingsEntry>(soapModels.length);
 
 		for (RatingsEntrySoap soapModel : soapModels) {
@@ -402,17 +410,6 @@ public class RatingsEntryModelImpl extends BaseModelImpl<RatingsEntry>
 	}
 
 	@Override
-	public RatingsEntry toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (RatingsEntry)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			RatingsEntry.class.getName(), getPrimaryKey());
@@ -423,6 +420,17 @@ public class RatingsEntryModelImpl extends BaseModelImpl<RatingsEntry>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public RatingsEntry toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (RatingsEntry)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

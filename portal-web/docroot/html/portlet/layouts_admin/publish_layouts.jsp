@@ -121,7 +121,7 @@ long[] selectedLayoutIds = new long[0];
 boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout", tabs1.equals("private-pages"));
 
 if (selPlid > 0) {
-	treeKey = treeKey + privateLayout;
+	treeKey = treeKey + privateLayout + layoutSetBranchId;
 
 	selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(SessionTreeJSClicks.getOpenNodes(request, treeKey + "SelectedNode"), ','));
 }
@@ -227,6 +227,10 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 </c:if>
 
 <style type="text/css">
+	.aui-tree-node-content .incomplete-layout {
+		color: #CCC;
+	}
+
 	#<portlet:namespace />pane th.col-3 {
 		text-align: left;
 		width: 74%;
@@ -274,6 +278,8 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 	<aui:input name="lastImportUserName" type="hidden" value="<%= user.getFullName() %>" />
 	<aui:input name="lastImportUserUuid" type="hidden" value="<%= String.valueOf(user.getUserUuid()) %>" />
 
+	<liferay-ui:error exception="<%= DuplicateLockException.class %>" message="another-publishing-process-is-in-progress,-please-try-again-later" />
+
 	<liferay-ui:error exception="<%= LayoutPrototypeException.class %>">
 
 		<%
@@ -294,7 +300,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 			%>
 
 			<li>
-				<%= ResourceActionsUtil.getModelResource(locale, layoutPrototypeClassName) %>: <strong><%= layoutPrototypeName %></strong> (<%= layoutPrototypeUuid %>)
+				<%= ResourceActionsUtil.getModelResource(locale, layoutPrototypeClassName) %>: <strong><%= HtmlUtil.escape(layoutPrototypeName) %></strong> (<%= layoutPrototypeUuid %>)
 			</li>
 
 			<%
@@ -341,6 +347,10 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 			<liferay-ui:message arguments="<%= roe.getRemoteGroupId() %>" key="the-remote-site-id-x-is-not-valid" />
 		</c:if>
 
+		<c:if test="<%= roe.getType() == RemoteOptionsException.REMOTE_PATH_CONTEXT %>">
+			<liferay-ui:message arguments="<%= roe.getRemotePathContext() %>" key="the-remote-path-context-x-is-not-valid" />
+		</c:if>
+
 		<c:if test="<%= roe.getType() == RemoteOptionsException.REMOTE_PORT %>">
 			<liferay-ui:message arguments="<%= roe.getRemotePort() %>" key="the-remote-port-x-is-not-valid" />
 		</c:if>
@@ -383,11 +393,11 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 			<c:if test="<%= schedule %>">
 				<div class="lfr-portlet-toolbar">
 					<span class="lfr-toolbar-button view-button">
-						<aui:a href='javascript:;' label="view-all" />
+						<aui:a href="javascript:;" label="view-all" />
 					</span>
 
 					<span class="lfr-toolbar-button add-button current">
-						<aui:a href='javascript:;' label="add" />
+						<aui:a href="javascript:;" label="add" />
 					</span>
 				</div>
 

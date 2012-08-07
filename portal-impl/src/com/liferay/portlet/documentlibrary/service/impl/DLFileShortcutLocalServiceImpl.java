@@ -202,6 +202,26 @@ public class DLFileShortcutLocalServiceImpl
 		}
 	}
 
+	public void deleteFileShortcuts(long groupId, long folderId)
+		throws PortalException, SystemException {
+
+		deleteFileShortcuts(groupId, folderId, true);
+	}
+
+	public void deleteFileShortcuts(
+			long groupId, long folderId, boolean includeTrashedEntries)
+		throws PortalException, SystemException {
+
+		List<DLFileShortcut> fileShortcuts =
+			dlFileShortcutPersistence.findByG_F(groupId, folderId);
+
+		for (DLFileShortcut fileShortcut : fileShortcuts) {
+			if (includeTrashedEntries || !fileShortcut.isInTrash()) {
+				deleteFileShortcut(fileShortcut);
+			}
+		}
+	}
+
 	public void disableFileShortcuts(long toFileEntryId)
 		throws SystemException {
 
@@ -243,7 +263,7 @@ public class DLFileShortcutLocalServiceImpl
 		assetEntryLocalService.updateEntry(
 			userId, fileShortcut.getGroupId(), DLFileShortcut.class.getName(),
 			fileShortcut.getFileShortcutId(), fileShortcut.getUuid(), 0,
-			assetCategoryIds, assetTagNames, false, null, null, null, null,
+			assetCategoryIds, assetTagNames, false, null, null, null,
 			fileEntry.getMimeType(), fileEntry.getTitle(),
 			fileEntry.getDescription(), null, null, null, 0, 0, null, false);
 	}

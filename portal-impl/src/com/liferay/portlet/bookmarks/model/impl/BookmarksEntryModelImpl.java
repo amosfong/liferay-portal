@@ -111,6 +111,10 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 	 * @return the normal model instance
 	 */
 	public static BookmarksEntry toModel(BookmarksEntrySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		BookmarksEntry model = new BookmarksEntryImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -139,6 +143,10 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 	 * @return the normal model instances
 	 */
 	public static List<BookmarksEntry> toModels(BookmarksEntrySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<BookmarksEntry> models = new ArrayList<BookmarksEntry>(soapModels.length);
 
 		for (BookmarksEntrySoap soapModel : soapModels) {
@@ -537,17 +545,6 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 	}
 
 	@Override
-	public BookmarksEntry toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (BookmarksEntry)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			BookmarksEntry.class.getName(), getPrimaryKey());
@@ -558,6 +555,17 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public BookmarksEntry toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (BookmarksEntry)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

@@ -94,6 +94,10 @@ public class ResourceBlockModelImpl extends BaseModelImpl<ResourceBlock>
 	 * @return the normal model instance
 	 */
 	public static ResourceBlock toModel(ResourceBlockSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		ResourceBlock model = new ResourceBlockImpl();
 
 		model.setResourceBlockId(soapModel.getResourceBlockId());
@@ -113,6 +117,10 @@ public class ResourceBlockModelImpl extends BaseModelImpl<ResourceBlock>
 	 * @return the normal model instances
 	 */
 	public static List<ResourceBlock> toModels(ResourceBlockSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<ResourceBlock> models = new ArrayList<ResourceBlock>(soapModels.length);
 
 		for (ResourceBlockSoap soapModel : soapModels) {
@@ -318,17 +326,6 @@ public class ResourceBlockModelImpl extends BaseModelImpl<ResourceBlock>
 	}
 
 	@Override
-	public ResourceBlock toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (ResourceBlock)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			ResourceBlock.class.getName(), getPrimaryKey());
@@ -339,6 +336,17 @@ public class ResourceBlockModelImpl extends BaseModelImpl<ResourceBlock>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public ResourceBlock toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (ResourceBlock)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

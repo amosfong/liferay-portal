@@ -106,6 +106,10 @@ public class JournalFolderModelImpl extends BaseModelImpl<JournalFolder>
 	 * @return the normal model instance
 	 */
 	public static JournalFolder toModel(JournalFolderSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		JournalFolder model = new JournalFolderImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -130,6 +134,10 @@ public class JournalFolderModelImpl extends BaseModelImpl<JournalFolder>
 	 * @return the normal model instances
 	 */
 	public static List<JournalFolder> toModels(JournalFolderSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<JournalFolder> models = new ArrayList<JournalFolder>(soapModels.length);
 
 		for (JournalFolderSoap soapModel : soapModels) {
@@ -443,17 +451,6 @@ public class JournalFolderModelImpl extends BaseModelImpl<JournalFolder>
 	}
 
 	@Override
-	public JournalFolder toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (JournalFolder)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			JournalFolder.class.getName(), getPrimaryKey());
@@ -464,6 +461,17 @@ public class JournalFolderModelImpl extends BaseModelImpl<JournalFolder>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public JournalFolder toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (JournalFolder)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

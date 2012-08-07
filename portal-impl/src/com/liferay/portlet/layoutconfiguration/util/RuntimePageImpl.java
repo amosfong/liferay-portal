@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -43,6 +44,9 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.layoutconfiguration.util.velocity.CustomizationSettingsProcessor;
 import com.liferay.portlet.layoutconfiguration.util.velocity.TemplateProcessor;
+import com.liferay.portlet.layoutconfiguration.util.xml.ActionURLLogic;
+import com.liferay.portlet.layoutconfiguration.util.xml.PortletLogic;
+import com.liferay.portlet.layoutconfiguration.util.xml.RenderURLLogic;
 import com.liferay.portlet.layoutconfiguration.util.xml.RuntimeLogic;
 import com.liferay.taglib.util.VelocityTaglib;
 
@@ -64,6 +68,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.portlet.PortletResponse;
+import javax.portlet.RenderResponse;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -99,6 +106,32 @@ public class RuntimePageImpl implements RuntimePage {
 		throws Exception {
 
 		processTemplate(pageContext, null, templateResource);
+	}
+
+	public String processXML(
+			HttpServletRequest request, HttpServletResponse response,
+			String content)
+		throws Exception {
+
+		PortletResponse portletResponse = (PortletResponse)request.getAttribute(
+			JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+		if (!(portletResponse instanceof RenderResponse)) {
+			throw new IllegalArgumentException(
+				"processXML can only be invoked in the render phase");
+		}
+
+		RenderResponse renderResponse = (RenderResponse)portletResponse;
+
+		RuntimeLogic portletLogic = new PortletLogic(request, response);
+		RuntimeLogic actionURLLogic = new ActionURLLogic(renderResponse);
+		RuntimeLogic renderURLLogic = new RenderURLLogic(renderResponse);
+
+		content = processXML(request, content, portletLogic);
+		content = processXML(request, content, actionURLLogic);
+		content = processXML(request, content, renderURLLogic);
+
+		return content;
 	}
 
 	public String processXML(
@@ -203,7 +236,7 @@ public class RuntimePageImpl implements RuntimePage {
 			TemplateResource templateResource, boolean processTemplate)
 		throws Exception {
 
-		LayoutTemplate layoutTemplate = getLayoutTemlpate(
+		LayoutTemplate layoutTemplate = getLayoutTemplate(
 			templateResource.getTemplateId());
 
 		String pluginServletContextName = GetterUtil.getString(
@@ -212,9 +245,13 @@ public class RuntimePageImpl implements RuntimePage {
 		ServletContext pluginServletContext = ServletContextPool.get(
 			pluginServletContextName);
 
-		ClassLoader pluginClassLoader =
-			(ClassLoader)pluginServletContext.getAttribute(
-				PluginContextListener.PLUGIN_CLASS_LOADER);
+		ClassLoader pluginClassLoader = null;
+
+		if (pluginServletContext != null) {
+			pluginClassLoader =
+				(ClassLoader)pluginServletContext.getAttribute(
+					PluginContextListener.PLUGIN_CLASS_LOADER);
+		}
 
 		ClassLoader contextClassLoader =
 			PACLClassLoaderUtil.getContextClassLoader();
@@ -440,7 +477,7 @@ public class RuntimePageImpl implements RuntimePage {
 		sb.writeTo(pageContext.getOut());
 	}
 
-	protected LayoutTemplate getLayoutTemlpate(String velocityTemplateId) {
+	protected LayoutTemplate getLayoutTemplate(String velocityTemplateId) {
 		String separator = LayoutTemplateConstants.CUSTOM_SEPARATOR;
 		boolean standard = false;
 

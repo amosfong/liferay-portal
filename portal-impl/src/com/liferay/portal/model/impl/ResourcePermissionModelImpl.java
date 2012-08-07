@@ -99,6 +99,10 @@ public class ResourcePermissionModelImpl extends BaseModelImpl<ResourcePermissio
 	 * @return the normal model instance
 	 */
 	public static ResourcePermission toModel(ResourcePermissionSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		ResourcePermission model = new ResourcePermissionImpl();
 
 		model.setResourcePermissionId(soapModel.getResourcePermissionId());
@@ -121,6 +125,10 @@ public class ResourcePermissionModelImpl extends BaseModelImpl<ResourcePermissio
 	 */
 	public static List<ResourcePermission> toModels(
 		ResourcePermissionSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<ResourcePermission> models = new ArrayList<ResourcePermission>(soapModels.length);
 
 		for (ResourcePermissionSoap soapModel : soapModels) {
@@ -394,17 +402,6 @@ public class ResourcePermissionModelImpl extends BaseModelImpl<ResourcePermissio
 	}
 
 	@Override
-	public ResourcePermission toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (ResourcePermission)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			ResourcePermission.class.getName(), getPrimaryKey());
@@ -415,6 +412,17 @@ public class ResourcePermissionModelImpl extends BaseModelImpl<ResourcePermissio
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public ResourcePermission toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (ResourcePermission)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

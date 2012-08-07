@@ -81,7 +81,7 @@ public class VerifyGroup extends VerifyProcess {
 		PreparedStatement ps = null;
 
 		try {
-			con = DataAccess.getConnection();
+			con = DataAccess.getUpgradeOptimizedConnection();
 
 			ps = con.prepareStatement(
 				"update Group_ set name = ? where groupId= " + groupId);
@@ -171,13 +171,13 @@ public class VerifyGroup extends VerifyProcess {
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getConnection();
+			con = DataAccess.getUpgradeOptimizedConnection();
 
 			StringBundler sb = new StringBundler(5);
 
 			sb.append("select groupId, name from Group_ where name like '%");
 			sb.append(GroupLocalServiceImpl.ORGANIZATION_NAME_SUFFIX);
-			sb.append("%' and name not like '% ");
+			sb.append("%' and name not like '%");
 			sb.append(GroupLocalServiceImpl.ORGANIZATION_NAME_SUFFIX);
 			sb.append("'");
 

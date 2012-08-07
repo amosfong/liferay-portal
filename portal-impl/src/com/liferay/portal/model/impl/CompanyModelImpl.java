@@ -98,6 +98,10 @@ public class CompanyModelImpl extends BaseModelImpl<Company>
 	 * @return the normal model instance
 	 */
 	public static Company toModel(CompanySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Company model = new CompanyImpl();
 
 		model.setCompanyId(soapModel.getCompanyId());
@@ -121,6 +125,10 @@ public class CompanyModelImpl extends BaseModelImpl<Company>
 	 * @return the normal model instances
 	 */
 	public static List<Company> toModels(CompanySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Company> models = new ArrayList<Company>(soapModels.length);
 
 		for (CompanySoap soapModel : soapModels) {
@@ -415,17 +423,6 @@ public class CompanyModelImpl extends BaseModelImpl<Company>
 	}
 
 	@Override
-	public Company toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Company)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Company.class.getName(), getPrimaryKey());
@@ -436,6 +433,17 @@ public class CompanyModelImpl extends BaseModelImpl<Company>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Company toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Company)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

@@ -16,12 +16,14 @@ package com.liferay.portal.kernel.template;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.Validator;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -31,7 +33,7 @@ import java.net.URLConnection;
 public class URLTemplateResource implements TemplateResource {
 
 	public URLTemplateResource(String templateId, URL templateURL) {
-		if (templateId == null) {
+		if (Validator.isNull(templateId)) {
 			throw new IllegalArgumentException("Template ID is null");
 		}
 
@@ -43,16 +45,52 @@ public class URLTemplateResource implements TemplateResource {
 		_templateURL = templateURL;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof URLTemplateResource)) {
+			return false;
+		}
+
+		URLTemplateResource urlTemplateResource = (URLTemplateResource)obj;
+
+		if (_templateId.equals(urlTemplateResource._templateId) &&
+			_templateURL.equals(urlTemplateResource._templateURL)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public long getLastModified() {
-		InputStream inputStream = null;
+		URLConnection urlConnection = null;
 
 		try {
-			URLConnection urlConnection = _templateURL.openConnection();
+			urlConnection = _templateURL.openConnection();
+
+			if (urlConnection instanceof JarURLConnection) {
+				JarURLConnection jarURLConnection =
+					(JarURLConnection)urlConnection;
+
+				URL url = jarURLConnection.getJarFileURL();
+
+				String protocol = url.getProtocol();
+
+				if (protocol.equals("file")) {
+					return new File(url.getFile()).lastModified();
+				}
+				else {
+					urlConnection = url.openConnection();
+				}
+			}
 
 			return urlConnection.getLastModified();
 		}
-
-		catch(IOException ioe) {
+		catch (IOException ioe) {
 			_log.error(
 				"Unable to get last modified time for template " + _templateId,
 				ioe);
@@ -60,9 +98,9 @@ public class URLTemplateResource implements TemplateResource {
 			return 0;
 		}
 		finally {
-			if (inputStream != null) {
+			if (urlConnection != null) {
 				try {
-					inputStream.close();
+					urlConnection.getInputStream().close();
 				}
 				catch (IOException ioe) {
 				}
@@ -71,16 +109,19 @@ public class URLTemplateResource implements TemplateResource {
 	}
 
 	public Reader getReader() throws IOException {
-		if (_templateURL == null) {
-			return null;
-		}
+		URLConnection urlConnection = _templateURL.openConnection();
 
 		return new InputStreamReader(
-			_templateURL.openStream(), DEFAUT_ENCODING);
+			urlConnection.getInputStream(), DEFAUT_ENCODING);
 	}
 
 	public String getTemplateId() {
 		return _templateId;
+	}
+
+	@Override
+	public int hashCode() {
+		return _templateId.hashCode() * 11 + _templateURL.hashCode();
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(URLTemplateResource.class);

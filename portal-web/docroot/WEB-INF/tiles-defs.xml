@@ -432,6 +432,10 @@
 		<put name="portlet_content" value="/portlet/document_library/move_file_entry.jsp" />
 	</definition>
 
+	<definition name="portlet.document_library.move_file_shortcut" extends="portlet.document_library">
+		<put name="portlet_content" value="/portlet/document_library/move_file_shortcut.jsp" />
+	</definition>
+
 	<definition name="portlet.document_library.move_folder" extends="portlet.document_library">
 		<put name="portlet_content" value="/portlet/document_library/move_folder.jsp" />
 	</definition>
@@ -1547,6 +1551,10 @@
 
 	<definition name="portlet.trash.error" extends="portlet.trash">
 		<put name="portlet_content" value="/portlet/trash/error.jsp" />
+	</definition>
+
+	<definition name="portlet.trash.restore_entry" extends="portlet.trash">
+		<put name="portlet_content" value="/portlet/trash/restore_entry.jsp" />
 	</definition>
 
 	<definition name="portlet.trash.view" extends="portlet.trash">

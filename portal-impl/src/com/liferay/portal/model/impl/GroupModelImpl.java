@@ -112,6 +112,10 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 	 * @return the normal model instance
 	 */
 	public static Group toModel(GroupSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Group model = new GroupImpl();
 
 		model.setGroupId(soapModel.getGroupId());
@@ -139,6 +143,10 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 	 * @return the normal model instances
 	 */
 	public static List<Group> toModels(GroupSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Group> models = new ArrayList<Group>(soapModels.length);
 
 		for (GroupSoap soapModel : soapModels) {
@@ -621,17 +629,6 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 	}
 
 	@Override
-	public Group toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Group)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Group.class.getName(), getPrimaryKey());
@@ -642,6 +639,17 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Group toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Group)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

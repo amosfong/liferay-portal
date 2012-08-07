@@ -107,6 +107,10 @@ public class WebsiteModelImpl extends BaseModelImpl<Website>
 	 * @return the normal model instance
 	 */
 	public static Website toModel(WebsiteSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Website model = new WebsiteImpl();
 
 		model.setWebsiteId(soapModel.getWebsiteId());
@@ -131,6 +135,10 @@ public class WebsiteModelImpl extends BaseModelImpl<Website>
 	 * @return the normal model instances
 	 */
 	public static List<Website> toModels(WebsiteSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Website> models = new ArrayList<Website>(soapModels.length);
 
 		for (WebsiteSoap soapModel : soapModels) {
@@ -464,17 +472,6 @@ public class WebsiteModelImpl extends BaseModelImpl<Website>
 	}
 
 	@Override
-	public Website toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Website)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Website.class.getName(), getPrimaryKey());
@@ -485,6 +482,17 @@ public class WebsiteModelImpl extends BaseModelImpl<Website>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Website toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Website)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

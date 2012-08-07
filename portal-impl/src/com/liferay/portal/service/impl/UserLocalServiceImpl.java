@@ -87,6 +87,7 @@ import com.liferay.portal.model.PasswordPolicy;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.model.Team;
 import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.TicketConstants;
 import com.liferay.portal.model.User;
@@ -791,7 +792,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		Date birthday = PortalUtil.getDate(
 			birthdayMonth, birthdayDay, birthdayYear,
-			new ContactBirthdayException());
+			ContactBirthdayException.class);
 
 		Contact contact = contactPersistence.create(user.getContactId());
 
@@ -1455,14 +1456,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 
-		// Check if warning message should be sent
-
-		if (isPasswordExpiringSoon(user)) {
-			user.setPasswordReset(true);
-
-			userPersistence.update(user, false);
-		}
-
 		// Check if user should be forced to change password on first login
 
 		if (passwordPolicy.isChangeable() &&
@@ -1856,6 +1849,21 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		catch (EncryptorException ee) {
 			throw new SystemException(ee);
 		}
+	}
+
+	/**
+	 * Returns the user with the email address.
+	 *
+	 * @param  companyId the primary key of the user's company
+	 * @param  emailAddress the user's email address
+	 * @return the user with the email address, or <code>null</code> if a user
+	 *         with the email address could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public User fetchUserByEmailAddress(long companyId, String emailAddress)
+		throws SystemException {
+
+		return userPersistence.fetchByC_EA(companyId, emailAddress);
 	}
 
 	/**
@@ -3493,6 +3501,26 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	}
 
 	/**
+	 * Removes the users from the teams of a group.
+	 *
+	 * @param  groupId the primary key of the group
+	 * @param  userIds the primary keys of the users
+	 * @throws PortalException if a portal exception occurred
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void unsetGroupTeamsUsers(long groupId, long[] userIds)
+		throws PortalException, SystemException {
+
+		List<Team> teams = teamPersistence.findByGroupId(groupId);
+
+		for (Team team : teams) {
+			unsetTeamUsers(team.getTeamId(), userIds);
+		}
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	/**
 	 * Removes the users from the group.
 	 *
 	 * @param  groupId the primary key of the group
@@ -3506,6 +3534,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		userGroupRoleLocalService.deleteUserGroupRoles(userIds, groupId);
+
+		userLocalService.unsetGroupTeamsUsers(groupId, userIds);
 
 		groupPersistence.removeUsers(groupId, userIds);
 
@@ -3700,8 +3730,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		assetEntryLocalService.updateEntry(
 			userId, companyGroup.getGroupId(), User.class.getName(),
 			user.getUserId(), user.getUuid(), 0, assetCategoryIds,
-			assetTagNames, false, null, null, null, null, null,
-			user.getFullName(), null, null, null, null, 0, 0, null, false);
+			assetTagNames, false, null, null, null, null, user.getFullName(),
+			null, null, null, null, 0, 0, null, false);
 	}
 
 	/**
@@ -4008,7 +4038,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 			Date birthday = PortalUtil.getDate(
 				birthdayMonth, birthdayDay, birthdayYear,
-				new ContactBirthdayException());
+				ContactBirthdayException.class);
 
 			Contact contact = user.getContact();
 
@@ -4765,7 +4795,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		Date birthday = PortalUtil.getDate(
 			birthdayMonth, birthdayDay, birthdayYear,
-			new ContactBirthdayException());
+			ContactBirthdayException.class);
 
 		long contactId = user.getContactId();
 

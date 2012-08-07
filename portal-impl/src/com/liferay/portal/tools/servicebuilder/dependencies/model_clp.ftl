@@ -8,6 +8,7 @@ package ${packagePath}.model;
 	import ${packagePath}.service.persistence.${entity.name}PK;
 </#if>
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -124,6 +125,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 		);
 	}
 
+	@Override
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
@@ -134,6 +136,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 		return attributes;
 	}
 
+	@Override
 	public void setModelAttributes(Map<String, Object> attributes) {
 		<#list entity.regularColList as column>
 			<#if column.isPrimitiveType()>
@@ -352,6 +355,15 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 			}
 		}
 
+		public boolean isDenied() {
+			if (getStatus() == WorkflowConstants.STATUS_DENIED) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
 		public boolean isDraft() {
 			if (getStatus() == WorkflowConstants.STATUS_DRAFT) {
 				return true;
@@ -363,6 +375,24 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 
 		public boolean isExpired() {
 			if (getStatus() == WorkflowConstants.STATUS_EXPIRED) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		public boolean isInactive() {
+			if (getStatus() == WorkflowConstants.STATUS_INACTIVE) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		public boolean isIncomplete() {
+			if (getStatus() == WorkflowConstants.STATUS_INCOMPLETE) {
 				return true;
 			}
 			else {
@@ -387,6 +417,15 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 				return false;
 			}
 		}
+
+		public boolean isScheduled() {
+			if (getStatus() == WorkflowConstants.STATUS_SCHEDULED) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
 	</#if>
 
 	public BaseModel<?> get${entity.name}RemoteModel() {
@@ -405,6 +444,18 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 			else {
 				${entity.name}LocalServiceUtil.update${entity.name}(this);
 			}
+		}
+	</#if>
+
+	<#if entity.hasLocalizedColumn()>
+		@SuppressWarnings("unused")
+		public void prepareLocalizedFieldsForImport(Locale defaultImportLocale) throws LocaleException {
+
+			<#list entity.regularColList as column>
+				<#if column.localized>
+					set${column.methodName}(get${column.methodName}(defaultImportLocale), defaultImportLocale, defaultImportLocale);
+				</#if>
+			</#list>
 		}
 	</#if>
 

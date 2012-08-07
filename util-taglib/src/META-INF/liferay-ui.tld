@@ -420,6 +420,66 @@
 		</attribute>
 	</tag>
 	<tag>
+        <name>ddm-template-menu</name>
+        <tag-class>com.liferay.taglib.ui.DDMTemplateMenuTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>classNameId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>displayStyles</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>label</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>preferenceName</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>preferenceValue</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>showDisplayStyle</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+	<tag>
+		<name>ddm-template-selector</name>
+		<tag-class>com.liferay.taglib.ui.DDMTemplateSelectorTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>classNameId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>icon</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>message</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>refreshURL</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
 		<name>diff</name>
 		<tag-class>com.liferay.taglib.ui.DiffTag</tag-class>
 		<body-content>JSP</body-content>
@@ -1165,6 +1225,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>yearNullable</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1231,6 +1296,11 @@
 		</attribute>
 		<attribute>
 			<name>onChangeMethod</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>resizable</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -1725,6 +1795,11 @@
 		<name>language</name>
 		<tag-class>com.liferay.taglib.ui.LanguageTag</tag-class>
 		<body-content>JSP</body-content>
+		<attribute>
+			<name>displayCurrentLocale</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 		<attribute>
 			<name>displayStyle</name>
 			<required>false</required>
@@ -3071,6 +3146,41 @@
 		</attribute>
 		<attribute>
 			<name>id</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
+		<name>trash-empty</name>
+		<tag-class>com.liferay.taglib.ui.TrashEmptyTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>confirmMessage</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>emptyMessage</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>portletURL</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>totalEntries</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
+		<name>trash-undo</name>
+		<tag-class>com.liferay.taglib.ui.TrashUndoTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>portletURL</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>

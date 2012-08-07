@@ -14,16 +14,17 @@
 
 package com.liferay.util.servlet.filters;
 
-import com.liferay.portal.kernel.servlet.ByteBufferServletResponse;
+import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.servlet.Header;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import java.nio.ByteBuffer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Michael Young
@@ -31,11 +32,14 @@ import java.util.Map;
  */
 public class CacheResponseData implements Serializable {
 
-	public CacheResponseData(ByteBufferServletResponse byteBufferResponse) {
-		_byteBuffer = byteBufferResponse.getByteBuffer();
+	public CacheResponseData(
+			BufferCacheServletResponse bufferCacheServletResponse)
+		throws IOException {
+
+		_byteBuffer = bufferCacheServletResponse.getByteBuffer();
 		_content = _byteBuffer.array();
-		_contentType = byteBufferResponse.getContentType();
-		_headers = byteBufferResponse.getHeaders();
+		_contentType = bufferCacheServletResponse.getContentType();
+		_headers = bufferCacheServletResponse.getHeaders();
 	}
 
 	public Object getAttribute(String name) {
@@ -54,7 +58,7 @@ public class CacheResponseData implements Serializable {
 		return _contentType;
 	}
 
-	public Map<String, List<Header>> getHeaders() {
+	public Map<String, Set<Header>> getHeaders() {
 		return _headers;
 	}
 
@@ -66,6 +70,6 @@ public class CacheResponseData implements Serializable {
 	private transient ByteBuffer _byteBuffer;
 	private byte[] _content;
 	private String _contentType;
-	private Map<String, List<Header>> _headers;
+	private Map<String, Set<Header>> _headers;
 
 }

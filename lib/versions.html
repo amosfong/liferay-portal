@@ -631,6 +631,9 @@
 </td><td>
 			This includes org.apache.xml.xml_soap.MapItem from Axis 1.3 because it
 			is missing in Axis 1.4. See AXIS-2585.
+
+			Two classes were modified to enable proper serialization in
+			WebLogic. See LPS-28561.
 		</td>
 </tr>
 	
@@ -670,7 +673,8 @@
 <td nowrap>portal/bobo-browse.jar</td><td nowrap>2.5.0 RC1</td><td nowrap><a href="http://code.google.com/p/bobo-browse">Bob Browse</a></td><td nowrap><a href="">LGPL 3</a>
 <br>
 </td><td>
-			This was recompiled for compatibility with JDK 5.
+			This was recompiled for compatibility with JDK 5 and includes a
+			public patch from LPS-28980.
 		</td>
 </tr>
 	
@@ -740,7 +744,9 @@
 <tr>
 <td nowrap>portal/chemistry-opencmis-client-impl.jar</td><td nowrap>0.6.0</td><td nowrap><a href="http://chemistry.apache.org/java/opencmis.html">OpenCMIS</a></td><td nowrap><a href="">Apache License 2.0</a>
 <br>
-</td><td></td>
+</td><td>
+			This includes a public patch from CMIS-527.
+		</td>
 </tr>
 	
 <tr>
@@ -1027,6 +1033,18 @@
 </tr>
 	
 <tr>
+<td nowrap>portal/httpclient.jar</td><td nowrap>4.2</td><td nowrap><a href="http://hc.apache.org">HttpComponents</a></td><td nowrap><a href="">Apache License 2.0</a>
+<br>
+</td><td></td>
+</tr>
+	
+<tr>
+<td nowrap>portal/httpcore.jar</td><td nowrap>4.2</td><td nowrap><a href="http://hc.apache.org">HttpComponents</a></td><td nowrap><a href="">Apache License 2.0</a>
+<br>
+</td><td></td>
+</tr>
+	
+<tr>
 <td nowrap>portal/ical4j.jar</td><td nowrap>1.0</td><td nowrap><a href="http://ical4j.sourceforge.net">iCal4j</a></td><td nowrap><a href="">BSD Style License</a>
 <copyright-notice>Copyright (c) 2007, Ben Fortuna. All rights reserved.</copyright-notice>
 <br>
@@ -1194,7 +1212,7 @@
 </tr>
 	
 <tr>
-<td nowrap>portal/jets3t.jar</td><td nowrap>0.6.0</td><td nowrap><a href="http://jets3t.dev.java.net">JetS3t</a></td><td nowrap><a href="">Apache License 2.0</a>
+<td nowrap>portal/jets3t.jar</td><td nowrap>0.9.0</td><td nowrap><a href="http://jets3t.s3.amazonaws.com/index.html">JetS3t</a></td><td nowrap><a href="">Apache License 2.0</a>
 <copyright-notice>Copyright (c) 2006 James Murty</copyright-notice>
 <br>
 </td><td></td>
@@ -1327,6 +1345,14 @@
 </tr>
 	
 <tr>
+<td nowrap>portal/kxml2.jar</td><td nowrap>2.3.0</td><td nowrap><a href="http://kxml.sourceforge.net/kxml2">kXML 2</a></td><td nowrap><a href="">BSD Style License</a>
+<br>
+</td><td>
+			See LPS-24702.
+		</td>
+</tr>
+	
+<tr>
 <td nowrap>portal/liferay-icu4j.jar</td><td nowrap>4.0.1</td><td nowrap><a href="http://www.icu-project.org">ICU4J</a></td><td nowrap><a href="">ICU License</a>
 <copyright-notice>Copyright (c) 1995-2006 International Business Machines Corporation and others</copyright-notice>
 <br>
@@ -1336,10 +1362,10 @@
 </tr>
 	
 <tr>
-<td nowrap>portal/liferay-yuicompressor.jar</td><td nowrap>2.4.2</td><td nowrap><a href="http://developer.yahoo.com/yui/compressor">YUI Compressor</a></td><td nowrap><a href="">BSD Style License</a>
+<td nowrap>portal/liferay-yuicompressor.jar</td><td nowrap>2.4.7</td><td nowrap><a href="http://developer.yahoo.com/yui/compressor">YUI Compressor</a></td><td nowrap><a href="">BSD Style License</a>
 <br>
 </td><td>
-			See LPS-3169
+			See LPS-3169 and LPS-25202.
 		</td>
 </tr>
 	
@@ -1441,6 +1467,16 @@
 <copyright-notice>Copyright (c) 2000-2002 The Apache Software Foundation. All rights reserved.</copyright-notice>
 <br>
 </td><td></td>
+</tr>
+	
+<tr>
+<td nowrap>portal/oscache.jar</td><td nowrap>2.4.1</td><td nowrap><a href="http://www.opensymphony.com/oscache">OSCache</a></td><td nowrap><a href="">Symphony License For OSCache</a>
+<copyright-notice>Copyright (c) 2001-2004 The OpenSymphony Group. All rights reserved.</copyright-notice>
+<br>
+</td><td>
+			This JAR is no longer used directly by Liferay but is included
+			because it is a runtime requirement for JSPWiki.
+		</td>
 </tr>
 	
 <tr>
@@ -1898,7 +1934,7 @@
 </tr>
 	
 <tr>
-<td nowrap>portal/xstream.jar</td><td nowrap>1.3.1</td><td nowrap><a href="http://xstream.codehaus.org">XStream</a></td><td nowrap><a href="">BSD Style License</a>
+<td nowrap>portal/xstream.jar</td><td nowrap>1.4.3</td><td nowrap><a href="http://xstream.codehaus.org">XStream</a></td><td nowrap><a href="">BSD Style License</a>
 <copyright-notice>Copyright (c) 2003-2006, Joe Walnes. Copyright (c) 2006-2007, XStream Committers. All rights reserved.</copyright-notice>
 <br>
 </td><td></td>

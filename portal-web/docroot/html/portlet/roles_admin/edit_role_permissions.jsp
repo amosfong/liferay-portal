@@ -55,6 +55,7 @@ PortletURL portletURL = renderResponse.createRenderURL();
 portletURL.setParameter("struts_action", "/roles_admin/edit_role_permissions");
 portletURL.setParameter("tabs1", tabs1);
 portletURL.setParameter("tabs2", tabs2);
+portletURL.setParameter("backURL", backURL);
 portletURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 
 PortletURL editPermissionsURL = renderResponse.createRenderURL();
@@ -123,7 +124,7 @@ editPermissionsURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 			<aui:input name="roleId" type="hidden" value="<%= role.getRoleId() %>" />
 			<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
 			<aui:input name="modelResources" type="hidden" value='<%= (modelResources == null) ? "" : StringUtil.merge(modelResources) %>' />
-			<aui:input name="showModelResources" type="hidden" value='<%= String.valueOf(showModelResources) %>' />
+			<aui:input name="showModelResources" type="hidden" value="<%= String.valueOf(showModelResources) %>" />
 			<aui:input name="selectedTargets" type="hidden" />
 
 			<c:choose>

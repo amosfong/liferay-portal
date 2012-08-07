@@ -43,6 +43,11 @@ import javax.portlet.PortletPreferences;
 public class PollsDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 
 	@Override
+	public String[] getDataPortletPreferences() {
+		return new String[] {"questionId"};
+	}
+
+	@Override
 	public PortletDataHandlerControl[] getExportControls() {
 		return new PortletDataHandlerControl[] {_questions, _votes};
 	}
@@ -50,6 +55,11 @@ public class PollsDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 	@Override
 	public PortletDataHandlerControl[] getImportControls() {
 		return new PortletDataHandlerControl[] {_questions, _votes};
+	}
+
+	@Override
+	public boolean isDataLocalized() {
+		return _DATA_LOCALIZED;
 	}
 
 	@Override
@@ -205,6 +215,8 @@ public class PollsDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 
 		return portletPreferences;
 	}
+
+	private static final boolean _DATA_LOCALIZED = true;
 
 	private static final String _NAMESPACE = "polls";
 

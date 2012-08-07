@@ -16,10 +16,15 @@
 
 <%@ include file="/html/portlet/init.jsp" %>
 
-<%@ page import="com.liferay.portlet.asset.NoSuchVocabularyException" %><%@
+<%@ page import="com.liferay.portal.kernel.template.PortletDisplayTemplateHandler" %><%@
+page import="com.liferay.portal.kernel.template.PortletDisplayTemplateHandlerRegistryUtil" %><%@
+page import="com.liferay.portlet.asset.NoSuchVocabularyException" %><%@
+page import="com.liferay.portlet.asset.model.AssetCategory" %><%@
 page import="com.liferay.portlet.asset.model.AssetVocabulary" %><%@
 page import="com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil" %><%@
-page import="com.liferay.portlet.asset.service.AssetVocabularyServiceUtil" %>
+page import="com.liferay.portlet.asset.service.AssetVocabularyServiceUtil" %><%@
+page import="com.liferay.portlet.dynamicdatamapping.model.DDMTemplate" %><%@
+page import="com.liferay.portlet.portletdisplaytemplates.util.PortletDisplayTemplatesUtil" %>
 
 <%
 PortletPreferences preferences = renderRequest.getPreferences();
@@ -30,22 +35,36 @@ if (Validator.isNotNull(portletResource)) {
 	preferences = PortletPreferencesFactoryUtil.getPortletSetup(request, portletResource);
 }
 
-List<AssetVocabulary> vocabularies = AssetVocabularyServiceUtil.getGroupsVocabularies(new long[] {scopeGroupId, themeDisplay.getCompanyGroupId()});
+List<AssetVocabulary> assetVocabularies = AssetVocabularyServiceUtil.getGroupsVocabularies(new long[] {scopeGroupId, themeDisplay.getCompanyGroupId()});
 
-long[] availableAssetVocabularyIds = new long[vocabularies.size()];
+long[] availableAssetVocabularyIds = new long[assetVocabularies.size()];
 
-for (int i = 0; i < vocabularies.size(); i++) {
-	AssetVocabulary vocabulary = vocabularies.get(i);
+for (int i = 0; i < assetVocabularies.size(); i++) {
+	AssetVocabulary assetVocabulary = assetVocabularies.get(i);
 
-	availableAssetVocabularyIds[i] = vocabulary.getVocabularyId();
+	availableAssetVocabularyIds[i] = assetVocabulary.getVocabularyId();
 }
 
 boolean allAssetVocabularies = GetterUtil.getBoolean(preferences.getValue("allAssetVocabularies", Boolean.TRUE.toString()));
 
 long[] assetVocabularyIds = availableAssetVocabularyIds;
 
-if (!allAssetVocabularies && preferences.getValues("assetVocabularyIds", null) != null) {
+if (!allAssetVocabularies && (preferences.getValues("assetVocabularyIds", null) != null)) {
 	assetVocabularyIds = StringUtil.split(preferences.getValue("assetVocabularyIds", null), 0L);
+}
+
+String displayTemplate = preferences.getValue("displayTemplate", StringPool.BLANK);
+
+DDMTemplate portletDisplayDDMTemplate = null;
+long portletDisplayDDMTemplateId = 0;
+long portletDisplayDDMTemplateGroupId = PortletDisplayTemplatesUtil.getDDMTemplateGroupId(themeDisplay);
+
+if (displayTemplate.startsWith("ddmTemplate_")) {
+	portletDisplayDDMTemplate = PortletDisplayTemplatesUtil.fetchDDMTemplate(portletDisplayDDMTemplateGroupId, displayTemplate);
+
+	if (portletDisplayDDMTemplate != null) {
+		portletDisplayDDMTemplateId = portletDisplayDDMTemplate.getTemplateId();
+	}
 }
 %>
 

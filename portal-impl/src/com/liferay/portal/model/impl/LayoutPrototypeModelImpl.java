@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -98,6 +99,10 @@ public class LayoutPrototypeModelImpl extends BaseModelImpl<LayoutPrototype>
 	 * @return the normal model instance
 	 */
 	public static LayoutPrototype toModel(LayoutPrototypeSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		LayoutPrototype model = new LayoutPrototypeImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -119,6 +124,10 @@ public class LayoutPrototypeModelImpl extends BaseModelImpl<LayoutPrototype>
 	 */
 	public static List<LayoutPrototype> toModels(
 		LayoutPrototypeSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<LayoutPrototype> models = new ArrayList<LayoutPrototype>(soapModels.length);
 
 		for (LayoutPrototypeSoap soapModel : soapModels) {
@@ -413,17 +422,6 @@ public class LayoutPrototypeModelImpl extends BaseModelImpl<LayoutPrototype>
 	}
 
 	@Override
-	public LayoutPrototype toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (LayoutPrototype)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			LayoutPrototype.class.getName(), getPrimaryKey());
@@ -434,6 +432,24 @@ public class LayoutPrototypeModelImpl extends BaseModelImpl<LayoutPrototype>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setName(getName(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+	}
+
+	@Override
+	public LayoutPrototype toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (LayoutPrototype)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

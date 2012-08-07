@@ -104,7 +104,7 @@ addPortletURLs = getAddPortletURLs(liferayPortletRequest, liferayPortletResponse
 		%>
 
 			<liferay-ui:icon
-				message="<%= message %>"
+				message="<%= HtmlUtil.escape(message) %>"
 				src="<%= assetRendererFactory.getIconPath(renderRequest) %>"
 				url="<%= taglibEditURL %>"
 			/>
@@ -211,6 +211,12 @@ public Map<String, PortletURL> getAddPortletURLs(LiferayPortletRequest liferayPo
 		String className = PortalUtil.getClassName(classNameId);
 
 		AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(className);
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(themeDisplay.getCompanyId(), assetRendererFactory.getPortletId());
+
+		if (!portlet.isActive()) {
+			continue;
+		}
 
 		Map<Long, String> classTypes = assetRendererFactory.getClassTypes(new long[] {themeDisplay.getCompanyGroupId(), themeDisplay.getScopeGroupId()}, themeDisplay.getLocale());
 

@@ -105,6 +105,10 @@ public class LayoutSetModelImpl extends BaseModelImpl<LayoutSet>
 	 * @return the normal model instance
 	 */
 	public static LayoutSet toModel(LayoutSetSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		LayoutSet model = new LayoutSetImpl();
 
 		model.setLayoutSetId(soapModel.getLayoutSetId());
@@ -135,6 +139,10 @@ public class LayoutSetModelImpl extends BaseModelImpl<LayoutSet>
 	 * @return the normal model instances
 	 */
 	public static List<LayoutSet> toModels(LayoutSetSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<LayoutSet> models = new ArrayList<LayoutSet>(soapModels.length);
 
 		for (LayoutSetSoap soapModel : soapModels) {
@@ -547,17 +555,6 @@ public class LayoutSetModelImpl extends BaseModelImpl<LayoutSet>
 	}
 
 	@Override
-	public LayoutSet toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (LayoutSet)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			LayoutSet.class.getName(), getPrimaryKey());
@@ -568,6 +565,17 @@ public class LayoutSetModelImpl extends BaseModelImpl<LayoutSet>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public LayoutSet toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (LayoutSet)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

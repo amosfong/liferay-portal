@@ -16,6 +16,7 @@ package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portalweb.portal.util.RuntimeVariables;
 import com.liferay.portalweb.portal.util.TestPropsValues;
 
 import com.thoughtworks.selenium.CommandProcessor;
@@ -65,7 +66,13 @@ public abstract class BaseSeleniumImpl
 			"getFirstNumberIncrement", new String[] {locator,});
 	}
 
+	public boolean isElementNotPresent(String locator) {
+		return !isElementPresent(locator);
+	}
+
 	public boolean isPartialText(String locator, String value) {
+		value = RuntimeVariables.replace(value);
+
 		return _commandProcessor.getBoolean(
 			"isPartialText", new String[] {locator, value,});
 	}

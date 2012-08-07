@@ -94,6 +94,10 @@ public class ImageModelImpl extends BaseModelImpl<Image> implements ImageModel {
 	 * @return the normal model instance
 	 */
 	public static Image toModel(ImageSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Image model = new ImageImpl();
 
 		model.setImageId(soapModel.getImageId());
@@ -114,6 +118,10 @@ public class ImageModelImpl extends BaseModelImpl<Image> implements ImageModel {
 	 * @return the normal model instances
 	 */
 	public static List<Image> toModels(ImageSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Image> models = new ArrayList<Image>(soapModels.length);
 
 		for (ImageSoap soapModel : soapModels) {
@@ -305,17 +313,6 @@ public class ImageModelImpl extends BaseModelImpl<Image> implements ImageModel {
 	}
 
 	@Override
-	public Image toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Image)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(0,
 			Image.class.getName(), getPrimaryKey());
@@ -326,6 +323,17 @@ public class ImageModelImpl extends BaseModelImpl<Image> implements ImageModel {
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Image toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Image)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

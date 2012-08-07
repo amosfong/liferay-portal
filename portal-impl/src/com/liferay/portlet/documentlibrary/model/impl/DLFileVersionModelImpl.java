@@ -113,8 +113,9 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	public static long FOLDERID_COLUMN_BITMASK = 4L;
 	public static long GROUPID_COLUMN_BITMASK = 8L;
 	public static long STATUS_COLUMN_BITMASK = 16L;
-	public static long UUID_COLUMN_BITMASK = 32L;
-	public static long VERSION_COLUMN_BITMASK = 64L;
+	public static long TITLE_COLUMN_BITMASK = 32L;
+	public static long UUID_COLUMN_BITMASK = 64L;
+	public static long VERSION_COLUMN_BITMASK = 128L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -123,6 +124,10 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	 * @return the normal model instance
 	 */
 	public static DLFileVersion toModel(DLFileVersionSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		DLFileVersion model = new DLFileVersionImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -160,6 +165,10 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	 * @return the normal model instances
 	 */
 	public static List<DLFileVersion> toModels(DLFileVersionSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<DLFileVersion> models = new ArrayList<DLFileVersion>(soapModels.length);
 
 		for (DLFileVersionSoap soapModel : soapModels) {
@@ -592,7 +601,17 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	}
 
 	public void setTitle(String title) {
+		_columnBitmask |= TITLE_COLUMN_BITMASK;
+
+		if (_originalTitle == null) {
+			_originalTitle = _title;
+		}
+
 		_title = title;
+	}
+
+	public String getOriginalTitle() {
+		return GetterUtil.getString(_originalTitle);
 	}
 
 	@JSON
@@ -757,9 +776,17 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 		}
 	}
 
+	public boolean isDenied() {
+		if (getStatus() == WorkflowConstants.STATUS_DENIED) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public boolean isDraft() {
-		if ((getStatus() == WorkflowConstants.STATUS_DRAFT) ||
-				(getStatus() == WorkflowConstants.STATUS_DRAFT_FROM_APPROVED)) {
+		if (getStatus() == WorkflowConstants.STATUS_DRAFT) {
 			return true;
 		}
 		else {
@@ -769,6 +796,24 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 
 	public boolean isExpired() {
 		if (getStatus() == WorkflowConstants.STATUS_EXPIRED) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public boolean isInactive() {
+		if (getStatus() == WorkflowConstants.STATUS_INACTIVE) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public boolean isIncomplete() {
+		if (getStatus() == WorkflowConstants.STATUS_INCOMPLETE) {
 			return true;
 		}
 		else {
@@ -794,19 +839,17 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 		}
 	}
 
-	public long getColumnBitmask() {
-		return _columnBitmask;
+	public boolean isScheduled() {
+		if (getStatus() == WorkflowConstants.STATUS_SCHEDULED) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
-	@Override
-	public DLFileVersion toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (DLFileVersion)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
+	public long getColumnBitmask() {
+		return _columnBitmask;
 	}
 
 	@Override
@@ -820,6 +863,17 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public DLFileVersion toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (DLFileVersion)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override
@@ -938,6 +992,8 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 		dlFileVersionModelImpl._originalFileEntryId = dlFileVersionModelImpl._fileEntryId;
 
 		dlFileVersionModelImpl._setOriginalFileEntryId = false;
+
+		dlFileVersionModelImpl._originalTitle = dlFileVersionModelImpl._title;
 
 		dlFileVersionModelImpl._originalVersion = dlFileVersionModelImpl._version;
 
@@ -1278,6 +1334,7 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	private String _extension;
 	private String _mimeType;
 	private String _title;
+	private String _originalTitle;
 	private String _description;
 	private String _changeLog;
 	private String _extraSettings;

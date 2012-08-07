@@ -1,15 +1,18 @@
 .taglib-logo-selector {
 	text-align: center;
-}
 
-.taglib-logo-selector .portrait-icons {
-	margin: 1em 0;
-}
+	.portrait-icons {
+		margin: 1em 0;
+	}
 
-.taglib-logo-selector .lfr-change-logo {
-	display: inline;
-}
+	.lfr-change-logo {
+		display: inline;
 
-.taglib-logo-selector .lfr-change-logo.show-background {
-	display: block;
+		&.show-background {
+			display: block;
+			line-height: 0;
+			padding: 10px;
+			text-align: center;
+		}
+	}
 }

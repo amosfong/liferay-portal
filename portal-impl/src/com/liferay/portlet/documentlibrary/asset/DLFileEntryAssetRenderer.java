@@ -33,6 +33,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.BaseAssetRenderer;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
@@ -103,12 +104,34 @@ public class DLFileEntryAssetRenderer
 		return assetRendererFactory.getPortletId();
 	}
 
+	@Override
+	public String getRestorePath(RenderRequest renderRequest) {
+		DLFileEntry dlFileEntry = (DLFileEntry)_fileEntry.getModel();
+
+		if ((dlFileEntry != null) && dlFileEntry.isInTrashFolder()) {
+			renderRequest.setAttribute(
+				WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY, _fileEntry);
+			renderRequest.setAttribute(
+				WebKeys.DOCUMENT_LIBRARY_FILE_VERSION, _fileVersion);
+
+			return
+				"/html/portlet/document_library/trash/file_entry_restore.jsp";
+		}
+
+		return null;
+	}
+
 	public String getSummary(Locale locale) {
 		return HtmlUtil.stripHtml(_fileEntry.getDescription());
 	}
 
 	public String getTitle(Locale locale) {
-		return _fileVersion.getTitle();
+		if (_type == AssetRendererFactory.TYPE_LATEST) {
+			return _fileVersion.getTitle();
+		}
+		else {
+			return _fileEntry.getTitle();
+		}
 	}
 
 	public String getType() {
@@ -229,6 +252,10 @@ public class DLFileEntryAssetRenderer
 			if ((_type == AssetRendererFactory.TYPE_LATEST) ||
 				Validator.isNotNull(version)) {
 
+				if ((_fileEntry != null) && Validator.isNotNull(version)) {
+					_fileVersion = _fileEntry.getFileVersion(version);
+				}
+
 				renderRequest.setAttribute(
 					WebKeys.DOCUMENT_LIBRARY_FILE_VERSION, _fileVersion);
 			}
@@ -238,6 +265,13 @@ public class DLFileEntryAssetRenderer
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public String renderActions(
+		RenderRequest renderRequest, RenderResponse renderResponse) {
+
+		return "/html/portlet/document_library/file_entry_action.jsp";
 	}
 
 	private FileEntry _fileEntry;

@@ -107,6 +107,10 @@ public class EmailAddressModelImpl extends BaseModelImpl<EmailAddress>
 	 * @return the normal model instance
 	 */
 	public static EmailAddress toModel(EmailAddressSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		EmailAddress model = new EmailAddressImpl();
 
 		model.setEmailAddressId(soapModel.getEmailAddressId());
@@ -131,6 +135,10 @@ public class EmailAddressModelImpl extends BaseModelImpl<EmailAddress>
 	 * @return the normal model instances
 	 */
 	public static List<EmailAddress> toModels(EmailAddressSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<EmailAddress> models = new ArrayList<EmailAddress>(soapModels.length);
 
 		for (EmailAddressSoap soapModel : soapModels) {
@@ -464,17 +472,6 @@ public class EmailAddressModelImpl extends BaseModelImpl<EmailAddress>
 	}
 
 	@Override
-	public EmailAddress toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (EmailAddress)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			EmailAddress.class.getName(), getPrimaryKey());
@@ -485,6 +482,17 @@ public class EmailAddressModelImpl extends BaseModelImpl<EmailAddress>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public EmailAddress toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (EmailAddress)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

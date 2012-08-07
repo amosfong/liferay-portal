@@ -148,9 +148,13 @@ public class ThemeUtil {
 		ServletContext pluginServletContext = ServletContextPool.get(
 			pluginServletContextName);
 
-		ClassLoader pluginClassLoader =
-			(ClassLoader)pluginServletContext.getAttribute(
-				PluginContextListener.PLUGIN_CLASS_LOADER);
+		ClassLoader pluginClassLoader = null;
+
+		if (pluginServletContext != null) {
+			pluginClassLoader =
+				(ClassLoader)pluginServletContext.getAttribute(
+					PluginContextListener.PLUGIN_CLASS_LOADER);
+		}
 
 		Thread currentThread = Thread.currentThread();
 
@@ -321,7 +325,7 @@ public class ThemeUtil {
 				public void service(
 						ServletRequest servletRequest,
 						ServletResponse servletResponse)
-					throws ServletException, IOException {
+					throws IOException, ServletException {
 
 					servlet.service(servletRequest, servletResponse);
 				}
@@ -463,6 +467,11 @@ public class ThemeUtil {
 		TemplateResource templateResource =
 			TemplateResourceLoaderUtil.getTemplateResource(
 				TemplateManager.VELOCITY, resourcePath);
+
+		if (templateResource == null) {
+			throw new Exception(
+				"Unable to load template resource " + resourcePath);
+		}
 
 		Template template = TemplateManagerUtil.getTemplate(
 			TemplateManager.VELOCITY, templateResource,

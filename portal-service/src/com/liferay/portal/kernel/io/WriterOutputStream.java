@@ -73,6 +73,10 @@ public class WriterOutputStream extends OutputStream {
 					" must be a positive number");
 		}
 
+		if (charsetName == null) {
+			charsetName = StringPool.DEFAULT_CHARSET_NAME;
+		}
+
 		_writer = writer;
 		_charsetName = charsetName;
 		_charsetDecoder = CharsetDecoderUtil.getCharsetDecoder(charsetName);

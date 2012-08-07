@@ -98,6 +98,10 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 	 * @return the normal model instance
 	 */
 	public static MBBan toModel(MBBanSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		MBBan model = new MBBanImpl();
 
 		model.setBanId(soapModel.getBanId());
@@ -119,6 +123,10 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 	 * @return the normal model instances
 	 */
 	public static List<MBBan> toModels(MBBanSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<MBBan> models = new ArrayList<MBBan>(soapModels.length);
 
 		for (MBBanSoap soapModel : soapModels) {
@@ -359,17 +367,6 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 	}
 
 	@Override
-	public MBBan toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (MBBan)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			MBBan.class.getName(), getPrimaryKey());
@@ -380,6 +377,17 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public MBBan toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (MBBan)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

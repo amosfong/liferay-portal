@@ -93,6 +93,10 @@ public class PluginSettingModelImpl extends BaseModelImpl<PluginSetting>
 	 * @return the normal model instance
 	 */
 	public static PluginSetting toModel(PluginSettingSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		PluginSetting model = new PluginSettingImpl();
 
 		model.setPluginSettingId(soapModel.getPluginSettingId());
@@ -112,6 +116,10 @@ public class PluginSettingModelImpl extends BaseModelImpl<PluginSetting>
 	 * @return the normal model instances
 	 */
 	public static List<PluginSetting> toModels(PluginSettingSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<PluginSetting> models = new ArrayList<PluginSetting>(soapModels.length);
 
 		for (PluginSettingSoap soapModel : soapModels) {
@@ -314,17 +322,6 @@ public class PluginSettingModelImpl extends BaseModelImpl<PluginSetting>
 	}
 
 	@Override
-	public PluginSetting toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (PluginSetting)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			PluginSetting.class.getName(), getPrimaryKey());
@@ -335,6 +332,17 @@ public class PluginSettingModelImpl extends BaseModelImpl<PluginSetting>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public PluginSetting toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (PluginSetting)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

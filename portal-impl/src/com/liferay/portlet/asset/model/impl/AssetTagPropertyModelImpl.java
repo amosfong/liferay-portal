@@ -102,6 +102,10 @@ public class AssetTagPropertyModelImpl extends BaseModelImpl<AssetTagProperty>
 	 * @return the normal model instance
 	 */
 	public static AssetTagProperty toModel(AssetTagPropertySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		AssetTagProperty model = new AssetTagPropertyImpl();
 
 		model.setTagPropertyId(soapModel.getTagPropertyId());
@@ -125,6 +129,10 @@ public class AssetTagPropertyModelImpl extends BaseModelImpl<AssetTagProperty>
 	 */
 	public static List<AssetTagProperty> toModels(
 		AssetTagPropertySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<AssetTagProperty> models = new ArrayList<AssetTagProperty>(soapModels.length);
 
 		for (AssetTagPropertySoap soapModel : soapModels) {
@@ -381,17 +389,6 @@ public class AssetTagPropertyModelImpl extends BaseModelImpl<AssetTagProperty>
 	}
 
 	@Override
-	public AssetTagProperty toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (AssetTagProperty)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			AssetTagProperty.class.getName(), getPrimaryKey());
@@ -402,6 +399,17 @@ public class AssetTagPropertyModelImpl extends BaseModelImpl<AssetTagProperty>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public AssetTagProperty toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (AssetTagProperty)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

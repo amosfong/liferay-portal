@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.polls.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -99,6 +100,10 @@ public class PollsChoiceModelImpl extends BaseModelImpl<PollsChoice>
 	 * @return the normal model instance
 	 */
 	public static PollsChoice toModel(PollsChoiceSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		PollsChoice model = new PollsChoiceImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -117,6 +122,10 @@ public class PollsChoiceModelImpl extends BaseModelImpl<PollsChoice>
 	 * @return the normal model instances
 	 */
 	public static List<PollsChoice> toModels(PollsChoiceSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<PollsChoice> models = new ArrayList<PollsChoice>(soapModels.length);
 
 		for (PollsChoiceSoap soapModel : soapModels) {
@@ -372,17 +381,6 @@ public class PollsChoiceModelImpl extends BaseModelImpl<PollsChoice>
 	}
 
 	@Override
-	public PollsChoice toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (PollsChoice)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(0,
 			PollsChoice.class.getName(), getPrimaryKey());
@@ -393,6 +391,24 @@ public class PollsChoiceModelImpl extends BaseModelImpl<PollsChoice>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setDescription(getDescription(defaultImportLocale),
+			defaultImportLocale, defaultImportLocale);
+	}
+
+	@Override
+	public PollsChoice toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (PollsChoice)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

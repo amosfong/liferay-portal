@@ -48,9 +48,8 @@ import java.rmi.RemoteException;
  * </p>
  *
  * <p>
- * You can see a list of services at
- * http://localhost:8080/api/secure/axis. Set the property
- * <b>axis.servlet.hosts.allowed</b> in portal.properties to configure
+ * You can see a list of services at http://localhost:8080/api/axis. Set the
+ * property <b>axis.servlet.hosts.allowed</b> in portal.properties to configure
  * security.
  * </p>
  *
@@ -621,6 +620,35 @@ public class UserServiceSoap {
 		}
 	}
 
+	public static com.liferay.portal.model.UserSoap[] getCompanyUsers(
+		long companyId, int start, int end) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.User> returnValue = UserServiceUtil.getCompanyUsers(companyId,
+					start, end);
+
+			return com.liferay.portal.model.UserSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getCompanyUsersCount(long companyId)
+		throws RemoteException {
+		try {
+			int returnValue = UserServiceUtil.getCompanyUsersCount(companyId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	/**
 	* Returns the primary keys of all the users belonging to the group.
 	*
@@ -645,6 +673,29 @@ public class UserServiceSoap {
 	}
 
 	/**
+	* Returns all the users belonging to the group.
+	*
+	* @param groupId the primary key of the group
+	* @return the users belonging to the group
+	* @throws PortalException if the current user did not have permission to
+	view group assignments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.UserSoap[] getGroupUsers(
+		long groupId) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.User> returnValue = UserServiceUtil.getGroupUsers(groupId);
+
+			return com.liferay.portal.model.UserSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
 	* Returns the primary keys of all the users belonging to the organization.
 	*
 	* @param organizationId the primary key of the organization
@@ -659,6 +710,29 @@ public class UserServiceSoap {
 			long[] returnValue = UserServiceUtil.getOrganizationUserIds(organizationId);
 
 			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns all the users belonging to the organization.
+	*
+	* @param organizationId the primary key of the organization
+	* @return users belonging to the organization
+	* @throws PortalException if the current user did not have permission to
+	view organization assignments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.UserSoap[] getOrganizationUsers(
+		long organizationId) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.User> returnValue = UserServiceUtil.getOrganizationUsers(organizationId);
+
+			return com.liferay.portal.model.UserSoap.toSoapModels(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -756,6 +830,20 @@ public class UserServiceSoap {
 					screenName);
 
 			return com.liferay.portal.model.UserSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.UserSoap[] getUserGroupUsers(
+		long userGroupId) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.User> returnValue = UserServiceUtil.getUserGroupUsers(userGroupId);
+
+			return com.liferay.portal.model.UserSoap.toSoapModels(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -925,6 +1013,27 @@ public class UserServiceSoap {
 		throws RemoteException {
 		try {
 			UserServiceUtil.setUserGroupUsers(userGroupId, userIds);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Removes the users from the teams of a group.
+	*
+	* @param groupId the primary key of the group
+	* @param userIds the primary keys of the users
+	* @throws PortalException if the current user did not have permission to
+	modify user group assignments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void unsetGroupTeamsUsers(long groupId, long[] userIds)
+		throws RemoteException {
+		try {
+			UserServiceUtil.unsetGroupTeamsUsers(groupId, userIds);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

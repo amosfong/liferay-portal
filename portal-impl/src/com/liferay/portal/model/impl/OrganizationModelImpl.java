@@ -100,6 +100,10 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 	 * @return the normal model instance
 	 */
 	public static Organization toModel(OrganizationSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Organization model = new OrganizationImpl();
 
 		model.setOrganizationId(soapModel.getOrganizationId());
@@ -124,6 +128,10 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 	 * @return the normal model instances
 	 */
 	public static List<Organization> toModels(OrganizationSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Organization> models = new ArrayList<Organization>(soapModels.length);
 
 		for (OrganizationSoap soapModel : soapModels) {
@@ -429,17 +437,6 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 	}
 
 	@Override
-	public Organization toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Organization)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Organization.class.getName(), getPrimaryKey());
@@ -450,6 +447,17 @@ public class OrganizationModelImpl extends BaseModelImpl<Organization>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Organization toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Organization)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

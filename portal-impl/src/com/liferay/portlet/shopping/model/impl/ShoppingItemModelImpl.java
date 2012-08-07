@@ -131,6 +131,10 @@ public class ShoppingItemModelImpl extends BaseModelImpl<ShoppingItem>
 	 * @return the normal model instance
 	 */
 	public static ShoppingItem toModel(ShoppingItemSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		ShoppingItem model = new ShoppingItemImpl();
 
 		model.setItemId(soapModel.getItemId());
@@ -178,6 +182,10 @@ public class ShoppingItemModelImpl extends BaseModelImpl<ShoppingItem>
 	 * @return the normal model instances
 	 */
 	public static List<ShoppingItem> toModels(ShoppingItemSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<ShoppingItem> models = new ArrayList<ShoppingItem>(soapModels.length);
 
 		for (ShoppingItemSoap soapModel : soapModels) {
@@ -951,17 +959,6 @@ public class ShoppingItemModelImpl extends BaseModelImpl<ShoppingItem>
 	}
 
 	@Override
-	public ShoppingItem toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (ShoppingItem)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			ShoppingItem.class.getName(), getPrimaryKey());
@@ -972,6 +969,17 @@ public class ShoppingItemModelImpl extends BaseModelImpl<ShoppingItem>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public ShoppingItem toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (ShoppingItem)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

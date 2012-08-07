@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.microsofttranslator.MicrosoftTranslatorException;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.NumericalStringComparator;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -109,6 +110,8 @@ public class LangBuilder {
 		// Locales that are not invoked by _createProperties should still be
 		// rewritten to use the rignt line separator
 
+		_orderProperties(
+			new File(_langDir + "/" + _langFile + "_en_AU.properties"));
 		_orderProperties(
 			new File(_langDir + "/" + _langFile + "_en_GB.properties"));
 		_orderProperties(
@@ -468,7 +471,8 @@ public class LangBuilder {
 		UnsyncBufferedWriter unsyncBufferedWriter = new UnsyncBufferedWriter(
 			new FileWriter(propertiesFile));
 
-		Set<String> messages = new TreeSet<String>();
+		Set<String> messages = new TreeSet<String>(
+			new NumericalStringComparator(true, true));
 
 		boolean begin = false;
 		boolean firstLine = true;

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -131,6 +132,10 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 	 * @return the normal model instance
 	 */
 	public static Layout toModel(LayoutSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Layout model = new LayoutImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -173,6 +178,10 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 	 * @return the normal model instances
 	 */
 	public static List<Layout> toModels(LayoutSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Layout> models = new ArrayList<Layout>(soapModels.length);
 
 		for (LayoutSoap soapModel : soapModels) {
@@ -1277,17 +1286,6 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 	}
 
 	@Override
-	public Layout toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Layout)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Layout.class.getName(), getPrimaryKey());
@@ -1298,6 +1296,32 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setName(getName(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setTitle(getTitle(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setDescription(getDescription(defaultImportLocale),
+			defaultImportLocale, defaultImportLocale);
+		setKeywords(getKeywords(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setRobots(getRobots(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+	}
+
+	@Override
+	public Layout toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Layout)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

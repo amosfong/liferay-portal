@@ -27,6 +27,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
 
@@ -77,6 +78,20 @@ public class DLFolderTrashRenderer extends BaseTrashRenderer {
 				DLFileEntry.class.getName());
 
 		return assetRendererFactory.getPortletId();
+	}
+
+	@Override
+	public String getRestorePath(RenderRequest renderRequest) {
+		DLFolder dlFolder = (DLFolder)_folder.getModel();
+
+		if ((dlFolder != null) && dlFolder.isInTrashFolder()) {
+			renderRequest.setAttribute(
+				WebKeys.DOCUMENT_LIBRARY_FOLDER, _folder);
+
+			return "/html/portlet/document_library/trash/folder_restore.jsp";
+		}
+
+		return null;
 	}
 
 	public String getSummary(Locale locale) {

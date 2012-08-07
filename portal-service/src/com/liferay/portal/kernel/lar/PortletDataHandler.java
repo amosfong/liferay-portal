@@ -66,6 +66,14 @@ public interface PortletDataHandler {
 		throws PortletDataException;
 
 	/**
+	 * Returns an array of the portlet preferences that reference data. These
+	 * preferences should only be updated if the referenced data is imported.
+	 *
+	 * @return A String array
+	 */
+	public String[] getDataPortletPreferences();
+
+	/**
 	 * Returns an array of the controls defined for this data handler. These
 	 * controls enable the developer to create fine grained controls over export
 	 * behavior. The controls are rendered in the export UI.
@@ -141,6 +149,8 @@ public interface PortletDataHandler {
 	public boolean isAlwaysExportable();
 
 	public boolean isAlwaysStaged();
+
+	public boolean isDataLocalized();
 
 	/**
 	 * Returns whether the data exported by this handler should be included by

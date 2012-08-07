@@ -19,6 +19,7 @@ import com.liferay.portal.LARFileException;
 import com.liferay.portal.LARTypeException;
 import com.liferay.portal.LayoutImportException;
 import com.liferay.portal.LayoutPrototypeException;
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.NoSuchLayoutException;
 import com.liferay.portal.NoSuchLayoutPrototypeException;
 import com.liferay.portal.NoSuchLayoutSetPrototypeException;
@@ -26,6 +27,7 @@ import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lar.ImportExportThreadLocal;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
@@ -339,7 +341,7 @@ public class LayoutImporter {
 					"portal build number " + buildNumber);
 		}
 
-		// Type compatibility
+		// Type
 
 		String larType = headerElement.attributeValue("type");
 
@@ -349,6 +351,27 @@ public class LayoutImporter {
 
 			throw new LARTypeException(
 				"Invalid type of LAR file (" + larType + ")");
+		}
+
+		// Available locales
+
+		Locale[] sourceAvailableLocales = LocaleUtil.fromLanguageIds(
+			StringUtil.split(
+				headerElement.attributeValue("available-locales")));
+
+		Locale[] targetAvailableLocales = LanguageUtil.getAvailableLocales();
+
+		for (Locale sourceAvailableLocale : sourceAvailableLocales) {
+			if (!ArrayUtil.contains(
+					targetAvailableLocales, sourceAvailableLocale)) {
+
+				LocaleException le = new LocaleException();
+
+				le.setSourceAvailableLocales(sourceAvailableLocales);
+				le.setTargetAvailableLocales(targetAvailableLocales);
+
+				throw le;
+			}
 		}
 
 		// Layout prototypes validity
@@ -677,8 +700,12 @@ public class LayoutImporter {
 
 			long portletPreferencesGroupId = groupId;
 
-			try {
+			Element portletDataElement = portletElement.element("portlet-data");
 
+			boolean importData =
+				importPortletData && (portletDataElement != null);
+
+			try {
 				if ((layout != null) && !group.isCompany()) {
 					portletPreferencesGroupId = layout.getGroupId();
 				}
@@ -689,14 +716,11 @@ public class LayoutImporter {
 					portletDataContext, layoutSet.getCompanyId(),
 					portletPreferencesGroupId, layout, null, portletElement,
 					importPortletSetup, importPortletArchivedSetups,
-					importPortletUserPreferences, false);
+					importPortletUserPreferences, false, importData);
 
 				// Portlet data
 
-				Element portletDataElement = portletElement.element(
-					"portlet-data");
-
-				if (importPortletData && (portletDataElement != null)) {
+				if (importData) {
 					_portletImporter.importPortletData(
 						portletDataContext, portletId, plid,
 						portletDataElement);
@@ -721,7 +745,7 @@ public class LayoutImporter {
 				portletDataContext, layoutSet.getCompanyId(), groupId, null,
 				null, portletElement, importPortletSetup,
 				importPortletArchivedSetups, importPortletUserPreferences,
-				false);
+				false, importData);
 		}
 
 		if (importPermissions) {

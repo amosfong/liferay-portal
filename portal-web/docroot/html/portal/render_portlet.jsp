@@ -57,8 +57,20 @@ PortletPreferencesIds portletPreferencesIds = PortletPreferencesFactoryUtil.getP
 
 PortletPreferences portletPreferences = null;
 
+Group group = layout.getGroup();
+
 if (allowAddPortletDefaultResource) {
 	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
+
+	String scopeLayoutUuid = portletPreferences.getValue("lfrScopeLayoutUuid", null);
+
+	if (Validator.isNotNull(scopeLayoutUuid)) {
+		Layout scopeLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(scopeLayoutUuid, group.getGroupId());
+
+		portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, scopeLayout, portletId);
+
+		portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
+	}
 }
 else {
 	portletPreferences = PortletPreferencesLocalServiceUtil.getStrictPreferences(portletPreferencesIds);
@@ -145,9 +157,9 @@ HttpServletRequest originalRequest = PortalUtil.getOriginalServletRequest(reques
 
 RenderRequestImpl renderRequestImpl = RenderRequestFactory.create(originalRequest, portlet, invokerPortlet, portletCtx, windowState, portletMode, portletPreferences, plid);
 
-StringServletResponse stringResponse = new StringServletResponse(response);
+BufferCacheServletResponse bufferCacheServletResponse = new BufferCacheServletResponse(response);
 
-RenderResponseImpl renderResponseImpl = RenderResponseFactory.create(renderRequestImpl, stringResponse, portletId, company.getCompanyId(), plid);
+RenderResponseImpl renderResponseImpl = RenderResponseFactory.create(renderRequestImpl, bufferCacheServletResponse, portletId, company.getCompanyId(), plid);
 
 if (stateMin) {
 	renderResponseImpl.setUseDefaultTemplate(true);
@@ -193,8 +205,6 @@ Boolean portletParallelRender = (Boolean)request.getAttribute(WebKeys.PORTLET_PA
 if ((portletParallelRender != null) && (portletParallelRender.booleanValue() == false)) {
 	showRefreshIcon = false;
 }
-
-Group group = layout.getGroup();
 
 if (!portletId.equals(PortletKeys.PORTLET_CONFIGURATION)) {
 	if ((!group.hasStagingGroup() || group.isStagingGroup()) &&
@@ -397,6 +407,12 @@ portletDisplay.setPortletSetup(portletSetup);
 String customCSSClassName = PortletConfigurationUtil.getPortletCustomCSSClassName(portletSetup);
 
 portletDisplay.setCustomCSSClassName(customCSSClassName);
+
+// Portlet focused
+
+boolean focused = portletId.equals(originalRequest.getParameter("p_p_id"));
+
+portletDisplay.setFocused(focused);
 
 // Portlet icon
 
@@ -746,7 +762,7 @@ if (portlet.isActive() && portlet.isReady() && access && supportsMimeType && (in
 			request.setAttribute(WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, portletVisibility);
 		}
 
-		renderResponseImpl.transferHeaders(stringResponse);
+		renderResponseImpl.transferHeaders(bufferCacheServletResponse);
 	}
 	catch (UnavailableException ue) {
 		portletException = true;
@@ -919,7 +935,7 @@ if ((layout.isTypePanel() || layout.isTypeControlPanel()) && !portletDisplay.get
 			}
 			else {
 				if (useDefaultTemplate) {
-					renderRequestImpl.setAttribute(WebKeys.PORTLET_CONTENT, stringResponse.getString());
+					renderRequestImpl.setAttribute(WebKeys.PORTLET_CONTENT, bufferCacheServletResponse.getString());
 		%>
 
 					<tiles:insert flush="false" template='<%= StrutsUtil.TEXT_HTML_DIR + "/common/themes/portlet.jsp" %>'>
@@ -929,12 +945,12 @@ if ((layout.isTypePanel() || layout.isTypeControlPanel()) && !portletDisplay.get
 		<%
 				}
 				else {
-					stringResponse.writeTo(pageContext.getOut());
+					pageContext.getOut().write(bufferCacheServletResponse.getString());
 				}
 			}
 		}
 		else {
-			renderRequestImpl.setAttribute(WebKeys.PORTLET_CONTENT, stringResponse.getString());
+			renderRequestImpl.setAttribute(WebKeys.PORTLET_CONTENT, bufferCacheServletResponse.getString());
 
 			String portletContent = StringPool.BLANK;
 
@@ -1010,18 +1026,18 @@ else {
 if (themeDisplay.isStatePopUp()) {
 	String refreshPortletId = null;
 
-	if ((refreshPortletId = (String)SessionMessages.get(renderRequestImpl, portletConfig.getPortletName() + SessionMessages.KEY_SUFFIX_REFRESH_PORTLET)) != null) {
+	if ((refreshPortletId = (String)SessionMessages.get(renderRequestImpl, portletId + SessionMessages.KEY_SUFFIX_REFRESH_PORTLET)) != null) {
 		if (Validator.isNull(refreshPortletId) && (portletResourcePortlet != null)) {
 			refreshPortletId = portletResourcePortlet.getPortletId();
 		}
 
-		Map<String, String> refreshPortletData = (Map<String, String>)SessionMessages.get(renderRequestImpl, portletConfig.getPortletName() + SessionMessages.KEY_SUFFIX_REFRESH_PORTLET_DATA);
+		Map<String, String> refreshPortletData = (Map<String, String>)SessionMessages.get(renderRequestImpl, portletId + SessionMessages.KEY_SUFFIX_REFRESH_PORTLET_DATA);
 %>
 
 		<aui:script position="inline" use="aui-base">
 			if (window.parent) {
 				var data = {
-					portletAjaxable: <%= !((portletResourcePortlet != null && !portletResourcePortlet.isAjaxable()) || SessionMessages.contains(renderRequestImpl, portletConfig.getPortletName() + SessionMessages.KEY_SUFFIX_PORTLET_NOT_AJAXABLE)) %>
+					portletAjaxable: <%= !((portletResourcePortlet != null && !portletResourcePortlet.isAjaxable()) || SessionMessages.contains(renderRequestImpl, portletId + SessionMessages.KEY_SUFFIX_PORTLET_NOT_AJAXABLE)) %>
 
 					<c:if test="<%= (refreshPortletData != null) && !refreshPortletData.isEmpty() %>">
 
@@ -1048,7 +1064,7 @@ if (themeDisplay.isStatePopUp()) {
 
 	String closeRedirect = null;
 
-	if ((closeRedirect = (String)SessionMessages.get(renderRequestImpl, portletConfig.getPortletName() + SessionMessages.KEY_SUFFIX_CLOSE_REDIRECT)) != null) {
+	if ((closeRedirect = (String)SessionMessages.get(renderRequestImpl, portletId + SessionMessages.KEY_SUFFIX_CLOSE_REDIRECT)) != null) {
 %>
 
 		<aui:script use="aui-base">

@@ -102,6 +102,10 @@ public class DLFileEntryTypeModelImpl extends BaseModelImpl<DLFileEntryType>
 	 * @return the normal model instance
 	 */
 	public static DLFileEntryType toModel(DLFileEntryTypeSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		DLFileEntryType model = new DLFileEntryTypeImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -126,6 +130,10 @@ public class DLFileEntryTypeModelImpl extends BaseModelImpl<DLFileEntryType>
 	 */
 	public static List<DLFileEntryType> toModels(
 		DLFileEntryTypeSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<DLFileEntryType> models = new ArrayList<DLFileEntryType>(soapModels.length);
 
 		for (DLFileEntryTypeSoap soapModel : soapModels) {
@@ -435,17 +443,6 @@ public class DLFileEntryTypeModelImpl extends BaseModelImpl<DLFileEntryType>
 	}
 
 	@Override
-	public DLFileEntryType toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (DLFileEntryType)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			DLFileEntryType.class.getName(), getPrimaryKey());
@@ -456,6 +453,17 @@ public class DLFileEntryTypeModelImpl extends BaseModelImpl<DLFileEntryType>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public DLFileEntryType toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (DLFileEntryType)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

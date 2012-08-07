@@ -26,8 +26,6 @@ String typeSelection = ParamUtil.getString(request, "typeSelection", StringPool.
 AssetRendererFactory rendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(typeSelection);
 
 List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<AssetRendererFactory>();
-
-Group scopeGroup = themeDisplay.getScopeGroup();
 %>
 
 <liferay-portlet:actionURL portletConfiguration="true" var="configurationActionURL" />
@@ -69,7 +67,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 			Set<Group> groups = new HashSet<Group>();
 
 			groups.add(company.getGroup());
-			groups.add(scopeGroup);
+			groups.add(themeDisplay.getScopeGroup());
 
 			for (Layout curLayout : LayoutLocalServiceUtil.getLayouts(layout.getGroupId(), layout.isPrivateLayout())) {
 				if (curLayout.hasScopeGroup()) {
@@ -324,11 +322,9 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 			<c:when test='<%= selectionStyle.equals("dynamic") %>'>
 				<liferay-ui:panel-container extended="<%= true %>" id="assetPublisherDynamicSelectionStylePanelContainer" persistState="<%= true %>">
 					<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="assetPublisherSourcePanel" persistState="<%= true %>" title="source">
-						<c:if test="<%= !rootPortletId.equals(PortletKeys.RELATED_ASSETS) %>">
-							<aui:fieldset label="scope">
-								<%= selectScope %>
-							</aui:fieldset>
-						</c:if>
+						<aui:fieldset cssClass='<%= rootPortletId.equals(PortletKeys.RELATED_ASSETS) ? "aui-helper-hidden" : "" %>' label="scope">
+							<%= selectScope %>
+						</aui:fieldset>
 
 						<aui:fieldset label="asset-entry-type">
 
@@ -360,7 +356,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 
 									<%
 									for (long classNameId : availableClassNameIdsSet) {
-										ClassName className = ClassNameServiceUtil.getClassName(classNameId);
+										ClassName className = ClassNameLocalServiceUtil.getClassName(classNameId);
 
 										if (Arrays.binarySearch(classNameIds, classNameId) < 0) {
 											typesRightList.add(new KeyValuePair(String.valueOf(classNameId), ResourceActionsUtil.getModelResource(locale, className.getValue())));
@@ -414,7 +410,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 								List<KeyValuePair> subTypesLeftList = new ArrayList<KeyValuePair>();
 
 								for (long subTypeId : assetSelectedClassTypeIds) {
-									subTypesLeftList.add(new KeyValuePair(String.valueOf(subTypeId), assetAvailableClassTypes.get(subTypeId)));
+									subTypesLeftList.add(new KeyValuePair(String.valueOf(subTypeId), HtmlUtil.escape(assetAvailableClassTypes.get(subTypeId))));
 								}
 
 								Arrays.sort(assetSelectedClassTypeIds);
@@ -434,13 +430,13 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 									<optgroup label="<liferay-ui:message key="subtype" />">
 
 										<%
-										for(Long classTypeId : assetAvailableClassTypes.keySet()) {
+										for (Long classTypeId : assetAvailableClassTypes.keySet()) {
 											if (Arrays.binarySearch(assetSelectedClassTypeIds, classTypeId) < 0) {
-												subTypesRightList.add(new KeyValuePair(String.valueOf(classTypeId), assetAvailableClassTypes.get(classTypeId)));
+												subTypesRightList.add(new KeyValuePair(String.valueOf(classTypeId), HtmlUtil.escape(assetAvailableClassTypes.get(classTypeId))));
 											}
 										%>
 
-											<aui:option label="<%= assetAvailableClassTypes.get(classTypeId) %>" selected="<%= !anyAssetSubType && (assetSelectedClassTypeIds.length == 1) && (classTypeId.equals(assetSelectedClassTypeIds[0])) %>" value="<%= classTypeId %>" />
+											<aui:option label="<%= HtmlUtil.escapeAttribute(assetAvailableClassTypes.get(classTypeId)) %>" selected="<%= !anyAssetSubType && (assetSelectedClassTypeIds.length == 1) && (classTypeId.equals(assetSelectedClassTypeIds[0])) %>" value="<%= classTypeId %>" />
 
 										<%
 										}
@@ -567,6 +563,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 									<aui:option label="expiration-date" selected='<%= orderByColumn1.equals("expirationDate") %>' value="expirationDate" />
 									<aui:option label="priority" selected='<%= orderByColumn1.equals("priority") %>'><liferay-ui:message key="priority" /></aui:option>
 									<aui:option label="view-count" selected='<%= orderByColumn1.equals("viewCount") %>' value="viewCount" />
+									<aui:option label="ratings" selected='<%= orderByColumn1.equals("ratings") %>'><liferay-ui:message key="ratings" /></aui:option>
 								</aui:select>
 
 								<aui:select inlineField="<%= true %>" label="" name="preferences--orderByType1--">
@@ -584,6 +581,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 									<aui:option label="expiration-date" selected='<%= orderByColumn2.equals("expirationDate") %>' value="expirationDate" />
 									<aui:option label="priority" selected='<%= orderByColumn2.equals("priority") %>'><liferay-ui:message key="priority" /></aui:option>
 									<aui:option label="view-count" selected='<%= orderByColumn2.equals("viewCount") %>' value="viewCount" />
+									<aui:option label="ratings" selected='<%= orderByColumn1.equals("ratings") %>'><liferay-ui:message key="ratings" /></aui:option>
 								</aui:select>
 
 								<aui:select inlineField="<%= true %>" label="" name="preferences--orderByType2--">

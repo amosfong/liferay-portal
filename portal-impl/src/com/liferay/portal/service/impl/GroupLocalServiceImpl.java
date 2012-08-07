@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Account;
 import com.liferay.portal.model.Company;
@@ -81,7 +82,6 @@ import com.liferay.portal.util.comparator.GroupNameComparator;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.messageboards.model.MBCategoryConstants;
-import com.liferay.util.UniqueList;
 
 import java.io.File;
 
@@ -1962,7 +1962,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		assetEntryLocalService.updateEntry(
 			userId, companyGroup.getGroupId(), Group.class.getName(),
 			group.getGroupId(), null, 0, assetCategoryIds, assetTagNames, false,
-			null, null, null, null, null, group.getDescriptiveName(),
+			null, null, null, null, group.getDescriptiveName(),
 			group.getDescription(), null, null, null, 0, 0, null, false);
 	}
 
@@ -2370,8 +2370,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				name, StringPool.PERCENT, StringPool.BLANK);
 
 			if (companyName.indexOf(name) != -1) {
-				realName = StringPool.PERCENT + GroupConstants.GUEST +
-					StringPool.PERCENT;
+				realName =
+					StringPool.PERCENT + GroupConstants.GUEST +
+						StringPool.PERCENT;
 			}
 		}
 		catch (PortalException pe) {

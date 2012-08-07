@@ -14,10 +14,12 @@
 
 package com.liferay.portlet.journal.service.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.NoSuchImageException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
@@ -28,6 +30,7 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -117,8 +120,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.portlet.PortletPreferences;
 
@@ -157,7 +158,7 @@ public class JournalArticleLocalServiceImpl
 		Date displayDate = PortalUtil.getDate(
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, user.getTimeZone(),
-			new ArticleDisplayDateException());
+			ArticleDisplayDateException.class);
 
 		Date expirationDate = null;
 
@@ -165,7 +166,7 @@ public class JournalArticleLocalServiceImpl
 			expirationDate = PortalUtil.getDate(
 				expirationDateMonth, expirationDateDay, expirationDateYear,
 				expirationDateHour, expirationDateMinute, user.getTimeZone(),
-				new ArticleExpirationDateException());
+				ArticleExpirationDateException.class);
 		}
 
 		Date reviewDate = null;
@@ -174,7 +175,7 @@ public class JournalArticleLocalServiceImpl
 			reviewDate = PortalUtil.getDate(
 				reviewDateMonth, reviewDateDay, reviewDateYear, reviewDateHour,
 				reviewDateMinute, user.getTimeZone(),
-				new ArticleReviewDateException());
+				ArticleReviewDateException.class);
 		}
 
 		byte[] smallImageBytes = null;
@@ -409,7 +410,8 @@ public class JournalArticleLocalServiceImpl
 
 		List<JournalArticle> articles =
 			journalArticleFinder.findByExpirationDate(
-				0, WorkflowConstants.STATUS_APPROVED, now);
+				0, WorkflowConstants.STATUS_APPROVED,
+				new Date(now.getTime() + _JOURNAL_ARTICLE_CHECK_INTERVAL));
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Expiring " + articles.size() + " articles");
@@ -418,15 +420,25 @@ public class JournalArticleLocalServiceImpl
 		Set<Long> companyIds = new HashSet<Long>();
 
 		for (JournalArticle article : articles) {
-			article.setStatus(WorkflowConstants.STATUS_EXPIRED);
+			if (PropsValues.JOURNAL_ARTICLE_EXPIRE_ALL_VERSIONS) {
+				List<JournalArticle> currentArticles =
+					journalArticlePersistence.findByG_A(
+						article.getGroupId(), article.getArticleId(),
+						QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+						new ArticleVersionComparator(true));
 
-			journalArticlePersistence.update(article, false);
+				for (JournalArticle currentArticle : currentArticles) {
+					currentArticle.setExpirationDate(
+						article.getExpirationDate());
+					currentArticle.setStatus(WorkflowConstants.STATUS_EXPIRED);
 
-			if (article.isIndexable()) {
-				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-					JournalArticle.class);
+					journalArticlePersistence.update(currentArticle, false);
+				}
+			}
+			else {
+				article.setStatus(WorkflowConstants.STATUS_EXPIRED);
 
-				indexer.delete(article);
+				journalArticlePersistence.update(article, false);
 			}
 
 			updatePreviousApprovedArticle(article);
@@ -1979,7 +1991,7 @@ public class JournalArticleLocalServiceImpl
 		Date displayDate = PortalUtil.getDate(
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, user.getTimeZone(),
-			new ArticleDisplayDateException());
+			ArticleDisplayDateException.class);
 
 		Date expirationDate = null;
 
@@ -1987,7 +1999,7 @@ public class JournalArticleLocalServiceImpl
 			expirationDate = PortalUtil.getDate(
 				expirationDateMonth, expirationDateDay, expirationDateYear,
 				expirationDateHour, expirationDateMinute, user.getTimeZone(),
-				new ArticleExpirationDateException());
+				ArticleExpirationDateException.class);
 		}
 
 		Date now = new Date();
@@ -2004,7 +2016,7 @@ public class JournalArticleLocalServiceImpl
 			reviewDate = PortalUtil.getDate(
 				reviewDateMonth, reviewDateDay, reviewDateYear, reviewDateHour,
 				reviewDateMinute, user.getTimeZone(),
-				new ArticleReviewDateException());
+				ArticleReviewDateException.class);
 		}
 
 		byte[] smallImageBytes = null;
@@ -2233,6 +2245,12 @@ public class JournalArticleLocalServiceImpl
 			throw new ArticleVersionException();
 		}
 
+		boolean incrementVersion = false;
+
+		if (oldArticle.isApproved() || oldArticle.isExpired()) {
+			incrementVersion = true;
+		}
+
 		if (serviceContext != null) {
 			serviceContext.validateModifiedDate(
 				oldArticle, ArticleVersionException.class);
@@ -2242,7 +2260,7 @@ public class JournalArticleLocalServiceImpl
 
 		User user = userPersistence.findByPrimaryKey(oldArticle.getUserId());
 
-		if (!oldArticle.isDraft()) {
+		if (incrementVersion) {
 			double newVersion = MathUtil.format(oldVersion + 0.1, 1, 1);
 
 			long id = counterLocalService.increment();
@@ -2303,8 +2321,9 @@ public class JournalArticleLocalServiceImpl
 		article.setDescriptionMap(descriptionMap);
 
 		content = format(
-			user, groupId, articleId, version, !oldArticle.isDraft(), content,
-			oldArticle.getStructureId(), images);
+			user, groupId, articleId, article.getVersion(),
+			!oldArticle.isDraft(), content, oldArticle.getStructureId(),
+			images);
 
 		article.setContent(content);
 
@@ -2345,24 +2364,11 @@ public class JournalArticleLocalServiceImpl
 				userId, article.getGroupId(), JournalArticle.class.getName(),
 				article.getPrimaryKey(), article.getUuid(),
 				getClassTypeId(article), assetCategoryIds, assetTagNames, false,
-				null, null, article.getDisplayDate(),
-				article.getExpirationDate(), ContentTypes.TEXT_HTML,
-				article.getTitle(), article.getDescription(),
-				article.getDescription(), null, article.getLayoutUuid(), 0, 0,
-				null, false);
+				null, null, null, ContentTypes.TEXT_HTML, article.getTitle(),
+				article.getDescription(), article.getDescription(), null,
+				article.getLayoutUuid(), 0, 0, null, false);
 		}
 		else {
-
-			// Get the earliest display date and latest expiration date among
-			// all article versions
-
-			Date[] dateInterval = getDateInterval(
-				article.getGroupId(), article.getArticleId(),
-				article.getDisplayDate(), article.getExpirationDate());
-
-			Date displayDate = dateInterval[0];
-			Date expirationDate = dateInterval[1];
-
 			JournalArticleResource journalArticleResource =
 				journalArticleResourceLocalService.getArticleResource(
 					article.getResourcePrimKey());
@@ -2371,11 +2377,10 @@ public class JournalArticleLocalServiceImpl
 				userId, article.getGroupId(), JournalArticle.class.getName(),
 				journalArticleResource.getResourcePrimKey(),
 				journalArticleResource.getUuid(), getClassTypeId(article),
-				assetCategoryIds, assetTagNames, visible, null, null,
-				displayDate, expirationDate, ContentTypes.TEXT_HTML,
-				article.getTitle(), article.getDescription(),
-				article.getDescription(), null, article.getLayoutUuid(), 0, 0,
-				null, false);
+				assetCategoryIds, assetTagNames, visible, null, null, null,
+				ContentTypes.TEXT_HTML, article.getTitle(),
+				article.getDescription(), article.getDescription(), null,
+				article.getLayoutUuid(), 0, 0, null, false);
 		}
 
 		assetLinkLocalService.updateLinks(
@@ -2434,7 +2439,7 @@ public class JournalArticleLocalServiceImpl
 
 		journalArticlePersistence.update(article, false);
 
-		if (hasModifiedLatestApprovedVersion (
+		if (hasModifiedLatestApprovedVersion(
 				article.getGroupId(), article.getArticleId(),
 				article.getVersion())) {
 
@@ -2456,10 +2461,6 @@ public class JournalArticleLocalServiceImpl
 							JournalArticle.class.getName(),
 							article.getPrimaryKey());
 
-						Date displayDate = draftAssetEntry.getPublishDate();
-						Date expirationDate =
-							draftAssetEntry.getExpirationDate();
-
 						long[] assetCategoryIds =
 							draftAssetEntry.getCategoryIds();
 						String[] assetTagNames = draftAssetEntry.getTagNames();
@@ -2473,21 +2474,15 @@ public class JournalArticleLocalServiceImpl
 							ListUtil.toString(
 								assetLinks, AssetLink.ENTRY_ID2_ACCESSOR), 0L);
 
-						boolean visible = true;
-
-						if (article.getClassNameId() > 0) {
-							visible = false;
-						}
-
 						AssetEntry assetEntry =
 							assetEntryLocalService.updateEntry(
 								userId, article.getGroupId(),
 								JournalArticle.class.getName(),
 								article.getResourcePrimKey(), article.getUuid(),
 								getClassTypeId(article), assetCategoryIds,
-								assetTagNames, visible, null, null, displayDate,
-								expirationDate, ContentTypes.TEXT_HTML,
-								article.getTitle(), article.getDescription(),
+								assetTagNames, false, null, null, null,
+								ContentTypes.TEXT_HTML, article.getTitle(),
+								article.getDescription(),
 								article.getDescription(), null,
 								article.getLayoutUuid(), 0, 0, null, false);
 
@@ -2504,17 +2499,25 @@ public class JournalArticleLocalServiceImpl
 				}
 
 				if (article.getClassNameId() == 0) {
-					AssetEntry assetEntry =
-						assetEntryLocalService.updateVisible(
-							JournalArticle.class.getName(),
-							article.getResourcePrimKey(), true);
+
+					// Get the earliest display date and latest expiration date
+					// among all article versions
+
+					Date[] dateInterval = getDateInterval(
+						article.getGroupId(), article.getArticleId(),
+						article.getDisplayDate(), article.getExpirationDate());
+
+					Date displayDate = dateInterval[0];
+					Date expirationDate = dateInterval[1];
 
 					if (neverExpire) {
-						assetEntry.setExpirationDate(null);
-
-						assetEntryLocalService.updateAssetEntry(
-							assetEntry, false);
+						expirationDate = null;
 					}
+
+					assetEntryLocalService.updateEntry(
+						JournalArticle.class.getName(),
+						article.getResourcePrimKey(), displayDate,
+						expirationDate, true);
 				}
 
 				// Expando
@@ -3121,34 +3124,29 @@ public class JournalArticleLocalServiceImpl
 
 		String urlTitle = null;
 
-		if (isMatchesServiceContextUrlTitle(serviceContextUrlTitle)) {
+		if (Validator.isNotNull(serviceContextUrlTitle)) {
 			urlTitle = JournalUtil.getUrlTitle(id, serviceContextUrlTitle);
-
-			JournalArticle urlTitleArticle = null;
-
-			try {
-				urlTitleArticle = getArticleByUrlTitle(
-					serviceContext.getScopeGroupId(), urlTitle);
-			}
-			catch (NoSuchArticleException nsae) {
-			}
-
-			if ((urlTitleArticle != null) &&
-				!Validator.equals(
-					urlTitleArticle.getArticleId(), articleId)) {
-
-				urlTitle = getUniqueUrlTitle(
-					id, serviceContext.getScopeGroupId(), articleId, urlTitle);
-			}
 		}
 		else {
-			if (isMatchesServiceContextUrlTitle(oldUrlTitle)) {
-				urlTitle = oldUrlTitle;
-			}
-			else {
-				urlTitle = getUniqueUrlTitle(
-					id, serviceContext.getScopeGroupId(), articleId, title);
-			}
+			urlTitle = getUniqueUrlTitle(
+				id, serviceContext.getScopeGroupId(), articleId, title);
+		}
+
+		JournalArticle urlTitleArticle = null;
+
+		try {
+			urlTitleArticle = getArticleByUrlTitle(
+				serviceContext.getScopeGroupId(), urlTitle);
+		}
+		catch (NoSuchArticleException nsae) {
+		}
+
+		if ((urlTitleArticle != null) &&
+			!Validator.equals(
+				urlTitleArticle.getArticleId(), articleId)) {
+
+			urlTitle = getUniqueUrlTitle(
+				id, serviceContext.getScopeGroupId(), articleId, urlTitle);
 		}
 
 		return urlTitle;
@@ -3174,21 +3172,6 @@ public class JournalArticleLocalServiceImpl
 		catch (NoSuchArticleException nsae) {
 			return true;
 		}
-	}
-
-	protected boolean isMatchesServiceContextUrlTitle(String urlTitle) {
-		if (Validator.isNotNull(urlTitle) &&
-			Validator.isNotNull(PropsValues.JOURNAL_ARTICLE_URL_TITLE_REGEXP)) {
-
-			Pattern pattern = Pattern.compile(
-				PropsValues.JOURNAL_ARTICLE_URL_TITLE_REGEXP);
-
-			Matcher matcher = pattern.matcher(urlTitle);
-
-			return matcher.matches();
-		}
-
-		return false;
 	}
 
 	protected void notifySubscribers(
@@ -3422,6 +3405,24 @@ public class JournalArticleLocalServiceImpl
 				previousApprovedArticle = approvedArticles.get(1);
 			}
 
+			Date[] dateInterval = getDateInterval(
+				previousApprovedArticle.getGroupId(),
+				previousApprovedArticle.getArticleId(),
+				previousApprovedArticle.getDisplayDate(),
+				previousApprovedArticle.getExpirationDate());
+
+			Date displayDate = dateInterval[0];
+			Date expirationDate = dateInterval[1];
+
+			AssetEntry assetEntry = assetEntryLocalService.updateEntry(
+				JournalArticle.class.getName(), article.getResourcePrimKey(),
+				displayDate, expirationDate, true);
+
+			assetEntry.setModifiedDate(
+				previousApprovedArticle.getModifiedDate());
+
+			assetEntryPersistence.update(assetEntry, false);
+
 			if (article.isIndexable()) {
 				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 					JournalArticle.class);
@@ -3454,12 +3455,25 @@ public class JournalArticleLocalServiceImpl
 			String smallImageURL, File smallImageFile, byte[] smallImageBytes)
 		throws PortalException, SystemException {
 
-		Locale defaultLocale = LocaleUtil.fromLanguageId(
+		Locale articleDefaultLocale = LocaleUtil.fromLanguageId(
 			LocalizationUtil.getDefaultLocale(content));
+
+		Locale[] availableLocales = LanguageUtil.getAvailableLocales();
+
+		if (!ArrayUtil.contains(availableLocales, articleDefaultLocale)) {
+			LocaleException le = new LocaleException();
+
+			Locale[] sourceAvailableLocales = {articleDefaultLocale};
+
+			le.setSourceAvailableLocales(sourceAvailableLocales);
+			le.setTargetAvailableLocales(availableLocales);
+
+			throw le;
+		}
 
 		if ((classNameId == 0) &&
 			(titleMap.isEmpty() ||
-			 Validator.isNull(titleMap.get(defaultLocale)))) {
+			 Validator.isNull(titleMap.get(articleDefaultLocale)))) {
 
 			throw new ArticleTitleException();
 		}

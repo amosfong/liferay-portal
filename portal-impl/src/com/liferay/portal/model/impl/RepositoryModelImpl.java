@@ -105,6 +105,10 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 	 * @return the normal model instance
 	 */
 	public static Repository toModel(RepositorySoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Repository model = new RepositoryImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -132,6 +136,10 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 	 * @return the normal model instances
 	 */
 	public static List<Repository> toModels(RepositorySoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Repository> models = new ArrayList<Repository>(soapModels.length);
 
 		for (RepositorySoap soapModel : soapModels) {
@@ -499,17 +507,6 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 	}
 
 	@Override
-	public Repository toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Repository)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Repository.class.getName(), getPrimaryKey());
@@ -520,6 +517,17 @@ public class RepositoryModelImpl extends BaseModelImpl<Repository>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Repository toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Repository)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

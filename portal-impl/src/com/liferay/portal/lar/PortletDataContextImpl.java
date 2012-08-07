@@ -363,6 +363,18 @@ public class PortletDataContextImpl implements PortletDataContext {
 		_commentsMap.put(getPrimaryKeyString(className, classPK), messages);
 	}
 
+	public void addCompanyReference(Class<?> clazz, String key) {
+		List<String> keys = _companyReferences.get(clazz.getName());
+
+		if (keys == null) {
+			keys = new ArrayList<String>();
+
+			_companyReferences.put(clazz.getName(), keys);
+		}
+
+		keys.add(key);
+	}
+
 	public void addExpando(
 			Element element, String path, ClassedModel classedModel)
 		throws PortalException, SystemException {
@@ -798,6 +810,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public byte[] getZipEntryAsByteArray(String path) {
+		if (!isValidPath(path)) {
+			return null;
+		}
+
 		if (_portletDataContextListener != null) {
 			_portletDataContextListener.onGetZipEntry(path);
 		}
@@ -806,6 +822,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public InputStream getZipEntryAsInputStream(String path) {
+		if (!isValidPath(path)) {
+			return null;
+		}
+
 		if (_portletDataContextListener != null) {
 			_portletDataContextListener.onGetZipEntry(path);
 		}
@@ -818,6 +838,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public String getZipEntryAsString(String path) {
+		if (!isValidPath(path)) {
+			return null;
+		}
+
 		if (_portletDataContextListener != null) {
 			_portletDataContextListener.onGetZipEntry(path);
 		}
@@ -830,6 +854,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public List<String> getZipFolderEntries(String path) {
+		if (!isValidPath(path)) {
+			return null;
+		}
+
 		return getZipReader().getFolderEntries(path);
 	}
 
@@ -1131,6 +1159,16 @@ public class PortletDataContextImpl implements PortletDataContext {
 		}
 	}
 
+	public boolean isCompanyReference(Class<?> clazz, String key) {
+		List<String> keys = _companyReferences.get(clazz.getName());
+
+		if ((keys != null) && keys.contains(key)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean isDataStrategyMirror() {
 		if (_dataStrategy.equals(PortletDataHandlerKeys.DATA_STRATEGY_MIRROR) ||
 			_dataStrategy.equals(
@@ -1347,6 +1385,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	protected String getExpandoPath(String path) {
+		if (!isValidPath(path)) {
+			throw new IllegalArgumentException(
+				path + " is located outside of the lar");
+		}
+
 		int pos = path.lastIndexOf(".xml");
 
 		if (pos == -1) {
@@ -1412,6 +1455,14 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return true;
 	}
 
+	protected boolean isValidPath(String path) {
+		if ((path == null) || path.contains(StringPool.DOUBLE_PERIOD)) {
+			return false;
+		}
+
+		return true;
+	}
+
 	protected void validateDateRange(Date startDate, Date endDate)
 		throws PortletDataException {
 
@@ -1458,6 +1509,8 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private Map<String, List<MBMessage>> _commentsMap =
 		new HashMap<String, List<MBMessage>>();
 	private long _companyId;
+	private Map<String, List<String>> _companyReferences =
+		new HashMap<String, List<String>>();
 	private String _dataStrategy;
 	private Date _endDate;
 	private Map<String, List<ExpandoColumn>> _expandoColumnsMap =

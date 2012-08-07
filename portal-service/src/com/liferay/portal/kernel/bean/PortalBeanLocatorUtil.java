@@ -69,6 +69,14 @@ public class PortalBeanLocatorUtil {
 		if (beanLocator == null) {
 			_log.error("BeanLocator is null");
 
+			Thread.dumpStack();
+
+			if (_log.isDebugEnabled()) {
+				Exception e = new Exception();
+
+				_log.debug(e, e);
+			}
+
 			throw new BeanLocatorException("BeanLocator has not been set");
 		}
 

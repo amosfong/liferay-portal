@@ -42,6 +42,11 @@ import javax.portlet.PortletPreferences;
 public class DLDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 
 	@Override
+	public String[] getDataPortletPreferences() {
+		return new String[] {"rootFolderId"};
+	}
+
+	@Override
 	public PortletDataHandlerControl[] getExportControls() {
 		return new PortletDataHandlerControl[] {
 			_foldersAndDocuments, _shortcuts, _previewsAndThumbnails, _ranks
@@ -71,6 +76,11 @@ public class DLDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 				_NAMESPACE, "folders-and-documents", true,
 				DLPortletDataHandlerImpl.getMetadataControls())
 		};
+	}
+
+	@Override
+	public boolean isDataLocalized() {
+		return _DATA_LOCALIZED;
 	}
 
 	@Override
@@ -259,6 +269,8 @@ public class DLDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 
 		return portletPreferences;
 	}
+
+	private static final boolean _DATA_LOCALIZED = true;
 
 	private static final String _NAMESPACE = "document_library";
 

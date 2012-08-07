@@ -29,13 +29,13 @@ import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
 import com.liferay.portal.security.pacl.PACLClassUtil;
 import com.liferay.portal.servlet.DirectServletRegistryImpl;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.util.UniqueList;
 
 import java.io.File;
 import java.io.FilePermission;
@@ -60,7 +60,14 @@ import sun.reflect.Reflection;
 public class FileChecker extends BaseChecker {
 
 	public void afterPropertiesSet() {
-		_rootDir = WebDirDetector.getRootDir(getClassLoader());
+		try {
+			_rootDir = WebDirDetector.getRootDir(getClassLoader());
+		}
+		catch (Exception e) {
+
+			// This means the WAR is probably not exploded
+
+		}
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Root directory " + _rootDir);
@@ -334,7 +341,9 @@ public class FileChecker extends BaseChecker {
 
 		// Plugin
 
-		paths.add(_rootDir + "-");
+		if (_rootDir != null) {
+			paths.add(_rootDir + "-");
+		}
 
 		// Portal
 

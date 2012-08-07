@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.journal.model.impl;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
@@ -112,6 +113,10 @@ public class JournalStructureModelImpl extends BaseModelImpl<JournalStructure>
 	 * @return the normal model instance
 	 */
 	public static JournalStructure toModel(JournalStructureSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		JournalStructure model = new JournalStructureImpl();
 
 		model.setUuid(soapModel.getUuid());
@@ -139,6 +144,10 @@ public class JournalStructureModelImpl extends BaseModelImpl<JournalStructure>
 	 */
 	public static List<JournalStructure> toModels(
 		JournalStructureSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<JournalStructure> models = new ArrayList<JournalStructure>(soapModels.length);
 
 		for (JournalStructureSoap soapModel : soapModels) {
@@ -643,17 +652,6 @@ public class JournalStructureModelImpl extends BaseModelImpl<JournalStructure>
 	}
 
 	@Override
-	public JournalStructure toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (JournalStructure)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			JournalStructure.class.getName(), getPrimaryKey());
@@ -664,6 +662,26 @@ public class JournalStructureModelImpl extends BaseModelImpl<JournalStructure>
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@SuppressWarnings("unused")
+	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
+		throws LocaleException {
+		setName(getName(defaultImportLocale), defaultImportLocale,
+			defaultImportLocale);
+		setDescription(getDescription(defaultImportLocale),
+			defaultImportLocale, defaultImportLocale);
+	}
+
+	@Override
+	public JournalStructure toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (JournalStructure)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

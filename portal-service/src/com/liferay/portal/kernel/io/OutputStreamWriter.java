@@ -31,10 +31,14 @@ import java.nio.charset.CharsetEncoder;
 public class OutputStreamWriter extends Writer {
 
 	public OutputStreamWriter(OutputStream outputStream) {
-		this(outputStream, StringPool.UTF8);
+		this(outputStream, StringPool.DEFAULT_CHARSET_NAME);
 	}
 
 	public OutputStreamWriter(OutputStream outputStream, String charsetName) {
+		if (charsetName == null) {
+			charsetName = StringPool.DEFAULT_CHARSET_NAME;
+		}
+
 		_outputStream = outputStream;
 		_charsetName = charsetName;
 		_charsetEncoder = CharsetEncoderUtil.getCharsetEncoder(charsetName);

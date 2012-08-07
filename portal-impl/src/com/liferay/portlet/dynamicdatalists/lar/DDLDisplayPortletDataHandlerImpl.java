@@ -39,8 +39,19 @@ import javax.portlet.PortletPreferences;
 public class DDLDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 
 	@Override
+	public String[] getDataPortletPreferences() {
+		return new String[] {
+			"recordSetId", "detailDDMTemplateId", "listDDMTemplateId"};
+	}
+
+	@Override
 	public boolean isAlwaysExportable() {
 		return _ALWAYS_EXPORTABLE;
+	}
+
+	@Override
+	public boolean isDataLocalized() {
+		return _DATA_LOCALIZED;
 	}
 
 	@Override
@@ -159,6 +170,8 @@ public class DDLDisplayPortletDataHandlerImpl extends BasePortletDataHandler {
 	}
 
 	private static final boolean _ALWAYS_EXPORTABLE = true;
+
+	private static final boolean _DATA_LOCALIZED = true;
 
 	private static Log _log = LogFactoryUtil.getLog(
 		DDLDisplayPortletDataHandlerImpl.class);

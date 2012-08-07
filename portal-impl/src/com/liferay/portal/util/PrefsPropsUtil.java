@@ -14,12 +14,13 @@
 
 package com.liferay.portal.util;
 
+import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.PortalPreferencesLocalServiceUtil;
+import com.liferay.portal.service.PortalPreferencesLocalService;
 import com.liferay.util.ContentUtil;
 
 import java.util.Enumeration;
@@ -247,7 +248,7 @@ public class PrefsPropsUtil {
 		long ownerId = companyId;
 		int ownerType = PortletKeys.PREFS_OWNER_TYPE_COMPANY;
 
-		return PortalPreferencesLocalServiceUtil.getPreferences(
+		return _portalPreferencesLocalService.getPreferences(
 			companyId, ownerId, ownerType);
 	}
 
@@ -525,5 +526,8 @@ public class PrefsPropsUtil {
 
 		return null;
 	}
+
+	@BeanReference(type = PortalPreferencesLocalService.class)
+	private static PortalPreferencesLocalService _portalPreferencesLocalService;
 
 }

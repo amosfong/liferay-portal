@@ -99,6 +99,10 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	 * @return the normal model instance
 	 */
 	public static Team toModel(TeamSoap soapModel) {
+		if (soapModel == null) {
+			return null;
+		}
+
 		Team model = new TeamImpl();
 
 		model.setTeamId(soapModel.getTeamId());
@@ -121,6 +125,10 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	 * @return the normal model instances
 	 */
 	public static List<Team> toModels(TeamSoap[] soapModels) {
+		if (soapModels == null) {
+			return null;
+		}
+
 		List<Team> models = new ArrayList<Team>(soapModels.length);
 
 		for (TeamSoap soapModel : soapModels) {
@@ -381,17 +389,6 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	}
 
 	@Override
-	public Team toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (Team)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
-		}
-
-		return _escapedModelProxy;
-	}
-
-	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return ExpandoBridgeFactoryUtil.getExpandoBridge(getCompanyId(),
 			Team.class.getName(), getPrimaryKey());
@@ -402,6 +399,17 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 		ExpandoBridge expandoBridge = getExpandoBridge();
 
 		expandoBridge.setAttributes(serviceContext);
+	}
+
+	@Override
+	public Team toEscapedModel() {
+		if (_escapedModelProxy == null) {
+			_escapedModelProxy = (Team)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelProxyInterfaces,
+					new AutoEscapeBeanHandler(this));
+		}
+
+		return _escapedModelProxy;
 	}
 
 	@Override

@@ -26,12 +26,12 @@ import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
+import com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.OpenSearch;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.URLEncoder;
-import com.liferay.portal.kernel.template.PortletDisplayTemplateHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ContextPathUtil;
@@ -66,6 +66,7 @@ import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.expando.model.CustomAttributesDisplay;
 import com.liferay.portlet.social.model.SocialActivityInterpreter;
 import com.liferay.portlet.social.model.SocialRequestInterpreter;
+import com.liferay.util.bridges.alloy.AlloyPortlet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -400,7 +401,9 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	@Override
 	public int compareTo(Portlet portlet) {
-		return getPortletId().compareTo(portlet.getPortletId());
+		String portletId = getPortletId();
+
+		return portletId.compareTo(portlet.getPortletId());
 	}
 
 	/**
@@ -413,7 +416,9 @@ public class PortletImpl extends PortletBaseImpl {
 	public boolean equals(Object obj) {
 		Portlet portlet = (Portlet)obj;
 
-		return getPortletId().equals(portlet.getPortletId());
+		String portletId = getPortletId();
+
+		return portletId.equals(portlet.getPortletId());
 	}
 
 	/**
@@ -511,7 +516,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the asset type instances of the portlet
 	 */
 	public List<AssetRendererFactory> getAssetRendererFactoryInstances() {
-		if (getAssetRendererFactoryClasses().isEmpty()) {
+		if (_assetRendererFactoryClasses.isEmpty()) {
 			return null;
 		}
 
@@ -537,7 +542,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the atom collection adapter instances of the portlet
 	 */
 	public List<AtomCollectionAdapter<?>> getAtomCollectionAdapterInstances() {
-		if (getAtomCollectionAdapterClasses().isEmpty()) {
+		if (_atomCollectionAdapterClasses.isEmpty()) {
 			return null;
 		}
 
@@ -695,7 +700,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the custom attribute display instances of the portlet
 	 */
 	public List<CustomAttributesDisplay> getCustomAttributesDisplayInstances() {
-		if (getCustomAttributesDisplayClasses().isEmpty()) {
+		if (_customAttributesDisplayClasses.isEmpty()) {
 			return null;
 		}
 
@@ -923,7 +928,9 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the indexer instances of the portlet
 	 */
 	public List<Indexer> getIndexerInstances() {
-		if (getIndexerClasses().isEmpty()) {
+		if (_indexerClasses.isEmpty() &&
+			!_portletClass.equals(AlloyPortlet.class.getName())) {
+
 			return Collections.emptyList();
 		}
 
@@ -1698,7 +1705,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the trash handler instances of the portlet
 	 */
 	public List<TrashHandler> getTrashHandlerInstances() {
-		if (getTrashHandlerClasses().isEmpty()) {
+		if (_trashHandlerClasses.isEmpty()) {
 			return null;
 		}
 
@@ -1757,6 +1764,16 @@ public class PortletImpl extends PortletBaseImpl {
 	 */
 	public boolean getUseDefaultTemplate() {
 		return _useDefaultTemplate;
+	}
+
+	/**
+	 * Returns the user ID of the portlet. This only applies when the portlet is
+	 * added by a user in a customizable layout.
+	 *
+	 * @return the user ID of the portlet
+	 */
+	public long getUserId() {
+		return PortletConstants.getUserId(getPortletId());
 	}
 
 	/**
@@ -1836,7 +1853,7 @@ public class PortletImpl extends PortletBaseImpl {
 	 * @return the workflow handler instances of the portlet
 	 */
 	public List<WorkflowHandler> getWorkflowHandlerInstances() {
-		if (getWorkflowHandlerClasses().isEmpty()) {
+		if (_workflowHandlerClasses.isEmpty()) {
 			return null;
 		}
 

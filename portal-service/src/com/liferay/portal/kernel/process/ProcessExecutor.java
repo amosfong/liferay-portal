@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,8 +91,7 @@ public class ProcessExecutor {
 			commands.addAll(arguments);
 			commands.add(ProcessExecutor.class.getName());
 
-			ProcessBuilder processBuilder = new ProcessBuilder(
-				commands.toArray(new String[commands.size()]));
+			ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
 			Process process = processBuilder.start();
 
@@ -272,6 +273,10 @@ public class ProcessExecutor {
 			}
 		}
 
+		public static ConcurrentMap<String, Object> getAttributes() {
+			return _attributes;
+		}
+
 		public static ProcessOutputStream getProcessOutputStream() {
 			return _processOutputStream;
 		}
@@ -296,6 +301,8 @@ public class ProcessExecutor {
 		private ProcessContext() {
 		}
 
+		private static ConcurrentMap<String, Object> _attributes =
+			new ConcurrentHashMap<String, Object>();
 		private static AtomicReference<HeartbeatThread>
 			_heartbeatThreadReference = new AtomicReference<HeartbeatThread>();
 		private static ProcessOutputStream _processOutputStream;

@@ -152,9 +152,13 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String JOURNAL_ARTICLE_GROUP_ID = "JOURNAL_ARTICLE_GROUP_ID";
 
+	public static final String JOURNAL_ARTICLES = "JOURNAL_ARTICLES";
+
 	public static final String JOURNAL_FEED = "JOURNAL_FEED";
 
 	public static final String JOURNAL_FOLDER = "JOURNAL_FOLDER";
+
+	public static final String JOURNAL_FOLDERS = "JOURNAL_FOLDERS";
 
 	public static final String JOURNAL_RECENT_ARTICLES = "JOURNAL_RECENT_ARTICLES";
 
@@ -322,7 +326,7 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String PORTLET_AJAX_RENDER = "PORTLET_AJAX_RENDER";
 
-	public static final String PORTLET_BREADCRUMBS = "PORTLET_BREADCRUMBS";
+	public static final String PORTLET_BREADCRUMBS = "LIFERAY_SHARED_PORTLET_BREADCRUMBS";
 
 	public static final String PORTLET_CATEGORY = "PORTLET_CATEGORY";
 
@@ -429,6 +433,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String TITLE = "TITLE";
 
 	public static final String TRANSLATOR_TRANSLATION = "TRANSLATOR_TRANSLATION";
+
+	public static final String TRASH_ENTRY = "TRASH_ENTRY";
 
 	public static final String TREE_GROUP_ID = "TREE_GROUP_ID";
 

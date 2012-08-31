@@ -44,6 +44,12 @@ if (showEditURL && (editPortletURL != null)) {
 
 	redirectURL.setParameter("struts_action", "/asset_publisher/add_asset_redirect");
 
+	String fullContentRedirect = (String)request.getAttribute("view.jsp-fullContentRedirect");
+
+	if (fullContentRedirect != null) {
+		redirectURL.setParameter("redirect", fullContentRedirect);
+	}
+
 	editPortletURL.setParameter("redirect", redirectURL.toString());
 	editPortletURL.setParameter("originalRedirect", redirectURL.toString());
 

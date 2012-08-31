@@ -568,6 +568,8 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @param  groupId the primary key of the group
 	 * @return <code>true</code> if the user is associated with the group;
 	 *         <code>false</code> otherwise
+	 * @throws PortalException if the current user did not have permission to
+	 *         view the user or group members
 	 * @throws SystemException if a system exception occurred
 	 */
 	public boolean hasUserGroup(long userId, long groupId)
@@ -623,6 +625,10 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			int start, int end)
 		throws PortalException, SystemException {
 
+		if (params == null) {
+			params = new String[0];
+		}
+
 		LinkedHashMap<String, Object> paramsObj = MapUtil.toLinkedHashMap(
 			params);
 
@@ -653,6 +659,10 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	public int searchCount(
 			long companyId, String name, String description, String[] params)
 		throws SystemException {
+
+		if (params == null) {
+			params = new String[0];
+		}
 
 		LinkedHashMap<String, Object> paramsObj = MapUtil.toLinkedHashMap(
 			params);

@@ -25,6 +25,8 @@ import com.liferay.portalweb.portal.dbupgrade.sampledata525.documentlibrary.Docu
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.expando.ExpandoTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.groups.GroupsTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.organizations.OrganizationsTestPlan;
+import com.liferay.portalweb.portal.dbupgrade.sampledata525.phone.PhoneTestPlan;
+import com.liferay.portalweb.portal.dbupgrade.sampledata525.polls.PollsTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.portletpermissions.PortletPermissionsTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.shopping.ShoppingTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.social.SocialTestPlan;
@@ -32,6 +34,7 @@ import com.liferay.portalweb.portal.dbupgrade.sampledata525.stagingcommunity.Sta
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.stagingorganization.StagingOrganizationTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.tags.TagsTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.webcontent.WebContentTestPlan;
+import com.liferay.portalweb.portal.dbupgrade.sampledata525.website.WebsiteTestPlan;
 import com.liferay.portalweb.portal.dbupgrade.sampledata525.wiki.WikiTestPlan;
 
 import junit.framework.Test;
@@ -55,12 +58,15 @@ public class SampleData525TestPlan extends BaseTestSuite {
 		testSuite.addTest(ExpandoTestPlan.suite());
 		testSuite.addTest(GroupsTestPlan.suite());
 		testSuite.addTest(OrganizationsTestPlan.suite());
+		testSuite.addTest(PhoneTestPlan.suite());
+		testSuite.addTest(PollsTestPlan.suite());
 		testSuite.addTest(PortletPermissionsTestPlan.suite());
 		testSuite.addTest(ShoppingTestPlan.suite());
 		testSuite.addTest(StagingCommunityTestPlan.suite());
 		testSuite.addTest(StagingOrganizationTestPlan.suite());
 		testSuite.addTest(TagsTestPlan.suite());
 		testSuite.addTest(WebContentTestPlan.suite());
+		testSuite.addTest(WebsiteTestPlan.suite());
 		testSuite.addTest(WikiTestPlan.suite());
 		testSuite.addTest(SocialTestPlan.suite());
 

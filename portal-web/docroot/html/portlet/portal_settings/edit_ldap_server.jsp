@@ -68,7 +68,7 @@ for (int i = 0 ; i < userMappingArray.length ; i++) {
 		continue;
 	}
 
-	String mapping[] = userMappingArray[i].split("=");
+	String[] mapping = userMappingArray[i].split("=");
 
 	if (mapping.length != 2) {
 		continue;
@@ -128,7 +128,7 @@ for (int i = 0 ; i < groupMappingArray.length ; i++) {
 		continue;
 	}
 
-	String mapping[] = groupMappingArray[i].split("=");
+	String[] mapping = groupMappingArray[i].split("=");
 
 	if (mapping.length != 2) {
 		continue;

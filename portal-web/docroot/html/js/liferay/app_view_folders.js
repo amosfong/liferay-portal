@@ -197,7 +197,7 @@ AUI.add(
 						instance._setButtons(data);
 						instance._setEntries(data);
 						instance._setFolders(data);
-						instance._setParentFolderTitle(data);
+						instance._setParentTitle(data);
 
 						WIN[instance.ns(STR_TOGGLE_ACTIONS_BUTTON)]();
 					},
@@ -596,15 +596,15 @@ AUI.add(
 						}
 					},
 
-					_setParentFolderTitle: function(content) {
+					_setParentTitle: function(content) {
 						var instance = this;
 
-						var parentFolderTitle = instance.one('#parentFolderTitle', content);
+						var parentTitle = instance.one('#parentTitle', content);
 
-						if (parentFolderTitle) {
-							var parentFolderTitleContainer = instance.byId('parentFolderTitleContainer');
+						if (parentTitle) {
+							var parentTitleContainer = instance.byId('parentTitleContainer');
 
-							parentFolderTitleContainer.setContent(parentFolderTitle);
+							parentTitleContainer.setContent(parentTitle);
 						}
 					},
 
@@ -616,35 +616,24 @@ AUI.add(
 						return (Lang.isString(value) || value instanceof A.Node);
 					},
 
-					_valueFolderContainer: function(value) {
+					_valueFolderContainer: function() {
 						var instance = this;
 
-						if (!Lang.isValue(value)) {
-							value = instance.byId(STR_FOLDER_CONTAINER);
-						}
-
-						return value;
+						return instance.byId(STR_FOLDER_CONTAINER);
 					},
 
-					_valueListView: function(value) {
+					_valueListView: function() {
 						var instance = this;
-
-						value = value || {};
 
 						var folderContainer = instance.get(STR_FOLDER_CONTAINER);
 
-						A.mix(
-							value,
-							{
-								boundingBox: formatSelectorNS(instance.NS, '#listViewContainer'),
-								contentBox: folderContainer,
-								cssClass: 'folder-display-style lfr-list-view-content',
-								itemSelector: '.folder a.browse-folder, .folder a.expand-folder',
-								srcNode: folderContainer
-							}
-						);
-
-						return value;
+						return {
+							boundingBox: formatSelectorNS(instance.NS, '#listViewContainer'),
+							contentBox: folderContainer,
+							cssClass: 'folder-display-style lfr-list-view-content',
+							itemSelector: '.folder a.browse-folder, .folder a.expand-folder',
+							srcNode: folderContainer
+						};
 					}
 				}
 			}

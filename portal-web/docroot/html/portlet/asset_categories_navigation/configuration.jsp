@@ -18,8 +18,6 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
-
-PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetCategory.class.getName());
 %>
 
 <liferay-portlet:actionURL portletConfiguration="true" var="configurationURL" />
@@ -87,11 +85,16 @@ PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemp
 		</div>
 
 		<div class="display-template">
+
+			<%
+			PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetCategory.class.getName());
+			%>
+
 			<liferay-ui:ddm-template-menu
 				classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
 				preferenceName="displayTemplate"
 				preferenceValue="<%= displayTemplate %>"
-				showDisplayStyle="<%= true %>"
+				showEmptyOption="<%= true %>"
 			/>
 
 			<liferay-ui:ddm-template-selector

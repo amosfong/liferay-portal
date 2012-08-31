@@ -23,28 +23,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewPortletTestMiscTest extends BaseTestCase {
 	public void testViewPortletTestMisc() throws Exception {
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Test Misc Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Test Misc Page",
 			RuntimeVariables.replace("Test Misc Page"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Portlet Request"),
 			selenium.getText("//div/div/h3[1]"));
 		assertEquals(RuntimeVariables.replace("Attribute Sharing"),
@@ -74,8 +55,6 @@ public class ViewPortletTestMiscTest extends BaseTestCase {
 			selenium.getText("//p[5]/a"));
 		assertTrue(selenium.isPartialText("//p[6]",
 				"TestSchedulerMessageListener.isReceived=PASSED"));
-		assertTrue(selenium.isPartialText("//p[6]",
-				"TestSchedulerUtil.isScheduledBeforeSpringInitialized=PASSED"));
 		assertTrue(selenium.isPartialText("//p[6]",
 				"TestSchedulerUtil.isReceivedBeforeSpringInitialzed=PASSED"));
 		assertEquals(RuntimeVariables.replace("Servlet Request"),

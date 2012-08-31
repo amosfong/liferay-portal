@@ -989,8 +989,20 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 		return _mbMessage.getBody(translate);
 	}
 
-	public com.liferay.portlet.messageboards.model.MBCategory getCategory() {
+	public com.liferay.portlet.messageboards.model.MBCategory getCategory()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _mbMessage.getCategory();
+	}
+
+	public java.lang.String getDeletedAttachmentsDir() {
+		return _mbMessage.getDeletedAttachmentsDir();
+	}
+
+	public java.lang.String[] getDeletedAttachmentsFiles()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbMessage.getDeletedAttachmentsFiles();
 	}
 
 	public com.liferay.portlet.messageboards.model.MBThread getThread()

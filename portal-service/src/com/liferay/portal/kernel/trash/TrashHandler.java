@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portlet.trash.model.TrashEntry;
 
+import javax.portlet.PortletRequest;
+
 /**
  * Represents the interface to manage the basic operations of the Recycle Bin.
  *
@@ -70,6 +72,8 @@ public interface TrashHandler {
 	 * Deletes all trash entries with the primary keys.
 	 *
 	 * @param  classPKs the primary keys of the entries to delete
+	 * @param  checkPermission whether to check permission before deleting each
+	 *         trash entry
 	 * @throws PortalException if an entry with the primary key could not be
 	 *         found
 	 * @throws SystemException if a system exception occurred
@@ -97,6 +101,12 @@ public interface TrashHandler {
 	 * @return the class name of the entry
 	 */
 	public String getClassName();
+
+	public String getRestoreLink(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException;
+
+	public String getRestoreMessage(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException;
 
 	/**
 	 * Returns the trash renderer associated to the trash entry.

@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portlet.login.util.LoginUtil;
 
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,8 +58,9 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Britt Courtney
  * @author Brian Wing Shun Chan
+ * @author Tomas Polesovsky
  */
-public class BasicAuthHeaderAutoLogin implements AutoLogin {
+public class BasicAuthHeaderAutoLogin implements AuthVerifier, AutoLogin {
 
 	public String[] login(
 			HttpServletRequest request, HttpServletResponse response)
@@ -124,7 +126,7 @@ public class BasicAuthHeaderAutoLogin implements AutoLogin {
 			}
 			catch (Exception e) {
 				if (_log.isWarnEnabled()) {
-					_log.warn(login + " is not a valid login");
+					_log.warn(login + " is not a valid login", e);
 				}
 			}
 
@@ -132,6 +134,30 @@ public class BasicAuthHeaderAutoLogin implements AutoLogin {
 		}
 		catch (Exception e) {
 			throw new AutoLoginException(e);
+		}
+	}
+
+	public AuthVerifierResult verify(
+			AccessControlContext accessControlContext, Properties properties)
+		throws AuthException {
+
+		try {
+			AuthVerifierResult authVerifierResult = new AuthVerifierResult();
+
+			String[] credentials = login(
+				accessControlContext.getRequest(),
+				accessControlContext.getResponse());
+
+			if (credentials != null) {
+				authVerifierResult.setPassword(credentials[1]);
+				authVerifierResult.setState(AuthVerifierResult.State.SUCCESS);
+				authVerifierResult.setUserId(Long.valueOf(credentials[0]));
+			}
+
+			return authVerifierResult;
+		}
+		catch (AutoLoginException e) {
+			throw new AuthException(e);
 		}
 	}
 

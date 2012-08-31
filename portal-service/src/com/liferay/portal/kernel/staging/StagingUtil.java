@@ -110,6 +110,9 @@ public class StagingUtil {
 			user, layoutSetBranchId, plid);
 	}
 
+	/**
+	 * @deprecated {@link #disableStaging(Group, ServiceContext)}
+	 */
 	public static void disableStaging(
 			Group scopeGroup, Group liveGroup, ServiceContext serviceContext)
 		throws Exception {
@@ -118,12 +121,31 @@ public class StagingUtil {
 	}
 
 	public static void disableStaging(
+			Group liveGroup, ServiceContext serviceContext)
+		throws Exception {
+
+		getStaging().disableStaging(liveGroup, serviceContext);
+	}
+
+	/**
+	 * @deprecated {@link #disableStaging(PortletRequest, Group,
+	 *             ServiceContext)}
+	 */
+	public static void disableStaging(
 			PortletRequest portletRequest, Group scopeGroup, Group liveGroup,
 			ServiceContext serviceContext)
 		throws Exception {
 
 		getStaging().disableStaging(
 			portletRequest, scopeGroup, liveGroup, serviceContext);
+	}
+
+	public static void disableStaging(
+			PortletRequest portletRequest, Group liveGroup,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		getStaging().disableStaging(portletRequest, liveGroup, serviceContext);
 	}
 
 	public static void enableLocalStaging(

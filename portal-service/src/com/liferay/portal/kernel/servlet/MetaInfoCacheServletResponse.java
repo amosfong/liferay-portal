@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +43,65 @@ import javax.servlet.http.HttpServletResponseWrapper;
  */
 public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
+	@SuppressWarnings("deprecation")
+	public static void finishResponse(
+			MetaData metaInfoDataBag, HttpServletResponse response)
+		throws IOException {
+
+		if (response.isCommitted()) {
+			return;
+		}
+
+		for (Map.Entry<String, Set<Header>> entry :
+				metaInfoDataBag._headers.entrySet()) {
+
+			String key = entry.getKey();
+
+			boolean first = true;
+
+			for (Header header : entry.getValue()) {
+				if (first) {
+					header.setToResponse(key, response);
+
+					first = false;
+				}
+				else {
+					header.addToResponse(key, response);
+				}
+			}
+		}
+
+		if (metaInfoDataBag._location != null) {
+			response.sendRedirect(metaInfoDataBag._location);
+		}
+		else if (metaInfoDataBag._error) {
+			response.sendError(
+				metaInfoDataBag._status, metaInfoDataBag._errorMessage);
+		}
+		else {
+			if (metaInfoDataBag._charsetName != null) {
+				response.setCharacterEncoding(metaInfoDataBag._charsetName);
+			}
+
+			if (metaInfoDataBag._contentLength != -1) {
+				response.setContentLength(metaInfoDataBag._contentLength);
+			}
+
+			if (metaInfoDataBag._contentType != null) {
+				response.setContentType(metaInfoDataBag._contentType);
+			}
+
+			if (metaInfoDataBag._locale != null) {
+				response.setLocale(metaInfoDataBag._locale);
+			}
+
+			if (metaInfoDataBag._status != SC_OK) {
+				response.setStatus(
+					metaInfoDataBag._status, metaInfoDataBag._statusMessage);
+			}
+		}
+	}
+
 	public MetaInfoCacheServletResponse(HttpServletResponse response) {
 		super(response);
 	}
@@ -53,12 +113,12 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		// containsHeader will not able to detect cookies with the correct
 		// header name.
 
-		Set<Header> values = _headers.get(HttpHeaders.SET_COOKIE);
+		Set<Header> values = _metaData._headers.get(HttpHeaders.SET_COOKIE);
 
 		if (values == null) {
 			values = new HashSet<Header>();
 
-			_headers.put(HttpHeaders.SET_COOKIE, values);
+			_metaData._headers.put(HttpHeaders.SET_COOKIE, values);
 		}
 
 		Header header = new Header(cookie);
@@ -70,12 +130,12 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void addDateHeader(String name, long value) {
-		Set<Header> values = _headers.get(name);
+		Set<Header> values = _metaData._headers.get(name);
 
 		if (values == null) {
 			values = new HashSet<Header>();
 
-			_headers.put(name, values);
+			_metaData._headers.put(name, values);
 		}
 
 		Header header = new Header(value);
@@ -93,12 +153,12 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			return;
 		}
 
-		Set<Header> values = _headers.get(name);
+		Set<Header> values = _metaData._headers.get(name);
 
 		if (values == null) {
 			values = new HashSet<Header>();
 
-			_headers.put(name, values);
+			_metaData._headers.put(name, values);
 		}
 
 		Header header = new Header(value);
@@ -110,12 +170,12 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void addIntHeader(String name, int value) {
-		Set<Header> values = _headers.get(name);
+		Set<Header> values = _metaData._headers.get(name);
 
 		if (values == null) {
 			values = new HashSet<Header>();
 
-			_headers.put(name, values);
+			_metaData._headers.put(name, values);
 		}
 
 		Header header = new Header(value);
@@ -127,75 +187,26 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public boolean containsHeader(String name) {
-		return _headers.containsKey(name);
+		return _metaData._headers.containsKey(name);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void finishResponse() throws IOException {
 		HttpServletResponse response = (HttpServletResponse)getResponse();
 
-		if (response.isCommitted()) {
-			return;
-		}
-
-		for (Map.Entry<String, Set<Header>> entry : _headers.entrySet()) {
-			String headerKey = entry.getKey();
-
-			Set<Header> headers = entry.getValue();
-
-			boolean first = true;
-
-			for (Header header : headers) {
-				if (first) {
-					header.setToResponse(headerKey, response);
-
-					first = false;
-				}
-				else {
-					header.addToResponse(headerKey, response);
-				}
-			}
-		}
-
-		if (_location != null) {
-			response.sendRedirect(_location);
-		}
-		else if (_error) {
-			response.sendError(_status, _errorMessage);
-		}
-		else {
-			if (_charsetName != null) {
-				response.setCharacterEncoding(_charsetName);
-			}
-
-			if (_contentLength != -1) {
-				response.setContentLength(_contentLength);
-			}
-
-			if (_contentType != null) {
-				response.setContentType(_contentType);
-			}
-
-			if (_locale != null) {
-				response.setLocale(_locale);
-			}
-
-			if (_status != SC_OK) {
-				response.setStatus(_status, _statusMessage);
-			}
-		}
+		finishResponse(_metaData, response);
 
 		_committed = true;
 	}
 
 	@Override
-	public void flushBuffer() {
+	@SuppressWarnings("unused")
+	public void flushBuffer() throws IOException {
 		_committed = true;
 	}
 
 	@Override
 	public int getBufferSize() {
-		return _bufferSize;
+		return _metaData._bufferSize;
 	}
 
 	@Override
@@ -206,19 +217,20 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		// property "file.encoding". Using the system default character gives us
 		// better application server compatibility.
 
-		if (_charsetName == null) {
+		if (_metaData._charsetName == null) {
 			return StringPool.DEFAULT_CHARSET_NAME;
 		}
 
-		return _charsetName;
+		return _metaData._charsetName;
 	}
 
 	@Override
 	public String getContentType() {
-		String contentType = _contentType;
+		String contentType = _metaData._contentType;
 
-		if ((contentType != null) && (_charsetName != null)) {
-			contentType = contentType.concat("; charset=").concat(_charsetName);
+		if ((contentType != null) && (_metaData._charsetName != null)) {
+			contentType = contentType.concat("; charset=").concat(
+				_metaData._charsetName);
 		}
 
 		return contentType;
@@ -230,8 +242,9 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	 * "Cookie" is application server specific. The only safe way to add the
 	 * header is to call {@link HttpServletResponse#addCookie(Cookie)}.
 	 */
+	@Override
 	public String getHeader(String name) {
-		Set<Header> values = _headers.get(name);
+		Set<Header> values = _metaData._headers.get(name);
 
 		if (values == null) {
 			return null;
@@ -242,12 +255,13 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		return header.toString();
 	}
 
+	@Override
 	public Collection<String> getHeaderNames() {
-		return _headers.keySet();
+		return _metaData._headers.keySet();
 	}
 
 	public Map<String, Set<Header>> getHeaders() {
-		return _headers;
+		return _metaData._headers;
 	}
 
 	/**
@@ -256,8 +270,9 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	 * "Cookie" is application server specific. The only safe way to add the
 	 * header is to call {@link HttpServletResponse#addCookie(Cookie)}.
 	 */
+	@Override
 	public Collection<String> getHeaders(String name) {
-		Set<Header> values = _headers.get(name);
+		Set<Header> values = _metaData._headers.get(name);
 
 		if (values == null) {
 			return Collections.emptyList();
@@ -274,7 +289,11 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public Locale getLocale() {
-		return _locale;
+		return _metaData._locale;
+	}
+
+	public MetaData getMetaData() {
+		return _metaData;
 	}
 
 	@Override
@@ -284,8 +303,9 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		return super.getOutputStream();
 	}
 
+	@Override
 	public int getStatus() {
-		return _status;
+		return _metaData._status;
 	}
 
 	@Override
@@ -311,13 +331,13 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		// No need to reset _error, _errorMessage and _location, because setting
 		// them requires commit.
 
-		_charsetName = null;
-		_contentLength = -1;
-		_contentType = null;
-		_headers.clear();
-		_locale = null;
-		_status = SC_OK;
-		_statusMessage = null;
+		_metaData._charsetName = null;
+		_metaData._contentLength = -1;
+		_metaData._contentType = null;
+		_metaData._headers.clear();
+		_metaData._locale = null;
+		_metaData._status = SC_OK;
+		_metaData._statusMessage = null;
 
 		// calledGetOutputStream and calledGetWriter should be cleared by
 		// resetBuffer() in subclass.
@@ -347,9 +367,9 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			throw new IllegalStateException("Send error after commit");
 		}
 
-		_error = true;
-		_errorMessage = errorMessage;
-		_status = status;
+		_metaData._error = true;
+		_metaData._errorMessage = errorMessage;
+		_metaData._status = status;
 
 		resetBuffer();
 
@@ -366,7 +386,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 		resetBuffer(true);
 
-		_location = location;
+		_metaData._location = location;
 
 		_committed = true;
 
@@ -379,7 +399,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			throw new IllegalStateException("Set buffer size after commit");
 		}
 
-		_bufferSize = bufferSize;
+		_metaData._bufferSize = bufferSize;
 
 		super.setBufferSize(bufferSize);
 	}
@@ -398,7 +418,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			return;
 		}
 
-		_charsetName = charsetName;
+		_metaData._charsetName = charsetName;
 
 		super.setCharacterEncoding(charsetName);
 	}
@@ -409,7 +429,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			return;
 		}
 
-		_contentLength = contentLength;
+		_metaData._contentLength = contentLength;
 
 		super.setContentLength(contentLength);
 	}
@@ -429,7 +449,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		if (index != -1) {
 			String firstPart = contentType.substring(0, index);
 
-			_contentType = firstPart.trim();
+			_metaData._contentType = firstPart.trim();
 
 			index = contentType.indexOf("charset=");
 
@@ -441,13 +461,13 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 				setCharacterEncoding(charsetName);
 			}
 			else {
-				_charsetName = null;
+				_metaData._charsetName = null;
 			}
 		}
 		else {
-			_contentType = contentType;
+			_metaData._contentType = contentType;
 
-			_charsetName = null;
+			_metaData._charsetName = null;
 		}
 
 		super.setContentType(contentType);
@@ -457,7 +477,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	public void setDateHeader(String name, long value) {
 		Set<Header> values = new HashSet<Header>();
 
-		_headers.put(name, values);
+		_metaData._headers.put(name, values);
 
 		Header header = new Header(value);
 
@@ -476,7 +496,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 		Set<Header> values = new HashSet<Header>();
 
-		_headers.put(name, values);
+		_metaData._headers.put(name, values);
 
 		Header header = new Header(value);
 
@@ -489,7 +509,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	public void setIntHeader(String name, int value) {
 		Set<Header> values = new HashSet<Header>();
 
-		_headers.put(name, values);
+		_metaData._headers.put(name, values);
 
 		Header header = new Header(value);
 
@@ -504,7 +524,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			return;
 		}
 
-		_locale = locale;
+		_metaData._locale = locale;
 
 		super.setLocale(locale);
 	}
@@ -514,14 +534,17 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		setStatus(status, null);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void setStatus(int status, String statusMessage) {
 		if (isCommitted()) {
 			return;
 		}
 
-		_status = status;
-		_statusMessage = statusMessage;
+		_metaData._status = status;
+		_metaData._statusMessage = statusMessage;
 
 		super.setStatus(status, statusMessage);
 	}
@@ -531,30 +554,47 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		StringBundler sb = new StringBundler(23);
 
 		sb.append("{bufferSize=");
-		sb.append(_bufferSize);
+		sb.append(_metaData._bufferSize);
 		sb.append(", charsetName=");
-		sb.append(_charsetName);
+		sb.append(_metaData._charsetName);
 		sb.append(", committed=");
 		sb.append(_committed);
 		sb.append(", contentLength=");
-		sb.append(_contentLength);
+		sb.append(_metaData._contentLength);
 		sb.append(", contentType=");
-		sb.append(_contentType);
+		sb.append(_metaData._contentType);
 		sb.append(", error=");
-		sb.append(_error);
+		sb.append(_metaData._error);
 		sb.append(", errorMessage=");
-		sb.append(_errorMessage);
+		sb.append(_metaData._errorMessage);
 		sb.append(", headers=");
-		sb.append(_headers);
+		sb.append(_metaData._headers);
 		sb.append(", location=");
-		sb.append(_location);
+		sb.append(_metaData._location);
 		sb.append(", locale=");
-		sb.append(_locale);
+		sb.append(_metaData._locale);
 		sb.append(", status=");
-		sb.append(_status);
+		sb.append(_metaData._status);
 		sb.append("}");
 
 		return sb.toString();
+	}
+
+	public static class MetaData implements Serializable {
+
+		private int _bufferSize;
+		private String _charsetName;
+		private int _contentLength = -1;
+		private String _contentType;
+		private boolean _error;
+		private String _errorMessage;
+		private Map<String, Set<Header>> _headers =
+			new HashMap<String, Set<Header>>();
+		private Locale _locale;
+		private String _location;
+		private int _status = SC_OK;
+		private String _statusMessage;
+
 	}
 
 	/**
@@ -571,18 +611,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 	protected boolean calledGetOutputStream;
 	protected boolean calledGetWriter;
 
-	private int _bufferSize;
-	private String _charsetName;
 	private boolean _committed;
-	private int _contentLength = -1;
-	private String _contentType;
-	private boolean _error;
-	private String _errorMessage;
-	private Map<String, Set<Header>> _headers =
-		new HashMap<String, Set<Header>>();
-	private Locale _locale;
-	private String _location;
-	private int _status = SC_OK;
-	private String _statusMessage;
+	private MetaData _metaData = new MetaData();
 
 }

@@ -23,7 +23,6 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewSitesSiteTest extends BaseTestCase {
 	public void testViewSitesSite() throws Exception {
 		selenium.open("/user/joebloggs/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -77,7 +76,6 @@ public class ViewSitesSiteTest extends BaseTestCase {
 		selenium.clickAt("//li[contains(@class, 'social-office-enabled')]/span[2]/a",
 			RuntimeVariables.replace("Open Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Open Site Name"),
 			selenium.getText("//div[@class='community-title']"));
 		assertEquals(RuntimeVariables.replace("Home"),
@@ -88,14 +86,13 @@ public class ViewSitesSiteTest extends BaseTestCase {
 			selenium.getText("//nav/ul/li[3]/a/span"));
 		assertEquals(RuntimeVariables.replace("Forums"),
 			selenium.getText("//nav/ul/li[4]/a/span"));
-		assertEquals(RuntimeVariables.replace("Blog"),
+		assertEquals(RuntimeVariables.replace("Blogs"),
 			selenium.getText("//nav/ul/li[5]/a/span"));
 		assertEquals(RuntimeVariables.replace("Wiki"),
 			selenium.getText("//nav/ul/li[6]/a/span"));
 		assertEquals(RuntimeVariables.replace("Members"),
 			selenium.getText("//nav/ul/li[7]/a/span"));
 		selenium.open("/user/joebloggs/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -124,7 +121,7 @@ public class ViewSitesSiteTest extends BaseTestCase {
 
 			try {
 				if (selenium.isVisible(
-							"//button[contains(.,'Site Directory')]/span[2]")) {
+							"//button[contains(.,'Sites Directory')]/span[2]")) {
 					break;
 				}
 			}
@@ -134,10 +131,10 @@ public class ViewSitesSiteTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Site Directory"),
-			selenium.getText("//button[contains(.,'Site Directory')]/span[2]"));
-		selenium.clickAt("//button[contains(.,'Site Directory')]/span[2]",
-			RuntimeVariables.replace("Site Directory"));
+		assertEquals(RuntimeVariables.replace("Sites Directory"),
+			selenium.getText("//button[contains(.,'Sites Directory')]/span[2]"));
+		selenium.clickAt("//button[contains(.,'Sites Directory')]/span[2]",
+			RuntimeVariables.replace("Sites Directory"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -170,7 +167,6 @@ public class ViewSitesSiteTest extends BaseTestCase {
 		selenium.clickAt("//span[@class='name']/a",
 			RuntimeVariables.replace("Open Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Open Site Name"),
 			selenium.getText("//div[@class='community-title']"));
 		assertEquals(RuntimeVariables.replace("Home"),
@@ -181,7 +177,7 @@ public class ViewSitesSiteTest extends BaseTestCase {
 			selenium.getText("//nav/ul/li[3]/a/span"));
 		assertEquals(RuntimeVariables.replace("Forums"),
 			selenium.getText("//nav/ul/li[4]/a/span"));
-		assertEquals(RuntimeVariables.replace("Blog"),
+		assertEquals(RuntimeVariables.replace("Blogs"),
 			selenium.getText("//nav/ul/li[5]/a/span"));
 		assertEquals(RuntimeVariables.replace("Wiki"),
 			selenium.getText("//nav/ul/li[6]/a/span"));

@@ -25,7 +25,6 @@ public class User_ViewEventThreeMinutesSPChristmasBlogsSPTLTest
 	public void testUser_ViewEventThreeMinutesSPChristmasBlogsSPTL()
 		throws Exception {
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -45,15 +44,13 @@ public class User_ViewEventThreeMinutesSPChristmasBlogsSPTLTest
 
 		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertTrue(selenium.isElementPresent(
 				"//body[contains(@class,'live-view')]"));
 		assertTrue(selenium.isElementNotPresent(
 				"//body[contains(@class,'local-staging')]"));
 		assertTrue(selenium.isElementNotPresent("link=Blogs"));
-		Thread.sleep(180000);
+		Thread.sleep(200000);
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -73,7 +70,6 @@ public class User_ViewEventThreeMinutesSPChristmasBlogsSPTLTest
 
 		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertTrue(selenium.isElementPresent(
 				"//body[contains(@class,'live-view')]"));
 		assertTrue(selenium.isElementNotPresent(
@@ -82,6 +78,5 @@ public class User_ViewEventThreeMinutesSPChristmasBlogsSPTLTest
 		selenium.clickAt("link=Blogs Test Page",
 			RuntimeVariables.replace("Blogs Test Page"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 	}
 }

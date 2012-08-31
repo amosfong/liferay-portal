@@ -385,27 +385,6 @@ public class Creole10Parser]]></replacevalue>
 		<unzip
 			dest="${tstamp.value}"
 			src="${project.dir}/lib/development/selenium-server.jar"
-		>
-			<patternset
-				excludes="org/json/**"
-			/>
-		</unzip>
-
-		<copy file="${project.dir}/tools/selenium/user-extensions.js" todir="${tstamp.value}/core/scripts" overwrite="true" />
-
-		<zip basedir="${tstamp.value}" destfile="${project.dir}/lib/development/selenium-server.jar.new" />
-
-		<delete dir="${tstamp.value}" />
-	</target>
-
-	<target name="build-selenium-server-2">
-		<tstamp>
-			<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
-		</tstamp>
-
-		<unzip
-			dest="${tstamp.value}"
-			src="${project.dir}/lib/development/selenium-server-2.jar"
 		/>
 
 		<delete includeemptydirs="true">
@@ -544,7 +523,9 @@ public class Creole10Parser]]></replacevalue>
 			/>
 		</delete>
 
-		<zip basedir="${tstamp.value}" destfile="${project.dir}/lib/development/selenium-server-2.jar.new" />
+		<copy file="${project.dir}/tools/selenium/extensions/server.js" tofile="${tstamp.value}/core/scripts/user-extensions.js" overwrite="true" />
+
+		<zip basedir="${tstamp.value}" destfile="${project.dir}/lib/development/selenium-server.jar.new" />
 
 		<delete dir="${tstamp.value}" />
 	</target>

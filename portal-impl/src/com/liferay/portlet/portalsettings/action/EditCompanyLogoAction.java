@@ -225,8 +225,7 @@ public class EditCompanyLogoAction extends PortletAction {
 		try {
 			return TempFileUtil.getTempFileAsStream(tempFilePath);
 		}
-
-		catch(Exception e) {
+		catch (Exception e) {
 			return null;
 		}
 	}

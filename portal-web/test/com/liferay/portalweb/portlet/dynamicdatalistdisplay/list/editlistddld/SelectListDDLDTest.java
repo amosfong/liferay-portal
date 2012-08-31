@@ -22,33 +22,12 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SelectListDDLDTest extends BaseTestCase {
 	public void testSelectListDDLD() throws Exception {
-		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"link=Dynamic Data List Display Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Dynamic Data List Display Test Page",
 			RuntimeVariables.replace("Dynamic Data List Display Test Page"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		selenium.clickAt("//img[@title='Select List']",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Select List"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -74,6 +53,23 @@ public class SelectListDDLDTest extends BaseTestCase {
 			}
 
 			try {
+				if (selenium.isElementPresent(
+							"//script[contains(@src,'/liferay/navigation_interaction.js')]")) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+
+		for (int second = 0;; second++) {
+			if (second >= 90) {
+				fail("timeout");
+			}
+
+			try {
 				if (selenium.isVisible("//input[@name='_86_keywords']")) {
 					break;
 				}
@@ -89,7 +85,6 @@ public class SelectListDDLDTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Search']",
 			RuntimeVariables.replace("Search"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		selenium.clickAt("link=List Name", RuntimeVariables.replace("List Name"));
 
 		for (int second = 0;; second++) {
@@ -114,7 +109,6 @@ public class SelectListDDLDTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Save']",
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace(
 				"You have successfully updated the setup."),
 			selenium.getText("//div[@class='portlet-msg-success']"));

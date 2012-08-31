@@ -19,7 +19,7 @@
 <%@ page import="com.liferay.portlet.dynamicdatamapping.model.DDMTemplate" %>
 <%@ page import="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil" %>
 <%@ page import="com.liferay.portlet.dynamicdatamapping.service.permission.DDMTemplatePermission" %>
-<%@ page import="com.liferay.portlet.portletdisplaytemplates.util.PortletDisplayTemplatesUtil" %>
+<%@ page import="com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateUtil" %>
 
 <%
 long classNameId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:ddm-template-menu:classNameId"));
@@ -27,22 +27,27 @@ List<String> displayStyles = (List<String>)request.getAttribute("liferay-ui:ddm-
 String label = (String)request.getAttribute("liferay-ui:ddm-template-menu:label");
 String preferenceName = (String)request.getAttribute("liferay-ui:ddm-template-menu:preferenceName");
 String preferenceValue = (String)request.getAttribute("liferay-ui:ddm-template-menu:preferenceValue");
-boolean showDisplayStyle = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:ddm-template-menu:showDisplayStyle"));
+boolean showEmptyOption = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:ddm-template-menu:showEmptyOption"));
 
 DDMTemplate ddmTemplate = null;
 
-long ddmTemplateGroupId = PortletDisplayTemplatesUtil.getDDMTemplateGroupId(themeDisplay);
+long ddmTemplateGroupId = PortletDisplayTemplateUtil.getDDMTemplateGroupId(themeDisplay);
 
 if (preferenceValue.startsWith("ddmTemplate_")) {
-	ddmTemplate = PortletDisplayTemplatesUtil.fetchDDMTemplate(ddmTemplateGroupId, preferenceValue);
+	ddmTemplate = PortletDisplayTemplateUtil.fetchDDMTemplate(ddmTemplateGroupId, preferenceValue);
 }
 
 List<DDMTemplate> companyPortletDDMTemplates = DDMTemplateLocalServiceUtil.getTemplates(themeDisplay.getCompanyGroupId(), classNameId, 0);
-List<DDMTemplate> groupPortletDDMTemplates = DDMTemplateLocalServiceUtil.getTemplates(ddmTemplateGroupId, classNameId, 0);
+
+List<DDMTemplate> groupPortletDDMTemplates = null;
+
+if (ddmTemplateGroupId != themeDisplay.getCompanyGroupId()) {
+	groupPortletDDMTemplates = DDMTemplateLocalServiceUtil.getTemplates(ddmTemplateGroupId, classNameId, 0);
+}
 %>
 
 <aui:select id="displayStyle" label="<%= label %>" name='<%= "preferences--" + preferenceName + "--" %>'>
-	<c:if test="<%= showDisplayStyle %>">
+	<c:if test="<%= showEmptyOption %>">
 		<aui:option label="default" selected="<%= Validator.isNull(preferenceValue) %>" />
 	</c:if>
 

@@ -107,7 +107,7 @@ AUI.add(
 
 						var displayStyle = config.displayStyle;
 
-						var displayStyleCSSClass = 'document-display-style';
+						var displayStyleCSSClass = 'entry-display-style';
 
 						var displayStyleToolbar = instance.byId(DISPLAY_STYLE_TOOLBAR);
 
@@ -135,7 +135,7 @@ AUI.add(
 						selectConfig.namespace = namespace;
 						selectConfig.portletContainerId = portletContainerId;
 						selectConfig.repositories = config.repositories;
-						selectConfig.selector = 'document-selector';
+						selectConfig.selector = 'entry-selector';
 
 						instance._appViewSelect = new Liferay.AppViewSelect(selectConfig);
 
@@ -151,7 +151,7 @@ AUI.add(
 						};
 
 						moveConfig.displayStyleCSSClass = displayStyleCSSClass;
-						moveConfig.draggableCSSClass = 'document-link';
+						moveConfig.draggableCSSClass = 'entry-link';
 						moveConfig.namespace = namespace;
 						moveConfig.portletContainerId = portletContainerId;
 						moveConfig.portletGroup = 'document-library';

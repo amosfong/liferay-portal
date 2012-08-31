@@ -774,7 +774,7 @@
 	</library>
 	<library>
 		<file-name>development/selenium-java.jar</file-name>
-		<version>2.20.0</version>
+		<version>2.25.0</version>
 		<project-name>Selenium Client Drivers</project-name>
 		<project-url>http://seleniumhq.org</project-url>
 		<licenses>
@@ -785,7 +785,7 @@
 	</library>
 	<library>
 		<file-name>development/selenium-server.jar</file-name>
-		<version>2.20.0</version>
+		<version>2.25.0</version>
 		<project-name>Selenium Server</project-name>
 		<project-url>http://seleniumhq.org</project-url>
 		<licenses>
@@ -799,12 +799,12 @@
 	</library>
 	<library>
 		<file-name>development/servlet-api.jar</file-name>
-		<version>2.5</version>
+		<version>3.0.0</version>
 		<project-name>Java Servlet</project-name>
-		<project-url>http://java.sun.com/products/servlet</project-url>
+		<project-url>http://glassfish.java.net/downloads/ri</project-url>
 		<licenses>
 			<license>
-				<license-name>Sun Binary Code License Agreement</license-name>
+				<license-name>CDDL 1.0</license-name>
 			</license>
 		</licenses>
 	</library>
@@ -1169,7 +1169,7 @@
 	</library>
 	<library>
 		<file-name>portal/bnd.jar</file-name>
-		<version>1.44.0</version>
+		<version>1.50.0</version>
 		<project-name>Bnd</project-name>
 		<project-url>http://www.aqute.biz/Bnd</project-url>
 		<licenses>
@@ -2261,7 +2261,7 @@
 	</library>
 	<library>
 		<file-name>portal/json-java.jar</file-name>
-		<version>ce2f5ed80a2cfe665779</version>
+		<version>c7d2d9161321e9aa09bbbf566bce2922d169b9dd</version>
 		<project-name>JSON in Java</project-name>
 		<project-url>https://github.com/douglascrockford/JSON-java</project-url>
 		<licenses>

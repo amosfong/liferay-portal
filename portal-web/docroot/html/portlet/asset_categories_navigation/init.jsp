@@ -16,15 +16,14 @@
 
 <%@ include file="/html/portlet/init.jsp" %>
 
-<%@ page import="com.liferay.portal.kernel.template.PortletDisplayTemplateHandler" %><%@
-page import="com.liferay.portal.kernel.template.PortletDisplayTemplateHandlerRegistryUtil" %><%@
+<%@ page import="com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler" %><%@
+page import="com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandlerRegistryUtil" %><%@
 page import="com.liferay.portlet.asset.NoSuchVocabularyException" %><%@
 page import="com.liferay.portlet.asset.model.AssetCategory" %><%@
 page import="com.liferay.portlet.asset.model.AssetVocabulary" %><%@
 page import="com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil" %><%@
 page import="com.liferay.portlet.asset.service.AssetVocabularyServiceUtil" %><%@
-page import="com.liferay.portlet.dynamicdatamapping.model.DDMTemplate" %><%@
-page import="com.liferay.portlet.portletdisplaytemplates.util.PortletDisplayTemplatesUtil" %>
+page import="com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateUtil" %>
 
 <%
 PortletPreferences preferences = renderRequest.getPreferences();
@@ -54,18 +53,6 @@ if (!allAssetVocabularies && (preferences.getValues("assetVocabularyIds", null) 
 }
 
 String displayTemplate = preferences.getValue("displayTemplate", StringPool.BLANK);
-
-DDMTemplate portletDisplayDDMTemplate = null;
-long portletDisplayDDMTemplateId = 0;
-long portletDisplayDDMTemplateGroupId = PortletDisplayTemplatesUtil.getDDMTemplateGroupId(themeDisplay);
-
-if (displayTemplate.startsWith("ddmTemplate_")) {
-	portletDisplayDDMTemplate = PortletDisplayTemplatesUtil.fetchDDMTemplate(portletDisplayDDMTemplateGroupId, displayTemplate);
-
-	if (portletDisplayDDMTemplate != null) {
-		portletDisplayDDMTemplateId = portletDisplayDDMTemplate.getTemplateId();
-	}
-}
 %>
 
 <%@ include file="/html/portlet/asset_categories_navigation/init-ext.jsp" %>

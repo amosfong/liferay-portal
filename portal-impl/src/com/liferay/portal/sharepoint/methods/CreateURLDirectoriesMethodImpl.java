@@ -38,7 +38,7 @@ public class CreateURLDirectoriesMethodImpl extends BaseMethodImpl {
 
 		urlDirs = urlDirs.substring(2, urlDirs.length() - 2);
 
-		String urls[] = urlDirs.split(StringPool.SEMICOLON);
+		String[] urls = urlDirs.split(StringPool.SEMICOLON);
 
 		return urls[0].substring(4);
 	}

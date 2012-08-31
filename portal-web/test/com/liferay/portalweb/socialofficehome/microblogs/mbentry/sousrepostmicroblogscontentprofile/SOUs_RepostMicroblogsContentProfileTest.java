@@ -24,7 +24,6 @@ public class SOUs_RepostMicroblogsContentProfileTest extends BaseTestCase {
 	public void testSOUs_RepostMicroblogsContentProfile()
 		throws Exception {
 		selenium.open("/web/joebloggs/so/profile");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -46,7 +45,6 @@ public class SOUs_RepostMicroblogsContentProfileTest extends BaseTestCase {
 		selenium.clickAt("//nav/ul/li[contains(.,'Microblogs')]/a/span",
 			RuntimeVariables.replace("Microblogs"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Joe Bloggs"),
 			selenium.getText("//div[@class='user-name']/span"));
 		assertEquals(RuntimeVariables.replace("Microblogs Post"),
@@ -54,7 +52,7 @@ public class SOUs_RepostMicroblogsContentProfileTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("Repost"),
 			selenium.getText("//span[@class='action repost']/a"));
 		selenium.clickAt("//span[@class='action repost']/a",
-			RuntimeVariables.replace("Comment"));
+			RuntimeVariables.replace("Repost"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {

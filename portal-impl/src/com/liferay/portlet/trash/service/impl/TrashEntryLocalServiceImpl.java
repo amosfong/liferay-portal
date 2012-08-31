@@ -21,16 +21,24 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.documentlibrary.NoSuchDirectoryException;
+import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
+import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.model.TrashVersion;
 import com.liferay.portlet.trash.service.base.TrashEntryLocalServiceBaseImpl;
 import com.liferay.portlet.trash.util.TrashUtil;
+import com.liferay.portlet.wiki.model.WikiPageConstants;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -57,6 +65,7 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 	 *         com.liferay.portlet.documentlibrary.model.DLFileVersion})
 	 * @param  typeSettingsProperties the type settings properties
 	 * @return the trashEntry
+	 * @throws PortalException if a user with the primary key could not be found
 	 * @throws SystemException if a system exception occurred
 	 */
 	public TrashEntry addTrashEntry(
@@ -134,6 +143,25 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 
 					trashHandler.deleteTrashEntry(entry.getClassPK(), false);
 				}
+			}
+		}
+	}
+
+	public void checkEntriesAttachments()
+		throws PortalException, SystemException {
+
+		int count = groupPersistence.countAll();
+
+		int pages = count / Indexer.DEFAULT_INTERVAL;
+
+		for (int i = 0; i <= pages; i++) {
+			int start = (i * Indexer.DEFAULT_INTERVAL);
+			int end = start + Indexer.DEFAULT_INTERVAL;
+
+			List<Group> groups = groupPersistence.findAll(start, end);
+
+			for (Group group : groups) {
+				checkEntriesAttachments(group);
 			}
 		}
 	}
@@ -330,6 +358,106 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 		long classNameId = PortalUtil.getClassNameId(className);
 
 		return trashVersionPersistence.findByC_C(classNameId, classPK);
+	}
+
+	protected void checkEntriesAttachments(Group group)
+		throws PortalException, SystemException {
+
+		long companyId = group.getCompanyId();
+		long repositoryId = CompanyConstants.SYSTEM;
+
+		Date date = getMaxAge(group);
+
+		deleteMessageBoardAttachments(companyId, repositoryId, date);
+		deleteWikiAttachments(companyId, repositoryId, date);
+	}
+
+	protected void deleteEntriesAttachments(
+			long companyId, long repositoryId, Date date,
+			String[] attachmentFileNames)
+		throws PortalException, SystemException {
+
+		for (String attachmentFileName : attachmentFileNames) {
+			String trashTime = DLAppUtil.getTrashTime(
+				attachmentFileName, TrashUtil.TRASH_TIME_SEPARATOR);
+
+			long timestamp = GetterUtil.getLong(trashTime);
+
+			if (timestamp < date.getTime()) {
+				DLStoreUtil.deleteDirectory(
+					companyId, repositoryId, attachmentFileName);
+			}
+		}
+	}
+
+	protected void deleteMessageBoardAttachments(
+			long companyId, long repositoryId, Date date)
+		throws PortalException, SystemException {
+
+		String[] threadFileNames = null;
+
+		try {
+			threadFileNames = DLStoreUtil.getFileNames(
+				companyId, repositoryId, "messageboards");
+		}
+		catch (NoSuchDirectoryException nsde) {
+			return;
+		}
+
+		for (String threadFileName : threadFileNames) {
+			String[] messageFileNames = null;
+
+			try {
+				messageFileNames = DLStoreUtil.getFileNames(
+					companyId, repositoryId, threadFileName);
+			}
+			catch (NoSuchDirectoryException nsde) {
+				continue;
+			}
+
+			for (String messageFileName : messageFileNames) {
+				String fileTitle = StringUtil.extractLast(
+					messageFileName, StringPool.FORWARD_SLASH);
+
+				if (fileTitle.startsWith(TrashUtil.TRASH_ATTACHMENTS_DIR)) {
+					String[] attachmentFileNames = DLStoreUtil.getFileNames(
+						companyId, repositoryId,
+						threadFileName + StringPool.FORWARD_SLASH + fileTitle);
+
+					deleteEntriesAttachments(
+						companyId, repositoryId, date, attachmentFileNames);
+				}
+			}
+		}
+	}
+
+	protected void deleteWikiAttachments(
+			long companyId, long repositoryId, Date date)
+		throws PortalException, SystemException {
+
+		String[] fileNames = null;
+
+		try {
+			fileNames = DLStoreUtil.getFileNames(
+				companyId, repositoryId, "wiki");
+		}
+		catch (NoSuchDirectoryException nsde) {
+			return;
+		}
+
+		for (String fileName : fileNames) {
+			String fileTitle = StringUtil.extractLast(
+				fileName, StringPool.FORWARD_SLASH);
+
+			if (fileTitle.startsWith(TrashUtil.TRASH_ATTACHMENTS_DIR)) {
+				String[] attachmentFileNames = DLStoreUtil.getFileNames(
+					companyId, repositoryId,
+					WikiPageConstants.BASE_ATTACHMENTS_DIR + fileTitle);
+
+				deleteEntriesAttachments(
+					companyId, repositoryId, date, attachmentFileNames);
+			}
+		}
 	}
 
 	protected Date getMaxAge(Group group)

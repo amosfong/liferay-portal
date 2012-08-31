@@ -24,13 +24,16 @@ import com.liferay.portal.security.pwd.PwdEncryptor;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Minhchau Dang
+ * @author Tomas Polesovsky
  */
-public class ParameterAutoLogin implements AutoLogin {
+public class ParameterAutoLogin implements AuthVerifier, AutoLogin {
 
 	public String[] login(
 			HttpServletRequest request, HttpServletResponse response)
@@ -96,6 +99,30 @@ public class ParameterAutoLogin implements AutoLogin {
 		}
 		catch (Exception e) {
 			throw new AutoLoginException(e);
+		}
+	}
+
+	public AuthVerifierResult verify(
+			AccessControlContext accessControlContext, Properties properties)
+		throws AuthException {
+
+		try {
+			AuthVerifierResult authVerifierResult = new AuthVerifierResult();
+
+			String[] credentials = login(
+				accessControlContext.getRequest(),
+				accessControlContext.getResponse());
+
+			if (credentials != null) {
+				authVerifierResult.setPassword(credentials[1]);
+				authVerifierResult.setState(AuthVerifierResult.State.SUCCESS);
+				authVerifierResult.setUserId(Long.valueOf(credentials[0]));
+			}
+
+			return authVerifierResult;
+		}
+		catch (AutoLoginException ale) {
+			throw new AuthException(ale);
 		}
 	}
 

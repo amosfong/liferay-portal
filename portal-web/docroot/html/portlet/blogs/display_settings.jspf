@@ -14,10 +14,6 @@
  */
 --%>
 
-<%
-PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(BlogsEntry.class.getName());
-%>
-
 <div class="portlet-msg-info">
 	<liferay-ui:message key="set-the-display-styles-used-to-display-blogs-when-viewed-via-as-a-regular-page-or-as-an-rss" />
 </div>
@@ -40,6 +36,8 @@ PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemp
 	<div class="display-template">
 
 		<%
+		PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(BlogsEntry.class.getName());
+
 		List<String> displayStyles = new ArrayList<String>();
 
 		displayStyles.add(RSSUtil.DISPLAY_STYLE_ABSTRACT);

@@ -100,6 +100,9 @@ import com.liferay.portal.security.auth.AuthPipeline;
 import com.liferay.portal.security.auth.AuthToken;
 import com.liferay.portal.security.auth.AuthTokenUtil;
 import com.liferay.portal.security.auth.AuthTokenWrapper;
+import com.liferay.portal.security.auth.AuthVerifier;
+import com.liferay.portal.security.auth.AuthVerifierConfiguration;
+import com.liferay.portal.security.auth.AuthVerifierPipeline;
 import com.liferay.portal.security.auth.Authenticator;
 import com.liferay.portal.security.auth.AutoLogin;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
@@ -124,7 +127,7 @@ import com.liferay.portal.service.ReleaseLocalServiceUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.servlet.filters.autologin.AutoLoginFilter;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
-import com.liferay.portal.spring.aop.ServiceBeanAopProxy;
+import com.liferay.portal.spring.aop.ServiceBeanAopCacheManagerUtil;
 import com.liferay.portal.struts.AuthPublicPathRegistry;
 import com.liferay.portal.struts.StrutsActionRegistryUtil;
 import com.liferay.portal.upgrade.UpgradeProcessUtil;
@@ -231,11 +234,12 @@ public class HookHotDeployListener
 		"portlet.add.default.resource.check.enabled",
 		"portlet.add.default.resource.check.whitelist",
 		"portlet.add.default.resource.check.whitelist.actions",
-		"sanitizer.impl", "servlet.session.create.events",
-		"servlet.session.destroy.events", "servlet.service.events.post",
-		"servlet.service.events.pre", "session.max.allowed",
-		"session.phishing.protected.attributes", "session.store.password",
-		"sites.form.add.advanced", "sites.form.add.main", "sites.form.add.seo",
+		"portal.authentication.verifier.pipeline", "sanitizer.impl",
+		"servlet.session.create.events", "servlet.session.destroy.events",
+		"servlet.service.events.post", "servlet.service.events.pre",
+		"session.max.allowed", "session.phishing.protected.attributes",
+		"session.store.password", "sites.form.add.advanced",
+		"sites.form.add.main", "sites.form.add.seo",
 		"sites.form.update.advanced", "sites.form.update.main",
 		"sites.form.update.seo", "social.bookmark.*", "terms.of.use.required",
 		"theme.css.fast.load", "theme.images.fast.load",
@@ -730,6 +734,13 @@ public class HookHotDeployListener
 			authPublicPathsContainer.unregisterPaths();
 		}
 
+		AuthVerifierConfigurationContainer authVerifierConfigurationContainer =
+			_authVerifierConfigurationContainerMap.remove(servletContextName);
+
+		if (authVerifierConfigurationContainer != null) {
+			authVerifierConfigurationContainer.unregisterConfigurations();
+		}
+
 		AutoDeployListenersContainer autoDeployListenersContainer =
 			_autoDeployListenersContainerMap.remove(servletContextName);
 
@@ -995,6 +1006,44 @@ public class HookHotDeployListener
 			portalProperties.getProperty(AUTH_PUBLIC_PATHS));
 
 		authPublicPathsContainer.registerPaths(publicPaths);
+	}
+
+	protected void initAuthVerifiers(
+			String servletContextName, ClassLoader portletClassLoader,
+			Properties portalProperties)
+		throws Exception {
+
+		AuthVerifierConfigurationContainer authVerifierConfigurationContainer =
+			new AuthVerifierConfigurationContainer();
+
+		_authVerifierConfigurationContainerMap.put(
+			servletContextName, authVerifierConfigurationContainer);
+
+		String[] authVerifierClassNames = StringUtil.split(
+			portalProperties.getProperty(AUTH_VERIFIER_PIPELINE));
+
+		for (String authVerifierClassName : authVerifierClassNames) {
+			AuthVerifierConfiguration authVerifierConfiguration =
+				new AuthVerifierConfiguration();
+
+			AuthVerifier authVerifier = (AuthVerifier)newInstance(
+				portletClassLoader, AuthVerifier.class, authVerifierClassName);
+
+			authVerifierConfiguration.setAuthVerifier(authVerifier);
+
+			Class<?> authVerifierClass = authVerifier.getClass();
+
+			Properties properties = PropertiesUtil.getProperties(
+				portalProperties,
+				AUTH_VERIFIER + authVerifierClass.getSimpleName() +
+					StringPool.PERIOD,
+				true);
+
+			authVerifierConfiguration.setProperties(properties);
+
+			authVerifierConfigurationContainer.
+				registerAuthVerifierConfiguration(authVerifierConfiguration);
+		}
 	}
 
 	protected void initAutoDeployListeners(
@@ -1594,6 +1643,8 @@ public class HookHotDeployListener
 			servletContextName, portletClassLoader, portalProperties);
 		initAuthenticators(
 			servletContextName, portletClassLoader, portalProperties);
+		initAuthVerifiers(
+			servletContextName, portletClassLoader, portalProperties);
 		initHotDeployListeners(
 			servletContextName, portletClassLoader, portalProperties);
 		initModelListeners(
@@ -1975,7 +2026,7 @@ public class HookHotDeployListener
 			servletContextName, portletClassLoader, serviceType,
 			serviceTypeClass, serviceImplConstructor, previousService);
 
-		ServiceBeanAopProxy.clearMethodInterceptorCache();
+		ServiceBeanAopCacheManagerUtil.reset();
 	}
 
 	protected Filter initServletFilter(
@@ -2566,6 +2617,9 @@ public class HookHotDeployListener
 		new HashMap<String, AuthFailuresContainer>();
 	private Map<String, AuthPublicPathsContainer> _authPublicPathsContainerMap =
 		new HashMap<String, AuthPublicPathsContainer>();
+	private Map<String, AuthVerifierConfigurationContainer>
+		_authVerifierConfigurationContainerMap =
+			new HashMap<String, AuthVerifierConfigurationContainer>();
 	private Map<String, AutoDeployListenersContainer>
 		_autoDeployListenersContainerMap =
 			new HashMap<String, AutoDeployListenersContainer>();
@@ -2695,6 +2749,29 @@ public class HookHotDeployListener
 		}
 
 		private Set<String> _paths = new HashSet<String>();
+
+	}
+
+	private class AuthVerifierConfigurationContainer {
+
+		public void registerAuthVerifierConfiguration(
+			AuthVerifierConfiguration authVerifierConfiguration) {
+
+			AuthVerifierPipeline.register(authVerifierConfiguration);
+
+			_authVerifierConfigurations.add(authVerifierConfiguration);
+		}
+
+		public void unregisterConfigurations() {
+			for (AuthVerifierConfiguration authVerifierConfiguration :
+					_authVerifierConfigurations) {
+
+				AuthVerifierPipeline.unregister(authVerifierConfiguration);
+			}
+		}
+
+		private List<AuthVerifierConfiguration> _authVerifierConfigurations =
+			new ArrayList<AuthVerifierConfiguration>();
 
 	}
 

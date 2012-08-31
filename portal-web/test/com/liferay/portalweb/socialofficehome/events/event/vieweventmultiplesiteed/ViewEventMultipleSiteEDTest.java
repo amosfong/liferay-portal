@@ -23,7 +23,6 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewEventMultipleSiteEDTest extends BaseTestCase {
 	public void testViewEventMultipleSiteED() throws Exception {
 		selenium.open("/user/joebloggs/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -51,15 +50,11 @@ public class ViewEventMultipleSiteEDTest extends BaseTestCase {
 		selenium.clickAt("xPath=(//span[@class='event-name']/a)[1]",
 			RuntimeVariables.replace("Calendar Event1 Title"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Open Site Name"),
 			selenium.getText("//a[@title='Go to Open Site Name']"));
-		assertEquals("Add Event",
-			selenium.getValue("//input[@value='Add Event']"));
 		assertEquals(RuntimeVariables.replace("Calendar Event1 Title"),
-			selenium.getText("xPath=(//div[@class='event-title'])[1]"));
+			selenium.getText("//h1[@class='header-title']"));
 		selenium.open("/user/joebloggs/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -88,15 +83,11 @@ public class ViewEventMultipleSiteEDTest extends BaseTestCase {
 		selenium.clickAt("xPath=(//span[@class='event-name']/a)[2]",
 			RuntimeVariables.replace("Calendar Event2 Title"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Open Site Name"),
 			selenium.getText("//a[@title='Go to Open Site Name']"));
-		assertEquals("Add Event",
-			selenium.getValue("//input[@value='Add Event']"));
 		assertEquals(RuntimeVariables.replace("Calendar Event2 Title"),
-			selenium.getText("xPath=(//div[@class='event-title'])[2]"));
+			selenium.getText("//h1[@class='header-title']"));
 		selenium.open("/user/joebloggs/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -125,12 +116,9 @@ public class ViewEventMultipleSiteEDTest extends BaseTestCase {
 		selenium.clickAt("xPath=(//span[@class='event-name']/a)[3]",
 			RuntimeVariables.replace("Calendar Event3 Title"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Open Site Name"),
 			selenium.getText("//a[@title='Go to Open Site Name']"));
-		assertEquals("Add Event",
-			selenium.getValue("//input[@value='Add Event']"));
 		assertEquals(RuntimeVariables.replace("Calendar Event3 Title"),
-			selenium.getText("xPath=(//div[@class='event-title'])[3]"));
+			selenium.getText("//h1[@class='header-title']"));
 	}
 }

@@ -3,6 +3,10 @@
 
 <urlrewrite>
 	<rule>
+		<from>^/api/webdav(.*)</from>
+		<to type="redirect">/webdav$1</to>
+	</rule>
+	<rule>
 		<from>(.*)/blog/blogs/rss(.*)</from>
 		<to type="permanent-redirect">$1/blog/-/blogs/rss$2</to>
 	</rule>

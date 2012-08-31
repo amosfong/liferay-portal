@@ -980,7 +980,7 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	*
 	* @return the portlet display style instance of the portlet
 	*/
-	public com.liferay.portal.kernel.template.PortletDisplayTemplateHandler getPortletDisplayTemplateHandlerInstance() {
+	public com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler getPortletDisplayTemplateHandlerInstance() {
 		return _portlet.getPortletDisplayTemplateHandlerInstance();
 	}
 
@@ -1492,6 +1492,16 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	*/
 	public boolean getUseDefaultTemplate() {
 		return _portlet.getUseDefaultTemplate();
+	}
+
+	/**
+	* Returns the user ID of the portlet. This only applies when the portlet is
+	* added by a user in a customizable layout.
+	*
+	* @return the user ID of the portlet
+	*/
+	public long getUserId() {
+		return _portlet.getUserId();
 	}
 
 	/**

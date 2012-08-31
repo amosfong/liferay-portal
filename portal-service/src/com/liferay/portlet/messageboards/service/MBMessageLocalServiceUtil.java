@@ -399,6 +399,19 @@ public class MBMessageLocalServiceUtil {
 		return getService().deleteMessage(message);
 	}
 
+	public static void deleteMessageAttachment(long messageId,
+		java.lang.String fileName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteMessageAttachment(messageId, fileName);
+	}
+
+	public static void deleteMessageAttachments(long messageId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteMessageAttachments(messageId);
+	}
+
 	public static java.util.List<com.liferay.portlet.messageboards.model.MBMessage> getCategoryMessages(
 		long groupId, long categoryId, int status, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -639,6 +652,20 @@ public class MBMessageLocalServiceUtil {
 		return getService()
 				   .getUserDiscussionMessagesCount(userId, className, classPK,
 			status);
+	}
+
+	public static void moveMessageAttachmentFromTrash(long messageId,
+		java.lang.String deletedFileName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().moveMessageAttachmentFromTrash(messageId, deletedFileName);
+	}
+
+	public static java.lang.String moveMessageAttachmentToTrash(
+		long messageId, java.lang.String fileName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().moveMessageAttachmentToTrash(messageId, fileName);
 	}
 
 	public static void subscribeMessage(long userId, long messageId)

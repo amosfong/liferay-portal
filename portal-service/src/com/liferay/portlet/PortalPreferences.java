@@ -21,6 +21,8 @@ import java.io.Serializable;
  */
 public interface PortalPreferences extends Serializable {
 
+	public long getUserId();
+
 	public String getValue(String namespace, String key);
 
 	public String getValue(String namespace, String key, String defaultValue);
@@ -35,6 +37,8 @@ public interface PortalPreferences extends Serializable {
 	public void resetValues(String namespace);
 
 	public void setSignedIn(boolean signedIn);
+
+	public void setUserId(long userId);
 
 	public void setValue(String namespace, String key, String value);
 

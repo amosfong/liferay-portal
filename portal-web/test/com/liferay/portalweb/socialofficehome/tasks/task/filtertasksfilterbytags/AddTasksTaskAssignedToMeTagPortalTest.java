@@ -29,7 +29,6 @@ public class AddTasksTaskAssignedToMeTagPortalTest extends BaseTestCase {
 			switch (label) {
 			case 1:
 				selenium.open("/web/guest/home/");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -50,7 +49,6 @@ public class AddTasksTaskAssignedToMeTagPortalTest extends BaseTestCase {
 				selenium.clickAt("link=Tasks Test Page",
 					RuntimeVariables.replace("Tasks Test Page"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertEquals(RuntimeVariables.replace("No tasks were found."),
 					selenium.getText("//div[@class='portlet-msg-info']"));
 				assertEquals(RuntimeVariables.replace("Add Task"),
@@ -117,6 +115,23 @@ public class AddTasksTaskAssignedToMeTagPortalTest extends BaseTestCase {
 
 				selenium.type("//input[@title='Add Tags']",
 					RuntimeVariables.replace("PortalTag1"));
+
+				for (int second = 0;; second++) {
+					if (second >= 90) {
+						fail("timeout");
+					}
+
+					try {
+						if (selenium.isVisible("//button[@id='add']")) {
+							break;
+						}
+					}
+					catch (Exception e) {
+					}
+
+					Thread.sleep(1000);
+				}
+
 				selenium.clickAt("//button[@id='add']",
 					RuntimeVariables.replace("Add"));
 

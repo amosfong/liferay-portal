@@ -265,6 +265,7 @@
 		<security-role-ref>
 			<role-name>user</role-name>
 		</security-role-ref>
+		<supported-public-render-parameter>tag</supported-public-render-parameter>
 	</portlet>
 	<portlet>
 		<portlet-name>20</portlet-name>
@@ -1708,7 +1709,7 @@
 			</preference>
 			<preference>
 				<name>folderColumns</name>
-				<value>folder,num-of-folders,num-of-documents</value>
+				<value>name,num-of-folders,num-of-documents</value>
 			</preference>
 			<preference>
 				<name>showFoldersSearch</name>

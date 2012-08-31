@@ -67,8 +67,8 @@ public class SeleneseToJavaBuilder {
 
 		_basedir = (String)cmdLineParser.getOptionValue(basedirOption);
 
-		String minimizeTestFileName =
-			(String)cmdLineParser.getOptionValue(minimizeOption);
+		String minimizeTestFileName = (String)cmdLineParser.getOptionValue(
+			minimizeOption);
 
 		minimizeTestFileName = normalizeFileName(minimizeTestFileName);
 
@@ -586,7 +586,7 @@ public class SeleneseToJavaBuilder {
 				param1.equals("keyPress") || param1.equals("keyUp") ||
 				param1.equals("mouseMoveAt") || param1.equals("openWindow") ||
 				param1.equals("select") || param1.equals("type") ||
-				param1.equals("typeKeys") ||
+				param1.equals("typeKeys") || param1.equals("uploadFile") ||
 				param1.equals("uploadCommonFile") ||
 				param1.equals("uploadTempFile") ||
 				param1.equals("waitForPopUp")) {
@@ -891,18 +891,12 @@ public class SeleneseToJavaBuilder {
 				}
 
 				sb.append(");");
-
-				if (param1.equals("open")) {
-					sb.append("loadRequiredJavaScriptModules();");
-				}
 			}
 			else if (param1.equals("clickAndWait")) {
 				sb.append("selenium.click(RuntimeVariables.replace(\"");
 				sb.append(param2);
 				sb.append("\"));");
 				sb.append("selenium.waitForPageToLoad(\"30000\");");
-
-				sb.append("loadRequiredJavaScriptModules();");
 			}
 			else if (param1.equals("clickAtAndWait") ||
 					 param1.equals("keyDownAndWait") ||
@@ -921,8 +915,6 @@ public class SeleneseToJavaBuilder {
 				sb.append(param3);
 				sb.append("\"));");
 				sb.append("selenium.waitForPageToLoad(\"30000\");");
-
-				sb.append("loadRequiredJavaScriptModules();");
 			}
 			else if (param1.equals("close") || param1.equals("goBack") ||
 					 param1.equals("refresh") ||
@@ -957,8 +949,6 @@ public class SeleneseToJavaBuilder {
 				sb.append(text);
 				sb.append("();");
 				sb.append("selenium.waitForPageToLoad(\"30000\");");
-
-				sb.append("loadRequiredJavaScriptModules();");
 			}
 			else if (param1.equals("gotoIf")) {
 				String conditional = StringUtil.replace(

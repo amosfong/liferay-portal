@@ -73,12 +73,27 @@ public interface Staging {
 			User user, long layoutSetBranchId, long plid)
 		throws SystemException;
 
+	/**
+	 * @deprecated {@link #disableStaging(Group, ServiceContext)}
+	 */
 	public void disableStaging(
 			Group scopeGroup, Group liveGroup, ServiceContext serviceContext)
 		throws Exception;
 
+	public void disableStaging(Group liveGroup, ServiceContext serviceContext)
+		throws Exception;
+
+	/**
+	 * @deprecated {@link #disableStaging(PortletRequest, Group,
+	 *             ServiceContext)}
+	 */
 	public void disableStaging(
 			PortletRequest portletRequest, Group scopeGroup, Group liveGroup,
+			ServiceContext serviceContext)
+		throws Exception;
+
+	public void disableStaging(
+			PortletRequest portletRequest, Group liveGroup,
 			ServiceContext serviceContext)
 		throws Exception;
 

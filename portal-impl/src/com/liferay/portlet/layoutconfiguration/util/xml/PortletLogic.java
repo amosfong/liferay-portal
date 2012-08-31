@@ -65,14 +65,13 @@ public class PortletLogic extends RuntimeLogic {
 
 		Element rootElement = document.getRootElement();
 
-		String rootPortletId = rootElement.attributeValue("name");
+		String portletId = rootElement.attributeValue("name");
 		String instanceId = rootElement.attributeValue("instance");
 		String queryString = rootElement.attributeValue("queryString");
 
-		String portletId = rootPortletId;
-
 		if (Validator.isNotNull(instanceId)) {
-			portletId += PortletConstants.INSTANCE_SEPARATOR + instanceId;
+			portletId = PortletConstants.assemblePortletId(
+				portletId, instanceId);
 		}
 
 		BufferCacheServletResponse bufferCacheServletResponse =
@@ -84,13 +83,34 @@ public class PortletLogic extends RuntimeLogic {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Portlet portlet = PortletLocalServiceUtil.getPortletById(
-			themeDisplay.getCompanyId(), portletId);
+		Portlet portlet = getPortlet(themeDisplay.getCompanyId(), portletId);
 
 		PortletContainerUtil.render(
 			request, bufferCacheServletResponse, portlet);
 
 		return bufferCacheServletResponse.getString();
+	}
+
+	/**
+	 * @see com.liferay.portal.model.impl.LayoutTypePortletImpl#getStaticPortlets(
+	 *      String)
+	 */
+	protected Portlet getPortlet(long companyId, String portletId)
+		throws Exception {
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			companyId, portletId);
+
+		// See LayoutTypePortletImpl#getStaticPortlets for why we only clone
+		// non-instanceable portlets
+
+		if (!portlet.isInstanceable()) {
+			portlet = (Portlet)portlet.clone();
+		}
+
+		portlet.setStatic(true);
+
+		return portlet;
 	}
 
 	private HttpServletRequest _request;

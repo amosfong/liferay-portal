@@ -24,7 +24,6 @@ public class SOUs_SearchSitesSiteTypePrivateRestrictedTest extends BaseTestCase 
 	public void testSOUs_SearchSitesSiteTypePrivateRestricted()
 		throws Exception {
 		selenium.open("/user/socialoffice01/so/dashboard");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -62,7 +61,7 @@ public class SOUs_SearchSitesSiteTypePrivateRestrictedTest extends BaseTestCase 
 
 			try {
 				if (selenium.isVisible(
-							"//button[contains(.,'Site Directory')]/span[2]")) {
+							"//button[contains(.,'Sites Directory')]/span[2]")) {
 					break;
 				}
 			}
@@ -72,10 +71,10 @@ public class SOUs_SearchSitesSiteTypePrivateRestrictedTest extends BaseTestCase 
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Site Directory"),
-			selenium.getText("//button[contains(.,'Site Directory')]/span[2]"));
-		selenium.clickAt("//button[contains(.,'Site Directory')]/span[2]",
-			RuntimeVariables.replace("Site Directory"));
+		assertEquals(RuntimeVariables.replace("Sites Directory"),
+			selenium.getText("//button[contains(.,'Sites Directory')]/span[2]"));
+		selenium.clickAt("//button[contains(.,'Sites Directory')]/span[2]",
+			RuntimeVariables.replace("Sites Directory"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -111,7 +110,6 @@ public class SOUs_SearchSitesSiteTypePrivateRestrictedTest extends BaseTestCase 
 		selenium.clickAt("//span[@class='name']/a",
 			RuntimeVariables.replace("Private Restricted Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertTrue(selenium.isElementNotPresent(
 				"//div[@class='community-title']"));
 	}

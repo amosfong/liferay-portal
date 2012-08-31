@@ -28,7 +28,6 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 			switch (label) {
 			case 1:
 				selenium.open("/web/guest/home/");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -49,27 +48,22 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 				selenium.clickAt("link=Control Panel",
 					RuntimeVariables.replace("Control Panel"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				selenium.clickAt("link=Users and Organizations",
 					RuntimeVariables.replace("Users and Organizations"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				selenium.clickAt("link=Search All Users",
 					RuntimeVariables.replace("Search All Users"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				selenium.type("//input[@id='_125_toggle_id_users_admin_user_searchkeywords']",
 					RuntimeVariables.replace("socialoffice01"));
 				selenium.clickAt("//input[@value='Search']",
 					RuntimeVariables.replace("Search"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertEquals(RuntimeVariables.replace("Social01"),
 					selenium.getText("//a[contains(.,'Social01')]"));
 				selenium.clickAt("//a[contains(.,'Social01')]",
 					RuntimeVariables.replace("Social01"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertEquals(RuntimeVariables.replace(
 						"Social01 Office01 User01"),
 					selenium.getText("//div[2]/h1/span"));
@@ -102,7 +96,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 
 					try {
 						if (selenium.isVisible(
-									"//input[contains(@id,'_125_projectsEntryTitle')]")) {
+									"//input[@id='_125_projectsEntryTitle0']")) {
 							break;
 						}
 					}
@@ -112,7 +106,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 					Thread.sleep(1000);
 				}
 
-				selenium.type("//input[contains(@id,'_125_projectsEntryTitle')]",
+				selenium.type("//input[@id='_125_projectsEntryTitle0']",
 					RuntimeVariables.replace("Expertise Title"));
 
 				for (int second = 0;; second++) {
@@ -122,7 +116,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 
 					try {
 						if (selenium.isPartialText(
-									"//select[contains(@id,'_125_projectsEntryStartDateMonth')]",
+									"//select[contains(@id,'_125_projectsEntryStartDateMonth0')]",
 									"January")) {
 							break;
 						}
@@ -133,7 +127,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 					Thread.sleep(1000);
 				}
 
-				selenium.select("//select[contains(@id,'_125_projectsEntryStartDateMonth')]",
+				selenium.select("//select[contains(@id,'_125_projectsEntryStartDateMonth0')]",
 					RuntimeVariables.replace("January"));
 				assertTrue(selenium.isElementPresent(
 						"//input[@id='_125_projectsEntryCurrent0Checkbox']"));
@@ -159,7 +153,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 
 					try {
 						if (selenium.isVisible(
-									"//textarea[contains(@id,'_125_projectsEntryDescription')]")) {
+									"//textarea[@id='_125_projectsEntryDescription0']")) {
 							break;
 						}
 					}
@@ -169,12 +163,11 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 					Thread.sleep(1000);
 				}
 
-				selenium.type("//textarea[contains(@id,'_125_projectsEntryDescription')]",
+				selenium.type("//textarea[@id='_125_projectsEntryDescription0']",
 					RuntimeVariables.replace("Expertise Description"));
 				selenium.clickAt("//input[@value='Save']",
 					RuntimeVariables.replace("Save"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -200,7 +193,7 @@ public class AddUserSOExpertiseTest extends BaseTestCase {
 					selenium.getValue("//input[@id='_125_projectsEntryTitle0']"));
 				assertEquals("January",
 					selenium.getSelectedLabel(
-						"//select[@id='_125_projectsEntryStartDateMonth0']"));
+						"//select[contains(@id,'_125_projectsEntryStartDateMonth0')]"));
 				assertTrue(selenium.isChecked(
 						"//input[@id='_125_projectsEntryCurrent0Checkbox']"));
 				assertEquals(RuntimeVariables.replace("Expertise Description"),

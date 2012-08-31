@@ -618,7 +618,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the portlet display style instance of the portlet
 	*/
-	public com.liferay.portal.kernel.template.PortletDisplayTemplateHandler getPortletDisplayTemplateHandlerInstance();
+	public com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler getPortletDisplayTemplateHandlerInstance();
 
 	/**
 	* Returns the filters of the portlet.
@@ -1025,6 +1025,14 @@ public interface Portlet extends PortletModel, PersistedModel {
 	* @return <code>true</code> if the portlet uses the default template
 	*/
 	public boolean getUseDefaultTemplate();
+
+	/**
+	* Returns the user ID of the portlet. This only applies when the portlet is
+	* added by a user in a customizable layout.
+	*
+	* @return the user ID of the portlet
+	*/
+	public long getUserId();
 
 	/**
 	* Returns the user principal strategy of the portlet.

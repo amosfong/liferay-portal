@@ -96,14 +96,27 @@ else if (fileEntry != null) {
 	assetClassPK = fileEntry.getFileEntryId();
 }
 
+boolean approved = false;
 boolean checkedOut = false;
+boolean draft = false;
 boolean hasLock = false;
+boolean pending = false;
+
 Lock lock = null;
 
 if (fileEntry != null) {
+	approved = fileVersion.isApproved();
 	checkedOut = fileEntry.isCheckedOut();
+	draft = fileVersion.isDraft();
 	hasLock = fileEntry.hasLock();
 	lock = fileEntry.getLock();
+	pending = fileVersion.isPending();
+}
+
+boolean saveAsDraft = false;
+
+if ((checkedOut || pending) && !PropsValues.DL_FILE_ENTRY_DRAFTS_ENABLED) {
+	saveAsDraft = true;
 }
 
 PortletURL portletURL = renderResponse.createRenderURL();
@@ -169,7 +182,7 @@ else if (dlFileEntryType != null) {
 	<portlet:param name="uploader" value="classic" />
 </portlet:actionURL>
 
-<aui:form action="<%= editFileEntryURL %>" cssClass="lfr-dynamic-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveFileEntry(false);" %>'>
+<aui:form action="<%= editFileEntryURL %>" cssClass="lfr-dynamic-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveFileEntry(" + saveAsDraft + ");" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
@@ -385,18 +398,6 @@ else if (dlFileEntryType != null) {
 			</aui:field-wrapper>
 		</c:if>
 
-		<%
-		boolean approved = false;
-		boolean draft = false;
-		boolean pending = false;
-
-		if (fileVersion != null) {
-			approved = fileVersion.isApproved();
-			draft = fileVersion.isDraft();
-			pending = fileVersion.isPending();
-		}
-		%>
-
 		<c:if test="<%= approved %>">
 			<div class="portlet-msg-info">
 				<liferay-ui:message key="a-new-version-will-be-created-automatically-if-this-content-is-modified" />
@@ -417,27 +418,25 @@ else if (dlFileEntryType != null) {
 			if ((fileVersion == null) || draft || approved) {
 				saveButtonLabel = "save-as-draft";
 			}
-
-			String publishButtonLabel = "publish";
-
-			if (DLUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, folderId, fileEntryTypeId)) {
-				publishButtonLabel = "submit-for-publication";
-			}
-
-			boolean saveAsDraft = false;
-
-			if ((checkedOut || pending) && !PropsValues.DL_FILE_ENTRY_DRAFTS_ENABLED) {
-				publishButtonLabel = "save";
-
-				saveAsDraft = true;
-			}
 			%>
 
 			<c:if test="<%= PropsValues.DL_FILE_ENTRY_DRAFTS_ENABLED %>">
 				<aui:button disabled="<%= checkedOut && !hasLock %>" name="saveButton" onClick='<%= renderResponse.getNamespace() + "saveFileEntry(true);" %>' value="<%= saveButtonLabel %>" />
 			</c:if>
 
-			<aui:button disabled="<%= checkedOut && !hasLock || (pending && PropsValues.DL_FILE_ENTRY_DRAFTS_ENABLED) %>" name="publishButton" onClick='<%= renderResponse.getNamespace() + "saveFileEntry(" + saveAsDraft + ");" %>' value="<%= publishButtonLabel %>" />
+			<%
+			String publishButtonLabel = "publish";
+
+			if (DLUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, folderId, fileEntryTypeId)) {
+				publishButtonLabel = "submit-for-publication";
+			}
+
+			if (saveAsDraft) {
+				publishButtonLabel = "save";
+			}
+			%>
+
+			<aui:button disabled="<%= checkedOut && !hasLock || (pending && PropsValues.DL_FILE_ENTRY_DRAFTS_ENABLED) %>" name="publishButton" type="submit" value="<%= publishButtonLabel %>" />
 
 			<c:if test="<%= (fileEntry != null) && ((checkedOut && hasLock) || !checkedOut) %>">
 				<c:choose>

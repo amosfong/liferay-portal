@@ -23,7 +23,28 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class AddPortletHWPageVariationTest extends BaseTestCase {
 	public void testAddPortletHWPageVariation() throws Exception {
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
+		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
+		selenium.waitForPageToLoad("30000");
+		assertTrue(selenium.isElementPresent(
+				"//body[contains(@class,'live-view')]"));
+		assertTrue(selenium.isElementNotPresent(
+				"//body[contains(@class,'local-staging')]"));
+		assertTrue(selenium.isPartialText("//li[2]/span/a", "Staging"));
+		selenium.clickAt("//li[2]/span/a", RuntimeVariables.replace("Staging"));
+		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Main Variation"),
+			selenium.getText("//li[1]/span/span"));
+		assertEquals(RuntimeVariables.replace("Page Variation Name"),
+			selenium.getText("//li[2]/span/a"));
+		selenium.clickAt("//li[2]/span/a",
+			RuntimeVariables.replace("Page Variation Name"));
+		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Main Variation"),
+			selenium.getText("//form/div/ul/li[1]/span/a"));
+		assertEquals(RuntimeVariables.replace("Page Variation Name"),
+			selenium.getText("//form/div/ul/li[2]/span/span"));
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -31,7 +52,8 @@ public class AddPortletHWPageVariationTest extends BaseTestCase {
 			}
 
 			try {
-				if (selenium.isElementPresent("link=Site Name")) {
+				if (selenium.isElementPresent(
+							"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]")) {
 					break;
 				}
 			}
@@ -41,29 +63,26 @@ public class AddPortletHWPageVariationTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
-		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
-		assertTrue(selenium.isElementPresent(
-				"//body[contains(@class,'live-view')]"));
-		assertTrue(selenium.isElementNotPresent(
-				"//body[contains(@class,'local-staging')]"));
-		assertTrue(selenium.isPartialText("//li[2]/span/a", "Staging"));
-		selenium.clickAt("//li[2]/span/a", RuntimeVariables.replace("Staging"));
-		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
-		assertEquals(RuntimeVariables.replace("Main Variation"),
-			selenium.getText("//li[1]/span/span"));
-		assertEquals(RuntimeVariables.replace("Page Variation Name"),
-			selenium.getText("//li[2]/span/a"));
-		selenium.clickAt("//li[2]/span/a",
-			RuntimeVariables.replace("Page Variation Name"));
-		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
-		assertEquals(RuntimeVariables.replace("Main Variation"),
-			selenium.getText("//form/div/ul/li[1]/span/a"));
-		assertEquals(RuntimeVariables.replace("Page Variation Name"),
-			selenium.getText("//form/div/ul/li[2]/span/span"));
+		assertEquals(RuntimeVariables.replace("Add"),
+			selenium.getText("//li[@id='_145_addContent']/a/span"));
+		selenium.mouseOver("//li[@id='_145_addContent']/a/span");
+
+		for (int second = 0;; second++) {
+			if (second >= 90) {
+				fail("timeout");
+			}
+
+			try {
+				if (selenium.isVisible("//a[@id='_145_addApplication']")) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+
 		assertTrue(selenium.isPartialText("//a[@id='_145_addApplication']",
 				"More"));
 		selenium.clickAt("//a[@id='_145_addApplication']",
@@ -75,7 +94,48 @@ public class AddPortletHWPageVariationTest extends BaseTestCase {
 			}
 
 			try {
-				if (selenium.isElementPresent("//div[@title='Hello World']/p/a")) {
+				if (selenium.isElementPresent(
+							"//script[contains(@src,'/aui/aui-live-search/aui-live-search-min.js')]")) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+
+		for (int second = 0;; second++) {
+			if (second >= 90) {
+				fail("timeout");
+			}
+
+			try {
+				if (selenium.isVisible(
+							"//input[@id='layout_configuration_content']")) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
+
+		selenium.type("//input[@id='layout_configuration_content']",
+			RuntimeVariables.replace("h"));
+		selenium.keyDown("//input[@id='layout_configuration_content']",
+			RuntimeVariables.replace("\\13"));
+		selenium.keyUp("//input[@id='layout_configuration_content']",
+			RuntimeVariables.replace("\\13"));
+
+		for (int second = 0;; second++) {
+			if (second >= 90) {
+				fail("timeout");
+			}
+
+			try {
+				if (selenium.isVisible("//div[@title='Hello World']/p/a")) {
 					break;
 				}
 			}

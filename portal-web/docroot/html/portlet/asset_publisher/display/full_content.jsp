@@ -34,6 +34,7 @@ boolean print = ((Boolean)request.getAttribute("view.jsp-print")).booleanValue()
 
 request.setAttribute(WebKeys.LAYOUT_ASSET_ENTRY, assetEntry);
 
+request.setAttribute("view.jsp-fullContentRedirect", currentURL);
 request.setAttribute("view.jsp-showIconLabel", true);
 %>
 
@@ -127,9 +128,10 @@ request.setAttribute("view.jsp-showIconLabel", true);
 	viewFullContentURLString = HttpUtil.setParameter(viewFullContentURLString, "redirect", currentURL);
 	%>
 
-	<div class="asset-content">
+	<div class="asset-content" id="<portlet:namespace /><%= assetEntry.getEntryId() %>">
 		<c:if test='<%= enableSocialBookmarks && socialBookmarksDisplayPosition.equals("top") %>'>
 			<liferay-ui:social-bookmarks
+				contentId="<%= String.valueOf(assetEntry.getEntryId()) %>"
 				displayStyle="<%= socialBookmarksDisplayStyle %>"
 				target="_blank"
 				title="<%= assetEntry.getTitle(locale) %>"

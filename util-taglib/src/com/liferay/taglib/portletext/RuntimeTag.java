@@ -89,7 +89,7 @@ public class RuntimeTag extends TagSupport {
 			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			Portlet portlet = getPortlet(
 				themeDisplay.getCompanyId(), portletId);
 
 			PortletContainerUtil.render(request, response, portlet);
@@ -164,6 +164,28 @@ public class RuntimeTag extends TagSupport {
 
 	public void setQueryString(String queryString) {
 		_queryString = queryString;
+	}
+
+	/**
+	 * @see com.liferay.portal.model.impl.LayoutTypePortletImpl#getStaticPortlets(
+	 *      String)
+	 */
+	protected static Portlet getPortlet(long companyId, String portletId)
+		throws Exception {
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			companyId, portletId);
+
+		// See LayoutTypePortletImpl#getStaticPortlets for why we only clone
+		// non-instanceable portlets
+
+		if (!portlet.isInstanceable()) {
+			portlet = (Portlet)portlet.clone();
+		}
+
+		portlet.setStatic(true);
+
+		return portlet;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(RuntimeTag.class);

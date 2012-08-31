@@ -88,6 +88,7 @@ import com.liferay.portlet.messageboards.util.comparator.MessageThreadComparator
 import com.liferay.portlet.messageboards.util.comparator.ThreadLastPostDateComparator;
 import com.liferay.portlet.social.model.SocialActivity;
 import com.liferay.portlet.social.model.SocialActivityConstants;
+import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.util.SerializableUtil;
 
 import java.io.InputStream;
@@ -119,7 +120,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		long threadId = 0;
-		long parentMessageId = 0;
+		long parentMessageId = MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID;
 		String subject = String.valueOf(classPK);
 		String body = subject;
 
@@ -734,6 +735,34 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		return message;
 	}
 
+	public void deleteMessageAttachment(long messageId, String fileName)
+		throws PortalException, SystemException {
+
+		MBMessage message = getMessage(messageId);
+
+		DLStoreUtil.deleteFile(
+			message.getCompanyId(), CompanyConstants.SYSTEM, fileName);
+	}
+
+	public void deleteMessageAttachments(long messageId)
+		throws PortalException, SystemException {
+
+		MBMessage message = getMessage(messageId);
+
+		long companyId = message.getCompanyId();
+		long repositoryId = CompanyConstants.SYSTEM;
+		String dirName = message.getDeletedAttachmentsDir();
+
+		try {
+			DLStoreUtil.deleteDirectory(companyId, repositoryId, dirName);
+		}
+		catch (NoSuchDirectoryException nsde) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsde.getMessage());
+			}
+		}
+	}
+
 	public List<MBMessage> getCategoryMessages(
 			long groupId, long categoryId, int status, int start, int end)
 		throws SystemException {
@@ -1254,6 +1283,27 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			userId, classNameId, classPK, status);
 	}
 
+	public void moveMessageAttachmentFromTrash(
+			long messageId, String deletedFileName)
+		throws PortalException, SystemException {
+
+		MBMessage message = getMessage(messageId);
+
+		TrashUtil.moveAttachmentFromTrash(
+			message.getCompanyId(), CompanyConstants.SYSTEM, deletedFileName,
+			message.getAttachmentsDir());
+	}
+
+	public String moveMessageAttachmentToTrash(long messageId, String fileName)
+		throws PortalException, SystemException {
+
+		MBMessage message = getMessage(messageId);
+
+		return TrashUtil.moveAttachmentToTrash(
+			message.getCompanyId(), CompanyConstants.SYSTEM, fileName,
+			message.getDeletedAttachmentsDir());
+	}
+
 	public void subscribeMessage(long userId, long messageId)
 		throws PortalException, SystemException {
 
@@ -1403,7 +1453,12 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 			for (String fileName : fileNames) {
 				if (!existingFiles.contains(fileName)) {
-					DLStoreUtil.deleteFile(companyId, repositoryId, fileName);
+					if (!TrashUtil.isTrashEnabled(message.getGroupId())) {
+						deleteMessageAttachment(messageId, fileName);
+					}
+					else {
+						moveMessageAttachmentToTrash(messageId, fileName);
+					}
 				}
 			}
 
@@ -1425,6 +1480,15 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		}
 		else {
 			try {
+				if (TrashUtil.isTrashEnabled(message.getGroupId())) {
+					String[] fileNames = DLStoreUtil.getFileNames(
+						companyId, repositoryId, dirName);
+
+					for (String fileName : fileNames) {
+						moveMessageAttachmentToTrash(messageId, fileName);
+					}
+				}
+
 				DLStoreUtil.deleteDirectory(companyId, repositoryId, dirName);
 			}
 			catch (NoSuchDirectoryException nsde) {
@@ -1666,7 +1730,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 			// Subscriptions
 
-			notifySubscribers(message, serviceContext);
+			notifySubscribers((MBMessage)message.clone(), serviceContext);
 
 			// Indexer
 
@@ -1928,10 +1992,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		categoryIds.add(message.getCategoryId());
 
-		if ((message.getCategoryId() !=
-				MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) &&
-			(message.getCategoryId() !=
-				MBCategoryConstants.DISCUSSION_CATEGORY_ID)) {
+		if (message.getCategoryId() !=
+				MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
 
 			categoryIds.addAll(category.getAncestorCategoryIds());
 		}
@@ -2048,13 +2110,14 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			(SubscriptionSender)SerializableUtil.clone(
 				subscriptionSenderPrototype);
 
-		for (long categoryId : categoryIds) {
-			if (categoryId == MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
-				categoryId = message.getGroupId();
-			}
+		subscriptionSender.addPersistedSubscribers(
+			MBCategory.class.getName(), message.getGroupId());
 
-			subscriptionSender.addPersistedSubscribers(
-				MBCategory.class.getName(), categoryId);
+		for (long categoryId : categoryIds) {
+			if (categoryId != MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
+				subscriptionSender.addPersistedSubscribers(
+					MBCategory.class.getName(), categoryId);
+			}
 		}
 
 		subscriptionSender.addPersistedSubscribers(

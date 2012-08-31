@@ -16,8 +16,11 @@
 
 <%@ include file="/html/portlet/init.jsp" %>
 
-<%@ page import="com.liferay.portal.util.LayoutLister" %><%@
-page import="com.liferay.portal.util.LayoutView" %>
+<%@ page import="com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler" %><%@
+page import="com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandlerRegistryUtil" %><%@
+page import="com.liferay.portal.util.LayoutLister" %><%@
+page import="com.liferay.portal.util.LayoutView" %><%@
+page import="com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateUtil" %>
 
 <%
 PortletPreferences preferences = renderRequest.getPreferences();
@@ -30,6 +33,7 @@ if (Validator.isNotNull(portletResource)) {
 
 String rootLayoutUuid = GetterUtil.getString(preferences.getValue("rootLayoutUuid", StringPool.BLANK));
 int displayDepth = GetterUtil.getInteger(preferences.getValue("displayDepth", StringPool.BLANK));
+String displayStyle = GetterUtil.getString(preferences.getValue("displayStyle", StringPool.BLANK));
 boolean includeRootInTree = GetterUtil.getBoolean(preferences.getValue("includeRootInTree", StringPool.BLANK));
 boolean showCurrentPage = GetterUtil.getBoolean(preferences.getValue("showCurrentPage", StringPool.BLANK));
 boolean useHtmlTitle = GetterUtil.getBoolean(preferences.getValue("useHtmlTitle", StringPool.BLANK));

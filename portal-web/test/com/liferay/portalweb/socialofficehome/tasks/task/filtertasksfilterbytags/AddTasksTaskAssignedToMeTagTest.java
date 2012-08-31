@@ -28,7 +28,6 @@ public class AddTasksTaskAssignedToMeTagTest extends BaseTestCase {
 			switch (label) {
 			case 1:
 				selenium.open("/user/joebloggs/so/dashboard/");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -50,7 +49,6 @@ public class AddTasksTaskAssignedToMeTagTest extends BaseTestCase {
 				selenium.clickAt("//nav/ul/li[contains(.,'Tasks')]/a/span",
 					RuntimeVariables.replace("Tasks"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertEquals(RuntimeVariables.replace("Tasks"),
 					selenium.getText("//span[@class='portlet-title-default']"));
 				assertEquals(RuntimeVariables.replace("Add Task"),
@@ -117,6 +115,23 @@ public class AddTasksTaskAssignedToMeTagTest extends BaseTestCase {
 
 				selenium.type("//input[@title='Add Tags']",
 					RuntimeVariables.replace("Tag2"));
+
+				for (int second = 0;; second++) {
+					if (second >= 90) {
+						fail("timeout");
+					}
+
+					try {
+						if (selenium.isVisible("//button[@id='add']")) {
+							break;
+						}
+					}
+					catch (Exception e) {
+					}
+
+					Thread.sleep(1000);
+				}
+
 				selenium.clickAt("//button[@id='add']",
 					RuntimeVariables.replace("Add"));
 

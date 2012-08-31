@@ -112,11 +112,11 @@ portletURL.setParameter("callback", callback);
 
 			// Description
 
-			row.addText(assetEntry.getSummary(locale), rowHREF);
+			row.addText(HtmlUtil.stripHtml(HtmlUtil.unescape(assetEntry.getDescription(locale))), rowHREF);
 
 			// User name
 
-			row.addText(HtmlUtil.escape(PortalUtil.getUserName(assetEntry.getUserId(), assetEntry.getUserName())), rowHREF);
+			row.addText(PortalUtil.getUserName(assetEntry), rowHREF);
 
 			// Modified date
 

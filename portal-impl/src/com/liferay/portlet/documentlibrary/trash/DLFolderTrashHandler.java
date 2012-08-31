@@ -30,8 +30,11 @@ import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderServiceUtil;
+import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.trash.DuplicateEntryException;
 import com.liferay.portlet.trash.model.TrashEntry;
+
+import javax.portlet.PortletRequest;
 
 /**
  * Represents the trash handler for the folder entity.
@@ -79,6 +82,8 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 	 * Deletes all folders with the matching primary keys.
 	 *
 	 * @param  classPKs the primary keys of the folders to be deleted
+	 * @param  checkPermission whether to check permission before deleting each
+	 *         folder
 	 * @throws PortalException if any one of the folders could not be found
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -102,6 +107,26 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 	 */
 	public String getClassName() {
 		return CLASS_NAME;
+	}
+
+	@Override
+	public String getRestoreLink(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException {
+
+		DLFolder dlFolder = getDLFolder(classPK);
+
+		return DLUtil.getDLControlPanelLink(
+			portletRequest, dlFolder.getParentFolderId());
+	}
+
+	@Override
+	public String getRestoreMessage(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException {
+
+		DLFolder dlFolder = getDLFolder(classPK);
+
+		return DLUtil.getAbsolutePath(
+			portletRequest, dlFolder.getParentFolderId());
 	}
 
 	/**

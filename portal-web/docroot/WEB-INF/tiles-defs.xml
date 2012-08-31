@@ -680,6 +680,14 @@
 		<put name="portlet_content" value="/portlet/journal/error.jsp" />
 	</definition>
 
+	<definition name="portlet.journal.move_article" extends="portlet.journal">
+		<put name="portlet_content" value="/portlet/journal/move_article.jsp" />
+	</definition>
+
+	<definition name="portlet.journal.move_entries" extends="portlet.journal">
+		<put name="portlet_content" value="/portlet/journal/move_entries.jsp" />
+	</definition>
+
 	<definition name="portlet.journal.move_folder" extends="portlet.journal">
 		<put name="portlet_content" value="/portlet/journal/move_folder.jsp" />
 	</definition>
@@ -922,6 +930,10 @@
 
 	<definition name="portlet.message_boards.view" extends="portlet.message_boards">
 		<put name="portlet_content" value="/portlet/message_boards/view.jsp" />
+	</definition>
+
+	<definition name="portlet.message_boards.view_deleted_message_attachments" extends="portlet.message_boards">
+		<put name="portlet_content" value="/portlet/message_boards/view_deleted_message_attachments.jsp" />
 	</definition>
 
 	<definition name="portlet.message_boards.view_message" extends="portlet.message_boards">
@@ -1691,6 +1703,10 @@
 
 	<definition name="portlet.wiki.view_draft_pages" extends="portlet.wiki">
 		<put name="portlet_content" value="/portlet/wiki/view_draft_pages.jsp" />
+	</definition>
+
+	<definition name="portlet.wiki.view_node_deleted_attachments" extends="portlet.wiki">
+		<put name="portlet_content" value="/portlet/wiki/view_node_deleted_attachments.jsp" />
 	</definition>
 
 	<definition name="portlet.wiki.view_nodes" extends="portlet.wiki">

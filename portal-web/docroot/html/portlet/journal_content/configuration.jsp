@@ -152,6 +152,16 @@ type = ParamUtil.getString(request, "type", type);
 	dynamicRenderRequest.setParameter("groupId", String.valueOf(groupId));
 
 	ArticleSearch searchContainer = new ArticleSearch(dynamicRenderRequest, configurationRenderURL);
+
+	List<String> headerNames = searchContainer.getHeaderNames();
+
+	headerNames.clear();
+
+	headerNames.add("id");
+	headerNames.add("title");
+	headerNames.add("modified-date");
+	headerNames.add("display-date");
+	headerNames.add("author");
 	%>
 
 	<liferay-ui:search-form
@@ -169,6 +179,7 @@ type = ParamUtil.getString(request, "type", type);
 
 	ArticleSearchTerms searchTerms = (ArticleSearchTerms)searchContainer.getSearchTerms();
 
+	searchTerms.setFolderIds(new ArrayList<Long>());
 	searchTerms.setVersion(-1);
 
 	List<JournalArticle> results = null;
@@ -217,7 +228,7 @@ type = ParamUtil.getString(request, "type", type);
 
 		// Author
 
-		row.addText(HtmlUtil.escape(PortalUtil.getUserName(curArticle.getUserId(), curArticle.getUserName())), rowHREF);
+		row.addText(PortalUtil.getUserName(curArticle), rowHREF);
 
 		// Add result row
 

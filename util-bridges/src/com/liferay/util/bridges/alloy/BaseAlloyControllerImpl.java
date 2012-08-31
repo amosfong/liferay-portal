@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.PortletBag;
+import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
@@ -49,6 +51,7 @@ import java.lang.reflect.Method;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -137,7 +140,9 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 			persistedModel.persist();
 		}
 
-		if (indexer != null) {
+		if ((indexer != null) &&
+			indexerClassName.equals(baseModel.getModelClassName())) {
+
 			indexer.reindex(baseModel);
 		}
 	}
@@ -258,9 +263,32 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 	protected void initIndexer() {
 		indexer = buildIndexer();
 
-		if (indexer != null) {
-			IndexerRegistryUtil.register(indexer);
+		if (indexer == null) {
+			return;
 		}
+
+		indexerClassName = indexer.getClassNames()[0];
+
+		Indexer existingIndexer = IndexerRegistryUtil.getIndexer(
+			indexerClassName);
+
+		if ((existingIndexer != null) && (existingIndexer == indexer)) {
+			return;
+		}
+
+		PortletBag portletBag = PortletBagPool.get(portlet.getPortletId());
+
+		List<Indexer> indexerInstances = portletBag.getIndexerInstances();
+
+		if (existingIndexer != null) {
+			IndexerRegistryUtil.unregister(existingIndexer);
+
+			indexerInstances.remove(existingIndexer);
+		}
+
+		IndexerRegistryUtil.register(indexer);
+
+		indexerInstances.add(indexer);
 	}
 
 	protected void initMethods() {
@@ -323,6 +351,8 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 
 		alloyPortlet = (AlloyPortlet)request.getAttribute(
 			JavaConstants.JAVAX_PORTLET_PORTLET);
+
+		alloyPortlet.registerAlloyController(this);
 
 		portletRequest = (PortletRequest)request.getAttribute(
 			JavaConstants.JAVAX_PORTLET_REQUEST);
@@ -504,6 +534,7 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 	protected EventRequest eventRequest;
 	protected EventResponse eventResponse;
 	protected Indexer indexer;
+	protected String indexerClassName;
 	protected String lifecycle;
 	protected LiferayPortletConfig liferayPortletConfig;
 	protected LiferayPortletResponse liferayPortletResponse;

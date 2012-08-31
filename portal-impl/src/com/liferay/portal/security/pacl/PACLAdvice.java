@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
 import com.liferay.portal.service.impl.PortalServiceImpl;
 import com.liferay.portal.spring.aop.ChainableMethodAdvice;
-import com.liferay.portal.spring.aop.ServiceBeanAopProxy;
 
 import java.lang.reflect.Method;
 
@@ -45,7 +44,8 @@ public class PACLAdvice extends ChainableMethodAdvice {
 		}
 
 		if (!PACLPolicyManager.isActive()) {
-			ServiceBeanAopProxy.removeMethodInterceptor(methodInvocation, this);
+			serviceBeanAopCacheManager.removeMethodInterceptor(
+				methodInvocation, this);
 
 			try {
 				return methodInvocation.proceed();

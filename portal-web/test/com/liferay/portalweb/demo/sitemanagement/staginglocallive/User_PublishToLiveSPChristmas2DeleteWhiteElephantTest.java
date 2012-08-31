@@ -30,7 +30,6 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 			switch (label) {
 			case 1:
 				selenium.open("/web/guest/home/");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -51,7 +50,6 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 				selenium.clickAt("link=Site Name",
 					RuntimeVariables.replace("Site Name"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertTrue(selenium.isElementPresent(
 						"//body[contains(@class,'live-view')]"));
 				assertTrue(selenium.isElementNotPresent(
@@ -62,7 +60,6 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 				selenium.clickAt("//div[@class='staging-bar']/ul/li[2]/span/a",
 					RuntimeVariables.replace("Staging"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertTrue(selenium.isElementPresent(
 						"//body[contains(@class,'local-staging')]"));
 				assertTrue(selenium.isElementNotPresent(
@@ -80,7 +77,6 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 				selenium.clickAt("link=Christmas 2",
 					RuntimeVariables.replace("Christmas 2"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 
 			case 2:
 				assertEquals(RuntimeVariables.replace(
@@ -91,7 +87,7 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 				assertTrue(selenium.isVisible("link=Home"));
 				selenium.clickAt("link=Home", RuntimeVariables.replace("Home"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
+				Thread.sleep(5000);
 				selenium.clickAt("//span[2]/span/ul/li/strong/a",
 					RuntimeVariables.replace("Christmas 2 Staging"));
 
@@ -191,6 +187,8 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 
 				selenium.clickAt("//li/div/div[1]",
 					RuntimeVariables.replace("Drop Down Arrow"));
+				selenium.clickAt("//li/div/div[1]",
+					RuntimeVariables.replace("Drop Down Arrow"));
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -273,10 +271,10 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 					selenium.getText("//li[4]/div/div[4]"));
 				selenium.clickAt("//li[4]/div/div[4]",
 					RuntimeVariables.replace("White Elephant"));
-				assertEquals(RuntimeVariables.replace("Prices"),
+				assertEquals(RuntimeVariables.replace("Prices [main-variation]"),
 					selenium.getText("//li[5]/div/div[4]"));
 				selenium.clickAt("//li[5]/div/div[4]",
-					RuntimeVariables.replace("Prices"));
+					RuntimeVariables.replace("Prices [main-variation]"));
 				Thread.sleep(5000);
 				selenium.clickAt("//input[@value='Select']",
 					RuntimeVariables.replace("Select"));
@@ -298,18 +296,20 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 					Thread.sleep(1000);
 				}
 
-				assertEquals(RuntimeVariables.replace("Home"),
+				assertEquals(RuntimeVariables.replace("Home [Main Variation]"),
 					selenium.getText("//tr/td[2]/span[contains(.,'Home')]"));
-				assertEquals(RuntimeVariables.replace("Calendar"),
+				assertEquals(RuntimeVariables.replace(
+						"Calendar [Main Variation]"),
 					selenium.getText("//tr/td[2]/span[contains(.,'Calendar')]"));
-				assertEquals(RuntimeVariables.replace("Wiki"),
+				assertEquals(RuntimeVariables.replace("Wiki [Main Variation]"),
 					selenium.getText("//tr/td[2]/span[contains(.,'Wiki')]"));
-				assertEquals(RuntimeVariables.replace("White Elephant"),
+				assertEquals(RuntimeVariables.replace(
+						"White Elephant [Main Variation]"),
 					selenium.getText(
 						"//tr/td[2]/span[contains(.,'White Elephant')]"));
-				assertEquals(RuntimeVariables.replace("Change"),
-					selenium.getText(
-						"//tr[contains(.,'White Elephant')]/td[3]/div/span/a"));
+				assertTrue(selenium.isPartialText(
+						"//tr[contains(.,'White Elephant')]/td[3]/div/span/a",
+						"Change"));
 				selenium.clickAt("//tr[contains(.,'White Elephant')]/td[3]/div/span/a",
 					RuntimeVariables.replace("Change"));
 
@@ -333,7 +333,7 @@ public class User_PublishToLiveSPChristmas2DeleteWhiteElephantTest
 				selenium.clickAt("//tr[contains(.,'White Elephant')]/td[3]/div[2]/span[1]/span/span/input",
 					RuntimeVariables.replace("Delete live page."));
 				assertEquals(RuntimeVariables.replace("Prices"),
-					selenium.getText("//tr/td[2]/span[contains(.,'Prices')]"));
+					selenium.getText("//td[2]/span[contains(.,'Prices')]"));
 				Thread.sleep(5000);
 
 				boolean allVisible = selenium.isVisible("_88_rangeAll");

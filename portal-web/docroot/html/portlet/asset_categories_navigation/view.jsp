@@ -16,6 +16,10 @@
 
 <%@ include file="/html/portlet/asset_categories_navigation/init.jsp" %>
 
+<%
+long portletDisplayDDMTemplateId = PortletDisplayTemplateUtil.getPortletDisplayTemplateDDMTemplateId(themeDisplay, displayTemplate);
+%>
+
 <c:choose>
 	<c:when test="<%= portletDisplayDDMTemplateId > 0 %>">
 
@@ -36,7 +40,7 @@
 		}
 		%>
 
-		<%= PortletDisplayTemplatesUtil.renderDDMTemplate(renderRequest, renderResponse, portletDisplayDDMTemplateId, ddmTemplateAssetVocabularies) %>
+		<%= PortletDisplayTemplateUtil.renderDDMTemplate(renderRequest, renderResponse, portletDisplayDDMTemplateId, ddmTemplateAssetVocabularies) %>
 	</c:when>
 	<c:otherwise>
 		<c:choose>

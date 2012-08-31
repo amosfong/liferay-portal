@@ -29,7 +29,6 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 			switch (label) {
 			case 1:
 				selenium.open("/web/guest/home/");
-				loadRequiredJavaScriptModules();
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -50,7 +49,6 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 				selenium.clickAt("link=Site Name",
 					RuntimeVariables.replace("Site Name"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertTrue(selenium.isElementPresent(
 						"//body[contains(@class,'live-view')]"));
 				assertTrue(selenium.isElementNotPresent(
@@ -61,7 +59,6 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 				selenium.clickAt("//div[@class='staging-bar']/ul/li[2]/span/a",
 					RuntimeVariables.replace("Staging"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 				assertTrue(selenium.isElementPresent(
 						"//body[contains(@class,'local-staging')]"));
 				assertTrue(selenium.isElementNotPresent(
@@ -79,7 +76,6 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 				selenium.clickAt("link=Christmas",
 					RuntimeVariables.replace("Christmas"));
 				selenium.waitForPageToLoad("30000");
-				loadRequiredJavaScriptModules();
 
 			case 2:
 				assertEquals(RuntimeVariables.replace(
@@ -138,8 +134,7 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 					}
 
 					try {
-						if (selenium.isVisible(
-									"//input[@value='Change Selection']")) {
+						if (selenium.isVisible("//input[@value='Select Pages']")) {
 							break;
 						}
 					}
@@ -149,8 +144,8 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 					Thread.sleep(1000);
 				}
 
-				selenium.clickAt("//input[@value='Change Selection']",
-					RuntimeVariables.replace("Change Selection"));
+				selenium.clickAt("//input[@value='Select Pages']",
+					RuntimeVariables.replace("Select Pages"));
 
 				for (int second = 0;; second++) {
 					if (second >= 90) {
@@ -184,6 +179,8 @@ public class User_PublishToLiveNowSPVariationChristmasTest extends BaseTestCase 
 					continue;
 				}
 
+				selenium.clickAt("//li/div/div[1]",
+					RuntimeVariables.replace("Drop Down Arrow"));
 				selenium.clickAt("//li/div/div[1]",
 					RuntimeVariables.replace("Drop Down Arrow"));
 

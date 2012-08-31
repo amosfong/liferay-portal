@@ -354,7 +354,7 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 		List<long[]> viewableTagIdsArray = new ArrayList<long[]>();
 
 		for (int i = 0; i< tagIdsArray.length; i++) {
-			long tagIds[] = tagIdsArray[i];
+			long[] tagIds = tagIdsArray[i];
 
 			List<Long> viewableTagIds = new ArrayList<Long>();
 

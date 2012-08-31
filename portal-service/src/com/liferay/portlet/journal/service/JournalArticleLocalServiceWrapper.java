@@ -313,6 +313,20 @@ public class JournalArticleLocalServiceWrapper
 			articleURL, serviceContext);
 	}
 
+	public com.liferay.portlet.journal.model.JournalArticle addArticle(
+		long userId, long groupId, long folderId,
+		java.util.Map<java.util.Locale, java.lang.String> titleMap,
+		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		java.lang.String content, java.lang.String structureId,
+		java.lang.String templateId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.addArticle(userId, groupId,
+			folderId, titleMap, descriptionMap, content, structureId,
+			templateId, serviceContext);
+	}
+
 	public void addArticleResources(
 		com.liferay.portlet.journal.model.JournalArticle article,
 		boolean addGroupPermissions, boolean addGuestPermissions)
@@ -862,6 +876,12 @@ public class JournalArticleLocalServiceWrapper
 			version, status);
 	}
 
+	public void moveArticle(long groupId, java.lang.String articleId,
+		long newFolderId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_journalArticleLocalService.moveArticle(groupId, articleId, newFolderId);
+	}
+
 	public com.liferay.portlet.journal.model.JournalArticle removeArticleLocale(
 		long groupId, java.lang.String articleId, double version,
 		java.lang.String languageId)
@@ -872,21 +892,22 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
-		long companyId, long groupId, long folderId, long classNameId,
-		java.lang.String keywords, java.lang.Double version,
+		long companyId, long groupId, java.util.List<java.lang.Long> folderIds,
+		long classNameId, java.lang.String keywords, java.lang.Double version,
 		java.lang.String type, java.lang.String structureId,
 		java.lang.String templateId, java.util.Date displayDateGT,
 		java.util.Date displayDateLT, int status, java.util.Date reviewDate,
 		int start, int end, com.liferay.portal.kernel.util.OrderByComparator obc)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _journalArticleLocalService.search(companyId, groupId, folderId,
-			classNameId, keywords, version, type, structureId, templateId,
-			displayDateGT, displayDateLT, status, reviewDate, start, end, obc);
+		return _journalArticleLocalService.search(companyId, groupId,
+			folderIds, classNameId, keywords, version, type, structureId,
+			templateId, displayDateGT, displayDateLT, status, reviewDate,
+			start, end, obc);
 	}
 
 	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
-		long companyId, long groupId, long folderId, long classNameId,
-		java.lang.String articleId, java.lang.Double version,
+		long companyId, long groupId, java.util.List<java.lang.Long> folderIds,
+		long classNameId, java.lang.String articleId, java.lang.Double version,
 		java.lang.String title, java.lang.String description,
 		java.lang.String content, java.lang.String type,
 		java.lang.String structureId, java.lang.String templateId,
@@ -894,15 +915,15 @@ public class JournalArticleLocalServiceWrapper
 		java.util.Date reviewDate, boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator obc)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _journalArticleLocalService.search(companyId, groupId, folderId,
-			classNameId, articleId, version, title, description, content, type,
-			structureId, templateId, displayDateGT, displayDateLT, status,
-			reviewDate, andOperator, start, end, obc);
+		return _journalArticleLocalService.search(companyId, groupId,
+			folderIds, classNameId, articleId, version, title, description,
+			content, type, structureId, templateId, displayDateGT,
+			displayDateLT, status, reviewDate, andOperator, start, end, obc);
 	}
 
 	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
-		long companyId, long groupId, long folderId, long classNameId,
-		java.lang.String articleId, java.lang.Double version,
+		long companyId, long groupId, java.util.List<java.lang.Long> folderIds,
+		long classNameId, java.lang.String articleId, java.lang.Double version,
 		java.lang.String title, java.lang.String description,
 		java.lang.String content, java.lang.String type,
 		java.lang.String[] structureIds, java.lang.String[] templateIds,
@@ -910,27 +931,27 @@ public class JournalArticleLocalServiceWrapper
 		java.util.Date reviewDate, boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator obc)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _journalArticleLocalService.search(companyId, groupId, folderId,
-			classNameId, articleId, version, title, description, content, type,
-			structureIds, templateIds, displayDateGT, displayDateLT, status,
-			reviewDate, andOperator, start, end, obc);
+		return _journalArticleLocalService.search(companyId, groupId,
+			folderIds, classNameId, articleId, version, title, description,
+			content, type, structureIds, templateIds, displayDateGT,
+			displayDateLT, status, reviewDate, andOperator, start, end, obc);
 	}
 
 	public com.liferay.portal.kernel.search.Hits search(long companyId,
-		long groupId, long folderId, long classNameId,
-		java.lang.String structureId, java.lang.String templateId,
-		java.lang.String keywords,
+		long groupId, java.util.List<java.lang.Long> folderIds,
+		long classNameId, java.lang.String structureId,
+		java.lang.String templateId, java.lang.String keywords,
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
 		int start, int end, com.liferay.portal.kernel.search.Sort sort)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _journalArticleLocalService.search(companyId, groupId, folderId,
-			classNameId, structureId, templateId, keywords, params, start, end,
-			sort);
+		return _journalArticleLocalService.search(companyId, groupId,
+			folderIds, classNameId, structureId, templateId, keywords, params,
+			start, end, sort);
 	}
 
 	public com.liferay.portal.kernel.search.Hits search(long companyId,
-		long groupId, long folderId, long classNameId,
-		java.lang.String articleId, java.lang.String title,
+		long groupId, java.util.List<java.lang.Long> folderIds,
+		long classNameId, java.lang.String articleId, java.lang.String title,
 		java.lang.String description, java.lang.String content,
 		java.lang.String type, java.lang.String status,
 		java.lang.String structureId, java.lang.String templateId,
@@ -938,24 +959,27 @@ public class JournalArticleLocalServiceWrapper
 		boolean andSearch, int start, int end,
 		com.liferay.portal.kernel.search.Sort sort)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _journalArticleLocalService.search(companyId, groupId, folderId,
-			classNameId, articleId, title, description, content, type, status,
-			structureId, templateId, params, andSearch, start, end, sort);
+		return _journalArticleLocalService.search(companyId, groupId,
+			folderIds, classNameId, articleId, title, description, content,
+			type, status, structureId, templateId, params, andSearch, start,
+			end, sort);
 	}
 
-	public int searchCount(long companyId, long groupId, long folderId,
-		long classNameId, java.lang.String keywords, java.lang.Double version,
+	public int searchCount(long companyId, long groupId,
+		java.util.List<java.lang.Long> folderIds, long classNameId,
+		java.lang.String keywords, java.lang.Double version,
 		java.lang.String type, java.lang.String structureId,
 		java.lang.String templateId, java.util.Date displayDateGT,
 		java.util.Date displayDateLT, int status, java.util.Date reviewDate)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleLocalService.searchCount(companyId, groupId,
-			folderId, classNameId, keywords, version, type, structureId,
+			folderIds, classNameId, keywords, version, type, structureId,
 			templateId, displayDateGT, displayDateLT, status, reviewDate);
 	}
 
-	public int searchCount(long companyId, long groupId, long folderId,
-		long classNameId, java.lang.String articleId, java.lang.Double version,
+	public int searchCount(long companyId, long groupId,
+		java.util.List<java.lang.Long> folderIds, long classNameId,
+		java.lang.String articleId, java.lang.Double version,
 		java.lang.String title, java.lang.String description,
 		java.lang.String content, java.lang.String type,
 		java.lang.String structureId, java.lang.String templateId,
@@ -963,13 +987,14 @@ public class JournalArticleLocalServiceWrapper
 		java.util.Date reviewDate, boolean andOperator)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleLocalService.searchCount(companyId, groupId,
-			folderId, classNameId, articleId, version, title, description,
+			folderIds, classNameId, articleId, version, title, description,
 			content, type, structureId, templateId, displayDateGT,
 			displayDateLT, status, reviewDate, andOperator);
 	}
 
-	public int searchCount(long companyId, long groupId, long folderId,
-		long classNameId, java.lang.String articleId, java.lang.Double version,
+	public int searchCount(long companyId, long groupId,
+		java.util.List<java.lang.Long> folderIds, long classNameId,
+		java.lang.String articleId, java.lang.Double version,
 		java.lang.String title, java.lang.String description,
 		java.lang.String content, java.lang.String type,
 		java.lang.String[] structureIds, java.lang.String[] templateIds,
@@ -977,7 +1002,7 @@ public class JournalArticleLocalServiceWrapper
 		java.util.Date reviewDate, boolean andOperator)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleLocalService.searchCount(companyId, groupId,
-			folderId, classNameId, articleId, version, title, description,
+			folderIds, classNameId, articleId, version, title, description,
 			content, type, structureIds, templateIds, displayDateGT,
 			displayDateLT, status, reviewDate, andOperator);
 	}

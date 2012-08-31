@@ -44,10 +44,12 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Future;
 
 /**
  * @author Sergio González
  * @author Alexander Chow
+ * @author Ivica Cardic
  */
 public class ImageProcessorImpl
 	extends DLPreviewableProcessor implements ImageProcessor {
@@ -175,8 +177,11 @@ public class ImageProcessorImpl
 			custom2ImageId, is, type);
 	}
 
+	@Override
 	public void trigger(
 		FileVersion sourceFileVersion, FileVersion destinationFileVersion) {
+
+		super.trigger(sourceFileVersion, destinationFileVersion);
 
 		_queueGeneration(sourceFileVersion, destinationFileVersion);
 	}
@@ -233,6 +238,11 @@ public class ImageProcessorImpl
 			getPreviewType(fileVersion));
 	}
 
+	@Override
+	protected List<Long> getFileVersionIds() {
+		return _fileVersionIds;
+	}
+
 	private void _generateImages(
 			FileVersion sourceFileVersion, FileVersion destinationFileVersion)
 		throws Exception {
@@ -265,10 +275,19 @@ public class ImageProcessorImpl
 			}
 
 			if (renderedImage.getColorModel().getNumComponents() == 4) {
-				RenderedImage convertedRenderedImage =
-					ImageToolUtil.convertCMYKtoRGB(
-						bytes, imageBag.getType(),
-						PropsValues.DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_ENABLED);
+				Future<RenderedImage> future = ImageToolUtil.convertCMYKtoRGB(
+					bytes, imageBag.getType());
+
+				if (future == null) {
+					return;
+				}
+
+				String processIdentity = String.valueOf(
+					destinationFileVersion.getFileVersionId());
+
+				futures.put(processIdentity, future);
+
+				RenderedImage convertedRenderedImage = future.get();
 
 				if (convertedRenderedImage != null) {
 					renderedImage = convertedRenderedImage;

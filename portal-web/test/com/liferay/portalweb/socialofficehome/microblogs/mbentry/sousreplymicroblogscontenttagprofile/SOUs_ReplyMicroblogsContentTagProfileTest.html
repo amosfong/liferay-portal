@@ -34,6 +34,16 @@
 	<td>Microblogs Post</td>
 </tr>
 <tr>
+	<td>storeElementPresent</td>
+	<td>//span[@class='placeholder-text']</td>
+	<td>replyVisible</td>
+</tr>
+<tr>
+	<td>gotoIf</td>
+	<td>${replyVisible}</td>
+	<td>ReplyVisible</td>
+</tr>
+<tr>
 	<td>assertText</td>
 	<td>//span[@class='action comment']/a</td>
 	<td>Comment</td>
@@ -49,9 +59,19 @@
 	<td>Leave a comment...</td>
 </tr>
 <tr>
+	<td>label</td>
+	<td>ReplyVisible</td>
+	<td></td>
+</tr>
+<tr>
 	<td>pause</td>
 	<td>5000</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>//span[@class='placeholder-text']</td>
+	<td>Leave a comment...</td>
 </tr>
 <tr>
 	<td>clickAt</td>

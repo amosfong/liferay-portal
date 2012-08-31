@@ -410,17 +410,17 @@ public class WikiPageServiceHttp {
 		}
 	}
 
-	public static void deleteTempPageAttachment(HttpPrincipal httpPrincipal,
-		long nodeId, java.lang.String fileName, java.lang.String tempFolderName)
+	public static void deletePageAttachments(HttpPrincipal httpPrincipal,
+		long nodeId, java.lang.String title)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
 			MethodKey methodKey = new MethodKey(WikiPageServiceUtil.class.getName(),
-					"deleteTempPageAttachment",
-					_deleteTempPageAttachmentParameterTypes11);
+					"deletePageAttachments",
+					_deletePageAttachmentsParameterTypes11);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, nodeId,
-					fileName, tempFolderName);
+					title);
 
 			try {
 				TunnelUtil.invoke(httpPrincipal, methodHandler);
@@ -444,17 +444,17 @@ public class WikiPageServiceHttp {
 		}
 	}
 
-	public static void emptyPageAttachments(HttpPrincipal httpPrincipal,
-		long nodeId, java.lang.String title)
+	public static void deleteTempPageAttachment(HttpPrincipal httpPrincipal,
+		long nodeId, java.lang.String fileName, java.lang.String tempFolderName)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
 			MethodKey methodKey = new MethodKey(WikiPageServiceUtil.class.getName(),
-					"emptyPageAttachments",
-					_emptyPageAttachmentsParameterTypes12);
+					"deleteTempPageAttachment",
+					_deleteTempPageAttachmentParameterTypes12);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, nodeId,
-					title);
+					fileName, tempFolderName);
 
 			try {
 				TunnelUtil.invoke(httpPrincipal, methodHandler);
@@ -853,8 +853,9 @@ public class WikiPageServiceHttp {
 		}
 	}
 
-	public static void movePageAttachmentToTrash(HttpPrincipal httpPrincipal,
-		long nodeId, java.lang.String title, java.lang.String fileName)
+	public static java.lang.String movePageAttachmentToTrash(
+		HttpPrincipal httpPrincipal, long nodeId, java.lang.String title,
+		java.lang.String fileName)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
@@ -865,8 +866,10 @@ public class WikiPageServiceHttp {
 			MethodHandler methodHandler = new MethodHandler(methodKey, nodeId,
 					title, fileName);
 
+			Object returnObj = null;
+
 			try {
-				TunnelUtil.invoke(httpPrincipal, methodHandler);
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
@@ -879,6 +882,8 @@ public class WikiPageServiceHttp {
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
+
+			return (java.lang.String)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -1073,11 +1078,11 @@ public class WikiPageServiceHttp {
 	private static final Class<?>[] _deletePageAttachmentParameterTypes10 = new Class[] {
 			long.class, java.lang.String.class, java.lang.String.class
 		};
-	private static final Class<?>[] _deleteTempPageAttachmentParameterTypes11 = new Class[] {
-			long.class, java.lang.String.class, java.lang.String.class
-		};
-	private static final Class<?>[] _emptyPageAttachmentsParameterTypes12 = new Class[] {
+	private static final Class<?>[] _deletePageAttachmentsParameterTypes11 = new Class[] {
 			long.class, java.lang.String.class
+		};
+	private static final Class<?>[] _deleteTempPageAttachmentParameterTypes12 = new Class[] {
+			long.class, java.lang.String.class, java.lang.String.class
 		};
 	private static final Class<?>[] _getDraftPageParameterTypes13 = new Class[] {
 			long.class, java.lang.String.class

@@ -83,6 +83,10 @@ public class PortalPreferencesImpl
 		}
 	}
 
+	public long getUserId() {
+		return _userId;
+	}
+
 	@Override
 	public String getValue(String namespace, String key) {
 		return getValue(namespace, key, null);
@@ -154,6 +158,10 @@ public class PortalPreferencesImpl
 
 	public void setSignedIn(boolean signedIn) {
 		_signedIn = signedIn;
+	}
+
+	public void setUserId(long userId) {
+		_userId = userId;
 	}
 
 	public void setValue(String namespace, String key, String value) {
@@ -229,5 +237,6 @@ public class PortalPreferencesImpl
 	private static Log _log = LogFactoryUtil.getLog(PortalPreferences.class);
 
 	private boolean _signedIn;
+	private long _userId;
 
 }

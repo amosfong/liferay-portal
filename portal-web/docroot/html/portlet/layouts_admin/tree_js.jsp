@@ -245,7 +245,7 @@ if (!selectableTree) {
 							{
 								cssClass: cssClass,
 								label: newNode.label,
-								title: title,
+								title: title
 							}
 						);
 					}
@@ -361,7 +361,7 @@ if (!selectableTree) {
 						try {
 							paginationMap = A.JSON.parse(responseData);
 						}
-						catch(e) {
+						catch (e) {
 						}
 
 						updatePaginationMap(paginationMap, node)
@@ -531,7 +531,8 @@ if (!selectableTree) {
 							try {
 								response = A.JSON.parse(xhr.responseText);
 							}
-							catch(e) {}
+							catch (e) {
+							}
 
 							if (response) {
 								paginator.total = response.total;

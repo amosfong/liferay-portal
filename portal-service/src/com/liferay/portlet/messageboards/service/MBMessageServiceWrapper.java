@@ -105,6 +105,12 @@ public class MBMessageServiceWrapper implements MBMessageService,
 		_mbMessageService.deleteMessage(messageId);
 	}
 
+	public void deleteMessageAttachments(long messageId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_mbMessageService.deleteMessageAttachments(messageId);
+	}
+
 	public java.util.List<com.liferay.portlet.messageboards.model.MBMessage> getCategoryMessages(
 		long groupId, long categoryId, int status, int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException,

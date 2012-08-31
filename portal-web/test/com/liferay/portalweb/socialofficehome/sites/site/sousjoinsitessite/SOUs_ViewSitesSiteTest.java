@@ -23,7 +23,6 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class SOUs_ViewSitesSiteTest extends BaseTestCase {
 	public void testSOUs_ViewSitesSite() throws Exception {
 		selenium.open("/user/socialoffice01/so/dashboard/");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -52,7 +51,7 @@ public class SOUs_ViewSitesSiteTest extends BaseTestCase {
 
 			try {
 				if (selenium.isVisible(
-							"//button[contains(.,'Site Directory')]/span[2]")) {
+							"//button[contains(.,'Sites Directory')]/span[2]")) {
 					break;
 				}
 			}
@@ -62,10 +61,10 @@ public class SOUs_ViewSitesSiteTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Site Directory"),
-			selenium.getText("//button[contains(.,'Site Directory')]/span[2]"));
-		selenium.clickAt("//button[contains(.,'Site Directory')]/span[2]",
-			RuntimeVariables.replace("Site Directory"));
+		assertEquals(RuntimeVariables.replace("Sites Directory"),
+			selenium.getText("//button[contains(.,'Sites Directory')]/span[2]"));
+		selenium.clickAt("//button[contains(.,'Sites Directory')]/span[2]",
+			RuntimeVariables.replace("Sites Directory"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -99,13 +98,11 @@ public class SOUs_ViewSitesSiteTest extends BaseTestCase {
 		selenium.clickAt("//span[@class='name']/a",
 			RuntimeVariables.replace("Open Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Members"),
 			selenium.getText("//nav/ul/li[contains(.,'Members')]/a/span"));
 		selenium.clickAt("//nav/ul/li[contains(.,'Members')]/a/span",
 			RuntimeVariables.replace("Members"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Bloggs, Joe"),
 			selenium.getText("xPath=(//div[@class='lfr-contact-name']/a)[1]"));
 		assertEquals(RuntimeVariables.replace("test@liferay.com"),

@@ -19,7 +19,7 @@
 ## It is possible to use these variables to create advanced templates to display
 ## a list of assets in your asset publisher. Here's a simple template example:
 ##
-##  #foreach($entry in $entries)
+##  #foreach ($entry in $entries)
 ##    <h1 class="vocabulary-title">
 ##      $entry.getTitle($locale)
 ##    </h1>
@@ -28,3 +28,4 @@
 ##      - $category.getName()
 ##    #end
 ##  #end
+##

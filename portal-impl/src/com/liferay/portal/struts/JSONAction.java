@@ -26,9 +26,9 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.security.ac.AccessControlUtil;
 import com.liferay.portal.security.auth.AuthSettingsUtil;
 import com.liferay.portal.security.auth.AuthTokenUtil;
-import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.servlet.SharedSessionServletRequest;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
@@ -82,12 +82,12 @@ public abstract class JSONAction extends Action {
 				json = "var " + instance + "=" + json + ";";
 			}
 		}
-		catch (PrincipalException pe) {
+		catch (SecurityException se) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(pe.getMessage());
+				_log.warn(se.getMessage());
 			}
 
-			json = JSONFactoryUtil.serializeException(pe);
+			json = JSONFactoryUtil.serializeException(se);
 		}
 		catch (Exception e) {
 			PortalUtil.sendError(
@@ -135,10 +135,23 @@ public abstract class JSONAction extends Action {
 
 		String authType = GetterUtil.getString(request.getAuthType());
 
-		if (authType.equals(HttpServletRequest.BASIC_AUTH) ||
-			authType.equals(HttpServletRequest.DIGEST_AUTH)) {
+		// Support for the legacy JSON API at /c/portal/json_service
 
-			return;
+		if (AccessControlUtil.getAccessControlContext() == null) {
+			if (authType.equals(HttpServletRequest.BASIC_AUTH) ||
+				authType.equals(HttpServletRequest.DIGEST_AUTH)) {
+
+				return;
+			}
+		}
+		else {
+
+			// The new web service should only check auth tokens when the user
+			// is authenticated using portal session cookies
+
+			if (!authType.equals("PortalSessionAuthVerifier")) {
+				return;
+			}
 		}
 
 		if (PropsValues.AUTH_TOKEN_CHECK_ENABLED &&

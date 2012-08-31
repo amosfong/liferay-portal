@@ -34,7 +34,7 @@ public class LiferayBootstrapCacheLoaderFactory
 		String className = PropsValues.EHCACHE_BOOTSTRAP_CACHE_LOADER_FACTORY;
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Instantiating " + className + " " + this.hashCode());
+			_log.debug("Instantiating " + className + " " + hashCode());
 		}
 
 		try {

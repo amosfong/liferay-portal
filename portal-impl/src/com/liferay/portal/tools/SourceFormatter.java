@@ -2305,6 +2305,8 @@ public class SourceFormatter {
 				line = StringPool.BLANK;
 			}
 
+			line = StringUtil.trimTrailing(line);
+
 			if (Validator.isNotNull(line) && !line.startsWith(StringPool.TAB)) {
 				String sqlCommand = StringUtil.split(line, CharPool.SPACE)[0];
 
@@ -2399,7 +2401,7 @@ public class SourceFormatter {
 				if (result.contains(quoteType)) {
 					int lineCount = 1;
 
-					char contentCharArray[] = content.toCharArray();
+					char[] contentCharArray = content.toCharArray();
 
 					for (int i = 0; i < x; i++) {
 						if (contentCharArray[i] == CharPool.NEW_LINE) {
@@ -2616,6 +2618,19 @@ public class SourceFormatter {
 			return null;
 		}
 
+		if (line.startsWith("+ ") || line.startsWith("- ") ||
+			line.startsWith("|| ") || line.startsWith("&& ")) {
+
+			int pos = line.indexOf(StringPool.SPACE);
+
+			String addToPreviousLine = line.substring(0, pos);
+
+			return new String[] {
+				previousLine + StringPool.SPACE + addToPreviousLine,
+				addToPreviousLine
+			};
+		}
+
 		int previousLineLength = _getLineLength(previousLine);
 		String trimmedPreviousLine = StringUtil.trimLeading(previousLine);
 
@@ -2692,23 +2707,39 @@ public class SourceFormatter {
 			}
 
 			int x = line.indexOf(StringPool.OPEN_PARENTHESIS);
-			int y = line.indexOf(StringPool.CLOSE_PARENTHESIS);
-			int z = line.indexOf(StringPool.QUOTE);
 
-			if ((x > 0) && ((x + 1) != y) && ((z == -1) || (z > x))) {
-				if ((line.charAt(x - 1) != CharPool.SPACE) &&
-					(previousLineLength + 1 + x) < 80) {
+			if (x == 0) {
+				x = line.indexOf(StringPool.OPEN_PARENTHESIS, 1);
+			}
 
-					String addToPreviousLine = line.substring(0, x + 1);
+			if (x != -1) {
+				int y = line.indexOf(StringPool.CLOSE_PARENTHESIS, x);
+				int z = line.indexOf(StringPool.QUOTE);
 
-					if (addToPreviousLine.contains(StringPool.SPACE)) {
-						return null;
+				if (((x + 1) != y) && ((z == -1) || (z > x))) {
+					char previousChar = line.charAt(x - 1);
+
+					if ((previousChar != CharPool.CLOSE_PARENTHESIS) &&
+						(previousChar != CharPool.OPEN_PARENTHESIS) &&
+						(previousChar != CharPool.SPACE) &&
+						(previousLineLength + 1 + x) < 80) {
+
+						String addToPreviousLine = line.substring(0, x + 1);
+
+						if (addToPreviousLine.contains(StringPool.SPACE) ||
+							(addToPreviousLine.startsWith(
+								StringPool.OPEN_PARENTHESIS) &&
+							 !addToPreviousLine.contains(
+								 StringPool.CLOSE_PARENTHESIS))) {
+
+							return null;
+						}
+
+						return new String[] {
+							previousLine + StringPool.SPACE + addToPreviousLine,
+							addToPreviousLine
+						};
 					}
-
-					return new String[] {
-						previousLine + StringPool.SPACE + addToPreviousLine,
-						addToPreviousLine
-					};
 				}
 			}
 		}

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.security.ac.AccessControlThreadLocal;
 import com.liferay.portal.servlet.JSONServlet;
 import com.liferay.portal.struts.JSONAction;
 import com.liferay.portal.upload.UploadServletRequestImpl;
@@ -85,50 +86,62 @@ public class JSONWebServiceServlet extends JSONServlet {
 
 		ServletContext servletContext = session.getServletContext();
 
-		if (servletContext.getContext(PropsValues.PORTAL_CTX) != null) {
-			RequestDispatcher requestDispatcher = request.getRequestDispatcher(
-				apiPath);
+		boolean remoteAccess = AccessControlThreadLocal.isRemoteAccess();
 
-			requestDispatcher.forward(request, response);
-		}
-		else {
-			String requestURI = request.getRequestURI();
-			String requestURL = String.valueOf(request.getRequestURL());
+		try {
+			AccessControlThreadLocal.setRemoteAccess(true);
 
-			String serverURL = requestURL.substring(
-				0, requestURL.length() - requestURI.length());
+			if (servletContext.getContext(PropsValues.PORTAL_CTX) != null) {
+				RequestDispatcher requestDispatcher =
+					request.getRequestDispatcher(apiPath);
 
-			String queryString = request.getQueryString();
-
-			if (Validator.isNull(queryString)) {
-				queryString = StringPool.BLANK;
+				requestDispatcher.forward(request, response);
 			}
 			else {
-				queryString += StringPool.AMPERSAND;
+				String requestURI = request.getRequestURI();
+				String requestURL = String.valueOf(request.getRequestURL());
+
+				String serverURL = requestURL.substring(
+					0, requestURL.length() - requestURI.length());
+
+				String queryString = request.getQueryString();
+
+				if (Validator.isNull(queryString)) {
+					queryString = StringPool.BLANK;
+				}
+				else {
+					queryString += StringPool.AMPERSAND;
+				}
+
+				String servletContextPath = ContextPathUtil.getContextPath(
+					servletContext);
+
+				queryString +=
+					"contextPath=" + HttpUtil.encodeURL(servletContextPath);
+
+				apiPath =
+					serverURL + apiPath + StringPool.QUESTION + queryString;
+
+				URL url = new URL(apiPath);
+
+				InputStream inputStream = null;
+
+				try {
+					inputStream = url.openStream();
+
+					OutputStream outputStream = response.getOutputStream();
+
+					StreamUtil.transfer(inputStream, outputStream);
+				}
+				finally {
+					StreamUtil.cleanUp(inputStream);
+
+					AccessControlThreadLocal.setRemoteAccess(remoteAccess);
+				}
 			}
-
-			String servletContextPath = ContextPathUtil.getContextPath(
-				servletContext);
-
-			queryString +=
-				"contextPath=" + HttpUtil.encodeURL(servletContextPath);
-
-			apiPath = serverURL + apiPath + StringPool.QUESTION + queryString;
-
-			URL url = new URL(apiPath);
-
-			InputStream inputStream = null;
-
-			try {
-				inputStream = url.openStream();
-
-				OutputStream outputStream = response.getOutputStream();
-
-				StreamUtil.transfer(inputStream, outputStream);
-			}
-			finally {
-				StreamUtil.cleanUp(inputStream);
-			}
+		}
+		finally {
+			AccessControlThreadLocal.setRemoteAccess(remoteAccess);
 		}
 	}
 

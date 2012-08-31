@@ -16,12 +16,13 @@ package com.liferay.portlet.wiki.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MathUtil;
@@ -53,9 +54,9 @@ import com.liferay.portlet.documentlibrary.DuplicateDirectoryException;
 import com.liferay.portlet.documentlibrary.NoSuchDirectoryException;
 import com.liferay.portlet.documentlibrary.NoSuchFileException;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
-import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.social.model.SocialActivityConstants;
+import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.portlet.wiki.DuplicatePageException;
 import com.liferay.portlet.wiki.NoSuchPageException;
 import com.liferay.portlet.wiki.NoSuchPageResourceException;
@@ -409,11 +410,14 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		long[] assetCategoryIds = assetCategoryLocalService.getCategoryIds(
 			WikiPage.class.getName(), page.getResourcePrimKey());
+
+		serviceContext.setAssetCategoryIds(assetCategoryIds);
+
+		serviceContext.setAssetLinkEntryIds(null);
+
 		String[] assetTagNames = assetTagLocalService.getTagNames(
 			WikiPage.class.getName(), page.getResourcePrimKey());
 
-		serviceContext.setAssetCategoryIds(assetCategoryIds);
-		serviceContext.setAssetLinkEntryIds(null);
 		serviceContext.setAssetTagNames(assetTagNames);
 
 		updatePage(
@@ -568,6 +572,26 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		}
 	}
 
+	public void deletePageAttachments(long nodeId, String title)
+		throws PortalException, SystemException {
+
+		WikiPage page = getPage(nodeId, title);
+
+		long companyId = page.getCompanyId();
+		long repositoryId = CompanyConstants.SYSTEM;
+		String deletedAttachmentsDir = page.getDeletedAttachmentsDir();
+
+		try {
+			DLStoreUtil.deleteDirectory(
+				companyId, repositoryId, deletedAttachmentsDir);
+		}
+		catch (NoSuchDirectoryException nsde) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsde.getMessage());
+			}
+		}
+	}
+
 	public void deletePages(long nodeId)
 		throws PortalException, SystemException {
 
@@ -591,19 +615,6 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		TempFileUtil.deleteTempFile(userId, fileName, tempFolderName);
-	}
-
-	public void emptyPageAttachments(long nodeId, String title)
-		throws PortalException, SystemException {
-
-		WikiPage page = getPage(nodeId, title);
-
-		long companyId = page.getCompanyId();
-		long repositoryId = CompanyConstants.SYSTEM;
-		String deletedAttachmentsDir = page.getDeletedAttachmentsDir();
-
-		DLStoreUtil.deleteDirectory(
-			companyId, repositoryId, deletedAttachmentsDir);
 	}
 
 	public List<WikiPage> getChildren(
@@ -1128,80 +1139,22 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			long nodeId, String title, String deletedFileName)
 		throws PortalException, SystemException {
 
-		if (Validator.isNull(deletedFileName)) {
-			return;
-		}
-
 		WikiPage page = getPage(nodeId, title);
 
-		long companyId = page.getCompanyId();
-		long repositoryId = CompanyConstants.SYSTEM;
-		String attachmentsDir = page.getAttachmentsDir();
-
-		if (!DLStoreUtil.hasDirectory(
-				companyId, repositoryId, attachmentsDir)) {
-
-			DLStoreUtil.addDirectory(companyId, repositoryId, attachmentsDir);
-		}
-
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(attachmentsDir);
-		sb.append(StringPool.FORWARD_SLASH);
-		sb.append(
-			DLAppUtil.stripTrashNamespace(
-				FileUtil.getShortFileName(deletedFileName),
-				StringPool.UNDERLINE));
-
-		String fileName = sb.toString();
-
-		try {
-			DLStoreUtil.updateFile(
-				companyId, repositoryId, deletedFileName, fileName);
-		}
-		catch (NoSuchFileException nsfe) {
-		}
+		TrashUtil.moveAttachmentFromTrash(
+			page.getCompanyId(), CompanyConstants.SYSTEM, deletedFileName,
+			page.getAttachmentsDir(), TrashUtil.TRASH_TIME_SEPARATOR);
 	}
 
-	public void movePageAttachmentToTrash(
+	public String movePageAttachmentToTrash(
 			long nodeId, String title, String fileName)
 		throws PortalException, SystemException {
 
-		if (Validator.isNull(fileName)) {
-			return;
-		}
-
 		WikiPage page = getPage(nodeId, title);
 
-		long companyId = page.getCompanyId();
-		long repositoryId = CompanyConstants.SYSTEM;
-		String deletedAttachmentsDir = page.getDeletedAttachmentsDir();
-
-		if (!DLStoreUtil.hasDirectory(
-				companyId, repositoryId, deletedAttachmentsDir)) {
-
-			DLStoreUtil.addDirectory(
-				companyId, repositoryId, deletedAttachmentsDir);
-		}
-
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(deletedAttachmentsDir);
-		sb.append(StringPool.FORWARD_SLASH);
-		sb.append(
-			DLAppUtil.stripTrashNamespace(
-				FileUtil.getShortFileName(fileName), StringPool.UNDERLINE));
-
-		String deletedFileName = sb.toString();
-
-		try {
-			DLStoreUtil.updateFile(
-				companyId, repositoryId, fileName, deletedFileName);
-		}
-		catch (NoSuchFileException nsfe) {
-			DLStoreUtil.deleteDirectory(
-				companyId, repositoryId, deletedAttachmentsDir);
-		}
+		return TrashUtil.moveAttachmentToTrash(
+			page.getCompanyId(), CompanyConstants.SYSTEM, fileName,
+			page.getDeletedAttachmentsDir(), TrashUtil.TRASH_TIME_SEPARATOR);
 	}
 
 	public WikiPage revertPage(
@@ -1210,6 +1163,27 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		WikiPage oldPage = getPage(nodeId, title, version);
+
+		long[] assetCategoryIds = assetCategoryLocalService.getCategoryIds(
+			WikiPage.class.getName(), oldPage.getResourcePrimKey());
+
+		serviceContext.setAssetCategoryIds(assetCategoryIds);
+
+		AssetEntry assetEntry = assetEntryLocalService.getEntry(
+			WikiPage.class.getName(), oldPage.getResourcePrimKey());
+
+		List<AssetLink> assetLinks = assetLinkLocalService.getLinks(
+			assetEntry.getEntryId());
+
+		long[] assetLinkEntryIds = StringUtil.split(
+			ListUtil.toString(assetLinks, AssetLink.ENTRY_ID2_ACCESSOR), 0L);
+
+		serviceContext.setAssetLinkEntryIds(assetLinkEntryIds);
+
+		String[] assetTagNames = assetTagLocalService.getTagNames(
+			WikiPage.class.getName(), oldPage.getResourcePrimKey());
+
+		serviceContext.setAssetTagNames(assetTagNames);
 
 		return updatePage(
 			userId, nodeId, title, 0, oldPage.getContent(),
@@ -1861,5 +1835,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		validate(nodeId, content, format);
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		WikiPageLocalServiceImpl.class);
 
 }

@@ -1,5 +1,6 @@
 ##
-## You can use Velocity to define display styles for the Asset Publisher.
+## You can use Velocity to define display styles for the Asset Publisher
+## portlet.
 ##
 ## A set of variables have been made available for the template developers:
 ##
@@ -25,7 +26,7 @@
 ## It is possible to use these variables to create advanced templates to display
 ## a list of assets in your asset publisher. Here's a simple template example:
 ##
-##  #foreach($entry in $entries)
+##  #foreach ($entry in $entries)
 ##    #set ($assetRenderer = $entry.getAssetRenderer())
 ##
 ##    #set ($viewURL = $assetRenderer.getURLViewInContext($renderRequest,

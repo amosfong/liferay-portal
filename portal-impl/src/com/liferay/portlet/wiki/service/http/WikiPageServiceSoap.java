@@ -168,12 +168,10 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static void deleteTempPageAttachment(long nodeId,
-		java.lang.String fileName, java.lang.String tempFolderName)
+	public static void deletePageAttachments(long nodeId, java.lang.String title)
 		throws RemoteException {
 		try {
-			WikiPageServiceUtil.deleteTempPageAttachment(nodeId, fileName,
-				tempFolderName);
+			WikiPageServiceUtil.deletePageAttachments(nodeId, title);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -182,10 +180,12 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static void emptyPageAttachments(long nodeId, java.lang.String title)
+	public static void deleteTempPageAttachment(long nodeId,
+		java.lang.String fileName, java.lang.String tempFolderName)
 		throws RemoteException {
 		try {
-			WikiPageServiceUtil.emptyPageAttachments(nodeId, title);
+			WikiPageServiceUtil.deleteTempPageAttachment(nodeId, fileName,
+				tempFolderName);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -349,12 +349,14 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static void movePageAttachmentToTrash(long nodeId,
+	public static java.lang.String movePageAttachmentToTrash(long nodeId,
 		java.lang.String title, java.lang.String fileName)
 		throws RemoteException {
 		try {
-			WikiPageServiceUtil.movePageAttachmentToTrash(nodeId, title,
-				fileName);
+			java.lang.String returnValue = WikiPageServiceUtil.movePageAttachmentToTrash(nodeId,
+					title, fileName);
+
+			return returnValue;
 		}
 		catch (Exception e) {
 			_log.error(e, e);

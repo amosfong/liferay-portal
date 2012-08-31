@@ -34,7 +34,7 @@ public class LiferayCacheEventListenerFactory
 		String className = PropsValues.EHCACHE_CACHE_EVENT_LISTENER_FACTORY;
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Instantiating " + className + " " + this.hashCode());
+			_log.debug("Instantiating " + className + " " + hashCode());
 		}
 
 		try {

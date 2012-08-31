@@ -16,7 +16,6 @@ package com.liferay.portalweb.demo.fundamentals;
 
 import com.liferay.portalweb.demo.fundamentals.announcements.AnnouncementsTests;
 import com.liferay.portalweb.demo.fundamentals.announcementsdistribitionscope.AnnouncementsDistributionScopeTests;
-import com.liferay.portalweb.demo.fundamentals.knowledgebase.KnowledgeBaseTests;
 import com.liferay.portalweb.demo.fundamentals.socialequityblogs.SocialEquityBlogsTests;
 import com.liferay.portalweb.demo.fundamentals.wsrp.WSRPTests;
 import com.liferay.portalweb.portal.BaseTestSuite;
@@ -34,7 +33,6 @@ public class FundamentalsTestPlan extends BaseTestSuite {
 
 		testSuite.addTest(AnnouncementsTests.suite());
 		testSuite.addTest(AnnouncementsDistributionScopeTests.suite());
-		testSuite.addTest(KnowledgeBaseTests.suite());
 		testSuite.addTest(SocialEquityBlogsTests.suite());
 		testSuite.addTest(WSRPTests.suite());
 

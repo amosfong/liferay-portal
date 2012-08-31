@@ -24,6 +24,8 @@ if (portletResource.equals(PortletKeys.DOCUMENT_LIBRARY)) {
 }
 
 String redirect = ParamUtil.getString(request, "redirect");
+
+String portletNameSpace = PortalUtil.getPortletNamespace(portletResource);
 %>
 
 <liferay-portlet:actionURL portletConfiguration="true" var="configurationURL" />
@@ -80,9 +82,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 					List leftList = new ArrayList();
 
-					for (int i = 0; i < folderColumns.length; i++) {
-						String folderColumn = folderColumns[i];
-
+					for (String folderColumn : folderColumns) {
 						leftList.add(new KeyValuePair(folderColumn, LanguageUtil.get(pageContext, folderColumn)));
 					}
 
@@ -127,9 +127,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 					List leftList = new ArrayList();
 
-					for (int i = 0; i < fileEntryColumns.length; i++) {
-						String fileEntryColumn = fileEntryColumns[i];
-
+					for (String fileEntryColumn : fileEntryColumns) {
 						leftList.add(new KeyValuePair(fileEntryColumn, LanguageUtil.get(pageContext, fileEntryColumn)));
 					}
 
@@ -179,7 +177,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 		folderWindow.focus();
 	}
 
-	function <%= PortalUtil.getPortletNamespace(portletResource) %>selectFolder(rootFolderId, rootFolderName) {
+	function <%= portletNameSpace %>selectFolder(rootFolderId, rootFolderName) {
 		var folderData = {
 			idString: 'rootFolderId',
 			idValue: rootFolderId,
@@ -202,3 +200,30 @@ String redirect = ParamUtil.getString(request, "redirect");
 		['liferay-util-list-fields']
 	);
 </aui:script>
+
+<c:if test="<%= SessionMessages.contains(renderRequest, portletDisplay.getId() + SessionMessages.KEY_SUFFIX_UPDATED_CONFIGURATION) %>">
+	<aui:script position="inline" use="aui-base">
+		var valueMap = {};
+
+		var foldersPerPageInput = A.one('#<portlet:namespace />foldersPerPage');
+
+		if (foldersPerPageInput) {
+			valueMap.delta1 = foldersPerPageInput.val();
+		}
+
+		var fileEntriesPerPageInput = A.one('#<portlet:namespace />fileEntriesPerPage');
+
+		if (fileEntriesPerPageInput) {
+			valueMap.delta2 = fileEntriesPerPageInput.val();
+		}
+
+		var portlet = Liferay.Util.getTop().AUI().one('#p_p_id<%= portletNameSpace %>');
+
+		portlet.refreshURL = portlet.refreshURL.replace(
+			/(cur\d{1}|delta[12])(=|%3D)[^%&]+/g,
+			function(match, param, equals) {
+				return param + equals + (valueMap[param] || 1);
+			}
+		);
+	</aui:script>
+</c:if>

@@ -233,6 +233,7 @@ public class PluginsSummaryBuilder {
 			}
 		}
 
+		_writeElement(sb, "support-url", relengProperties, 3);
 		_writeElement(sb, "supported", relengProperties, 3);
 
 		return sb.toString();
@@ -251,6 +252,7 @@ public class PluginsSummaryBuilder {
 		_writeProperty(sb, relengProperties, "labs", "true");
 		_writeProperty(sb, relengProperties, "marketplace", "false");
 		_writeProperty(sb, relengProperties, "public", "true");
+		_writeProperty(sb, relengProperties, "support-url", "");
 		_writeProperty(sb, relengProperties, "supported", "false");
 
 		String relengPropertiesContent = sb.toString();
@@ -275,9 +277,9 @@ public class PluginsSummaryBuilder {
 
 		sb.append("<");
 		sb.append(name);
-		sb.append(">");
+		sb.append("><![CDATA[");
 		sb.append(value);
-		sb.append("</");
+		sb.append("]]></");
 		sb.append(name);
 		sb.append(">\n");
 	}

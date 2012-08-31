@@ -33,7 +33,12 @@ boolean ignoreRequestValue = GetterUtil.getBoolean((String) request.getAttribute
 String placeholder = (String)request.getAttribute("liferay-ui:input-field:placeholder");
 
 String type = ModelHintsUtil.getType(model, field);
+
 Map<String, String> hints = ModelHintsUtil.getHints(model, field);
+
+if (hints != null) {
+	type = GetterUtil.getString(hints.get("type"), type);
+}
 %>
 
 <c:if test="<%= type != null %>">

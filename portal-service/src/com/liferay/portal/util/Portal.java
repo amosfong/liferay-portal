@@ -358,6 +358,26 @@ public interface Portal {
 		throws PortalException, SystemException;
 
 	/**
+	 * Returns the canonical URL of the page, to distinguish it among its
+	 * translations.
+	 *
+	 * @param  completeURL the complete URL of the page
+	 * @param  themeDisplay the current theme display
+	 * @param  layout the layout. If it is <code>null</code>, then it is
+	 *         generated for the current layout
+	 * @param  forceLayoutFriendlyURL adds the page friendly URL to the
+	 *         canonical URL even if it is not needed
+	 * @return the canonical URL
+	 * @throws PortalException if a friendly URL or the group could not be
+	 *         retrieved
+	 * @throws SystemException if a system exception occurred
+	 */
+	public String getCanonicalURL(
+			String completeURL, ThemeDisplay themeDisplay, Layout layout,
+			boolean forceLayoutFriendlyURL)
+		throws PortalException, SystemException;
+
+	/**
 	 * @deprecated Replaced by the more general {@link #getCDNHost(boolean)}
 	 */
 	public String getCDNHost();
@@ -378,7 +398,7 @@ public interface Portal {
 	 * Returns the insecure (HTTP) content distribution network (CDN) host
 	 * address
 	 *
-	 * @param  companyId the company ID of a site TODO?
+	 * @param  companyId the company ID of a site
 	 * @return the CDN host address
 	 */
 	public String getCDNHostHttp(long companyId);
@@ -387,7 +407,7 @@ public interface Portal {
 	 * Returns the secure (HTTPS) content distribution network (CDN) host
 	 * address
 	 *
-	 * @param  companyId the company ID of a site TODO?
+	 * @param  companyId the company ID of a site
 	 * @return the CDN host address
 	 */
 	public String getCDNHostHttps(long companyId);
@@ -847,6 +867,8 @@ public interface Portal {
 
 	public String getPortletTitle(Portlet portlet, User user);
 
+	public String getPortletTitle(RenderRequest renderRequest);
+
 	public String getPortletTitle(RenderResponse renderResponse);
 
 	public String getPortletTitle(String portletId, Locale locale);
@@ -966,6 +988,8 @@ public interface Portal {
 	public long getUserId(HttpServletRequest request);
 
 	public long getUserId(PortletRequest portletRequest);
+
+	public String getUserName(BaseModel<?> baseModel);
 
 	public String getUserName(long userId, String defaultUserName);
 

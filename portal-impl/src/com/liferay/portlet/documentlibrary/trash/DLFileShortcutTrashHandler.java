@@ -22,6 +22,9 @@ import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.util.DLUtil;
+
+import javax.portlet.PortletRequest;
 
 /**
  * Represents the trash handler for the file shortcut entity.
@@ -39,6 +42,8 @@ public class DLFileShortcutTrashHandler extends BaseTrashHandler {
 	 * Deletes all file shortcuts with the matching primary keys.
 	 *
 	 * @param  classPKs the primary keys of the file shortcuts to be deleted
+	 * @param  checkPermission whether to check permission before deleting each
+	 *         file shortcut
 	 * @throws PortalException if any one of the file shortcuts could not be
 	 *         found
 	 * @throws SystemException if a system exception occurred
@@ -63,6 +68,28 @@ public class DLFileShortcutTrashHandler extends BaseTrashHandler {
 	 */
 	public String getClassName() {
 		return CLASS_NAME;
+	}
+
+	@Override
+	public String getRestoreLink(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException {
+
+		DLFileShortcut fileShortcut =
+			DLFileShortcutLocalServiceUtil.getDLFileShortcut(classPK);
+
+		return DLUtil.getDLControlPanelLink(
+			portletRequest, fileShortcut.getFolderId());
+	}
+
+	@Override
+	public String getRestoreMessage(PortletRequest portletRequest, long classPK)
+		throws PortalException, SystemException {
+
+		DLFileShortcut fileShortcut =
+			DLFileShortcutLocalServiceUtil.getDLFileShortcut(classPK);
+
+		return DLUtil.getAbsolutePath(
+			portletRequest, fileShortcut.getFolderId());
 	}
 
 	/**

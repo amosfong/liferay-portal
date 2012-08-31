@@ -41,7 +41,7 @@ public class Base64 {
 		}
 
 		int length = (base64.length() * 6) / 8 - pad;
-		byte raw[] = new byte[length];
+		byte[] raw = new byte[length];
 		int rawindex = 0;
 
 		for (int i = 0; i < base64.length(); i += 4) {
@@ -152,7 +152,7 @@ public class Base64 {
 			block += neuter << 8 * (2 - i);
 		}
 
-		char base64[] = new char[4];
+		char[] base64 = new char[4];
 
 		for (int i = 0; i < 4; i++) {
 			int sixbit = block >>> 6 * (3 - i) & 0x3f;
@@ -221,7 +221,7 @@ public class Base64 {
 			return null;
 		}
 
-		byte bytes[] = decode(s);
+		byte[] bytes = decode(s);
 
 		UnsyncByteArrayInputStream ubais = new UnsyncByteArrayInputStream(
 			bytes);

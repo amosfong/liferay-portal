@@ -23,28 +23,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewResourceResponseMiscTest extends BaseTestCase {
 	public void testViewResourceResponseMisc() throws Exception {
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Test Misc Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Test Misc Page",
 			RuntimeVariables.replace("Test Misc Page"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace(
 				"Portlet Response (ResourceResponse)"),
 			selenium.getText("//h3[4]"));
@@ -54,33 +35,15 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 			selenium.getText("//p[4]/a[2]"));
 		selenium.clickAt("//p[4]/a[2]",
 			RuntimeVariables.replace("Download File"));
-		selenium.downloadTempFile("Portlet_Response_Resource_Response.png");
+		selenium.downloadTempFile("logo(3).png");
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Documents and Media Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Documents and Media Test Page",
 			RuntimeVariables.replace("Documents and Media Test Page"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
+		Thread.sleep(5000);
 		assertEquals(RuntimeVariables.replace("Add"),
-			selenium.getText("//span[3]/span/ul/li/strong/a/span"));
-		selenium.clickAt("//span[3]/span/ul/li/strong/a/span",
+			selenium.getText("//span[@title='Add']/ul/li/strong/a/span"));
+		selenium.clickAt("//span[@title='Add']/ul/li/strong/a/span",
 			RuntimeVariables.replace("Add"));
 
 		for (int second = 0;; second++) {
@@ -106,9 +69,8 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 		selenium.click(RuntimeVariables.replace(
 				"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		selenium.uploadTempFile("//input[@id='_20_file']",
-			RuntimeVariables.replace("Portlet_Response_Resource_Response.png"));
+			RuntimeVariables.replace("logo(3).png"));
 		selenium.type("//input[@id='_20_title']",
 			RuntimeVariables.replace("Portlet Response (ResourceResponse)"));
 		selenium.type("//textarea[@id='_20_description']",
@@ -116,7 +78,6 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Publish']",
 			RuntimeVariables.replace("Publish"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -146,7 +107,6 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 		selenium.clickAt("link=Portlet Response (ResourceResponse)",
 			RuntimeVariables.replace("Portlet Response (ResourceResponse)"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace(
 				"Portlet Response (ResourceResponse)"),
 			selenium.getText("//h2[@class='document-title']"));
@@ -157,7 +117,7 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 			}
 
 			try {
-				if (RuntimeVariables.replace("Download (2.0k)")
+				if (RuntimeVariables.replace("Download (2k)")
 										.equals(selenium.getText(
 								"//span[@class='download-document']/span/a/span"))) {
 					break;
@@ -169,7 +129,7 @@ public class ViewResourceResponseMiscTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		assertEquals(RuntimeVariables.replace("Download (2.0k)"),
+		assertEquals(RuntimeVariables.replace("Download (2k)"),
 			selenium.getText("//span[@class='download-document']/span/a/span"));
 	}
 }

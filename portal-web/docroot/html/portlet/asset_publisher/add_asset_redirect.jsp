@@ -17,6 +17,8 @@
 <%@ include file="/html/portlet/asset_publisher/init.jsp" %>
 
 <%
+String redirect = request.getParameter("redirect");
+
 Portlet selPortlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), portletDisplay.getId());
 %>
 
@@ -26,7 +28,15 @@ Portlet selPortlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId
 		{
 			id: '<portlet:namespace />editAsset',
 			portletAjaxable: <%= selPortlet.isAjaxable() %>,
-			refresh: '<%= portletDisplay.getId() %>'
+
+			<c:choose>
+				<c:when test="<%= redirect != null %>">
+					redirect: '<%= redirect %>'
+				</c:when>
+				<c:otherwise>
+					refresh: '<%= portletDisplay.getId() %>'
+				</c:otherwise>
+			</c:choose>
 		}
 	);
 </aui:script>

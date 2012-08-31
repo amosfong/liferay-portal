@@ -129,7 +129,7 @@ if (fileShortcut != null) {
 
 	</c:when>
 	<c:otherwise>
-		<span class="overlay document-action">
+		<span class="entry-action overlay">
 
 			<%= iconMenu %>
 

@@ -23,7 +23,22 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class AddPageVariationTest extends BaseTestCase {
 	public void testAddPageVariation() throws Exception {
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
+		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
+		selenium.waitForPageToLoad("30000");
+		assertTrue(selenium.isElementPresent(
+				"//body[contains(@class,'live-view')]"));
+		assertTrue(selenium.isElementNotPresent(
+				"//body[contains(@class,'local-staging')]"));
+		assertTrue(selenium.isPartialText("//li[2]/span/a", "Staging"));
+		selenium.clickAt("//li[2]/span/a", RuntimeVariables.replace("Staging"));
+		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace(
+				"Main Site Pages Variation of Site Name"),
+			selenium.getText("//span[@class='layout-set-branch-description']"));
+		assertEquals(RuntimeVariables.replace("Manage Page Variations"),
+			selenium.getText("//a[@id='_170_manageLayoutRevisions']/span"));
+		selenium.clickAt("//a[@id='_170_manageLayoutRevisions']/span",
+			RuntimeVariables.replace("Manage Page Variations"));
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -31,7 +46,8 @@ public class AddPageVariationTest extends BaseTestCase {
 			}
 
 			try {
-				if (selenium.isElementPresent("link=Site Name")) {
+				if (selenium.isVisible(
+							"//iframe[contains(@id,'layoutRevisions')]")) {
 					break;
 				}
 			}
@@ -41,25 +57,24 @@ public class AddPageVariationTest extends BaseTestCase {
 			Thread.sleep(1000);
 		}
 
-		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
-		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
-		assertTrue(selenium.isElementPresent(
-				"//body[contains(@class,'live-view')]"));
-		assertTrue(selenium.isElementNotPresent(
-				"//body[contains(@class,'local-staging')]"));
-		assertTrue(selenium.isPartialText("//li[2]/span/a", "Staging"));
-		selenium.clickAt("//li[2]/span/a", RuntimeVariables.replace("Staging"));
-		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
-		assertEquals(RuntimeVariables.replace(
-				"Main Site Pages Variation of Site Name"),
-			selenium.getText("//span[@class='layout-set-branch-description']"));
-		assertEquals(RuntimeVariables.replace("Manage Page Variations"),
-			selenium.getText("//a[@id='_170_manageLayoutRevisions']/span"));
-		selenium.clickAt("//a[@id='_170_manageLayoutRevisions']/span",
-			RuntimeVariables.replace("Manage Page Variations"));
-		Thread.sleep(5000);
+		selenium.selectFrame("//iframe[contains(@id,'layoutRevisions')]");
+
+		for (int second = 0;; second++) {
+			if (second >= 90) {
+				fail("timeout");
+			}
+
+			try {
+				if (selenium.isElementPresent(
+							"//script[contains(@src,'/liferay/navigation_interaction.js')]")) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+
+			Thread.sleep(1000);
+		}
 
 		for (int second = 0;; second++) {
 			if (second >= 90) {
@@ -104,31 +119,12 @@ public class AddPageVariationTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Add']",
 			RuntimeVariables.replace("Add"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Page variation was added."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-		loadRequiredJavaScriptModules();
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Site Name")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Site Name", RuntimeVariables.replace("Site Name"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertTrue(selenium.isElementPresent(
 				"//body[contains(@class,'live-view')]"));
 		assertTrue(selenium.isElementNotPresent(
@@ -136,7 +132,6 @@ public class AddPageVariationTest extends BaseTestCase {
 		assertTrue(selenium.isPartialText("//li[2]/span/a", "Staging"));
 		selenium.clickAt("//li[2]/span/a", RuntimeVariables.replace("Staging"));
 		selenium.waitForPageToLoad("30000");
-		loadRequiredJavaScriptModules();
 		assertEquals(RuntimeVariables.replace("Main Variation"),
 			selenium.getText("//li[1]/span/span"));
 		assertEquals(RuntimeVariables.replace("Page Variation Name"),

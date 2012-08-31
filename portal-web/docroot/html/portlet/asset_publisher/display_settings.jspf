@@ -14,12 +14,13 @@
  */
 --%>
 
-<%
-PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetEntry.class.getName());
-%>
-
 <aui:fieldset cssClass="general-display-settings">
-	<div class="display-style">
+	<div class="display-template">
+
+		<%
+		PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetEntry.class.getName());
+		%>
+
 		<liferay-ui:ddm-template-menu
 			classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
 			displayStyles="<%= Arrays.asList(PropsValues.ASSET_PUBLISHER_DISPLAY_STYLES) %>"
@@ -112,7 +113,14 @@ PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemp
 
 	<aui:input name="preferences--enablePermissions--" type="checkbox" value="<%= enablePermissions %>" />
 
-	<aui:input name="preferences--enableRelatedAssets--" type="checkbox" value="<%= enableRelatedAssets %>" />
+	<c:choose>
+		<c:when test="<%= rootPortletId.equals(PortletKeys.RELATED_ASSETS) %>">
+			<aui:input name="preferences--enableRelatedAssets--" type="hidden" value="<%= enableRelatedAssets %>" />
+		</c:when>
+		<c:otherwise>
+			<aui:input name="preferences--enableRelatedAssets--" type="checkbox" value="<%= enableRelatedAssets %>" />
+		</c:otherwise>
+	</c:choose>
 
 	<aui:input name="preferences--enableRatings--" type="checkbox" value="<%= enableRatings %>" />
 

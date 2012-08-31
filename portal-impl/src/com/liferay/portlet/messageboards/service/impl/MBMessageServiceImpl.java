@@ -187,6 +187,15 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 		mbMessageLocalService.deleteMessage(messageId);
 	}
 
+	public void deleteMessageAttachments(long messageId)
+		throws PortalException, SystemException {
+
+		MBMessagePermission.check(
+			getPermissionChecker(), messageId, ActionKeys.DELETE);
+
+		mbMessageLocalService.deleteMessageAttachments(messageId);
+	}
+
 	public List<MBMessage> getCategoryMessages(
 			long groupId, long categoryId, int status, int start, int end)
 		throws PortalException, SystemException {
@@ -683,9 +692,7 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 		syndFeed.setEntries(syndEntries);
 
 		for (MBMessage message : messages) {
-			String author = HtmlUtil.escape(
-				PortalUtil.getUserName(
-					message.getUserId(), message.getUserName()));
+			String author = PortalUtil.getUserName(message);
 
 			String value = null;
 

@@ -22,24 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 	public void testAddDMFolderMusicSubfolderMusic() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Documents and Media Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Documents and Media Test Page",
 			RuntimeVariables.replace("Documents and Media Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -48,54 +33,38 @@ public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 			selenium.getText("//span[@title='Add']/ul/li/strong/a/span"));
 		selenium.clickAt("//span[@title='Add']/ul/li/strong/a/span",
 			RuntimeVariables.replace("Add"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Folder')]");
 		assertEquals(RuntimeVariables.replace("Folder"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Folder')]"));
 		assertEquals(RuntimeVariables.replace("Shortcut"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[2]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Shortcut')]"));
 		assertEquals(RuntimeVariables.replace("Repository"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Repository')]"));
 		assertEquals(RuntimeVariables.replace("Multiple Documents"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Multiple Documents')]"));
 		assertEquals(RuntimeVariables.replace("Basic Document"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Basic Document')]"));
 		assertEquals(RuntimeVariables.replace("Contract"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[6]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Contract')]"));
 		assertEquals(RuntimeVariables.replace("Marketing Banner"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Marketing Banner')]"));
 		assertEquals(RuntimeVariables.replace("Online Training"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[8]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Online Training')]"));
 		assertEquals(RuntimeVariables.replace("Sales Presentation"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[9]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Sales Presentation')]"));
 		assertEquals(RuntimeVariables.replace("Music"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[10]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Music')]"));
 		assertEquals(RuntimeVariables.replace("DM Music Folder"),
 			selenium.getText(
 				"//div[@data-title='DM Music Folder']/a/span[@class='entry-title']"));
@@ -106,69 +75,37 @@ public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 			selenium.getText("//span[@title='Add']/ul/li/strong/a/span"));
 		selenium.clickAt("//span[@title='Add']/ul/li/strong/a/span",
 			RuntimeVariables.replace("Add"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subfolder')]");
 		assertEquals(RuntimeVariables.replace("Subfolder"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subfolder')]"));
 		assertEquals(RuntimeVariables.replace("Shortcut"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[2]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Shortcut')]"));
 		assertEquals(RuntimeVariables.replace("Multiple Documents"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Multiple Documents')]"));
 		assertEquals(RuntimeVariables.replace("Basic Document"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Basic Document')]"));
 		assertEquals(RuntimeVariables.replace("Contract"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Contract')]"));
 		assertEquals(RuntimeVariables.replace("Marketing Banner"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[6]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Marketing Banner')]"));
 		assertEquals(RuntimeVariables.replace("Online Training"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Online Training')]"));
 		assertEquals(RuntimeVariables.replace("Sales Presentation"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[8]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Sales Presentation')]"));
 		assertEquals(RuntimeVariables.replace("Music"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[9]/a"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@data-title='DM Music Workflow Subfolder']/a/span[@class='entry-title']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Music')]"));
+		selenium.waitForVisible(
+			"//div[@data-title='DM Music Workflow Subfolder']/a/span[@class='entry-title']");
 		assertEquals(RuntimeVariables.replace("DM Music Workflow Subfolder"),
 			selenium.getText(
 				"//div[@data-title='DM Music Workflow Subfolder']/a/span[@class='entry-title']"));
@@ -179,36 +116,20 @@ public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 			selenium.getText("//span[@title='Add']/ul/li/strong/a/span"));
 		selenium.clickAt("//span[@title='Add']/ul/li/strong/a/span",
 			RuntimeVariables.replace("Add"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subfolder')]");
 		assertEquals(RuntimeVariables.replace("Subfolder"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subfolder')]"));
 		assertEquals(RuntimeVariables.replace("Shortcut"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[2]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Shortcut')]"));
 		assertEquals(RuntimeVariables.replace("Multiple Documents"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Multiple Documents')]"));
 		assertEquals(RuntimeVariables.replace("Music"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Music')]"));
 		assertTrue(selenium.isElementNotPresent(
 				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Basic Document')]"));
 		assertTrue(selenium.isElementNotPresent(
@@ -221,9 +142,9 @@ public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Sales Presentation')]"));
 		assertEquals(RuntimeVariables.replace("Music"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Music')]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Music')]"));
 		selenium.click(RuntimeVariables.replace(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Music')]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Music')]"));
 		selenium.waitForPageToLoad("30000");
 		selenium.uploadCommonFile("//input[@id='_20_file']",
 			RuntimeVariables.replace("Document_1.mp3"));
@@ -232,26 +153,6 @@ public class AddDMFolderMusicSubfolderMusicTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Submit for Publication']",
 			RuntimeVariables.replace("Submit for Publication"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Your request completed successfully.")
-										.equals(selenium.getText(
-								"//div[@class='portlet-msg-success']"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));

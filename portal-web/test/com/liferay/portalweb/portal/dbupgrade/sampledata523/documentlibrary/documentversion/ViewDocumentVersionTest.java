@@ -22,96 +22,29 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewDocumentVersionTest extends BaseTestCase {
 	public void testViewDocumentVersion() throws Exception {
-		selenium.open("/user/joebloggs/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Communities I Own")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Communities I Own", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("_29_name",
-			RuntimeVariables.replace(
-				"Document Library Document Version Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Open", RuntimeVariables.replace("Open"));
-		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Document Library Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-document-version-community/");
 		selenium.clickAt("link=Document Library Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Document Library Page"));
 		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
+			selenium.getText("//b"));
 		selenium.clickAt("//b", RuntimeVariables.replace("Test1 Folder1"));
 		selenium.waitForPageToLoad("30000");
-		selenium.click("//strong/span");
-		selenium.clickAt("link=View", RuntimeVariables.replace(""));
+		assertEquals(RuntimeVariables.replace("Actions"),
+			selenium.getText("//strong/span"));
+		selenium.clickAt("//strong/span", RuntimeVariables.replace("Actions"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'View')]");
+		assertEquals(RuntimeVariables.replace("View"),
+			selenium.getText(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'View')]"));
+		selenium.click(RuntimeVariables.replace(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'View')]"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("1.0")
-										.equals(selenium.getText(
-								"//tr[3]/td[2]/a"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("1.1")
-										.equals(selenium.getText(
-								"//tr[2]/td[2]"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		assertEquals(RuntimeVariables.replace("Version"),
+			selenium.getText("//tr[2]/td[1]"));
 		assertEquals(RuntimeVariables.replace("1.1"),
 			selenium.getText("//tr[2]/td[2]"));
 		assertEquals(RuntimeVariables.replace("1.0"),

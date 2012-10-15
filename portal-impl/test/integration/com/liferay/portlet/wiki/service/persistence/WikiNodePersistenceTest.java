@@ -21,12 +21,12 @@ import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.ExecutionTestListeners;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
@@ -130,6 +130,14 @@ public class WikiNodePersistenceTest {
 
 		newWikiNode.setLastPostDate(ServiceTestUtil.nextDate());
 
+		newWikiNode.setStatus(ServiceTestUtil.nextInt());
+
+		newWikiNode.setStatusByUserId(ServiceTestUtil.nextLong());
+
+		newWikiNode.setStatusByUserName(ServiceTestUtil.randomString());
+
+		newWikiNode.setStatusDate(ServiceTestUtil.nextDate());
+
 		_persistence.update(newWikiNode, false);
 
 		WikiNode existingWikiNode = _persistence.findByPrimaryKey(newWikiNode.getPrimaryKey());
@@ -157,6 +165,15 @@ public class WikiNodePersistenceTest {
 		Assert.assertEquals(Time.getShortTimestamp(
 				existingWikiNode.getLastPostDate()),
 			Time.getShortTimestamp(newWikiNode.getLastPostDate()));
+		Assert.assertEquals(existingWikiNode.getStatus(),
+			newWikiNode.getStatus());
+		Assert.assertEquals(existingWikiNode.getStatusByUserId(),
+			newWikiNode.getStatusByUserId());
+		Assert.assertEquals(existingWikiNode.getStatusByUserName(),
+			newWikiNode.getStatusByUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingWikiNode.getStatusDate()),
+			Time.getShortTimestamp(newWikiNode.getStatusDate()));
 	}
 
 	@Test
@@ -320,6 +337,14 @@ public class WikiNodePersistenceTest {
 		wikiNode.setDescription(ServiceTestUtil.randomString());
 
 		wikiNode.setLastPostDate(ServiceTestUtil.nextDate());
+
+		wikiNode.setStatus(ServiceTestUtil.nextInt());
+
+		wikiNode.setStatusByUserId(ServiceTestUtil.nextLong());
+
+		wikiNode.setStatusByUserName(ServiceTestUtil.randomString());
+
+		wikiNode.setStatusDate(ServiceTestUtil.nextDate());
 
 		_persistence.update(wikiNode, false);
 

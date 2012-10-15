@@ -243,7 +243,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 		<%@ include file="/html/portlet/message_boards/view_threads.jspf" %>
 
-		<c:if test='<%= topLink.equals("recent-posts") %>'>
+		<c:if test='<%= PortalUtil.isRSSFeedsEnabled() && topLink.equals("recent-posts") %>'>
 
 			<%
 			rssURL.setParameter("groupId", String.valueOf(scopeGroupId));
@@ -351,12 +351,39 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				keyProperty="banId"
 				modelVar="ban"
 			>
+
+				<%
+				String bannedUserDisplayURL = StringPool.BLANK;
+
+				try {
+					User bannedUser = UserLocalServiceUtil.getUser(ban.getBanUserId());
+
+					bannedUserDisplayURL = bannedUser.getDisplayURL(themeDisplay);
+				}
+				catch (NoSuchUserException nsue) {
+				}
+				%>
+
 				<liferay-ui:search-container-column-text
+					href="<%= bannedUserDisplayURL %>"
 					name="banned-user"
 					value="<%= HtmlUtil.escape(PortalUtil.getUserName(ban.getBanUserId(), StringPool.BLANK)) %>"
 				/>
 
+				<%
+				String bannedByUserDisplayURL = StringPool.BLANK;
+
+				try {
+					User bannedByUser = UserLocalServiceUtil.getUser(ban.getUserId());
+
+					bannedByUserDisplayURL = bannedByUser.getDisplayURL(themeDisplay);
+				}
+				catch (NoSuchUserException nsue) {
+				}
+				%>
+
 				<liferay-ui:search-container-column-text
+					href="<%= bannedByUserDisplayURL %>"
 					name="banned-by"
 					value="<%= HtmlUtil.escape(PortalUtil.getUserName(ban.getUserId(), StringPool.BLANK)) %>"
 				/>

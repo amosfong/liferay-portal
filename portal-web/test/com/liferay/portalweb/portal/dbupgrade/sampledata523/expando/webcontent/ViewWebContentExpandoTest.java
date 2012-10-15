@@ -22,38 +22,11 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewWebContentExpandoTest extends BaseTestCase {
 	public void testViewWebContentExpando() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("_134_name",
-			RuntimeVariables.replace("Expando Web Content Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//tr[@class='portlet-section-body results-row']/td[1]/a",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/expando-web-content-community/");
 		selenium.clickAt("link=Web Content Display Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Web Content Display Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("First Expando Bank"),
 			selenium.getText("//div[@class='journal-content-article']/h1"));

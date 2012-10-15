@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.scripting.ScriptingException;
 import com.liferay.portal.kernel.scripting.ScriptingUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.CharPool;
@@ -158,6 +159,9 @@ public class EditServerAction extends PortletAction {
 		else if (cmd.equals("cacheMulti")) {
 			cacheMulti();
 		}
+		else if (cmd.equals("cacheServlet")) {
+			cacheServlet();
+		}
 		else if (cmd.equals("cacheSingle")) {
 			cacheSingle();
 		}
@@ -227,6 +231,10 @@ public class EditServerAction extends PortletAction {
 
 	protected void cacheMulti() throws Exception {
 		MultiVMPoolUtil.clear();
+	}
+
+	protected void cacheServlet() throws Exception {
+		DirectServletRegistryUtil.clearServlets();
 	}
 
 	protected void cacheSingle() throws Exception {
@@ -383,14 +391,24 @@ public class EditServerAction extends PortletAction {
 				return;
 			}
 
+			Set<String> searchEngineIds = new HashSet<String>();
+
+			for (Indexer indexer : indexers) {
+				searchEngineIds.add(indexer.getSearchEngineId());
+			}
+
+			for (String searchEngineId : searchEngineIds) {
+				for (long companyId : companyIds) {
+					SearchEngineUtil.deletePortletDocuments(
+						searchEngineId, companyId, portletId);
+				}
+			}
+
 			for (Indexer indexer : indexers) {
 				for (long companyId : companyIds) {
 					ShardUtil.pushCompanyService(companyId);
 
 					try {
-						SearchEngineUtil.deletePortletDocuments(
-							indexer.getSearchEngineId(), companyId, portletId);
-
 						indexer.reindex(
 							new String[] {String.valueOf(companyId)});
 

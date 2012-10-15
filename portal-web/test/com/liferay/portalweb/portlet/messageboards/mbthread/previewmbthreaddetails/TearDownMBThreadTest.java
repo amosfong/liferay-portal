@@ -27,24 +27,10 @@ public class TearDownMBThreadTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Message Boards Test Page")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("link=Message Boards Test Page");
 				selenium.clickAt("link=Message Boards Test Page",
 					RuntimeVariables.replace("Message Boards Test Page"));
 				selenium.waitForPageToLoad("30000");
@@ -53,7 +39,7 @@ public class TearDownMBThreadTest extends BaseTestCase {
 				selenium.waitForPageToLoad("30000");
 
 				boolean mbMessage1Present = selenium.isElementPresent(
-						"//td[7]/span/ul/li/strong/a");
+						"eval(selenium.isElementPresent('//td[7]/span/ul/li/strong/a'))");
 
 				if (!mbMessage1Present) {
 					label = 2;
@@ -61,31 +47,18 @@ public class TearDownMBThreadTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[7]/span/ul/li/strong/a",
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText("//span[@title='Actions']/ul/li/strong/a"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
 					RuntimeVariables.replace("Actions"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a");
 				assertEquals(RuntimeVariables.replace("Delete"),
 					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S] It will be deleted immediately.$"));
@@ -93,7 +66,7 @@ public class TearDownMBThreadTest extends BaseTestCase {
 			case 2:
 
 				boolean mbMessage2Present = selenium.isElementPresent(
-						"//td[7]/span/ul/li/strong/a");
+						"eval(selenium.isElementPresent('//td[7]/span/ul/li/strong/a'))");
 
 				if (!mbMessage2Present) {
 					label = 3;
@@ -101,31 +74,18 @@ public class TearDownMBThreadTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[7]/span/ul/li/strong/a",
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText("//span[@title='Actions']/ul/li/strong/a"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
 					RuntimeVariables.replace("Actions"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a");
 				assertEquals(RuntimeVariables.replace("Delete"),
 					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S] It will be deleted immediately.$"));
@@ -133,7 +93,7 @@ public class TearDownMBThreadTest extends BaseTestCase {
 			case 3:
 
 				boolean mbMessage3Present = selenium.isElementPresent(
-						"//td[7]/span/ul/li/strong/a");
+						"eval(selenium.isElementPresent('//td[7]/span/ul/li/strong/a'))");
 
 				if (!mbMessage3Present) {
 					label = 4;
@@ -141,31 +101,18 @@ public class TearDownMBThreadTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[7]/span/ul/li/strong/a",
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText("//span[@title='Actions']/ul/li/strong/a"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
 					RuntimeVariables.replace("Actions"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a");
 				assertEquals(RuntimeVariables.replace("Delete"),
 					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S] It will be deleted immediately.$"));
@@ -173,7 +120,7 @@ public class TearDownMBThreadTest extends BaseTestCase {
 			case 4:
 
 				boolean mbMessage4Present = selenium.isElementPresent(
-						"//td[7]/span/ul/li/strong/a");
+						"eval(selenium.isElementPresent('//td[7]/span/ul/li/strong/a'))");
 
 				if (!mbMessage4Present) {
 					label = 5;
@@ -181,31 +128,18 @@ public class TearDownMBThreadTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[7]/span/ul/li/strong/a",
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText("//span[@title='Actions']/ul/li/strong/a"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
 					RuntimeVariables.replace("Actions"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a");
 				assertEquals(RuntimeVariables.replace("Delete"),
 					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S] It will be deleted immediately.$"));
@@ -213,7 +147,7 @@ public class TearDownMBThreadTest extends BaseTestCase {
 			case 5:
 
 				boolean mbMessage5Present = selenium.isElementPresent(
-						"//td[7]/span/ul/li/strong/a");
+						"eval(selenium.isElementPresent('//td[7]/span/ul/li/strong/a'))");
 
 				if (!mbMessage5Present) {
 					label = 6;
@@ -221,31 +155,18 @@ public class TearDownMBThreadTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[7]/span/ul/li/strong/a",
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText("//span[@title='Actions']/ul/li/strong/a"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
 					RuntimeVariables.replace("Actions"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a");
 				assertEquals(RuntimeVariables.replace("Delete"),
 					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[7]/a"));
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S] It will be deleted immediately.$"));

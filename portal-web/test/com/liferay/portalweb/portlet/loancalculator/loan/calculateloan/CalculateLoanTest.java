@@ -22,51 +22,21 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class CalculateLoanTest extends BaseTestCase {
 	public void testCalculateLoan() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Loan Calculator Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Loan Calculator Test Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Loan Calculator Test Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.type("_61_loanAmount", RuntimeVariables.replace("1,000"));
-		selenium.type("_61_interest", RuntimeVariables.replace("4.75"));
-		selenium.type("_61_years", RuntimeVariables.replace("20"));
+		selenium.type("//input[@name='_61_loanAmount']",
+			RuntimeVariables.replace("1,000"));
+		selenium.type("//input[@name='_61_interest']",
+			RuntimeVariables.replace("4.75"));
+		selenium.type("//input[@name='_61_years']",
+			RuntimeVariables.replace("20"));
 		selenium.clickAt("//input[@value='Calculate']",
-			RuntimeVariables.replace(""));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("1,551")
-										.equals(selenium.getText(
-								"//tr[6]/td[2]/strong"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+			RuntimeVariables.replace("Calculate"));
+		selenium.waitForText("//tr[6]/td[2]/strong", "1,551");
 		assertEquals(RuntimeVariables.replace("1,551"),
 			selenium.getText("//tr[6]/td[2]/strong"));
 	}

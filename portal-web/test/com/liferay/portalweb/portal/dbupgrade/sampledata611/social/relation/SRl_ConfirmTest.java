@@ -22,29 +22,14 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SRl_ConfirmTest extends BaseTestCase {
 	public void testSRl_Confirm() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/socialrelationsn1/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Requests Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.click(RuntimeVariables.replace("link=Requests Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Confirm"),
-			selenium.getText("//div[2]/div/ul/li/a/span"));
-		selenium.clickAt("//div[2]/div/ul/li/a/span",
+			selenium.getText("//a/span[.='Confirm']"));
+		selenium.clickAt("//a/span[.='Confirm']",
 			RuntimeVariables.replace("Confirm"));
 		selenium.waitForPageToLoad("30000");
 		assertFalse(selenium.isTextPresent("Confirm"));

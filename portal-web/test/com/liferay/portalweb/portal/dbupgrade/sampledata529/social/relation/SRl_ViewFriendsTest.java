@@ -22,30 +22,16 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SRl_ViewFriendsTest extends BaseTestCase {
 	public void testSRl_ViewFriends() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/socialrelationsn1/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Friends Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Friends Test Page",
 			RuntimeVariables.replace("Friends Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("You have 1 friends."),
-			selenium.getText("//div[2]/div/div/div[1]"));
-		assertTrue(selenium.isPartialText("//td[2]/div/a",
+			selenium.getText(
+				"//div[@class='portlet-content-container']/div/div"));
+		assertTrue(selenium.isPartialText("//a[@class='user-name']",
 				"socialrelationfn2 socialrelationmn2 socialrelationln2"));
 	}
 }

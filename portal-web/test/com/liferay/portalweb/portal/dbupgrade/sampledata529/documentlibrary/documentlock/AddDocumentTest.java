@@ -22,40 +22,11 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddDocumentTest extends BaseTestCase {
 	public void testAddDocument() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Control Panel")
-										.equals(selenium.getText(
-								"link=Control Panel"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel",
-			RuntimeVariables.replace("Control Panel"));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities",
-			RuntimeVariables.replace("Communities"));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("//input[@id='_134_name']",
-			RuntimeVariables.replace("Document Library Document Lock Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace("Search"));
-		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("Open"),
-			selenium.getText("//td[2]/a"));
-		selenium.clickAt("//td[2]/a", RuntimeVariables.replace("Open"));
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-document-lock-community/");
+		selenium.clickAt("link=Document Lock Page",
+			RuntimeVariables.replace("Document Lock Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
 			selenium.getText("//b"));
@@ -64,30 +35,12 @@ public class AddDocumentTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Add Document']",
 			RuntimeVariables.replace("Add Document"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//a[@class='use-fallback using-new-uploader']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//a[@class='use-fallback using-new-uploader']");
 		assertEquals(RuntimeVariables.replace("Use the classic uploader."),
 			selenium.getText("//a[@class='use-fallback using-new-uploader']"));
 		selenium.click("//a[@class='use-fallback using-new-uploader']");
-		selenium.type("//input[@id='_20_file']",
-			RuntimeVariables.replace(
-				"L:\\portal\\build\\portal-web\\test\\com\\liferay\\portalweb\\portal\\dbupgrade\\sampledata529\\documentlibrary\\document\\dependencies\\test_document.txt"));
+		selenium.uploadCommonFile("//input[@id='_20_file']",
+			RuntimeVariables.replace("Document_1.txt"));
 		selenium.type("//input[@id='_20_title']",
 			RuntimeVariables.replace("Test1 Document1"));
 		selenium.type("//textarea[@id='_20_description']",
@@ -95,33 +48,13 @@ public class AddDocumentTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Save']",
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Your request processed successfully.")
-										.equals(selenium.getText(
-								"//div[@class='portlet-msg-success']"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
-		assertEquals(RuntimeVariables.replace(
-				"Test1 Document1.txt\nThis is Test1 Document1"),
-			selenium.getText("//td[1]/a"));
-		assertFalse(selenium.isTextPresent("0.0k"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "Test1 Document1.txt"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "This is Test1 Document1"));
+		assertEquals(RuntimeVariables.replace("0.3k"),
+			selenium.getText("//td[2]/a"));
 		assertEquals(RuntimeVariables.replace("0"),
 			selenium.getText("//td[3]/a"));
 		assertEquals(RuntimeVariables.replace("No"),

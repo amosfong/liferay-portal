@@ -22,24 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Guest_ViewBookmarksEntryTest extends BaseTestCase {
 	public void testGuest_ViewBookmarksEntry() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Bookmarks Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Bookmarks Test Page",
 			RuntimeVariables.replace("Bookmarks Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -52,7 +37,7 @@ public class Guest_ViewBookmarksEntryTest extends BaseTestCase {
 		assertTrue(selenium.isVisible("//td[4]/a"));
 		assertEquals(RuntimeVariables.replace("Showing 1 result."),
 			selenium.getText("//div[@class='search-results']"));
-		selenium.clickAt("//td/a",
+		selenium.clickAt("//td[1]/a",
 			RuntimeVariables.replace("Bookmarks Entry Name"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Bookmarks Entry Name"),

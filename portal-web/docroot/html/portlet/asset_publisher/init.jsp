@@ -224,7 +224,7 @@ String allMetadataFields = "create-date,modified-date,publish-date,expiration-da
 
 String[] metadataFields = StringUtil.split(preferences.getValue("metadataFields", defaultMetadataFields));
 
-boolean enableRSS = GetterUtil.getBoolean(preferences.getValue("enableRss", null));
+boolean enableRSS = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean(preferences.getValue("enableRss", null));
 int rssDelta = GetterUtil.getInteger(preferences.getValue("rssDelta", "20"));
 String rssDisplayStyle = preferences.getValue("rssDisplayStyle", RSSUtil.DISPLAY_STYLE_ABSTRACT);
 String rssFormat = preferences.getValue("rssFormat", "atom10");

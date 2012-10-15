@@ -22,24 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Guest_ViewCheckoutDMDocumentTxtTest extends BaseTestCase {
 	public void testGuest_ViewCheckoutDMDocumentTxt() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Documents and Media Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Documents and Media Test Page",
 			RuntimeVariables.replace("Documents and Media Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -56,8 +41,10 @@ public class Guest_ViewCheckoutDMDocumentTxtTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("Status: Approved"),
 			selenium.getText("//span[@class='workflow-status']"));
 		assertEquals(RuntimeVariables.replace("1.0"),
-			selenium.getText("//tr[3]/td[2]"));
+			selenium.getText(
+				"//tr[@class='portlet-section-body results-row last']/td[2]"));
 		assertEquals(RuntimeVariables.replace("0.3k"),
-			selenium.getText("//tr[3]/td[4]"));
+			selenium.getText(
+				"//tr[@class='portlet-section-body results-row last']/td[4]"));
 	}
 }

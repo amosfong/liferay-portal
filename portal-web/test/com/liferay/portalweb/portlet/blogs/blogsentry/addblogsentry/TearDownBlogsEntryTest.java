@@ -27,6 +27,8 @@ public class TearDownBlogsEntryTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
 				selenium.clickAt("link=Blogs Test Page",
 					RuntimeVariables.replace("Blogs Test Page"));
@@ -102,43 +104,17 @@ public class TearDownBlogsEntryTest extends BaseTestCase {
 			case 4:
 			case 5:
 			case 6:
+				assertEquals(RuntimeVariables.replace("Showing 0 results."),
+					selenium.getText("//div[@class='search-results']"));
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//li[@id='_145_mySites']/a/span")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				assertEquals(RuntimeVariables.replace("Go to"),
+					selenium.getText("//li[@id='_145_mySites']/a/span"));
 				selenium.mouseOver("//li[@id='_145_mySites']/a/span");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Control Panel")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("link=Control Panel");
 				selenium.clickAt("link=Control Panel",
 					RuntimeVariables.replace("Control Panel"));
 				selenium.waitForPageToLoad("30000");
@@ -146,25 +122,31 @@ public class TearDownBlogsEntryTest extends BaseTestCase {
 					RuntimeVariables.replace("Recycle Bin"));
 				selenium.waitForPageToLoad("30000");
 
-				boolean assetPresent = selenium.isElementPresent(
-						"//input[@name='_182_rowIds']");
+				boolean recycleBinPresent = selenium.isElementPresent(
+						"//form[@id='_182_emptyForm']/a");
 
-				if (!assetPresent) {
+				if (!recycleBinPresent) {
 					label = 7;
 
 					continue;
 				}
 
-				assertFalse(selenium.isChecked(
-						"//input[@name='_182_allRowIds']"));
-				selenium.clickAt("//input[@name='_182_allRowIds']",
-					RuntimeVariables.replace("All Rows"));
-				assertTrue(selenium.isChecked("//input[@name='_182_allRowIds']"));
-				selenium.click(RuntimeVariables.replace(
-						"//input[@value='Empty the Recycle Bin']"));
+				assertEquals(RuntimeVariables.replace("Empty the Recycle Bin"),
+					selenium.getText("//form[@id='_182_emptyForm']/a"));
+				selenium.clickAt("//form[@id='_182_emptyForm']/a",
+					RuntimeVariables.replace("Empty the Recycle Bin"));
 				selenium.waitForPageToLoad("30000");
+				assertTrue(selenium.getConfirmation()
+								   .matches("^Are you sure you want to empty the Recycle Bin[\\s\\S]$"));
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
 			case 7:
+				assertEquals(RuntimeVariables.replace(
+						"The Recycle Bin is empty."),
+					selenium.getText("//div[@class='portlet-msg-info']"));
+
 			case 100:
 				label = -1;
 			}

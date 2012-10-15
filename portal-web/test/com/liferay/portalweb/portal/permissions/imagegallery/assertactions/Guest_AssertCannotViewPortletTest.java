@@ -22,30 +22,14 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Guest_AssertCannotViewPortletTest extends BaseTestCase {
 	public void testGuest_AssertCannotViewPortlet() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent(
-							"link=Media Gallery Permissions Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Media Gallery Permissions Test Page",
 			RuntimeVariables.replace("Media Gallery Permissions Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace(
-				"You do not have the required permissions."),
+				"You do not have the roles required to access this portlet."),
 			selenium.getText("//div[@class='portlet-msg-error']"));
 	}
 }

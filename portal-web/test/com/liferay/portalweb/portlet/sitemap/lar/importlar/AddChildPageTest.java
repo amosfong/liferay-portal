@@ -27,67 +27,30 @@ public class AddChildPageTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Site Map Test Page")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
 				selenium.clickAt("link=Site Map Test Page",
 					RuntimeVariables.replace("Site Map Test Page"));
 				selenium.waitForPageToLoad("30000");
 				selenium.clickAt("//div[@id='dockbar']",
 					RuntimeVariables.replace("Dockbar"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isElementPresent(
-									"//li[contains(@class,'manage-page')]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				assertEquals(RuntimeVariables.replace("Manage"),
+					selenium.getText("//li[@id='_145_manageContent']/a/span"));
+				selenium.mouseOver("//li[@id='_145_manageContent']/a/span");
+				selenium.waitForVisible(
+					"//li[contains(@class,'manage-page')]/a");
+				assertEquals(RuntimeVariables.replace("Page"),
+					selenium.getText("//li[contains(@class,'manage-page')]/a"));
 				selenium.clickAt("//li[contains(@class,'manage-page')]/a",
-					RuntimeVariables.replace("Manage Pages"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (RuntimeVariables.replace("Public Pages")
-												.equals(selenium.getText(
-										"//a[@class='layout-tree']"))) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
+					RuntimeVariables.replace("Page"));
+				selenium.waitForVisible("//iframe[@id='manageContentDialog']");
+				selenium.selectFrame("//iframe[@id='manageContentDialog']");
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/liferay/search_container.js')]");
+				selenium.waitForText("//a[@class='layout-tree']", "Public Pages");
 
 				boolean welcomePresent = selenium.isElementPresent(
 						"//li/ul/li[1]/div/div[3]/a");
@@ -106,24 +69,8 @@ public class AddChildPageTest extends BaseTestCase {
 					selenium.getText("//div/span/button[1]"));
 				selenium.clickAt("//div/span/button[1]",
 					RuntimeVariables.replace("Add Child Page"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//input[@id='_88_addLayoutName_en_US']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//input[@id='_88_addLayoutName_en_US']");
 				selenium.type("//input[@id='_88_addLayoutName_en_US']",
 					RuntimeVariables.replace("Site Map Test Child Page"));
 				selenium.clickAt("//input[@value='Add Page']",
@@ -132,29 +79,10 @@ public class AddChildPageTest extends BaseTestCase {
 				assertEquals(RuntimeVariables.replace(
 						"Your request completed successfully. The page will be refreshed when you close this dialog. Alternatively you can hide this dialog."),
 					selenium.getText("//div[@class='portlet-msg-success']"));
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Site Map Test Page")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.clickAt("link=Site Map Test Page",
-					RuntimeVariables.replace("Site Map Test Page"));
-				selenium.waitForPageToLoad("30000");
-				assertTrue(selenium.isElementPresent(
-						"link=Site Map Test Child Page"));
+				selenium.mouseOver("link=Site Map Test Page");
+				selenium.waitForVisible("link=Site Map Test Child Page");
 				selenium.clickAt("link=Site Map Test Child Page",
 					RuntimeVariables.replace("Site Map Test Child Page"));
 				selenium.waitForPageToLoad("30000");

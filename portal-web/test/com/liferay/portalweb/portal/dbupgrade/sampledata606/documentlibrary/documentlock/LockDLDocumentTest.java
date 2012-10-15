@@ -22,48 +22,19 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class LockDLDocumentTest extends BaseTestCase {
 	public void testLockDLDocument() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Control Panel")
-										.equals(selenium.getText(
-								"link=Control Panel"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel",
-			RuntimeVariables.replace("Control Panel"));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities",
-			RuntimeVariables.replace("Communities"));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("//input[@id='_134_name']",
-			RuntimeVariables.replace("Document Library Document Lock Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace("Search"));
-		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("Open"),
-			selenium.getText("//td[2]/a"));
-		selenium.clickAt("//td[2]/a", RuntimeVariables.replace("Open"));
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-document-lock-community/");
+		selenium.clickAt("link=Document Lock Page",
+			RuntimeVariables.replace("Document Lock Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
-			selenium.getText("//a[2]/strong"));
-		selenium.click(RuntimeVariables.replace("//a[2]/strong"));
+			selenium.getText("//a/strong[contains(.,'Test1 Folder1')]"));
+		selenium.clickAt("//a/strong[contains(.,'Test1 Folder1')]",
+			RuntimeVariables.replace("Test1 Folder1"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace(
-				"Test1 Document1.txt This is Test1 Document1"),
-			selenium.getText("//td[1]/a"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "Test1 Document1.txt"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "This is Test1 Document1"));
 		assertFalse(selenium.isTextPresent("0.0k"));
 		assertEquals(RuntimeVariables.replace("0"),
 			selenium.getText("//td[3]/a"));
@@ -73,56 +44,19 @@ public class LockDLDocumentTest extends BaseTestCase {
 			selenium.getText("//td[5]/ul/li/strong/a"));
 		selenium.clickAt("//td[5]/ul/li/strong/a",
 			RuntimeVariables.replace("Actions"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Lock')]");
 		assertEquals(RuntimeVariables.replace("Lock"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Lock')]"));
 		selenium.click(RuntimeVariables.replace(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[4]/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Lock')]"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Your request processed successfully.")
-										.equals(selenium.getText(
-								"//div[@class='portlet-msg-success']"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
-		assertEquals(RuntimeVariables.replace(
-				"Test1 Document1.txt This is Test1 Document1"),
-			selenium.getText("//td[1]/a"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "Test1 Document1.txt"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "This is Test1 Document1"));
 		assertFalse(selenium.isTextPresent("0.0k"));
 		assertEquals(RuntimeVariables.replace("0"),
 			selenium.getText("//td[3]/a"));

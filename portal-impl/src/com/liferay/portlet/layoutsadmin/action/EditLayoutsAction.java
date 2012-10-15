@@ -41,7 +41,6 @@ import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -75,6 +74,7 @@ import com.liferay.portal.service.LayoutRevisionLocalServiceUtil;
 import com.liferay.portal.service.LayoutServiceUtil;
 import com.liferay.portal.service.LayoutSetBranchLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.service.ThemeLocalServiceUtil;
@@ -91,6 +91,12 @@ import com.liferay.portal.util.LayoutSettings;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
+import com.liferay.portlet.mobiledevicerules.model.MDRAction;
+import com.liferay.portlet.mobiledevicerules.model.MDRRuleGroupInstance;
+import com.liferay.portlet.mobiledevicerules.service.MDRActionLocalServiceUtil;
+import com.liferay.portlet.mobiledevicerules.service.MDRActionServiceUtil;
+import com.liferay.portlet.mobiledevicerules.service.MDRRuleGroupInstanceLocalServiceUtil;
+import com.liferay.portlet.mobiledevicerules.service.MDRRuleGroupInstanceServiceUtil;
 import com.liferay.portlet.sites.action.ActionUtil;
 import com.liferay.portlet.sites.util.SitesUtil;
 
@@ -98,6 +104,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -640,6 +647,38 @@ public class EditLayoutsAction extends PortletAction {
 		return new byte[0];
 	}
 
+	protected void inheritMobileRuleGroups(
+			Layout layout, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		List<MDRRuleGroupInstance> parentMDRRuleGroupInstances =
+			MDRRuleGroupInstanceLocalServiceUtil.getRuleGroupInstances(
+				Layout.class.getName(), layout.getParentPlid());
+
+		for (MDRRuleGroupInstance parentMDRRuleGroupInstance :
+				parentMDRRuleGroupInstances) {
+
+			MDRRuleGroupInstance mdrRuleGroupInstance =
+				MDRRuleGroupInstanceServiceUtil.addRuleGroupInstance(
+					layout.getGroupId(), Layout.class.getName(),
+					layout.getPlid(),
+					parentMDRRuleGroupInstance.getRuleGroupId(),
+					parentMDRRuleGroupInstance.getPriority(), serviceContext);
+
+			List<MDRAction> parentMDRActions =
+				MDRActionLocalServiceUtil.getActions(
+					parentMDRRuleGroupInstance.getRuleGroupInstanceId());
+
+			for (MDRAction mdrAction : parentMDRActions) {
+				MDRActionServiceUtil.addAction(
+					mdrRuleGroupInstance.getRuleGroupInstanceId(),
+					mdrAction.getNameMap(), mdrAction.getDescriptionMap(),
+					mdrAction.getType(), mdrAction.getTypeSettings(),
+					serviceContext);
+			}
+		}
+	}
+
 	@Override
 	protected boolean isCheckMethodOnProcessAction() {
 		return _CHECK_METHOD_ON_PROCESS_ACTION;
@@ -693,8 +732,9 @@ public class EditLayoutsAction extends PortletAction {
 
 	protected void setThemeSettingProperties(
 			ActionRequest actionRequest,
-			UnicodeProperties typeSettingsProperties, String device,
-			Map<String, ThemeSetting> themeSettings)
+			UnicodeProperties typeSettingsProperties, String themeId,
+			Map<String, ThemeSetting> themeSettings, String device,
+			String deviceThemeId)
 		throws PortalException, SystemException {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
@@ -710,16 +750,17 @@ public class EditLayoutsAction extends PortletAction {
 		for (String key : themeSettings.keySet()) {
 			ThemeSetting themeSetting = themeSettings.get(key);
 
-			String type = GetterUtil.getString(themeSetting.getType(), "text");
+			String value = null;
 
-			String property =
-				device + "ThemeSettingsProperties--" + key +
-					StringPool.DOUBLE_DASH;
+			if (!themeId.equals(deviceThemeId)) {
+				value = themeSetting.getValue();
+			}
+			else {
+				String property =
+					device + "ThemeSettingsProperties--" + key +
+						StringPool.DOUBLE_DASH;
 
-			String value = ParamUtil.getString(actionRequest, property);
-
-			if (type.equals("checkbox")) {
-				value = String.valueOf(GetterUtil.getBoolean(value));
+				value = ParamUtil.getString(actionRequest, property);
 			}
 
 			if (!value.equals(layoutSet.getThemeSetting(key, device))) {
@@ -834,13 +875,16 @@ public class EditLayoutsAction extends PortletAction {
 
 				layout = LayoutServiceUtil.addLayout(
 					groupId, privateLayout, parentLayoutId, nameMap, titleMap,
-					descriptionMap, keywordsMap, robotsMap,
+					parentLayout.getDescriptionMap(),
+					parentLayout.getKeywordsMap(), parentLayout.getRobotsMap(),
 					parentLayout.getType(), hidden, friendlyURL,
 					serviceContext);
 
 				LayoutServiceUtil.updateLayout(
 					layout.getGroupId(), layout.isPrivateLayout(),
 					layout.getLayoutId(), parentLayout.getTypeSettings());
+
+				inheritMobileRuleGroups(layout, serviceContext);
 
 				if (parentLayout.isTypePortlet()) {
 					ActionUtil.copyPreferences(
@@ -959,10 +1003,19 @@ public class EditLayoutsAction extends PortletAction {
 					groupId, privateLayout, layoutId, layout.getTypeSettings());
 			}
 
-			HttpServletResponse response = PortalUtil.getHttpServletResponse(
-				actionResponse);
+			String[] removeEmbeddedPortletIds = ParamUtil.getParameterValues(
+				actionRequest, "removeEmbeddedPortletIds");
+
+			if (removeEmbeddedPortletIds.length > 0) {
+				PortletLocalServiceUtil.deletePortlets(
+					themeDisplay.getCompanyId(), removeEmbeddedPortletIds,
+					layout.getPlid());
+			}
 
 			LayoutSettings layoutSettings = LayoutSettings.getInstance(layout);
+
+			HttpServletResponse response = PortalUtil.getHttpServletResponse(
+				actionResponse);
 
 			EventsProcessorUtil.process(
 				PropsKeys.LAYOUT_CONFIGURATION_ACTION_UPDATE,
@@ -973,7 +1026,7 @@ public class EditLayoutsAction extends PortletAction {
 		updateLookAndFeel(
 			actionRequest, themeDisplay.getCompanyId(), liveGroupId,
 			stagingGroupId, privateLayout, layout.getLayoutId(),
-			layoutTypeSettingsProperties);
+			layoutTypeSettingsProperties, layout.getThemeId());
 
 		return new Object[] {layout, oldFriendlyURL};
 	}
@@ -1044,36 +1097,38 @@ public class EditLayoutsAction extends PortletAction {
 	protected void updateLookAndFeel(
 			ActionRequest actionRequest, long companyId, long liveGroupId,
 			long stagingGroupId, boolean privateLayout, long layoutId,
-			UnicodeProperties typeSettingsProperties)
+			UnicodeProperties typeSettingsProperties, String themeId)
 		throws Exception {
 
 		String[] devices = StringUtil.split(
 			ParamUtil.getString(actionRequest, "devices"));
 
 		for (String device : devices) {
-			String themeId = ParamUtil.getString(
+			String deviceThemeId = ParamUtil.getString(
 				actionRequest, device + "ThemeId");
-			String colorSchemeId = ParamUtil.getString(
+			String deviceColorSchemeId = ParamUtil.getString(
 				actionRequest, device + "ColorSchemeId");
-			String css = ParamUtil.getString(actionRequest, device + "Css");
-			boolean wapTheme = device.equals("wap");
+			String deviceCss = ParamUtil.getString(
+				actionRequest, device + "Css");
+			boolean deviceWapTheme = device.equals("wap");
 
-			boolean inheritLookAndFeel = ParamUtil.getBoolean(
+			boolean deviceInheritLookAndFeel = ParamUtil.getBoolean(
 				actionRequest, device + "InheritLookAndFeel");
 
-			if (inheritLookAndFeel) {
-				themeId = ThemeImpl.getDefaultRegularThemeId(companyId);
-				colorSchemeId = StringPool.BLANK;
+			if (deviceInheritLookAndFeel) {
+				deviceThemeId = ThemeImpl.getDefaultRegularThemeId(companyId);
+				deviceColorSchemeId = StringPool.BLANK;
 
 				deleteThemeSettingsProperties(typeSettingsProperties, device);
 			}
-			else if (Validator.isNotNull(themeId)) {
-				colorSchemeId = getColorSchemeId(
-					companyId, themeId, colorSchemeId, wapTheme);
+			else if (Validator.isNotNull(deviceThemeId)) {
+				deviceColorSchemeId = getColorSchemeId(
+					companyId, deviceThemeId, deviceColorSchemeId,
+					deviceWapTheme);
 
 				updateThemeSettingsProperties(
-					actionRequest, companyId, typeSettingsProperties, device,
-					themeId, wapTheme);
+					actionRequest, companyId, typeSettingsProperties, themeId,
+					device, deviceThemeId, deviceWapTheme);
 			}
 
 			long groupId = liveGroupId;
@@ -1087,19 +1142,19 @@ public class EditLayoutsAction extends PortletAction {
 				typeSettingsProperties.toString());
 
 			LayoutServiceUtil.updateLookAndFeel(
-				groupId, privateLayout, layoutId, themeId, colorSchemeId, css,
-				wapTheme);
+				groupId, privateLayout, layoutId, deviceThemeId,
+				deviceColorSchemeId, deviceCss, deviceWapTheme);
 		}
 	}
 
 	protected UnicodeProperties updateThemeSettingsProperties(
 			ActionRequest actionRequest, long companyId,
-			UnicodeProperties typeSettingsProperties, String device,
-			String themeId, boolean wapTheme)
+			UnicodeProperties typeSettingsProperties, String themeId,
+			String device, String deviceThemeId, boolean wapTheme)
 		throws Exception {
 
 		Theme theme = ThemeLocalServiceUtil.getTheme(
-			companyId, themeId, wapTheme);
+			companyId, deviceThemeId, wapTheme);
 
 		deleteThemeSettingsProperties(typeSettingsProperties, device);
 
@@ -1111,7 +1166,8 @@ public class EditLayoutsAction extends PortletAction {
 		}
 
 		setThemeSettingProperties(
-			actionRequest, typeSettingsProperties, device, themeSettings);
+			actionRequest, typeSettingsProperties, themeId, themeSettings,
+			device, deviceThemeId);
 
 		return typeSettingsProperties;
 	}

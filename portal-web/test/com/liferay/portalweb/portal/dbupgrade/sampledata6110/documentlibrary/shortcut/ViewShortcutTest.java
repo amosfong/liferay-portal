@@ -22,56 +22,29 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewShortcutTest extends BaseTestCase {
 	public void testViewShortcut() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/document-library-shortcut-community/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Document Library Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Document Library Page",
 			RuntimeVariables.replace("Document Library Page"));
 		selenium.waitForPageToLoad("30000");
+		selenium.waitForVisible("//div/a/span[contains(.,'Test2 Folder2')]");
 		assertEquals(RuntimeVariables.replace("Test2 Folder2"),
-			selenium.getText("//div[3]/a/span[2]"));
-		selenium.clickAt("//div[3]/a/span[2]",
+			selenium.getText("//div/a/span[contains(.,'Test2 Folder2')]"));
+		selenium.clickAt("//div/a/span[contains(.,'Test2 Folder2')]",
 			RuntimeVariables.replace("Test2 Folder2"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Test1 Document1.txt")
-										.equals(selenium.getText(
-								"//div/a/span[2]"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForText("//div/a/span[contains(.,'Test1 Document1.txt')]",
+			"Test1 Document1.txt");
 		assertEquals(RuntimeVariables.replace("Test1 Document1.txt"),
-			selenium.getText("//div/a/span[2]"));
-		selenium.clickAt("//div/a/span[2]",
+			selenium.getText("//div/a/span[contains(.,'Test1 Document1.txt')]"));
+		assertTrue(selenium.isVisible(
+				"//div[contains(.,'Test1 Document1.txt')]/a/span/img[@alt='Shortcut']"));
+		selenium.clickAt("//div/a/span[contains(.,'Test1 Document1.txt')]",
 			RuntimeVariables.replace("Test1 Document1.txt"));
 		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Test1 Document1.txt"),
+			selenium.getText("//h2[@class='document-title']"));
 		assertEquals(RuntimeVariables.replace("This is test1 document1."),
-			selenium.getText("//div[2]/div[1]/span[4]"));
+			selenium.getText("//span[@class='document-description']"));
 	}
 }

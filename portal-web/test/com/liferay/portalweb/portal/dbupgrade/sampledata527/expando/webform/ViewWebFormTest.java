@@ -22,63 +22,32 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewWebFormTest extends BaseTestCase {
 	public void testViewWebForm() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel", RuntimeVariables.replace(""));
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/expando-web-form-community/");
+		selenium.clickAt("link=Web Form Page",
+			RuntimeVariables.replace("Web Form Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities", RuntimeVariables.replace(""));
+		Thread.sleep(5000);
+		assertEquals(RuntimeVariables.replace("Options"),
+			selenium.getText("//strong/span"));
+		selenium.clickAt("//strong/span", RuntimeVariables.replace("Options"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]");
+		assertEquals(RuntimeVariables.replace("Configuration"),
+			selenium.getText(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]"));
+		selenium.click(RuntimeVariables.replace(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]"));
 		selenium.waitForPageToLoad("30000");
-		selenium.type("_134_name",
-			RuntimeVariables.replace("Expando Web Form Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//tr[@class='portlet-section-body results-row last']/td[1]/a",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Web Form Page", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Configuration", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Form Fields", RuntimeVariables.replace(""));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isTextPresent(
-							"There is existing form data. Please export and delete it before making changes to the fields.")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		assertTrue(selenium.isTextPresent(
-				"There is existing form data. Please export and delete it before making changes to the fields."));
-		assertTrue(selenium.isElementPresent("//input[@value='Export Data']"));
-		assertTrue(selenium.isElementPresent("//input[@value='Delete Data']"));
+		selenium.clickAt("link=Form Fields",
+			RuntimeVariables.replace("Form Fields"));
+		selenium.waitForVisible("//div[@class='portlet-msg-alert']");
+		assertEquals(RuntimeVariables.replace(
+				"There is existing form data. Please export and delete it before making changes to the fields."),
+			selenium.getText("//div[@class='portlet-msg-alert']"));
+		assertTrue(selenium.isVisible("//input[@value='Export Data']"));
+		assertTrue(selenium.isVisible("//input[@value='Delete Data']"));
 		assertTrue(selenium.isElementNotPresent("link=Add Row"));
 	}
 }

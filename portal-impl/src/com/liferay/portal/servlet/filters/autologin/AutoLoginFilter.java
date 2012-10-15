@@ -150,7 +150,7 @@ public class AutoLoginFilter extends BasePortalFilter {
 		String path = request.getRequestURI().toLowerCase();
 
 		if (!contextPath.equals(StringPool.SLASH) &&
-			(path.indexOf(contextPath) != -1)) {
+			path.contains(contextPath)) {
 
 			path = path.substring(contextPath.length());
 		}
@@ -168,6 +168,12 @@ public class AutoLoginFilter extends BasePortalFilter {
 
 		String remoteUser = request.getRemoteUser();
 		String jUserName = (String)session.getAttribute("j_username");
+
+		// PLACEHOLDER 01
+		// PLACEHOLDER 02
+		// PLACEHOLDER 03
+		// PLACEHOLDER 04
+		// PLACEHOLDER 05
 
 		if (!PropsValues.AUTH_LOGIN_DISABLED &&
 			(remoteUser == null) && (jUserName == null)) {

@@ -21,6 +21,8 @@ public interface PropsKeys {
 
 	public static final String ADMIN_DEFAULT_GROUP_NAMES = "admin.default.group.names";
 
+	public static final String ADMIN_DEFAULT_ORGANIZATION_GROUP_NAMES = "admin.default.organization.group.names";
+
 	public static final String ADMIN_DEFAULT_ROLE_NAMES = "admin.default.role.names";
 
 	public static final String ADMIN_DEFAULT_USER_GROUP_NAMES = "admin.default.user.group.names";
@@ -89,7 +91,7 @@ public interface PropsKeys {
 
 	public static final String APPLICATION_STARTUP_EVENTS = "application.startup.events";
 
-	public static final String ASSET_CATEGORIES_NAVIGATION_DISPLAY_STYLES_TEMPLATE_CONTENT = "asset.categories.navigation.display.styles.template.content";
+	public static final String ASSET_CATEGORIES_NAVIGATION_DISPLAY_TEMPLATES_HELP = "asset.categories.navigation.display.templates.help";
 
 	public static final String ASSET_CATEGORIES_PROPERTIES_DEFAULT = "asset.categories.properties.default";
 
@@ -103,9 +105,7 @@ public interface PropsKeys {
 
 	public static final String ASSET_PUBLISHER_DISPLAY_STYLES = "asset.publisher.display.styles";
 
-	public static final String ASSET_PUBLISHER_DISPLAY_STYLES_TEMPLATE_CONTENT = "asset.publisher.display.styles.template.content";
-
-	public static final String ASSET_PUBLISHER_DISPLAY_STYLES_TEMPLATE_DEFAULT_CONFIG = "asset.publisher.display.styles.template.default.config";
+	public static final String ASSET_PUBLISHER_DISPLAY_TEMPLATES_HELP = "asset.publisher.display.templates.help";
 
 	public static final String ASSET_RENDERER_ENABLED = "asset.renderer.enabled.";
 
@@ -113,11 +113,13 @@ public interface PropsKeys {
 
 	public static final String ASSET_TAG_SUGGESTIONS_ENABLED = "asset.tag.suggestions.enabled";
 
-	public static final String ASSET_TAGS_NAVIGATION_DISPLAY_STYLES_TEMPLATE_CONTENT = "asset.tags.navigation.display.styles.template.content";
+	public static final String ASSET_TAGS_NAVIGATION_DISPLAY_TEMPLATES_HELP = "asset.tags.navigation.display.templates.help";
 
 	public static final String ASSET_VOCABULARY_DEFAULT = "asset.vocabulary.default";
 
 	public static final String AUDIT_MESSAGE_COM_LIFERAY_PORTAL_MODEL_LAYOUT_VIEW = "audit.message.com.liferay.portal.model.Layout.VIEW";
+
+	public static final String AUDIT_MESSAGE_SCHEDULER_JOB = "audit.message.scheduler.job";
 
 	public static final String AUTH_FAILURE = "auth.failure";
 
@@ -211,7 +213,7 @@ public interface PropsKeys {
 
 	public static final String BASIC_AUTH_PASSWORD_REQUIRED = "basic.auth.password.required";
 
-	public static final String BLOGS_DISPLAY_STYLES_TEMPLATE_CONTENT = "blogs.display.styles.template.content";
+	public static final String BLOGS_DISPLAY_TEMPLATES_HELP = "blogs.display.templates.help";
 
 	public static final String BLOGS_EMAIL_ENTRY_ADDED_BODY = "blogs.email.entry.added.body";
 
@@ -571,6 +573,8 @@ public interface PropsKeys {
 
 	public static final String DL_FILE_ENTRY_LOCK_POLICY = "dl.file.entry.lock.policy";
 
+	public static final String DL_FILE_ENTRY_OPEN_IN_MS_OFFICE_MANUAL_CHECK_IN_REQUIRED = "dl.file.entry.open.in.ms.office.manual.check.in.required";
+
 	public static final String DL_FILE_ENTRY_PREVIEW_AUDIO = "dl.file.entry.preview.audio.";
 
 	public static final String DL_FILE_ENTRY_PREVIEW_AUDIO_BIT_RATE = "dl.file.entry.preview.audio.bit.rate";
@@ -580,6 +584,8 @@ public interface PropsKeys {
 	public static final String DL_FILE_ENTRY_PREVIEW_AUDIO_MIME_TYPES = "dl.file.entry.preview.audio.mime.types";
 
 	public static final String DL_FILE_ENTRY_PREVIEW_AUDIO_SAMPLE_RATE = "dl.file.entry.preview.audio.sample.rate";
+
+	public static final String DL_FILE_ENTRY_PREVIEW_AUTO_CREATE_ON_UPGRADE = "dl.file.entry.preview.auto.create.on.upgrade";
 
 	public static final String DL_FILE_ENTRY_PREVIEW_DOCUMENT_DEPTH = "dl.file.entry.preview.document.depth";
 
@@ -632,6 +638,10 @@ public interface PropsKeys {
 	public static final String DL_FILE_ENTRY_THUMBNAIL_MAX_WIDTH = "dl.file.entry.thumbnail.max.width";
 
 	public static final String DL_FILE_ENTRY_THUMBNAIL_VIDEO_FRAME_PERCENTAGE = "dl.file.entry.thumbnail.video.frame.percentage";
+
+	public static final String DL_FILE_ENTRY_TYPE_IG_IMAGE_AUTO_CREATE_ON_UPGRADE = "dl.file.entry.type.ig.image.auto.create.on.upgrade";
+
+	public static final String DL_FILE_ENTRY_VERSION_POLICY = "dl.file.entry.version.policy";
 
 	public static final String DL_FILE_EXTENSIONS = "dl.file.extensions";
 
@@ -689,11 +699,17 @@ public interface PropsKeys {
 
 	public static final String DL_STORE_S3_SECRET_KEY = "dl.store.s3.secret.key";
 
+	public static final String DL_STORE_S3_TEMP_DIR_CLEAN_UP_EXPUNGE = "dl.store.s3.temp.dir.clean.up.expunge";
+
+	public static final String DL_STORE_S3_TEMP_DIR_CLEAN_UP_FREQUENCY = "dl.store.s3.temp.dir.clean.up.frequency";
+
 	public static final String DOCKBAR_ADD_PORTLETS = "dockbar.add.portlets";
 
 	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_FREEMARKER = "dynamic.data.lists.error.template.freemarker";
 
 	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_VELOCITY = "dynamic.data.lists.error.template.velocity";
+
+	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_XSL = "dynamic.data.lists.error.template.xsl";
 
 	public static final String DYNAMIC_DATA_LISTS_RECORD_SET_FORCE_AUTOGENERATE_KEY = "dynamic.data.lists.record.set.force.autogenerate.key";
 
@@ -1030,6 +1046,8 @@ public interface PropsKeys {
 	public static final String JOURNAL_LAR_CREATION_STRATEGY = "journal.lar.creation.strategy";
 
 	public static final String JOURNAL_PUBLISH_TO_LIVE_BY_DEFAULT = "journal.publish.to.live.by.default";
+
+	public static final String JOURNAL_PUBLISH_VERSION_HISTORY_BY_DEFAULT = "journal.publish.version.history.by.default";
 
 	public static final String JOURNAL_STRUCTURE_FORCE_AUTOGENERATE_ID = "journal.structure.force.autogenerate.id";
 
@@ -1789,6 +1807,8 @@ public interface PropsKeys {
 
 	public static final String PORTLET_CSS_ENABLED = "portlet.css.enabled";
 
+	public static final String PORTLET_DISPLAY_TEMPLATES_HELP = "portlet.display.templates.help";
+
 	public static final String PORTLET_EVENT_DISTRIBUTION = "portlet.event.distribution";
 
 	public static final String PORTLET_PUBLIC_RENDER_PARAMETER_DISTRIBUTION = "portlet.public.render.parameter.distribution";
@@ -1852,6 +1872,8 @@ public interface PropsKeys {
 	public static final String ROLES_SITE_SUBTYPES = "roles.site.subtypes";
 
 	public static final String RSS_CONNECTION_TIMEOUT = "rss.connection.timeout";
+
+	public static final String RSS_FEEDS_ENABLED = "rss.feeds.enabled";
 
 	public static final String SANDBOX_DEPLOY_DIR = "sandbox.deploy.dir";
 
@@ -2017,6 +2039,10 @@ public interface PropsKeys {
 
 	public static final String SHUTDOWN_PROGRAMMATICALLY_EXIT = "shutdown.programmatically.exit";
 
+	public static final String SITEMAP_DISPLAY_TEMPLATES_CONFIG = "sitemap.display.templates.config";
+
+	public static final String SITEMAP_DISPLAY_TEMPLATES_HELP = "sitemap.display.templates.help";
+
 	public static final String SITEMINDER_AUTH_ENABLED = "siteminder.auth.enabled";
 
 	public static final String SITEMINDER_IMPORT_FROM_LDAP = "siteminder.import.from.ldap";
@@ -2024,6 +2050,8 @@ public interface PropsKeys {
 	public static final String SITEMINDER_USER_HEADER = "siteminder.user.header";
 
 	public static final String SITES_CONTROL_PANEL_MEMBERS_VISIBLE = "sites.control.panel.members.visible";
+
+	public static final String SITES_DIRECTORY_DISPLAY_STYLE_OPTIONS = "sites.directory.display.style.options";
 
 	public static final String SITES_EMAIL_FROM_ADDRESS = "sites.email.from.address";
 
@@ -2056,10 +2084,6 @@ public interface PropsKeys {
 	public static final String SITES_SITEMAP_DEFAULT_CHANGE_FREQUENCY = "sites.sitemap.default.change.frequency";
 
 	public static final String SITES_SITEMAP_DEFAULT_PRIORITY = "sites.sitemap.default.priority";
-
-	public static final String SITES_SITEMAP_DISPLAY_STYLES_TEMPLATE_CONTENT = "sites.sitemap.display.styles.template.content";
-
-	public static final String SITES_SITEMAP_DISPLAY_STYLES_TEMPLATE_DEFAULT_CONFIG = "sites.sitemap.display.styles.template.default.config";
 
 	public static final String SOCIAL_ACTIVITY_CONTRIBUTION_INCREMENTS = "social.activity.contribution.increments";
 
@@ -2118,6 +2142,8 @@ public interface PropsKeys {
 	public static final String STRIP_IGNORE_PATHS = "strip.ignore.paths";
 
 	public static final String STRIP_JS_LANGUAGE_ATTRIBUTE_SUPPORT_ENABLED = "strip.js.language.attribute.support.enabled";
+
+	public static final String STRIP_MIME_TYPES = "strip.mime.types";
 
 	public static final String STRUTS_PORTLET_REQUEST_PROCESSOR = "struts.portlet.request.processor";
 
@@ -2186,6 +2212,8 @@ public interface PropsKeys {
 	public static final String TRASH_ENTRIES_MAX_AGE = "trash.entries.max.age";
 
 	public static final String TRASH_SEARCH_LIMIT = "trash.search.limit";
+
+	public static final String UPGRADE_DATABASE_TRANSACTIONS_DISABLED = "upgrade.database.transactions.disabled";
 
 	public static final String UPGRADE_PROCESSES = "upgrade.processes";
 
@@ -2285,10 +2313,6 @@ public interface PropsKeys {
 
 	public static final String VELOCITY_ENGINE_LOGGER_CATEGORY = "velocity.engine.logger.category";
 
-	public static final String VELOCITY_ENGINE_RESOURCE_MANAGER = "velocity.engine.resource.manager";
-
-	public static final String VELOCITY_ENGINE_RESOURCE_MANAGER_CACHE_ENABLED = "velocity.engine.resource.manager.cache.enabled";
-
 	public static final String VELOCITY_ENGINE_RESOURCE_MODIFICATION_CHECK_INTERVAL = "velocity.engine.resource.modification.check.interval";
 
 	public static final String VELOCITY_ENGINE_RESOURCE_PARSERS = "velocity.engine.resource.parsers";
@@ -2298,6 +2322,8 @@ public interface PropsKeys {
 	public static final String VELOCITY_ENGINE_RESTRICTED_PACKAGES = "velocity.engine.restricted.packages";
 
 	public static final String VELOCITY_ENGINE_VELOCIMACRO_LIBRARY = "velocity.engine.velocimacro.library";
+
+	public static final String VERIFY_DATABASE_TRANSACTIONS_DISABLED = "verify.database.transactions.disabled";
 
 	public static final String VERIFY_FREQUENCY = "verify.frequency";
 
@@ -2337,7 +2363,7 @@ public interface PropsKeys {
 
 	public static final String WIDGET_SERVLET_MAPPING = "widget.servlet.mapping";
 
-	public static final String WIKI_DISPLAY_STYLES_TEMPLATE_CONTENT = "wiki.display.styles.template.content";
+	public static final String WIKI_DISPLAY_TEMPLATES_HELP = "wiki.display.templates.help";
 
 	public static final String WIKI_EMAIL_FROM_ADDRESS = "wiki.email.from.address";
 

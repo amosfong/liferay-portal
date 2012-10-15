@@ -22,25 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SA_AllowEditImagePermissionsTest extends BaseTestCase {
 	public void testSA_AllowEditImagePermissions() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent(
-							"link=Media Gallery Permissions Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Media Gallery Permissions Test Page",
 			RuntimeVariables.replace("Media Gallery Permissions Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -55,36 +39,20 @@ public class SA_AllowEditImagePermissionsTest extends BaseTestCase {
 				"//a[@title='Portlet Permissions Image 2 Test Title - ']"));
 		selenium.clickAt("//a[@title='Portlet Permissions Image 2 Test Title - ']",
 			RuntimeVariables.replace("Portlet Permissions Image 2 Test Title"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//img[@alt='Permissions']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("//img[@alt='Permissions']",
+		selenium.waitForVisible("//img[@title='Permissions']");
+		selenium.clickAt("//img[@title='Permissions']",
 			RuntimeVariables.replace("Permissions"));
 		selenium.waitForPageToLoad("30000");
-		assertFalse(selenium.isChecked("//tr[5]/td[6]/input"));
-		selenium.clickAt("//tr[5]/td[6]/input",
-			RuntimeVariables.replace("Media Gallery Update"));
-		assertTrue(selenium.isChecked("//tr[5]/td[6]/input"));
+		assertFalse(selenium.isChecked("//input[@id='portlet_ACTION_UPDATE']"));
+		selenium.clickAt("//input[@id='portlet_ACTION_UPDATE']",
+			RuntimeVariables.replace("Portlet Update"));
+		assertTrue(selenium.isChecked("//input[@id='portlet_ACTION_UPDATE']"));
 		selenium.clickAt("//input[@value='Save']",
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
-		assertTrue(selenium.isChecked("//tr[5]/td[6]/input"));
+		assertTrue(selenium.isChecked("//input[@id='portlet_ACTION_UPDATE']"));
 	}
 }

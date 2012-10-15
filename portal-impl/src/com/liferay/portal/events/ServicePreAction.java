@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -82,7 +83,6 @@ import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.theme.ThemeDisplayFactory;
-import com.liferay.portal.util.CookieKeys;
 import com.liferay.portal.util.LayoutClone;
 import com.liferay.portal.util.LayoutCloneFactory;
 import com.liferay.portal.util.PortalUtil;
@@ -442,6 +442,8 @@ public class ServicePreAction extends Action {
 			}
 		}
 
+		String ppid = ParamUtil.getString(request, "p_p_id");
+
 		Boolean redirectToDefaultLayout = (Boolean)request.getAttribute(
 			WebKeys.REDIRECT_TO_DEFAULT_LAYOUT);
 
@@ -455,8 +457,6 @@ public class ServicePreAction extends Action {
 			if (!signedIn && PropsValues.AUTH_FORWARD_BY_REDIRECT) {
 				request.setAttribute(WebKeys.REQUESTED_LAYOUT, layout);
 			}
-
-			String ppid = ParamUtil.getString(request, "p_p_id");
 
 			if (Validator.isNull(controlPanelCategory) &&
 				Validator.isNotNull(ppid) &&
@@ -802,6 +802,7 @@ public class ServicePreAction extends Action {
 		themeDisplay.setLayouts(layouts);
 		themeDisplay.setUnfilteredLayouts(unfilteredLayouts);
 		themeDisplay.setPlid(plid);
+		themeDisplay.setPpid(ppid);
 		themeDisplay.setLayoutTypePortlet(layoutTypePortlet);
 		themeDisplay.setScopeGroupId(scopeGroupId);
 		themeDisplay.setParentGroupId(parentGroupId);
@@ -822,6 +823,7 @@ public class ServicePreAction extends Action {
 		themeDisplay.setSecure(request.isSecure());
 		themeDisplay.setLifecycle(lifecycle);
 		themeDisplay.setLifecycleAction(lifecycle.equals("1"));
+		themeDisplay.setLifecycleEvent(lifecycle.equals("3"));
 		themeDisplay.setLifecycleRender(lifecycle.equals("0"));
 		themeDisplay.setLifecycleResource(lifecycle.equals("2"));
 		themeDisplay.setStateExclusive(LiferayWindowState.isExclusive(request));

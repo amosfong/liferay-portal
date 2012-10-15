@@ -23,195 +23,67 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class EditDataDefinitionFieldComponentTest extends BaseTestCase {
 	public void testEditDataDefinitionFieldComponent()
 		throws Exception {
+		selenium.selectWindow("null");
 		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+		assertEquals(RuntimeVariables.replace("Go to"),
+			selenium.getText("//li[@id='_145_mySites']/a/span"));
+		selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+		selenium.waitForVisible("link=Control Panel");
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
 		selenium.clickAt("link=Dynamic Data Lists",
 			RuntimeVariables.replace("Dynamic Data Lists"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//a[@id='_167_manageDDMStructuresLink']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//a[@id='_167_manageDDMStructuresLink']");
 		assertEquals(RuntimeVariables.replace("Manage Data Definitions"),
 			selenium.getText("//a[@id='_167_manageDDMStructuresLink']"));
 		selenium.clickAt("//a[@id='_167_manageDDMStructuresLink']",
 			RuntimeVariables.replace("Manage Data Definitions"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//iframe")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//iframe");
 		selenium.selectFrame("//iframe");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//input[@id='_166_toggle_id_ddm_structure_searchkeywords']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/liferay/search_container.js')]");
+		selenium.waitForVisible(
+			"//input[@id='_166_toggle_id_ddm_structure_searchkeywords']");
 		selenium.type("//input[@id='_166_toggle_id_ddm_structure_searchkeywords']",
 			RuntimeVariables.replace("Ticket Definition"));
 		selenium.clickAt("//input[@value='Search']",
 			RuntimeVariables.replace("Search"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//span[@title='Actions']/ul/li/strong/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		Thread.sleep(5000);
-		selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
+		selenium.waitForVisible("//span[@title='Actions']/ul/li/strong/a/span");
+		assertEquals(RuntimeVariables.replace("Actions"),
+			selenium.getText("//span[@title='Actions']/ul/li/strong/a/span"));
+		selenium.clickAt("//span[@title='Actions']/ul/li/strong/a/span",
 			RuntimeVariables.replace("Actions"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Edit')]/a");
 		assertEquals(RuntimeVariables.replace("Edit"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a"));
-		selenium.click("//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='aui-diagram-builder-canvas']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Edit')]/a"));
+		selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Edit')]/a",
+			RuntimeVariables.replace("Edit"));
+		selenium.waitForVisible("//div[@class='aui-diagram-builder-canvas']");
+		assertEquals(RuntimeVariables.replace("Select"),
+			selenium.getText(
+				"//div[@class='aui-diagram-builder-canvas']/div/div[2]/div/label"));
+		selenium.clickAt("//div[@class='aui-diagram-builder-canvas']/div/div[2]",
+			RuntimeVariables.replace("Select"));
+		selenium.waitForVisible("xPath=(//button[@id='editEvent'])[2]");
 		selenium.clickAt("xPath=(//button[@id='editEvent'])[2]",
 			RuntimeVariables.replace("Edit"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//tbody[@class='yui3-datatable-data']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//tbody[@class='yui3-datatable-data']");
 		assertEquals(RuntimeVariables.replace("Field Label"),
 			selenium.getText(
 				"//tbody[@class='yui3-datatable-data']/tr[2]/td[1]"));
 		selenium.doubleClickAt("//tbody[@class='yui3-datatable-data']/tr[2]/td[1]",
 			RuntimeVariables.replace("Field Label"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//div[@class='yui3-widget-bd']/input")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//div[@class='yui3-widget-bd']/input");
 		selenium.type("//div[@class='yui3-widget-bd']/input",
 			RuntimeVariables.replace("Component"));
 		selenium.clickAt("//div[@class='yui3-widget-ft']/span/span/button",
@@ -221,23 +93,7 @@ public class EditDataDefinitionFieldComponentTest extends BaseTestCase {
 				"//tbody[@class='yui3-datatable-data']/tr[5]/td[1]"));
 		selenium.doubleClickAt("//tbody[@class='yui3-datatable-data']/tr[5]/td[1]",
 			RuntimeVariables.replace("Name"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//div[@class='yui3-widget-bd']/input")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//div[@class='yui3-widget-bd']/input");
 		selenium.type("//div[@class='yui3-widget-bd']/input",
 			RuntimeVariables.replace("component_name"));
 		selenium.clickAt("//div[@class='yui3-widget-ft']/span/span/button",
@@ -247,24 +103,8 @@ public class EditDataDefinitionFieldComponentTest extends BaseTestCase {
 				"//tbody[@class='yui3-datatable-data']/tr[8]/td[1]"));
 		selenium.doubleClickAt("//tbody[@class='yui3-datatable-data']/tr[8]/td[1]",
 			RuntimeVariables.replace("Options"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='yui3-widget-bd']/div/div[2]/input[1]")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='yui3-widget-bd']/div/div[2]/input[1]");
 		assertEquals(RuntimeVariables.replace("Add option"),
 			selenium.getText(
 				"//a[@class='aui-celleditor-edit-link aui-celleditor-edit-add-option']"));
@@ -336,5 +176,6 @@ public class EditDataDefinitionFieldComponentTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
+		selenium.selectFrame("relative=top");
 	}
 }

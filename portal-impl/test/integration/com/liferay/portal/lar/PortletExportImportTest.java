@@ -15,6 +15,7 @@
 package com.liferay.portal.lar;
 
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
+import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -29,7 +30,6 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.ExecutionTestListeners;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.TransactionalCallbackAwareExecutionTestListener;
@@ -95,7 +95,7 @@ public class PortletExportImportTest extends BaseExportImportTestCase {
 
 		// Create site from site template
 
-		_group = ServiceTestUtil.addGroup(ServiceTestUtil.randomString());
+		_group = ServiceTestUtil.addGroup();
 
 		SitesUtil.updateLayoutSetPrototypesLinks(
 			_group, layoutSetPrototype.getLayoutSetPrototypeId(), 0, true,

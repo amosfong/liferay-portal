@@ -654,6 +654,10 @@
 			<forward name="portlet.dynamic_data_mapping.error" path="portlet.dynamic_data_mapping.error" />
 		</action>
 
+		<action path="/dynamic_data_mapping/get_structure" type="com.liferay.portlet.dynamicdatamapping.action.GetStructureAction" />
+
+		<action path="/dynamic_data_mapping/get_template" type="com.liferay.portlet.dynamicdatamapping.action.GetTemplateAction" />
+
 		<action path="/dynamic_data_mapping/select_structure" forward="portlet.dynamic_data_mapping.select_structure" />
 
 		<action path="/dynamic_data_mapping/view" forward="portlet.dynamic_data_mapping.view" />
@@ -1837,6 +1841,10 @@
 
 		<action path="/sites_admin/select_site" forward="portlet.sites_admin.select_site" />
 
+		<action path="/sites_admin/select_site_role" forward="portlet.roles_admin.select_site_role" />
+
+		<action path="/sites_admin/select_team" forward="portlet.sites_admin.select_team" />
+
 		<action path="/sites_admin/view" forward="portlet.sites_admin.view" />
 
 		<action path="/sites_admin/view_membership_requests" type="com.liferay.portlet.sites.action.ViewMembershipRequestsAction">
@@ -1845,6 +1853,10 @@
 		</action>
 
 		<action path="/sites_admin/view_teams" forward="portlet.sites_admin.view_teams" />
+
+		<!-- Sites Directory -->
+
+		<action path="/sites_directory/view" forward="portlet.sites_directory.view" />
 
 		<!-- Social Activity -->
 
@@ -2121,6 +2133,14 @@
 			<forward name="portlet.wiki.view_categorized_pages" path="portlet.wiki.view_categorized_pages" />
 		</action>
 
+		<action path="/wiki/restore_node" type="com.liferay.portlet.wiki.action.EditNodeAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+		</action>
+
+		<action path="/wiki/restore_page" type="com.liferay.portlet.wiki.action.EditPageAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+		</action>
+
 		<action path="/wiki/rss" type="com.liferay.portlet.wiki.action.RSSAction">
 			<forward name="portlet.wiki.view_categorized_pages" path="portlet.wiki.view_categorized_pages" />
 		</action>
@@ -2259,6 +2279,14 @@
 			<forward name="portlet.wiki.move_page" path="portlet.wiki.move_page" />
 		</action>
 
+		<action path="/wiki_admin/restore_node" type="com.liferay.portlet.wiki.action.EditNodeAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+		</action>
+
+		<action path="/wiki_admin/restore_page" type="com.liferay.portlet.wiki.action.EditPageAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+		</action>
+
 		<action path="/wiki_admin/rss" type="com.liferay.portlet.wiki.action.RSSAction" />
 
 		<action path="/wiki_admin/search" type="com.liferay.portlet.wiki.action.ViewNodeAction">
@@ -2373,6 +2401,14 @@
 		<action path="/wiki_display/move_page" type="com.liferay.portlet.wiki.action.MovePageAction">
 			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
 			<forward name="portlet.wiki.move_page" path="portlet.wiki.move_page" />
+		</action>
+
+		<action path="/wiki_display/restore_node" type="com.liferay.portlet.wiki.action.EditNodeAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+		</action>
+
+		<action path="/wiki_display/restore_page" type="com.liferay.portlet.wiki.action.EditPageAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
 		</action>
 
 		<action path="/wiki_display/search" type="com.liferay.portlet.wiki.action.ViewNodeAction">

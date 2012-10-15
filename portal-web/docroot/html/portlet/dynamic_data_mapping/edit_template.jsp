@@ -38,16 +38,17 @@ if ((structure == null) && (template != null)) {
 	structure = DDMTemplateHelperUtil.fetchStructure(template);
 }
 
-String mode = BeanParamUtil.getString(template, request, "mode", "create");
 String type = BeanParamUtil.getString(template, request, "type", "detail");
+String mode = BeanParamUtil.getString(template, request, "mode", "create");
+String language = BeanParamUtil.getString(template, request, "language", DDMTemplateConstants.LANG_TYPE_VM);
 String script = BeanParamUtil.getString(template, request, "script");
 
 if (Validator.isNull(script)) {
 	if (classNameId > 0) {
-		PortletDisplayTemplateHandler portletDislayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(classNameId);
+		PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(classNameId);
 
-		if (portletDislayTemplateHandler != null) {
-			script = ContentUtil.get(portletDislayTemplateHandler.getHelpTemplatePath());
+		if (portletDisplayTemplateHandler != null) {
+			script = ContentUtil.get(portletDisplayTemplateHandler.getTemplatesHelpPath(language));
 		}
 	}
 	else if (!type.equals("detail")) {
@@ -114,8 +115,14 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	}
 	%>
 
+	<portlet:renderURL var="viewTemplatesURL">
+		<portlet:param name="struts_action" value="/dynamic_data_mapping/view_template" />
+		<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
+		<portlet:param name="classPK" value="<%= String.valueOf(classPK) %>" />
+	</portlet:renderURL>
+
 	<liferay-ui:header
-		backURL="<%= backURL %>"
+		backURL="<%= (portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES) || Validator.isNotNull(portletResource)) ? backURL : viewTemplatesURL %>"
 		localizeTitle="<%= false %>"
 		title="<%= title %>"
 	/>
@@ -128,6 +135,23 @@ if (Validator.isNotNull(structureAvailableFields)) {
 		<liferay-ui:panel-container cssClass="lfr-structure-entry-details-container" extended="<%= false %>" id="templateDetailsPanelContainer" persistState="<%= true %>">
 			<liferay-ui:panel collapsible="<%= true %>" extended="<%= false %>" id="templateDetailsSectionPanel" persistState="<%= true %>" title="details">
 				<aui:input name="description" />
+
+				<c:if test="<%= template != null %>">
+					<aui:field-wrapper label="url">
+						<liferay-ui:input-resource url='<%= themeDisplay.getPortalURL() + themeDisplay.getPathMain() + "/dynamic_data_mapping/get_template?templateId=" + templateId %>' />
+					</aui:field-wrapper>
+
+					<c:if test="<%= portletDisplay.isWebDAVEnabled() %>">
+						<aui:field-wrapper label="webdav-url">
+
+							<%
+							Group group = GroupLocalServiceUtil.getGroup(groupId);
+							%>
+
+							<liferay-ui:input-resource url='<%= themeDisplay.getPortalURL() + themeDisplay.getPathContext() + "/webdav" + group.getFriendlyURL() + "/dynamic_data_mapping/ddmTemplates/" + templateId %>' />
+						</aui:field-wrapper>
+					</c:if>
+				</c:if>
 
 				<c:if test='<%= type.equals("detail") %>'>
 					<aui:select helpMessage="only-allow-deleting-required-fields-in-edit-mode" label="mode" name="mode">

@@ -16,91 +16,57 @@ package com.liferay.portal.kernel.trash;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.model.ContainerModel;
+import com.liferay.portal.model.Group;
+import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.trash.model.TrashEntry;
+
+import java.util.Date;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 
 /**
- * Represents the interface to manage the basic operations of the Recycle Bin.
- *
- * <p>
- * The basic operations are:
- * </p>
- *
- * <ul>
- * <li>
- * Deletion of entries
- * </li>
- * <li>
- * Restore of entries
- * </li>
- * </ul>
- *
- * <p>
- * The entities that support these operations are:
- * </p>
- *
- * <ul>
- * <li>
- * BlogsEntry {@link com.liferay.portlet.blogs.trash.BlogsEntryTrashHandler}
- * </li>
- * </ul>
- * <li>
- * DLFileEntry {@link
- * com.liferay.portlet.documentlibrary.trash.DLFileEntryTrashHandler}
- * </li>
- *
  * @author Alexander Chow
+ * @author Zsolt Berentey
  */
 public interface TrashHandler {
 
-	public void checkDuplicateTrashEntry(TrashEntry trashEntry, String newName)
+	public void checkDuplicateTrashEntry(
+			TrashEntry trashEntry, long containerModelId, String newName)
 		throws PortalException, SystemException;
 
-	/**
-	 * Deletes all trash entries with the primary keys.
-	 *
-	 * @param  classPKs the primary keys of the entries to delete
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
+	public void deleteTrashAttachments(Group group, Date date)
+		throws PortalException, SystemException;
+
 	public void deleteTrashEntries(long[] classPKs)
 		throws PortalException, SystemException;
 
-	/**
-	 * Deletes all trash entries with the primary keys.
-	 *
-	 * @param  classPKs the primary keys of the entries to delete
-	 * @param  checkPermission whether to check permission before deleting each
-	 *         trash entry
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
 		throws PortalException, SystemException;
 
-	/**
-	 * Deletes the entry with the primary key.
-	 *
-	 * @param  classPK the primary key of the entry to delete
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntry(long classPK)
 		throws PortalException, SystemException;
 
 	public void deleteTrashEntry(long classPK, boolean checkPermission)
 		throws PortalException, SystemException;
 
-	/**
-	 * Returns the class name of the entry.
-	 *
-	 * @return the class name of the entry
-	 */
 	public String getClassName();
+
+	public ContainerModel getContainerModel(long containerModelId)
+		throws PortalException, SystemException;
+
+	public String getContainerModelName();
+
+	public List<ContainerModel> getContainerModels(
+			long trashEntryId, long containerModelId, int start, int end)
+		throws PortalException, SystemException;
+
+	public int getContainerModelsCount(long trashEntryId, long containerModelId)
+		throws PortalException, SystemException;
+
+	public String getDeleteMessage();
 
 	public String getRestoreLink(PortletRequest portletRequest, long classPK)
 		throws PortalException, SystemException;
@@ -108,37 +74,31 @@ public interface TrashHandler {
 	public String getRestoreMessage(PortletRequest portletRequest, long classPK)
 		throws PortalException, SystemException;
 
-	/**
-	 * Returns the trash renderer associated to the trash entry.
-	 *
-	 * @param  classPK the primary key of the trash entry
-	 * @return the trash renderer associated to the trash entry
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
+	public String getRootContainerModelName();
+
+	public String getSubcontainerModelName();
+
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException;
 
-	/**
-	 * Restores all entries with the primary keys.
-	 *
-	 * @param  classPKs the primary keys of the entries to restore
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
+	public boolean hasTrashPermission(
+			PermissionChecker permissionChecker, long groupId, long classPK,
+			String trashActionId)
+		throws PortalException, SystemException;
+
+	public boolean isInTrash(long classPK)
+		throws PortalException, SystemException;
+
+	public boolean isRestorable(long classPK)
+		throws PortalException, SystemException;
+
+	public void moveTrashEntry(
+			long classPK, long containerModelId, ServiceContext serviceContext)
+		throws PortalException, SystemException;
+
 	public void restoreTrashEntries(long[] classPKs)
 		throws PortalException, SystemException;
 
-	/**
-	 * Restore the entry defined by the primary key
-	 *
-	 * @param  classPK the primary key of the entry to restore
-	 * @throws PortalException if an entry with the primary key could not be
-	 *         found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void restoreTrashEntry(long classPK)
 		throws PortalException, SystemException;
 

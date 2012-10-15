@@ -215,7 +215,7 @@
 				(JournalArticle.groupId = ?)
 				[$ARTICLE_FOLDER_ID$]
 			GROUP BY
-				articleId
+				JournalArticle.folderId, JournalArticle.createDate, JournalArticle.modifiedDate, JournalArticle.articleId, JournalArticle.title, JournalArticle.displayDate
 		]]>
 	</sql>
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalFolderFinder.findF_ByG_F">
@@ -232,7 +232,7 @@
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalStructureFinder.countByC_G_S_N_D">
 		<![CDATA[
 			SELECT
-				COUNT(*) AS COUNT_VALUE
+				COUNT(DISTINCT JournalStructure.structureId) AS COUNT_VALUE
 			FROM
 				JournalStructure
 			WHERE
@@ -250,15 +250,23 @@
 			SELECT
 				{JournalStructure.*}
 			FROM
-				JournalStructure
-			WHERE
-				(companyId = ?) AND
-				[$GROUP_ID$]
 				(
-					(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-				)
+					SELECT DISTINCT
+						id_
+					FROM
+						JournalStructure
+					WHERE
+						(companyId = ?) AND
+						[$GROUP_ID$]
+						(
+							(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+							(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+							(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
+						)
+				) TEMP_TABLE
+				INNER JOIN
+					JournalStructure ON
+						(TEMP_TABLE.id_ = JournalStructure.id_)
 			ORDER BY
 				structureId ASC
 		]]>
@@ -266,7 +274,7 @@
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalTemplateFinder.countByC_G_T_S_N_D">
 		<![CDATA[
 			SELECT
-				COUNT(*) AS COUNT_VALUE
+				COUNT(DISTINCT JournalTemplate.templateId) AS COUNT_VALUE
 			FROM
 				JournalTemplate
 			WHERE
@@ -285,16 +293,24 @@
 			SELECT
 				{JournalTemplate.*}
 			FROM
-				JournalTemplate
-			WHERE
-				(companyId = ?) AND
-				[$GROUP_ID$]
 				(
-					(templateId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-				)
+					SELECT DISTINCT
+						id_
+					FROM
+						JournalTemplate
+					WHERE
+						(companyId = ?) AND
+						[$GROUP_ID$]
+						(
+							(templateId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+							(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+							(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+							(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
+						)
+				) TEMP_TABLE
+				INNER JOIN
+					JournalTemplate ON
+						(TEMP_TABLE.id_ = JournalTemplate.id_)
 			ORDER BY
 				templateId ASC
 		]]>

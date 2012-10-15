@@ -16,8 +16,18 @@ package com.liferay.portlet.wiki.engine.creole;
 
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.parsers.creole.ast.WikiPageNode;
+import com.liferay.portal.parsers.creole.parser.Creole10Lexer;
+import com.liferay.portal.parsers.creole.parser.Creole10Parser;
 import com.liferay.portal.parsers.creole.visitor.impl.XhtmlTranslationVisitor;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,9 +35,10 @@ import org.junit.runner.RunWith;
 
 /**
  * @author Miguel Pastor
+ * @author Manuel de la Peña
  */
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
-public class TranslationToXHTMLTest extends AbstractWikiParserTests {
+public class TranslationToXHTMLTest {
 
 	@Test
 	public void testEscapedEscapedCharacter() {
@@ -40,6 +51,14 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 		Assert.assertEquals(
 			"<ul><li> <strong>abcdefg</strong></li></ul>",
 			translate("list-6.creole"));
+	}
+
+	@Test
+	public void testParseCorrectlyComplexNestedList() {
+		Assert.assertEquals(
+			"<ul><li>a<ul><li>a.1</li></ul></li><li>b<ul><li>b.1</li>" +
+				"<li>b.2</li><li>b.3</li></ul></li><li>c</li></ul>",
+			translate("list-4.creole"));
 	}
 
 	@Test
@@ -185,8 +204,8 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 	@Test
 	public void testParseCorrectlyOrderedNestedLevels() {
 		Assert.assertEquals(
-			"<ol><li>a</li><ol><li>a.1</li></ol><li>b</li><ol><li>b.1</li>" +
-				"<li>b.2</li><li>b.3</li></ol><li>c</li></ol>",
+			"<ol><li>a<ol><li>a.1</li></ol></li><li>b<ol><li>b.1</li>" +
+				"<li>b.2</li><li>b.3</li></ol></li><li>c</li></ol>",
 			translate("list-10.creole"));
 	}
 
@@ -287,6 +306,32 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 	}
 
 	@Test
+	public void testParseMixedList1() {
+		Assert.assertEquals(
+			"<ul><li> U1</li></ul><ol><li> O1</li></ol>",
+			translate("mixed-list-1.creole"));
+	}
+
+	@Test
+	public void testParseMixedList2() {
+		Assert.assertEquals(
+			"<ol><li> 1<ol><li> 1.1</li><li> 1.2</li><li> 1.3</li></ol></li>" +
+				"</ol><ul><li> A<ul><li> A.A</li><li> A.B</li></ul></li></ul>",
+			translate("mixed-list-2.creole"));
+	}
+
+	@Test
+	public void testParseMixedList3() {
+		Assert.assertEquals(
+			"<ol><li> T1<ol><li> T1.1</li></ol></li><li> T2</li><li> T3" +
+				"</li></ol><ul><li> Divider 1<ul><li> Divider 2a</li>" +
+					"<li> Divider 2b<ul><li> Divider 3</li></ul></li>" +
+						"</ul></li></ul><ol><li> T3.2</li>" +
+							"<li> T3.3</li></ol>",
+		translate("mixed-list-3.creole"));
+	}
+
+	@Test
 	public void testParseMultilineTextParagraph() {
 		Assert.assertEquals(
 			"<p>Simple P0 Simple P1 Simple P2 Simple P3 Simple P4 Simple P5 " +
@@ -314,10 +359,10 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 	@Test
 	public void testParseNestedLists() {
 		Assert.assertEquals(
-			"<ul><li> 1</li><li> 2</li><ul><li> 2.1</li><ul><li> 2.1.1</li>" +
-				"<ul><li> 2.1.1.1</li><li> 2.1.1.2</li></ul><li> 2.1.2</li>" +
-					"<li> 2.1.3</li></ul><li> 2.2</li><li> 2.3</li></ul><li>3" +
-						"</li></ul>",
+			"<ul><li> 1</li><li> 2<ul><li> 2.1<ul><li> 2.1.1<ul>" +
+				"<li> 2.1.1.1</li><li> 2.1.1.2</li></ul></li><li> 2.1.2</li>" +
+					"<li> 2.1.3</li></ul></li><li> 2.2</li><li> 2.3</li></ul>" +
+						"</li><li>3</li></ul>",
 			translate("list-18.creole"));
 	}
 
@@ -445,6 +490,40 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 			translate("nowikiblock-1.creole"));
 	}
 
+	protected Creole10Parser getCreole10Parser(String fileName)
+		throws IOException {
+
+		Class<?> clazz = getClass();
+
+		InputStream inputStream = clazz.getResourceAsStream(
+			"dependencies/" + fileName);
+
+		ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
+
+		Creole10Lexer creole10Lexer = new Creole10Lexer(antlrInputStream);
+
+		CommonTokenStream commonTokenStream = new CommonTokenStream(
+			creole10Lexer);
+
+		return new Creole10Parser(commonTokenStream);
+	}
+
+	protected WikiPageNode getWikiPageNode(String fileName) {
+		try {
+			_creole10parser = getCreole10Parser(fileName);
+
+			_creole10parser.wikipage();
+		}
+		catch (IOException ioe) {
+			Assert.fail("File does not exist");
+		}
+		catch (RecognitionException re) {
+			Assert.fail("File could not be parsed");
+		}
+
+		return _creole10parser.getWikiPageNode();
+	}
+
 	protected String toUnix(String text) {
 		return StringUtil.replace(
 			text, StringPool.RETURN_NEW_LINE, StringPool.NEW_LINE);
@@ -456,6 +535,7 @@ public class TranslationToXHTMLTest extends AbstractWikiParserTests {
 
 	private static final String _NEW_LINE = StringPool.NEW_LINE;
 
+	private Creole10Parser _creole10parser;
 	private XhtmlTranslationVisitor _xhtmlTranslationVisitor =
 		new XhtmlTranslationVisitor();
 

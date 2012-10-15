@@ -22,28 +22,18 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Member_AssertCannotViewWCLTest extends BaseTestCase {
 	public void testMember_AssertCannotViewWCL() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent(
-							"link=Web Content List Permissions Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Web Content List Permissions Page",
 			RuntimeVariables.replace("Web Content List Permissions Page"));
 		selenium.waitForPageToLoad("30000");
+		assertTrue(selenium.isVisible("//section"));
+		assertFalse(selenium.isTextPresent("WC WebContent Content"));
+		assertTrue(selenium.isElementNotPresent(
+				"//tr[contains(.,'WC WebContent Title')]/td[2]/a"));
+		assertTrue(selenium.isElementNotPresent(
+				"//tr[contains(.,'WC WebContent Title')]/td[3]/a"));
 		assertEquals(RuntimeVariables.replace(
 				"You do not have the roles required to access this portlet."),
 			selenium.getText("//div[@class='portlet-msg-error']"));

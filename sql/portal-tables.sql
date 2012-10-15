@@ -216,7 +216,7 @@ create table BlogsEntry (
 	modifiedDate DATE null,
 	title VARCHAR(150) null,
 	urlTitle VARCHAR(150) null,
-	description VARCHAR(75) null,
+	description STRING null,
 	content TEXT null,
 	displayDate DATE null,
 	allowPingbacks BOOLEAN,
@@ -478,6 +478,7 @@ create table DDMStructure (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
+	parentStructureId LONG,
 	classNameId LONG,
 	structureKey VARCHAR(75) null,
 	name STRING null,
@@ -551,7 +552,8 @@ create table DLFileEntry (
 	smallImageId LONG,
 	largeImageId LONG,
 	custom1ImageId LONG,
-	custom2ImageId LONG
+	custom2ImageId LONG,
+	manualCheckInRequired BOOLEAN
 );
 
 create table DLFileEntryMetadata (
@@ -639,6 +641,7 @@ create table DLFileVersion (
 	fileEntryTypeId LONG,
 	version VARCHAR(75) null,
 	size_ LONG,
+	checksum VARCHAR(75) null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -661,6 +664,7 @@ create table DLFolder (
 	description STRING null,
 	lastPostDate DATE null,
 	defaultFileEntryTypeId LONG,
+	hidden_ BOOLEAN,
 	overrideFileEntryTypes BOOLEAN,
 	status INTEGER,
 	statusByUserId LONG,
@@ -711,6 +715,7 @@ create table ExpandoColumn (
 create table ExpandoRow (
 	rowId_ LONG not null primary key,
 	companyId LONG,
+	modifiedDate DATE null,
 	tableId LONG,
 	classPK LONG
 );
@@ -1536,7 +1541,8 @@ create table RepositoryEntry (
 	repositoryEntryId LONG not null primary key,
 	groupId LONG,
 	repositoryId LONG,
-	mappedId VARCHAR(75) null
+	mappedId VARCHAR(75) null,
+	manualCheckInRequired BOOLEAN
 );
 
 create table ResourceAction (
@@ -2187,7 +2193,11 @@ create table WikiNode (
 	modifiedDate DATE null,
 	name VARCHAR(75) null,
 	description STRING null,
-	lastPostDate DATE null
+	lastPostDate DATE null,
+	status INTEGER,
+	statusByUserId LONG,
+	statusByUserName VARCHAR(75) null,
+	statusDate DATE null
 );
 
 create table WikiPage (

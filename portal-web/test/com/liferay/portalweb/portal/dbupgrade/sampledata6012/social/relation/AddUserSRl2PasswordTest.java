@@ -22,24 +22,17 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddUserSRl2PasswordTest extends BaseTestCase {
 	public void testAddUserSRl2Password() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+		assertEquals(RuntimeVariables.replace("Manage"),
+			selenium.getText("//li[@id='_145_manageContent']/a/span"));
+		selenium.mouseOver("//li[@id='_145_manageContent']/a/span");
+		selenium.waitForVisible("link=Control Panel");
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
@@ -55,27 +48,9 @@ public class AddUserSRl2PasswordTest extends BaseTestCase {
 		selenium.clickAt("//td[2]/a",
 			RuntimeVariables.replace("socialrelationfn2"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isPartialText("//a[@id='_125_passwordLink']",
-				"Password"));
 		selenium.clickAt("//a[@id='_125_passwordLink']",
 			RuntimeVariables.replace("Password"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//input[@id='_125_password1']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//input[@id='_125_password1']");
 		selenium.type("//input[@id='_125_password1']",
 			RuntimeVariables.replace("test"));
 		selenium.type("//input[@id='_125_password2']",

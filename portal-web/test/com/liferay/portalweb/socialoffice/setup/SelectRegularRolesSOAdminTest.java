@@ -27,45 +27,17 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//li[@id='_145_mySites']/a/span")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
 				assertEquals(RuntimeVariables.replace("Go to"),
 					selenium.getText("//li[@id='_145_mySites']/a/span"));
 				selenium.mouseOver("//li[@id='_145_mySites']/a/span");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Control Panel")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("link=Control Panel");
 				selenium.clickAt("link=Control Panel",
 					RuntimeVariables.replace("Control Panel"));
 				selenium.waitForPageToLoad("30000");
@@ -76,7 +48,8 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 					RuntimeVariables.replace("Search All Users"));
 				selenium.waitForPageToLoad("30000");
 
-				boolean basicVisible = selenium.isVisible("link=\u00ab Basic");
+				boolean basicVisible = selenium.isVisible(
+						"//a[.='\u00ab Basic']");
 
 				if (!basicVisible) {
 					label = 2;
@@ -84,49 +57,17 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("link=\u00ab Basic",
+				selenium.clickAt("//a[.='\u00ab Basic']",
 					RuntimeVariables.replace("\u00ab Basic"));
 
 			case 2:
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//input[@id='_125_toggle_id_users_admin_user_searchkeywords']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//input[@id='_125_toggle_id_users_admin_user_searchkeywords']");
 				selenium.type("//input[@id='_125_toggle_id_users_admin_user_searchkeywords']",
 					RuntimeVariables.replace("test@liferay.com"));
 				selenium.clickAt("//input[@value='Search']",
 					RuntimeVariables.replace("Search"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("//td[contains(.,'Joe')]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("//td[contains(.,'Joe')]/a");
 				assertEquals(RuntimeVariables.replace("Joe"),
 					selenium.getText("//td[contains(.,'Joe')]/a"));
 				selenium.clickAt("//td[contains(.,'Joe')]/a",
@@ -136,24 +77,7 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 						"Roles"));
 				selenium.clickAt("//a[@id='_125_rolesLink']",
 					RuntimeVariables.replace("Roles"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//tr[contains(., 'Administrator')]/td")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("//tr[contains(., 'Administrator')]/td");
 				assertEquals(RuntimeVariables.replace("Administrator"),
 					selenium.getText("//tr[contains(., 'Administrator')]/td"));
 				assertEquals(RuntimeVariables.replace("Power User"),
@@ -164,25 +88,7 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 					RuntimeVariables.replace("Select"));
 				Thread.sleep(5000);
 				selenium.selectWindow("title=Users and Organizations");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (RuntimeVariables.replace("Roles")
-												.equals(selenium.getText(
-										"//h1[@class='header-title']/span"))) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForText("//h1[@class='header-title']/span", "Roles");
 				assertEquals(RuntimeVariables.replace("Roles"),
 					selenium.getText("//h1[@class='header-title']/span"));
 				selenium.type("//input[@id='_125_keywords']",
@@ -194,25 +100,8 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 					selenium.getText("link=Social Office User"));
 				selenium.click("link=Social Office User");
 				selenium.selectWindow("null");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (RuntimeVariables.replace("Social Office User")
-												.equals(selenium.getText(
-										"//tr[contains(., 'Social Office User')]/td"))) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForText("//tr[contains(., 'Social Office User')]/td",
+					"Social Office User");
 				assertEquals(RuntimeVariables.replace("Social Office User"),
 					selenium.getText(
 						"//tr[contains(., 'Social Office User')]/td"));
@@ -229,6 +118,17 @@ public class SelectRegularRolesSOAdminTest extends BaseTestCase {
 				assertEquals(RuntimeVariables.replace("Social Office User"),
 					selenium.getText(
 						"//tr[contains(., 'Social Office User')]/td"));
+				selenium.open("/web/guest/home/");
+				selenium.waitForElementPresent(
+					"//li[contains(.,'Dashboard')]/a");
+				assertEquals(RuntimeVariables.replace("Dashboard"),
+					selenium.getText("//li[contains(.,'Dashboard')]/a"));
+				selenium.clickAt("//li[contains(.,'Dashboard')]/a",
+					RuntimeVariables.replace("Dashboard"));
+				selenium.waitForPageToLoad("30000");
+				assertEquals(RuntimeVariables.replace("Dashboard"),
+					selenium.getText(
+						"//nav/ul/li[contains(.,'Dashboard')]/a/span"));
 
 			case 100:
 				label = -1;

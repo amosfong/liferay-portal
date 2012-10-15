@@ -23,6 +23,8 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewDMFolderImageEditingWindowMGTest extends BaseTestCase {
 	public void testViewDMFolderImageEditingWindowMG()
 		throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
 		selenium.clickAt("link=Media Gallery Test Page",
 			RuntimeVariables.replace("Media Gallery Test Page"));
@@ -36,62 +38,15 @@ public class ViewDMFolderImageEditingWindowMGTest extends BaseTestCase {
 			selenium.getText("//span[@class='image-title']"));
 		selenium.clickAt("//span[@class='image-title']",
 			RuntimeVariables.replace("DM Folder Image Title"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//a[@class='aui-image-viewer-close']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//img")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//a[@class='aui-image-viewer-close']");
+		selenium.waitForVisible("//img");
 		assertTrue(selenium.isVisible("//img"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//img[@alt='Download (12.9k)']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		assertTrue(selenium.isVisible("//img[@alt='Download (12.9k)']"));
+		selenium.waitForVisible("//img[@alt='Download (13k)']");
+		assertTrue(selenium.isVisible("//img[@alt='Download (13k)']"));
 		assertTrue(selenium.isVisible("//img[@alt='View']"));
 		assertTrue(selenium.isVisible("//img[@alt='Edit']"));
 		assertTrue(selenium.isVisible("//img[@alt='Permissions']"));
-		assertTrue(selenium.isVisible("//img[@alt='Delete']"));
+		assertTrue(selenium.isVisible("//img[@alt='Move to the Recycle Bin']"));
 		selenium.click("//a[@class='aui-image-viewer-close']");
 	}
 }

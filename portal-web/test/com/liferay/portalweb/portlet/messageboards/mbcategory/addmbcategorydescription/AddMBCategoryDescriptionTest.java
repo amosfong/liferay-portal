@@ -22,6 +22,8 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddMBCategoryDescriptionTest extends BaseTestCase {
 	public void testAddMBCategoryDescription() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
 		selenium.clickAt("link=Message Boards Test Page",
 			RuntimeVariables.replace("Message Boards Test Page"));
@@ -39,8 +41,8 @@ public class AddMBCategoryDescriptionTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
-		assertEquals(RuntimeVariables.replace(
-				"MB Category Name\nMB Category Description"),
-			selenium.getText("//td[1]/a"));
+		assertEquals(RuntimeVariables.replace("MB Category Name"),
+			selenium.getText("//td[1]/a/strong"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "MB Category Description"));
 	}
 }

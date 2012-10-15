@@ -32,7 +32,7 @@ birthday.set(Calendar.YEAR, 1970);
 boolean male = ParamUtil.getBoolean(request, "male", true);
 %>
 
-<portlet:actionURL var="createAccoutURL">
+<portlet:actionURL secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>" var="createAccoutURL">
 	<portlet:param name="saveLastPath" value="0" />
 	<portlet:param name="struts_action" value="/login/create_account" />
 </portlet:actionURL>
@@ -119,15 +119,7 @@ boolean male = ParamUtil.getBoolean(request, "male", true);
 
 	<aui:fieldset>
 		<aui:column>
-			<aui:input model="<%= User.class %>" name="firstName" />
-
-			<aui:input model="<%= User.class %>" name="middleName" />
-
-			<aui:input model="<%= User.class %>" name="lastName">
-				<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.USERS_LAST_NAME_REQUIRED, PropsValues.USERS_LAST_NAME_REQUIRED) %>">
-					<aui:validator name="required" />
-				</c:if>
-			</aui:input>
+			<%@ include file="/html/portlet/login/create_account_user_name.jspf" %>
 
 			<c:if test="<%= !PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.USERS_SCREEN_NAME_ALWAYS_AUTOGENERATE) %>">
 				<aui:input model="<%= User.class %>" name="screenName" />

@@ -73,6 +73,7 @@ import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.persistence.PortletPreferencesUtil;
 import com.liferay.portal.service.persistence.UserUtil;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.PortletPreferencesImpl;
@@ -127,6 +128,7 @@ import org.apache.commons.lang.time.StopWatch;
  * @author Bruno Farache
  * @author Zsigmond Rab
  * @author Douglas Wong
+ * @author Mate Thurzo
  */
 public class PortletImporter {
 
@@ -341,13 +343,9 @@ public class PortletImporter {
 		if ((portletDataHandler != null) &&
 			portletDataHandler.isDataLocalized()) {
 
-			Element sourceAvailableLocalesElement = rootElement.element(
-				"locale");
-
 			Locale[] sourceAvailableLocales = LocaleUtil.fromLanguageIds(
 				StringUtil.split(
-					sourceAvailableLocalesElement.attributeValue(
-						"available-locales")));
+					headerElement.attributeValue("available-locales")));
 
 			Locale[] targetAvailableLocales =
 				LanguageUtil.getAvailableLocales();
@@ -937,9 +935,9 @@ public class PortletImporter {
 					PermissionThreadLocal.getPermissionChecker();
 
 				if (permissionChecker.hasPermission(
-					groupId, AssetVocabulary.class.getName(),
-					existingAssetVocabulary.getVocabularyId(),
-					ActionKeys.UPDATE)) {
+						groupId, AssetVocabulary.class.getName(),
+						existingAssetVocabulary.getVocabularyId(),
+						ActionKeys.UPDATE)) {
 
 					serviceContext.setScopeGroupId(groupId);
 				}
@@ -1690,7 +1688,9 @@ public class PortletImporter {
 						}
 					}
 				}
+			}
 
+			if (scopeGroup != null) {
 				portletDataContext.setScopeGroupId(scopeGroup.getGroupId());
 			}
 		}
@@ -1699,6 +1699,46 @@ public class PortletImporter {
 		catch (Exception e) {
 			_log.error(e, e);
 		}
+	}
+
+	protected void updateAssetPublisherClassNameIds(
+			javax.portlet.PortletPreferences jxPreferences, String key)
+		throws Exception {
+
+		String[] oldValues = jxPreferences.getValues(key, null);
+
+		if (oldValues == null) {
+			return;
+		}
+
+		String[] newValues = new String[oldValues.length];
+
+		int i = 0;
+
+		for (String oldValue : oldValues) {
+			if (key.equals("anyAssetType") &&
+				(oldValue.equals("false") || oldValue.equals("true"))) {
+
+				newValues[i++] = oldValue;
+
+				continue;
+			}
+
+			try {
+				long classNameId = PortalUtil.getClassNameId(oldValue);
+
+				newValues[i++] = String.valueOf(classNameId);
+			}
+			catch (Exception e) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to find class name ID for class name " +
+							oldValue);
+				}
+			}
+		}
+
+		jxPreferences.setValues(key, newValues);
 	}
 
 	protected void updateAssetPublisherClassPKs(
@@ -1844,30 +1884,33 @@ public class PortletImporter {
 			String value = GetterUtil.getString(
 				jxPreferences.getValue(name, null));
 
-			String prefix = "queryName";
-
-			if (value.equalsIgnoreCase("assetCategories") &&
-				name.startsWith(prefix)) {
-
-				String index = name.substring(prefix.length(), name.length());
-
-				updateAssetPublisherClassPKs(
-					portletDataContext, jxPreferences, "queryValues" + index,
-					AssetCategory.class, companyGroup.getGroupId());
-			}
-			else if (name.equals(
-						"anyClassTypeJournalArticleAssetRendererFactory") ||
-					 name.equals(
-						"classTypeIdsJournalArticleAssetRendererFactory") ||
-					 name.equals("classTypeIds")) {
+			if (name.equals(
+					"anyClassTypeJournalArticleAssetRendererFactory") ||
+				name.equals(
+					"classTypeIdsJournalArticleAssetRendererFactory") ||
+				name.equals("classTypeIds")) {
 
 				updateAssetPublisherClassPKs(
 					portletDataContext, jxPreferences, name,
 					JournalStructure.class, companyGroup.getGroupId());
 			}
+			else if (name.equals("anyAssetType") ||
+					 name.equals("classNameIds")) {
+
+				updateAssetPublisherClassNameIds(jxPreferences, name);
+			}
 			else if (name.equals("defaultScope") || name.equals("scopeIds")) {
 				updateAssetPublisherGlobalScopeId(
 					jxPreferences, name, companyGroup.getGroupId());
+			}
+			else if (name.startsWith("queryName") &&
+					 value.equalsIgnoreCase("assetCategories")) {
+
+				String index = name.substring(9, name.length());
+
+				updateAssetPublisherClassPKs(
+					portletDataContext, jxPreferences, "queryValues" + index,
+					AssetCategory.class, companyGroup.getGroupId());
 			}
 		}
 

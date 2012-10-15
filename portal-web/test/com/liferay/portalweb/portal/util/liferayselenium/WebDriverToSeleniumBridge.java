@@ -302,9 +302,11 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public String getAlert() {
-		WebDriver.TargetLocator targetLocator = switchTo();
+		switchTo();
 
-		Alert alert = targetLocator.alert();
+		WebDriverWait webDriverWait = new WebDriverWait(this, 1);
+
+		Alert alert = webDriverWait.until(ExpectedConditions.alertIsPresent());
 
 		return alert.getText();
 	}
@@ -336,7 +338,7 @@ public class WebDriverToSeleniumBridge
 	public String getAttribute(String attributeLocator) {
 		int pos = attributeLocator.lastIndexOf(CharPool.AT);
 
-		String locator = attributeLocator.substring(0, pos - 1);
+		String locator = attributeLocator.substring(0, pos);
 
 		WebElement webElement = getWebElement(locator);
 
@@ -356,9 +358,11 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public String getConfirmation() {
-		WebDriver.TargetLocator targetLocator = switchTo();
+		switchTo();
 
-		Alert alert = targetLocator.alert();
+		WebDriverWait webDriverWait = new WebDriverWait(this, 1);
+
+		Alert alert = webDriverWait.until(ExpectedConditions.alertIsPresent());
 
 		acceptConfirmation();
 
@@ -534,7 +538,9 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public void goBack() {
-		throw new UnsupportedOperationException();
+		WebDriver.Navigation navigation = navigate();
+
+		navigation.back();
 	}
 
 	public void highlight(String locator) {
@@ -861,6 +867,12 @@ public class WebDriverToSeleniumBridge
 		else {
 			get(url);
 		}
+
+		if (TestPropsValues.BROWSER_TYPE.equals("*iehta") ||
+			TestPropsValues.BROWSER_TYPE.equals("*iexplore")) {
+
+			refresh();
+		}
 	}
 
 	public void open(String url, String ignoreResponseCode) {
@@ -902,18 +914,6 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public void select(String selectLocator, String optionLocator) {
-		if (optionLocator.startsWith("index=") ||
-			optionLocator.startsWith("value=")) {
-
-			throw new UnsupportedOperationException();
-		}
-
-		String label = optionLocator;
-
-		if (optionLocator.startsWith("label=")) {
-			label = optionLocator.substring(6);
-		}
-
 		WebElement webElement = getWebElement(selectLocator);
 
 		webElement.click();
@@ -922,27 +922,70 @@ public class WebDriverToSeleniumBridge
 
 		List<WebElement> options = select.getOptions();
 
-		for (WebElement option : options) {
-			String optionText = option.getText();
+		WebElement optionWebElement = null;
 
-			if (!optionText.equals(label)) {
-				continue;
+		if (optionLocator.startsWith("index=")) {
+			String index = optionLocator.substring(6);
+
+			int optionIndex = GetterUtil.getInteger(index);
+
+			optionWebElement = options.get(optionIndex);
+		}
+		else if (optionLocator.startsWith("regexp:")) {
+			String label = optionLocator.substring(10);
+
+			for (WebElement option : options) {
+				String optionText = option.getText();
+
+				if (optionText.contains(label)) {
+					optionWebElement = option;
+
+					break;
+				}
+			}
+		}
+		else if (optionLocator.startsWith("value=")) {
+			String value = optionLocator.substring(6);
+
+			for (WebElement option : options) {
+				String optionValue = option.getAttribute("value");
+
+				if (optionValue.equals(value)) {
+					optionWebElement = option;
+
+					break;
+				}
+			}
+		}
+		else {
+			String label = optionLocator;
+
+			if (optionLocator.startsWith("label=")) {
+				label = optionLocator.substring(6);
 			}
 
-			WrapsDriver wrapsDriver = (WrapsDriver)option;
+			for (WebElement option : options) {
+				String optionText = option.getText();
 
-			WebDriver webDriver = wrapsDriver.getWrappedDriver();
+				if (optionText.equals(label)) {
+					optionWebElement = option;
 
-			Actions actions = new Actions(webDriver);
-
-			actions.doubleClick(option);
-
-			Action action = actions.build();
-
-			action.perform();
-
-			break;
+					break;
+				}
+			}
 		}
+
+		WrapsDriver wrapsDriver = (WrapsDriver)optionWebElement;
+
+		WebDriver webDriver = wrapsDriver.getWrappedDriver();
+
+		Actions actions = new Actions(webDriver);
+
+		actions.doubleClick(optionWebElement);
+
+		Action action = actions.build();
+
+		action.perform();
 	}
 
 	public void selectFrame(String locator) {
@@ -1044,7 +1087,8 @@ public class WebDriverToSeleniumBridge
 
 		Timeouts timeouts = options.timeouts();
 
-		timeouts.implicitlyWait(1, TimeUnit.MILLISECONDS);
+		timeouts.implicitlyWait(
+			TestPropsValues.TIMEOUT_IMPLICIT_WAIT, TimeUnit.SECONDS);
 	}
 
 	public void shiftKeyDown() {
@@ -1201,99 +1245,93 @@ public class WebDriverToSeleniumBridge
 	}
 
 	protected WebElement getWebElement(String locator) {
-		WebDriverWait wait = new WebDriverWait(this, 1);
-
-		WebElement webElement;
+		WebDriverWait webDriverWait = new WebDriverWait(
+			this, TestPropsValues.TIMEOUT_IMPLICIT_WAIT);
 
 		if (locator.startsWith("//")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(By.xpath(locator)));
 		}
 		else if (locator.startsWith("class=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.className(locator.substring(6))));
 		}
 		else if (locator.startsWith("css=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.cssSelector(locator.substring(4))));
 		}
 		else if (locator.startsWith("link=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.linkText(locator.substring(5))));
 		}
 		else if (locator.startsWith("name=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.name(locator.substring(5))));
 		}
 		else if (locator.startsWith("tag=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.tagName(locator.substring(4))));
 		}
 		else if (locator.startsWith("xpath=") || locator.startsWith("xPath=")) {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(
 					By.xpath(locator.substring(6))));
 		}
 		else {
-			webElement = wait.until(
+			return webDriverWait.until(
 				ExpectedConditions.presenceOfElementLocated(By.id(locator)));
 		}
-
-		return webElement;
 	}
 
 	protected List<WebElement> getWebElements(String locator) {
-		WebDriverWait wait = new WebDriverWait(this, 1);
-
-		List<WebElement> webElements;
+		WebDriverWait webDriverWait = new WebDriverWait(
+			this, TestPropsValues.TIMEOUT_IMPLICIT_WAIT);
 
 		if (locator.startsWith("//")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.xpath(locator)));
 		}
 		else if (locator.startsWith("class=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.className(locator.substring(6))));
 		}
 		else if (locator.startsWith("css=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.cssSelector(locator.substring(4))));
 		}
 		else if (locator.startsWith("link=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.linkText(locator.substring(5))));
 		}
 		else if (locator.startsWith("name=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.name(locator.substring(5))));
 		}
 		else if (locator.startsWith("tag=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.tagName(locator.substring(4))));
 		}
 		else if (locator.startsWith("xpath=") || locator.startsWith("xPath=")) {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.xpath(locator.substring(6))));
 		}
 		else {
-			webElements =
-				wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			return webDriverWait.until(
+				ExpectedConditions.presenceOfAllElementsLocatedBy(
 					By.id(locator)));
 		}
-
-		return webElements;
 	}
 
 	protected void initKeys() {

@@ -22,120 +22,47 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddFormFieldCheckboxTest extends BaseTestCase {
 	public void testAddFormFieldCheckbox() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel", RuntimeVariables.replace(""));
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/expando-web-form-community/");
+		selenium.clickAt("link=Web Form Page",
+			RuntimeVariables.replace("Web Form Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities", RuntimeVariables.replace(""));
+		Thread.sleep(5000);
+		assertEquals(RuntimeVariables.replace("Options"),
+			selenium.getText("//strong/span"));
+		selenium.clickAt("//strong/span", RuntimeVariables.replace("Options"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]");
+		assertEquals(RuntimeVariables.replace("Configuration"),
+			selenium.getText(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]"));
+		selenium.click(RuntimeVariables.replace(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]"));
 		selenium.waitForPageToLoad("30000");
-		selenium.type("_134_name",
-			RuntimeVariables.replace("Expando Web Form Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
+		selenium.clickAt("link=Form Fields",
+			RuntimeVariables.replace("Form Fields"));
+		selenium.waitForVisible("//a[@class='add-row']");
+		selenium.clickAt("//a[@class='add-row']",
+			RuntimeVariables.replace("Add Row"));
+		selenium.waitForVisible("//select[@id='_86_fieldType6']");
+		selenium.select("//select[@id='_86_fieldType6']",
+			RuntimeVariables.replace("Check Box"));
+		selenium.waitForVisible("//input[@id='_86_fieldLabel6']");
+		selenium.type("//input[@id='_86_fieldLabel6']",
+			RuntimeVariables.replace("Checkbox"));
+		selenium.clickAt("//input[@value='Save']",
+			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//tr[@class='portlet-section-body results-row']/td[1]/a",
-			RuntimeVariables.replace(""));
+		assertEquals(RuntimeVariables.replace(
+				"You have successfully updated the setup."),
+			selenium.getText("//div[@class='portlet-msg-success']"));
+		selenium.open("/web/expando-web-form-community/");
+		selenium.clickAt("link=Web Form Page",
+			RuntimeVariables.replace("Web Form Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Web Form Page", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Configuration", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Form Fields", RuntimeVariables.replace(""));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Add Row")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Add Row", RuntimeVariables.replace(""));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("_86_fieldType6")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.select("_86_fieldType6",
-			RuntimeVariables.replace("label=Check Box"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("_86_fieldLabel6")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.type("_86_fieldLabel6", RuntimeVariables.replace("Checkbox"));
-		selenium.clickAt("//input[@value='Save']", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent(
-				"You have successfully updated the setup."));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Web Form Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Web Form Page", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent("Checkbox"));
-		assertTrue(selenium.isElementPresent("//input[@type='checkbox']"));
+		assertEquals(RuntimeVariables.replace("Checkbox"),
+			selenium.getText("//label[contains(@for,'_field2')]"));
+		assertTrue(selenium.isVisible("//input[@type='checkbox']"));
 	}
 }

@@ -79,6 +79,26 @@ if (layoutRevision != null) {
 
 String[] mainSections = PropsValues.LAYOUT_FORM_UPDATE;
 
+if (selLayout.isSupportsEmbeddedPortlets()) {
+	List<Portlet> embeddedPortlets = new ArrayList<Portlet>();
+
+	LayoutTypePortlet selLayoutTypePortlet = (LayoutTypePortlet)selLayout.getLayoutType();
+
+	List<String> portletIds = selLayoutTypePortlet.getPortletIds();
+
+	for (Portlet portlet : selLayoutTypePortlet.getAllPortlets()) {
+		if (!portlet.isSystem() && !portletIds.contains(portlet.getPortletId())) {
+			embeddedPortlets.add(portlet);
+		}
+	}
+
+	if (!embeddedPortlets.isEmpty()) {
+		request.setAttribute("edit_pages.jsp-embeddedPortlets", embeddedPortlets);
+
+		mainSections = ArrayUtil.append(mainSections, "embedded-portlets");
+	}
+}
+
 if (!group.isUser() && selLayout.isTypePortlet()) {
 	mainSections = ArrayUtil.append(mainSections, "customization-settings");
 }
@@ -110,7 +130,7 @@ String[][] categorySections = {mainSections};
 	<aui:input name="layoutId" type="hidden" value="<%= layoutId %>" />
 	<aui:input name="<%= PortletDataHandlerKeys.SELECTED_LAYOUTS %>" type="hidden" />
 
-	<c:if test="<%= layoutRevision != null && !incomplete%>">
+	<c:if test="<%= layoutRevision != null && !incomplete %>">
 		<aui:input name="layoutSetBranchId" type="hidden" value="<%= layoutRevision.getLayoutSetBranchId() %>" />
 	</c:if>
 
@@ -322,5 +342,5 @@ String[][] categorySections = {mainSections};
 </aui:script>
 
 <%!
-private static String[] _CATEGORY_NAMES = {""};
+private static final String[] _CATEGORY_NAMES = {""};
 %>

@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.portlet.WindowStateFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Http;
@@ -47,7 +48,6 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.CookieKeys;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
@@ -892,15 +892,6 @@ public class PortletURLImpl
 			}
 		}
 
-		String outerPortletId = PortalUtil.getOuterPortletId(_request);
-
-		if (outerPortletId != null) {
-			sb.append("p_o_p_id");
-			sb.append(StringPool.EQUAL);
-			sb.append(processValue(key, outerPortletId));
-			sb.append(StringPool.AMPERSAND);
-		}
-
 		if (_doAsUserId > 0) {
 			try {
 				Company company = PortalUtil.getCompany(_request);
@@ -1264,7 +1255,7 @@ public class PortletURLImpl
 		for (Map.Entry<String, String[]> entry : renderParameters.entrySet()) {
 			String name = entry.getKey();
 
-			if (name.indexOf(namespace) != -1) {
+			if (name.contains(namespace)) {
 				name = name.substring(namespace.length());
 			}
 

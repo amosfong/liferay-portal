@@ -23,12 +23,9 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.BaseModel;
-
-import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,41 +36,16 @@ import java.util.List;
  */
 public abstract class BaseAlloyIndexer extends BaseIndexer {
 
-	public BaseAlloyIndexer(String portletId, String className) {
-		this.portletId = portletId;
-		classNames = new String[] {className};
-
-		Class<?> clazz = getClass();
-
-		ClassLoader classLoader = clazz.getClassLoader();
-
-		int pos = className.indexOf(".model.");
-
-		String simpleClassName = className.substring(pos + 7);
-
-		String serviceClassName =
-			className.substring(0, pos) + ".service." + simpleClassName +
-				"LocalServiceUtil";
-
-		try {
-			Class<?> serviceClass = classLoader.loadClass(serviceClassName);
-
-			getModelMethod = serviceClass.getMethod(
-				"get" + simpleClassName, new Class[] {long.class});
-			getModelsCountMethod = serviceClass.getMethod(
-				"get" + TextFormatter.formatPlural(simpleClassName) + "Count",
-				new Class[0]);
-			getModelsMethod = serviceClass.getMethod(
-				"get" + TextFormatter.formatPlural(simpleClassName),
-				new Class[] {int.class, int.class});
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public AlloyServiceInvoker getAlloyServiceInvoker() {
+		return alloyServiceInvoker;
 	}
 
 	public String[] getClassNames() {
 		return classNames;
+	}
+
+	public String getPortletId() {
+		return portletId;
 	}
 
 	@Override
@@ -118,9 +90,11 @@ public abstract class BaseAlloyIndexer extends BaseIndexer {
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Object model = getModelMethod.invoke(false, classPK);
+		Object model = alloyServiceInvoker.fetchModel(classPK);
 
-		doReindex(model);
+		if (model != null) {
+			doReindex(model);
+		}
 	}
 
 	@Override
@@ -136,7 +110,7 @@ public abstract class BaseAlloyIndexer extends BaseIndexer {
 	}
 
 	protected void reindexModels(long companyId) throws Exception {
-		int count = (Integer)getModelsCountMethod.invoke(false);
+		int count = alloyServiceInvoker.getModelsCount();
 
 		int pages = count / Indexer.DEFAULT_INTERVAL;
 
@@ -151,8 +125,7 @@ public abstract class BaseAlloyIndexer extends BaseIndexer {
 	protected void reindexModels(long companyId, int start, int end)
 		throws Exception {
 
-		List<Object> models = (List<Object>)getModelsMethod.invoke(
-			false, start, end);
+		List<Object> models = alloyServiceInvoker.getModels(start, end);
 
 		if (models.isEmpty()) {
 			return;
@@ -170,10 +143,26 @@ public abstract class BaseAlloyIndexer extends BaseIndexer {
 			getSearchEngineId(), companyId, documents);
 	}
 
+	protected void setAlloyServiceInvoker(
+		AlloyServiceInvoker alloyServiceInvoker) {
+
+		this.alloyServiceInvoker = alloyServiceInvoker;
+	}
+
+	protected void setClassName(String className) {
+		if (this.classNames == null) {
+			classNames = new String[] {className};
+		}
+	}
+
+	protected void setPortletId(String portletId) {
+		if (this.portletId == null) {
+			this.portletId = portletId;
+		}
+	}
+
+	protected AlloyServiceInvoker alloyServiceInvoker;
 	protected String[] classNames;
-	protected Method getModelMethod;
-	protected Method getModelsCountMethod;
-	protected Method getModelsMethod;
 	protected String portletId;
 
 }

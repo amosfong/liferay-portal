@@ -22,24 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class CompareVersionsDMDocumentTxtTest extends BaseTestCase {
 	public void testCompareVersionsDMDocumentTxt() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Documents and Media Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Documents and Media Test Page",
 			RuntimeVariables.replace("Documents and Media Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -49,12 +34,18 @@ public class CompareVersionsDMDocumentTxtTest extends BaseTestCase {
 		selenium.clickAt("//div[@data-title='DM Document Title Edit']/a/span[2]",
 			RuntimeVariables.replace("DM Document Title Edit"));
 		selenium.waitForPageToLoad("30000");
-		assertFalse(selenium.isChecked("//tr[3]/td[1]/input"));
-		selenium.clickAt("//tr[3]/td[1]/input", RuntimeVariables.replace("1.1"));
-		assertTrue(selenium.isChecked("//tr[3]/td[1]/input"));
-		assertFalse(selenium.isChecked("//tr[4]/td[1]/input"));
-		selenium.clickAt("//tr[4]/td[1]/input", RuntimeVariables.replace("1.0"));
-		assertTrue(selenium.isChecked("//tr[4]/td[1]/input"));
+		assertFalse(selenium.isChecked(
+				"//tr[@class='portlet-section-body results-row']/td[1]/input"));
+		selenium.clickAt("//tr[@class='portlet-section-body results-row']/td[1]/input",
+			RuntimeVariables.replace("1.1"));
+		assertTrue(selenium.isChecked(
+				"//tr[@class='portlet-section-body results-row']/td[1]/input"));
+		assertFalse(selenium.isChecked(
+				"//tr[@class='portlet-section-alternate results-row alt last']/td[1]/input"));
+		selenium.clickAt("//tr[@class='portlet-section-alternate results-row alt last']/td[1]/input",
+			RuntimeVariables.replace("1.0"));
+		assertTrue(selenium.isChecked(
+				"//tr[@class='portlet-section-alternate results-row alt last']/td[1]/input"));
 		selenium.clickAt("//input[@value='Compare Versions']",
 			RuntimeVariables.replace("Compare Versions"));
 		selenium.waitForPageToLoad("30000");
@@ -68,6 +59,6 @@ public class CompareVersionsDMDocumentTxtTest extends BaseTestCase {
 			selenium.getText("//th[2]"));
 		assertEquals(RuntimeVariables.replace("This is a *.txt document."),
 			selenium.getText(
-				"xPath=(//table[@class='taglib-diff-table'])[2]//ins"));
+				"xPath=(//table[@class='taglib-diff-table'])[2]/tbody/tr[1]/td[1]"));
 	}
 }

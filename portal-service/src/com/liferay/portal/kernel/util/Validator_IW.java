@@ -58,6 +58,43 @@ public class Validator_IW {
 		return Validator.equals(short1, short2);
 	}
 
+	public boolean equalsSorted(boolean[] booleanArray1, boolean[] booleanArray2) {
+		return Validator.equalsSorted(booleanArray1, booleanArray2);
+	}
+
+	public boolean equalsSorted(byte[] byteArray1, byte[] byteArray2) {
+		return Validator.equalsSorted(byteArray1, byteArray2);
+	}
+
+	public boolean equalsSorted(char[] charArray1, char[] charArray2) {
+		return Validator.equalsSorted(charArray1, charArray2);
+	}
+
+	public boolean equalsSorted(double[] doubleArray1, double[] doubleArray2) {
+		return Validator.equalsSorted(doubleArray1, doubleArray2);
+	}
+
+	public boolean equalsSorted(float[] floatArray1, float[] floatArray2) {
+		return Validator.equalsSorted(floatArray1, floatArray2);
+	}
+
+	public boolean equalsSorted(int[] intArray1, int[] intArray2) {
+		return Validator.equalsSorted(intArray1, intArray2);
+	}
+
+	public boolean equalsSorted(long[] longArray1, long[] longArray2) {
+		return Validator.equalsSorted(longArray1, longArray2);
+	}
+
+	public boolean equalsSorted(java.lang.Object[] objArray1,
+		java.lang.Object[] objArray2) {
+		return Validator.equalsSorted(objArray1, objArray2);
+	}
+
+	public boolean equalsSorted(short[] shortArray1, short[] shortArray2) {
+		return Validator.equalsSorted(shortArray1, shortArray2);
+	}
+
 	public boolean isAddress(java.lang.String address) {
 		return Validator.isAddress(address);
 	}
@@ -68,6 +105,10 @@ public class Validator_IW {
 
 	public boolean isAscii(char c) {
 		return Validator.isAscii(c);
+	}
+
+	public boolean isBlank(java.lang.String s) {
+		return Validator.isBlank(s);
 	}
 
 	public boolean isChar(char c) {
@@ -104,6 +145,14 @@ public class Validator_IW {
 
 	public boolean isFileExtension(java.lang.String fileExtension) {
 		return Validator.isFileExtension(fileExtension);
+	}
+
+	public boolean isFileName(java.lang.String name) {
+		return Validator.isFileName(name);
+	}
+
+	public boolean isFilePath(java.lang.String path, boolean isParentDirAllowed) {
+		return Validator.isFilePath(path, isParentDirAllowed);
 	}
 
 	public boolean isGregorianDate(int month, int day, int year) {

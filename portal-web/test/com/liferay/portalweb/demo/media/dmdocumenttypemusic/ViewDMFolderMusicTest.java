@@ -27,25 +27,9 @@ public class ViewDMFolderMusicTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"link=Documents and Media Test Page")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
 				selenium.clickAt("link=Documents and Media Test Page",
 					RuntimeVariables.replace("Documents and Media Test Page"));
 				selenium.waitForPageToLoad("30000");
@@ -54,28 +38,9 @@ public class ViewDMFolderMusicTest extends BaseTestCase {
 						"//div[@data-title='DM Folder Name']/a/span[@class='entry-title']"));
 				selenium.clickAt("//div[@data-title='DM Folder Name']/a/span[@class='entry-title']",
 					RuntimeVariables.replace("DM Folder Name"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (RuntimeVariables.replace("DM Folder Name")
-												.equals(selenium.getText(
-										"//li[@class='folder selected']/a/span[@class='entry-title']"))) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				assertEquals(RuntimeVariables.replace("DM Folder Name"),
-					selenium.getText(
-						"//li[@class='folder selected']/a/span[@class='entry-title']"));
+				selenium.waitForVisible(
+					"//li[@class='folder selected']/a/span[@class='entry-title']");
+				Thread.sleep(5000);
 				assertEquals(RuntimeVariables.replace("DM Music Title"),
 					selenium.getText(
 						"//div[@data-title='DM Music Title']/a/span[@class='entry-title']"));
@@ -115,7 +80,7 @@ public class ViewDMFolderMusicTest extends BaseTestCase {
 				assertEquals(RuntimeVariables.replace("DM Music Description"),
 					selenium.getText(
 						"//blockquote[@class='lfr-asset-description']"));
-				assertEquals(RuntimeVariables.replace("Download (8,527.7k)"),
+				assertEquals(RuntimeVariables.replace("Download (4,429.6k)"),
 					selenium.getText(
 						"//span[@class='download-document']/span/a/span"));
 				assertEquals(RuntimeVariables.replace("Song Information"),
@@ -179,24 +144,8 @@ public class ViewDMFolderMusicTest extends BaseTestCase {
 					RuntimeVariables.replace("Song Information"));
 
 			case 4:
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible(
+					"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div");
 				assertTrue(selenium.isPartialText(
 						"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div[1]",
 						"Content Type audio/mpeg"));

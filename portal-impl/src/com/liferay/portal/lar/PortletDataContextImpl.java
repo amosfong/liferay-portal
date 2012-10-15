@@ -16,6 +16,7 @@ package com.liferay.portal.lar;
 
 import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.NoSuchTeamException;
+import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -37,9 +38,11 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipWriter;
+import com.liferay.portal.model.AttachedModel;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcedModel;
@@ -114,6 +117,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import jodd.bean.BeanUtil;
 
 /**
  * <p>
@@ -283,6 +288,20 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 		element.addAttribute("path", path);
 
+		if (classedModel instanceof AttachedModel) {
+			AttachedModel attachedModel = (AttachedModel)classedModel;
+
+			element.addAttribute("class-name", attachedModel.getClassName());
+		}
+		else if (BeanUtil.hasProperty(classedModel, "className")) {
+			String className = BeanPropertiesUtil.getStringSilent(
+				classedModel, "className");
+
+			if (className != null) {
+				element.addAttribute("class-name", className);
+			}
+		}
+
 		if (classedModel instanceof AuditedModel) {
 			AuditedModel auditedModel = (AuditedModel)classedModel;
 
@@ -365,18 +384,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 		String className, long classPK, List<MBMessage> messages) {
 
 		_commentsMap.put(getPrimaryKeyString(className, classPK), messages);
-	}
-
-	public void addCompanyReference(Class<?> clazz, String key) {
-		List<String> keys = _companyReferences.get(clazz.getName());
-
-		if (keys == null) {
-			keys = new ArrayList<String>();
-
-			_companyReferences.put(clazz.getName(), keys);
-		}
-
-		keys.add(key);
 	}
 
 	public void addExpando(
@@ -814,7 +821,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public byte[] getZipEntryAsByteArray(String path) {
-		if (!isValidPath(path)) {
+		if (!Validator.isFilePath(path, false)) {
 			return null;
 		}
 
@@ -826,7 +833,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public InputStream getZipEntryAsInputStream(String path) {
-		if (!isValidPath(path)) {
+		if (!Validator.isFilePath(path, false)) {
 			return null;
 		}
 
@@ -837,12 +844,25 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return getZipReader().getEntryAsInputStream(path);
 	}
 
+	public Object getZipEntryAsObject(Element element, String path) {
+		Object object = fromXML(getZipEntryAsString(path));
+
+		Element classNameElement = element.element("class-name");
+
+		if (classNameElement != null) {
+			BeanPropertiesUtil.setProperty(
+				object, "className", classNameElement.getText());
+		}
+
+		return object;
+	}
+
 	public Object getZipEntryAsObject(String path) {
 		return fromXML(getZipEntryAsString(path));
 	}
 
 	public String getZipEntryAsString(String path) {
-		if (!isValidPath(path)) {
+		if (!Validator.isFilePath(path, false)) {
 			return null;
 		}
 
@@ -858,7 +878,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public List<String> getZipFolderEntries(String path) {
-		if (!isValidPath(path)) {
+		if (!Validator.isFilePath(path, false)) {
 			return null;
 		}
 
@@ -957,14 +977,28 @@ public class PortletDataContextImpl implements PortletDataContext {
 			long threadId = MapUtil.getLong(
 				threadPKs, message.getThreadId(), message.getThreadId());
 
-			if (message.isRoot() && (discussion != null)) {
-				MBThread thread = MBThreadLocalServiceUtil.getThread(
-					discussion.getThreadId());
+			if (message.isRoot()) {
+				if (discussion != null) {
+					MBThread thread = MBThreadLocalServiceUtil.getThread(
+						discussion.getThreadId());
 
-				long rootMessageId = thread.getRootMessageId();
+					long rootMessageId = thread.getRootMessageId();
 
-				messagePKs.put(message.getMessageId(), rootMessageId);
-				threadPKs.put(message.getThreadId(), thread.getThreadId());
+					messagePKs.put(message.getMessageId(), rootMessageId);
+					threadPKs.put(message.getThreadId(), thread.getThreadId());
+				}
+				else if (clazz == Layout.class) {
+					MBMessage importedMessage =
+						MBMessageLocalServiceUtil.addDiscussionMessage(
+							userId, message.getUserName(), groupId,
+							clazz.getName(), newClassPK,
+							WorkflowConstants.ACTION_PUBLISH);
+
+					messagePKs.put(
+						message.getMessageId(), importedMessage.getMessageId());
+					threadPKs.put(
+						message.getThreadId(), importedMessage.getThreadId());
+				}
 			}
 			else {
 				ServiceContext serviceContext = new ServiceContext();
@@ -1160,16 +1194,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 				userId, clazz.getName(), newClassPK, ratingsEntry.getScore(),
 				serviceContext);
 		}
-	}
-
-	public boolean isCompanyReference(Class<?> clazz, String key) {
-		List<String> keys = _companyReferences.get(clazz.getName());
-
-		if ((keys != null) && keys.contains(key)) {
-			return true;
-		}
-
-		return false;
 	}
 
 	public boolean isDataStrategyMirror() {
@@ -1388,7 +1412,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	protected String getExpandoPath(String path) {
-		if (!isValidPath(path)) {
+		if (!Validator.isFilePath(path, false)) {
 			throw new IllegalArgumentException(
 				path + " is located outside of the lar");
 		}
@@ -1458,14 +1482,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return true;
 	}
 
-	protected boolean isValidPath(String path) {
-		if ((path == null) || path.contains(StringPool.DOUBLE_PERIOD)) {
-			return false;
-		}
-
-		return true;
-	}
-
 	protected void validateDateRange(Date startDate, Date endDate)
 		throws PortletDataException {
 
@@ -1512,8 +1528,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private Map<String, List<MBMessage>> _commentsMap =
 		new HashMap<String, List<MBMessage>>();
 	private long _companyId;
-	private Map<String, List<String>> _companyReferences =
-		new HashMap<String, List<String>>();
 	private String _dataStrategy;
 	private Date _endDate;
 	private Map<String, List<ExpandoColumn>> _expandoColumnsMap =

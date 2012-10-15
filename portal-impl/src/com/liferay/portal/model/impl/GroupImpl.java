@@ -54,6 +54,8 @@ import com.liferay.portal.util.PropsValues;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -87,6 +89,44 @@ import java.util.Map;
 public class GroupImpl extends GroupBaseImpl {
 
 	public GroupImpl() {
+	}
+
+	public List<Group> getAncestors() throws PortalException, SystemException {
+		List<Group> groups = new ArrayList<Group>();
+
+		Group group = this;
+
+		while (true) {
+			if (!group.isRoot()) {
+				group = group.getParentGroup();
+
+				groups.add(group);
+			}
+			else {
+				break;
+			}
+		}
+
+		return groups;
+	}
+
+	public List<Group> getChildren(boolean site) throws SystemException {
+		return GroupLocalServiceUtil.getGroups(
+			getCompanyId(), getGroupId(), site);
+	}
+
+	public List<Group> getChildrenWithLayouts(boolean site, int start, int end)
+		throws SystemException {
+
+		return GroupLocalServiceUtil.getLayoutsGroups(
+			getCompanyId(), getGroupId(), site, start, end);
+	}
+
+	public int getChildrenWithLayoutsCount(boolean site)
+		throws SystemException {
+
+		return GroupLocalServiceUtil.getLayoutsGroupsCount(
+			getCompanyId(), getGroupId(), site);
 	}
 
 	public long getDefaultPrivatePlid() {
@@ -375,18 +415,16 @@ public class GroupImpl extends GroupBaseImpl {
 			PermissionChecker permissionChecker, boolean privateSite)
 		throws PortalException, SystemException {
 
+		if (!isControlPanel() && !isSite() && !isUser()) {
+			return false;
+		}
+
 		boolean showSite = true;
 
 		Layout defaultLayout = null;
 
 		int siteLayoutsCount = LayoutLocalServiceUtil.getLayoutsCount(
 			this, true);
-
-		if (siteLayoutsCount > 0) {
-			defaultLayout = LayoutLocalServiceUtil.fetchFirstLayout(
-				getGroupId(), privateSite,
-				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
-		}
 
 		if (siteLayoutsCount == 0) {
 			boolean hasPowerUserRole = RoleLocalServiceUtil.hasUserRole(
@@ -433,16 +471,22 @@ public class GroupImpl extends GroupBaseImpl {
 				}
 			}
 		}
-		else if ((defaultLayout != null ) &&
-				 !LayoutPermissionUtil.contains(
+		else {
+			defaultLayout = LayoutLocalServiceUtil.fetchFirstLayout(
+				getGroupId(), privateSite,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+			if ((defaultLayout != null ) &&
+				!LayoutPermissionUtil.contains(
 					permissionChecker, defaultLayout, true, ActionKeys.VIEW)) {
 
-			showSite = false;
-		}
-		else if (isOrganization() && !isSite()) {
-			_log.error(
-				"Group " + getGroupId() +
-					" is an organization site that does not have pages");
+				showSite = false;
+			}
+			else if (isOrganization() && !isSite()) {
+				_log.error(
+					"Group " + getGroupId() +
+						" is an organization site that does not have pages");
+			}
 		}
 
 		return showSite;

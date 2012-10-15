@@ -23,37 +23,21 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
 public class ViewMicroblogsContent151CharacterTest extends BaseTestCase {
 	public void testViewMicroblogsContent151Character()
 		throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/user/joebloggs/so/dashboard/");
-		assertEquals(RuntimeVariables.replace("Microblogs Status Update"),
-			selenium.getText("//span[@class='portlet-title-default']"));
 		assertTrue(selenium.isElementPresent(
 				"//div[contains(@id,'_2_WAR_microblogsportlet_autocompleteContent')]"));
-		assertEquals(RuntimeVariables.replace("You have no microblogs entry."),
+		assertEquals(RuntimeVariables.replace(
+				"You do not have any microblog entries."),
 			selenium.getText("//div[@class='portlet-msg-info']"));
 		assertFalse(selenium.isTextPresent(
 				"|||||||||1|||||||||2|||||||||3|||||||||4|||||||||5|||||||||6|||||||||7|||||||||8|||||||||9||||||||10||||||||11||||||||12||||||||13||||||||14||||||||15|"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//nav/ul/li[contains(.,'Microblogs')]/a/span")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("//nav/ul/li[contains(.,'Microblogs')]/a/span",
 			RuntimeVariables.replace("Microblogs"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("You have no microblogs entry."),
+		assertEquals(RuntimeVariables.replace(
+				"You do not have any microblog entries."),
 			selenium.getText("//div[@class='portlet-msg-info']"));
 		assertFalse(selenium.isTextPresent(
 				"|||||||||1|||||||||2|||||||||3|||||||||4|||||||||5|||||||||6|||||||||7|||||||||8|||||||||9||||||||10||||||||11||||||||12||||||||13||||||||14||||||||15|"));

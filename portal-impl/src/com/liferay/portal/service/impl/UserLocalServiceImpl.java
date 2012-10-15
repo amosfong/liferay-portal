@@ -58,6 +58,7 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.spring.aop.Skip;
 import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
@@ -70,6 +71,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
@@ -117,7 +119,6 @@ import com.liferay.portal.security.pwd.PwdToolkitUtil;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.UserLocalServiceBaseImpl;
-import com.liferay.portal.spring.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -289,6 +290,32 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 
+		String[] defaultOrganizationGroupNames = PrefsPropsUtil.getStringArray(
+			user.getCompanyId(),
+			PropsKeys.ADMIN_DEFAULT_ORGANIZATION_GROUP_NAMES,
+			StringPool.NEW_LINE,
+			PropsValues.ADMIN_DEFAULT_ORGANIZATION_GROUP_NAMES);
+
+		for (String defaultOrganizationGroupName :
+				defaultOrganizationGroupNames) {
+
+			defaultOrganizationGroupName +=
+				GroupLocalServiceImpl.ORGANIZATION_NAME_SUFFIX;
+
+			try {
+				Group group = groupPersistence.findByC_N(
+					user.getCompanyId(), defaultOrganizationGroupName);
+
+				if (!userPersistence.containsGroup(
+						userId, group.getGroupId())) {
+
+					groupIdsSet.add(group.getGroupId());
+				}
+			}
+			catch (NoSuchGroupException nsge) {
+			}
+		}
+
 		long[] groupIds = ArrayUtil.toArray(
 			groupIdsSet.toArray(new Long[groupIdsSet.size()]));
 
@@ -405,6 +432,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		indexer.reindex(userIds);
 
 		PermissionCacheUtil.clearCache();
+
+		addDefaultRolesAndTeams(groupId, userIds);
 	}
 
 	/**
@@ -663,6 +692,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 			autoScreenName = true;
 		}
+
+		// PLACEHOLDER 01
 
 		long userId = counterLocalService.increment();
 
@@ -2894,7 +2925,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	}
 
 	/**
-	 * Returns <code>true</code> if the user's password is expiring soon.
+	 * Returns <code>true</code> if the password policy is configured to warn
+	 * the user that his password is expiring and the remaining time until
+	 * expiration is equal or less than the configured warning time.
 	 *
 	 * @param  user the user
 	 * @return <code>true</code> if the user's password is expiring soon;
@@ -2908,7 +2941,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 
-		if (passwordPolicy.isExpireable()) {
+		if (passwordPolicy.isExpireable() &&
+			(passwordPolicy.getWarningTime() > 0)) {
+
 			Date now = new Date();
 
 			if (user.getPasswordModifiedDate() == null) {
@@ -3726,10 +3761,11 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		Group companyGroup = company.getGroup();
 
 		assetEntryLocalService.updateEntry(
-			userId, companyGroup.getGroupId(), User.class.getName(),
-			user.getUserId(), user.getUuid(), 0, assetCategoryIds,
-			assetTagNames, false, null, null, null, null, user.getFullName(),
-			null, null, null, null, 0, 0, null, false);
+			userId, companyGroup.getGroupId(), user.getCreateDate(),
+			user.getModifiedDate(), User.class.getName(), user.getUserId(),
+			user.getUuid(), 0, assetCategoryIds, assetTagNames, false, null,
+			null, null, null, user.getFullName(), null, null, null, null, 0, 0,
+			null, false);
 	}
 
 	/**
@@ -4385,7 +4421,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 				String passwordHistory = PrefsPropsUtil.getString(
 					user.getCompanyId(), PropsKeys.LDAP_ERROR_PASSWORD_HISTORY);
 
-				if (msg.indexOf(passwordHistory) != -1) {
+				if (msg.contains(passwordHistory)) {
 					throw new UserPasswordException(
 						UserPasswordException.PASSWORD_ALREADY_USED);
 				}
@@ -4963,6 +4999,83 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		ticketLocalService.deleteTicket(ticket);
 	}
 
+	protected void addDefaultRolesAndTeams(long groupId, long[] userIds)
+		throws PortalException, SystemException {
+
+		List<Role> defaultSiteRoles = new ArrayList<Role>();
+
+		Group group = groupLocalService.getGroup(groupId);
+
+		UnicodeProperties typeSettingsProperties =
+			group.getTypeSettingsProperties();
+
+		long[] defaultSiteRoleIds = StringUtil.split(
+			typeSettingsProperties.getProperty("defaultSiteRoleIds"), 0L);
+
+		for (long defaultSiteRoleId : defaultSiteRoleIds) {
+			Role defaultSiteRole = rolePersistence.fetchByPrimaryKey(
+				defaultSiteRoleId);
+
+			if (defaultSiteRole == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("Unable to find role " + defaultSiteRoleId);
+				}
+
+				continue;
+			}
+
+			defaultSiteRoles.add(defaultSiteRole);
+		}
+
+		List<Team> defaultTeams = new ArrayList<Team>();
+
+		long[] defaultTeamIds = StringUtil.split(
+			typeSettingsProperties.getProperty("defaultTeamIds"), 0L);
+
+		for (long defaultTeamId : defaultTeamIds) {
+			Team defaultTeam = teamPersistence.findByPrimaryKey(defaultTeamId);
+
+			if (defaultTeam == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("Unable to find team " + defaultTeamId);
+				}
+
+				continue;
+			}
+
+			defaultTeams.add(defaultTeam);
+		}
+
+		for (long userId : userIds) {
+			Set<Long> userRoleIdsSet = new HashSet<Long>();
+
+			for (Role role : defaultSiteRoles) {
+				if (!userPersistence.containsRole(userId, role.getRoleId())) {
+					userRoleIdsSet.add(role.getRoleId());
+				}
+			}
+
+			long[] userRoleIds = ArrayUtil.toArray(
+				userRoleIdsSet.toArray(new Long[userRoleIdsSet.size()]));
+
+			userGroupRoleLocalService.addUserGroupRoles(
+				userId, groupId, userRoleIds);
+
+			Set<Long> userTeamIdsSet = new HashSet<Long>();
+
+			for (Team team : defaultTeams) {
+				if (!userPersistence.containsTeam(userId, team.getTeamId())) {
+					userTeamIdsSet.add(team.getTeamId());
+				}
+			}
+
+			long[] userTeamIds = ArrayUtil.toArray(
+				userTeamIdsSet.toArray(new Long[userTeamIdsSet.size()]));
+
+			userPersistence.addTeams(userId, userTeamIds);
+		}
+	}
+
 	/**
 	 * Attempts to authenticate the user by their login and password, while
 	 * using the AuthPipeline.
@@ -5246,6 +5359,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 		}
 
+		// PLACEHOLDER 02
+
 		return authResult;
 	}
 
@@ -5296,7 +5411,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		};
 
-		TransactionCommitCallbackUtil.registerCallback(callable);
+		TransactionCommitCallbackRegistryUtil.registerCallback(callable);
 	}
 
 	protected Hits search(
@@ -5350,7 +5465,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 			searchContext.setQueryConfig(queryConfig);
 
-			searchContext.setSorts(new Sort[] {sort});
+			if (sort != null) {
+				searchContext.setSorts(new Sort[] {sort});
+			}
+
 			searchContext.setStart(start);
 
 			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
@@ -5465,7 +5583,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		List<Group> oldGroups = userPersistence.getGroups(userId);
 
-		List<Long> oldGroupIds = new ArrayList<Long>(oldGroups.size());
+		Set<Long> oldGroupIds = new HashSet<Long>(oldGroups.size());
 
 		for (Group oldGroup : oldGroups) {
 			long oldGroupId = oldGroup.getGroupId();
@@ -5505,7 +5623,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		List<Organization> oldOrganizations = userPersistence.getOrganizations(
 			userId);
 
-		List<Long> oldOrganizationIds = new ArrayList<Long>(
+		Set<Long> oldOrganizationIds = new HashSet<Long>(
 			oldOrganizations.size());
 
 		for (Organization oldOrganization : oldOrganizations) {

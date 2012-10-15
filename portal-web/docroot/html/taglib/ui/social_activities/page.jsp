@@ -30,7 +30,7 @@
 String className = (String)request.getAttribute("liferay-ui:social-activities:className");
 long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-ui:social-activities:classPK"));
 List<SocialActivity> activities = (List<SocialActivity>)request.getAttribute("liferay-ui:social-activities:activities");
-boolean feedEnabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:social-activities:feedEnabled"));
+boolean feedEnabled = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:social-activities:feedEnabled"));
 String feedTitle = (String)request.getAttribute("liferay-ui:social-activities:feedTitle");
 String feedLink = (String)request.getAttribute("liferay-ui:social-activities:feedLink");
 String feedLinkMessage = (String)request.getAttribute("liferay-ui:social-activities:feedLinkMessage");

@@ -24,12 +24,13 @@ public class SOUs_ViewEditMicroblogsContentViewableByFollowersTest
 	extends BaseTestCase {
 	public void testSOUs_ViewEditMicroblogsContentViewableByFollowers()
 		throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/user/socialoffice01/so/dashboard");
-		assertEquals(RuntimeVariables.replace("Microblogs Status Update"),
-			selenium.getText("//span[@class='portlet-title-default']"));
 		assertTrue(selenium.isElementPresent(
 				"//div[contains(@id,'_2_WAR_microblogsportlet_autocompleteContent')]"));
-		assertEquals(RuntimeVariables.replace("You have no microblogs entry."),
+		assertEquals(RuntimeVariables.replace(
+				"You do not have any microblog entries."),
 			selenium.getText("//div[@class='portlet-msg-info']"));
 		assertEquals(RuntimeVariables.replace("Following"),
 			selenium.getText("link=Following"));
@@ -37,24 +38,6 @@ public class SOUs_ViewEditMicroblogsContentViewableByFollowersTest
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Microblogs PostEdit"),
 			selenium.getText("//div[@class='activity-title']"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//nav/ul/li[contains(.,'Microblogs')]/a/span")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("//nav/ul/li[contains(.,'Microblogs')]/a/span",
 			RuntimeVariables.replace("Microblogs"));
 		selenium.waitForPageToLoad("30000");

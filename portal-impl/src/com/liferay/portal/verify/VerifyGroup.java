@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Shard;
@@ -134,7 +135,10 @@ public class VerifyGroup extends VerifyProcess {
 
 			User user = null;
 
-			if (group.isUser()) {
+			if (group.isCompany()) {
+				friendlyURL = GroupConstants.GLOBAL_FRIENDLY_URL;
+			}
+			else if (group.isUser()) {
 				user = UserLocalServiceUtil.getUserById(group.getClassPK());
 
 				friendlyURL = StringPool.SLASH + user.getScreenName();

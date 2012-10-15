@@ -26,6 +26,7 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.Role;
+import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Team;
 import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
@@ -75,14 +76,14 @@ public class PermissionImporter {
 			String resourcePrimKey = String.valueOf(layout.getPlid());
 
 			importPermissions(
-				layoutCache, companyId, groupId, userId, resourceName,
+				layoutCache, companyId, groupId, userId, layout, resourceName,
 				resourcePrimKey, permissionsElement, false);
 		}
 	}
 
 	protected void importPermissions(
 			LayoutCache layoutCache, long companyId, long groupId, long userId,
-			String resourceName, String resourcePrimKey,
+			Layout layout, String resourceName, String resourcePrimKey,
 			Element permissionsElement, boolean portletActions)
 		throws Exception {
 
@@ -135,10 +136,17 @@ public class PermissionImporter {
 					userId, companyId, name, titleMap, descriptionMap, type);
 			}
 
-			List<String> actions = getActions(roleElement);
+			String roleName = role.getName();
 
-			roleIdsToActionIds.put(
-				role.getRoleId(), actions.toArray(new String[actions.size()]));
+			if (!layout.isPrivateLayout() ||
+				!roleName.equals(RoleConstants.GUEST)) {
+
+				List<String> actions = getActions(roleElement);
+
+				roleIdsToActionIds.put(
+					role.getRoleId(),
+					actions.toArray(new String[actions.size()]));
+			}
 		}
 
 		if (roleIdsToActionIds.isEmpty()) {
@@ -164,7 +172,7 @@ public class PermissionImporter {
 				layout.getPlid(), portletId);
 
 			importPermissions(
-				layoutCache, companyId, groupId, userId, resourceName,
+				layoutCache, companyId, groupId, userId, layout, resourceName,
 				resourcePrimKey, permissionsElement, true);
 		}
 	}

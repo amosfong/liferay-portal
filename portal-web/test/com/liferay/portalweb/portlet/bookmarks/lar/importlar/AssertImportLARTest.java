@@ -22,31 +22,20 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AssertImportLARTest extends BaseTestCase {
 	public void testAssertImportLAR() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Bookmarks Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Bookmarks Test Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Bookmarks Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent("Edited Test Folder"));
-		selenium.clickAt("//a/strong", RuntimeVariables.replace(""));
+		assertEquals(RuntimeVariables.replace("Edited Test Folder"),
+			selenium.getText("//a/strong"));
+		selenium.clickAt("//a/strong",
+			RuntimeVariables.replace("Edited Test Folder"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isElementPresent("link=Edited Test Bookmark"));
-		assertTrue(selenium.isElementPresent("link=http://www.narutofan.com"));
+		assertEquals(RuntimeVariables.replace("Edited Test Bookmark"),
+			selenium.getText("//td[1]/a"));
+		assertEquals(RuntimeVariables.replace("http://www.narutofan.com"),
+			selenium.getText("//td[2]/a"));
 	}
 }

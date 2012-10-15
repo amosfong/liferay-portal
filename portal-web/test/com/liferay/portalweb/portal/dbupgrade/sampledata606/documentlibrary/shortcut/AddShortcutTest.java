@@ -22,170 +22,57 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddShortcutTest extends BaseTestCase {
 	public void testAddShortcut() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("_134_name",
-			RuntimeVariables.replace("Document Library Shortcut Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//td[2]/a", RuntimeVariables.replace("Open"));
-		selenium.waitForPageToLoad("30000");
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-shortcut-community/");
 		selenium.clickAt("link=Document Library Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Document Library Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//tr[4]/td[1]/a[2]/strong",
+		assertEquals(RuntimeVariables.replace("Test2 Folder2"),
+			selenium.getText("//a/strong[contains(.,'Test2 Folder2')]"));
+		selenium.clickAt("//a/strong[contains(.,'Test2 Folder2')]",
 			RuntimeVariables.replace("Test2 Folder2"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Add Shortcut"),
-			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list lfr-menu-expanded right ']/ul/li[6]/a"));
-		selenium.clickAt("//div[@class='lfr-component lfr-menu-list lfr-menu-expanded right ']/ul/li[6]/a",
+			selenium.getText("//li/a[contains(.,'Add Shortcut')]"));
+		selenium.clickAt("//li/a[contains(.,'Add Shortcut')]",
 			RuntimeVariables.replace("Add Shortcut"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//div/span[2]/span/input",
-			RuntimeVariables.replace("Community"));
-		selenium.waitForPopUp("toGroup", RuntimeVariables.replace("30000"));
-		selenium.selectWindow("toGroup");
+		selenium.clickAt("xpath=(//input[@value='Select'])[1]",
+			RuntimeVariables.replace("Select"));
+		Thread.sleep(5000);
+		selenium.selectWindow("title=Document Library");
+		selenium.waitForVisible("link=Document Library Shortcut Community");
 		selenium.click("link=Document Library Shortcut Community");
 		selenium.selectWindow("null");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Document Library Shortcut Community")
-										.equals(selenium.getText(
-								"_20_toGroupName"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForText("//span[@id='_20_toGroupName']",
+			"Document Library Shortcut Community");
 		assertEquals(RuntimeVariables.replace(
 				"Document Library Shortcut Community"),
-			selenium.getText("_20_toGroupName"));
-		selenium.clickAt("_20_selectToFileEntryButton",
-			RuntimeVariables.replace("Document"));
-		selenium.waitForPopUp("toGroup", RuntimeVariables.replace("30000"));
-		selenium.selectWindow("toGroup");
+			selenium.getText("//span[@id='_20_toGroupName']"));
+		selenium.clickAt("xpath=(//input[@value='Select'])[2]",
+			RuntimeVariables.replace("Select"));
+		Thread.sleep(5000);
+		selenium.selectWindow("title=Document Library");
+		selenium.waitForVisible("link=Test1 Folder1");
 		selenium.click(RuntimeVariables.replace("link=Test1 Folder1"));
 		selenium.waitForPageToLoad("30000");
+		assertTrue(selenium.isPartialText("//td[1]/a", "Test1 Document1.txt"));
 		selenium.click("//td[1]/a");
 		selenium.selectWindow("null");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Test1 Document1.txt")
-										.equals(selenium.getText(
-								"_20_toFileEntryTitle"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForText("//span[@id='_20_toFileEntryTitle']",
+			"Test1 Document1.txt");
 		assertEquals(RuntimeVariables.replace("Test1 Document1.txt"),
-			selenium.getText("_20_toFileEntryTitle"));
-		selenium.clickAt("//input[@value='Save']", RuntimeVariables.replace(""));
+			selenium.getText("//span[@id='_20_toFileEntryTitle']"));
+		selenium.clickAt("//input[@value='Save']",
+			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Your request processed successfully.")
-										.equals(selenium.getText(
-								"//section/div/div/div/div"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
-			selenium.getText("//section/div/div/div/div"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Test1 Document1.txt")
-										.equals(selenium.getText(
-								"//a/span/span"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+			selenium.getText("//div[@class='portlet-msg-success']"));
 		assertEquals(RuntimeVariables.replace("Test1 Document1.txt"),
-			selenium.getText("//a/span/span"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("This is test1 document1.")
-										.equals(selenium.getText("//a/div"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+			selenium.getText("//a/span/span[contains(.,'Test1 Document1.txt')]"));
 		assertEquals(RuntimeVariables.replace("This is test1 document1."),
-			selenium.getText("//a/div"));
+			selenium.getText("//a/div[contains(.,'This is test1 document1.')]"));
 	}
 }

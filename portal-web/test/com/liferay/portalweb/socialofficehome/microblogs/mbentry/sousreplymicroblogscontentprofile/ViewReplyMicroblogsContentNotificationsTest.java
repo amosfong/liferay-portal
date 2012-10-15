@@ -28,45 +28,19 @@ public class ViewReplyMicroblogsContentNotificationsTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/user/joebloggs/so/dashboard/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isElementPresent(
-									"//li[@id='_145_notificationsMenu']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				selenium.waitForElementPresent(
+					"//li[@id='_145_notificationsMenu']");
 				assertEquals(RuntimeVariables.replace("1"),
 					selenium.getText("//span[@class='notification-count']"));
 				selenium.mouseOver("//li[@id='_145_notificationsMenu']");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("//div[@class='title']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("//div[@class='title']");
 				assertEquals(RuntimeVariables.replace(
 						"Social01 Office01 User01 commented on your post."),
 					selenium.getText("//div[@class='title']"));
@@ -95,23 +69,8 @@ public class ViewReplyMicroblogsContentNotificationsTest extends BaseTestCase {
 
 				selenium.clickAt("//span[@class='action comment']/a",
 					RuntimeVariables.replace("1 Comment"));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='comments-container reply']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
+				selenium.waitForVisible(
+					"//div[@class='comments-container reply']");
 
 			case 2:
 				assertEquals(RuntimeVariables.replace(
@@ -121,72 +80,32 @@ public class ViewReplyMicroblogsContentNotificationsTest extends BaseTestCase {
 				assertEquals(RuntimeVariables.replace("Microblogs Post Comment"),
 					selenium.getText("xPath=(//div[@class='content'])[2]"));
 				selenium.open("/user/joebloggs/so/dashboard/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isElementPresent(
-									"//li[@id='_145_notificationsMenu']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				selenium.waitForElementPresent(
+					"//li[@id='_145_notificationsMenu']");
 				assertEquals(RuntimeVariables.replace("1"),
 					selenium.getText("//span[@class='notification-count']"));
 				selenium.mouseOver("//li[@id='_145_notificationsMenu']");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("//div[@class='title']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("//div[@class='title']");
 				assertEquals(RuntimeVariables.replace(
 						"Social01 Office01 User01 commented on your post."),
 					selenium.getText("//div[@class='title']"));
 				assertEquals(RuntimeVariables.replace("Microblogs Post Comment"),
 					selenium.getText("//div[@class='body']"));
-				assertEquals(RuntimeVariables.replace("Mark as Read"),
+				assertEquals(RuntimeVariables.replace("Mark All as Read"),
 					selenium.getText("//span[@class='dismiss-notifications']/a"));
 				selenium.clickAt("//span[@class='dismiss-notifications']/a",
-					RuntimeVariables.replace("Mark as Read"));
+					RuntimeVariables.replace("Mark All as Read"));
 				selenium.waitForPageToLoad("30000");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isElementPresent(
-									"//li[@id='_145_notificationsMenu']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				selenium.waitForElementPresent(
+					"//li[@id='_145_notificationsMenu']");
 				assertEquals(RuntimeVariables.replace("0"),
 					selenium.getText("//span[@class='notification-count']"));
 				selenium.mouseOver("//li[@id='_145_notificationsMenu']");

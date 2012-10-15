@@ -22,31 +22,16 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SendForm2Test extends BaseTestCase {
 	public void testSendForm2() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/expando-web-form-community/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Web Form Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Web Form Page",
 			RuntimeVariables.replace("Web Form Page"));
 		selenium.waitForPageToLoad("30000");
 		selenium.type("//input[@type='text']",
 			RuntimeVariables.replace("Saechang"));
-		selenium.clickAt("//input[@type='checkbox']",
-			RuntimeVariables.replace(""));
+		selenium.clickAt("//input[contains(@id,'_field2Checkbox')]",
+			RuntimeVariables.replace("Checkbox"));
 		selenium.clickAt("//input[@value='Male']",
 			RuntimeVariables.replace("Male"));
 		selenium.select("//select", RuntimeVariables.replace("label=Excellent"));
@@ -55,23 +40,7 @@ public class SendForm2Test extends BaseTestCase {
 		selenium.clickAt("//input[@value='Send']",
 			RuntimeVariables.replace("Send"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//div[@class='portlet-msg-success']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//div[@class='portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"The form information was sent successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));

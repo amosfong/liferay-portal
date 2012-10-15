@@ -15,14 +15,12 @@
 package com.liferay.portlet.activities.action;
 
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalUtil;
@@ -39,48 +37,24 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.feed.synd.SyndLink;
+import com.sun.syndication.feed.synd.SyndLinkImpl;
 import com.sun.syndication.io.FeedException;
-
-import java.io.OutputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionMapping;
 
 /**
  * @author Brian Wing Shun Chan
  * @author Vilmos Papp
  */
-public class RSSAction extends PortletAction {
-
-	@Override
-	public void serveResource(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws Exception {
-
-		resourceResponse.setContentType(ContentTypes.TEXT_XML_UTF8);
-
-		OutputStream outputStream = resourceResponse.getPortletOutputStream();
-
-		try {
-			byte[] bytes = getRSS(resourceRequest);
-
-			outputStream.write(bytes);
-		}
-		finally {
-			outputStream.close();
-		}
-	}
+public class RSSAction extends com.liferay.portal.struts.RSSAction {
 
 	protected List<SocialActivity> getActivities(PortletRequest portletRequest)
 		throws Exception {
@@ -110,31 +84,25 @@ public class RSSAction extends PortletAction {
 		return Collections.emptyList();
 	}
 
-	protected byte[] getRSS(PortletRequest portletRequest) throws Exception {
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+	@Override
+	protected byte[] getRSS(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		SyndFeed syndFeed = new SyndFeedImpl();
 
-		String feedTitle = ParamUtil.getString(portletRequest, "feedTitle");
+		String description = ParamUtil.getString(resourceRequest, "feedTitle");
 
-		syndFeed.setDescription(feedTitle);
-
-		syndFeed.setFeedType(RSSUtil.FEED_TYPE_DEFAULT);
-
-		String feedLink =
-			PortalUtil.getLayoutFullURL(themeDisplay) +
-				Portal.FRIENDLY_URL_SEPARATOR + "activities/rss";
-
-		syndFeed.setLink(feedLink);
-
-		syndFeed.setTitle(feedTitle);
+		syndFeed.setDescription(description);
 
 		List<SyndEntry> syndEntries = new ArrayList<SyndEntry>();
 
 		syndFeed.setEntries(syndEntries);
 
-		List<SocialActivity> activities = getActivities(portletRequest);
+		List<SocialActivity> activities = getActivities(resourceRequest);
 
 		for (SocialActivity activity : activities) {
 			SocialActivityFeedEntry activityFeedEntry =
@@ -165,6 +133,35 @@ public class RSSAction extends PortletAction {
 			syndEntries.add(syndEntry);
 		}
 
+		syndFeed.setFeedType(RSSUtil.FEED_TYPE_DEFAULT);
+
+		List<SyndLink> syndLinks = new ArrayList<SyndLink>();
+
+		syndFeed.setLinks(syndLinks);
+
+		SyndLink selfSyndLink = new SyndLinkImpl();
+
+		syndLinks.add(selfSyndLink);
+
+		String link =
+			PortalUtil.getLayoutFullURL(themeDisplay) +
+				Portal.FRIENDLY_URL_SEPARATOR + "activities/rss";
+
+		selfSyndLink.setHref(link);
+
+		selfSyndLink.setRel("self");
+
+		SyndLink alternateSyndLink = new SyndLinkImpl();
+
+		syndLinks.add(alternateSyndLink);
+
+		alternateSyndLink.setHref(PortalUtil.getLayoutFullURL(themeDisplay));
+		alternateSyndLink.setRel("alternate");
+
+		syndFeed.setPublishedDate(new Date());
+		syndFeed.setTitle(description);
+		syndFeed.setUri(link);
+
 		String rss = StringPool.BLANK;
 
 		try {
@@ -176,12 +173,5 @@ public class RSSAction extends PortletAction {
 
 		return rss.getBytes(StringPool.UTF8);
 	}
-
-	@Override
-	protected boolean isCheckMethodOnProcessAction() {
-		return _CHECK_METHOD_ON_PROCESS_ACTION;
-	}
-
-	private static final boolean _CHECK_METHOD_ON_PROCESS_ACTION = false;
 
 }

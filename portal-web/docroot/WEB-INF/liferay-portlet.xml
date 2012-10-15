@@ -61,8 +61,6 @@
 		<preferences-unique-per-layout>false</preferences-unique-per-layout>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
-		<show-portlet-access-denied>true</show-portlet-access-denied>
-		<show-portlet-inactive>true</show-portlet-inactive>
 		<scopeable>true</scopeable>
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
@@ -185,7 +183,7 @@
 		<icon>/html/icons/message_boards.png</icon>
 		<struts-path>message_boards</struts-path>
 		<configuration-action-class>com.liferay.portlet.messageboards.action.ConfigurationActionImpl</configuration-action-class>
-		<indexer-class>com.liferay.portlet.messageboards.util.MBIndexer</indexer-class>
+		<indexer-class>com.liferay.portlet.messageboards.util.MBMessageIndexer</indexer-class>
 		<open-search-class>com.liferay.portlet.messageboards.util.MBOpenSearchImpl</open-search-class>
 		<scheduler-entry>
 			<scheduler-event-listener-class>com.liferay.portlet.messageboards.messaging.ExpireBanMessageListener</scheduler-event-listener-class>
@@ -450,7 +448,8 @@
 		<icon>/html/icons/wiki.png</icon>
 		<struts-path>wiki</struts-path>
 		<configuration-action-class>com.liferay.portlet.wiki.action.ConfigurationActionImpl</configuration-action-class>
-		<indexer-class>com.liferay.portlet.wiki.util.WikiIndexer</indexer-class>
+		<indexer-class>com.liferay.portlet.wiki.util.WikiNodeIndexer</indexer-class>
+		<indexer-class>com.liferay.portlet.wiki.util.WikiPageIndexer</indexer-class>
 		<open-search-class>com.liferay.portlet.wiki.util.WikiOpenSearchImpl</open-search-class>
 		<friendly-url-mapper-class>com.liferay.portlet.wiki.WikiFriendlyURLMapper</friendly-url-mapper-class>
 		<friendly-url-mapping>wiki</friendly-url-mapping>
@@ -461,6 +460,8 @@
 		<asset-renderer-factory>com.liferay.portlet.wiki.asset.WikiPageAssetRendererFactory</asset-renderer-factory>
 		<custom-attributes-display>com.liferay.portlet.wiki.WikiPageCustomAttributesDisplay</custom-attributes-display>
 		<permission-propagator>com.liferay.portlet.wiki.security.permission.WikiPermissionPropagatorImpl</permission-propagator>
+		<trash-handler>com.liferay.portlet.wiki.trash.WikiNodeTrashHandler</trash-handler>
+		<trash-handler>com.liferay.portlet.wiki.trash.WikiPageTrashHandler</trash-handler>
 		<workflow-handler>com.liferay.portlet.wiki.workflow.WikiPageWorkflowHandler</workflow-handler>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
@@ -602,6 +603,7 @@
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
 		<render-weight>50</render-weight>
+		<header-portlet-css>/html/portlet/polls_display/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-polls-display</css-class-wrapper>
 	</portlet>
 	<portlet>
@@ -912,6 +914,7 @@
 		<friendly-url-mapping>asset_publisher</friendly-url-mapping>
 		<friendly-url-routes>com/liferay/portlet/assetpublisher/asset-publisher-friendly-url-routes.xml</friendly-url-routes>
 		<portlet-display-template-handler>com.liferay.portlet.assetpublisher.template.AssetPublisherPortletDisplayTemplateHandler</portlet-display-template-handler>
+		<portlet-layout-listener-class>com.liferay.portlet.assetpublisher.AssetPublisherPortletLayoutListener</portlet-layout-listener-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<layout-cacheable>true</layout-cacheable>
@@ -961,7 +964,7 @@
 		<struts-path>update_manager</struts-path>
 		<control-panel-entry-category>server</control-panel-entry-category>
 		<control-panel-entry-weight>4.0</control-panel-entry-weight>
-		<control-panel-entry-class>com.liferay.portlet.admin.OmniadminControlPanelEntry</control-panel-entry-class>
+		<control-panel-entry-class>com.liferay.portlet.OmniadminControlPanelEntry</control-panel-entry-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
@@ -1295,7 +1298,7 @@
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
 		<control-panel-entry-category>server</control-panel-entry-category>
 		<control-panel-entry-weight>2.0</control-panel-entry-weight>
-		<control-panel-entry-class>com.liferay.portlet.admin.OmniadminControlPanelEntry</control-panel-entry-class>
+		<control-panel-entry-class>com.liferay.portlet.OmniadminControlPanelEntry</control-panel-entry-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
@@ -1310,7 +1313,7 @@
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
 		<control-panel-entry-category>server</control-panel-entry-category>
 		<control-panel-entry-weight>3.0</control-panel-entry-weight>
-		<control-panel-entry-class>com.liferay.portlet.admin.OmniadminControlPanelEntry</control-panel-entry-class>
+		<control-panel-entry-class>com.liferay.portlet.OmniadminControlPanelEntry</control-panel-entry-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
@@ -1328,7 +1331,7 @@
 		<friendly-url-routes>com/liferay/portlet/admin/admin-server-friendly-url-routes.xml</friendly-url-routes>
 		<control-panel-entry-category>server</control-panel-entry-category>
 		<control-panel-entry-weight>1.0</control-panel-entry-weight>
-		<control-panel-entry-class>com.liferay.portlet.admin.OmniadminControlPanelEntry</control-panel-entry-class>
+		<control-panel-entry-class>com.liferay.portlet.OmniadminControlPanelEntry</control-panel-entry-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
@@ -1549,6 +1552,9 @@
 		<icon>/html/icons/my_workflow_tasks.png</icon>
 		<struts-path>my_workflow_tasks</struts-path>
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
+		<friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+		<friendly-url-mapping>my_workflow_tasks</friendly-url-mapping>
+		<friendly-url-routes>com/liferay/portlet/workflowtasks/workflow-tasks-friendly-url-routes.xml</friendly-url-routes>
 		<control-panel-entry-category>my</control-panel-entry-category>
 		<control-panel-entry-weight>3.0</control-panel-entry-weight>
 		<control-panel-entry-class>com.liferay.portal.workflow.MyWorkflowTasksControlPanelEntry</control-panel-entry-class>
@@ -1618,6 +1624,9 @@
 		<icon>/html/icons/my_workflow_instances.png</icon>
 		<struts-path>my_workflow_instances</struts-path>
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
+		<friendly-url-mapper-class>com.liferay.portal.kernel.portlet.DefaultFriendlyURLMapper</friendly-url-mapper-class>
+		<friendly-url-mapping>my_workflow_instances</friendly-url-mapping>
+		<friendly-url-routes>com/liferay/portlet/workflowinstances/workflow-instances-friendly-url-routes.xml</friendly-url-routes>
 		<control-panel-entry-category>my</control-panel-entry-category>
 		<control-panel-entry-weight>4.0</control-panel-entry-weight>
 		<control-panel-entry-class>com.liferay.portal.workflow.MyWorkflowInstancesControlPanelEntry</control-panel-entry-class>
@@ -1717,6 +1726,8 @@
 		<struts-path>dynamic_data_mapping</struts-path>
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
 		<portlet-data-handler-class>com.liferay.portlet.dynamicdatamapping.lar.DDMPortletDataHandlerImpl</portlet-data-handler-class>
+		<webdav-storage-token>dynamic_data_mapping</webdav-storage-token>
+		<webdav-storage-class>com.liferay.portlet.dynamicdatamapping.webdav.DDMWebDAVStorageImpl</webdav-storage-class>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
@@ -1854,7 +1865,7 @@
 		<struts-path>license_manager</struts-path>
 		<control-panel-entry-category>server</control-panel-entry-category>
 		<control-panel-entry-weight>4.0</control-panel-entry-weight>
-		<control-panel-entry-class>com.liferay.portlet.admin.OmniadminControlPanelEntry</control-panel-entry-class>
+		<control-panel-entry-class>com.liferay.portlet.OmniadminControlPanelEntry</control-panel-entry-class>
 		<use-default-template>false</use-default-template>
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
@@ -1950,7 +1961,6 @@
 		<private-session-attributes>false</private-session-attributes>
 		<header-portlet-css>/html/portlet/document_library/css/main.css</header-portlet-css>
 		<header-portlet-css>/html/portlet/trash/css/main.css</header-portlet-css>
-		<footer-portlet-javascript>/html/portlet/trash/js/main.js</footer-portlet-javascript>
 		<css-class-wrapper>portlet-trash</css-class-wrapper>
 	</portlet>
 	<portlet>
@@ -1970,6 +1980,21 @@
 		<render-weight>50</render-weight>
 		<header-portlet-css>/html/portlet/dynamic_data_mapping/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-dynamic-data-mapping</css-class-wrapper>
+		<add-default-resource>true</add-default-resource>
+	</portlet>
+	<portlet>
+		<portlet-name>184</portlet-name>
+		<icon>/html/icons/navigation.png</icon>
+		<struts-path>sites_directory</struts-path>
+		<configuration-action-class>com.liferay.portal.kernel.portlet.DefaultConfigurationAction</configuration-action-class>
+		<preferences-owned-by-group>true</preferences-owned-by-group>
+		<use-default-template>false</use-default-template>
+		<layout-cacheable>true</layout-cacheable>
+		<instanceable>true</instanceable>
+		<private-request-attributes>false</private-request-attributes>
+		<private-session-attributes>false</private-session-attributes>
+		<render-weight>50</render-weight>
+		<css-class-wrapper>portlet-sites-directory</css-class-wrapper>
 		<add-default-resource>true</add-default-resource>
 	</portlet>
 	<role-mapper>

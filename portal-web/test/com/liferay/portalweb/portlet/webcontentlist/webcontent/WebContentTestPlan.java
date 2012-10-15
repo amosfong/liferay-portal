@@ -15,6 +15,7 @@
 package com.liferay.portalweb.portlet.webcontentlist.webcontent;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
+import com.liferay.portalweb.portlet.webcontentlist.webcontent.viewwcwebcontentscopeglobalwcl.ViewWCWebContentScopeGlobalWCLTests;
 import com.liferay.portalweb.portlet.webcontentlist.webcontent.viewwcwebcontentwcl.ViewWCWebContentWCLTests;
 
 import junit.framework.Test;
@@ -28,6 +29,7 @@ public class WebContentTestPlan extends BaseTestSuite {
 	public static Test suite() {
 		TestSuite testSuite = new TestSuite();
 
+		testSuite.addTest(ViewWCWebContentScopeGlobalWCLTests.suite());
 		testSuite.addTest(ViewWCWebContentWCLTests.suite());
 
 		return testSuite;

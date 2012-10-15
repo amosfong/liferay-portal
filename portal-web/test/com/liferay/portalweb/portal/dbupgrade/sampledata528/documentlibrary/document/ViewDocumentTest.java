@@ -22,76 +22,24 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewDocumentTest extends BaseTestCase {
 	public void testViewDocument() throws Exception {
-		selenium.open("/user/joebloggs/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Communities I Own")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Communities I Own", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("_29_name",
-			RuntimeVariables.replace("Document Library Document Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Open", RuntimeVariables.replace("Open"));
-		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Document Library Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-document-community/");
 		selenium.clickAt("link=Document Library Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Document Library Page"));
 		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
+			selenium.getText("//b"));
 		selenium.clickAt("//b", RuntimeVariables.replace("Test1 Folder1"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace(
-							"Test1 Document1.txt\nThis is test1 document1.")
-										.equals(selenium.getText("//td[1]/a"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		assertEquals(RuntimeVariables.replace(
-				"Test1 Document1.txt\nThis is test1 document1."),
-			selenium.getText("//td[1]/a"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "Test1 Document1.txt"));
+		assertTrue(selenium.isPartialText("//td[1]/a",
+				"This is test1 document1."));
+		assertEquals(RuntimeVariables.replace("0.3k"),
+			selenium.getText("//td[2]/a"));
+		assertEquals(RuntimeVariables.replace("0"),
+			selenium.getText("//td[3]/a"));
+		assertEquals(RuntimeVariables.replace("No"),
+			selenium.getText("//td[4]/a"));
 	}
 }

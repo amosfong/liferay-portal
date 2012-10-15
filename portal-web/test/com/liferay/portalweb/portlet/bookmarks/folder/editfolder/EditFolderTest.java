@@ -22,60 +22,42 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class EditFolderTest extends BaseTestCase {
 	public void testEditFolder() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Bookmarks Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Bookmarks Test Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Bookmarks Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent("Test Folder"));
-		assertTrue(selenium.isTextPresent("This is a test folder."));
-		selenium.clickAt("//td[4]/span/ul/li/strong/a",
-			RuntimeVariables.replace(""));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.click(RuntimeVariables.replace(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li[1]/a"));
+		assertEquals(RuntimeVariables.replace("Test Folder"),
+			selenium.getText("//td[1]/a/strong"));
+		assertTrue(selenium.isPartialText("//td[1]/a", "This is a test folder."));
+		Thread.sleep(5000);
+		assertEquals(RuntimeVariables.replace("Actions"),
+			selenium.getText(
+				"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+		selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+			RuntimeVariables.replace("Actions"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Edit')]");
+		assertEquals(RuntimeVariables.replace("Edit"),
+			selenium.getText(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Edit')]"));
+		selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Edit')]",
+			RuntimeVariables.replace("Edit"));
 		selenium.waitForPageToLoad("30000");
-		selenium.type("_28_name", RuntimeVariables.replace("Test Folder Edited"));
-		selenium.type("_28_description",
+		selenium.type("//input[@id='_28_name']",
+			RuntimeVariables.replace("Test Folder Edited"));
+		selenium.type("//textarea[@id='_28_description']",
 			RuntimeVariables.replace("This is a test folder. Edited."));
-		selenium.clickAt("//input[@value='Save']", RuntimeVariables.replace(""));
+		selenium.clickAt("//input[@value='Save']",
+			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isTextPresent(
-				"Your request completed successfully."));
-		assertTrue(selenium.isTextPresent("Test Folder Edited"));
-		assertTrue(selenium.isTextPresent("This is a test folder. Edited."));
+		assertEquals(RuntimeVariables.replace(
+				"Your request completed successfully."),
+			selenium.getText("//div[@class='portlet-msg-success']"));
+		assertEquals(RuntimeVariables.replace("Test Folder Edited"),
+			selenium.getText("//td[1]/a/strong"));
+		assertTrue(selenium.isPartialText("//td[1]/a",
+				"This is a test folder. Edited."));
 	}
 }

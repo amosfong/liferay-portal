@@ -18,16 +18,11 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.Hits;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
-import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.trash.model.TrashEntry;
@@ -70,10 +65,9 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 				TrashHandler trashHandler =
 					TrashHandlerRegistryUtil.getTrashHandler(className);
 
-				TrashRenderer trashRenderer = trashHandler.getTrashRenderer(
-					classPK);
+				if (trashHandler.hasTrashPermission(
+						permissionChecker, 0, classPK, ActionKeys.DELETE)) {
 
-				if (trashRenderer.hasDeletePermission(permissionChecker)) {
 					trashHandler.deleteTrashEntry(classPK);
 				}
 			}
@@ -138,10 +132,9 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 				TrashHandler trashHandler =
 					TrashHandlerRegistryUtil.getTrashHandler(className);
 
-				TrashRenderer trashRenderer = trashHandler.getTrashRenderer(
-					classPK);
+				if (trashHandler.hasTrashPermission(
+						permissionChecker, 0, classPK, ActionKeys.VIEW)) {
 
-				if (trashRenderer.hasViewPermission(permissionChecker)) {
 					filteredEntries.add(entry);
 				}
 			}
@@ -168,36 +161,6 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 		trashEntriesList.setCount(filteredEntriesCount);
 
 		return trashEntriesList;
-	}
-
-	public Hits search(
-			long companyId, long groupId, long userId, String keywords,
-			int start, int end, Sort sort)
-		throws SystemException {
-
-		try {
-			SearchContext searchContext = new SearchContext();
-
-			searchContext.setCompanyId(companyId);
-			searchContext.setEnd(end);
-			searchContext.setKeywords(keywords);
-			searchContext.setGroupIds(new long[] {groupId});
-
-			if (sort != null) {
-				searchContext.setSorts(new Sort[] {sort});
-			}
-
-			searchContext.setStart(start);
-			searchContext.setUserId(userId);
-
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				TrashEntry.class);
-
-			return indexer.search(searchContext);
-		}
-		catch (Exception e) {
-			throw new SystemException(e);
-		}
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(

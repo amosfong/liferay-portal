@@ -26,9 +26,8 @@ import com.liferay.portal.parsers.creole.ast.ImageNode;
 import com.liferay.portal.parsers.creole.ast.ItalicTextNode;
 import com.liferay.portal.parsers.creole.ast.ItemNode;
 import com.liferay.portal.parsers.creole.ast.LineNode;
+import com.liferay.portal.parsers.creole.ast.ListNode;
 import com.liferay.portal.parsers.creole.ast.NoWikiSectionNode;
-import com.liferay.portal.parsers.creole.ast.OrderedListItemNode;
-import com.liferay.portal.parsers.creole.ast.OrderedListNode;
 import com.liferay.portal.parsers.creole.ast.ParagraphNode;
 import com.liferay.portal.parsers.creole.ast.ScapedNode;
 import com.liferay.portal.parsers.creole.ast.UnformattedTextNode;
@@ -39,21 +38,30 @@ import com.liferay.portal.parsers.creole.ast.link.LinkNode;
 import com.liferay.portal.parsers.creole.ast.table.TableDataNode;
 import com.liferay.portal.parsers.creole.ast.table.TableHeaderNode;
 import com.liferay.portal.parsers.creole.ast.table.TableNode;
+import com.liferay.portal.parsers.creole.parser.Creole10Lexer;
+import com.liferay.portal.parsers.creole.parser.Creole10Parser;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.List;
+
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author Miguel Pastor
+ * @author Manuel de la Peña
  */
-public class AntlrCreoleParserTest extends AbstractWikiParserTests {
+public class AntlrCreoleParserTest {
 
 	@Test
 	public void testParseCorrectlyBoldContentInListItems() {
-		UnorderedListNode unorderedListNode =
-			(UnorderedListNode)parseBaseListNode("list-6.creole");
+		BaseListNode unorderedListNode = parseBaseListNode("list-6.creole");
 
 		Assert.assertEquals(1, unorderedListNode.getChildASTNodesCount());
 
@@ -106,37 +114,6 @@ public class AntlrCreoleParserTest extends AbstractWikiParserTests {
 	}
 
 	@Test
-	public void testParseCorrectlyNestedLevels() {
-		UnorderedListNode unorderedListNode =
-			(UnorderedListNode)parseBaseListNode("list-4.creole");
-
-		Assert.assertEquals(7, unorderedListNode.getChildASTNodesCount());
-
-		int level1Count = 0;
-		int level2Count = 0;
-
-		for (ASTNode astNode : unorderedListNode.getChildASTNodes()) {
-			UnorderedListItemNode unorderedListItemNode =
-				(UnorderedListItemNode)astNode;
-
-			int currentLevel = unorderedListItemNode.getLevel();
-
-			if (currentLevel == 1) {
-				level1Count += currentLevel;
-			}
-			else if (currentLevel == 2) {
-				level2Count += currentLevel;
-			}
-			else {
-				Assert.fail("Parsed has not been achieved correctly");
-			}
-		}
-
-		Assert.assertEquals(level1Count, 3 * 1);
-		Assert.assertEquals(level2Count, 4 * 2);
-	}
-
-	@Test
 	public void testParseCorrectlyOneItemFirstLevel() {
 		executeFirstLevelItemListTests("list-1.creole", 1);
 	}
@@ -144,37 +121,6 @@ public class AntlrCreoleParserTest extends AbstractWikiParserTests {
 	@Test
 	public void testParseCorrectlyOneOrderedItemFirstLevel() {
 		executeFirstLevelItemListTests("list-7.creole", 1);
-	}
-
-	@Test
-	public void testParseCorrectlyOrderedNestedLevels() {
-		OrderedListNode orderedListNode = (OrderedListNode)parseBaseListNode(
-			"list-10.creole");
-
-		Assert.assertEquals(7, orderedListNode.getChildASTNodesCount());
-
-		int level1Count = 0;
-		int level2Count = 0;
-
-		for (ASTNode astNode : orderedListNode.getChildASTNodes()) {
-			OrderedListItemNode orderedListItemNode =
-				(OrderedListItemNode)astNode;
-
-			int currentLevel = orderedListItemNode.getLevel();
-
-			if (currentLevel == 1) {
-				level1Count += currentLevel;
-			}
-			else if (currentLevel == 2) {
-				level2Count += currentLevel;
-			}
-			else {
-				Assert.fail("Parsed has not been achieved correctly");
-			}
-		}
-
-		Assert.assertEquals(level1Count, 3 * 1);
-		Assert.assertEquals(level2Count, 4 * 2);
 	}
 
 	@Test
@@ -917,15 +863,50 @@ public class AntlrCreoleParserTest extends AbstractWikiParserTests {
 		}
 	}
 
+	protected Creole10Parser getCreole10Parser(String fileName)
+		throws IOException {
+
+		Class<?> clazz = getClass();
+
+		InputStream inputStream = clazz.getResourceAsStream(
+			"dependencies/" + fileName);
+
+		ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
+
+		Creole10Lexer creole10Lexer = new Creole10Lexer(antlrInputStream);
+
+		CommonTokenStream commonTokenStream = new CommonTokenStream(
+			creole10Lexer);
+
+		return new Creole10Parser(commonTokenStream);
+	}
+
+	protected WikiPageNode getWikiPageNode(String fileName) {
+		try {
+			_creole10parser = getCreole10Parser(fileName);
+
+			_creole10parser.wikipage();
+		}
+		catch (IOException ioe) {
+			Assert.fail("File does not exist");
+		}
+		catch (RecognitionException re) {
+			Assert.fail("File could not be parsed");
+		}
+
+		return _creole10parser.getWikiPageNode();
+	}
+
 	protected BaseListNode parseBaseListNode(String fileName) {
 		WikiPageNode wikiPageNode = getWikiPageNode(fileName);
 
-		BaseListNode baseListNode = (BaseListNode)wikiPageNode.getChildASTNode(
-			0);
+		ListNode listNode = (ListNode)wikiPageNode.getChildASTNode(0);
 
-		Assert.assertNotNull(baseListNode);
+		Assert.assertNotNull(listNode);
 
-		return baseListNode;
+		return (BaseListNode)listNode.getChildASTNode(0);
 	}
+
+	private Creole10Parser _creole10parser;
 
 }

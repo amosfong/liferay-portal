@@ -22,24 +22,17 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Member_AssertCannotExpireEntryTest extends BaseTestCase {
 	public void testMember_AssertCannotExpireEntry() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/liferay/dockbar_underlay.js')]");
+		assertEquals(RuntimeVariables.replace("Go to"),
+			selenium.getText("//li[@id='_145_mySites']/a/span"));
+		selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+		selenium.waitForVisible("link=Control Panel");
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
@@ -47,50 +40,12 @@ public class Member_AssertCannotExpireEntryTest extends BaseTestCase {
 			RuntimeVariables.replace("Web Content"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Web Content Name"),
-			selenium.getText("//tr[3]/td[3]/a"));
-		assertEquals(RuntimeVariables.replace("Approved"),
-			selenium.getText("//tr[3]/td[4]/a"));
-		assertNotEquals(RuntimeVariables.replace("Expired"),
-			selenium.getText("//tr[3]/td[4]/a"));
-		selenium.clickAt("//tr[3]/td/input",
-			RuntimeVariables.replace("Web Content Name"));
-		selenium.clickAt("//input[@value='Expire']",
-			RuntimeVariables.replace("Expire"));
-		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.getConfirmation()
-						   .matches("^Are you sure you want to expire the selected web content[\\s\\S]$"));
-		assertEquals(RuntimeVariables.replace(
-				"You do not have the required permissions."),
-			selenium.getText("//div[@class='portlet-msg-error']"));
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel",
-			RuntimeVariables.replace("Control Panel"));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Web Content",
-			RuntimeVariables.replace("Web Content"));
-		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("Web Content Name"),
-			selenium.getText("//tr[3]/td[3]/a"));
-		assertEquals(RuntimeVariables.replace("Approved"),
-			selenium.getText("//tr[3]/td[4]/a"));
-		assertNotEquals(RuntimeVariables.replace("Expired"),
-			selenium.getText("//tr[3]/td[4]/a"));
+			selenium.getText("//a[@class='entry-link']/span"));
+		selenium.clickAt("//span[@class='entry-action overlay']/span/ul/li/strong/a",
+			RuntimeVariables.replace("Actions"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'View')]/a");
+		assertTrue(selenium.isElementNotPresent(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Expire')]/a"));
 	}
 }

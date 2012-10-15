@@ -22,43 +22,36 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class DeleteWDFrontPageChildPageTest extends BaseTestCase {
 	public void testDeleteWDFrontPageChildPage() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Wiki Display Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Wiki Display Test Page",
 			RuntimeVariables.replace("Wiki Display Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Wiki FrontPage Content"),
 			selenium.getText("//div[@class='wiki-body']/p"));
+		assertEquals(RuntimeVariables.replace("Children Pages"),
+			selenium.getText("//div[@class='child-pages']/h2"));
+		assertEquals(RuntimeVariables.replace("Wiki FrontPage ChildPage Title"),
+			selenium.getText("//div[@class='child-pages']/ul/li/a"));
 		selenium.clickAt("//div[@class='child-pages']/ul/li/a",
-			RuntimeVariables.replace("Wiki Front Page Child Page Title"));
+			RuntimeVariables.replace("Wiki FrontPage ChildPage Title"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Details"),
-			selenium.getText("//div[3]/span[2]/a/span"));
-		selenium.clickAt("//div[3]/span[2]/a/span",
+			selenium.getText(
+				"//div[@class='page-actions top-actions']/span/a[contains(.,'Details')]"));
+		selenium.clickAt("//div[@class='page-actions top-actions']/span/a[contains(.,'Details')]",
 			RuntimeVariables.replace("Details"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Delete"),
-			selenium.getText("//td/ul/li[4]/a/span"));
-		selenium.click(RuntimeVariables.replace("//td/ul/li[4]/a/span"));
+			selenium.getText(
+				"//ul[@class='lfr-component taglib-icon-list']/li/a[contains(.,'Delete')]"));
+		selenium.click(RuntimeVariables.replace(
+				"//ul[@class='lfr-component taglib-icon-list']/li/a[contains(.,'Delete')]"));
 		selenium.waitForPageToLoad("30000");
 		assertTrue(selenium.getConfirmation()
 						   .matches("^Are you sure you want to delete this[\\s\\S]$"));
-		assertFalse(selenium.isTextPresent("Wiki Front Page Child Page Title"));
+		assertFalse(selenium.isTextPresent("Children Pages"));
+		assertFalse(selenium.isTextPresent("Wiki FrontPage ChildPage Title"));
 	}
 }

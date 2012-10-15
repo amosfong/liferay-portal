@@ -541,6 +541,12 @@ public abstract class BaseDB implements DB {
 			String sqlDir, String databaseName, int population)
 		throws IOException;
 
+	protected String[] buildTableNameTokens(String line) {
+		String[] words = StringUtil.split(line, StringPool.SPACE);
+
+		return new String[] {words[1], words[2]};
+	}
+
 	protected String buildTemplate(String sqlDir, String fileName)
 		throws IOException {
 
@@ -832,8 +838,8 @@ public abstract class BaseDB implements DB {
 				String portalTableData = portalData.substring(x, y);
 
 				for (int i = 0; i < columns.length; i++) {
-					if (portalTableData.indexOf(
-							columns[i].trim() + " BOOLEAN") != -1) {
+					if (portalTableData.contains(
+							columns[i].trim() + " BOOLEAN")) {
 
 						append = false;
 
@@ -957,9 +963,15 @@ public abstract class BaseDB implements DB {
 
 	protected static final String ALTER_COLUMN_TYPE = "alter_column_type ";
 
+	protected static final String ALTER_TABLE_NAME = "alter_table_name ";
+
 	protected static final String DROP_INDEX = "drop index";
 
 	protected static final String DROP_PRIMARY_KEY = "drop primary key";
+
+	protected static final String[] RENAME_TABLE_TEMPLATE = {
+		"@old-table@", "@new-table@"
+	};
 
 	protected static final String[] REWORD_TEMPLATE = {
 		"@table@", "@old-column@", "@new-column@", "@type@", "@nullable@"

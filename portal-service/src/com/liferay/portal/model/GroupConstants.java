@@ -19,6 +19,8 @@ package com.liferay.portal.model;
  */
 public class GroupConstants {
 
+	public static final int ANY_PARENT_GROUP_ID = -1;
+
 	public static final String CONTROL_PANEL = "Control Panel";
 
 	public static final String CONTROL_PANEL_FRIENDLY_URL = "/control_panel";
@@ -28,6 +30,10 @@ public class GroupConstants {
 	public static final long DEFAULT_LIVE_GROUP_ID = 0;
 
 	public static final long DEFAULT_PARENT_GROUP_ID = 0;
+
+	public static final String GLOBAL = "Global";
+
+	public static final String GLOBAL_FRIENDLY_URL = "/global";
 
 	public static final String GUEST = "Guest";
 

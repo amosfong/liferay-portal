@@ -22,24 +22,17 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AssignRoleCodeReviewerTest extends BaseTestCase {
 	public void testAssignRoleCodeReviewer() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+		assertEquals(RuntimeVariables.replace("Go to"),
+			selenium.getText("//li[@id='_145_mySites']/a/span"));
+		selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+		selenium.waitForVisible("link=Control Panel");
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
@@ -51,25 +44,7 @@ public class AssignRoleCodeReviewerTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Search']",
 			RuntimeVariables.replace("Search"));
 		selenium.waitForPageToLoad("30000");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (RuntimeVariables.replace("Code")
-										.equals(selenium.getText(
-								"//tbody/tr[3]/td[2]/a"))) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForText("//tbody/tr[3]/td[2]/a", "Code");
 		assertEquals(RuntimeVariables.replace("Code"),
 			selenium.getText("//tbody/tr[3]/td[2]/a"));
 		assertEquals(RuntimeVariables.replace("Reviewer"),
@@ -80,68 +55,19 @@ public class AssignRoleCodeReviewerTest extends BaseTestCase {
 		assertTrue(selenium.isPartialText("//a[@id='_125_rolesLink']", "Roles"));
 		selenium.clickAt("//a[@id='_125_rolesLink']",
 			RuntimeVariables.replace("Roles"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//div[6]/span[1]/a/span")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//div[6]/span[1]/a/span");
 		assertEquals(RuntimeVariables.replace("Select"),
 			selenium.getText("//div[6]/span[1]/a/span"));
 		selenium.clickAt("//div[6]/span[1]/a/span",
 			RuntimeVariables.replace("Select"));
 		Thread.sleep(5000);
 		selenium.selectWindow("title=Users and Organizations");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Code Reviewer")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("link=Code Reviewer");
 		selenium.clickAt("link=Code Reviewer",
 			RuntimeVariables.replace("Code Reviewer"));
 		selenium.selectWindow("null");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isPartialText(
-							"//div[@id='_125_rolesSearchContainer']",
-							"Code Reviewer")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForPartialText("//div[@id='_125_rolesSearchContainer']",
+			"Code Reviewer");
 		assertTrue(selenium.isPartialText(
 				"//div[@id='_125_rolesSearchContainer']", "Code Reviewer"));
 		selenium.clickAt("//input[@value='Save']",

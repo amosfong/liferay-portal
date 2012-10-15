@@ -27,30 +27,15 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Bookmarks Test Page")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
 				selenium.clickAt("link=Bookmarks Test Page",
-					RuntimeVariables.replace(""));
+					RuntimeVariables.replace("Bookmarks Test Page"));
 				selenium.waitForPageToLoad("30000");
 
 				boolean bookmarksFolder1Present = selenium.isElementPresent(
-						"//td[4]/span/ul/li/strong/a");
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span");
 
 				if (!bookmarksFolder1Present) {
 					label = 2;
@@ -58,36 +43,28 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[4]/span/ul/li/strong/a",
-					RuntimeVariables.replace(""));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]");
+				assertEquals(RuntimeVariables.replace("Delete"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]"));
+				selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]",
+					RuntimeVariables.replace("Delete"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S]$"));
-
-			case 2:
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
 				boolean bookmarksFolder2Present = selenium.isElementPresent(
-						"//td[4]/span/ul/li/strong/a");
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span");
 
 				if (!bookmarksFolder2Present) {
 					label = 3;
@@ -95,36 +72,28 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[4]/span/ul/li/strong/a",
-					RuntimeVariables.replace(""));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]");
+				assertEquals(RuntimeVariables.replace("Delete"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]"));
+				selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]",
+					RuntimeVariables.replace("Delete"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S]$"));
-
-			case 3:
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
 				boolean bookmarksFolder3Present = selenium.isElementPresent(
-						"//td[4]/span/ul/li/strong/a");
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span");
 
 				if (!bookmarksFolder3Present) {
 					label = 4;
@@ -132,36 +101,28 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[4]/span/ul/li/strong/a",
-					RuntimeVariables.replace(""));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]");
+				assertEquals(RuntimeVariables.replace("Delete"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]"));
+				selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]",
+					RuntimeVariables.replace("Delete"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S]$"));
-
-			case 4:
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
 				boolean bookmarksFolder4Present = selenium.isElementPresent(
-						"//td[4]/span/ul/li/strong/a");
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span");
 
 				if (!bookmarksFolder4Present) {
 					label = 5;
@@ -169,36 +130,28 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[4]/span/ul/li/strong/a",
-					RuntimeVariables.replace(""));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]");
+				assertEquals(RuntimeVariables.replace("Delete"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]"));
+				selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]",
+					RuntimeVariables.replace("Delete"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S]$"));
-
-			case 5:
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
 				boolean bookmarksFolder5Present = selenium.isElementPresent(
-						"//td[4]/span/ul/li/strong/a");
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span");
 
 				if (!bookmarksFolder5Present) {
 					label = 6;
@@ -206,32 +159,30 @@ public class TearDownBookmarksFolderTest extends BaseTestCase {
 					continue;
 				}
 
-				selenium.clickAt("//td[4]/span/ul/li/strong/a",
-					RuntimeVariables.replace(""));
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[3]/a"));
+				Thread.sleep(5000);
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//td[4]/span[@title='Actions']/ul/li/strong/a/span",
+					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]");
+				assertEquals(RuntimeVariables.replace("Delete"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]"));
+				selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Delete')]",
+					RuntimeVariables.replace("Delete"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
 								   .matches("^Are you sure you want to delete this[\\s\\S]$"));
+				assertEquals(RuntimeVariables.replace(
+						"Your request completed successfully."),
+					selenium.getText("//div[@class='portlet-msg-success']"));
 
+			case 2:
+			case 3:
+			case 4:
+			case 5:
 			case 6:
 			case 100:
 				label = -1;

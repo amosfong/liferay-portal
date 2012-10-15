@@ -17,9 +17,11 @@ package com.liferay.portlet.blogs.trash;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
+import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portlet.blogs.service.BlogsEntryServiceUtil;
+import com.liferay.portlet.blogs.service.permission.BlogsEntryPermission;
 
 /**
  * Represents the trash handler for blogs entries entity.
@@ -62,6 +64,14 @@ public class BlogsEntryTrashHandler extends BaseTrashHandler {
 		return CLASS_NAME;
 	}
 
+	public boolean isInTrash(long classPK)
+		throws PortalException, SystemException {
+
+		BlogsEntry entry = BlogsEntryServiceUtil.getEntry(classPK);
+
+		return entry.isInTrash();
+	}
+
 	/**
 	 * Restores all blogs entries with the matching primary keys.
 	 *
@@ -76,6 +86,15 @@ public class BlogsEntryTrashHandler extends BaseTrashHandler {
 		for (long classPK : classPKs) {
 			BlogsEntryServiceUtil.restoreEntryFromTrash(classPK);
 		}
+	}
+
+	@Override
+	protected boolean hasPermission(
+			PermissionChecker permissionChecker, long classPK, String actionId)
+		throws PortalException, SystemException {
+
+		return BlogsEntryPermission.contains(
+			permissionChecker, classPK, actionId);
 	}
 
 }

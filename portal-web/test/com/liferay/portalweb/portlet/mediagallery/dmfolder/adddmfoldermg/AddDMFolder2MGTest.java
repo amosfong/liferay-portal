@@ -22,6 +22,8 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddDMFolder2MGTest extends BaseTestCase {
 	public void testAddDMFolder2MG() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
 		selenium.clickAt("link=Media Gallery Test Page",
 			RuntimeVariables.replace("Media Gallery Test Page"));
@@ -42,6 +44,8 @@ public class AddDMFolder2MGTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
+		assertEquals(RuntimeVariables.replace("DM Folder1 Name"),
+			selenium.getText("xPath=(//span[@class='image-title'])[1]"));
 		assertEquals(RuntimeVariables.replace("DM Folder2 Name"),
 			selenium.getText("xPath=(//span[@class='image-title'])[2]"));
 	}

@@ -15,16 +15,11 @@
 package com.liferay.portlet.wiki.action;
 
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.servlet.ServletResponseUtil;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.struts.ActionConstants;
-import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletURLImpl;
@@ -33,67 +28,17 @@ import com.liferay.util.RSSUtil;
 
 import java.util.Locale;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 
 /**
  * @author Jorge Ferrer
  */
-public class RSSAction extends PortletAction {
+public class RSSAction extends com.liferay.portal.struts.RSSAction {
 
 	@Override
-	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws Exception {
-
-		try {
-			HttpServletRequest request = PortalUtil.getHttpServletRequest(
-				actionRequest);
-			HttpServletResponse response = PortalUtil.getHttpServletResponse(
-				actionResponse);
-
-			ServletResponseUtil.sendFile(
-				request, response, null, getRSS(request),
-				ContentTypes.TEXT_XML_UTF8);
-
-			setForward(actionRequest, ActionConstants.COMMON_NULL);
-		}
-		catch (Exception e) {
-			PortalUtil.sendError(e, actionRequest, actionResponse);
-		}
-	}
-
-	@Override
-	public ActionForward strutsExecute(
-			ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response)
-		throws Exception {
-
-		try {
-			ServletResponseUtil.sendFile(
-				request, response, null, getRSS(request),
-				ContentTypes.TEXT_XML_UTF8);
-
-			return null;
-		}
-		catch (Exception e) {
-			PortalUtil.sendError(e, request, response);
-
-			return null;
-		}
-	}
-
 	protected byte[] getRSS(HttpServletRequest request) throws Exception {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -142,12 +87,5 @@ public class RSSAction extends PortletAction {
 
 		return rss.getBytes(StringPool.UTF8);
 	}
-
-	@Override
-	protected boolean isCheckMethodOnProcessAction() {
-		return _CHECK_METHOD_ON_PROCESS_ACTION;
-	}
-
-	private static final boolean _CHECK_METHOD_ON_PROCESS_ACTION = false;
 
 }

@@ -22,76 +22,32 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddWDFrontPageComment2Test extends BaseTestCase {
 	public void testAddWDFrontPageComment2() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Wiki Display Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Wiki Display Test Page",
 			RuntimeVariables.replace("Wiki Display Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Add Comment"),
-			selenium.getText("//fieldset/div/span[1]/a/span"));
-		selenium.clickAt("//fieldset/div/span[1]/a/span",
+			selenium.getText(
+				"//fieldset[@class='aui-fieldset add-comment ']/div/span/a/span"));
+		selenium.clickAt("//fieldset[@class='aui-fieldset add-comment ']/div/span/a/span",
 			RuntimeVariables.replace("Add Comment"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//textarea")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//textarea");
 		selenium.type("//textarea",
-			RuntimeVariables.replace("Wiki Front Page Comment2 Body"));
+			RuntimeVariables.replace("Wiki FrontPage Comment2"));
 		selenium.click("//input[@value='Reply']");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-message-response portlet-msg-success']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-message-response portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
 			selenium.getText(
 				"//div[@class='lfr-message-response portlet-msg-success']"));
-		assertEquals(RuntimeVariables.replace("Wiki Front Page Comment1 Body"),
-			selenium.getText("//div/div[3]/div/div[1]"));
-		assertEquals(RuntimeVariables.replace("Wiki Front Page Comment2 Body"),
-			selenium.getText("//div[2]/div[3]/div/div[1]"));
+		assertEquals(RuntimeVariables.replace("Wiki FrontPage Comment1"),
+			selenium.getText(
+				"xpath=(//div[@class='lfr-discussion-message'])[1]"));
+		assertEquals(RuntimeVariables.replace("Wiki FrontPage Comment2"),
+			selenium.getText(
+				"xpath=(//div[@class='lfr-discussion-message'])[2]"));
 	}
 }

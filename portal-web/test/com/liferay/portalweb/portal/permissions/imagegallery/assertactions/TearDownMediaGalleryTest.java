@@ -27,24 +27,17 @@ public class TearDownMediaGalleryTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isElementPresent("link=Control Panel")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				assertEquals(RuntimeVariables.replace("Go to"),
+					selenium.getText("//li[@id='_145_mySites']/a/span"));
+				selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+				selenium.waitForVisible("link=Control Panel");
 				selenium.clickAt("link=Control Panel",
 					RuntimeVariables.replace("Control Panel"));
 				selenium.waitForPageToLoad("30000");
@@ -52,53 +45,84 @@ public class TearDownMediaGalleryTest extends BaseTestCase {
 					RuntimeVariables.replace("Documents and Media"));
 				selenium.waitForPageToLoad("30000");
 
-				boolean DocumentsPresent = selenium.isElementPresent(
-						"//span[@class='document-thumbnail']/img");
+				boolean dmMediaNotDeleted = selenium.isElementPresent(
+						"//div[@class='entry-thumbnail']");
 
-				if (!DocumentsPresent) {
+				if (!dmMediaNotDeleted) {
 					label = 2;
 
 					continue;
 				}
 
-				selenium.clickAt("//input[@id='_20_allRowIdsCheckbox']",
-					RuntimeVariables.replace("All Row IDs"));
-				selenium.clickAt("//ul[@id='_20_actionsButtonContainer']/li/strong/a/span",
+				assertFalse(selenium.isChecked(
+						"//input[contains(@id,'allRowIdsCheckbox')]"));
+				selenium.clickAt("//input[contains(@id,'allRowIdsCheckbox')]",
+					RuntimeVariables.replace("All Entries Check Box"));
+				assertTrue(selenium.isChecked(
+						"//input[contains(@id,'allRowIdsCheckbox')]"));
+				selenium.waitForVisible(
+					"//div[@class='app-view-entry-taglib entry-display-style display-icon selectable selected']");
+				assertEquals(RuntimeVariables.replace("Actions"),
+					selenium.getText(
+						"//span[@title='Actions']/ul/li/strong/a/span"));
+				selenium.clickAt("//span[@title='Actions']/ul/li/strong/a/span",
 					RuntimeVariables.replace("Actions"));
+				selenium.waitForVisible(
+					"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Move to the Recycle Bin')]/a");
+				assertEquals(RuntimeVariables.replace("Move to the Recycle Bin"),
+					selenium.getText(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Move to the Recycle Bin')]/a"));
+				selenium.click(RuntimeVariables.replace(
+						"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Move to the Recycle Bin')]/a"));
+				selenium.waitForPageToLoad("30000");
+				assertTrue(selenium.isPartialText(
+						"//div[@class='portlet-msg-success taglib-trash-undo']",
+						"moved to the Recycle Bin. Undo"));
+				assertEquals(RuntimeVariables.replace(
+						"There are no documents or media files in this folder."),
+					selenium.getText(
+						"//div[@class='entries-empty portlet-msg-info']"));
 
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
+			case 2:
+				selenium.open("/web/guest/home/");
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/aui/aui-editable/aui-editable-min.js')]");
+				assertEquals(RuntimeVariables.replace("Go to"),
+					selenium.getText("//li[@id='_145_mySites']/a/span"));
+				selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+				selenium.waitForVisible("link=Control Panel");
+				selenium.clickAt("link=Control Panel",
+					RuntimeVariables.replace("Control Panel"));
+				selenium.waitForPageToLoad("30000");
+				selenium.clickAt("link=Recycle Bin",
+					RuntimeVariables.replace("Recycle Bin"));
+				selenium.waitForPageToLoad("30000");
 
-					try {
-						if (selenium.isVisible(
-									"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
+				boolean dmMediaNotEmptied = selenium.isElementPresent(
+						"//a[@class='trash-empty-link']");
 
-					Thread.sleep(1000);
+				if (!dmMediaNotEmptied) {
+					label = 3;
+
+					continue;
 				}
 
-				assertEquals(RuntimeVariables.replace("Delete"),
-					selenium.getText(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a"));
-				selenium.click(RuntimeVariables.replace(
-						"//div[@class='lfr-component lfr-menu-list']/ul/li[5]/a"));
+				selenium.clickAt("//a[@class='trash-empty-link']",
+					RuntimeVariables.replace("Empty the Recycle Bin"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.getConfirmation()
-								   .matches("^Are you sure you want to delete the selected entries[\\s\\S]$"));
+								   .matches("^Are you sure you want to empty the Recycle Bin[\\s\\S]$"));
 				assertEquals(RuntimeVariables.replace(
 						"Your request completed successfully."),
 					selenium.getText("//div[@class='portlet-msg-success']"));
+
+			case 3:
 				assertEquals(RuntimeVariables.replace(
-						"There are no documents or media files in this folder."),
+						"The Recycle Bin is empty."),
 					selenium.getText("//div[@class='portlet-msg-info']"));
 
-			case 2:
 			case 100:
 				label = -1;
 			}

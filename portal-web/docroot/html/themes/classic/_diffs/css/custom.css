@@ -42,6 +42,7 @@ hr, .separator {
 	height: auto;
 	margin-top: 1.4em;
 	position: relative;
+	z-index: 210;
 }
 
 .site-title .site-name {
@@ -90,7 +91,8 @@ hr, .separator {
 
 #skip-to-content:focus {
 	clip: rect(auto auto auto auto);
-	right: 0;
+	margin-top: 35px;
+	right: 5px;
 	z-index: 200;
 }
 
@@ -151,7 +153,7 @@ hr, .separator {
 }
 
 #navigation {
-	li .hover .child-menu {
+	li.hover .child-menu {
 		background: #1E2529;
 		display: block;
 		position: absolute;
@@ -342,6 +344,10 @@ hr, .separator {
 	float: none;
 }
 
+.portlet-journal-content .icon-actions {
+	margin-bottom: 3px;
+}
+
 /* ---------- Internet Explorer ---------- */
 
 .ie6, .ie7 {
@@ -364,6 +370,16 @@ hr, .separator {
 	}
 }
 
+.ie7 {
+	#banner {
+		z-index: 2;
+	}
+
+	#navigation ul {
+		padding: 2px;
+	}
+}
+
 .ie6 {
 	#wrapper {
 		width: 90%;
@@ -372,10 +388,6 @@ hr, .separator {
 	#banner, #banner h1.logo {
 		height: 1%;
 	}
-}
-
-.ie7 #navigation ul {
-	padding: 2px;
 }
 
 .ie6 .portlet-topper, .ie7 #navigation .child-menu li a {
@@ -403,7 +415,7 @@ hr, .separator {
 	@include box-shadow(inset 0 0 5px rgba(0, 0, 0, 0.8), 1px 1px 1px #FFF);
 }
 
-.portlet-borderless-bar {
+.portlet-borderless-bar, .portlet-journal-content .icon-actions {
 	@include border-radius(20px);
 	@include box-shadow(inset 0 1px 3px #000);
 }

@@ -20,8 +20,10 @@ import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.trash.model.TrashEntry;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +45,23 @@ public class TrashUtil {
 
 	public static final String TRASH_TIME_SEPARATOR = "_TRASH_TIME_";
 
+	public static String appendTrashNamespace(String title) {
+		return getTrash().appendTrashNamespace(title);
+	}
+
+	public static String appendTrashNamespace(String title, String separator) {
+		return getTrash().appendTrashNamespace(title, separator);
+	}
+
+	public static void deleteEntriesAttachments(
+			long companyId, long repositoryId, Date date,
+			String[] attachmentFileNames)
+		throws PortalException, SystemException {
+
+		getTrash().deleteEntriesAttachments(
+			companyId, repositoryId, date, attachmentFileNames);
+	}
+
 	public static List<TrashEntry> getEntries(Hits hits)
 		throws PortalException, SystemException {
 
@@ -61,10 +80,24 @@ public class TrashUtil {
 		return getTrash().getMaxAge(group);
 	}
 
+	public static String getNewName(ThemeDisplay themeDisplay, String oldName) {
+		return getTrash().getNewName(themeDisplay, oldName);
+	}
+
 	public static Trash getTrash() {
 		PortalRuntimePermission.checkGetBeanProperty(TrashUtil.class);
 
 		return _trash;
+	}
+
+	public static String getTrashTime(String title, String separator) {
+		return getTrash().getTrashTime(title, separator);
+	}
+
+	public static boolean isInTrash(String className, long classPK)
+		throws PortalException, SystemException {
+
+		return getTrash().isInTrash(className, classPK);
 	}
 
 	public static boolean isTrashEnabled(long groupId)
@@ -109,6 +142,14 @@ public class TrashUtil {
 		return getTrash().moveAttachmentToTrash(
 			companyId, repositoryId, fileName, deletedAttachmentsDir,
 			separator);
+	}
+
+	public static String stripTrashNamespace(String title) {
+		return getTrash().stripTrashNamespace(title);
+	}
+
+	public static String stripTrashNamespace(String title, String separator) {
+		return getTrash().stripTrashNamespace(title, separator);
 	}
 
 	public void setTrash(Trash trash) {

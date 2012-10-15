@@ -55,6 +55,8 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.feed.synd.SyndLink;
+import com.sun.syndication.feed.synd.SyndLinkImpl;
 import com.sun.syndication.io.FeedException;
 
 import java.io.File;
@@ -63,6 +65,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -137,14 +140,14 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 
 	public void addPageAttachments(
 			long nodeId, String title,
-			List<ObjectValuePair<String, InputStream>> inputStream)
+			List<ObjectValuePair<String, InputStream>> inputStreamOVPs)
 		throws PortalException, SystemException {
 
 		WikiNodePermission.check(
 			getPermissionChecker(), nodeId, ActionKeys.ADD_ATTACHMENT);
 
 		wikiPageLocalService.addPageAttachments(
-			getUserId(), nodeId, title, inputStream);
+			getUserId(), nodeId, title, inputStreamOVPs);
 	}
 
 	public String addTempPageAttachment(
@@ -377,6 +380,36 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 			nodeId, title, fileName);
 	}
 
+	public void movePageToTrash(long nodeId, String title)
+		throws PortalException, SystemException {
+
+		WikiPagePermission.check(
+			getPermissionChecker(), nodeId, title, ActionKeys.DELETE);
+
+		wikiPageLocalService.movePageToTrash(getUserId(), nodeId, title);
+	}
+
+	public void movePageToTrash(long nodeId, String title, double version)
+		throws PortalException, SystemException {
+
+		WikiPagePermission.check(
+			getPermissionChecker(), nodeId, title, version, ActionKeys.DELETE);
+
+		wikiPageLocalService.movePageToTrash(
+			getUserId(), nodeId, title, version);
+	}
+
+	public void restorePageFromTrash(long resourcePrimKey)
+		throws PortalException, SystemException {
+
+		WikiPage page = wikiPageLocalService.getPage(resourcePrimKey);
+
+		WikiPagePermission.check(
+			getPermissionChecker(), page, ActionKeys.DELETE);
+
+		wikiPageLocalService.restorePageFromTrash(getUserId(), page);
+	}
+
 	public WikiPage revertPage(
 			long nodeId, String title, double version,
 			ServiceContext serviceContext)
@@ -430,9 +463,6 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 
 		SyndFeed syndFeed = new SyndFeedImpl();
 
-		syndFeed.setFeedType(RSSUtil.getFeedType(type, version));
-		syndFeed.setTitle(name);
-		syndFeed.setLink(feedURL);
 		syndFeed.setDescription(description);
 
 		List<SyndEntry> syndEntries = new ArrayList<SyndEntry>();
@@ -441,44 +471,31 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 
 		WikiPage latestPage = null;
 
-		StringBundler link = new StringBundler(7);
+		StringBundler sb = new StringBundler(7);
 
 		for (WikiPage page : pages) {
-			String author = PortalUtil.getUserName(page);
-			String title =
-				page.getTitle() + StringPool.SPACE + page.getVersion();
-
-			if (page.isMinorEdit()) {
-				title +=
-					StringPool.SPACE + StringPool.OPEN_PARENTHESIS +
-						LanguageUtil.get(locale, "minor-edit") +
-							StringPool.CLOSE_PARENTHESIS;
-			}
-
-			link.setIndex(0);
-
-			link.append(entryURL);
-			link.append(StringPool.AMPERSAND);
-			link.append(HttpUtil.encodeURL(page.getTitle()));
-
 			SyndEntry syndEntry = new SyndEntryImpl();
 
+			String author = PortalUtil.getUserName(page);
+
 			syndEntry.setAuthor(author);
-			syndEntry.setTitle(title);
-			syndEntry.setPublishedDate(page.getCreateDate());
-			syndEntry.setUpdatedDate(page.getModifiedDate());
 
 			SyndContent syndContent = new SyndContentImpl();
 
 			syndContent.setType(RSSUtil.ENTRY_TYPE_DEFAULT);
 
+			sb.setIndex(0);
+
+			sb.append(entryURL);
+			sb.append(StringPool.AMPERSAND);
+			sb.append(HttpUtil.encodeURL(page.getTitle()));
+
 			if (diff) {
 				if (latestPage != null) {
-					link.append(StringPool.QUESTION);
-					link.append(
-						PortalUtil.getPortletNamespace(PortletKeys.WIKI));
-					link.append("version=");
-					link.append(page.getVersion());
+					sb.append(StringPool.QUESTION);
+					sb.append(PortalUtil.getPortletNamespace(PortletKeys.WIKI));
+					sb.append("version=");
+					sb.append(page.getVersion());
 
 					String value = getPageDiff(
 						companyId, latestPage, page, locale);
@@ -512,11 +529,46 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 				syndEntries.add(syndEntry);
 			}
 
-			syndEntry.setLink(link.toString());
-			syndEntry.setUri(syndEntry.getLink());
+			syndEntry.setLink(sb.toString());
+			syndEntry.setPublishedDate(page.getCreateDate());
+
+			String title =
+				page.getTitle() + StringPool.SPACE + page.getVersion();
+
+			if (page.isMinorEdit()) {
+				title +=
+					StringPool.SPACE + StringPool.OPEN_PARENTHESIS +
+						LanguageUtil.get(locale, "minor-edit") +
+							StringPool.CLOSE_PARENTHESIS;
+			}
+
+			syndEntry.setTitle(title);
+
+			syndEntry.setUpdatedDate(page.getModifiedDate());
+			syndEntry.setUri(sb.toString());
 
 			latestPage = page;
 		}
+
+		syndFeed.setFeedType(RSSUtil.getFeedType(type, version));
+
+		List<SyndLink> syndLinks = new ArrayList<SyndLink>();
+
+		syndFeed.setLinks(syndLinks);
+
+		SyndLink syndLinkSelf = new SyndLinkImpl();
+
+		syndLinks.add(syndLinkSelf);
+
+		syndLinkSelf.setHref(feedURL);
+		syndLinkSelf.setRel("self");
+
+		syndFeed.setPublishedDate(new Date());
+		syndFeed.setTitle(name);
+		syndFeed.setUri(feedURL);
+		syndFeed.setPublishedDate(new Date());
+		syndFeed.setTitle(name);
+		syndFeed.setUri(feedURL);
 
 		try {
 			return RSSUtil.export(syndFeed);

@@ -20,7 +20,10 @@ import com.liferay.portal.model.CacheModel;
 
 import com.liferay.portlet.wiki.model.WikiNode;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import java.util.Date;
 
@@ -31,10 +34,10 @@ import java.util.Date;
  * @see WikiNode
  * @generated
  */
-public class WikiNodeCacheModel implements CacheModel<WikiNode>, Serializable {
+public class WikiNodeCacheModel implements CacheModel<WikiNode>, Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -58,6 +61,14 @@ public class WikiNodeCacheModel implements CacheModel<WikiNode>, Serializable {
 		sb.append(description);
 		sb.append(", lastPostDate=");
 		sb.append(lastPostDate);
+		sb.append(", status=");
+		sb.append(status);
+		sb.append(", statusByUserId=");
+		sb.append(statusByUserId);
+		sb.append(", statusByUserName=");
+		sb.append(statusByUserName);
+		sb.append(", statusDate=");
+		sb.append(statusDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -120,9 +131,96 @@ public class WikiNodeCacheModel implements CacheModel<WikiNode>, Serializable {
 			wikiNodeImpl.setLastPostDate(new Date(lastPostDate));
 		}
 
+		wikiNodeImpl.setStatus(status);
+		wikiNodeImpl.setStatusByUserId(statusByUserId);
+
+		if (statusByUserName == null) {
+			wikiNodeImpl.setStatusByUserName(StringPool.BLANK);
+		}
+		else {
+			wikiNodeImpl.setStatusByUserName(statusByUserName);
+		}
+
+		if (statusDate == Long.MIN_VALUE) {
+			wikiNodeImpl.setStatusDate(null);
+		}
+		else {
+			wikiNodeImpl.setStatusDate(new Date(statusDate));
+		}
+
 		wikiNodeImpl.resetOriginalValues();
 
 		return wikiNodeImpl;
+	}
+
+	public void readExternal(ObjectInput objectInput) throws IOException {
+		uuid = objectInput.readUTF();
+		nodeId = objectInput.readLong();
+		groupId = objectInput.readLong();
+		companyId = objectInput.readLong();
+		userId = objectInput.readLong();
+		userName = objectInput.readUTF();
+		createDate = objectInput.readLong();
+		modifiedDate = objectInput.readLong();
+		name = objectInput.readUTF();
+		description = objectInput.readUTF();
+		lastPostDate = objectInput.readLong();
+		status = objectInput.readInt();
+		statusByUserId = objectInput.readLong();
+		statusByUserName = objectInput.readUTF();
+		statusDate = objectInput.readLong();
+	}
+
+	public void writeExternal(ObjectOutput objectOutput)
+		throws IOException {
+		if (uuid == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(uuid);
+		}
+
+		objectOutput.writeLong(nodeId);
+		objectOutput.writeLong(groupId);
+		objectOutput.writeLong(companyId);
+		objectOutput.writeLong(userId);
+
+		if (userName == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(userName);
+		}
+
+		objectOutput.writeLong(createDate);
+		objectOutput.writeLong(modifiedDate);
+
+		if (name == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(name);
+		}
+
+		if (description == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(description);
+		}
+
+		objectOutput.writeLong(lastPostDate);
+		objectOutput.writeInt(status);
+		objectOutput.writeLong(statusByUserId);
+
+		if (statusByUserName == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(statusByUserName);
+		}
+
+		objectOutput.writeLong(statusDate);
 	}
 
 	public String uuid;
@@ -136,4 +234,8 @@ public class WikiNodeCacheModel implements CacheModel<WikiNode>, Serializable {
 	public String name;
 	public String description;
 	public long lastPostDate;
+	public int status;
+	public long statusByUserId;
+	public String statusByUserName;
+	public long statusDate;
 }

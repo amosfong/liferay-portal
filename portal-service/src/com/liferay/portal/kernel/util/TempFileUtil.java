@@ -30,6 +30,8 @@ import java.io.InputStream;
  */
 public class TempFileUtil {
 
+	public static final String SUFFIX_TEMP_FILE_NAME = "_temp.tmp";
+
 	public static String addTempFile(
 			long userId, String tempPathName, File file)
 		throws PortalException, SystemException {
@@ -133,7 +135,7 @@ public class TempFileUtil {
 					fileNames[i], StringPool.SLASH);
 
 				fileName = StringUtil.replace(
-					fileName, _SUFFIX_TEMP_FILENAME, StringPool.BLANK);
+					fileName, SUFFIX_TEMP_FILE_NAME, StringPool.BLANK);
 
 				fileNames[i] = fileName;
 			}
@@ -160,13 +162,15 @@ public class TempFileUtil {
 			long userId, String fileName, String tempPathName)
 		throws PortalException {
 
-		validateFileName(fileName);
+		if (!Validator.isFileName(fileName)) {
+			throw new TempFileNameException();
+		}
 
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(getTempFolderName(userId, tempPathName));
 		sb.append(fileName);
-		sb.append(_SUFFIX_TEMP_FILENAME);
+		sb.append(SUFFIX_TEMP_FILE_NAME);
 
 		return sb.toString();
 	}
@@ -181,7 +185,9 @@ public class TempFileUtil {
 	protected static String getTempFolderName(long userId, String tempPathName)
 		throws PortalException {
 
-		validatePathName(tempPathName);
+		if (!Validator.isFilePath(tempPathName, false)) {
+			throw new TempFileNameException();
+		}
 
 		StringBundler sb = new StringBundler(5);
 
@@ -194,61 +200,11 @@ public class TempFileUtil {
 		return sb.toString();
 	}
 
-	protected static void validateFileName(String name) throws PortalException {
-		if ((name == null) || name.contains(StringPool.BACK_SLASH) ||
-			name.contains(StringPool.SLASH) ||
-			name.contains(File.pathSeparator) ||
-			(name.indexOf(_NULL_CHAR) > -1)) {
-
-			throw new TempFileNameException();
-		}
-	}
-
-	protected static void validatePathName(String pathName)
-		throws PortalException {
-
-		if (pathName == null) {
-			return;
-		}
-
-		if (pathName.indexOf(_NULL_CHAR) > -1) {
-			throw new TempFileNameException();
-		}
-
-		int pos = pathName.indexOf(StringPool.DOUBLE_PERIOD);
-
-		if (pos > -1) {
-			if (pathName.length() == 2) {
-				throw new TempFileNameException();
-			}
-
-			if (pos > 0) {
-				char c = pathName.charAt(pos - 1);
-
-				if ((c == CharPool.BACK_SLASH) || (c == CharPool.SLASH)) {
-					throw new TempFileNameException();
-				}
-			}
-
-			if ((pos + 2) < pathName.length()) {
-				char c = pathName.charAt(pos + 2);
-
-				if ((c == CharPool.BACK_SLASH) || (c == CharPool.SLASH)) {
-					throw new TempFileNameException();
-				}
-			}
-		}
-	}
-
 	private static final String _BASE_TEMP_PATHNAME = "liferay_temp/";
 
 	private static final long _COMPANY_ID = 0;
 
-	private static final char _NULL_CHAR = 0;
-
 	private static final long _REPOSITORY_ID = 0;
-
-	private static final String _SUFFIX_TEMP_FILENAME = "_temp.tmp";
 
 	private static final long _USER_ID = 0;
 

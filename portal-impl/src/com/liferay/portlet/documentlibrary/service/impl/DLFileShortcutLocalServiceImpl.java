@@ -252,6 +252,23 @@ public class DLFileShortcutLocalServiceImpl
 		return dlFileShortcutPersistence.findByPrimaryKey(fileShortcutId);
 	}
 
+	public List<DLFileShortcut> getFileShortcuts(
+			long groupId, long folderId, boolean active, int status, int start,
+			int end)
+		throws SystemException {
+
+		return dlFileShortcutPersistence.findByG_F_A_S(
+			groupId, folderId, active, status, start, end);
+	}
+
+	public int getFileShortcutsCount(
+			long groupId, long folderId, boolean active, int status)
+		throws SystemException {
+
+		return dlFileShortcutPersistence.countByG_F_A_S(
+			groupId, folderId, active, status);
+	}
+
 	public void updateAsset(
 			long userId, DLFileShortcut fileShortcut, long[] assetCategoryIds,
 			String[] assetTagNames)
@@ -261,7 +278,8 @@ public class DLFileShortcutLocalServiceImpl
 			fileShortcut.getToFileEntryId());
 
 		assetEntryLocalService.updateEntry(
-			userId, fileShortcut.getGroupId(), DLFileShortcut.class.getName(),
+			userId, fileShortcut.getGroupId(), fileShortcut.getCreateDate(),
+			fileShortcut.getModifiedDate(), DLFileShortcut.class.getName(),
 			fileShortcut.getFileShortcutId(), fileShortcut.getUuid(), 0,
 			assetCategoryIds, assetTagNames, false, null, null, null,
 			fileEntry.getMimeType(), fileEntry.getTitle(),

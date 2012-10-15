@@ -22,34 +22,25 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class AddFolderNameNullTest extends BaseTestCase {
 	public void testAddFolderNameNull() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Bookmarks Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Bookmarks Test Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Bookmarks Test Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//div[2]/ul/li[2]/a", RuntimeVariables.replace(""));
+		assertEquals(RuntimeVariables.replace("Add Folder"),
+			selenium.getText("//div[2]/ul/li[2]/a"));
+		selenium.clickAt("//div[2]/ul/li[2]/a",
+			RuntimeVariables.replace("Add Folder"));
 		selenium.waitForPageToLoad("30000");
-		selenium.type("_28_name", RuntimeVariables.replace(""));
-		selenium.type("_28_description",
+		selenium.type("//input[@id='_28_name']", RuntimeVariables.replace(""));
+		selenium.type("//textarea[@id='_28_description']",
 			RuntimeVariables.replace("This is a null name folder."));
 		assertFalse(selenium.isTextPresent("This field is required."));
-		selenium.clickAt("//input[@value='Save']", RuntimeVariables.replace(""));
+		selenium.clickAt("//input[@value='Save']",
+			RuntimeVariables.replace("Save"));
+		selenium.waitForVisible(
+			"//div[@class='aui-form-validator-message required']");
 		assertEquals(RuntimeVariables.replace("This field is required."),
 			selenium.getText(
 				"//div[@class='aui-form-validator-message required']"));

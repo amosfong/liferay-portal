@@ -15,13 +15,10 @@
 package com.liferay.portlet.blogs.action;
 
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.servlet.ServletResponseUtil;
-import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalUtil;
@@ -29,66 +26,16 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.blogs.service.BlogsEntryServiceUtil;
 import com.liferay.util.RSSUtil;
 
-import java.io.OutputStream;
-
 import java.util.Date;
 
-import javax.portlet.PortletConfig;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 
 /**
  * @author Brian Wing Shun Chan
  */
-public class RSSAction extends PortletAction {
+public class RSSAction extends com.liferay.portal.struts.RSSAction {
 
 	@Override
-	public void serveResource(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws Exception {
-
-		resourceResponse.setContentType(ContentTypes.TEXT_XML_UTF8);
-
-		OutputStream outputStream = resourceResponse.getPortletOutputStream();
-
-		try {
-			byte[] bytes = getRSS(resourceRequest);
-
-			outputStream.write(bytes);
-		}
-		finally {
-			outputStream.close();
-		}
-	}
-
-	@Override
-	public ActionForward strutsExecute(
-			ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response)
-		throws Exception {
-
-		try {
-			ServletResponseUtil.sendFile(
-				request, response, null, getRSS(request),
-				ContentTypes.TEXT_XML_UTF8);
-
-			return null;
-		}
-		catch (Exception e) {
-			PortalUtil.sendError(e, request, response);
-
-			return null;
-		}
-	}
-
 	protected byte[] getRSS(HttpServletRequest request) throws Exception {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -156,19 +103,5 @@ public class RSSAction extends PortletAction {
 
 		return rss.getBytes(StringPool.UTF8);
 	}
-
-	protected byte[] getRSS(ResourceRequest resourceRequest) throws Exception {
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			resourceRequest);
-
-		return getRSS(request);
-	}
-
-	@Override
-	protected boolean isCheckMethodOnProcessAction() {
-		return _CHECK_METHOD_ON_PROCESS_ACTION;
-	}
-
-	private static final boolean _CHECK_METHOD_ON_PROCESS_ACTION = false;
 
 }

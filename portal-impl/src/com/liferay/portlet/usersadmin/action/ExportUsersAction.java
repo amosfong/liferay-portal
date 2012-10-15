@@ -16,8 +16,11 @@ package com.liferay.portlet.usersadmin.action;
 
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CSVUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -25,6 +28,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ProgressTracker;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -43,6 +47,7 @@ import com.liferay.portlet.ActionResponseImpl;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.usersadmin.search.UserSearch;
 import com.liferay.portlet.usersadmin.search.UserSearchTerms;
+import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -170,7 +175,8 @@ public class ExportUsersAction extends PortletAction {
 		else if (!exportAllUsers) {
 			User user = themeDisplay.getUser();
 
-			long[] organizationIds = user.getOrganizationIds(true);
+			Long[] organizationIds = ArrayUtil.toArray(
+				user.getOrganizationIds(true));
 
 			if (organizationIds.length > 0) {
 				params.put("usersOrgs", organizationIds);
@@ -189,19 +195,49 @@ public class ExportUsersAction extends PortletAction {
 			params.put("usersUserGroups", new Long(userGroupId));
 		}
 
-		if (searchTerms.isAdvancedSearch()) {
-			return UserLocalServiceUtil.search(
-				themeDisplay.getCompanyId(), searchTerms.getFirstName(),
-				searchTerms.getMiddleName(), searchTerms.getLastName(),
-				searchTerms.getScreenName(), searchTerms.getEmailAddress(),
-				searchTerms.getStatus(), params, searchTerms.isAndOperator(),
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS, (OrderByComparator)null);
+		if (PropsValues.USERS_INDEXER_ENABLED &&
+			PropsValues.USERS_SEARCH_WITH_INDEX) {
+
+			params.put("expandoAttributes", searchTerms.getKeywords());
+
+			Hits hits = null;
+
+			if (searchTerms.isAdvancedSearch()) {
+				hits = UserLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getFirstName(),
+					searchTerms.getMiddleName(), searchTerms.getLastName(),
+					searchTerms.getScreenName(), searchTerms.getEmailAddress(),
+					searchTerms.getStatus(), params,
+					searchTerms.isAndOperator(), QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, (Sort)null);
+			}
+			else {
+				hits = UserLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getKeywords(),
+					searchTerms.getStatus(), params, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, (Sort)null);
+			}
+
+			Tuple tuple = UsersAdminUtil.getUsers(hits);
+
+			return (List<User>)tuple.getObject(0);
 		}
 		else {
-			return UserLocalServiceUtil.search(
-				themeDisplay.getCompanyId(), searchTerms.getKeywords(),
-				searchTerms.getStatus(), params, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, (OrderByComparator)null);
+			if (searchTerms.isAdvancedSearch()) {
+				return UserLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getFirstName(),
+					searchTerms.getMiddleName(), searchTerms.getLastName(),
+					searchTerms.getScreenName(), searchTerms.getEmailAddress(),
+					searchTerms.getStatus(), params,
+					searchTerms.isAndOperator(), QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, (OrderByComparator)null);
+			}
+			else {
+				return UserLocalServiceUtil.search(
+					themeDisplay.getCompanyId(), searchTerms.getKeywords(),
+					searchTerms.getStatus(), params, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, (OrderByComparator)null);
+			}
 		}
 	}
 

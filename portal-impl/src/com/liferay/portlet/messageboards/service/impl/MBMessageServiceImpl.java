@@ -44,6 +44,7 @@ import com.liferay.portlet.messageboards.service.base.MBMessageServiceBaseImpl;
 import com.liferay.portlet.messageboards.service.permission.MBCategoryPermission;
 import com.liferay.portlet.messageboards.service.permission.MBDiscussionPermission;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
+import com.liferay.portlet.messageboards.util.MBUtil;
 import com.liferay.portlet.messageboards.util.comparator.MessageCreateDateComparator;
 import com.liferay.util.RSSUtil;
 
@@ -53,12 +54,15 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.feed.synd.SyndLink;
+import com.sun.syndication.feed.synd.SyndLinkImpl;
 import com.sun.syndication.io.FeedException;
 
 import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -87,6 +91,11 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			parentMessageId, subject, body, serviceContext);
 	}
 
+	/**
+	 * @deprecated {@link #addMessage(long, String, String, String,
+	 *             java.util.List, boolean, double, boolean,
+	 *             com.liferay.portal.service.ServiceContext)}
+	 */
 	public MBMessage addMessage(
 			long groupId, long categoryId, long threadId, long parentMessageId,
 			String subject, String body, String format,
@@ -95,37 +104,7 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		checkReplyToPermission(groupId, categoryId, parentMessageId);
-
-		if (lockLocalService.isLocked(MBThread.class.getName(), threadId)) {
-			throw new LockedThreadException();
-		}
-
-		if (!MBCategoryPermission.contains(
-				getPermissionChecker(), groupId, categoryId,
-				ActionKeys.ADD_FILE)) {
-
-			inputStreamOVPs = Collections.emptyList();
-		}
-
-		boolean preview = ParamUtil.getBoolean(serviceContext, "preview");
-
-		int workFlowAction = serviceContext.getWorkflowAction();
-
-		if ((workFlowAction == WorkflowConstants.STATUS_DRAFT) && !preview) {
-			MBMessagePermission.check(
-				getPermissionChecker(), parentMessageId, ActionKeys.UPDATE);
-		}
-
-		if (!MBCategoryPermission.contains(
-				getPermissionChecker(), groupId, categoryId,
-				ActionKeys.UPDATE_THREAD_PRIORITY)) {
-
-			priority = MBThreadConstants.PRIORITY_NOT_GIVEN;
-		}
-
-		return mbMessageLocalService.addMessage(
-			getGuestOrUserId(), null, groupId, categoryId, threadId,
+		return addMessage(
 			parentMessageId, subject, body, format, inputStreamOVPs, anonymous,
 			priority, allowPingbacks, serviceContext);
 	}
@@ -160,6 +139,57 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			getGuestOrUserId(), null, groupId, categoryId, subject, body,
 			format, inputStreamOVPs, anonymous, priority, allowPingbacks,
 			serviceContext);
+	}
+
+	public MBMessage addMessage(
+			long parentMessageId, String subject, String body, String format,
+			List<ObjectValuePair<String, InputStream>> inputStreamOVPs,
+			boolean anonymous, double priority, boolean allowPingbacks,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		MBMessage parentMessage = mbMessagePersistence.fetchByPrimaryKey(
+			parentMessageId);
+
+		checkReplyToPermission(
+			parentMessage.getGroupId(), parentMessage.getCategoryId(),
+			parentMessageId);
+
+		boolean preview = ParamUtil.getBoolean(serviceContext, "preview");
+
+		int workFlowAction = serviceContext.getWorkflowAction();
+
+		if ((workFlowAction == WorkflowConstants.STATUS_DRAFT) && !preview) {
+			MBMessagePermission.check(
+				getPermissionChecker(), parentMessageId, ActionKeys.UPDATE);
+		}
+
+		if (lockLocalService.isLocked(
+				MBThread.class.getName(), parentMessage.getThreadId())) {
+
+			throw new LockedThreadException();
+		}
+
+		if (!MBCategoryPermission.contains(
+				getPermissionChecker(), parentMessage.getGroupId(),
+				parentMessage.getCategoryId(), ActionKeys.ADD_FILE)) {
+
+			inputStreamOVPs = Collections.emptyList();
+		}
+
+		if (!MBCategoryPermission.contains(
+				getPermissionChecker(), parentMessage.getGroupId(),
+				parentMessage.getCategoryId(),
+				ActionKeys.UPDATE_THREAD_PRIORITY)) {
+
+			priority = MBThreadConstants.PRIORITY_NOT_GIVEN;
+		}
+
+		return mbMessageLocalService.addMessage(
+			getGuestOrUserId(), null, parentMessage.getGroupId(),
+			parentMessage.getCategoryId(), parentMessage.getThreadId(),
+			parentMessageId, subject, body, format, inputStreamOVPs, anonymous,
+			priority, allowPingbacks, serviceContext);
 	}
 
 	public void deleteDiscussionMessage(
@@ -682,9 +712,6 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 
 		SyndFeed syndFeed = new SyndFeedImpl();
 
-		syndFeed.setFeedType(RSSUtil.getFeedType(type, version));
-		syndFeed.setTitle(name);
-		syndFeed.setLink(feedURL);
 		syndFeed.setDescription(description);
 
 		List<SyndEntry> syndEntries = new ArrayList<SyndEntry>();
@@ -692,7 +719,17 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 		syndFeed.setEntries(syndEntries);
 
 		for (MBMessage message : messages) {
-			String author = PortalUtil.getUserName(message);
+			SyndEntry syndEntry = new SyndEntryImpl();
+
+			if (!message.isAnonymous()) {
+				String author = PortalUtil.getUserName(message);
+
+				syndEntry.setAuthor(author);
+			}
+
+			SyndContent syndContent = new SyndContentImpl();
+
+			syndContent.setType(RSSUtil.ENTRY_TYPE_DEFAULT);
 
 			String value = null;
 
@@ -708,41 +745,42 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			else {
 				value = BBCodeTranslatorUtil.getHTML(message.getBody());
 
-				value = StringUtil.replace(
-					value,
-					new String[] {
-						"@theme_images_path@", "href=\"/", "src=\"/"
-					},
-					new String[] {
-						themeDisplay.getURLPortal() +
-							themeDisplay.getPathThemeImages(),
-						"href=\"" + themeDisplay.getURLPortal() + "/",
-						"src=\"" + themeDisplay.getURLPortal() + "/"
-					});
+				value = MBUtil.replaceMessageBodyPaths(themeDisplay, value);
 			}
 
-			SyndEntry syndEntry = new SyndEntryImpl();
-
-			if (!message.isAnonymous()) {
-				syndEntry.setAuthor(author);
-			}
-
-			syndEntry.setTitle(message.getSubject());
-			syndEntry.setLink(
-				entryURL + "&messageId=" + message.getMessageId());
-			syndEntry.setUri(syndEntry.getLink());
-			syndEntry.setPublishedDate(message.getCreateDate());
-			syndEntry.setUpdatedDate(message.getModifiedDate());
-
-			SyndContent syndContent = new SyndContentImpl();
-
-			syndContent.setType(RSSUtil.ENTRY_TYPE_DEFAULT);
 			syndContent.setValue(value);
 
 			syndEntry.setDescription(syndContent);
 
+			syndEntry.setLink(
+				entryURL + "&messageId=" + message.getMessageId());
+			syndEntry.setPublishedDate(message.getCreateDate());
+			syndEntry.setTitle(message.getSubject());
+			syndEntry.setUpdatedDate(message.getModifiedDate());
+			syndEntry.setUri(syndEntry.getLink());
+
 			syndEntries.add(syndEntry);
 		}
+
+		syndFeed.setFeedType(RSSUtil.getFeedType(type, version));
+
+		List<SyndLink> syndLinks = new ArrayList<SyndLink>();
+
+		syndFeed.setLinks(syndLinks);
+
+		SyndLink selfSyndLink = new SyndLinkImpl();
+
+		syndLinks.add(selfSyndLink);
+
+		selfSyndLink.setHref(feedURL);
+		selfSyndLink.setRel("self");
+
+		syndFeed.setPublishedDate(new Date());
+		syndFeed.setTitle(name);
+		syndFeed.setUri(feedURL);
+		syndFeed.setPublishedDate(new Date());
+		syndFeed.setTitle(name);
+		syndFeed.setUri(feedURL);
 
 		try {
 			return RSSUtil.export(syndFeed);

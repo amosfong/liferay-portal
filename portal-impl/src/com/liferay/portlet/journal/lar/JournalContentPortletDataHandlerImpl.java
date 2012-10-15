@@ -28,9 +28,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.lar.DLPortletDataHandlerImpl;
 import com.liferay.portlet.journal.NoSuchArticleException;
@@ -144,6 +142,10 @@ public class JournalContentPortletDataHandlerImpl
 			PortletDataContext portletDataContext, String portletId,
 			PortletPreferences portletPreferences)
 		throws Exception {
+
+		if (portletPreferences == null) {
+			return portletPreferences;
+		}
 
 		portletPreferences.setValue("groupId", StringPool.BLANK);
 		portletPreferences.setValue("articleId", StringPool.BLANK);
@@ -333,16 +335,6 @@ public class JournalContentPortletDataHandlerImpl
 
 			String importedArticleGroupId = String.valueOf(
 				portletDataContext.getScopeGroupId());
-
-			if (portletDataContext.isCompanyReference(
-					JournalArticle.class, articleId)) {
-
-				Group companyGroup = GroupLocalServiceUtil.getCompanyGroup(
-					portletDataContext.getCompanyId());
-
-				importedArticleGroupId = String.valueOf(
-					companyGroup.getGroupId());
-			}
 
 			portletPreferences.setValue("groupId", importedArticleGroupId);
 

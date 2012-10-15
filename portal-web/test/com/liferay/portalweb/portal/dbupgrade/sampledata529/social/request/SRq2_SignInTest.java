@@ -27,34 +27,22 @@ public class SRq2_SignInTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("_58_login")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
-				selenium.type("_58_login",
+				selenium.waitForVisible("//input[@name='_58_login']");
+				selenium.type("//input[@name='_58_login']",
 					RuntimeVariables.replace("socialrequestea2@liferay.com"));
-				selenium.type("_58_password", RuntimeVariables.replace("test"));
-				selenium.clickAt("_58_rememberMeCheckbox",
-					RuntimeVariables.replace("Checkbox"));
+				selenium.type("//input[@name='_58_password']",
+					RuntimeVariables.replace("test"));
+				selenium.clickAt("//input[@id='_58_rememberMeCheckbox']",
+					RuntimeVariables.replace("Remember Me"));
 				selenium.clickAt("//input[@value='Sign In']",
 					RuntimeVariables.replace("Sign In"));
 				selenium.waitForPageToLoad("30000");
 
-				boolean iAgreeVisible = selenium.isElementPresent("//input[3]");
+				boolean iAgreeVisible = selenium.isElementPresent(
+						"//input[@value='I Agree']");
 
 				if (!iAgreeVisible) {
 					label = 2;

@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.templateparser.TransformerListener;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -81,7 +82,6 @@ import com.liferay.portlet.journal.util.comparator.ArticleTitleComparator;
 import com.liferay.portlet.journal.util.comparator.ArticleVersionComparator;
 import com.liferay.util.ContentUtil;
 import com.liferay.util.FiniteUniqueStack;
-import com.liferay.util.JS;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -512,8 +512,8 @@ public class JournalUtil {
 			return emailArticleAddedBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_BODY));
 		}
 	}
 
@@ -527,8 +527,8 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleAddedEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_ENABLED));
 		}
 	}
 
@@ -542,8 +542,8 @@ public class JournalUtil {
 			return emailArticleAddedSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_SUBJECT));
 		}
 	}
 
@@ -557,8 +557,9 @@ public class JournalUtil {
 			return emailArticleApprovalDeniedBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_BODY));
 		}
 	}
 
@@ -572,8 +573,9 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleApprovalDeniedEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_ENABLED));
 		}
 	}
 
@@ -587,8 +589,9 @@ public class JournalUtil {
 			return emailArticleApprovalDeniedSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_SUBJECT));
 		}
 	}
 
@@ -602,8 +605,9 @@ public class JournalUtil {
 			return emailArticleApprovalGrantedBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_BODY));
 		}
 	}
 
@@ -617,8 +621,9 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleApprovalGrantedEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_ENABLED));
 		}
 	}
 
@@ -632,8 +637,9 @@ public class JournalUtil {
 			return emailArticleApprovalGrantedSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_SUBJECT));
 		}
 	}
 
@@ -647,8 +653,9 @@ public class JournalUtil {
 			return emailArticleApprovalRequestedBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_BODY));
 		}
 	}
 
@@ -662,8 +669,10 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleApprovalRequestedEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(
+					PropsKeys.
+						JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_ENABLED));
 		}
 	}
 
@@ -677,8 +686,10 @@ public class JournalUtil {
 			return emailArticleApprovalRequestedSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(
+					PropsKeys.
+						JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_SUBJECT));
 		}
 	}
 
@@ -692,8 +703,8 @@ public class JournalUtil {
 			return emailArticleReviewBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_BODY));
 		}
 	}
 
@@ -707,8 +718,8 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleReviewEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_ENABLED));
 		}
 	}
 
@@ -722,8 +733,8 @@ public class JournalUtil {
 			return emailArticleReviewSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_SUBJECT));
 		}
 	}
 
@@ -737,8 +748,8 @@ public class JournalUtil {
 			return emailArticleUpdatedBody;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_BODY));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_BODY));
 		}
 	}
 
@@ -752,8 +763,8 @@ public class JournalUtil {
 			return GetterUtil.getBoolean(emailArticleUpdatedEnabled);
 		}
 		else {
-			return GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_ENABLED));
+			return GetterUtil.getBoolean(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_ENABLED));
 		}
 	}
 
@@ -767,8 +778,8 @@ public class JournalUtil {
 			return emailArticleUpdatedSubject;
 		}
 		else {
-			return ContentUtil.get(PropsUtil.get(
-				PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_SUBJECT));
+			return ContentUtil.get(
+				PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_SUBJECT));
 		}
 	}
 
@@ -991,27 +1002,6 @@ public class JournalUtil {
 		return curContent;
 	}
 
-	public static String processXMLAttributes(String xsd)
-		throws PortalException {
-
-		try {
-			Document document = SAXReaderUtil.read(xsd);
-
-			Element rootElement = document.getRootElement();
-
-			List<Element> elements = new ArrayList<Element>();
-
-			elements.addAll(rootElement.elements());
-
-			_decodeXMLAttributes(elements);
-
-			return document.asXML();
-		}
-		catch (Exception e) {
-			throw new StructureXsdException();
-		}
-	}
-
 	public static void removeArticleLocale(Element element, String languageId)
 		throws PortalException, SystemException {
 
@@ -1168,6 +1158,17 @@ public class JournalUtil {
 			themeDisplay, tokens, viewMode, languageId, xml, script, langType);
 	}
 
+	public static String validateXSD(String xsd) throws PortalException {
+		try {
+			Document document = SAXReaderUtil.read(xsd);
+
+			return document.asXML();
+		}
+		catch (Exception e) {
+			throw new StructureXsdException();
+		}
+	}
+
 	private static void _addElementOptions(
 		Element curContentElement, Element newContentElement) {
 
@@ -1182,32 +1183,12 @@ public class JournalUtil {
 		}
 	}
 
-	private static void _decodeXMLAttributes(List<Element> elements) {
-		for (Element element : elements) {
-			String elName = element.attributeValue("name", StringPool.BLANK);
-			String elType = element.attributeValue("type", StringPool.BLANK);
-
-			if (Validator.isNotNull(elName)) {
-				elName = JS.decodeURIComponent(elName);
-
-				element.addAttribute("name", elName);
-			}
-
-			if (Validator.isNotNull(elType)) {
-				elType = JS.decodeURIComponent(elType);
-
-				element.addAttribute("type", elType);
-			}
-
-			_decodeXMLAttributes(element.elements());
-		}
-	}
-
 	private static Element _getElementByInstanceId(
 		Document document, String instanceId) {
 
 		XPath xPathSelector = SAXReaderUtil.createXPath(
-			"//dynamic-element[@instance-id='" + instanceId + "']");
+			"//dynamic-element[@instance-id=" +
+				HtmlUtil.escapeXPathAttribute(instanceId) + "]");
 
 		List<Node> nodes = xPathSelector.selectNodes(document);
 
@@ -1617,7 +1598,9 @@ public class JournalUtil {
 			return;
 		}
 
-		String localPath = "dynamic-element[@name='" + name + "']";
+		String localPath =
+			"dynamic-element[@name=" + HtmlUtil.escapeXPathAttribute(name) +
+				"]";
 
 		String fullPath = elementPath + "/" + localPath;
 

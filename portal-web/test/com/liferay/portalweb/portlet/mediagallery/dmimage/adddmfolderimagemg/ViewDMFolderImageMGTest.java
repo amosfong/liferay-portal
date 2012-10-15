@@ -22,6 +22,8 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewDMFolderImageMGTest extends BaseTestCase {
 	public void testViewDMFolderImageMG() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
 		selenium.clickAt("link=Media Gallery Test Page",
 			RuntimeVariables.replace("Media Gallery Test Page"));
@@ -44,30 +46,14 @@ public class ViewDMFolderImageMGTest extends BaseTestCase {
 		selenium.clickAt("//span[@class='image-title']",
 			RuntimeVariables.replace("DM Folder Image Title"));
 		Thread.sleep(5000);
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("//img[@class='aui-image-viewer-image']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("//img[@class='aui-image-viewer-image']");
 		assertEquals(RuntimeVariables.replace(
 				"DM Folder Image Title - DM Folder Image Description"),
 			selenium.getText("//div[@class='aui-image-viewer-caption']"));
 		assertEquals(RuntimeVariables.replace("Image 1 of 1"),
 			selenium.getText("//div[@class='aui-image-viewer-info']"));
 		assertTrue(selenium.isVisible(
-				"//div[@class='lfr-image-gallery-actions']/div/div/span[1]/a/img[@alt='Download (12.9k)']"));
+				"//div[@class='lfr-image-gallery-actions']/div/div/span[1]/a/img[@alt='Download (13k)']"));
 		assertTrue(selenium.isVisible(
 				"//div[@class='lfr-image-gallery-actions']/div/div/span[2]/a/img[@alt='View']"));
 		assertTrue(selenium.isVisible(
@@ -75,7 +61,7 @@ public class ViewDMFolderImageMGTest extends BaseTestCase {
 		assertTrue(selenium.isVisible(
 				"//div[@class='lfr-image-gallery-actions']/div/div/span[4]/a/img[@alt='Permissions']"));
 		assertTrue(selenium.isVisible(
-				"//div[@class='lfr-image-gallery-actions']/div/div/span[5]/a/img[@alt='Delete']"));
+				"//div[@class='lfr-image-gallery-actions']/div/div/span[5]/a/img[@alt='Move to the Recycle Bin']"));
 		assertTrue(selenium.isVisible(
 				"//span[@class='aui-image-gallery-paginator-thumb']"));
 		assertTrue(selenium.isVisible(

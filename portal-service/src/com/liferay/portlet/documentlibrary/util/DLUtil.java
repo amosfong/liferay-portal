@@ -84,6 +84,14 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DLUtil {
 
+	public static final String MANUAL_CHECK_IN_REQUIRED =
+		"manualCheckInRequired";
+
+	public static final String MANUAL_CHECK_IN_REQUIRED_PATH =
+		StringPool.SLASH + MANUAL_CHECK_IN_REQUIRED;
+
+	public static final String WEBDAV_CHECK_IN_MODE = "webDAVCheckInMode";
+
 	public static void addPortletBreadcrumbEntries(
 			DLFileShortcut dlFileShortcut, HttpServletRequest request,
 			RenderResponse renderResponse)
@@ -307,26 +315,30 @@ public class DLUtil {
 			WebKeys.THEME_DISPLAY);
 
 		if (folderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			return StringPool.SLASH.concat(themeDisplay.translate("home"));
+			return themeDisplay.translate("home");
 		}
 
 		DLFolder dlFolder = DLFolderLocalServiceUtil.getFolder(folderId);
 
 		List<DLFolder> dlFolders = dlFolder.getAncestors();
 
-		StringBundler sb = new StringBundler((dlFolders.size() + 2) * 2);
+		StringBundler sb = new StringBundler((dlFolders.size() * 4) + 6);
 
-		sb.append(StringPool.SLASH);
 		sb.append(themeDisplay.translate("home"));
+		sb.append(StringPool.SPACE);
 
 		for (int i = dlFolders.size() - 1; i >= 0; i--) {
 			DLFolder curDLFolder = dlFolders.get(i);
 
-			sb.append(StringPool.SLASH);
+			sb.append(StringPool.GREATER_THAN);
+			sb.append(StringPool.GREATER_THAN);
+			sb.append(StringPool.SPACE);
 			sb.append(curDLFolder.getName());
 		}
 
-		sb.append(StringPool.SLASH);
+		sb.append(StringPool.GREATER_THAN);
+		sb.append(StringPool.GREATER_THAN);
+		sb.append(StringPool.SPACE);
 		sb.append(dlFolder.getName());
 
 		return sb.toString();
@@ -457,10 +469,9 @@ public class DLUtil {
 			if (absoluteURL) {
 				sb.append(themeDisplay.getPortalURL());
 			}
-
-			sb.append(themeDisplay.getPathContext());
 		}
 
+		sb.append(PortalUtil.getPathContext());
 		sb.append("/documents/");
 		sb.append(fileEntry.getRepositoryId());
 		sb.append(StringPool.SLASH);
@@ -594,14 +605,18 @@ public class DLUtil {
 
 		String thumbnailQueryString = null;
 
-		if (ImageProcessorUtil.hasImages(fileVersion)) {
-			thumbnailQueryString = "&imageThumbnail=1";
-		}
-		else if (PDFProcessorUtil.hasImages(fileVersion)) {
-			thumbnailQueryString = "&documentThumbnail=1";
-		}
-		else if (VideoProcessorUtil.hasVideo(fileVersion)) {
-			thumbnailQueryString = "&videoThumbnail=1";
+		if (GetterUtil.getBoolean(
+				PropsUtil.get(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_ENABLED))) {
+
+			if (ImageProcessorUtil.hasImages(fileVersion)) {
+				thumbnailQueryString = "&imageThumbnail=1";
+			}
+			else if (PDFProcessorUtil.hasImages(fileVersion)) {
+				thumbnailQueryString = "&documentThumbnail=1";
+			}
+			else if (VideoProcessorUtil.hasVideo(fileVersion)) {
+				thumbnailQueryString = "&videoThumbnail=1";
+			}
 		}
 
 		if (Validator.isNotNull(thumbnailQueryString)) {
@@ -671,6 +686,14 @@ public class DLUtil {
 			ThemeDisplay themeDisplay, Folder folder, FileEntry fileEntry)
 		throws PortalException, SystemException {
 
+		return getWebDavURL(themeDisplay, folder, fileEntry, false);
+	}
+
+	public static String getWebDavURL(
+			ThemeDisplay themeDisplay, Folder folder, FileEntry fileEntry,
+			boolean manualCheckInRequired)
+		throws PortalException, SystemException {
+
 		StringBuilder sb = new StringBuilder();
 
 		if (folder != null) {
@@ -699,9 +722,21 @@ public class DLUtil {
 
 		Group group = themeDisplay.getScopeGroup();
 
-		return themeDisplay.getPortalURL() + themeDisplay.getPathContext() +
-			"/webdav" + group.getFriendlyURL() + "/document_library" +
-				sb.toString();
+		StringBundler webDavURL = new StringBundler(7);
+
+		webDavURL.append(themeDisplay.getPortalURL());
+		webDavURL.append(themeDisplay.getPathContext());
+		webDavURL.append("/webdav");
+
+		if (manualCheckInRequired) {
+			webDavURL.append(MANUAL_CHECK_IN_REQUIRED_PATH);
+		}
+
+		webDavURL.append(group.getFriendlyURL());
+		webDavURL.append("/document_library");
+		webDavURL.append(sb.toString());
+
+		return webDavURL.toString();
 	}
 
 	public static boolean hasWorkflowDefinitionLink(

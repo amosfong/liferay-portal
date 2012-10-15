@@ -62,8 +62,16 @@ String[] socialBookmarksTypesArray = StringUtil.split(preferences.getValue("soci
 	<aui:input name="tabs2" type="hidden" value="<%= tabs2 %>" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 
+	<%
+	String tabs2Names = "display-settings,email-from,entry-added-email,entry-updated-email";
+
+	if (PortalUtil.isRSSFeedsEnabled()) {
+		tabs2Names += ",rss";
+	}
+	%>
+
 	<liferay-ui:tabs
-		names="display-settings,email-from,entry-added-email,entry-updated-email,rss"
+		names="<%= tabs2Names %>"
 		param="tabs2"
 		url="<%= portletURL %>"
 	/>

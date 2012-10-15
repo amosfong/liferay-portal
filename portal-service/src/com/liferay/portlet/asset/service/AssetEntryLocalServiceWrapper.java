@@ -394,6 +394,10 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 		_assetEntryLocalService.reindex(entries);
 	}
 
+	/**
+	* @deprecated {@link #search(long, long[], long, String, String, int, int,
+	int)}
+	*/
 	public com.liferay.portal.kernel.search.Hits search(long companyId,
 		long[] groupIds, long userId, java.lang.String className,
 		java.lang.String keywords, int start, int end)
@@ -402,6 +406,18 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 			className, keywords, start, end);
 	}
 
+	public com.liferay.portal.kernel.search.Hits search(long companyId,
+		long[] groupIds, long userId, java.lang.String className,
+		java.lang.String keywords, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetEntryLocalService.search(companyId, groupIds, userId,
+			className, keywords, status, start, end);
+	}
+
+	/**
+	* @deprecated {@link #search(long, long[], long, String, String, String,
+	String, String, String, int, boolean, int, int)}
+	*/
 	public com.liferay.portal.kernel.search.Hits search(long companyId,
 		long[] groupIds, long userId, java.lang.String className,
 		java.lang.String userName, java.lang.String title,
@@ -414,11 +430,46 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 	}
 
 	public com.liferay.portal.kernel.search.Hits search(long companyId,
+		long[] groupIds, long userId, java.lang.String className,
+		java.lang.String userName, java.lang.String title,
+		java.lang.String description, java.lang.String assetCategoryIds,
+		java.lang.String assetTagNames, int status, boolean andSearch,
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetEntryLocalService.search(companyId, groupIds, userId,
+			className, userName, title, description, assetCategoryIds,
+			assetTagNames, status, andSearch, start, end);
+	}
+
+	/**
+	* @deprecated {@link #search(long, long[], long, String, String, int, int,
+	int)}
+	*/
+	public com.liferay.portal.kernel.search.Hits search(long companyId,
 		long[] groupIds, java.lang.String className, java.lang.String keywords,
 		int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _assetEntryLocalService.search(companyId, groupIds, className,
 			keywords, start, end);
+	}
+
+	public com.liferay.portlet.asset.model.AssetEntry updateEntry(long userId,
+		long groupId, java.util.Date createDate, java.util.Date modifiedDate,
+		java.lang.String className, long classPK, java.lang.String classUuid,
+		long classTypeId, long[] categoryIds, java.lang.String[] tagNames,
+		boolean visible, java.util.Date startDate, java.util.Date endDate,
+		java.util.Date expirationDate, java.lang.String mimeType,
+		java.lang.String title, java.lang.String description,
+		java.lang.String summary, java.lang.String url,
+		java.lang.String layoutUuid, int height, int width,
+		java.lang.Integer priority, boolean sync)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _assetEntryLocalService.updateEntry(userId, groupId, createDate,
+			modifiedDate, className, classPK, classUuid, classTypeId,
+			categoryIds, tagNames, visible, startDate, endDate, expirationDate,
+			mimeType, title, description, summary, url, layoutUuid, height,
+			width, priority, sync);
 	}
 
 	public com.liferay.portlet.asset.model.AssetEntry updateEntry(long userId,
@@ -453,6 +504,12 @@ public class AssetEntryLocalServiceWrapper implements AssetEntryLocalService,
 			description, summary, url, layoutUuid, height, width, priority, sync);
 	}
 
+	/**
+	* @deprecated {@link #updateEntry(long, long, Date, Date, String, long,
+	String, long, long[], String[], boolean, Date, Date, Date,
+	String, String, String, String, String, String, int, int,
+	Integer, boolean)}
+	*/
 	public com.liferay.portlet.asset.model.AssetEntry updateEntry(long userId,
 		long groupId, java.lang.String className, long classPK,
 		java.lang.String classUuid, long classTypeId, long[] categoryIds,

@@ -16,6 +16,7 @@ package com.liferay.portlet.portletdisplaytemplate.util;
 
 /**
  * @author Juan Fernández
+ * @author Eduardo García
  */
 public class PortletDisplayTemplateConstants {
 
@@ -27,11 +28,27 @@ public class PortletDisplayTemplateConstants {
 
 	public static final String ENTRY = "entry";
 
+	public static final String FREEMARKER_SERVLET_APPLICATION =
+		"__FreeMarkerServlet.Application__";
+
+	public static final String FREEMARKER_SERVLET_REQUEST =
+		"__FreeMarkerServlet.Request__";
+
 	public static final String LOCALE = "locale";
 
 	public static final String RENDER_REQUEST ="renderRequest";
 
 	public static final String RENDER_RESPONSE ="renderResponse";
+
+	public static final String REQUEST = "request";
+
+	public static final String REQUEST_HASH= "requestHash";
+
+	public static final String TAGLIB_LIFERAY = "taglibLiferay";
+
+	public static final String TAGLIB_LIFERAY_HASH = "taglibLiferayHash";
+
+	public static final String THEME = "theme";
 
 	public static final String THEME_DISPLAY = "themeDisplay";
 

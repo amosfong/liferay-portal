@@ -106,7 +106,7 @@ portletURL.setParameter("tabs1", tabs1);
 		if (Validator.isNotNull(searchTerms.getKeywords())) {
 			Sort sort = SortFactoryUtil.getSort(TrashEntry.class, searchContainer.getOrderByCol(), searchContainer.getOrderByType());
 
-			Hits hits = TrashEntryServiceUtil.search(company.getCompanyId(), groupId, user.getUserId(), searchTerms.getKeywords(), searchContainer.getStart(), searchContainer.getEnd(), sort);
+			Hits hits = TrashEntryLocalServiceUtil.search(company.getCompanyId(), groupId, user.getUserId(), searchTerms.getKeywords(), searchContainer.getStart(), searchContainer.getEnd(), sort);
 
 			pageContext.setAttribute("results", TrashUtil.getEntries(hits));
 			pageContext.setAttribute("total", hits.getLength());
@@ -203,14 +203,14 @@ portletURL.setParameter("tabs1", tabs1);
 					/>
 				</liferay-util:buffer>
 
-				<span class="trash-root-entry">(<liferay-ui:message arguments="<%= rootEntryIcon %>" key="deleted-in-x" />)</span>
+				<span class="trash-root-entry">(<liferay-ui:message arguments="<%= rootEntryIcon %>" key="<%= rootTrashHandler.getDeleteMessage() %>" />)</span>
 			</c:if>
 		</liferay-ui:search-container-column-text>
 
 		<liferay-ui:search-container-column-text
 			name="type"
 			orderable="<%= true %>"
-			value="<%= LanguageUtil.get(pageContext, trashRenderer.getType()) %>"
+			value="<%= ResourceActionsUtil.getModelResource(locale, entry.getClassName()) %>"
 		/>
 
 		<liferay-ui:search-container-column-text
@@ -271,10 +271,10 @@ portletURL.setParameter("tabs1", tabs1);
 	<liferay-ui:search-iterator type='<%= aproximate ? "more" : "regular" %>' />
 </liferay-ui:search-container>
 
-<aui:script use="liferay-trash">
-	new Liferay.Portlet.Trash(
+<aui:script use="liferay-restore-entry">
+	new Liferay.RestoreEntry(
 		{
-			checkEntryURL: '<portlet:actionURL><portlet:param name="<%= Constants.CMD %>" value="checkEntry" /><portlet:param name="struts_action" value="/trash/edit_entry" /></portlet:actionURL>',
+			checkEntryURL: '<portlet:actionURL><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.CHECK %>" /><portlet:param name="struts_action" value="/trash/edit_entry" /></portlet:actionURL>',
 			namespace: '<portlet:namespace />',
 			restoreEntryURL: '<portlet:renderURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="struts_action" value="/trash/restore_entry" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>'
 		}

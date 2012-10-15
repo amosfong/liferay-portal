@@ -1481,6 +1481,10 @@
 		<put name="portlet_content" value="/portlet/sites_admin/select_site.jsp" />
 	</definition>
 
+	<definition name="portlet.sites_admin.select_team" extends="portlet.sites_admin">
+		<put name="portlet_content" value="/portlet/sites_admin/select_team.jsp" />
+	</definition>
+
 	<definition name="portlet.sites_admin.view" extends="portlet.sites_admin">
 		<put name="portlet_content" value="/portlet/sites_admin/view.jsp" />
 	</definition>
@@ -1491,6 +1495,14 @@
 
 	<definition name="portlet.sites_admin.view_teams" extends="portlet.sites_admin">
 		<put name="portlet_content" value="/portlet/sites_admin/view_teams.jsp" />
+	</definition>
+
+	<!-- Sites Directory -->
+
+	<definition name="portlet.sites_directory" extends="portlet" />
+
+	<definition name="portlet.sites_directory.view" extends="portlet.sites_directory">
+		<put name="portlet_content" value="/portlet/sites_directory/view.jsp" />
 	</definition>
 
 	<!-- Social Activity -->

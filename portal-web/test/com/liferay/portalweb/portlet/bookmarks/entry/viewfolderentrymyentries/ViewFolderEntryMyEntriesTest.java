@@ -22,30 +22,17 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewFolderEntryMyEntriesTest extends BaseTestCase {
 	public void testViewFolderEntryMyEntries() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Bookmarks Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Bookmarks Test Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Bookmarks Test Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Mine", RuntimeVariables.replace(""));
+		selenium.clickAt("link=Mine", RuntimeVariables.replace("Mine"));
 		selenium.waitForPageToLoad("30000");
-		assertTrue(selenium.isElementPresent("link=Test Folder Entry"));
-		assertTrue(selenium.isElementPresent("link=http://www.liferay.com"));
+		assertEquals(RuntimeVariables.replace("Test Folder Entry"),
+			selenium.getText("//td[1]/a"));
+		assertEquals(RuntimeVariables.replace("http://www.liferay.com"),
+			selenium.getText("//td[2]/a"));
 	}
 }

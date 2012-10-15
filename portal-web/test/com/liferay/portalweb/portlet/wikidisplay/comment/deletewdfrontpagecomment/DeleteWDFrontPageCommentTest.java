@@ -22,71 +22,26 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class DeleteWDFrontPageCommentTest extends BaseTestCase {
 	public void testDeleteWDFrontPageComment() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Wiki Display Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Wiki Display Test Page",
 			RuntimeVariables.replace("Wiki Display Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("Wiki Front Page Comment Body"),
-			selenium.getText("//div/div[3]/div/div[1]"));
+		assertEquals(RuntimeVariables.replace("Wiki FrontPage Comment"),
+			selenium.getText("//div[@class='lfr-discussion-message']"));
 		assertEquals(RuntimeVariables.replace("Delete"),
-			selenium.getText("//li[contains(.,'Delete')]/span/a/span"));
-		selenium.click("//li[contains(.,'Delete')]/span/a/span");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if ("Are you sure you want to delete this?".equals(
-							selenium.getConfirmation())) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-message-response portlet-msg-success']")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+			selenium.getText(
+				"//ul[@class='lfr-discussion-actions']/li/span/a[contains(.,'Delete')]"));
+		selenium.clickAt("//ul[@class='lfr-discussion-actions']/li/span/a[contains(.,'Delete')]",
+			RuntimeVariables.replace("Delete"));
+		selenium.waitForConfirmation("Are you sure you want to delete this?");
+		selenium.waitForVisible(
+			"//div[@class='lfr-message-response portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
 			selenium.getText(
 				"//div[@class='lfr-message-response portlet-msg-success']"));
-		assertFalse(selenium.isTextPresent("Wiki Front Page Comment Body"));
+		assertFalse(selenium.isTextPresent("Wiki FrontPage Comment"));
 	}
 }

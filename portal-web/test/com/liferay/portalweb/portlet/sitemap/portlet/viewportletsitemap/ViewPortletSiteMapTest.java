@@ -22,24 +22,9 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewPortletSiteMapTest extends BaseTestCase {
 	public void testViewPortletSiteMap() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Site Map Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Site Map Test Page",
 			RuntimeVariables.replace("Site Map Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -55,23 +40,6 @@ public class ViewPortletSiteMapTest extends BaseTestCase {
 		assertTrue(selenium.isVisible("xPath=(//section[@class='portlet'])[1]"));
 		assertTrue(selenium.isVisible("xPath=(//section[@class='portlet'])[2]"));
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Site Map Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Site Map Test Page",
 			RuntimeVariables.replace("Site Map Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -84,23 +52,6 @@ public class ViewPortletSiteMapTest extends BaseTestCase {
 			selenium.getText("//h1[@class='portlet-title']"));
 		assertTrue(selenium.isVisible("//section[@class='portlet']"));
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Site Map Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Site Map Test Page",
 			RuntimeVariables.replace("Site Map Test Page"));
 		selenium.waitForPageToLoad("30000");

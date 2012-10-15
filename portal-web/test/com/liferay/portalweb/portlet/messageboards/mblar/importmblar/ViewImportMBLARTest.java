@@ -22,30 +22,24 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewImportMBLARTest extends BaseTestCase {
 	public void testViewImportMBLAR() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Message Boards Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("link=Message Boards Test Page");
 		selenium.clickAt("link=Message Boards Test Page",
 			RuntimeVariables.replace("Message Boards Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace(
-				"T\u00e9st Cat\u00e9gory\nThis is a t\u00e9st cat\u00e9gory!"),
-			selenium.getText("//tr[3]/td[1]/a"));
+		assertEquals(RuntimeVariables.replace("T\u00e9st Cat\u00e9gory"),
+			selenium.getText("//tr[3]/td[1]/a[1]/strong"));
+		assertTrue(selenium.isPartialText("//tr[3]/td[1]/a[1]",
+				"This is a t\u00e9st cat\u00e9gory!"));
+		assertTrue(selenium.isPartialText("//tr[3]/td[1]/span", "Subcategories"));
+		assertEquals(RuntimeVariables.replace("T\u00e9st Subcat\u00e9gory"),
+			selenium.getText("//tr[3]/td[1]/a[2]"));
+		assertEquals(RuntimeVariables.replace("T\u00e9st Cat\u00e9gory"),
+			selenium.getText("//tr[3]/td[1]/a/strong"));
+		assertTrue(selenium.isPartialText("//tr[3]/td[1]/a",
+				"\nThis is a t\u00e9st cat\u00e9gory!"));
 		assertEquals(RuntimeVariables.replace("2"),
 			selenium.getText("//tr[3]/td[2]/a"));
 		assertEquals(RuntimeVariables.replace("2"),
@@ -53,20 +47,24 @@ public class ViewImportMBLARTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("4"),
 			selenium.getText("//tr[3]/td[4]/a"));
 		assertEquals(RuntimeVariables.replace(
-				"T\u00e9st Cat\u00e9gory Edit\u00e9d\nThis is a t\u00e9st cat\u00e9gory edited!"),
-			selenium.getText("//tr[4]/td[1]/a"));
+				"T\u00e9st Cat\u00e9gory Edit\u00e9d"),
+			selenium.getText("//tr[4]/td[1]/a/strong"));
+		assertTrue(selenium.isPartialText("//tr[4]/td[1]/a",
+				"This is a t\u00e9st cat\u00e9gory edited!"));
 		assertEquals(RuntimeVariables.replace("0"),
 			selenium.getText("//tr[4]/td[2]/a"));
 		assertEquals(RuntimeVariables.replace("1"),
 			selenium.getText("//tr[4]/td[3]/a"));
 		assertEquals(RuntimeVariables.replace("1"),
 			selenium.getText("//tr[4]/td[4]/a"));
-		selenium.clickAt("//tr[3]/td[1]/a[1]",
-			RuntimeVariables.replace(
-				"T\u00e9st Cat\u00e9gory\nThis is a t\u00e9st cat\u00e9gory!"));
+		selenium.clickAt("//tr[3]/td[1]/a[1]/strong",
+			RuntimeVariables.replace("T\u00e9st Cat\u00e9gory"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("T\u00e9st Subcat\u00e9gory"),
-			selenium.getText("//td[1]/a/strong"));
+			selenium.getText("//td[1]/a[1]/strong"));
+		assertEquals(RuntimeVariables.replace(
+				"S\u00e9cond T\u00e9st Subcat\u00e9gory"),
+			selenium.getText("//td[1]/a[2]"));
 		assertEquals(RuntimeVariables.replace("1"),
 			selenium.getText("//td[2]/a"));
 		assertEquals(RuntimeVariables.replace("2"),
@@ -102,32 +100,14 @@ public class ViewImportMBLARTest extends BaseTestCase {
 				"This is a t\u00e9st m\u00e9ssag\u00e9 edited!"),
 			selenium.getText("//div[@class='thread-body']"));
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Message Boards Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("link=Message Boards Test Page");
 		selenium.clickAt("link=Message Boards Test Page",
 			RuntimeVariables.replace("Message Boards Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace(
-				"T\u00e9st Cat\u00e9gory\nThis is a t\u00e9st cat\u00e9gory!"),
-			selenium.getText("//td[1]/a"));
-		selenium.clickAt("//td[1]/a",
-			RuntimeVariables.replace(
-				"T\u00e9st Cat\u00e9gory\nThis is a t\u00e9st cat\u00e9gory!"));
+		assertEquals(RuntimeVariables.replace("T\u00e9st Cat\u00e9gory"),
+			selenium.getText("//tr[3]/td[1]/a[1]/strong"));
+		selenium.clickAt("//tr[3]/td[1]/a[1]/strong",
+			RuntimeVariables.replace("T\u00e9st Cat\u00e9gory"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("T\u00e9st Subcat\u00e9gory"),
 			selenium.getText("//a/strong"));
@@ -151,23 +131,7 @@ public class ViewImportMBLARTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("This is a third reply message."),
 			selenium.getText("xPath=(//div[@class='thread-body'])[3]"));
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Message Boards Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible("link=Message Boards Test Page");
 		selenium.clickAt("link=Message Boards Test Page",
 			RuntimeVariables.replace("Message Boards Test Page"));
 		selenium.waitForPageToLoad("30000");

@@ -22,24 +22,17 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class Member_AssertAccessPermissionsTest extends BaseTestCase {
 	public void testMember_AssertAccessPermissions() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.clickAt("//div[@id='dockbar']",
+			RuntimeVariables.replace("Dockbar"));
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/liferay/dockbar_underlay.js')]");
+		assertEquals(RuntimeVariables.replace("Go to"),
+			selenium.getText("//li[@id='_145_mySites']/a/span"));
+		selenium.mouseOver("//li[@id='_145_mySites']/a/span");
+		selenium.waitForVisible("link=Control Panel");
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
@@ -47,33 +40,28 @@ public class Member_AssertAccessPermissionsTest extends BaseTestCase {
 			RuntimeVariables.replace("Web Content"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Web Content Name"),
-			selenium.getText("//tr[3]/td[3]/a"));
-		selenium.clickAt("//span[@title='Actions']/ul/li/strong/a",
+			selenium.getText("//a[@class='entry-link']/span"));
+		selenium.clickAt("//span[@class='entry-action overlay']/span/ul/li/strong/a",
 			RuntimeVariables.replace("Actions"));
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible(
-							"//div[@class='lfr-component lfr-menu-list']/ul/li/a")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Permissions')]/a");
 		assertEquals(RuntimeVariables.replace("Permissions"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li/a"));
-		selenium.click(RuntimeVariables.replace(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li/a"));
+				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Permissions')]/a"));
+		selenium.clickAt("//a[@class='entry-link']/span",
+			RuntimeVariables.replace("Web Content Name"));
 		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("Web Content Name"),
+			selenium.getText("//h1[@class='header-title']"));
+		assertEquals(RuntimeVariables.replace("Permissions"),
+			selenium.getText(
+				"//div[contains(@id,'articleToolbar')]/span/button[contains(.,'Permissions')]"));
+		selenium.clickAt("//div[contains(@id,'articleToolbar')]/span/button[contains(.,'Permissions')]",
+			RuntimeVariables.replace("Permissions"));
+		selenium.waitForVisible("//iframe[contains(@id,'articlePermissions')]");
+		selenium.selectFrame("//iframe[contains(@id,'articlePermissions')]");
+		selenium.waitForElementPresent(
+			"//script[contains(@src,'/liferay/search_container.js')]");
 		assertEquals(RuntimeVariables.replace("Web Content Name"),
 			selenium.getText("//h1[@class='header-title']"));
 		selenium.clickAt("//input[@value='Save']",
@@ -82,5 +70,6 @@ public class Member_AssertAccessPermissionsTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
+		selenium.selectFrame("relative=top");
 	}
 }

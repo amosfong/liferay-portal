@@ -179,9 +179,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 						<span class="document-thumbnail">
 
 							<%
-							DLFileShortcut dlFileShortcut = null;
-
-							String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, fileVersion, dlFileShortcut, themeDisplay);
+							String thumbnailSrc = DLUtil.getThumbnailSrc(fileEntry, fileVersion, null, themeDisplay);
 
 							if (layoutAssetEntry != null) {
 								AssetEntry incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(layoutAssetEntry.getClassName(), fileEntry.getFileEntryId());
@@ -561,7 +559,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 
 									<liferay-ui:panel collapsible="<%= true %>" cssClass="metadata" extended="<%= true %>" id="documentLibraryMetadataPanel" persistState="<%= true %>" title="<%= HtmlUtil.escape(ddmStructure.getName(LocaleUtil.getDefault())) %>">
 
-										<%=DDMXSDUtil.getHTML(pageContext, ddmStructure.getXsd(), fields, String.valueOf(ddmStructure.getPrimaryKey()), true, locale) %>
+										<%= DDMXSDUtil.getHTML(pageContext, ddmStructure.getXsd(), fields, String.valueOf(ddmStructure.getPrimaryKey()), true, locale) %>
 
 									</liferay-ui:panel>
 
@@ -605,7 +603,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 
 									<liferay-ui:panel collapsible="<%= true %>" cssClass="lfr-asset-metadata" id="documentLibraryAssetMetadataPanel" persistState="<%= true %>" title="<%= name %>">
 
-										<%=DDMXSDUtil.getHTML(pageContext, ddmStructure.getXsd(), fields, String.valueOf(ddmStructure.getPrimaryKey()), true, locale) %>
+										<%= DDMXSDUtil.getHTML(pageContext, ddmStructure.getXsd(), fields, String.valueOf(ddmStructure.getPrimaryKey()), true, locale) %>
 
 									</liferay-ui:panel>
 
@@ -934,7 +932,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 			);
 		</c:if>
 
-		<c:if test="<%= DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.DELETE) && (fileEntry.getModel() instanceof DLFileEntry) && TrashUtil.isTrashEnabled(themeDisplay.getScopeGroupId()) %>">
+		<c:if test="<%= DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.DELETE) && (fileEntry.getModel() instanceof DLFileEntry) && TrashUtil.isTrashEnabled(scopeGroupId) %>">
 			fileEntryToolbarChildren.push(
 				{
 					<portlet:renderURL var="viewFolderURL">
@@ -953,7 +951,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 			);
 		</c:if>
 
-		<c:if test="<%= DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.DELETE) && (!(fileEntry.getModel() instanceof DLFileEntry) || !TrashUtil.isTrashEnabled(themeDisplay.getScopeGroupId())) %>">
+		<c:if test="<%= DLFileEntryPermission.contains(permissionChecker, fileEntry, ActionKeys.DELETE) && (!(fileEntry.getModel() instanceof DLFileEntry) || !TrashUtil.isTrashEnabled(scopeGroupId)) %>">
 			fileEntryToolbarChildren.push(
 				{
 					<portlet:renderURL var="viewFolderURL">

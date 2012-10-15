@@ -22,44 +22,21 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class ViewFolderTest extends BaseTestCase {
 	public void testViewFolder() throws Exception {
-		selenium.open("/web/guest/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isElementPresent("link=Control Panel")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
-		selenium.clickAt("link=Control Panel", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Communities", RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.type("_134_name",
-			RuntimeVariables.replace("Document Library Folder Community"));
-		selenium.clickAt("//input[@value='Search']",
-			RuntimeVariables.replace(""));
-		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("//td[2]/a", RuntimeVariables.replace("Open"));
-		selenium.waitForPageToLoad("30000");
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
+		selenium.open("/web/document-library-folder-community/");
 		selenium.clickAt("link=Document Library Page",
-			RuntimeVariables.replace(""));
+			RuntimeVariables.replace("Document Library Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
-			selenium.getText("//a/strong"));
-		assertEquals(RuntimeVariables.replace(
-				"Test1 Folder1\nThis is test1 folder1."),
-			selenium.getText("//td[1]/a[2]"));
-		selenium.clickAt("//a/strong", RuntimeVariables.replace("Test1 Folder1"));
+			selenium.getText("//a/strong[contains(.,'Test1 Folder1')]"));
+		assertTrue(selenium.isPartialText(
+				"//td[1]/a[contains(.,'Test1 Folder1')]", "Test1 Folder1"));
+		assertTrue(selenium.isPartialText(
+				"//td[1]/a[contains(.,'Test1 Folder1')]",
+				"This is test1 folder1."));
+		selenium.clickAt("//a/strong[contains(.,'Test1 Folder1')]",
+			RuntimeVariables.replace("Test1 Folder1"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Test1 Folder1"),
 			selenium.getText("//h1[@class='header-title']/span"));

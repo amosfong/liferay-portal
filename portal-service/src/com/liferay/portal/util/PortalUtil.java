@@ -778,10 +778,6 @@ public class PortalUtil {
 		return getPortal().getOriginalServletRequest(request);
 	}
 
-	public static String getOuterPortletId(HttpServletRequest request) {
-		return getPortal().getOuterPortletId(request);
-	}
-
 	public static long getParentGroupId(long scopeGroupId)
 		throws PortalException, SystemException {
 
@@ -1468,6 +1464,10 @@ public class PortalUtil {
 		return getPortal().isReservedParameter(name);
 	}
 
+	public static boolean isRSSFeedsEnabled() {
+		return getPortal().isRSSFeedsEnabled();
+	}
+
 	public static boolean isSecure(HttpServletRequest request) {
 		return getPortal().isSecure(request);
 	}
@@ -1540,6 +1540,20 @@ public class PortalUtil {
 		throws IOException, ServletException {
 
 		getPortal().sendError(status, e, request, response);
+	}
+
+	public static void sendRSSFeedsDisabledError(
+			HttpServletRequest request, HttpServletResponse response)
+		throws IOException, ServletException {
+
+		getPortal().sendRSSFeedsDisabledError(request, response);
+	}
+
+	public static void sendRSSFeedsDisabledError(
+			PortletRequest portletRequest, PortletResponse portletResponse)
+		throws IOException, ServletException {
+
+		getPortal().sendRSSFeedsDisabledError(portletRequest, portletResponse);
 	}
 
 	/**

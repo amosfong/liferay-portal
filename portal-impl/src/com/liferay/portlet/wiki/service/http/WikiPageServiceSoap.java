@@ -104,10 +104,11 @@ public class WikiPageServiceSoap {
 	}
 
 	public static void addPageAttachments(long nodeId, java.lang.String title,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStream)
+		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs)
 		throws RemoteException {
 		try {
-			WikiPageServiceUtil.addPageAttachments(nodeId, title, inputStream);
+			WikiPageServiceUtil.addPageAttachments(nodeId, title,
+				inputStreamOVPs);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -357,6 +358,42 @@ public class WikiPageServiceSoap {
 					title, fileName);
 
 			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void movePageToTrash(long nodeId, java.lang.String title)
+		throws RemoteException {
+		try {
+			WikiPageServiceUtil.movePageToTrash(nodeId, title);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void movePageToTrash(long nodeId, java.lang.String title,
+		double version) throws RemoteException {
+		try {
+			WikiPageServiceUtil.movePageToTrash(nodeId, title, version);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void restorePageFromTrash(long resourcePrimKey)
+		throws RemoteException {
+		try {
+			WikiPageServiceUtil.restorePageFromTrash(resourcePrimKey);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

@@ -27,6 +27,8 @@ public class SOUs1_SignOutSOTest extends BaseTestCase {
 		while (label >= 1) {
 			switch (label) {
 			case 1:
+				selenium.selectWindow("null");
+				selenium.selectFrame("relative=top");
 				selenium.open("/web/guest/home/");
 
 				boolean socialOfficeSignOutPresent = selenium.isElementPresent(
@@ -38,47 +40,19 @@ public class SOUs1_SignOutSOTest extends BaseTestCase {
 					continue;
 				}
 
+				selenium.clickAt("//div[@id='dockbar']",
+					RuntimeVariables.replace("Dockbar"));
+				selenium.waitForElementPresent(
+					"//script[contains(@src,'/liferay/dockbar_underlay.js')]");
 				assertTrue(selenium.isVisible("//li[@id='_145_userMenu']"));
 				selenium.mouseOver("//li[@id='_145_userMenu']");
 
 			case 2:
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("link=Sign Out")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("link=Sign Out");
 				selenium.clickAt("link=Sign Out",
 					RuntimeVariables.replace("Sign Out"));
 				selenium.waitForPageToLoad("30000");
-
-				for (int second = 0;; second++) {
-					if (second >= 90) {
-						fail("timeout");
-					}
-
-					try {
-						if (selenium.isVisible("//input[@value='Sign In']")) {
-							break;
-						}
-					}
-					catch (Exception e) {
-					}
-
-					Thread.sleep(1000);
-				}
-
+				selenium.waitForVisible("//input[@value='Sign In']");
 				assertTrue(selenium.isVisible("//input[@value='Sign In']"));
 
 			case 100:

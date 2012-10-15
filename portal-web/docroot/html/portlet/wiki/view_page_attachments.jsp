@@ -63,7 +63,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "att
 <c:if test="<%= viewTrashAttachments %>">
 	<liferay-ui:header
 		backURL="<%= redirect %>"
-		title="deleted-attachments"
+		title="removed-attachments"
 	/>
 </c:if>
 
@@ -117,12 +117,18 @@ for (int i = 0; i < results.size(); i++) {
 
 	// File name
 
+	if (viewTrashAttachments) {
+		shortFileName = TrashUtil.stripTrashNamespace(shortFileName, TrashUtil.TRASH_TIME_SEPARATOR);
+	}
+
+	String extension = FileUtil.getExtension(shortFileName);
+
 	StringBundler sb = new StringBundler(6);
 
 	sb.append("<img align=\"left\" border=\"0\" src=\"");
 	sb.append(themeDisplay.getPathThemeImages());
 	sb.append("/file_system/small/");
-	sb.append(DLUtil.getFileIcon(shortFileName));
+	sb.append(DLUtil.getFileIcon(extension));
 	sb.append(".png\">&nbsp;");
 	sb.append(shortFileName);
 
@@ -152,8 +158,8 @@ for (int i = 0; i < results.size(); i++) {
 			</portlet:actionURL>
 
 			<liferay-ui:trash-empty
-				confirmMessage="are-you-sure-you-want-to-delete-the-attachments-for-this-page"
-				emptyMessage="delete-the-attachments-for-this-page"
+				confirmMessage="are-you-sure-you-want-to-remove-the-attachments-for-this-page"
+				emptyMessage="remove-the-attachments-for-this-page"
 				portletURL="<%= emptyTrashURL.toString() %>"
 				totalEntries="<%= attachments.length %>"
 			/>
@@ -177,7 +183,7 @@ for (int i = 0; i < results.size(); i++) {
 					cssClass="trash-attachments"
 					image="delete"
 					label="<%= true %>"
-					message='<%= LanguageUtil.format(pageContext, "x-attachments-in-the-recycle-bin", deletedAttachments.length) %>'
+					message='<%= LanguageUtil.format(pageContext, "x-recent-removed-attachments", deletedAttachments.length) %>'
 					url="<%= viewTrashAttachmentsURL %>"
 				/>
 			</c:if>

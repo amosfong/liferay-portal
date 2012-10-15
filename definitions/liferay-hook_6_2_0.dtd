@@ -90,6 +90,7 @@ phone.number.format.usa.regexp
 portlet.add.default.resource.check.enabled
 portlet.add.default.resource.check.whitelist
 portlet.add.default.resource.check.whitelist.actions
+rss.feeds.enabled
 sanitizer.impl
 servlet.session.create.events
 servlet.session.destroy.events

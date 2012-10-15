@@ -78,6 +78,7 @@ import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -803,13 +804,15 @@ public abstract class BaseIndexer implements Indexer {
 				ServiceContext serviceContext =
 					ServiceContextThreadLocal.getServiceContext();
 
-				try {
-					User user = UserLocalServiceUtil.getUser(
-						serviceContext.getUserId());
+				if (serviceContext != null) {
+					try {
+						User user = UserLocalServiceUtil.getUser(
+							serviceContext.getUserId());
 
-					removedByUserName = user.getFullName();
-				}
-				catch (PortalException pe) {
+						removedByUserName = user.getFullName();
+					}
+					catch (PortalException pe) {
+					}
 				}
 			}
 		}
@@ -1185,8 +1188,8 @@ public abstract class BaseIndexer implements Indexer {
 		return classNames[0];
 	}
 
-	protected List<String> getLocalizedCountryNames(Country country) {
-		List<String> countryNames = new ArrayList<String>();
+	protected Set<String> getLocalizedCountryNames(Country country) {
+		Set<String> countryNames = new HashSet<String>();
 
 		Locale[] locales = LanguageUtil.getAvailableLocales();
 
@@ -1195,9 +1198,7 @@ public abstract class BaseIndexer implements Indexer {
 
 			countryName = countryName.toLowerCase();
 
-			if (!countryNames.contains(countryName)) {
-				countryNames.add(countryName);
-			}
+			countryNames.add(countryName);
 		}
 
 		return countryNames;

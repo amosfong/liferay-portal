@@ -67,6 +67,59 @@ body.portlet {
 	left: 0 !important;
 }
 
+.portlet-borderless-bar, .portlet-journal-content .icon-actions {
+	background: #333;
+	color: #FFF;
+	text-shadow: -1px -1px #000;
+
+	a {
+		color: #3AF;
+	}
+}
+
+.portlet-journal-content .icon-actions {
+	float: left;
+	margin: 1px 10px 1px 1px;
+	opacity: 0.5;
+	padding: 2px 7px;
+
+	.taglib-text {
+		color: #FFF;
+		display: none;
+		font-weight: bold;
+		margin-right: 1em;
+		text-decoration: none;
+		vertical-align: middle;
+	}
+
+	.icon-action a {
+		background: url() no-repeat 0 50%;
+		display: inline-block;
+		margin-left: 5px;
+		vertical-align: top;
+
+		.icon {
+			visibility: hidden;
+		}
+	}
+
+	.icon-action-add a {
+		background-image: url(../images/common/add_white.png);
+	}
+
+	.icon-action-edit a {
+		background-image: url(../images/common/edit_white.png);
+	}
+
+	.icon-action-edit-template a {
+		background-image: url(../images/common/edit_template_white.png);
+	}
+
+	.icon-action-configuration a {
+		background-image: url(../images/common/configuration_white.png);
+	}
+}
+
 /* ---------- Borderless portlet ---------- */
 
 .portlet-borderless-container {
@@ -75,20 +128,16 @@ body.portlet {
 }
 
 .portlet-borderless-bar {
-	background: #333;
-	color: #FFF;
 	font-size: 10px;
 	opacity: 0.3;
 	padding: 2px 5px 1px;
 	position: absolute;
 	right: 0;
-	text-shadow: -1px -1px #000;
 	top: 0;
 	z-index: 200;
 
 	a {
 		background: url() no-repeat 0 50%;
-		color: #3AF;
 		display: inline-block;
 		height: 16px;
 		margin-left: 5px;
@@ -100,10 +149,11 @@ body.portlet {
 	.portlet-actions {
 		display: none;
 		float: left;
-		margin-right: 20px;
+		margin-right: 10px;
+		overflow: hidden;
 	}
 
-	.portlet-title-default, .portlet-actions {
+	.portlet-actions, .portlet-title-default {
 		min-height: 20px;
 		vertical-align: top;
 	}
@@ -127,12 +177,22 @@ body.portlet {
 	}
 }
 
-.portlet-borderless-container:hover .portlet-borderless-bar {
-	opacity: 1;
-
-	.portlet-actions {
-		display: inline;
+.lfr-configurator-visibility {
+	.portlet-borderless-bar {
+		opacity: 0.6;
 	}
+
+	&.portlet-journal-content .icon-actions {
+		opacity: 1;
+	}
+}
+
+.portlet-borderless-container:hover .portlet-borderless-bar, .portlet-journal-content:hover .icon-actions {
+	opacity: 1;
+}
+
+.portlet-borderless-container:hover .portlet-borderless-bar .portlet-actions, .portlet-journal-content:hover .icon-actions .taglib-text {
+	display: inline-block;
 }
 
 .portlet-title-default {
@@ -202,26 +262,26 @@ body.portlet {
 
 /* ---------- Help messages, general additional information, etc. ---------- */
 
-.portlet-msg-info, .lfr-message-info {
+.lfr-message-info, .portlet-msg-info {
 	@extend .portlet-msg;
 	background-color: #DFF4FF;
 	background-image: url(../images/messages/info.png);
 	border-color: #A7CEDF;
 }
 
-.portlet-msg-help, .lfr-message-help {
+.lfr-message-help, .portlet-msg-help {
 	@extend .portlet-msg-info;
 	background-image: url(../images/portlet/help.png);
 }
 
-.portlet-msg-progress, .lfr-message-progress {
+.lfr-message-progress, .portlet-msg-progress {
 	@extend .portlet-msg-info;
 	background-image: url(../images/aui/loading_indicator.gif);
 }
 
 /* ---------- Error messages ---------- */
 
-.portlet-msg-error, .lfr-message-error {
+.lfr-message-error, .portlet-msg-error {
 	@extend .portlet-msg;
 	background-color: #FDD;
 	background-image: url(../images/messages/error.png);
@@ -230,7 +290,7 @@ body.portlet {
 
 /* ---------- Warning messages ---------- */
 
-.portlet-msg-alert, .lfr-message-alert {
+.lfr-message-alert, .portlet-msg-alert {
 	@extend .portlet-msg;
 	background-color: #FFC;
 	background-image: url(../images/messages/alert.png);
@@ -240,7 +300,7 @@ body.portlet {
 
 /* ---------- Success messages ---------- */
 
-.portlet-msg-success, .lfr-message-success {
+.lfr-message-success, .portlet-msg-success {
 	@extend .portlet-msg;
 	background-color: #F4FDEF;
 	background-image: url(../images/messages/success.png);
@@ -266,7 +326,7 @@ body.portlet {
 	color: #900;
 }
 
-.portlet-msg-info-label, .portlet-msg-help-label, .portlet-msg-progress-label {
+.portlet-msg-help-label, .portlet-msg-info-label, .portlet-msg-progress-label {
 	background-image: url(../images/messages/info.png);
 	color: #34404F;
 }
@@ -286,7 +346,7 @@ body.portlet {
 
 /* ---------- Liferay Messages ---------- */
 
-.lfr-message-content, .lfr-message-info, .lfr-message-help, .lfr-message-error, .lfr-message-alert, .lfr-message-success {
+.lfr-message-alert, .lfr-message-content, .lfr-message-error, .lfr-message-help, .lfr-message-info, .lfr-message-success {
 	border-left-width: 0;
 	border-right-width: 0;
 }
@@ -347,7 +407,7 @@ body.portlet {
 	}
 }
 
-.lfr-message-trigger, .lfr-message-close {
+.lfr-message-close, .lfr-message-trigger {
 	cursor: pointer;
 }
 
@@ -356,25 +416,22 @@ body.portlet {
 /* ---------- Table or section header ---------- */
 
 .portlet-section-header {
-}
-
-.portlet-section-header th {
+	th {
+	}
 }
 
 /* ---------- Normal text in a table cell ---------- */
 
 .portlet-section-body {
-}
-
-.portlet-section-body td {
+	td {
+	}
 }
 
 /* ---------- Text in every other row in the cell ---------- */
 
 .portlet-section-alternate {
-}
-
-.portlet-section-alternate td {
+	td {
+	}
 }
 
 .portlet-section-alternate-hover td, .portlet-section-body-hover td {
@@ -521,7 +578,7 @@ body.portlet {
 	background-color: #D3BDC0;
 }
 
-.restricted, .alt.restricted {
+.alt.restricted, .restricted {
 	td.col-1 {
 		background-image: url(../images/messages/error.png);
 		background-position: 5px 50%;
@@ -648,7 +705,7 @@ body.portlet {
 /*------ Breadcrumbs taglib ------*/
 
 .breadcrumbs {
-	&:before, &:after {
+	&:after, &:before {
 		content: "\0020";
 		display: block;
 		height: 0;
@@ -722,12 +779,12 @@ body.portlet {
 }
 
 .ie {
-	.portlet-borderless-bar {
-		-ms-filter: alpha(opacity=20);
-		filter: alpha(opacity=20);
+	.portlet-borderless-bar, .portlet-journal-content .icon-actions {
+		-ms-filter: alpha(opacity=50);
+		filter: alpha(opacity=50);
 	}
 
-	.portlet-borderless-container:hover .portlet-borderless-bar {
+	.portlet-borderless-container:hover .portlet-borderless-bar, .portlet-journal-content .icon-actions:hover {
 		-ms-filter: alpha(opacity=100);
 		filter: alpha(opacity=100);
 	}
@@ -738,16 +795,26 @@ body.portlet {
 }
 
 .ie6, .ie7 {
+	.portlet-journal-content {
+		.icons-container {
+			overflow: visible;
+		}
+
+		.icon-actions .taglib-text {
+			display: inline-block;
+		}
+	}
+
 	.portlet-borderless-bar .portlet-actions {
-		margin-right: 0;
 		margin-left: 20px;
+		margin-right: 0;
 	}
 
 	.portlet-title-default {
 		float: left;
 	}
 
-	.breadcrumbs-vertical, .breadcrumbs-horizontal li {
+	.breadcrumbs-horizontal li, .breadcrumbs-vertical {
 		display: inline;
 		zoom: 1;
 	}

@@ -39,10 +39,13 @@ if (!selectableTree) {
 
 <aui:script use="<%= modules %>">
 	var Lang = A.Lang;
+	var AArray = A.Array;
 
 	var Util = Liferay.Util;
 
 	var LAYOUT_URL = '<%= portletURL + StringPool.AMPERSAND + portletDisplay.getNamespace() + "selPlid={selPlid}" + StringPool.AMPERSAND + portletDisplay.getNamespace() + "historyKey={historyKey}" %>';
+
+	var STR_CHILDREN = 'children';
 
 	var TreeUtil = {
 		DEFAULT_PARENT_LAYOUT_ID: <%= LayoutConstants.DEFAULT_PARENT_LAYOUT_ID %>,
@@ -171,8 +174,17 @@ if (!selectableTree) {
 										var plid = TreeUtil.extractPlid(event.target);
 
 										TreeUtil.updateSessionTreeCheckedState('<%= HtmlUtil.escape(treeId) %>SelectedNode', plid, event.newVal);
+
+										TreeUtil.updateSelectedNodes(event.target, event.newVal);
 									}
 								},
+
+								childrenChange: function(event) {
+									TreeUtil.updateSelectedNodes(event.target, event.target.get('checked'));
+
+									TreeUtil.restoreNodeState(event.target);
+								},
+
 								expandedChange: function(event) {
 									var layoutId = TreeUtil.extractLayoutId(event.target);
 
@@ -262,7 +274,7 @@ if (!selectableTree) {
 
 			var plid = TreeUtil.extractPlid(node);
 
-			if (A.Array.indexOf(TreeUtil.SELECTED_NODES, plid) > -1) {
+			if (AArray.indexOf(TreeUtil.SELECTED_NODES, plid) > -1) {
 				if (node.check) {
 					var tree = node.get('ownerTree');
 
@@ -270,7 +282,7 @@ if (!selectableTree) {
 				}
 			}
 
-			A.Array.each(node.get('children'), TreeUtil.restoreNodeState);
+			AArray.each(node.get(STR_CHILDREN), TreeUtil.restoreNodeState);
 		},
 
 		restoreSelectedNode: function(node) {
@@ -346,7 +358,7 @@ if (!selectableTree) {
 
 						var layoutId = TreeUtil.extractLayoutId(curNode);
 
-						var children = curNode.get('children');
+						var children = curNode.get(STR_CHILDREN);
 
 						map[layoutId] = Math.ceil(children.length / paginationLimit) * paginationLimit;
 					}
@@ -377,6 +389,30 @@ if (!selectableTree) {
 								'<%= HtmlUtil.escape(treeId) %>:<%= groupId %>:<%= privateLayout %>:Pagination': A.JSON.stringify(paginationMap)
 							}
 						);
+					}
+				);
+			},
+
+			updateSelectedNodes: function(node, state) {
+				var plid = TreeUtil.extractPlid(node);
+
+				var selectedNodes = TreeUtil.SELECTED_NODES;
+
+				var index = AArray.indexOf(selectedNodes, plid);
+
+				if (state) {
+					if (index == -1) {
+						selectedNodes.push(plid);
+					}
+				}
+				else if (index > -1) {
+					AArray.remove(selectedNodes, index);
+				}
+
+				AArray.each(
+					node.get(STR_CHILDREN),
+					function(item) {
+						TreeUtil.updateSelectedNodes(item, state);
 					}
 				);
 			},
@@ -449,6 +485,8 @@ if (!selectableTree) {
 				after: {
 					checkedChange: function(event) {
 						TreeUtil.updateSessionTreeCheckedState('<%= HtmlUtil.escape(treeId) %>SelectedNode', <%= LayoutConstants.DEFAULT_PLID %>, event.newVal);
+
+						TreeUtil.updateSelectedNodes(event.target, event.newVal);
 					},
 					expandedChange: function(event) {
 						Liferay.Store('<%= HtmlUtil.escape(treeId) %>RootNode', event.newVal);
@@ -549,10 +587,11 @@ if (!selectableTree) {
 			},
 			on: {
 				<c:if test="<%= saveState %>">
-				append: function(event) {
-					TreeUtil.restoreNodeState(event.tree.node);
-				},
+					append: function(event) {
+						TreeUtil.restoreNodeState(event.tree.node);
+					},
 				</c:if>
+
 				dropAppend: function(event) {
 					var tree = event.tree;
 
@@ -637,7 +676,7 @@ if (!selectableTree) {
 			}
 
 			if (!foundItem) {
-				var children = (node || treeview).get('children');
+				var children = (node || treeview).get(STR_CHILDREN);
 
 				var length = children.length;
 

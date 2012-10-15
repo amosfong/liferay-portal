@@ -34,7 +34,7 @@ String selectionMethod = preferences.getValue("selectionMethod", "users");
 long organizationId = GetterUtil.getLong(preferences.getValue("organizationId", "0"));
 String displayStyle = preferences.getValue("displayStyle", "abstract");
 int max = GetterUtil.getInteger(preferences.getValue("max", "20"));
-boolean enableRssSubscription = GetterUtil.getBoolean(preferences.getValue("enableRssSubscription", null), true);
+boolean enableRssSubscription = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean(preferences.getValue("enableRssSubscription", null), true);
 boolean showTags = GetterUtil.getBoolean(preferences.getValue("showTags", null), true);
 
 if (organizationId == 0) {

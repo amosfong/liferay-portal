@@ -15,6 +15,7 @@
 package com.liferay.portlet.journal.service;
 
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
+import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -23,7 +24,6 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.test.EnvironmentExecutionTestListener;
-import com.liferay.portal.test.ExecutionTestListeners;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.TransactionalExecutionTestListener;
 import com.liferay.portal.util.TestPropsValues;
@@ -57,7 +57,7 @@ public class JournalFolderServiceTest {
 
 	@Test
 	public void testContent() throws Exception {
-		Group group = ServiceTestUtil.addGroup("Test Group");
+		Group group = ServiceTestUtil.addGroup();
 
 		JournalFolder folder = _addFolder(group.getGroupId(), 0, "Test Folder");
 
@@ -74,7 +74,7 @@ public class JournalFolderServiceTest {
 	@Test
 	@Transactional
 	public void testSubfolders() throws Exception {
-		Group group = ServiceTestUtil.addGroup("Test Group");
+		Group group = ServiceTestUtil.addGroup();
 
 		JournalFolder folder1 = _addFolder(group.getGroupId(), 0, "Test 1");
 		JournalFolder folder11 = _addFolder(

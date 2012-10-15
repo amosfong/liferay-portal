@@ -86,25 +86,10 @@ SitesUtil.addPortletBreadcrumbEntries(group, pagesName, redirectURL, request, re
 
 		<%
 		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, TextFormatter.format(tabs1, TextFormatter.O)), redirectURL.toString());
-
-		if ((selLayout != null) && !group.isLayoutPrototype()) {
-			redirectURL.setParameter("selPlid", String.valueOf(selLayout.getPlid()));
-
-			PortalUtil.addPortletBreadcrumbEntry(request, selLayout.getName(locale), currentURL);
-		}
 		%>
 
 	</c:when>
 	<c:otherwise>
-
-		<%
-		if ((selLayout != null) && !group.isLayoutPrototype()) {
-			redirectURL.setParameter("selPlid", String.valueOf(selLayout.getPlid()));
-
-			PortalUtil.addPortletBreadcrumbEntry(request, selLayout.getName(locale), redirectURL.toString());
-		}
-		%>
-
 		<div class="layout-breadcrumb">
 			<liferay-ui:breadcrumb displayStyle="horizontal" showGuestGroup="<%= false %>" showLayout="<%= false %>" showParentGroups="<%= false %>" showPortletBreadcrumb="<%= true %>" />
 		</div>
@@ -230,31 +215,35 @@ SitesUtil.addPortletBreadcrumbEntries(group, pagesName, redirectURL, request, re
 			function(event) {
 				event.preventDefault();
 
-				var hash = location.hash;
+				var href = event.currentTarget.one('a').attr('href');
 
-				var prefix = '#_LFR_FN_<portlet:namespace />';
-				var historyKey = '';
+				if (href) {
+					var hash = location.hash;
 
-				if (hash.indexOf(prefix) != -1) {
-					historyKey = hash.replace(prefix, '');
-				}
+					var prefix = '#_LFR_FN_<portlet:namespace />';
+					var historyKey = '';
 
-				var requestUri = A.Lang.sub(
-					event.currentTarget.get('href'),
-					{
-						historyKey: historyKey
+					if (hash.indexOf(prefix) != -1) {
+						historyKey = hash.replace(prefix, '');
 					}
-				);
 
-				layoutsContainer.io.set('uri', requestUri);
+					var requestUri = A.Lang.sub(
+						href,
+						{
+							historyKey: historyKey
+						}
+					);
 
-				if (layoutsContainer.ParseContent) {
-					layoutsContainer.ParseContent.get('queue').stop();
+					layoutsContainer.io.set('uri', requestUri);
+
+					if (layoutsContainer.ParseContent) {
+						layoutsContainer.ParseContent.get('queue').stop();
+					}
+
+					layoutsContainer.io.start();
 				}
-
-				layoutsContainer.io.start();
 			},
-			'.layout-tree'
+			'.aui-tree-node-content'
 		);
 	</aui:script>
 </c:if>

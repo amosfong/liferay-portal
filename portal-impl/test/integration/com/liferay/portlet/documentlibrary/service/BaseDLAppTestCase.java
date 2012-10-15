@@ -48,6 +48,37 @@ public abstract class BaseDLAppTestCase {
 		}
 	}
 
+	protected DLFileRank addDLFileRank(long fileEntryId) throws Exception {
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setAddGroupPermissions(true);
+		serviceContext.setAddGuestPermissions(true);
+
+		return DLAppLocalServiceUtil.addFileRank(
+			TestPropsValues.getGroupId(), TestPropsValues.getCompanyId(),
+			TestPropsValues.getUserId(), fileEntryId, serviceContext);
+	}
+
+	protected DLFileShortcut addDLFileShortcut(FileEntry fileEntry)
+		throws Exception {
+
+		return addDLFileShortcut(fileEntry, fileEntry.getFolderId());
+	}
+
+	protected DLFileShortcut addDLFileShortcut(
+			FileEntry fileEntry, long folderId)
+		throws Exception {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setAddGroupPermissions(true);
+		serviceContext.setAddGuestPermissions(true);
+
+		return DLAppServiceUtil.addFileShortcut(
+			TestPropsValues.getGroupId(), folderId, fileEntry.getFileEntryId(),
+			serviceContext);
+	}
+
 	protected FileEntry addFileEntry(boolean rootFolder, String fileName)
 		throws Exception {
 
@@ -113,36 +144,6 @@ public abstract class BaseDLAppTestCase {
 			serviceContext);
 	}
 
-	protected DLFileRank addFileRank(long fileEntryId) throws Exception {
-		ServiceContext serviceContext = new ServiceContext();
-
-		serviceContext.setAddGroupPermissions(true);
-		serviceContext.setAddGuestPermissions(true);
-
-		return DLAppLocalServiceUtil.addFileRank(
-			TestPropsValues.getGroupId(), TestPropsValues.getCompanyId(),
-			TestPropsValues.getUserId(), fileEntryId, serviceContext);
-	}
-
-	protected DLFileShortcut addFileShortcut(FileEntry fileEntry)
-		throws Exception {
-
-		return addFileShortcut(fileEntry, fileEntry.getFolderId());
-	}
-
-	protected DLFileShortcut addFileShortcut(FileEntry fileEntry, long folderId)
-		throws Exception {
-
-		ServiceContext serviceContext = new ServiceContext();
-
-		serviceContext.setAddGroupPermissions(true);
-		serviceContext.setAddGuestPermissions(true);
-
-		return DLAppServiceUtil.addFileShortcut(
-			TestPropsValues.getGroupId(), folderId, fileEntry.getFileEntryId(),
-			serviceContext);
-	}
-
 	protected Folder addFolder(boolean rootFolder, String name)
 		throws Exception {
 
@@ -204,7 +205,9 @@ public abstract class BaseDLAppTestCase {
 		byte[] bytes = null;
 
 		if (Validator.isNotNull(sourceFileName)) {
-			bytes = CONTENT.getBytes();
+			String newContent = CONTENT + "\n" + System.currentTimeMillis();
+
+			bytes = newContent.getBytes();
 		}
 
 		ServiceContext serviceContext = new ServiceContext();

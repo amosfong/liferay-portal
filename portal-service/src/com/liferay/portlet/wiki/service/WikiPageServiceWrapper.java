@@ -85,10 +85,10 @@ public class WikiPageServiceWrapper implements WikiPageService,
 	}
 
 	public void addPageAttachments(long nodeId, java.lang.String title,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStream)
+		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		_wikiPageService.addPageAttachments(nodeId, title, inputStream);
+		_wikiPageService.addPageAttachments(nodeId, title, inputStreamOVPs);
 	}
 
 	public java.lang.String addTempPageAttachment(long nodeId,
@@ -226,6 +226,25 @@ public class WikiPageServiceWrapper implements WikiPageService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPageService.movePageAttachmentToTrash(nodeId, title,
 			fileName);
+	}
+
+	public void movePageToTrash(long nodeId, java.lang.String title)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_wikiPageService.movePageToTrash(nodeId, title);
+	}
+
+	public void movePageToTrash(long nodeId, java.lang.String title,
+		double version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_wikiPageService.movePageToTrash(nodeId, title, version);
+	}
+
+	public void restorePageFromTrash(long resourcePrimKey)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_wikiPageService.restorePageFromTrash(resourcePrimKey);
 	}
 
 	public com.liferay.portlet.wiki.model.WikiPage revertPage(long nodeId,

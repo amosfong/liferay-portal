@@ -22,35 +22,21 @@ import com.liferay.portalweb.portal.util.RuntimeVariables;
  */
 public class SRl_ConfirmFriendRequestTest extends BaseTestCase {
 	public void testSRl_ConfirmFriendRequest() throws Exception {
+		selenium.selectWindow("null");
+		selenium.selectFrame("relative=top");
 		selenium.open("/web/socialrelationsn1/home/");
-
-		for (int second = 0;; second++) {
-			if (second >= 90) {
-				fail("timeout");
-			}
-
-			try {
-				if (selenium.isVisible("link=Requests Test Page")) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-
-			Thread.sleep(1000);
-		}
-
 		selenium.clickAt("link=Requests Test Page",
 			RuntimeVariables.replace("Requests Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace(
 				"socialrelationfn2 socialrelationmn2 socialrelationln2"),
-			selenium.getText("//div/a[2]"));
+			selenium.getText("//div/a[contains(.,'socialrelationfn2')]"));
 		assertEquals(RuntimeVariables.replace("Confirm"),
-			selenium.getText("//td[2]/ul/li[1]/a[2]"));
-		selenium.clickAt("//td[2]/ul/li[1]/a[2]",
-			RuntimeVariables.replace("Confirm"));
+			selenium.getText("//a[.='Confirm']"));
+		selenium.clickAt("//a[.='Confirm']", RuntimeVariables.replace("Confirm"));
 		selenium.waitForPageToLoad("30000");
 		assertFalse(selenium.isTextPresent("Confirm"));
+		assertFalse(selenium.isTextPresent(
+				"socialrelationfn2 socialrelationmn2 socialrelationln2"));
 	}
 }

@@ -20118,6 +20118,13 @@ See http://issues.liferay.com/browse/LPS-11061.
 			</throws>
 		</method>
 		<method>
+			<name>buildTableNameTokens</name>
+			<param>
+				<name>line</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>buildTemplate</name>
 			<param>
 				<name>sqlDir</name>
@@ -20297,10 +20304,16 @@ See http://issues.liferay.com/browse/LPS-11061.
 			<name>ALTER_COLUMN_TYPE</name>
 		</field>
 		<field>
+			<name>ALTER_TABLE_NAME</name>
+		</field>
+		<field>
 			<name>DROP_INDEX</name>
 		</field>
 		<field>
 			<name>DROP_PRIMARY_KEY</name>
+		</field>
+		<field>
+			<name>RENAME_TABLE_TEMPLATE</name>
 		</field>
 		<field>
 			<name>REWORD_TEMPLATE</name>
@@ -41954,6 +41967,10 @@ This action ensures that all requests are secure. Extend this and override the <
 		<method>
 			<name>_addVariableStatement</name>
 			<param>
+				<name>statement</name>
+				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
+			</param>
+			<param>
 				<name>variableStatement</name>
 				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
 			</param>
@@ -41968,6 +41985,10 @@ This action ensures that all requests are secure. Extend this and override the <
 		</method>
 		<method>
 			<name>_addVariableStatementList</name>
+			<param>
+				<name>statement</name>
+				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
+			</param>
 			<param>
 				<name>variableStatement</name>
 				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
@@ -42037,6 +42058,17 @@ This action ensures that all requests are secure. Extend this and override the <
 			</param>
 		</method>
 		<method>
+			<name>_filterResultObject</name>
+			<param>
+				<name>statement</name>
+				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
+			</param>
+			<param>
+				<name>result</name>
+				<type>java.lang.Object</type>
+			</param>
+		</method>
+		<method>
 			<name>_parseStatement</name>
 			<param>
 				<name>assignment</name>
@@ -42050,11 +42082,11 @@ This action ensures that all requests are secure. Extend this and override the <
 		<method>
 			<name>_populateFlags</name>
 			<param>
-				<name>name</name>
-				<type>java.lang.String</type>
+				<name>statement</name>
+				<type>com.liferay.portal.jsonwebservice.action.JSONWebServiceInvokerAction.Statement</type>
 			</param>
 			<param>
-				<name>object</name>
+				<name>result</name>
 				<type>java.lang.Object</type>
 			</param>
 		</method>
@@ -42071,6 +42103,17 @@ This action ensures that all requests are secure. Extend this and override the <
 			<param>
 				<name>results</name>
 				<type>java.util.List</type>
+			</param>
+		</method>
+		<method>
+			<name>_populateFlagsObject</name>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>object</name>
+				<type>java.lang.Object</type>
 			</param>
 		</method>
 		<field>
@@ -66347,6 +66390,7 @@ System exceptions are always unexpected, and generally indicate that the portal 
 	<javadoc>
 		<name>BigEndianCodec</name>
 		<type>com.liferay.portal.kernel.io.BigEndianCodec</type>
+		<comment><![CDATA[Encodes/decodes primitive types to/from big-endian byte sequences.]]></comment>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<method>
 			<name>getBoolean</name>
@@ -66749,6 +66793,7 @@ System exceptions are always unexpected, and generally indicate that the portal 
 	<javadoc>
 		<name>Deserializer</name>
 		<type>com.liferay.portal.kernel.io.Deserializer</type>
+		<comment><![CDATA[Deserializes data in a ClassLoader-aware manner using {@link com.liferay.portal.kernel.io.BigEndianCodec}. This class is the counterpart of {@link com.liferay.portal.kernel.io.Serializer} for deserialization.]]></comment>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<see><![CDATA[Serializer]]></see>
 		<method>
@@ -66794,10 +66839,11 @@ System exceptions are always unexpected, and generally indicate that the portal 
 		</method>
 		<method>
 			<name>detectBufferUnderflow</name>
-			<comment><![CDATA[This method is final so that JIT can inline it.]]></comment>
+			<comment><![CDATA[Detects a buffer underflow throwing an {@link java.lang.IllegalStateException} if the input data is shorter than the reserved space. This method is final so JIT can perform an inline expansion.]]></comment>
 			<param>
 				<name>availableBytes</name>
 				<type>int</type>
+				<comment><![CDATA[number of bytes available in input buffer]]></comment>
 			</param>
 		</method>
 		<field>
@@ -67483,6 +67529,27 @@ System exceptions are always unexpected, and generally indicate that the portal 
 	<javadoc>
 		<name>Serializer</name>
 		<type>com.liferay.portal.kernel.io.Serializer</type>
+		<comment><![CDATA[Serializes data in a ClassLoader-aware manner using {@link com.liferay.portal.kernel.io.BigEndianCodec}, a compact primary type format comparable to {@link java.io.ObjectOutputStream}.
+
+<p>
+For primitive types, the Serializer performs better than {@link java.io.ObjectOutputStream} and {@link java.io.DataOutputStream} because of the compact format (no block header) it uses and its simple call stack. BigEndianCodec is comparable to an OutputStream wrapper on top of {@link java.io.Bits}.
+</p>
+
+<p>
+For Strings, the UTF encoding for ObjectOutputStream and DataOutputStream has a 2^16=64K length limitation, which is often too restrictive. Serializer has a 2^32=4G String length limitation, which is generally more than enough. For pure ASCII character Strings, the encoding performance is almost the same, if not better, than ObjectOutputStream and DataOutputStream. For Strings containing non-ASCII characters, the Serializer encodes each char to two bytes rather than performing UTF encoding. There is a trade-off between CPU/memory performance and compression rate.
+</p>
+
+<p>
+UTF encoding uses more CPU cycles to detect the unicode range for each char and the resulting output is variable length, which increases the memory burden when preparing to decode the buffer. Whereas, encoding each char to two bytes allows for better CPU/memory performance. Although inefficient with compression rates in comparison to UTF encoding, the char to two byte approach significantly simplifies the encoder's logic and the output length is predictably based on the length of the String, so the decoder can manage its decoding buffer efficiently. On average, a system uses more ASCII String scheming than non-ASCII String scheming. In most cases, when all system internal Strings are ASCII Strings and only Strings holding user input information can have non-ASCII characters, this Serializer performs best. In other cases, developers should consider using {@link java.io.ObjectOutputStream} or {@link java.io.DataOutputStream}.
+</p>
+
+<p>
+For ordinary Objects, all primary type wrappers are encoded to their raw values with one byte type headers. This is much more efficient than ObjectOutputStream's serialization format for primary type wrappers. Strings are output in the same way as {@link #writeString(java.lang.String)}, but also with one byte type headers. Objects are serialized by a new ObjectOutputStream, so no reference handler can be used across Object serialization. This is done intentionally to isolate each object. The Serializer is highly optimized for serializing primary types, but is not good as good as ObjectOutputStream for serializing complex objects.
+</p>
+
+<p>
+At the beginning of object serialization, the Serializer maps servlet context names to/from the ServletContext's ClassLoader (see {@link com.liferay.portal.kernel.util.ClassLoaderPool}), so the {@link com.liferay.portal.kernel.io.Deserializer} can determine the right ClassLoader to deserialize each Object. ObjectOutputStream and ObjectInputStream lack this important feature, making Serializer and Deserializer better choices for ClassLoader-aware Object serialization/deserialization, especially when a plugins are involved.
+</p>]]></comment>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<see><![CDATA[Deserializer]]></see>
 		<method>
@@ -67574,14 +67641,23 @@ System exceptions are always unexpected, and generally indicate that the portal 
 		</method>
 		<method>
 			<name>getBuffer</name>
-			<comment><![CDATA[This method is final so that JIT can inline it.]]></comment>
+			<comment><![CDATA[Returns the required buffer length. This method is final so JIT can perform an inline expansion.]]></comment>
 			<param>
 				<name>ensureExtraSpace</name>
 				<type>int</type>
+				<comment><![CDATA[the extra byte space required to meet the buffer's minimum length]]></comment>
 			</param>
+			<return>
+				<comment><![CDATA[the buffer value]]></comment>
+			</return>
 		</method>
 		<field>
 			<name>bufferQueueThreadLocal</name>
+			<comment><![CDATA[Softens the local thread's pooled buffer memory.
+
+<p>
+Technically, we should soften each pooled buffer individually to achieve the best garbage collection (GC) interaction. However, that increases complexity of pooled buffer access and also burdens the GC's {@link java.lang.ref.SoftReference} process, hurting performance. This method softens the localized {@link BufferQueue} for threads that do serializing often. Furthermore, its BufferQueue stays valid for threads that do serializing occasionally. After this method completes, its BufferQueue is released by the GC.
+</p>]]></comment>
 		</field>
 		<field>
 			<name>THREADLOCAL_BUFFER_COUNT_LIMIT</name>
@@ -82230,6 +82306,24 @@ Destination that delivers a message to a list of message listeners one at a time
 		</field>
 	</javadoc>
 	<javadoc>
+		<name>ProxyModeThreadLocal</name>
+		<type>com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal</type>
+		<author><![CDATA[Shuyang Zhou]]></author>
+		<method>
+			<name>isForceSync</name>
+		</method>
+		<method>
+			<name>setForceSync</name>
+			<param>
+				<name>forceSync</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<field>
+			<name>_forceSync</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>ProxyRequest</name>
 		<type>com.liferay.portal.kernel.messaging.proxy.ProxyRequest</type>
 		<author><![CDATA[Micha Kiener]]></author>
@@ -92155,6 +92249,27 @@ Valid lifecycles are:
 		</field>
 	</javadoc>
 	<javadoc>
+		<name>PortletModeFactory_IW</name>
+		<type>com.liferay.portal.kernel.portlet.PortletModeFactory_IW</type>
+		<author><![CDATA[Brian Wing Shun Chan]]></author>
+		<method>
+			<name>getInstance</name>
+		</method>
+		<method>
+			<name>getPortletMode</name>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>PortletModeFactory_IW</name>
+		</method>
+		<field>
+			<name>_instance</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>PortletResponseUtil</name>
 		<type>com.liferay.portal.kernel.portlet.PortletResponseUtil</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
@@ -93278,6 +93393,27 @@ When choosing the order in which to place a list of routes, the general rule is 
 		</field>
 	</javadoc>
 	<javadoc>
+		<name>WindowStateFactory_IW</name>
+		<type>com.liferay.portal.kernel.portlet.WindowStateFactory_IW</type>
+		<author><![CDATA[Brian Wing Shun Chan]]></author>
+		<method>
+			<name>getInstance</name>
+		</method>
+		<method>
+			<name>getWindowState</name>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>WindowStateFactory_IW</name>
+		</method>
+		<field>
+			<name>_instance</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>BasePortletDisplayTemplateHandler</name>
 		<type>com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler</type>
 		<author><![CDATA[Eduardo Garcia]]></author>
@@ -94211,6 +94347,10 @@ When choosing the order in which to place a list of routes, the general rule is 
 				<type>int</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -94550,6 +94690,10 @@ When choosing the order in which to place a list of routes, the general rule is 
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96198,6 +96342,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -96224,6 +96372,10 @@ Calling these methods will throw an
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96278,6 +96430,10 @@ Calling these methods will throw an
 				<name>end</name>
 				<type>int</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96557,6 +96713,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -96614,6 +96774,10 @@ Calling these methods will throw an
 				<name>includeMountFolders</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96722,6 +96886,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -96759,6 +96927,10 @@ Calling these methods will throw an
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96813,6 +96985,10 @@ Calling these methods will throw an
 				<name>rootFolderId</name>
 				<type>long</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -96859,6 +97035,10 @@ Calling these methods will throw an
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -96873,6 +97053,10 @@ Calling these methods will throw an
 				<name>recurse</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -97798,6 +97982,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -97824,6 +98012,10 @@ Calling these methods will throw an
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -98189,6 +98381,10 @@ Calling these methods will throw an
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -98256,6 +98452,10 @@ Calling these methods will throw an
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -98270,6 +98470,10 @@ Calling these methods will throw an
 				<name>recurse</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -101957,9 +102161,6 @@ Calling these methods will throw an
 			<name>AUDIT_ACTION</name>
 		</field>
 		<field>
-			<name>CONTEXT_PATH</name>
-		</field>
-		<field>
 			<name>DESCRIPTION</name>
 		</field>
 		<field>
@@ -103579,9 +103780,6 @@ Calling these methods will throw an
 		<type>com.liferay.portal.kernel.scheduler.SchedulerEntry</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<method>
-			<name>getContextPath</name>
-		</method>
-		<method>
 			<name>getDescription</name>
 		</method>
 		<method>
@@ -103608,13 +103806,6 @@ Calling these methods will throw an
 		</method>
 		<method>
 			<name>getTriggerValue</name>
-		</method>
-		<method>
-			<name>setContextPath</name>
-			<param>
-				<name>contextPath</name>
-				<type>java.lang.String</type>
-			</param>
 		</method>
 		<method>
 			<name>setDescription</name>
@@ -103685,9 +103876,6 @@ Calling these methods will throw an
 		<type>com.liferay.portal.kernel.scheduler.SchedulerEntryImpl</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<method>
-			<name>getContextPath</name>
-		</method>
-		<method>
 			<name>getDescription</name>
 		</method>
 		<method>
@@ -103714,13 +103902,6 @@ Calling these methods will throw an
 		</method>
 		<method>
 			<name>getTriggerValue</name>
-		</method>
-		<method>
-			<name>setContextPath</name>
-			<param>
-				<name>contextPath</name>
-				<type>java.lang.String</type>
-			</param>
 		</method>
 		<method>
 			<name>setDescription</name>
@@ -103788,9 +103969,6 @@ Calling these methods will throw an
 		<method>
 			<name>toString</name>
 		</method>
-		<field>
-			<name>_contextPath</name>
-		</field>
 		<field>
 			<name>_description</name>
 		</field>
@@ -104033,121 +104211,75 @@ Calling these methods will throw an
 		<name>AbstractSchedulingConfigurator</name>
 		<type>com.liferay.portal.kernel.scheduler.config.AbstractSchedulingConfigurator</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
+		<author><![CDATA[Tina Tian]]></author>
 		<method>
-			<name>destroy</name>
+			<name>afterPropertiesSet</name>
 		</method>
 		<method>
-			<name>init</name>
-		</method>
-		<method>
-			<name>setMessageBus</name>
+			<name>setExceptionsMaxSize</name>
 			<param>
-				<name>messageBus</name>
-				<type>com.liferay.portal.kernel.messaging.MessageBus</type>
-			</param>
-		</method>
-		<method>
-			<name>setSchedulerEngine</name>
-			<param>
-				<name>schedulerEngine</name>
-				<type>com.liferay.portal.kernel.scheduler.SchedulerEngine</type>
+				<name>exceptionsMaxSize</name>
+				<type>int</type>
 			</param>
 		</method>
 		<method>
 			<name>setSchedulerEntries</name>
 			<param>
 				<name>schedulerEntries</name>
-				<type>java.util.Map</type>
+				<type>java.util.List</type>
 			</param>
 		</method>
 		<method>
-			<name>destroySchedulerEntry</name>
+			<name>setStorageType</name>
 			<param>
-				<name>schedulerEntry</name>
-				<type>com.liferay.portal.kernel.scheduler.SchedulerEntry</type>
+				<name>storageType</name>
+				<type>com.liferay.portal.kernel.scheduler.StorageType</type>
 			</param>
-			<throws>
-				<name>Exception</name>
-				<type>java.lang.Exception</type>
-			</throws>
-		</method>
-		<method>
-			<name>getOperatingClassloader</name>
-		</method>
-		<method>
-			<name>initSchedulerEntry</name>
-			<param>
-				<name>destinationName</name>
-				<type>java.lang.String</type>
-			</param>
-			<param>
-				<name>schedulerEntry</name>
-				<type>com.liferay.portal.kernel.scheduler.SchedulerEntry</type>
-			</param>
-			<throws>
-				<name>Exception</name>
-				<type>java.lang.Exception</type>
-			</throws>
 		</method>
 		<field>
-			<name>_log</name>
+			<name>exceptionsMaxSize</name>
 		</field>
 		<field>
-			<name>_messageBus</name>
+			<name>schedulerEntries</name>
 		</field>
 		<field>
-			<name>_schedulerEngine</name>
-		</field>
-		<field>
-			<name>_schedulerEntries</name>
+			<name>storageType</name>
 		</field>
 	</javadoc>
 	<javadoc>
 		<name>DefaultSchedulingConfigurator</name>
 		<type>com.liferay.portal.kernel.scheduler.config.DefaultSchedulingConfigurator</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
+		<author><![CDATA[Tina Tian]]></author>
 		<method>
-			<name>getOperatingClassloader</name>
+			<name>configure</name>
 		</method>
+		<field>
+			<name>_log</name>
+		</field>
 	</javadoc>
 	<javadoc>
 		<name>PluginSchedulingConfigurator</name>
 		<type>com.liferay.portal.kernel.scheduler.config.PluginSchedulingConfigurator</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
+		<author><![CDATA[Tina Tian]]></author>
 		<method>
-			<name>getOperatingClassloader</name>
+			<name>configure</name>
 		</method>
+		<method>
+			<name>destroy</name>
+		</method>
+		<field>
+			<name>_log</name>
+		</field>
 	</javadoc>
 	<javadoc>
 		<name>SchedulingConfigurator</name>
 		<type>com.liferay.portal.kernel.scheduler.config.SchedulingConfigurator</type>
 		<author><![CDATA[Shuyang Zhou]]></author>
+		<author><![CDATA[Tina Tian]]></author>
 		<method>
-			<name>destroy</name>
-		</method>
-		<method>
-			<name>init</name>
-		</method>
-		<method>
-			<name>setMessageBus</name>
-			<param>
-				<name>messageBus</name>
-				<type>com.liferay.portal.kernel.messaging.MessageBus</type>
-			</param>
-		</method>
-		<method>
-			<name>setSchedulerEngine</name>
-			<param>
-				<name>schedulerEngine</name>
-				<type>com.liferay.portal.kernel.scheduler.SchedulerEngine</type>
-			</param>
-		</method>
-		<method>
-			<name>setSchedulerEntries</name>
-			<param>
-				<name>schedulerEntries</name>
-				<type>java.util.Map</type>
-			</param>
+			<name>configure</name>
 		</method>
 	</javadoc>
 	<javadoc>
@@ -122616,6 +122748,28 @@ See http://issues.liferay.com/browse/LEP-1466.
 			</param>
 		</method>
 		<method>
+			<name>getFilter</name>
+			<param>
+				<name>servletContext</name>
+				<type>javax.servlet.ServletContext</type>
+			</param>
+			<param>
+				<name>filterClassName</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>filterConfig</name>
+				<type>javax.servlet.FilterConfig</type>
+			</param>
+		</method>
+		<method>
+			<name>getPluginClassLoader</name>
+			<param>
+				<name>servletContext</name>
+				<type>javax.servlet.ServletContext</type>
+			</param>
+		</method>
+		<method>
 			<name>initFilter</name>
 			<param>
 				<name>servletContext</name>
@@ -127497,6 +127651,9 @@ See http://issues.liferay.com/browse/LPS-13878.
 			</throws>
 		</method>
 		<method>
+			<name>initApplicationContext</name>
+		</method>
+		<method>
 			<name>withAfterClasses</name>
 			<param>
 				<name>statement</name>
@@ -128132,6 +128289,9 @@ See http://issues.liferay.com/browse/LPS-13878.
 				<type>org.junit.runners.model.InitializationError</type>
 			</throws>
 		</method>
+		<method>
+			<name>initApplicationContext</name>
+		</method>
 	</javadoc>
 	<javadoc>
 		<name>PluginIntegrationTestHotDeployListener</name>
@@ -128411,27 +128571,19 @@ See http://issues.liferay.com/browse/LPS-13878.
 	<javadoc>
 		<name>BaseTrashHandler</name>
 		<type>com.liferay.portal.kernel.trash.BaseTrashHandler</type>
-		<comment><![CDATA[Represents the base class for basic operations with the Trash.
-
-<p>
-The basic operations are:
-</p>
-
-<ul>
-<li>
-Deletion of entries
-</li>
-<li>
-Restore of entries
-</li>
-</ul>]]></comment>
+		<comment><![CDATA[Represents the base class for basic operations with the Trash.]]></comment>
 		<author><![CDATA[Alexander Chow]]></author>
 		<author><![CDATA[Zsolt Berentey]]></author>
+		<see><![CDATA[com.liferay.portal.kernel.trash.TrashHandler]]></see>
 		<method>
 			<name>checkDuplicateTrashEntry</name>
 			<param>
 				<name>trashEntry</name>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>newName</name>
@@ -128515,6 +128667,70 @@ Restore of entries
 			</throws>
 		</method>
 		<method>
+			<name>getContainerModel</name>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getContainerModelName</name>
+		</method>
+		<method>
+			<name>getContainerModels</name>
+			<param>
+				<name>trashEntryId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>parentContainerModelId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getContainerModelsCount</name>
+			<param>
+				<name>trashEntryId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>parentContainerModelId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getDeleteMessage</name>
 		</method>
 		<method>
@@ -128556,10 +128772,81 @@ Restore of entries
 			</throws>
 		</method>
 		<method>
+			<name>getRootContainerModelName</name>
+		</method>
+		<method>
+			<name>getSubcontainerModelName</name>
+		</method>
+		<method>
 			<name>getTrashRenderer</name>
 			<param>
 				<name>classPK</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>hasTrashPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>trashActionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>isRestorable</name>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>moveTrashEntry</name>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>serviceContext</name>
+				<type>com.liferay.portal.service.ServiceContext</type>
 			</param>
 			<throws>
 				<name>PortalException</name>
@@ -128607,6 +128894,32 @@ Restore of entries
 		<method>
 			<name>getAssetRendererFactory</name>
 		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<field>
+			<name>_log</name>
+		</field>
 	</javadoc>
 	<javadoc>
 		<name>BaseTrashRenderer</name>
@@ -128650,60 +128963,26 @@ Restore of entries
 		</method>
 	</javadoc>
 	<javadoc>
+		<name>TrashActionKeys</name>
+		<type>com.liferay.portal.kernel.trash.TrashActionKeys</type>
+		<comment><![CDATA[Contains constant versions of action IDs related to trash.]]></comment>
+		<author><![CDATA[Zsolt Berentey]]></author>
+		<field>
+			<name>MOVE</name>
+		</field>
+		<field>
+			<name>OVERWRITE</name>
+		</field>
+		<field>
+			<name>RENAME</name>
+		</field>
+		<field>
+			<name>RESTORE</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>TrashHandler</name>
 		<type>com.liferay.portal.kernel.trash.TrashHandler</type>
-		<comment><![CDATA[Represents the interface to manage the basic operations of the Recycle Bin.
-
-<p>
-The basic operations are:
-</p>
-
-<ul>
-<li>
-Deletion of entries
-</li>
-<li>
-Restore of entries
-</li>
-</ul>
-
-<p>
-The entities that support these operations are:
-</p>
-
-<ul>
-<li>
-BlogsEntry {@link com.liferay.portlet.blogs.trash.BlogsEntryTrashHandler}
-</li>
-<li>
-BookmarksEntry {@link
-com.liferay.portlet.bookmarks.trash.BookmarksEntryTrashHandler}
-</li>
-<li>
-DLFileEntry {@link
-com.liferay.portlet.documentlibrary.trash.DLFileEntryTrashHandler}
-</li>
-<li>
-DLFileShortcut {@link
-com.liferay.portlet.documentlibrary.trash.DLFileShortcutTrashHandler}
-</li>
-<li>
-DLFolder {@link
-com.liferay.portlet.documentlibrary.trash.DLFolderTrashHandler}
-</li>
-<li>
-MBThread {@link
-com.liferay.portlet.messageboards.trash.MBThreadTrashHandler}
-</li>
-<li>
-WikiNode {@link
-com.liferay.portlet.wiki.trash.WikiNodeTrashHandler}
-</li>
-<li>
-WikiPage {@link
-com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
-</li>
-</ul>]]></comment>
 		<author><![CDATA[Alexander Chow]]></author>
 		<author><![CDATA[Zsolt Berentey]]></author>
 		<method>
@@ -128711,6 +128990,10 @@ com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
 			<param>
 				<name>trashEntry</name>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>newName</name>
@@ -128836,7 +129119,7 @@ com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
 		<method>
 			<name>getContainerModels</name>
 			<param>
-				<name>entryId</name>
+				<name>trashEntryId</name>
 				<type>long</type>
 			</param>
 			<param>
@@ -128863,7 +129146,7 @@ com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
 		<method>
 			<name>getContainerModelsCount</name>
 			<param>
-				<name>entryId</name>
+				<name>trashEntryId</name>
 				<type>long</type>
 			</param>
 			<param>
@@ -128924,7 +129207,7 @@ com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
 			<name>getRootContainerModelName</name>
 		</method>
 		<method>
-			<name>getSubContainerModelName</name>
+			<name>getSubcontainerModelName</name>
 		</method>
 		<method>
 			<name>getTrashRenderer</name>
@@ -128942,17 +129225,21 @@ com.liferay.portlet.wiki.trash.WikiPageTrashHandler}
 			</throws>
 		</method>
 		<method>
-			<name>hasPermission</name>
+			<name>hasTrashPermission</name>
 			<param>
 				<name>permissionChecker</name>
 				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>classPK</name>
 				<type>long</type>
 			</param>
 			<param>
-				<name>actionId</name>
+				<name>trashActionId</name>
 				<type>java.lang.String</type>
 			</param>
 			<throws>
@@ -129213,36 +129500,6 @@ The entities that can be registered are:
 		</method>
 		<method>
 			<name>getType</name>
-		</method>
-		<method>
-			<name>hasDeletePermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-			<throws>
-				<name>PortalException</name>
-				<type>com.liferay.portal.kernel.exception.PortalException</type>
-			</throws>
-			<throws>
-				<name>SystemException</name>
-				<type>com.liferay.portal.kernel.exception.SystemException</type>
-			</throws>
-		</method>
-		<method>
-			<name>hasViewPermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-			<throws>
-				<name>PortalException</name>
-				<type>com.liferay.portal.kernel.exception.PortalException</type>
-			</throws>
-			<throws>
-				<name>SystemException</name>
-				<type>com.liferay.portal.kernel.exception.SystemException</type>
-			</throws>
 		</method>
 		<method>
 			<name>render</name>
@@ -135121,6 +135378,17 @@ See http://issues.liferay.com/browse/LPS-6872.
 	<javadoc>
 		<name>ClassLoaderPool</name>
 		<type>com.liferay.portal.kernel.util.ClassLoaderPool</type>
+		<comment><![CDATA[Maps servlet context names to/from the ServletContext's ClassLoader.
+
+<ul>
+<li>
+For an unknown context names are mapped to the PortalClassLoader.
+</li>
+<li>
+For an unknown ClassLoaders are mapped to the ROOT context name
+{@link com.liferay.portal.kernel.util.StringPool#BLANK}
+</li>
+</ul>]]></comment>
 		<author><![CDATA[Shuyang Zhou]]></author>
 		<method>
 			<name>getClassLoader</name>
@@ -135532,6 +135800,9 @@ See http://issues.liferay.com/browse/LPS-6872.
 			<name>CANCEL_CHECKOUT</name>
 		</field>
 		<field>
+			<name>CHECK</name>
+		</field>
+		<field>
 			<name>CHECKIN</name>
 		</field>
 		<field>
@@ -135849,6 +136120,138 @@ See http://issues.liferay.com/browse/LPS-6872.
 		<type>com.liferay.portal.kernel.util.CookieKeys</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
 		<author><![CDATA[Minhchau Dang]]></author>
+		<method>
+			<name>addCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>response</name>
+				<type>javax.servlet.http.HttpServletResponse</type>
+			</param>
+			<param>
+				<name>cookie</name>
+				<type>javax.servlet.http.Cookie</type>
+			</param>
+		</method>
+		<method>
+			<name>addCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>response</name>
+				<type>javax.servlet.http.HttpServletResponse</type>
+			</param>
+			<param>
+				<name>cookie</name>
+				<type>javax.servlet.http.Cookie</type>
+			</param>
+			<param>
+				<name>secure</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<method>
+			<name>addSupportCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>response</name>
+				<type>javax.servlet.http.HttpServletResponse</type>
+			</param>
+		</method>
+		<method>
+			<name>getCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>getCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>toUpperCase</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<method>
+			<name>getDomain</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+		</method>
+		<method>
+			<name>getDomain</name>
+			<param>
+				<name>host</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>hasSessionId</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+		</method>
+		<method>
+			<name>isEncodedCookie</name>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>validateSupportCookie</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<throws>
+				<name>CookieNotSupportedException</name>
+				<type>com.liferay.portal.CookieNotSupportedException</type>
+			</throws>
+		</method>
+		<method>
+			<name>_get</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+			<param>
+				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>toUpperCase</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<method>
+			<name>_getCookieMap</name>
+			<param>
+				<name>request</name>
+				<type>javax.servlet.http.HttpServletRequest</type>
+			</param>
+		</method>
 		<field>
 			<name>COMPANY_ID</name>
 		</field>
@@ -135868,6 +136271,9 @@ See http://issues.liferay.com/browse/LPS-6872.
 			<name>LOGIN</name>
 		</field>
 		<field>
+			<name>MAX_AGE</name>
+		</field>
+		<field>
 			<name>PASSWORD</name>
 		</field>
 		<field>
@@ -135878,6 +136284,21 @@ See http://issues.liferay.com/browse/LPS-6872.
 		</field>
 		<field>
 			<name>USER_UUID</name>
+		</field>
+		<field>
+			<name>_SESSION_COOKIE_DOMAIN</name>
+		</field>
+		<field>
+			<name>_SESSION_ENABLE_PERSISTENT_COOKIES</name>
+		</field>
+		<field>
+			<name>_SESSION_TEST_COOKIE_SUPPORT</name>
+		</field>
+		<field>
+			<name>_TCK_URL</name>
+		</field>
+		<field>
+			<name>_log</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -137124,6 +137545,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 		<method>
 			<name>digest</name>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137146,6 +137574,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137155,6 +137594,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137182,6 +137628,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137191,6 +137648,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137209,6 +137673,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137245,6 +137720,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestRaw</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137290,6 +137776,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 		<method>
 			<name>digest</name>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137312,6 +137805,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137321,6 +137825,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137348,6 +137859,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -137357,6 +137879,13 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137375,6 +137904,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -137411,6 +137951,17 @@ Represents a change between one or several lines. <code>changeType</code> tells 
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestRaw</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -147582,7 +148133,7 @@ Localized values are cached in this class rather than in the value object since 
 		<name>MethodWrapper</name>
 		<type>com.liferay.portal.kernel.util.MethodWrapper</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
-		<deprecated><![CDATA[]]></deprecated>
+		<deprecated><![CDATA[As of 6.0.5, replaced by {@link com.liferay.kernel.util.MethodHandler}]]></deprecated>
 		<method>
 			<name>MethodWrapper</name>
 			<param>
@@ -147637,7 +148188,7 @@ Localized values are cached in this class rather than in the value object since 
 		</method>
 		<method>
 			<name>getArgs</name>
-			<deprecated><![CDATA[Use <code>getArguments</code>.]]></deprecated>
+			<deprecated><![CDATA[Replaced by {@link #getArguments()}.]]></deprecated>
 		</method>
 		<method>
 			<name>getArgumentClassNames</name>
@@ -156202,6 +156753,9 @@ Localized values are cached in this class rather than in the value object since 
 			<name>ADMIN_DEFAULT_GROUP_NAMES</name>
 		</field>
 		<field>
+			<name>ADMIN_DEFAULT_ORGANIZATION_GROUP_NAMES</name>
+		</field>
+		<field>
 			<name>ADMIN_DEFAULT_ROLE_NAMES</name>
 		</field>
 		<field>
@@ -157129,6 +157683,9 @@ Localized values are cached in this class rather than in the value object since 
 			<name>DL_FILE_ENTRY_TYPE_IG_IMAGE_AUTO_CREATE_ON_UPGRADE</name>
 		</field>
 		<field>
+			<name>DL_FILE_ENTRY_VERSION_POLICY</name>
+		</field>
+		<field>
 			<name>DL_FILE_EXTENSIONS</name>
 		</field>
 		<field>
@@ -157226,6 +157783,9 @@ Localized values are cached in this class rather than in the value object since 
 		</field>
 		<field>
 			<name>DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_VELOCITY</name>
+		</field>
+		<field>
+			<name>DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_XSL</name>
 		</field>
 		<field>
 			<name>DYNAMIC_DATA_LISTS_RECORD_SET_FORCE_AUTOGENERATE_KEY</name>
@@ -159481,6 +160041,9 @@ Localized values are cached in this class rather than in the value object since 
 			<name>TRASH_SEARCH_LIMIT</name>
 		</field>
 		<field>
+			<name>UPGRADE_DATABASE_TRANSACTIONS_DISABLED</name>
+		</field>
+		<field>
 			<name>UPGRADE_PROCESSES</name>
 		</field>
 		<field>
@@ -159641,6 +160204,9 @@ Localized values are cached in this class rather than in the value object since 
 		</field>
 		<field>
 			<name>VELOCITY_ENGINE_VELOCIMACRO_LIBRARY</name>
+		</field>
+		<field>
+			<name>VERIFY_DATABASE_TRANSACTIONS_DISABLED</name>
 		</field>
 		<field>
 			<name>VERIFY_FREQUENCY</name>
@@ -160751,6 +161317,12 @@ Localized values are cached in this class rather than in the value object since 
 			<name>isJBoss</name>
 		</method>
 		<method>
+			<name>isJBoss5</name>
+		</method>
+		<method>
+			<name>isJBoss7</name>
+		</method>
+		<method>
 			<name>isJetty</name>
 		</method>
 		<method>
@@ -160809,6 +161381,9 @@ Localized values are cached in this class rather than in the value object since 
 		</method>
 		<method>
 			<name>_isJBoss</name>
+		</method>
+		<method>
+			<name>_isJBoss5</name>
 		</method>
 		<method>
 			<name>_isJetty</name>
@@ -160875,6 +161450,12 @@ Localized values are cached in this class rather than in the value object since 
 		</field>
 		<field>
 			<name>_jBoss</name>
+		</field>
+		<field>
+			<name>_jBoss5</name>
+		</field>
+		<field>
+			<name>_jBoss7</name>
 		</field>
 		<field>
 			<name>_jetty</name>
@@ -167136,6 +167717,110 @@ trim(" \t Hey \t ", '\t') returns "\t Hey \t"
 		</method>
 	</javadoc>
 	<javadoc>
+		<name>ThreadLocalDistributor</name>
+		<type>com.liferay.portal.kernel.util.ThreadLocalDistributor</type>
+		<author><![CDATA[Shuyang Zhou]]></author>
+		<method>
+			<name>afterPropertiesSet</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>capture</name>
+		</method>
+		<method>
+			<name>getClassLoader</name>
+		</method>
+		<method>
+			<name>readExternal</name>
+			<param>
+				<name>objectInput</name>
+				<type>java.io.ObjectInput</type>
+			</param>
+			<throws>
+				<name>ClassNotFoundException</name>
+				<type>java.lang.ClassNotFoundException</type>
+			</throws>
+			<throws>
+				<name>IOException</name>
+				<type>java.io.IOException</type>
+			</throws>
+		</method>
+		<method>
+			<name>restore</name>
+		</method>
+		<method>
+			<name>setClassLoader</name>
+			<param>
+				<name>classLoader</name>
+				<type>java.lang.ClassLoader</type>
+			</param>
+		</method>
+		<method>
+			<name>setThreadLocalSources</name>
+			<param>
+				<name>threadLocalSources</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
+		<method>
+			<name>writeExternal</name>
+			<param>
+				<name>objectOutput</name>
+				<type>java.io.ObjectOutput</type>
+			</param>
+			<throws>
+				<name>IOException</name>
+				<type>java.io.IOException</type>
+			</throws>
+		</method>
+		<field>
+			<name>_log</name>
+		</field>
+		<field>
+			<name>_classLoader</name>
+		</field>
+		<field>
+			<name>_index</name>
+		</field>
+		<field>
+			<name>_threadLocals</name>
+		</field>
+		<field>
+			<name>_threadLocalSources</name>
+		</field>
+		<field>
+			<name>_threadLocalValues</name>
+		</field>
+	</javadoc>
+	<javadoc>
+		<name>ThreadLocalDistributorRegistry</name>
+		<type>com.liferay.portal.kernel.util.ThreadLocalDistributorRegistry</type>
+		<author><![CDATA[Shuyang Zhou]]></author>
+		<method>
+			<name>getThreadLocalDistributors</name>
+		</method>
+		<method>
+			<name>addThreadLocalDistributor</name>
+			<param>
+				<name>threadLocalDistributor</name>
+				<type>com.liferay.portal.kernel.util.ThreadLocalDistributor</type>
+			</param>
+		</method>
+		<method>
+			<name>getThreadLocalDistributor</name>
+			<param>
+				<name>index</name>
+				<type>int</type>
+			</param>
+		</method>
+		<field>
+			<name>_threadLocalDistributors</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>ThreadUtil</name>
 		<type>com.liferay.portal.kernel.util.ThreadUtil</type>
 		<author><![CDATA[Tina Tian]]></author>
@@ -168777,6 +169462,159 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 			</return>
 		</method>
 		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the boolean arrays are equal.]]></comment>
+			<param>
+				<name>booleanArray1</name>
+				<type>boolean[]</type>
+				<comment><![CDATA[the first boolean array]]></comment>
+			</param>
+			<param>
+				<name>booleanArray2</name>
+				<type>boolean[]</type>
+				<comment><![CDATA[the second boolean array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the booleans arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the byte arrays are equal.]]></comment>
+			<param>
+				<name>byteArray1</name>
+				<type>byte[]</type>
+				<comment><![CDATA[the first byte array]]></comment>
+			</param>
+			<param>
+				<name>byteArray2</name>
+				<type>byte[]</type>
+				<comment><![CDATA[the second byte array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the byte arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the char arrays are equal.]]></comment>
+			<param>
+				<name>charArray1</name>
+				<type>char[]</type>
+				<comment><![CDATA[the first char array]]></comment>
+			</param>
+			<param>
+				<name>charArray2</name>
+				<type>char[]</type>
+				<comment><![CDATA[the second char array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the char arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the double arrays are equal.]]></comment>
+			<param>
+				<name>doubleArray1</name>
+				<type>double[]</type>
+				<comment><![CDATA[the first double array]]></comment>
+			</param>
+			<param>
+				<name>doubleArray2</name>
+				<type>double[]</type>
+				<comment><![CDATA[the second double array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the double arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the float arrays are equal.]]></comment>
+			<param>
+				<name>floatArray1</name>
+				<type>float[]</type>
+				<comment><![CDATA[the first float array]]></comment>
+			</param>
+			<param>
+				<name>floatArray2</name>
+				<type>float[]</type>
+				<comment><![CDATA[the second char array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the float arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the int arrays are equal.]]></comment>
+			<param>
+				<name>intArray1</name>
+				<type>int[]</type>
+				<comment><![CDATA[the first int array]]></comment>
+			</param>
+			<param>
+				<name>intArray2</name>
+				<type>int[]</type>
+				<comment><![CDATA[the second int array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the int arrays are equal; <code>false</code> otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the long arrays are equal.]]></comment>
+			<param>
+				<name>longArray1</name>
+				<type>long[]</type>
+				<comment><![CDATA[the first long array]]></comment>
+			</param>
+			<param>
+				<name>longArray2</name>
+				<type>long[]</type>
+				<comment><![CDATA[the second long array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the long arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the object arrays are equal.]]></comment>
+			<param>
+				<name>objArray1</name>
+				<type>java.lang.Object[]</type>
+				<comment><![CDATA[the first object array]]></comment>
+			</param>
+			<param>
+				<name>objArray2</name>
+				<type>java.lang.Object[]</type>
+				<comment><![CDATA[the second object array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the object arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<comment><![CDATA[Returns <code>true</code> if the short arrays are equal.]]></comment>
+			<param>
+				<name>shortArray1</name>
+				<type>short[]</type>
+				<comment><![CDATA[the first short array]]></comment>
+			</param>
+			<param>
+				<name>shortArray2</name>
+				<type>short[]</type>
+				<comment><![CDATA[the second short array]]></comment>
+			</param>
+			<return>
+				<comment><![CDATA[<code>true</code> if the short arrays are equal; <code>false </code>otherwise]]></comment>
+			</return>
+		</method>
+		<method>
 			<name>isAddress</name>
 			<comment><![CDATA[Returns <code>true</code> if the string is an email address. The only requirements are that the string consist of two parts separated by an @ symbol, and that it contain no whitespace.]]></comment>
 			<param>
@@ -169414,6 +170252,105 @@ This is a read-only wrapper around any <code>java.util.List</code>. Query operat
 			<param>
 				<name>short2</name>
 				<type>short</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>booleanArray1</name>
+				<type>boolean[]</type>
+			</param>
+			<param>
+				<name>booleanArray2</name>
+				<type>boolean[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>byteArray1</name>
+				<type>byte[]</type>
+			</param>
+			<param>
+				<name>byteArray2</name>
+				<type>byte[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>charArray1</name>
+				<type>char[]</type>
+			</param>
+			<param>
+				<name>charArray2</name>
+				<type>char[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>doubleArray1</name>
+				<type>double[]</type>
+			</param>
+			<param>
+				<name>doubleArray2</name>
+				<type>double[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>floatArray1</name>
+				<type>float[]</type>
+			</param>
+			<param>
+				<name>floatArray2</name>
+				<type>float[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>intArray1</name>
+				<type>int[]</type>
+			</param>
+			<param>
+				<name>intArray2</name>
+				<type>int[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>longArray1</name>
+				<type>long[]</type>
+			</param>
+			<param>
+				<name>longArray2</name>
+				<type>long[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>objArray1</name>
+				<type>java.lang.Object[]</type>
+			</param>
+			<param>
+				<name>objArray2</name>
+				<type>java.lang.Object[]</type>
+			</param>
+		</method>
+		<method>
+			<name>equalsSorted</name>
+			<param>
+				<name>shortArray1</name>
+				<type>short[]</type>
+			</param>
+			<param>
+				<name>shortArray2</name>
+				<type>short[]</type>
 			</param>
 		</method>
 		<method>
@@ -202276,8 +203213,50 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 		<method>
 			<name>getDisplayURL</name>
 			<param>
+				<name>portalURL</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>mainPath</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>privateLayout</name>
+				<type>boolean</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getDisplayURL</name>
+			<param>
 				<name>themeDisplay</name>
 				<type>com.liferay.portal.theme.ThemeDisplay</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getDisplayURL</name>
+			<param>
+				<name>themeDisplay</name>
+				<type>com.liferay.portal.theme.ThemeDisplay</type>
+			</param>
+			<param>
+				<name>privateLayout</name>
+				<type>boolean</type>
 			</param>
 			<throws>
 				<name>PortalException</name>
@@ -215954,6 +216933,56 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</throws>
 		</method>
 		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>obc</name>
+				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getPortletFileEntriesCount</name>
 			<param>
 				<name>groupId</name>
@@ -215962,6 +216991,25 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			<param>
 				<name>folderId</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntriesCount</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
 			</param>
 			<throws>
 				<name>SystemException</name>
@@ -216308,6 +217356,56 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</throws>
 		</method>
 		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>obc</name>
+				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getPortletFileEntriesCount</name>
 			<param>
 				<name>groupId</name>
@@ -216316,6 +217414,25 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			<param>
 				<name>folderId</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntriesCount</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
 			</param>
 			<throws>
 				<name>SystemException</name>
@@ -216662,6 +217779,56 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</throws>
 		</method>
 		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>obc</name>
+				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getPortletFileEntriesCount</name>
 			<param>
 				<name>groupId</name>
@@ -216670,6 +217837,25 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			<param>
 				<name>folderId</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getPortletFileEntriesCount</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
 			</param>
 			<throws>
 				<name>SystemException</name>
@@ -220725,6 +221911,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -220751,6 +221941,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -220779,6 +221973,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -220801,6 +221999,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>end</name>
 				<type>int</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -221009,6 +222211,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221040,6 +222246,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221070,6 +222280,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -221105,6 +222319,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -221220,6 +222438,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221258,6 +222480,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221293,6 +222519,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221307,6 +222537,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>rootFolderId</name>
 				<type>long</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -221331,6 +222565,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>int</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221346,6 +222584,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -221360,6 +222602,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>recurse</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -223386,6 +224632,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -223412,6 +224662,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -223466,6 +224720,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>end</name>
 				<type>int</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -223745,6 +225003,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -223802,6 +225064,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>includeMountFolders</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -223913,6 +225179,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -223953,6 +225223,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -224007,6 +225281,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>rootFolderId</name>
 				<type>long</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -224053,6 +225331,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -224067,6 +225349,10 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 				<name>recurse</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -235239,6 +236525,13 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 		<type>com.liferay.portal.security.auth.AuthVerifierPipeline</type>
 		<author><![CDATA[Tomas Polesovsky]]></author>
 		<method>
+			<name>getAuthVerifierPropertyName</name>
+			<param>
+				<name>className</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>register</name>
 			<param>
 				<name>authVerifierConfiguration</name>
@@ -240195,6 +241488,21 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</param>
 		</method>
 		<method>
+			<name>setProperty</name>
+			<param>
+				<name>bean1</name>
+				<type>java.lang.Object</type>
+			</param>
+			<param>
+				<name>bean2</name>
+				<type>java.lang.Object</type>
+			</param>
+			<param>
+				<name>propertyName</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>updateExpandoAttributes</name>
 			<param>
 				<name>user</name>
@@ -240260,6 +241568,9 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 			</throws>
 		</method>
 		<field>
+			<name>_CONTACT_PROPERTY_NAMES</name>
+		</field>
+		<field>
 			<name>_IMPORT_BY_GROUP</name>
 		</field>
 		<field>
@@ -240267,6 +241578,9 @@ The <code>actionIds</code> attribute stores the bitwise IDs of all the actions a
 		</field>
 		<field>
 			<name>_USER_PASSWORD_SCREEN_NAME</name>
+		</field>
+		<field>
+			<name>_USER_PROPERTY_NAMES</name>
 		</field>
 		<field>
 			<name>_log</name>
@@ -254586,6 +255900,72 @@ through {@link com.liferay.portal.service.CompanyService}.]]></comment>
 		<name>ContactServiceImpl</name>
 		<type>com.liferay.portal.service.impl.ContactServiceImpl</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
+		<author><![CDATA[Vilmos Papp]]></author>
+		<method>
+			<name>getContact</name>
+			<param>
+				<name>contactId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getContacts</name>
+			<param>
+				<name>classNameId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>orderByComparator</name>
+				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getContactsCount</name>
+			<param>
+				<name>classNameId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
 	</javadoc>
 	<javadoc>
 		<name>CountryServiceImpl</name>
@@ -257818,6 +259198,21 @@ Useful when paginating results. Returns a maximum of <code>end - start</code> in
 			<param>
 				<name>larFile</name>
 				<type>java.io.File</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>deletePortletData</name>
+			<param>
+				<name>group</name>
+				<type>com.liferay.portal.model.Group</type>
 			</param>
 			<throws>
 				<name>PortalException</name>
@@ -266355,7 +267750,7 @@ This method can disable the layout set prototype's link by setting <code>layoutS
 				<type>javax.servlet.ServletContext</type>
 			</param>
 			<param>
-				<name>layoutTemplateIds</name>
+				<name>layoutTemplateIdOVPs</name>
 				<type>java.util.Set</type>
 			</param>
 			<param>
@@ -292315,7 +293710,7 @@ This method handles the creation and bookkeeping of the user including its resou
 				<type>long</type>
 			</param>
 			<param>
-				<name>workflowDefinitions</name>
+				<name>workflowDefinitionOVPs</name>
 				<type>java.util.List</type>
 			</param>
 			<throws>
@@ -326483,6 +327878,9 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<name>isLifecycleAction</name>
 		</method>
 		<method>
+			<name>isLifecycleEvent</name>
+		</method>
+		<method>
 			<name>isLifecycleRender</name>
 		</method>
 		<method>
@@ -326794,6 +328192,13 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<name>setLifecycleAction</name>
 			<param>
 				<name>lifecycleAction</name>
+				<type>boolean</type>
+			</param>
+		</method>
+		<method>
+			<name>setLifecycleEvent</name>
+			<param>
+				<name>lifecycleEvent</name>
 				<type>boolean</type>
 			</param>
 		</method>
@@ -327533,6 +328938,9 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		</field>
 		<field>
 			<name>_lifecycleAction</name>
+		</field>
+		<field>
+			<name>_lifecycleEvent</name>
 		</field>
 		<field>
 			<name>_lifecycleRender</name>
@@ -328330,6 +329738,20 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		</method>
 		<method>
 			<name>_deleteTempImages</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>_disableTransactions</name>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>_enableTransactions</name>
 			<throws>
 				<name>Exception</name>
 				<type>java.lang.Exception</type>
@@ -329359,19 +330781,60 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			</throws>
 		</method>
 		<method>
-			<name>_createPluginSummary</name>
+			<name>_createPluginsSummary</name>
 			<param>
-				<name>fileName</name>
-				<type>java.lang.String</type>
-			</param>
-			<param>
-				<name>sb</name>
-				<type>com.liferay.portal.kernel.util.StringBundler</type>
+				<name>fileNames</name>
+				<type>java.lang.String[]</type>
 			</param>
 			<throws>
 				<name>Exception</name>
 				<type>java.lang.Exception</type>
 			</throws>
+		</method>
+		<method>
+			<name>_createPluginSummary</name>
+			<param>
+				<name>sb</name>
+				<type>com.liferay.portal.kernel.util.StringBundler</type>
+			</param>
+			<param>
+				<name>fileName</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>_extractTicketIds</name>
+			<param>
+				<name>pluginDir</name>
+				<type>java.io.File</type>
+			</param>
+			<param>
+				<name>range</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>_getChangeLogEntry</name>
+			<param>
+				<name>changeLogVersion</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>range</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>ticketIdsString</name>
+				<type>java.lang.String</type>
+			</param>
 		</method>
 		<method>
 			<name>_readProperty</name>
@@ -329389,6 +330852,29 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<param>
 				<name>fileName</name>
 				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>pluginPackageProperties</name>
+				<type>java.util.Properties</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
+			<name>_updateRelengChangeLogFile</name>
+			<param>
+				<name>pluginPackageProperties</name>
+				<type>java.util.Properties</type>
+			</param>
+			<param>
+				<name>relengChangeLogFile</name>
+				<type>java.io.File</type>
+			</param>
+			<param>
+				<name>relengProperties</name>
+				<type>java.util.Properties</type>
 			</param>
 			<throws>
 				<name>Exception</name>
@@ -329467,6 +330953,9 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<type>java.lang.String</type>
 			</param>
 		</method>
+		<field>
+			<name>_TICKET_ID_PREFIXES</name>
+		</field>
 		<field>
 			<name>_distinctAuthors</name>
 		</field>
@@ -342333,6 +343822,29 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			</throws>
 		</method>
 		<method>
+			<name>hasSubscription</name>
+			<param>
+				<name>companyId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classNameId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>Exception</name>
+				<type>java.lang.Exception</type>
+			</throws>
+		</method>
+		<method>
 			<name>updateMBMessages</name>
 			<param>
 				<name>companyId</name>
@@ -343974,124 +345486,9 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		<type>com.liferay.portal.util.CookieKeys</type>
 		<author><![CDATA[Brian Wing Shun Chan]]></author>
 		<author><![CDATA[Minhchau Dang]]></author>
-		<method>
-			<name>addCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<param>
-				<name>response</name>
-				<type>javax.servlet.http.HttpServletResponse</type>
-			</param>
-			<param>
-				<name>cookie</name>
-				<type>javax.servlet.http.Cookie</type>
-			</param>
-		</method>
-		<method>
-			<name>addCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<param>
-				<name>response</name>
-				<type>javax.servlet.http.HttpServletResponse</type>
-			</param>
-			<param>
-				<name>cookie</name>
-				<type>javax.servlet.http.Cookie</type>
-			</param>
-			<param>
-				<name>secure</name>
-				<type>boolean</type>
-			</param>
-		</method>
-		<method>
-			<name>addSupportCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<param>
-				<name>response</name>
-				<type>javax.servlet.http.HttpServletResponse</type>
-			</param>
-		</method>
-		<method>
-			<name>getCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<param>
-				<name>name</name>
-				<type>java.lang.String</type>
-			</param>
-		</method>
-		<method>
-			<name>getCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<param>
-				<name>name</name>
-				<type>java.lang.String</type>
-			</param>
-			<param>
-				<name>toUpperCase</name>
-				<type>boolean</type>
-			</param>
-		</method>
-		<method>
-			<name>getDomain</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-		</method>
-		<method>
-			<name>getDomain</name>
-			<param>
-				<name>host</name>
-				<type>java.lang.String</type>
-			</param>
-		</method>
-		<method>
-			<name>hasSessionId</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-		</method>
-		<method>
-			<name>isEncodedCookie</name>
-			<param>
-				<name>name</name>
-				<type>java.lang.String</type>
-			</param>
-		</method>
-		<method>
-			<name>validateSupportCookie</name>
-			<param>
-				<name>request</name>
-				<type>javax.servlet.http.HttpServletRequest</type>
-			</param>
-			<throws>
-				<name>CookieNotSupportedException</name>
-				<type>com.liferay.portal.CookieNotSupportedException</type>
-			</throws>
-		</method>
-		<field>
-			<name>MAX_AGE</name>
-		</field>
+		<deprecated><![CDATA[{@link com.liferay.portal.kernel.util.CookieKeys}]]></deprecated>
 		<field>
 			<name>VERSION</name>
-		</field>
-		<field>
-			<name>_log</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -344731,6 +346128,13 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 		<method>
 			<name>digest</name>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -344753,6 +346157,17 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digest</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -344762,6 +346177,13 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -344789,6 +346211,17 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
+			</param>
+		</method>
+		<method>
+			<name>digestBase64</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
 				<name>text</name>
 				<type>java.lang.String</type>
 			</param>
@@ -344798,6 +346231,13 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -344816,6 +346256,17 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestHex</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -344852,6 +346303,17 @@ In most cases, SpringUtil.setContext() would have been called by com.liferay.por
 			<param>
 				<name>byteBuffer</name>
 				<type>java.nio.ByteBuffer</type>
+			</param>
+		</method>
+		<method>
+			<name>digestRaw</name>
+			<param>
+				<name>algorithm</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>inputStream</name>
+				<type>java.io.InputStream</type>
 			</param>
 		</method>
 		<method>
@@ -362435,6 +363897,9 @@ Preserved parameters are parameters that should be sent with every request as th
 			<name>ADMIN_DEFAULT_GROUP_NAMES</name>
 		</field>
 		<field>
+			<name>ADMIN_DEFAULT_ORGANIZATION_GROUP_NAMES</name>
+		</field>
+		<field>
 			<name>ADMIN_DEFAULT_ROLE_NAMES</name>
 		</field>
 		<field>
@@ -363170,6 +364635,9 @@ Preserved parameters are parameters that should be sent with every request as th
 			<name>DL_FILE_ENTRY_TYPE_IG_IMAGE_AUTO_CREATE_ON_UPGRADE</name>
 		</field>
 		<field>
+			<name>DL_FILE_ENTRY_VERSION_POLICY</name>
+		</field>
+		<field>
 			<name>DL_FILE_EXTENSIONS</name>
 		</field>
 		<field>
@@ -363246,6 +364714,9 @@ Preserved parameters are parameters that should be sent with every request as th
 		</field>
 		<field>
 			<name>DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_VELOCITY</name>
+		</field>
+		<field>
+			<name>DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_XSL</name>
 		</field>
 		<field>
 			<name>DYNAMIC_DATA_LISTS_RECORD_SET_FORCE_AUTOGENERATE_KEY</name>
@@ -364820,6 +366291,9 @@ Preserved parameters are parameters that should be sent with every request as th
 			<name>TRASH_SEARCH_LIMIT</name>
 		</field>
 		<field>
+			<name>UPGRADE_DATABASE_TRANSACTIONS_DISABLED</name>
+		</field>
+		<field>
 			<name>USER_GROUPS_COPY_LAYOUTS_TO_USER_PERSONAL_SITE</name>
 		</field>
 		<field>
@@ -364953,6 +366427,9 @@ Preserved parameters are parameters that should be sent with every request as th
 		</field>
 		<field>
 			<name>VELOCITY_ENGINE_RESTRICTED_PACKAGES</name>
+		</field>
+		<field>
+			<name>VERIFY_DATABASE_TRANSACTIONS_DISABLED</name>
 		</field>
 		<field>
 			<name>VIRTUAL_HOSTS_DEFAULT_SITE_NAME</name>
@@ -395968,6 +397445,113 @@ A user can be made a universal administrator by adding their primary key to the 
 				<type>long</type>
 			</param>
 			<param>
+				<name>createDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>modifiedDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>className</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classUuid</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>classTypeId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>categoryIds</name>
+				<type>long[]</type>
+			</param>
+			<param>
+				<name>tagNames</name>
+				<type>java.lang.String[]</type>
+			</param>
+			<param>
+				<name>visible</name>
+				<type>boolean</type>
+			</param>
+			<param>
+				<name>startDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>endDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>expirationDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>mimeType</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>title</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>description</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>summary</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>url</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>layoutUuid</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>height</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>width</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>priority</name>
+				<type>java.lang.Integer</type>
+			</param>
+			<param>
+				<name>sync</name>
+				<type>boolean</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>updateEntry</name>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
 				<name>className</name>
 				<type>java.lang.String</type>
 			</param>
@@ -396194,6 +397778,7 @@ A user can be made a universal administrator by adding their primary key to the 
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
+			<deprecated><![CDATA[{@link #updateEntry(long, long, Date, Date, String, long, String, long, long[], String[], boolean, Date, Date, Date, String, String, String, String, String, String, int, int, Integer, boolean)}]]></deprecated>
 		</method>
 		<method>
 			<name>updateEntry</name>
@@ -396453,6 +398038,109 @@ A user can be made a universal administrator by adding their primary key to the 
 				<type>long</type>
 			</param>
 			<param>
+				<name>createDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>modifiedDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>className</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classUuid</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>classTypeId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>categoryIds</name>
+				<type>long[]</type>
+			</param>
+			<param>
+				<name>tagNames</name>
+				<type>java.lang.String[]</type>
+			</param>
+			<param>
+				<name>visible</name>
+				<type>boolean</type>
+			</param>
+			<param>
+				<name>startDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>endDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>expirationDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
+				<name>mimeType</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>title</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>description</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>summary</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>url</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>layoutUuid</name>
+				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>height</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>width</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>priority</name>
+				<type>java.lang.Integer</type>
+			</param>
+			<param>
+				<name>sync</name>
+				<type>boolean</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>updateEntry</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
 				<name>className</name>
 				<type>java.lang.String</type>
 			</param>
@@ -396640,6 +398328,7 @@ A user can be made a universal administrator by adding their primary key to the 
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
+			<deprecated><![CDATA[{@link #updateEntry(long, Date, Date. String, long, String, long, long[], String[], boolean, Date, Date, Date, String, String, String, String, String, String, int, int, Integer, boolean)}]]></deprecated>
 		</method>
 		<method>
 			<name>buildFilteredEntryQuery</name>
@@ -410182,6 +411871,29 @@ Useful when paginating results. Returns a maximum of <code>end - start</code> in
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 				<comment><![CDATA[if a system exception occurred]]></comment>
+			</throws>
+		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
 		<field>
@@ -431032,6 +432744,37 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>long</type>
 			</param>
 			<param>
+				<name>status</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>start</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>end</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>obc</name>
+				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getFileEntries</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
 				<name>start</name>
 				<type>int</type>
 			</param>
@@ -431075,6 +432818,25 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			<param>
 				<name>folderId</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getFileEntriesCount</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>status</name>
+				<type>int</type>
 			</param>
 			<throws>
 				<name>SystemException</name>
@@ -431698,6 +433460,13 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			</param>
 		</method>
 		<method>
+			<name>getDlFileVersionStatuses</name>
+			<param>
+				<name>dlFileVersions</name>
+				<type>java.util.List</type>
+			</param>
+		</method>
+		<method>
 			<name>getFileEntryTypeId</name>
 			<param>
 				<name>groupIds</name>
@@ -431729,6 +433498,33 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			<param>
 				<name>majorVersion</name>
 				<type>boolean</type>
+			</param>
+			<param>
+				<name>workflowAction</name>
+				<type>int</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>isKeepFileVersionLabel</name>
+			<param>
+				<name>dlFileEntry</name>
+				<type>com.liferay.portlet.documentlibrary.model.DLFileEntry</type>
+			</param>
+			<param>
+				<name>lastDLFileVersion</name>
+				<type>com.liferay.portlet.documentlibrary.model.DLFileVersion</type>
+			</param>
+			<param>
+				<name>latestDLFileVersion</name>
+				<type>com.liferay.portlet.documentlibrary.model.DLFileVersion</type>
 			</param>
 			<param>
 				<name>workflowAction</name>
@@ -431825,6 +433621,25 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			<throws>
 				<name>SearchException</name>
 				<type>com.liferay.portal.kernel.search.SearchException</type>
+			</throws>
+		</method>
+		<method>
+			<name>removeFileVersion</name>
+			<param>
+				<name>dlFileEntry</name>
+				<type>com.liferay.portlet.documentlibrary.model.DLFileEntry</type>
+			</param>
+			<param>
+				<name>dlFileVersion</name>
+				<type>com.liferay.portlet.documentlibrary.model.DLFileVersion</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
 		<method>
@@ -432161,6 +433976,21 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			</throws>
 		</method>
 		<method>
+			<name>deleteFileVersionFileEntryMetadata</name>
+			<param>
+				<name>fileVersionId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getFileEntryMetadata</name>
 			<param>
 				<name>fileEntryMetadataId</name>
@@ -432208,9 +434038,21 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
+			<deprecated><![CDATA[{@link #getFileVersionFileEntryMetadatasCount(long)}]]></deprecated>
 		</method>
 		<method>
 			<name>getFileVersionFileEntryMetadatas</name>
+			<param>
+				<name>fileVersionId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getFileVersionFileEntryMetadatasCount</name>
 			<param>
 				<name>fileVersionId</name>
 				<type>long</type>
@@ -432760,6 +434602,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -432786,6 +434632,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -432818,6 +434668,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -432848,6 +434702,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -433035,6 +434893,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -433074,6 +434936,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -433092,6 +434958,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>rootFolderId</name>
 				<type>long</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -433119,6 +434989,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>status</name>
 				<type>int</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -436199,6 +438073,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>int</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436294,6 +438172,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436329,6 +438211,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436356,6 +438242,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436391,6 +438281,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436417,6 +438311,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>includeMountFolders</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -436456,6 +438354,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>obc</name>
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -436572,6 +438474,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>com.liferay.portal.kernel.util.OrderByComparator</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436606,6 +438512,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<type>long</type>
 			</param>
 			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
@@ -436624,6 +438534,10 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 				<name>recurse</name>
 				<type>boolean</type>
 			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -437885,6 +439799,25 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 			</throws>
 		</method>
 		<method>
+			<name>findByG_F</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderIds</name>
+				<type>java.util.List</type>
+			</param>
+			<param>
+				<name>queryDefinition</name>
+				<type>com.liferay.portal.kernel.dao.orm.QueryDefinition</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>findByG_U_F_M</name>
 			<param>
 				<name>groupId</name>
@@ -438065,6 +439998,25 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 		</method>
 		<method>
 			<name>findByOrphanedFileEntries</name>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>findByG_F</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderIds</name>
+				<type>java.util.List</type>
+			</param>
+			<param>
+				<name>queryDefinition</name>
+				<type>com.liferay.portal.kernel.dao.orm.QueryDefinition</type>
+			</param>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -438371,6 +440323,25 @@ Due to legacy code, the names of some file entry properties are not intuitive. E
 		</method>
 		<method>
 			<name>findByOrphanedFileEntries</name>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>findByG_F</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderIds</name>
+				<type>java.util.List</type>
+			</param>
+			<param>
+				<name>queryDefinition</name>
+				<type>com.liferay.portal.kernel.dao.orm.QueryDefinition</type>
+			</param>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -450395,11 +452366,16 @@ This method is useful when optimizing low-level file operations like copy. The c
 		<comment><![CDATA[Represents the trash handler for the file entry entity.]]></comment>
 		<author><![CDATA[Alexander Chow]]></author>
 		<author><![CDATA[Manuel de la Peña]]></author>
+		<author><![CDATA[Zsolt Berentey]]></author>
 		<method>
 			<name>checkDuplicateTrashEntry</name>
 			<param>
 				<name>trashEntry</name>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>newName</name>
@@ -450487,6 +452463,33 @@ This method is useful when optimizing low-level file operations like copy. The c
 			</throws>
 		</method>
 		<method>
+			<name>hasTrashPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>trashActionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>isInTrash</name>
 			<param>
 				<name>classPK</name>
@@ -450544,6 +452547,29 @@ This method is useful when optimizing low-level file operations like copy. The c
 			<param>
 				<name>classPK</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
 			</param>
 			<throws>
 				<name>PortalException</name>
@@ -450658,6 +452684,33 @@ This method is useful when optimizing low-level file operations like copy. The c
 			</throws>
 		</method>
 		<method>
+			<name>hasTrashPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>trashActionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>isInTrash</name>
 			<param>
 				<name>classPK</name>
@@ -450689,6 +452742,29 @@ This method is useful when optimizing low-level file operations like copy. The c
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 				<comment><![CDATA[if a system exception occurred]]></comment>
+			</throws>
+		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
 		<field>
@@ -450750,20 +452826,6 @@ This method is useful when optimizing low-level file operations like copy. The c
 			<name>getType</name>
 		</method>
 		<method>
-			<name>hasDeletePermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-		</method>
-		<method>
-			<name>hasViewPermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-		</method>
-		<method>
 			<name>render</name>
 			<param>
 				<name>renderRequest</name>
@@ -450797,11 +452859,16 @@ This method is useful when optimizing low-level file operations like copy. The c
 		<type>com.liferay.portlet.documentlibrary.trash.DLFolderTrashHandler</type>
 		<comment><![CDATA[Represents the trash handler for the folder entity.]]></comment>
 		<author><![CDATA[Alexander Chow]]></author>
+		<author><![CDATA[Zsolt Berentey]]></author>
 		<method>
 			<name>checkDuplicateTrashEntry</name>
 			<param>
 				<name>trashEntry</name>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>newName</name>
@@ -450911,6 +452978,33 @@ This method is useful when optimizing low-level file operations like copy. The c
 			</throws>
 		</method>
 		<method>
+			<name>hasTrashPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>trashActionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>isInTrash</name>
 			<param>
 				<name>classPK</name>
@@ -450978,6 +453072,29 @@ This method is useful when optimizing low-level file operations like copy. The c
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
 		<field>
 			<name>CLASS_NAME</name>
 		</field>
@@ -451026,36 +453143,6 @@ This method is useful when optimizing low-level file operations like copy. The c
 		</method>
 		<method>
 			<name>getType</name>
-		</method>
-		<method>
-			<name>hasDeletePermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-			<throws>
-				<name>PortalException</name>
-				<type>com.liferay.portal.kernel.exception.PortalException</type>
-			</throws>
-			<throws>
-				<name>SystemException</name>
-				<type>com.liferay.portal.kernel.exception.SystemException</type>
-			</throws>
-		</method>
-		<method>
-			<name>hasViewPermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-			<throws>
-				<name>PortalException</name>
-				<type>com.liferay.portal.kernel.exception.PortalException</type>
-			</throws>
-			<throws>
-				<name>SystemException</name>
-				<type>com.liferay.portal.kernel.exception.SystemException</type>
-			</throws>
 		</method>
 		<method>
 			<name>render</name>
@@ -451837,6 +453924,29 @@ This method is useful when optimizing low-level file operations like copy. The c
 		<name>DLAppUtil</name>
 		<type>com.liferay.portlet.documentlibrary.util.DLAppUtil</type>
 		<author><![CDATA[Alexander Chow]]></author>
+		<method>
+			<name>filterFolderIds</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>folderIds</name>
+				<type>long[]</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
 		<method>
 			<name>getExtension</name>
 			<param>
@@ -464817,6 +466927,14 @@ The raw metadata extraction is done asynchronously.
 		</method>
 	</javadoc>
 	<javadoc>
+		<name>XSLTemplateParser</name>
+		<type>com.liferay.portlet.dynamicdatalists.util.XSLTemplateParser</type>
+		<author><![CDATA[Marcellus Tavares]]></author>
+		<method>
+			<name>getErrorTemplateContent</name>
+		</method>
+	</javadoc>
+	<javadoc>
 		<name>DDLRecordVersionVersionComparator</name>
 		<type>com.liferay.portlet.dynamicdatalists.util.comparator.DDLRecordVersionVersionComparator</type>
 		<author><![CDATA[Marcellus Tavares]]></author>
@@ -466555,7 +468673,25 @@ The raw metadata extraction is done asynchronously.
 			<name>getLocalizedFieldsMap</name>
 		</method>
 		<method>
+			<name>getLocalizedTransientFieldsMap</name>
+		</method>
+		<method>
 			<name>getTemplates</name>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getTransientFieldsMap</name>
+			<param>
+				<name>locale</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
 			<throws>
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
@@ -466602,6 +468738,13 @@ The raw metadata extraction is done asynchronously.
 			</param>
 		</method>
 		<method>
+			<name>setLocalizedTransientFieldsMap</name>
+			<param>
+				<name>localizedTransientFieldsMap</name>
+				<type>java.util.Map</type>
+			</param>
+		</method>
+		<method>
 			<name>setXsd</name>
 			<param>
 				<name>xsd</name>
@@ -466620,7 +468763,14 @@ The raw metadata extraction is done asynchronously.
 			</param>
 		</method>
 		<method>
-			<name>_getFieldsMap</name>
+			<name>_getPrivateAttributeKey</name>
+			<param>
+				<name>attributeName</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>_indexFieldsMap</name>
 			<param>
 				<name>locale</name>
 				<type>java.lang.String</type>
@@ -466657,6 +468807,9 @@ The raw metadata extraction is done asynchronously.
 		</field>
 		<field>
 			<name>_localizedFieldsMap</name>
+		</field>
+		<field>
+			<name>_localizedTransientFieldsMap</name>
 		</field>
 	</javadoc>
 	<javadoc>
@@ -476451,6 +478604,13 @@ The raw metadata extraction is done asynchronously.
 			</param>
 		</method>
 		<method>
+			<name>equals</name>
+			<param>
+				<name>obj</name>
+				<type>java.lang.Object</type>
+			</param>
+		</method>
+		<method>
 			<name>getDataType</name>
 			<throws>
 				<name>PortalException</name>
@@ -476663,6 +478823,13 @@ The raw metadata extraction is done asynchronously.
 			<param>
 				<name>name</name>
 				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
+			<name>equals</name>
+			<param>
+				<name>obj</name>
+				<type>java.lang.Object</type>
 			</param>
 		</method>
 		<method>
@@ -481987,6 +484154,13 @@ The raw metadata extraction is done asynchronously.
 			</throws>
 		</method>
 		<method>
+			<name>equals</name>
+			<param>
+				<name>obj</name>
+				<type>java.lang.Object</type>
+			</param>
+		</method>
+		<method>
 			<name>getAttribute</name>
 			<param>
 				<name>name</name>
@@ -482204,6 +484378,35 @@ The raw metadata extraction is done asynchronously.
 				<name>indexEnabled</name>
 				<type>boolean</type>
 			</param>
+		</method>
+		<method>
+			<name>equals</name>
+			<param>
+				<name>type</name>
+				<type>int</type>
+			</param>
+			<param>
+				<name>serializable1</name>
+				<type>java.io.Serializable</type>
+			</param>
+			<param>
+				<name>serializable2</name>
+				<type>java.io.Serializable</type>
+			</param>
+		</method>
+		<method>
+			<name>getAttributeColumns</name>
+		</method>
+		<method>
+			<name>getTable</name>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
 		</method>
 		<field>
 			<name>_log</name>
@@ -500161,6 +502364,10 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 				<type>java.lang.String</type>
 			</param>
 			<param>
+				<name>expirationDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<param>
 				<name>smallImage</name>
 				<type>boolean</type>
 			</param>
@@ -500230,6 +502437,10 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<param>
 				<name>templateId</name>
 				<type>java.lang.String</type>
+			</param>
+			<param>
+				<name>expirationDate</name>
+				<type>java.util.Date</type>
 			</param>
 			<param>
 				<name>smallImage</name>
@@ -526528,6 +528739,17 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 				<type>java.lang.Exception</type>
 			</throws>
 		</method>
+		<method>
+			<name>isAutoReply</name>
+			<param>
+				<name>message</name>
+				<type>javax.mail.Message</type>
+			</param>
+			<throws>
+				<name>MessagingException</name>
+				<type>javax.mail.MessagingException</type>
+			</throws>
+		</method>
 		<field>
 			<name>_log</name>
 		</field>
@@ -530870,6 +533092,32 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			</throws>
 		</method>
 		<method>
+			<name>getLasPostDateByUserId</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>getMessageCountByGroupId</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>getMessageCountByUserId</name>
 			<param>
 				<name>userId</name>
@@ -530968,6 +533216,29 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<param>
 				<name>userId</name>
 				<type>long</type>
+			</param>
+			<param>
+				<name>lastPostDate</name>
+				<type>java.util.Date</type>
+			</param>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>updateStatsUser</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>messageCount</name>
+				<type>int</type>
 			</param>
 			<param>
 				<name>lastPostDate</name>
@@ -531575,6 +533846,82 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			</throws>
 		</method>
 		<method>
+			<name>moveThreadsToTrash</name>
+			<param>
+				<name>groupId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>moveThreadToTrash</name>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>entryId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>moveThreadToTrash</name>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>thread</name>
+				<type>com.liferay.portlet.messageboards.model.MBThread</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>restoreThreadFromTrash</name>
+			<param>
+				<name>userId</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>threadId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
 			<name>splitThread</name>
 			<param>
 				<name>messageId</name>
@@ -531691,6 +534038,36 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<param>
 				<name>oldThreadId</name>
 				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>moveThreadMessagesToTrash</name>
+			<param>
+				<name>thread</name>
+				<type>com.liferay.portlet.messageboards.model.MBThread</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>restoreThreadMessagesFromTrash</name>
+			<param>
+				<name>thread</name>
+				<type>com.liferay.portlet.messageboards.model.MBThread</type>
 			</param>
 			<throws>
 				<name>PortalException</name>
@@ -532026,6 +534403,36 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 				<name>categoryId</name>
 				<type>long</type>
 			</param>
+			<param>
+				<name>threadId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>moveThreadToTrash</name>
+			<param>
+				<name>threadId</name>
+				<type>long</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>restoreThreadFromTrash</name>
 			<param>
 				<name>threadId</name>
 				<type>long</type>
@@ -535758,7 +538165,7 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<param>
 				<name>group</name>
 				<type>com.liferay.portal.model.Group</type>
-				<comment><![CDATA[ID the primary key of the group]]></comment>
+				<comment><![CDATA[the group]]></comment>
 			</param>
 			<param>
 				<name>date</name>
@@ -535768,6 +538175,7 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 			<throws>
 				<name>PortalException</name>
 				<type>com.liferay.portal.kernel.exception.PortalException</type>
+				<comment><![CDATA[if a portal exception occurred]]></comment>
 			</throws>
 			<throws>
 				<name>SystemException</name>
@@ -535802,6 +538210,29 @@ This <code>PortletDataHandler</code> differs from <code>JournalContentPortletDat
 				<name>classPKs</name>
 				<type>long[]</type>
 			</param>
+		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
 		</method>
 		<field>
 			<name>CLASS_NAME</name>
@@ -572147,20 +574578,18 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 		</method>
 	</javadoc>
 	<javadoc>
+		<name>TrashEntryConstants</name>
+		<type>com.liferay.portlet.trash.TrashEntryConstants</type>
+		<author><![CDATA[Zsolt Berentey]]></author>
+		<field>
+			<name>DEFAULT_CONTAINER_ID</name>
+		</field>
+	</javadoc>
+	<javadoc>
 		<name>EditEntryAction</name>
 		<type>com.liferay.portlet.trash.action.EditEntryAction</type>
 		<author><![CDATA[Manuel de la Peña]]></author>
-		<method>
-			<name>getNewName</name>
-			<param>
-				<name>themeDisplay</name>
-				<type>com.liferay.portal.theme.ThemeDisplay</type>
-			</param>
-			<param>
-				<name>oldName</name>
-				<type>java.lang.String</type>
-			</param>
-		</method>
+		<author><![CDATA[Zsolt Berentey]]></author>
 		<method>
 			<name>processAction</name>
 			<param>
@@ -572579,7 +575008,7 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 				<comment><![CDATA[the status of the entity prior to being moved to trash]]></comment>
 			</param>
 			<param>
-				<name>versions</name>
+				<name>statusOVPs</name>
 				<type>java.util.List</type>
 				<comment><![CDATA[the primary keys and statuses of any of the entry's versions (e.g., {@link com.liferay.portlet.documentlibrary.model.DLFileVersion})]]></comment>
 			</param>
@@ -573142,6 +575571,17 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 			</throws>
 		</method>
 		<method>
+			<name>getNewName</name>
+			<param>
+				<name>themeDisplay</name>
+				<type>com.liferay.portal.theme.ThemeDisplay</type>
+			</param>
+			<param>
+				<name>oldName</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>getTrashTime</name>
 			<param>
 				<name>title</name>
@@ -573405,6 +575845,17 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 			</throws>
 		</method>
 		<method>
+			<name>getNewName</name>
+			<param>
+				<name>themeDisplay</name>
+				<type>com.liferay.portal.theme.ThemeDisplay</type>
+			</param>
+			<param>
+				<name>oldName</name>
+				<type>java.lang.String</type>
+			</param>
+		</method>
+		<method>
 			<name>getTrashTime</name>
 			<param>
 				<name>title</name>
@@ -573591,6 +576042,7 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 		<name>TrashIndexer</name>
 		<type>com.liferay.portlet.trash.util.TrashIndexer</type>
 		<author><![CDATA[Julio Camarero]]></author>
+		<author><![CDATA[Zsolt Berentey]]></author>
 		<method>
 			<name>TrashIndexer</name>
 		</method>
@@ -573817,6 +576269,17 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 				<name>SystemException</name>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
+		</method>
+		<method>
+			<name>getNewName</name>
+			<param>
+				<name>themeDisplay</name>
+				<type>com.liferay.portal.theme.ThemeDisplay</type>
+			</param>
+			<param>
+				<name>oldName</name>
+				<type>java.lang.String</type>
+			</param>
 		</method>
 		<method>
 			<name>getTrash</name>
@@ -580433,20 +582896,6 @@ If the status is updated to {@link com.liferay.portlet.social.model.SocialReques
 			<name>getType</name>
 		</method>
 		<method>
-			<name>hasDeletePermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-		</method>
-		<method>
-			<name>hasViewPermission</name>
-			<param>
-				<name>permissionChecker</name>
-				<type>com.liferay.portal.security.permission.PermissionChecker</type>
-			</param>
-		</method>
-		<method>
 			<name>render</name>
 			<param>
 				<name>renderRequest</name>
@@ -585463,7 +587912,7 @@ This is a modification of JSPWiki's core TableOfContents plugin for use within L
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>inputStreams</name>
+				<name>inputStreamOVPs</name>
 				<type>java.util.List</type>
 			</param>
 			<throws>
@@ -587343,7 +589792,7 @@ This is a modification of JSPWiki's core TableOfContents plugin for use within L
 				<type>java.lang.String</type>
 			</param>
 			<param>
-				<name>inputStream</name>
+				<name>inputStreamOVPs</name>
 				<type>java.util.List</type>
 			</param>
 			<throws>
@@ -589012,23 +591461,16 @@ This is a modification of JSPWiki's core TableOfContents plugin for use within L
 	<javadoc>
 		<name>WikiNodeTrashHandler</name>
 		<type>com.liferay.portlet.wiki.trash.WikiNodeTrashHandler</type>
-		<comment><![CDATA[Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
-
-This library is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free
-Software Foundation; either version 2.1 of the License, or (at your option)
-any later version.
-
-This library is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-details.]]></comment>
-		<author><![CDATA[Brian Wing Shun Chan]]></author>
+		<author><![CDATA[Eudaldo Alonso]]></author>
 		<method>
 			<name>checkDuplicateTrashEntry</name>
 			<param>
 				<name>trashEntry</name>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
+			</param>
+			<param>
+				<name>containerModelId</name>
+				<type>long</type>
 			</param>
 			<param>
 				<name>newName</name>
@@ -589149,6 +591591,29 @@ details.]]></comment>
 				<type>com.liferay.portal.kernel.exception.SystemException</type>
 			</throws>
 		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
 		<field>
 			<name>CLASS_NAME</name>
 		</field>
@@ -589175,6 +591640,10 @@ details.]]></comment>
 				<type>com.liferay.portlet.trash.model.TrashEntry</type>
 			</param>
 			<param>
+				<name>containerModelId</name>
+				<type>long</type>
+			</param>
+			<param>
 				<name>newName</name>
 				<type>java.lang.String</type>
 			</param>
@@ -589193,7 +591662,7 @@ details.]]></comment>
 			<param>
 				<name>group</name>
 				<type>com.liferay.portal.model.Group</type>
-				<comment><![CDATA[Id the primary key of the group]]></comment>
+				<comment><![CDATA[the group]]></comment>
 			</param>
 			<param>
 				<name>date</name>
@@ -589343,6 +591812,29 @@ details.]]></comment>
 			</param>
 			<param>
 				<name>name</name>
+				<type>java.lang.String</type>
+			</param>
+			<throws>
+				<name>PortalException</name>
+				<type>com.liferay.portal.kernel.exception.PortalException</type>
+			</throws>
+			<throws>
+				<name>SystemException</name>
+				<type>com.liferay.portal.kernel.exception.SystemException</type>
+			</throws>
+		</method>
+		<method>
+			<name>hasPermission</name>
+			<param>
+				<name>permissionChecker</name>
+				<type>com.liferay.portal.security.permission.PermissionChecker</type>
+			</param>
+			<param>
+				<name>classPK</name>
+				<type>long</type>
+			</param>
+			<param>
+				<name>actionId</name>
 				<type>java.lang.String</type>
 			</param>
 			<throws>

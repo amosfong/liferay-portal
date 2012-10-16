@@ -214,15 +214,6 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 		return new WikiPageAssetRenderer(page);
 	}
 
-	@Override
-	public boolean hasPermission(
-			PermissionChecker permissionChecker, long classPK, String actionId)
-		throws PortalException, SystemException {
-
-		return WikiPagePermission.contains(
-			permissionChecker, classPK, actionId);
-	}
-
 	public boolean isInTrash(long classPK)
 		throws PortalException, SystemException {
 
@@ -268,6 +259,15 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 
 		WikiPageResourceLocalServiceUtil.updateWikiPageResource(
 			pageResource, false);
+	}
+
+	@Override
+	protected boolean hasPermission(
+			PermissionChecker permissionChecker, long classPK, String actionId)
+		throws PortalException, SystemException {
+
+		return WikiPagePermission.contains(
+			permissionChecker, classPK, actionId);
 	}
 
 }

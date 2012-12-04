@@ -927,6 +927,7 @@
 		<property name="screenName" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="emailAddress" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="facebookId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property name="ldapServerId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="openId" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="portraitId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="languageId" type="com.liferay.portal.dao.orm.hibernate.StringType" />
@@ -1697,6 +1698,10 @@
 		<property name="mode" type="com.liferay.portal.dao.orm.hibernate.StringType" column="mode_" />
 		<property name="language" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="script" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property name="cacheable" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
+		<property name="smallImage" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
+		<property name="smallImageId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property name="smallImageURL" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 	</class>
 	<class name="com.liferay.portlet.expando.model.impl.ExpandoColumnImpl" table="ExpandoColumn">
 		<cache usage="read-write" />
@@ -1839,7 +1844,7 @@
 		<property name="targetLayoutFriendlyUrl" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="targetPortletId" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="contentField" type="com.liferay.portal.dao.orm.hibernate.StringType" />
-		<property name="feedType" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property name="feedFormat" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="feedVersion" type="com.liferay.portal.dao.orm.hibernate.DoubleType" />
 	</class>
 	<class name="com.liferay.portlet.journal.model.impl.JournalFolderImpl" table="JournalFolder">

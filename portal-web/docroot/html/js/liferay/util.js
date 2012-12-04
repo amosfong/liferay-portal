@@ -180,7 +180,9 @@
 
 			if (params) {
 				var loc = url || location.href;
-				var anchorHash, finalUrl;
+
+				var anchorHash;
+				var finalUrl;
 
 				if (loc.indexOf('#') > -1) {
 					var locationPieces = loc.split('#');
@@ -518,6 +520,36 @@
 			oldBox.options[0].selected = true;
 		},
 
+		setCursorPosition: function(el, position) {
+			var instance = this;
+
+			instance.setSelectionRange(el, position, position);
+		},
+
+		setSelectionRange: function(el, selectionStart, selectionEnd) {
+			var instance = this;
+
+			if (Lang.isFunction(el.getDOM)) {
+				el = el.getDOM();
+			}
+
+			if (el.setSelectionRange) {
+				el.focus();
+
+				el.setSelectionRange(selectionStart, selectionEnd);
+			}
+			else if (el.createTextRange) {
+				var textRange = el.createTextRange();
+
+				textRange.collapse(true);
+
+				textRange.moveEnd('character', selectionEnd);
+				textRange.moveEnd('character', selectionStart);
+
+				textRange.select();
+			}
+		},
+
 		showCapsLock: function(event, span) {
 			var keyCode = event.keyCode ? event.keyCode : event.which;
 			var shiftKey = event.shiftKey ? event.shiftKey : ((keyCode == 16) ? true : false);
@@ -761,7 +793,17 @@
 		Util,
 		'afterIframeLoaded',
 		function(event) {
-			var iframeDocument = A.one(event.doc);
+			var nodeInstances = A.Node._instances;
+
+			var docEl = event.doc;
+
+			var docUID = docEl._yuid;
+
+			if (docUID in nodeInstances) {
+				delete nodeInstances[docUID];
+			}
+
+			var iframeDocument = A.one(docEl);
 
 			var iframeBody = iframeDocument.one('body');
 
@@ -769,47 +811,54 @@
 
 			iframeBody.addClass('aui-dialog-iframe-popup');
 
-			iframeBody.delegate(
-				EVENT_CLICK,
-				function() {
-					iframeDocument.purge(true);
+			var detachEventHandles = function() {
+				AArray.invoke(eventHandles, 'detach');
 
-					dialog.close();
-				},
-				'.aui-button-input-cancel'
-			);
+				iframeDocument.purge(true);
+			};
 
-			iframeBody.delegate(
-				'submit',
-				function(event) {
-					iframeDocument.purge(true);
-				},
-				'form'
-			);
+			var eventHandles = [
+				iframeBody.delegate('submit', detachEventHandles, 'form'),
 
-			iframeBody.delegate(
-				EVENT_CLICK,
-				function(){
-					dialog.set('visible', false, SRC_HIDE_LINK);
+				iframeBody.delegate(
+					EVENT_CLICK,
+					function() {
+						dialog.set('visible', false, SRC_HIDE_LINK);
 
-					iframeDocument.purge(true);
-				},
-				'.lfr-hide-dialog'
-			);
+						detachEventHandles();
+					},
+					'.lfr-hide-dialog'
+				)
+			];
+
+			var cancelButton = iframeBody.one('.aui-button-input-cancel');
+
+			if (cancelButton) {
+				cancelButton.after(
+					EVENT_CLICK,
+					function() {
+						detachEventHandles();
+
+						dialog.close();
+					}
+				);
+			}
 
 			var rolesSearchContainer = iframeBody.one('#rolesSearchContainerSearchContainer');
 
 			if (rolesSearchContainer) {
-				rolesSearchContainer.delegate(
-					EVENT_CLICK,
-					function(event){
-						event.preventDefault();
+				eventHandles.push(
+					rolesSearchContainer.delegate(
+						EVENT_CLICK,
+						function(event) {
+							event.preventDefault();
 
-						iframeDocument.purge(true);
+							detachEventHandles();
 
-						submitForm(document.hrefFm, event.currentTarget.attr('href'));
-					},
-					'a'
+							submitForm(document.hrefFm, event.currentTarget.attr('href'));
+						},
+						'a'
+					)
 				);
 			}
 		},
@@ -1193,6 +1242,7 @@
 			ddmURL.setParameter('classPK', config.classPK);
 			ddmURL.setParameter('ddmResource', config.ddmResource);
 			ddmURL.setParameter('ddmResourceActionId', config.ddmResourceActionId);
+			ddmURL.setParameter('groupId', config.groupId);
 			ddmURL.setParameter('saveCallback', config.saveCallback);
 			ddmURL.setParameter('scopeAvailableFields', config.availableFields);
 			ddmURL.setParameter('scopeStorageType', config.storageType);

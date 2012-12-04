@@ -30,6 +30,8 @@ page import="com.liferay.portlet.dynamicdatamapping.StructureNameException" %><%
 page import="com.liferay.portlet.dynamicdatamapping.StructureXsdException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.TemplateNameException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.TemplateScriptException" %><%@
+page import="com.liferay.portlet.dynamicdatamapping.TemplateSmallImageNameException" %><%@
+page import="com.liferay.portlet.dynamicdatamapping.TemplateSmallImageSizeException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.model.DDMStructure" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.model.DDMTemplate" %><%@
@@ -83,11 +85,11 @@ String templateHeaderTitle = ParamUtil.getString(request, "templateHeaderTitle")
 
 String templateTypeValue = StringPool.BLANK;
 
-if (scopeTemplateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_DETAIL)) {
-	templateTypeValue = DDMTemplateConstants.TEMPLATE_TYPE_DETAIL;
+if (scopeTemplateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY)) {
+	templateTypeValue = DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY;
 }
-else if (scopeStorageType.equals(DDMTemplateConstants.TEMPLATE_TYPE_LIST)) {
-	templateTypeValue = DDMTemplateConstants.TEMPLATE_TYPE_LIST;
+else if (scopeTemplateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM)) {
+	templateTypeValue = DDMTemplateConstants.TEMPLATE_TYPE_FORM;
 }
 
 Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZone);

@@ -89,7 +89,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFolder.setOverrideFileEntryTypes(false);
 		dlFolder.setExpandoBridgeAttributes(serviceContext);
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 
 		// Resources
 
@@ -119,7 +119,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 			parentDLFolder.setLastPostDate(now);
 
-			dlFolderPersistence.update(parentDLFolder, false);
+			dlFolderPersistence.update(parentDLFolder);
 		}
 
 		// App helper
@@ -293,8 +293,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			return dlFolderPersistence.findByG_P(groupId, parentFolderId);
 		}
 		else {
-			return dlFolderPersistence.findByG_M_P(
-				groupId, false, parentFolderId);
+			return dlFolderPersistence.findByG_M_P_H(
+				groupId, false, parentFolderId, false);
 		}
 	}
 
@@ -308,8 +308,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 				groupId, parentFolderId, start, end, obc);
 		}
 		else {
-			return dlFolderPersistence.findByG_M_P(
-				groupId, false, parentFolderId, start, end, obc);
+			return dlFolderPersistence.findByG_M_P_H(
+				groupId, false, parentFolderId, false, start, end, obc);
 		}
 	}
 
@@ -421,8 +421,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			return dlFolderPersistence.countByG_P(groupId, parentFolderId);
 		}
 		else {
-			return dlFolderPersistence.countByG_M_P(
-				groupId, false, parentFolderId);
+			return dlFolderPersistence.countByG_M_P_H(
+				groupId, false, parentFolderId, false);
 		}
 	}
 
@@ -437,14 +437,15 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			OrderByComparator obc)
 		throws SystemException {
 
-		return dlFolderPersistence.findByG_M_P(
-			groupId, true, parentFolderId, start, end, obc);
+		return dlFolderPersistence.findByG_M_P_H(
+			groupId, true, parentFolderId, false, start, end, obc);
 	}
 
 	public int getMountFoldersCount(long groupId, long parentFolderId)
 		throws SystemException {
 
-		return dlFolderPersistence.countByG_M_P(groupId, true, parentFolderId);
+		return dlFolderPersistence.countByG_M_P_H(
+			groupId, true, parentFolderId, false);
 	}
 
 	public void getSubfolderIds(
@@ -478,7 +479,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFolder.setParentFolderId(parentFolderId);
 		dlFolder.setExpandoBridgeAttributes(serviceContext);
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 
 		dlAppHelperLocalService.moveFolder(new LiferayFolder(dlFolder));
 
@@ -575,7 +576,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFolder.setOverrideFileEntryTypes(overrideFileEntryTypes);
 		dlFolder.setDefaultFileEntryTypeId(defaultFileEntryTypeId);
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 
 		// File entry types
 
@@ -600,7 +601,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		dlFolder.setLastPostDate(lastPostDate);
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 	}
 
 	public DLFolder updateStatus(
@@ -626,7 +627,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFolder.setStatusByUserName(user.getFullName());
 		dlFolder.setStatusDate(new Date());
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 
 		// Folders, file entries, and file shortcuts
 

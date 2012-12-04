@@ -215,9 +215,11 @@ SitesUtil.addPortletBreadcrumbEntries(group, pagesName, redirectURL, request, re
 			function(event) {
 				event.preventDefault();
 
-				var href = event.currentTarget.one('a').attr('href');
+				var link = event.currentTarget.one('a');
 
-				if (href) {
+				if (link && !event.target.hasClass('aui-tree-hitarea')) {
+					var href = link.attr('href');
+
 					var hash = location.hash;
 
 					var prefix = '#_LFR_FN_<portlet:namespace />';

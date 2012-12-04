@@ -19,6 +19,7 @@
 <%
 String toolbarItem = ParamUtil.getString(request, "toolbarItem", "view-all");
 
+long groupId = ParamUtil.getLong(request, "groupId", scopeGroupId);
 long classNameId = ParamUtil.getLong(request, "classNameId");
 long classPK = ParamUtil.getLong(request, "classPK");
 %>
@@ -40,44 +41,44 @@ long classPK = ParamUtil.getLong(request, "classPK");
 
 	<c:choose>
 		<c:when test="<%= classNameId == PortalUtil.getClassNameId(DDMStructure.class) %>">
-			<c:if test="<%= DDMPermission.contains(permissionChecker, scopeGroupId, ddmResource, ActionKeys.ADD_TEMPLATE) && (Validator.isNull(templateTypeValue) || templateTypeValue.equals(DDMTemplateConstants.TEMPLATE_TYPE_DETAIL)) %>">
+			<c:if test="<%= DDMPermission.contains(permissionChecker, scopeGroupId, ddmResource, ActionKeys.ADD_TEMPLATE) && (Validator.isNull(templateTypeValue) || templateTypeValue.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM)) %>">
 				<portlet:renderURL var="addTemplateURL">
 					<portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template" />
 					<portlet:param name="redirect" value="<%= viewTemplatesURL %>" />
-					<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
+					<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 					<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
 					<portlet:param name="classPK" value="<%= String.valueOf(classPK) %>" />
-					<portlet:param name="structureAvailableFields" value='<%= renderResponse.getNamespace() + "structureAvailableFields" %>' />
+					<portlet:param name="structureAvailableFields" value='<%= renderResponse.getNamespace() + "getAvailableFields" %>' />
 				</portlet:renderURL>
 
 				<%
 				if (Validator.isNull(templateTypeValue)) {
-					message = "add-detail-template";
+					message = "add-form-template";
 				}
 				%>
 
-				<span class="lfr-toolbar-button add-template <%= toolbarItem.equals("add-detail-template") ? "current" : StringPool.BLANK %>">
+				<span class="lfr-toolbar-button add-template <%= toolbarItem.equals("add-form-template") ? "current" : StringPool.BLANK %>">
 					<a href="<%= addTemplateURL %>"><liferay-ui:message key="<%= message %>" /></a>
 				</span>
 			</c:if>
 
-			<c:if test="<%= DDMPermission.contains(permissionChecker, scopeGroupId, ddmResource, ActionKeys.ADD_TEMPLATE) && (Validator.isNull(templateTypeValue) || templateTypeValue.equals(DDMTemplateConstants.TEMPLATE_TYPE_LIST)) %>">
+			<c:if test="<%= DDMPermission.contains(permissionChecker, scopeGroupId, ddmResource, ActionKeys.ADD_TEMPLATE) && (Validator.isNull(templateTypeValue) || templateTypeValue.equals(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY)) %>">
 				<portlet:renderURL var="addTemplateURL">
 					<portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template" />
 					<portlet:param name="redirect" value="<%= viewTemplatesURL %>" />
-					<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
+					<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 					<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
 					<portlet:param name="classPK" value="<%= String.valueOf(classPK) %>" />
-					<portlet:param name="type" value="list" />
+					<portlet:param name="type" value="<%= DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY %>" />
 				</portlet:renderURL>
 
 				<%
 				if (Validator.isNull(templateTypeValue)) {
-					message = "add-list-template";
+					message = "add-display-template";
 				}
 				%>
 
-				<span class="lfr-toolbar-button add-template <%= toolbarItem.equals("add-list-template") ? "current" : StringPool.BLANK %>">
+				<span class="lfr-toolbar-button add-template <%= toolbarItem.equals("add-display-template") ? "current" : StringPool.BLANK %>">
 					<a href="<%= addTemplateURL %>"><liferay-ui:message key="<%= message %>" /></a>
 				</span>
 			</c:if>
@@ -104,7 +105,7 @@ long classPK = ParamUtil.getLong(request, "classPK");
 						<portlet:param name="redirect" value="<%= viewTemplatesURL %>" />
 						<portlet:param name="backURL" value="<%= viewTemplatesURL %>" />
 						<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-						<portlet:param name="type" value="list" />
+						<portlet:param name="type" value="<%= DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY %>" />
 					</liferay-portlet:renderURL>
 
 					<%

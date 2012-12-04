@@ -17,10 +17,10 @@ package com.liferay.portal.portletfilerepository;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 
 import java.io.File;
 import java.io.InputStream;
@@ -53,6 +53,10 @@ public interface PortletFileRepository {
 	public void deletePortletFileEntries(long groupId, long folderId)
 		throws PortalException, SystemException;
 
+	public void deletePortletFileEntries(
+			long groupId, long folderId, int status)
+		throws PortalException, SystemException;
+
 	public void deletePortletFileEntry(long fileEntryId)
 		throws PortalException, SystemException;
 
@@ -60,19 +64,14 @@ public interface PortletFileRepository {
 			long groupId, long folderId, String fileName)
 		throws PortalException, SystemException;
 
-	public long getFolder(
-			long userId, long repositoryId, long parentFolderId,
-			String folderName, ServiceContext serviceContext)
-		throws PortalException, SystemException;
-
-	public List<DLFileEntry> getPortletFileEntries(long groupId, long folderId)
+	public List<FileEntry> getPortletFileEntries(long groupId, long folderId)
 		throws SystemException;
 
-	public List<DLFileEntry> getPortletFileEntries(
+	public List<FileEntry> getPortletFileEntries(
 			long groupId, long folderId, int status)
 		throws SystemException;
 
-	public List<DLFileEntry> getPortletFileEntries(
+	public List<FileEntry> getPortletFileEntries(
 			long groupId, long folderId, int status, int start, int end,
 			OrderByComparator obc)
 		throws SystemException;
@@ -84,21 +83,36 @@ public interface PortletFileRepository {
 			long groupId, long folderId, int status)
 		throws SystemException;
 
+	public FileEntry getPortletFileEntry(long fileEntryId)
+		throws PortalException, SystemException;
+
+	public FileEntry getPortletFileEntry(
+			long groupId, long folderId, String fileName)
+		throws PortalException, SystemException;
+
+	public Folder getPortletFolder(long folderId)
+		throws PortalException, SystemException;
+
+	public Folder getPortletFolder(
+			long userId, long repositoryId, long parentFolderId,
+			String folderName, ServiceContext serviceContext)
+		throws PortalException, SystemException;
+
 	public long getPortletRepository(
 			long groupId, String portletId, ServiceContext serviceContext)
-		throws PortalException, SystemException;
-
-	public void movePortletFileEntryFromTrash(long userId, long fileEntryId)
-		throws PortalException, SystemException;
-
-	public void movePortletFileEntryFromTrash(
-			long groupId, long userId, long folderId, String fileName)
 		throws PortalException, SystemException;
 
 	public void movePortletFileEntryToTrash(long userId, long fileEntryId)
 		throws PortalException, SystemException;
 
 	public void movePortletFileEntryToTrash(
+			long groupId, long userId, long folderId, String fileName)
+		throws PortalException, SystemException;
+
+	public void restorePortletFileEntryFromTrash(long userId, long fileEntryId)
+		throws PortalException, SystemException;
+
+	public void restorePortletFileEntryFromTrash(
 			long groupId, long userId, long folderId, String fileName)
 		throws PortalException, SystemException;
 

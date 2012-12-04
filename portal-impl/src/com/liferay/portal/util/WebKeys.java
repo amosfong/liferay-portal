@@ -144,8 +144,6 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String IFRAME_SRC = "IFRAME_SRC";
 
-	public static final String JOURNAL_ARTICLE = "JOURNAL_ARTICLE";
-
 	public static final String JOURNAL_ARTICLE_CONTENT = "JOURNAL_ARTICLE_CONTENT";
 
 	public static final String JOURNAL_ARTICLE_CONTENT_EL = "JOURNAL_ARTICLE_CONTENT_EL";
@@ -364,8 +362,6 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String REDIRECT_TO_DEFAULT_LAYOUT = "REDIRECT_TO_DEFAULT_LAYOUT";
 
-	public static final String REFERER = "referer";
-
 	public static final String REQUESTED_LAYOUT = "REQUESTED_LAYOUT";
 
 	public static final String ROLE = "ROLE";
@@ -433,6 +429,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String TITLE = "TITLE";
 
 	public static final String TRANSLATOR_TRANSLATION = "TRANSLATOR_TRANSLATION";
+
+	public static final String TRASH_CONTAINER_MODEL = "TRASH_CONTAINER_MODEL";
 
 	public static final String TRASH_ENTRY = "TRASH_ENTRY";
 

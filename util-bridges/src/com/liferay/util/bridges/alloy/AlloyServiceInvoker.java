@@ -14,6 +14,7 @@
 
 package com.liferay.util.bridges.alloy;
 
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.model.BaseModel;
 
@@ -42,6 +43,10 @@ public class AlloyServiceInvoker {
 		try {
 			Class<?> serviceClass = classLoader.loadClass(serviceClassName);
 
+			dynamicQueryCountMethod = serviceClass.getMethod(
+				"dynamicQueryCount", new Class[] {DynamicQuery.class});
+			dynamicQueryMethod = serviceClass.getMethod(
+				"dynamicQuery", new Class[] {DynamicQuery.class});
 			fetchModelMethod = serviceClass.getMethod(
 				"fetch" + simpleClassName, new Class[] {long.class});
 			getModelsCountMethod = serviceClass.getMethod(
@@ -54,6 +59,15 @@ public class AlloyServiceInvoker {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public List dynamicQuery(DynamicQuery dynamicQuery) throws Exception {
+		return (List)dynamicQueryMethod.invoke(false, dynamicQuery);
+	}
+
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) throws Exception {
+		return (Long)dynamicQueryCountMethod.invoke(false, dynamicQuery);
 	}
 
 	public BaseModel<?> fetchModel(long classPK) throws Exception {
@@ -69,6 +83,8 @@ public class AlloyServiceInvoker {
 		return (Integer)getModelsCountMethod.invoke(false);
 	}
 
+	protected Method dynamicQueryCountMethod;
+	protected Method dynamicQueryMethod;
 	protected Method fetchModelMethod;
 	protected Method getModelsCountMethod;
 	protected Method getModelsMethod;

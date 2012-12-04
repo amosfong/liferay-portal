@@ -94,96 +94,18 @@ public class CountryUtil {
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel)
 	 */
-	public static Country update(Country country, boolean merge)
+	public static Country update(Country country) throws SystemException {
+		return getPersistence().update(country);
+	}
+
+	/**
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, ServiceContext)
+	 */
+	public static Country update(Country country, ServiceContext serviceContext)
 		throws SystemException {
-		return getPersistence().update(country, merge);
-	}
-
-	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean, ServiceContext)
-	 */
-	public static Country update(Country country, boolean merge,
-		ServiceContext serviceContext) throws SystemException {
-		return getPersistence().update(country, merge, serviceContext);
-	}
-
-	/**
-	* Caches the country in the entity cache if it is enabled.
-	*
-	* @param country the country
-	*/
-	public static void cacheResult(com.liferay.portal.model.Country country) {
-		getPersistence().cacheResult(country);
-	}
-
-	/**
-	* Caches the countries in the entity cache if it is enabled.
-	*
-	* @param countries the countries
-	*/
-	public static void cacheResult(
-		java.util.List<com.liferay.portal.model.Country> countries) {
-		getPersistence().cacheResult(countries);
-	}
-
-	/**
-	* Creates a new country with the primary key. Does not add the country to the database.
-	*
-	* @param countryId the primary key for the new country
-	* @return the new country
-	*/
-	public static com.liferay.portal.model.Country create(long countryId) {
-		return getPersistence().create(countryId);
-	}
-
-	/**
-	* Removes the country with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param countryId the primary key of the country
-	* @return the country that was removed
-	* @throws com.liferay.portal.NoSuchCountryException if a country with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country remove(long countryId)
-		throws com.liferay.portal.NoSuchCountryException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().remove(countryId);
-	}
-
-	public static com.liferay.portal.model.Country updateImpl(
-		com.liferay.portal.model.Country country, boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().updateImpl(country, merge);
-	}
-
-	/**
-	* Returns the country with the primary key or throws a {@link com.liferay.portal.NoSuchCountryException} if it could not be found.
-	*
-	* @param countryId the primary key of the country
-	* @return the country
-	* @throws com.liferay.portal.NoSuchCountryException if a country with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country findByPrimaryKey(
-		long countryId)
-		throws com.liferay.portal.NoSuchCountryException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().findByPrimaryKey(countryId);
-	}
-
-	/**
-	* Returns the country with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param countryId the primary key of the country
-	* @return the country, or <code>null</code> if a country with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country fetchByPrimaryKey(
-		long countryId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByPrimaryKey(countryId);
+		return getPersistence().update(country, serviceContext);
 	}
 
 	/**
@@ -229,6 +151,32 @@ public class CountryUtil {
 	}
 
 	/**
+	* Removes the country where name = &#63; from the database.
+	*
+	* @param name the name
+	* @return the country that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country removeByName(
+		java.lang.String name)
+		throws com.liferay.portal.NoSuchCountryException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByName(name);
+	}
+
+	/**
+	* Returns the number of countries where name = &#63;.
+	*
+	* @param name the name
+	* @return the number of matching countries
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByName(java.lang.String name)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByName(name);
+	}
+
+	/**
 	* Returns the country where a2 = &#63; or throws a {@link com.liferay.portal.NoSuchCountryException} if it could not be found.
 	*
 	* @param a2 the a2
@@ -267,6 +215,32 @@ public class CountryUtil {
 		java.lang.String a2, boolean retrieveFromCache)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getPersistence().fetchByA2(a2, retrieveFromCache);
+	}
+
+	/**
+	* Removes the country where a2 = &#63; from the database.
+	*
+	* @param a2 the a2
+	* @return the country that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country removeByA2(
+		java.lang.String a2)
+		throws com.liferay.portal.NoSuchCountryException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByA2(a2);
+	}
+
+	/**
+	* Returns the number of countries where a2 = &#63;.
+	*
+	* @param a2 the a2
+	* @return the number of matching countries
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByA2(java.lang.String a2)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByA2(a2);
 	}
 
 	/**
@@ -311,6 +285,32 @@ public class CountryUtil {
 	}
 
 	/**
+	* Removes the country where a3 = &#63; from the database.
+	*
+	* @param a3 the a3
+	* @return the country that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country removeByA3(
+		java.lang.String a3)
+		throws com.liferay.portal.NoSuchCountryException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByA3(a3);
+	}
+
+	/**
+	* Returns the number of countries where a3 = &#63;.
+	*
+	* @param a3 the a3
+	* @return the number of matching countries
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByA3(java.lang.String a3)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByA3(a3);
+	}
+
+	/**
 	* Returns all the countries where active = &#63;.
 	*
 	* @param active the active
@@ -327,7 +327,7 @@ public class CountryUtil {
 	* Returns a range of all the countries where active = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CountryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param active the active
@@ -346,7 +346,7 @@ public class CountryUtil {
 	* Returns an ordered range of all the countries where active = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CountryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param active the active
@@ -449,6 +449,106 @@ public class CountryUtil {
 	}
 
 	/**
+	* Removes all the countries where active = &#63; from the database.
+	*
+	* @param active the active
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByActive(boolean active)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByActive(active);
+	}
+
+	/**
+	* Returns the number of countries where active = &#63;.
+	*
+	* @param active the active
+	* @return the number of matching countries
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByActive(boolean active)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByActive(active);
+	}
+
+	/**
+	* Caches the country in the entity cache if it is enabled.
+	*
+	* @param country the country
+	*/
+	public static void cacheResult(com.liferay.portal.model.Country country) {
+		getPersistence().cacheResult(country);
+	}
+
+	/**
+	* Caches the countries in the entity cache if it is enabled.
+	*
+	* @param countries the countries
+	*/
+	public static void cacheResult(
+		java.util.List<com.liferay.portal.model.Country> countries) {
+		getPersistence().cacheResult(countries);
+	}
+
+	/**
+	* Creates a new country with the primary key. Does not add the country to the database.
+	*
+	* @param countryId the primary key for the new country
+	* @return the new country
+	*/
+	public static com.liferay.portal.model.Country create(long countryId) {
+		return getPersistence().create(countryId);
+	}
+
+	/**
+	* Removes the country with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param countryId the primary key of the country
+	* @return the country that was removed
+	* @throws com.liferay.portal.NoSuchCountryException if a country with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country remove(long countryId)
+		throws com.liferay.portal.NoSuchCountryException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().remove(countryId);
+	}
+
+	public static com.liferay.portal.model.Country updateImpl(
+		com.liferay.portal.model.Country country)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().updateImpl(country);
+	}
+
+	/**
+	* Returns the country with the primary key or throws a {@link com.liferay.portal.NoSuchCountryException} if it could not be found.
+	*
+	* @param countryId the primary key of the country
+	* @return the country
+	* @throws com.liferay.portal.NoSuchCountryException if a country with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country findByPrimaryKey(
+		long countryId)
+		throws com.liferay.portal.NoSuchCountryException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByPrimaryKey(countryId);
+	}
+
+	/**
+	* Returns the country with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param countryId the primary key of the country
+	* @return the country, or <code>null</code> if a country with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Country fetchByPrimaryKey(
+		long countryId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByPrimaryKey(countryId);
+	}
+
+	/**
 	* Returns all the countries.
 	*
 	* @return the countries
@@ -463,7 +563,7 @@ public class CountryUtil {
 	* Returns a range of all the countries.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CountryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of countries
@@ -481,7 +581,7 @@ public class CountryUtil {
 	* Returns an ordered range of all the countries.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CountryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of countries
@@ -498,59 +598,6 @@ public class CountryUtil {
 	}
 
 	/**
-	* Removes the country where name = &#63; from the database.
-	*
-	* @param name the name
-	* @return the country that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country removeByName(
-		java.lang.String name)
-		throws com.liferay.portal.NoSuchCountryException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByName(name);
-	}
-
-	/**
-	* Removes the country where a2 = &#63; from the database.
-	*
-	* @param a2 the a2
-	* @return the country that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country removeByA2(
-		java.lang.String a2)
-		throws com.liferay.portal.NoSuchCountryException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByA2(a2);
-	}
-
-	/**
-	* Removes the country where a3 = &#63; from the database.
-	*
-	* @param a3 the a3
-	* @return the country that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.Country removeByA3(
-		java.lang.String a3)
-		throws com.liferay.portal.NoSuchCountryException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByA3(a3);
-	}
-
-	/**
-	* Removes all the countries where active = &#63; from the database.
-	*
-	* @param active the active
-	* @throws SystemException if a system exception occurred
-	*/
-	public static void removeByActive(boolean active)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		getPersistence().removeByActive(active);
-	}
-
-	/**
 	* Removes all the countries from the database.
 	*
 	* @throws SystemException if a system exception occurred
@@ -558,54 +605,6 @@ public class CountryUtil {
 	public static void removeAll()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().removeAll();
-	}
-
-	/**
-	* Returns the number of countries where name = &#63;.
-	*
-	* @param name the name
-	* @return the number of matching countries
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByName(java.lang.String name)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByName(name);
-	}
-
-	/**
-	* Returns the number of countries where a2 = &#63;.
-	*
-	* @param a2 the a2
-	* @return the number of matching countries
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByA2(java.lang.String a2)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByA2(a2);
-	}
-
-	/**
-	* Returns the number of countries where a3 = &#63;.
-	*
-	* @param a3 the a3
-	* @return the number of matching countries
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByA3(java.lang.String a3)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByA3(a3);
-	}
-
-	/**
-	* Returns the number of countries where active = &#63;.
-	*
-	* @param active the active
-	* @return the number of matching countries
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByActive(boolean active)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByActive(active);
 	}
 
 	/**

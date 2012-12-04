@@ -524,6 +524,10 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 		return new MBCategoryWrapper(_mbCategory.toEscapedModel());
 	}
 
+	public com.liferay.portlet.messageboards.model.MBCategory toUnescapedModel() {
+		return new MBCategoryWrapper(_mbCategory.toUnescapedModel());
+	}
+
 	@Override
 	public java.lang.String toString() {
 		return _mbCategory.toString();
@@ -548,6 +552,12 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mbCategory.getAncestors();
+	}
+
+	public com.liferay.portlet.messageboards.model.MBCategory getParentCategory()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbCategory.getParentCategory();
 	}
 
 	public boolean isRoot() {

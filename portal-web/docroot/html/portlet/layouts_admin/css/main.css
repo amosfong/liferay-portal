@@ -338,7 +338,62 @@
 
 	.site-membership-type {
 		font-weight: bold;
-		padding: 0 0 15px;
+		margin-bottom: 10px;
+	}
+
+	.membership-info, .description {
+		margin-bottom: 20px;
+	}
+
+	.membership-info {
+		.members-info a {
+			padding-right: 5px;
+		}
+
+		.membership-requests {
+			padding-left: 10px;
+		}
+
+		dl, dt, dd {
+			display: inline;
+			margin: 0;
+		}
+
+		dt {
+			font-weight: bold;
+			margin-left: 10px;
+
+			&.first {
+				margin-left: 0;
+			}
+		}
+
+		dd {
+			border-right: 1px solid #999;
+			padding-right: 10px;
+
+			&.last {
+				border-width: 0;
+			}
+		}
+	}
+
+	.site-categorization {
+		margin-bottom: 20px;
+	}
+
+	.taglib-asset-categories-summary, .taglib-asset-tags-summary {
+		display: block;
+	}
+
+	.layout-set-info {
+		margin-bottom: 15px;
+	}
+
+	.organizations-msg-info {
+		background-color: #FEFEFE;
+		background-image: url(@theme_image_path@/common/organization_icon.png);
+		border-color: #BBB;
 	}
 }
 
@@ -367,13 +422,13 @@
 .aui-tree-pages {
 	.aui-tree-icon {
 		background: transparent url() no-repeat 50% 50%;
-		cursor: pointer;
+		cursor: move;
 		height: 18px;
 		width: 18px;
 	}
 
 	.aui-tree-node-selected {
-		.aui-tree-label a, .aui-tree-icon {
+		.aui-tree-label a {
 			cursor: move;
 		}
 	}
@@ -480,5 +535,16 @@
 
 	.lfr-page-layouts .lfr-layout-template-column {
 		width: 30%;
+	}
+}
+
+.ie7 {
+	.portlet-communities, .portlet-users-admin {
+		.edit-layout-form, .edit-layoutset-form {
+			.layout-description .aui-field-input-text {
+				max-width: 350px;
+				width: 100%;
+			}
+		}
 	}
 }

@@ -38,6 +38,7 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.TestPropsValues;
 import com.liferay.portal.webdav.methods.Method;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
+import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class WebServerTrashTest extends BaseWebServerTestCase {
 		super.setUp();
 
 		_user = ServiceTestUtil.addUser(
-			null, true, new long[] {TestPropsValues.getGroupId()});
+			null, true, new long[] {group.getGroupId()});
 
 		try {
 			_role = RoleLocalServiceUtil.getRole(
@@ -68,8 +69,8 @@ public class WebServerTrashTest extends BaseWebServerTestCase {
 		}
 		catch (NoSuchRoleException nsre) {
 			_role = RoleLocalServiceUtil.addRole(
-				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
-				"Trash Admin", null, null, RoleConstants.TYPE_REGULAR);
+				TestPropsValues.getUserId(), null, 0, "Trash Admin", null, null,
+				RoleConstants.TYPE_REGULAR, null);
 		}
 
 		ResourcePermissionLocalServiceUtil.addResourcePermission(
@@ -95,7 +96,9 @@ public class WebServerTrashTest extends BaseWebServerTestCase {
 
 	@Test
 	public void testRequestFileInTrash() throws Exception {
-		FileEntry fileEntry = addFileEntry(false, "Test Trash.txt");
+		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
+			group.getGroupId(), parentFolder.getFolderId(), false,
+			"Test Trash.txt");
 
 		MockHttpServletResponse mockHttpServletResponse =  testRequestFile(
 			fileEntry, _user, false);

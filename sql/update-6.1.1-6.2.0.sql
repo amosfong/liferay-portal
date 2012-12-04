@@ -234,6 +234,14 @@ update Country set name = 'zimbabwe' where name = 'Zimbabwe';
 
 alter table DDMStructure add parentStructureId LONG;
 
+alter table DDMTemplate add cacheable BOOLEAN;
+alter table DDMTemplate add smallImage BOOLEAN;
+alter table DDMTemplate add smallImageId LONG;
+alter table DDMTemplate add smallImageURL STRING;
+
+update DDMTemplate set type_ = 'display' where type_ = 'list';
+update DDMTemplate set type_ = 'form' where type_ = 'detail';
+
 alter table DLFileEntry add manualCheckInRequired BOOLEAN;
 
 alter table DLFileRank add active_ BOOLEAN;
@@ -250,7 +258,7 @@ update DLFileShortcut set active_ = TRUE;
 
 alter table DLFileVersion add checksum VARCHAR(75) null;
 
-alter table DLFolder add hidden BOOLEAN;
+alter table DLFolder add hidden_ BOOLEAN;
 alter table DLFolder add status INTEGER;
 alter table DLFolder add statusByUserId LONG;
 alter table DLFolder add statusByUserName VARCHAR(75) null;
@@ -258,7 +266,7 @@ alter table DLFolder add statusDate DATE null;
 
 COMMIT_TRANSACTION;
 
-update DLFolder set hidden = FALSE;
+update DLFolder set hidden_ = FALSE;
 update DLFolder set status = 0;
 update DLFolder set statusByUserId = userId;
 update DLFolder set statusByUserName = userName;
@@ -331,9 +339,22 @@ create table TrashVersion (
 	status INTEGER
 );
 
+alter table User_ add ldapServerId LONG;
+
+COMMIT_TRANSACTION;
+
+update User_ set ldapServerId = -1;
+
 drop table Users_Permissions;
 
 alter table WikiNode add status INTEGER;
 alter table WikiNode add statusByUserId LONG;
 alter table WikiNode add statusByUserName VARCHAR(75) null;
 alter table WikiNode add statusDate DATE null;
+
+COMMIT_TRANSACTION;
+
+update WikiNode set status = 0;
+update WikiNode set statusByUserId = userId;
+update WikiNode set statusByUserName = userName;
+update WikiNode set statusDate = modifiedDate;

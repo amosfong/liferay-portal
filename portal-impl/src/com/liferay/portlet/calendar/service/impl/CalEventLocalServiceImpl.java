@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedOutputStream;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.mail.MailMessage;
@@ -209,7 +210,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 		event.setSecondReminder(secondReminder);
 		event.setExpandoBridgeAttributes(serviceContext);
 
-		calEventPersistence.update(event, false);
+		calEventPersistence.update(event);
 
 		// Resources
 
@@ -532,7 +533,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 			// Time zone insensitive
 
 			Calendar tzICal = CalendarFactoryUtil.getCalendar(
-				TimeZoneUtil.getTimeZone(StringPool.UTC));
+				TimeZoneUtil.getDefault());
 
 			tzICal.set(
 				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
@@ -665,7 +666,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 
 						event.setRecurrenceObj(recurrence);
 
-						event = calEventPersistence.update(event, false);
+						event = calEventPersistence.update(event);
 
 						recurrence = event.getRecurrenceObj();
 					}
@@ -822,7 +823,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 		event.setSecondReminder(secondReminder);
 		event.setExpandoBridgeAttributes(serviceContext);
 
-		calEventPersistence.update(event, false);
+		calEventPersistence.update(event);
 
 		// Asset
 
@@ -1007,6 +1008,12 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 			title = ModelHintsUtil.trimString(
 				CalEvent.class.getName(), "title",
 				event.getSummary().getValue());
+		}
+		else {
+			title =
+				StringPool.OPEN_PARENTHESIS +
+					LanguageUtil.get(user.getLocale(), "no-title") +
+						StringPool.CLOSE_PARENTHESIS;
 		}
 
 		// Description
@@ -1558,7 +1565,8 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 
 		// Description
 
-		Description description = new Description(event.getDescription());
+		Description description = new Description(
+			HtmlUtil.render(event.getDescription()));
 
 		eventProps.add(description);
 

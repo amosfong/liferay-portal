@@ -32,8 +32,9 @@ import com.liferay.portal.model.BaseModel;
  * com.liferay.portal.convert.ConvertPermissionAlgorithm#doConvert()}.
  * </p>
  *
- * @author Raymond Augé
- * @author Brian Wing Shun Chan
+ * @author     Raymond Augé
+ * @author     Brian Wing Shun Chan
+ * @deprecated See LPS-30598.
  */
 public interface BatchSession {
 

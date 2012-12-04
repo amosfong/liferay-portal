@@ -26,7 +26,7 @@ long recordId = BeanParamUtil.getLong(record, request, "recordId");
 
 long recordSetId = BeanParamUtil.getLong(record, request, "recordSetId");
 
-long detailDDMTemplateId = ParamUtil.getLong(request, "detailDDMTemplateId");
+long formDDMTemplateId = ParamUtil.getLong(request, "formDDMTemplateId");
 
 DDLRecordVersion recordVersion = null;
 
@@ -71,7 +71,7 @@ if (record != null) {
 		<%
 		DDLRecordSet recordSet = DDLRecordSetLocalServiceUtil.getRecordSet(recordSetId);
 
-		DDMStructure ddmStructure = recordSet.getDDMStructure(detailDDMTemplateId);
+		DDMStructure ddmStructure = recordSet.getDDMStructure(formDDMTemplateId);
 
 		Fields fields = null;
 
@@ -80,7 +80,11 @@ if (record != null) {
 		}
 		%>
 
-		<%= DDMXSDUtil.getHTML(pageContext, ddmStructure.getCompleteXsd(), fields, locale) %>
+		<liferay-ddm:html
+			classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
+			classPK="<%= ddmStructure.getStructureId() %>"
+			fields="<%= fields %>"
+		/>
 
 		<%
 		boolean pending = false;

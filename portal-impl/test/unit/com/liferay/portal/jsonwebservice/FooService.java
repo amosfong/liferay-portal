@@ -26,6 +26,10 @@ import java.util.Locale;
  */
 public class FooService {
 
+	public static String camel(String goodName, String badNAME) {
+		return goodName + '*' + badNAME;
+	}
+
 	public static FooData getFooData(int id) {
 		FooData fooData = new FooDataImpl();
 
@@ -68,10 +72,11 @@ public class FooService {
 	}
 
 	public static String hey(
-		Calendar calendar, long[] userIds, List<Locale> locales) {
+		Calendar calendar, long[] userIds, List<Locale> locales, Long[] ids) {
 
 		return calendar.get(Calendar.YEAR) + ", " + userIds[0] + '/' +
-			userIds.length + ", " + locales.get(0) + '/' + locales.size();
+			userIds.length + ", " + locales.get(0) + '/' + locales.size() +
+				", " + ids[0] + '/' + ids.length;
 	}
 
 	public static String methodOne(long id, long nameId) {
@@ -105,11 +110,11 @@ public class FooService {
 	}
 
 	public static String use1(FooDataImpl fooData) {
-		return "using #1: " + fooData.getValue();
+		return "using #1: " + fooData.toString();
 	}
 
 	public static String use2(FooData fooData) {
-		return "using #2: " + fooData.getValue();
+		return "using #2: " + fooData.toString();
 	}
 
 }

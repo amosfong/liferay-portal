@@ -65,30 +65,30 @@ public class SecureFilter extends BasePortalFilter {
 			filterConfig.getInitParameter("basic_auth"));
 		_digestAuthEnabled = GetterUtil.getBoolean(
 			filterConfig.getInitParameter("digest_auth"));
-		_usePermissionChecker = GetterUtil.getBoolean(
-			filterConfig.getInitParameter("use_permission_checker"));
 
 		String propertyPrefix = filterConfig.getInitParameter(
 			"portal_property_prefix");
 
-		String[] hostsAllowedArray = null;
+		String[] hostsAllowed = null;
 
 		if (Validator.isNull(propertyPrefix)) {
-			hostsAllowedArray = StringUtil.split(
+			hostsAllowed = StringUtil.split(
 				filterConfig.getInitParameter("hosts.allowed"));
 			_httpsRequired = GetterUtil.getBoolean(
 				filterConfig.getInitParameter("https.required"));
 		}
 		else {
-			hostsAllowedArray = PropsUtil.getArray(
-				propertyPrefix + "hosts.allowed");
+			hostsAllowed = PropsUtil.getArray(propertyPrefix + "hosts.allowed");
 			_httpsRequired = GetterUtil.getBoolean(
 				PropsUtil.get(propertyPrefix + "https.required"));
 		}
 
-		for (String host : hostsAllowedArray) {
-			_hostsAllowed.add(host);
+		for (String hostAllowed : hostsAllowed) {
+			_hostsAllowed.add(hostAllowed);
 		}
+
+		_usePermissionChecker = GetterUtil.getBoolean(
+			filterConfig.getInitParameter("use_permission_checker"));
 	}
 
 	protected HttpServletRequest basicAuth(

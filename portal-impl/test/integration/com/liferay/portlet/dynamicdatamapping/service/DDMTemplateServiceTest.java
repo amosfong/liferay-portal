@@ -56,12 +56,12 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addTemplate(
 				_classNameId, 0, templateKey, "Test Template 1",
-				DDMTemplateConstants.TEMPLATE_TYPE_DETAIL,
+				DDMTemplateConstants.TEMPLATE_TYPE_FORM,
 				DDMTemplateConstants.TEMPLATE_MODE_CREATE, language,
 				getTestTemplateScript(language));
 			addTemplate(
 				_classNameId, 0, templateKey, "Test Template 2",
-				DDMTemplateConstants.TEMPLATE_TYPE_DETAIL,
+				DDMTemplateConstants.TEMPLATE_TYPE_FORM,
 				DDMTemplateConstants.TEMPLATE_MODE_CREATE, language,
 				getTestTemplateScript(language));
 
@@ -78,7 +78,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addTemplate(
 				_classNameId, 0, null, StringPool.BLANK,
-				DDMTemplateConstants.TEMPLATE_TYPE_DETAIL,
+				DDMTemplateConstants.TEMPLATE_TYPE_FORM,
 				DDMTemplateConstants.TEMPLATE_MODE_CREATE, language,
 				getTestTemplateScript(language));
 
@@ -93,7 +93,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addTemplate(
 				_classNameId, 0, null, "Test Template",
-				DDMTemplateConstants.TEMPLATE_TYPE_DETAIL,
+				DDMTemplateConstants.TEMPLATE_TYPE_FORM,
 				DDMTemplateConstants.TEMPLATE_MODE_CREATE,
 				DDMTemplateConstants.LANG_TYPE_VM, StringPool.BLANK);
 
@@ -105,7 +105,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testCopyTemplates() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template");
 
 		List<DDMTemplate> templates = copyTemplate(template);
@@ -115,7 +115,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testDeleteTemplate() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template");
 
 		DDMTemplateLocalServiceUtil.deleteTemplate(template.getTemplateId());
@@ -127,7 +127,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testFetchTemplate() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template");
 
 		Assert.assertNotNull(
@@ -137,7 +137,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testGetTemplates() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template");
 
 		List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.getTemplates(
@@ -148,10 +148,10 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearch() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template 1");
 
-		addListTemplate(_classNameId, 0, "Test Template 2");
+		addDisplayTemplate(_classNameId, 0, "Test Template 2");
 
 		List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.search(
 			template.getCompanyId(), template.getGroupId(),
@@ -164,10 +164,10 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchByKeywords() throws Exception {
-		DDMTemplate template = addListTemplate(
+		DDMTemplate template = addDisplayTemplate(
 			_classNameId, 0, "Test Template 1");
 
-		addListTemplate(_classNameId, 0, "Test Template 2");
+		addDisplayTemplate(_classNameId, 0, "Test Template 2");
 
 		List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.search(
 			template.getCompanyId(), template.getGroupId(),
@@ -180,14 +180,14 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 	@Test
 	public void testSearchCount() throws Exception {
 		int initialCount = DDMTemplateLocalServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
-			_classNameId, 0, "Test Template", null, null, null, null, false);
+			TestPropsValues.getCompanyId(), group.getGroupId(), _classNameId, 0,
+			"Test Template", null, null, null, null, false);
 
-		addListTemplate(_classNameId, 0, "Test Template");
+		addDisplayTemplate(_classNameId, 0, "Test Template");
 
 		int count = DDMTemplateLocalServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
-			_classNameId, 0, "Test Template", null, null, null, null, false);
+			TestPropsValues.getCompanyId(), group.getGroupId(), _classNameId, 0,
+			"Test Template", null, null, null, null, false);
 
 		Assert.assertEquals(initialCount + 1, count);
 	}
@@ -195,14 +195,14 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 	@Test
 	public void testSearchCountByKeywords() throws Exception {
 		int initialCount = DDMTemplateLocalServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
-			_classNameId, 0, null, null, null);
+			TestPropsValues.getCompanyId(), group.getGroupId(), _classNameId, 0,
+			null, null, null);
 
-		addListTemplate(_classNameId, 0, "Test Template");
+		addDisplayTemplate(_classNameId, 0, "Test Template");
 
 		int count = DDMTemplateLocalServiceUtil.searchCount(
-			TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
-			_classNameId, 0, null, null, null);
+			TestPropsValues.getCompanyId(), group.getGroupId(), _classNameId, 0,
+			null, null, null);
 
 		Assert.assertEquals(initialCount + 1, count);
 	}
@@ -213,7 +213,7 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 		return DDMTemplateLocalServiceUtil.copyTemplates(
 			template.getUserId(), template.getClassNameId(),
 			template.getClassPK(), -1, template.getType(),
-			ServiceTestUtil.getServiceContext());
+			ServiceTestUtil.getServiceContext(group.getGroupId()));
 	}
 
 	protected DDMTemplate updateTemplate(DDMTemplate template)
@@ -223,6 +223,8 @@ public class DDMTemplateServiceTest extends BaseDDMServiceTestCase {
 			template.getTemplateId(), template.getNameMap(),
 			template.getDescriptionMap(), template.getType(),
 			template.getMode(), template.getLanguage(), template.getScript(),
+			template.isCacheable(), template.isSmallImage(),
+			template.getSmallImageURL(), null,
 			ServiceTestUtil.getServiceContext());
 	}
 

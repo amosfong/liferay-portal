@@ -34,6 +34,8 @@ AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.get
 
 AssetRenderer assetRenderer = null;
 
+boolean inheritRedirect = false;
+
 if (assetRendererFactory != null) {
 	long classPK = GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK));
 
@@ -69,6 +71,8 @@ if (assetRendererFactory != null) {
 	}
 
 	if (viewInContext) {
+		inheritRedirect = true;
+
 		String viewFullContentURLString = viewFullContentURL.toString();
 
 		viewFullContentURLString = HttpUtil.setParameter(viewFullContentURLString, "redirect", currentURL);
@@ -110,7 +114,7 @@ if ((assetRendererFactory == null) && viewInContext) {
 	viewURL = viewFullContentURL.toString();
 }
 
-viewURL = _checkViewURL(themeDisplay, viewURL, currentURL);
+viewURL = _checkViewURL(themeDisplay, viewURL, currentURL, inheritRedirect);
 
 String[] queryTerms = (String[])request.getAttribute("search.jsp-queryTerms");
 
@@ -124,8 +128,8 @@ PortletURL portletURL = (PortletURL)request.getAttribute("search.jsp-portletURL"
 
 	<span class="asset-entry-title">
 		<a href="<%= viewURL %>">
-			<c:if test="<%= assetRendererFactory != null %>">
-				<img alt="" src="<%= assetRendererFactory.getIconPath(renderRequest) %>" />
+			<c:if test="<%= assetRenderer != null %>">
+				<img alt="" src="<%= assetRenderer.getIconPath(renderRequest) %>" />
 			</c:if>
 
 			<%= StringUtil.highlight(HtmlUtil.escape(entryTitle), queryTerms) %>

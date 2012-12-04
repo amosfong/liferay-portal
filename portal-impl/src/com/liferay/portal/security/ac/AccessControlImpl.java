@@ -39,7 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 public class AccessControlImpl implements AccessControl {
 
 	public void initAccessControlContext(
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest request, HttpServletResponse response,
+		Map<String, Object> settings) {
 
 		AccessControlContext accessControlContext =
 			AccessControlUtil.getAccessControlContext();
@@ -53,6 +54,11 @@ public class AccessControlImpl implements AccessControl {
 
 		accessControlContext.setRequest(request);
 		accessControlContext.setResponse(response);
+
+		Map<String, Object> accessControlContextSettings =
+			accessControlContext.getSettings();
+
+		accessControlContextSettings.putAll(settings);
 
 		AccessControlUtil.setAccessControlContext(accessControlContext);
 	}
@@ -90,10 +96,9 @@ public class AccessControlImpl implements AccessControl {
 			authVerifierResult.getSettings();
 
 		if (authVerifierResultSettings != null) {
-			Map<String, Object> accessControlContextSettings =
-				accessControlContext.getSettings();
+			Map<String, Object> settings = accessControlContext.getSettings();
 
-			accessControlContextSettings.putAll(authVerifierResultSettings);
+			settings.putAll(authVerifierResultSettings);
 		}
 
 		accessControlContext.setAuthVerifierResult(authVerifierResult);

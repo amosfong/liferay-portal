@@ -182,7 +182,7 @@ public class LayoutImporter {
 
 		// Layouts
 
-		Set<Long> existingLayoutIds = new HashSet<Long>();
+		Set<String> existingLayoutUuids = new HashSet<String>();
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
@@ -196,22 +196,22 @@ public class LayoutImporter {
 					stagingGroup.getGroupId(), privateLayout);
 
 				for (Layout layout : layouts) {
-					existingLayoutIds.add(layout.getLayoutId());
+					existingLayoutUuids.add(layout.getUuid());
 				}
 			}
 		}
 		else {
 			for (Layout layout : newLayouts) {
-				existingLayoutIds.add(layout.getLayoutId());
+				existingLayoutUuids.add(layout.getUuid());
 			}
 		}
 
-		if (_log.isDebugEnabled() && !existingLayoutIds.isEmpty()) {
+		if (_log.isDebugEnabled() && !existingLayoutUuids.isEmpty()) {
 			_log.debug("Delete missing layouts");
 		}
 
 		for (Layout layout : previousLayouts) {
-			if (!existingLayoutIds.contains(layout.getLayoutId())) {
+			if (!existingLayoutUuids.contains(layout.getUuid())) {
 				try {
 					LayoutLocalServiceUtil.deleteLayout(
 						layout, privateLayout, serviceContext);
@@ -817,7 +817,7 @@ public class LayoutImporter {
 					"article-id",
 					MapUtil.getString(articleIds, articleId, articleId));
 
-				LayoutUtil.update(layout, false);
+				LayoutUtil.update(layout);
 			}
 		}
 
@@ -1293,7 +1293,7 @@ public class LayoutImporter {
 
 		importedLayout.setExpandoBridgeAttributes(serviceContext);
 
-		LayoutUtil.update(importedLayout, false);
+		LayoutUtil.update(importedLayout);
 
 		portletDataContext.setPlid(importedLayout.getPlid());
 		portletDataContext.setOldPlid(layout.getPlid());
@@ -1600,7 +1600,7 @@ public class LayoutImporter {
 	private static Log _log = LogFactoryUtil.getLog(LayoutImporter.class);
 
 	private static MethodHandler _loadThemesMethodHandler = new MethodHandler(
-		new MethodKey(ThemeLoaderFactory.class.getName(), "loadThemes"));
+		new MethodKey(ThemeLoaderFactory.class, "loadThemes"));
 
 	private PermissionImporter _permissionImporter = new PermissionImporter();
 	private PortletImporter _portletImporter = new PortletImporter();

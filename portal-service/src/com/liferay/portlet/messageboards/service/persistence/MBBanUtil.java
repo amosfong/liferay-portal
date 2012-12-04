@@ -94,98 +94,18 @@ public class MBBanUtil {
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel)
 	 */
-	public static MBBan update(MBBan mbBan, boolean merge)
+	public static MBBan update(MBBan mbBan) throws SystemException {
+		return getPersistence().update(mbBan);
+	}
+
+	/**
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, ServiceContext)
+	 */
+	public static MBBan update(MBBan mbBan, ServiceContext serviceContext)
 		throws SystemException {
-		return getPersistence().update(mbBan, merge);
-	}
-
-	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean, ServiceContext)
-	 */
-	public static MBBan update(MBBan mbBan, boolean merge,
-		ServiceContext serviceContext) throws SystemException {
-		return getPersistence().update(mbBan, merge, serviceContext);
-	}
-
-	/**
-	* Caches the message boards ban in the entity cache if it is enabled.
-	*
-	* @param mbBan the message boards ban
-	*/
-	public static void cacheResult(
-		com.liferay.portlet.messageboards.model.MBBan mbBan) {
-		getPersistence().cacheResult(mbBan);
-	}
-
-	/**
-	* Caches the message boards bans in the entity cache if it is enabled.
-	*
-	* @param mbBans the message boards bans
-	*/
-	public static void cacheResult(
-		java.util.List<com.liferay.portlet.messageboards.model.MBBan> mbBans) {
-		getPersistence().cacheResult(mbBans);
-	}
-
-	/**
-	* Creates a new message boards ban with the primary key. Does not add the message boards ban to the database.
-	*
-	* @param banId the primary key for the new message boards ban
-	* @return the new message boards ban
-	*/
-	public static com.liferay.portlet.messageboards.model.MBBan create(
-		long banId) {
-		return getPersistence().create(banId);
-	}
-
-	/**
-	* Removes the message boards ban with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param banId the primary key of the message boards ban
-	* @return the message boards ban that was removed
-	* @throws com.liferay.portlet.messageboards.NoSuchBanException if a message boards ban with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portlet.messageboards.model.MBBan remove(
-		long banId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.portlet.messageboards.NoSuchBanException {
-		return getPersistence().remove(banId);
-	}
-
-	public static com.liferay.portlet.messageboards.model.MBBan updateImpl(
-		com.liferay.portlet.messageboards.model.MBBan mbBan, boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().updateImpl(mbBan, merge);
-	}
-
-	/**
-	* Returns the message boards ban with the primary key or throws a {@link com.liferay.portlet.messageboards.NoSuchBanException} if it could not be found.
-	*
-	* @param banId the primary key of the message boards ban
-	* @return the message boards ban
-	* @throws com.liferay.portlet.messageboards.NoSuchBanException if a message boards ban with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portlet.messageboards.model.MBBan findByPrimaryKey(
-		long banId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.portlet.messageboards.NoSuchBanException {
-		return getPersistence().findByPrimaryKey(banId);
-	}
-
-	/**
-	* Returns the message boards ban with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param banId the primary key of the message boards ban
-	* @return the message boards ban, or <code>null</code> if a message boards ban with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portlet.messageboards.model.MBBan fetchByPrimaryKey(
-		long banId) throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByPrimaryKey(banId);
+		return getPersistence().update(mbBan, serviceContext);
 	}
 
 	/**
@@ -205,7 +125,7 @@ public class MBBanUtil {
 	* Returns a range of all the message boards bans where groupId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param groupId the group ID
@@ -224,7 +144,7 @@ public class MBBanUtil {
 	* Returns an ordered range of all the message boards bans where groupId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param groupId the group ID
@@ -326,6 +246,29 @@ public class MBBanUtil {
 	}
 
 	/**
+	* Removes all the message boards bans where groupId = &#63; from the database.
+	*
+	* @param groupId the group ID
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByGroupId(long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByGroupId(groupId);
+	}
+
+	/**
+	* Returns the number of message boards bans where groupId = &#63;.
+	*
+	* @param groupId the group ID
+	* @return the number of matching message boards bans
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByGroupId(long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByGroupId(groupId);
+	}
+
+	/**
 	* Returns all the message boards bans where userId = &#63;.
 	*
 	* @param userId the user ID
@@ -341,7 +284,7 @@ public class MBBanUtil {
 	* Returns a range of all the message boards bans where userId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param userId the user ID
@@ -360,7 +303,7 @@ public class MBBanUtil {
 	* Returns an ordered range of all the message boards bans where userId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param userId the user ID
@@ -462,6 +405,29 @@ public class MBBanUtil {
 	}
 
 	/**
+	* Removes all the message boards bans where userId = &#63; from the database.
+	*
+	* @param userId the user ID
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByUserId(long userId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByUserId(userId);
+	}
+
+	/**
+	* Returns the number of message boards bans where userId = &#63;.
+	*
+	* @param userId the user ID
+	* @return the number of matching message boards bans
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByUserId(long userId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByUserId(userId);
+	}
+
+	/**
 	* Returns all the message boards bans where banUserId = &#63;.
 	*
 	* @param banUserId the ban user ID
@@ -478,7 +444,7 @@ public class MBBanUtil {
 	* Returns a range of all the message boards bans where banUserId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param banUserId the ban user ID
@@ -497,7 +463,7 @@ public class MBBanUtil {
 	* Returns an ordered range of all the message boards bans where banUserId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param banUserId the ban user ID
@@ -604,6 +570,29 @@ public class MBBanUtil {
 	}
 
 	/**
+	* Removes all the message boards bans where banUserId = &#63; from the database.
+	*
+	* @param banUserId the ban user ID
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByBanUserId(long banUserId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByBanUserId(banUserId);
+	}
+
+	/**
+	* Returns the number of message boards bans where banUserId = &#63;.
+	*
+	* @param banUserId the ban user ID
+	* @return the number of matching message boards bans
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByBanUserId(long banUserId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByBanUserId(banUserId);
+	}
+
+	/**
 	* Returns the message boards ban where groupId = &#63; and banUserId = &#63; or throws a {@link com.liferay.portlet.messageboards.NoSuchBanException} if it could not be found.
 	*
 	* @param groupId the group ID
@@ -649,6 +638,113 @@ public class MBBanUtil {
 	}
 
 	/**
+	* Removes the message boards ban where groupId = &#63; and banUserId = &#63; from the database.
+	*
+	* @param groupId the group ID
+	* @param banUserId the ban user ID
+	* @return the message boards ban that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBBan removeByG_B(
+		long groupId, long banUserId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.portlet.messageboards.NoSuchBanException {
+		return getPersistence().removeByG_B(groupId, banUserId);
+	}
+
+	/**
+	* Returns the number of message boards bans where groupId = &#63; and banUserId = &#63;.
+	*
+	* @param groupId the group ID
+	* @param banUserId the ban user ID
+	* @return the number of matching message boards bans
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByG_B(long groupId, long banUserId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByG_B(groupId, banUserId);
+	}
+
+	/**
+	* Caches the message boards ban in the entity cache if it is enabled.
+	*
+	* @param mbBan the message boards ban
+	*/
+	public static void cacheResult(
+		com.liferay.portlet.messageboards.model.MBBan mbBan) {
+		getPersistence().cacheResult(mbBan);
+	}
+
+	/**
+	* Caches the message boards bans in the entity cache if it is enabled.
+	*
+	* @param mbBans the message boards bans
+	*/
+	public static void cacheResult(
+		java.util.List<com.liferay.portlet.messageboards.model.MBBan> mbBans) {
+		getPersistence().cacheResult(mbBans);
+	}
+
+	/**
+	* Creates a new message boards ban with the primary key. Does not add the message boards ban to the database.
+	*
+	* @param banId the primary key for the new message boards ban
+	* @return the new message boards ban
+	*/
+	public static com.liferay.portlet.messageboards.model.MBBan create(
+		long banId) {
+		return getPersistence().create(banId);
+	}
+
+	/**
+	* Removes the message boards ban with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param banId the primary key of the message boards ban
+	* @return the message boards ban that was removed
+	* @throws com.liferay.portlet.messageboards.NoSuchBanException if a message boards ban with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBBan remove(
+		long banId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.portlet.messageboards.NoSuchBanException {
+		return getPersistence().remove(banId);
+	}
+
+	public static com.liferay.portlet.messageboards.model.MBBan updateImpl(
+		com.liferay.portlet.messageboards.model.MBBan mbBan)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().updateImpl(mbBan);
+	}
+
+	/**
+	* Returns the message boards ban with the primary key or throws a {@link com.liferay.portlet.messageboards.NoSuchBanException} if it could not be found.
+	*
+	* @param banId the primary key of the message boards ban
+	* @return the message boards ban
+	* @throws com.liferay.portlet.messageboards.NoSuchBanException if a message boards ban with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBBan findByPrimaryKey(
+		long banId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.portlet.messageboards.NoSuchBanException {
+		return getPersistence().findByPrimaryKey(banId);
+	}
+
+	/**
+	* Returns the message boards ban with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param banId the primary key of the message boards ban
+	* @return the message boards ban, or <code>null</code> if a message boards ban with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBBan fetchByPrimaryKey(
+		long banId) throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByPrimaryKey(banId);
+	}
+
+	/**
 	* Returns all the message boards bans.
 	*
 	* @return the message boards bans
@@ -663,7 +759,7 @@ public class MBBanUtil {
 	* Returns a range of all the message boards bans.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of message boards bans
@@ -681,7 +777,7 @@ public class MBBanUtil {
 	* Returns an ordered range of all the message boards bans.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.messageboards.model.impl.MBBanModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of message boards bans
@@ -698,54 +794,6 @@ public class MBBanUtil {
 	}
 
 	/**
-	* Removes all the message boards bans where groupId = &#63; from the database.
-	*
-	* @param groupId the group ID
-	* @throws SystemException if a system exception occurred
-	*/
-	public static void removeByGroupId(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		getPersistence().removeByGroupId(groupId);
-	}
-
-	/**
-	* Removes all the message boards bans where userId = &#63; from the database.
-	*
-	* @param userId the user ID
-	* @throws SystemException if a system exception occurred
-	*/
-	public static void removeByUserId(long userId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		getPersistence().removeByUserId(userId);
-	}
-
-	/**
-	* Removes all the message boards bans where banUserId = &#63; from the database.
-	*
-	* @param banUserId the ban user ID
-	* @throws SystemException if a system exception occurred
-	*/
-	public static void removeByBanUserId(long banUserId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		getPersistence().removeByBanUserId(banUserId);
-	}
-
-	/**
-	* Removes the message boards ban where groupId = &#63; and banUserId = &#63; from the database.
-	*
-	* @param groupId the group ID
-	* @param banUserId the ban user ID
-	* @return the message boards ban that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portlet.messageboards.model.MBBan removeByG_B(
-		long groupId, long banUserId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.portlet.messageboards.NoSuchBanException {
-		return getPersistence().removeByG_B(groupId, banUserId);
-	}
-
-	/**
 	* Removes all the message boards bans from the database.
 	*
 	* @throws SystemException if a system exception occurred
@@ -753,55 +801,6 @@ public class MBBanUtil {
 	public static void removeAll()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().removeAll();
-	}
-
-	/**
-	* Returns the number of message boards bans where groupId = &#63;.
-	*
-	* @param groupId the group ID
-	* @return the number of matching message boards bans
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByGroupId(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByGroupId(groupId);
-	}
-
-	/**
-	* Returns the number of message boards bans where userId = &#63;.
-	*
-	* @param userId the user ID
-	* @return the number of matching message boards bans
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByUserId(long userId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByUserId(userId);
-	}
-
-	/**
-	* Returns the number of message boards bans where banUserId = &#63;.
-	*
-	* @param banUserId the ban user ID
-	* @return the number of matching message boards bans
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByBanUserId(long banUserId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByBanUserId(banUserId);
-	}
-
-	/**
-	* Returns the number of message boards bans where groupId = &#63; and banUserId = &#63;.
-	*
-	* @param groupId the group ID
-	* @param banUserId the ban user ID
-	* @return the number of matching message boards bans
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByG_B(long groupId, long banUserId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByG_B(groupId, banUserId);
 	}
 
 	/**

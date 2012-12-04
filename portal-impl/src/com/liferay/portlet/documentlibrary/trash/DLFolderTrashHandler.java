@@ -19,14 +19,15 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.RepositoryServiceUtil;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
@@ -42,12 +43,12 @@ import com.liferay.portlet.trash.util.TrashUtil;
 import javax.portlet.PortletRequest;
 
 /**
- * Represents the trash handler for the folder entity.
+ * Implements trash handling for the folder entity.
  *
  * @author Alexander Chow
  * @author Zsolt Berentey
  */
-public class DLFolderTrashHandler extends BaseTrashHandler {
+public class DLFolderTrashHandler extends DLBaseTrashHandler {
 
 	public static final String CLASS_NAME = DLFolder.class.getName();
 
@@ -84,15 +85,6 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Deletes all folders with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the folders to be deleted
-	 * @param  checkPermission whether to check permission before deleting each
-	 *         folder
-	 * @throws PortalException if any one of the folders could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
 		throws PortalException, SystemException {
 
@@ -106,11 +98,6 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Returns the folder entity's class name
-	 *
-	 * @return the folder entity's class name
-	 */
 	public String getClassName() {
 		return CLASS_NAME;
 	}
@@ -118,6 +105,21 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 	@Override
 	public String getDeleteMessage() {
 		return "found-in-deleted-folder-x";
+	}
+
+	@Override
+	public ContainerModel getParentContainerModel(long classPK)
+		throws PortalException, SystemException {
+
+		DLFolder dlFolder = getDLFolder(classPK);
+
+		long parentFolderId = dlFolder.getParentFolderId();
+
+		if (parentFolderId <= 0) {
+			return null;
+		}
+
+		return getContainerModel(parentFolderId);
 	}
 
 	@Override
@@ -140,14 +142,6 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 			portletRequest, dlFolder.getParentFolderId());
 	}
 
-	/**
-	 * Returns the trash renderer associated to the trash entry.
-	 *
-	 * @param  classPK the primary key of the folder
-	 * @return the trash renderer associated to the folder
-	 * @throws PortalException if the folder could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	@Override
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException {
@@ -172,6 +166,11 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 			permissionChecker, groupId, classPK, trashActionId);
 	}
 
+	@Override
+	public boolean isContainerModel() {
+		return true;
+	}
+
 	public boolean isInTrash(long classPK)
 		throws PortalException, SystemException {
 
@@ -184,13 +183,32 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 		return false;
 	}
 
-	/**
-	 * Restores all folders with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the folders to be deleted
-	 * @throws PortalException if any one of the folders could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
+	@Override
+	public boolean isRestorable(long classPK)
+		throws PortalException, SystemException {
+
+		DLFolder dlFolder = getDLFolder(classPK);
+
+		return !dlFolder.isInTrashFolder();
+	}
+
+	@Override
+	public void moveEntry(
+			long classPK, long containerModelId, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		DLAppServiceUtil.moveFolder(classPK, containerModelId, serviceContext);
+	}
+
+	@Override
+	public void moveTrashEntry(
+			long classPK, long containerModelId, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		DLAppServiceUtil.moveFolderFromTrash(
+			classPK, containerModelId, serviceContext);
+	}
+
 	public void restoreTrashEntries(long[] classPKs)
 		throws PortalException, SystemException {
 
@@ -207,10 +225,11 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 
 		dlFolder.setName(name);
 
-		DLFolderLocalServiceUtil.updateDLFolder(dlFolder, false);
+		DLFolderLocalServiceUtil.updateDLFolder(dlFolder);
 	}
 
-	protected DLFolder getDLFolder(long classPK)
+	@Override
+	protected Repository getRepository(long classPK)
 		throws PortalException, SystemException {
 
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
@@ -222,9 +241,7 @@ public class DLFolderTrashHandler extends BaseTrashHandler {
 					" does not support trash operations");
 		}
 
-		Folder folder = repository.getFolder(classPK);
-
-		return (DLFolder)folder.getModel();
+		return repository;
 	}
 
 	@Override

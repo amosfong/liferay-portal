@@ -57,7 +57,7 @@ public class JournalFeedLocalServiceImpl
 			String templateId, String rendererTemplateId, int delta,
 			String orderByCol, String orderByType,
 			String targetLayoutFriendlyUrl, String targetPortletId,
-			String contentField, String feedType, double feedVersion,
+			String contentField, String feedFormat, double feedVersion,
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
@@ -100,16 +100,16 @@ public class JournalFeedLocalServiceImpl
 		feed.setTargetPortletId(targetPortletId);
 		feed.setContentField(contentField);
 
-		if (Validator.isNull(feedType)) {
-			feed.setFeedType(RSSUtil.TYPE_DEFAULT);
+		if (Validator.isNull(feedFormat)) {
+			feed.setFeedFormat(RSSUtil.FORMAT_DEFAULT);
 			feed.setFeedVersion(RSSUtil.VERSION_DEFAULT);
 		}
 		else {
-			feed.setFeedType(feedType);
+			feed.setFeedFormat(feedFormat);
 			feed.setFeedVersion(feedVersion);
 		}
 
-		journalFeedPersistence.update(feed, false);
+		journalFeedPersistence.update(feed);
 
 		// Resources
 
@@ -281,7 +281,7 @@ public class JournalFeedLocalServiceImpl
 			String type, String structureId, String templateId,
 			String rendererTemplateId, int delta, String orderByCol,
 			String orderByType, String targetLayoutFriendlyUrl,
-			String targetPortletId, String contentField, String feedType,
+			String targetPortletId, String contentField, String feedFormat,
 			double feedVersion, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
@@ -307,16 +307,16 @@ public class JournalFeedLocalServiceImpl
 		feed.setTargetPortletId(targetPortletId);
 		feed.setContentField(contentField);
 
-		if (Validator.isNull(feedType)) {
-			feed.setFeedType(RSSUtil.TYPE_DEFAULT);
+		if (Validator.isNull(feedFormat)) {
+			feed.setFeedFormat(RSSUtil.FORMAT_DEFAULT);
 			feed.setFeedVersion(RSSUtil.VERSION_DEFAULT);
 		}
 		else {
-			feed.setFeedType(feedType);
+			feed.setFeedFormat(feedFormat);
 			feed.setFeedVersion(feedVersion);
 		}
 
-		journalFeedPersistence.update(feed, false);
+		journalFeedPersistence.update(feed);
 
 		// Expando
 

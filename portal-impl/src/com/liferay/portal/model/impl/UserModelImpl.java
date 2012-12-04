@@ -81,6 +81,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 			{ "screenName", Types.VARCHAR },
 			{ "emailAddress", Types.VARCHAR },
 			{ "facebookId", Types.BIGINT },
+			{ "ldapServerId", Types.BIGINT },
 			{ "openId", Types.VARCHAR },
 			{ "portraitId", Types.BIGINT },
 			{ "languageId", Types.VARCHAR },
@@ -103,8 +104,10 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 			{ "emailAddressVerified", Types.BOOLEAN },
 			{ "status", Types.INTEGER }
 		};
-	public static final String TABLE_SQL_CREATE = "create table User_ (uuid_ VARCHAR(75) null,userId LONG not null primary key,companyId LONG,createDate DATE null,modifiedDate DATE null,defaultUser BOOLEAN,contactId LONG,password_ VARCHAR(75) null,passwordEncrypted BOOLEAN,passwordReset BOOLEAN,passwordModifiedDate DATE null,digest VARCHAR(255) null,reminderQueryQuestion VARCHAR(75) null,reminderQueryAnswer VARCHAR(75) null,graceLoginCount INTEGER,screenName VARCHAR(75) null,emailAddress VARCHAR(75) null,facebookId LONG,openId VARCHAR(1024) null,portraitId LONG,languageId VARCHAR(75) null,timeZoneId VARCHAR(75) null,greeting VARCHAR(255) null,comments STRING null,firstName VARCHAR(75) null,middleName VARCHAR(75) null,lastName VARCHAR(75) null,jobTitle VARCHAR(100) null,loginDate DATE null,loginIP VARCHAR(75) null,lastLoginDate DATE null,lastLoginIP VARCHAR(75) null,lastFailedLoginDate DATE null,failedLoginAttempts INTEGER,lockout BOOLEAN,lockoutDate DATE null,agreedToTermsOfUse BOOLEAN,emailAddressVerified BOOLEAN,status INTEGER)";
+	public static final String TABLE_SQL_CREATE = "create table User_ (uuid_ VARCHAR(75) null,userId LONG not null primary key,companyId LONG,createDate DATE null,modifiedDate DATE null,defaultUser BOOLEAN,contactId LONG,password_ VARCHAR(75) null,passwordEncrypted BOOLEAN,passwordReset BOOLEAN,passwordModifiedDate DATE null,digest VARCHAR(255) null,reminderQueryQuestion VARCHAR(75) null,reminderQueryAnswer VARCHAR(75) null,graceLoginCount INTEGER,screenName VARCHAR(75) null,emailAddress VARCHAR(75) null,facebookId LONG,ldapServerId LONG,openId VARCHAR(1024) null,portraitId LONG,languageId VARCHAR(75) null,timeZoneId VARCHAR(75) null,greeting VARCHAR(255) null,comments STRING null,firstName VARCHAR(75) null,middleName VARCHAR(75) null,lastName VARCHAR(75) null,jobTitle VARCHAR(100) null,loginDate DATE null,loginIP VARCHAR(75) null,lastLoginDate DATE null,lastLoginIP VARCHAR(75) null,lastFailedLoginDate DATE null,failedLoginAttempts INTEGER,lockout BOOLEAN,lockoutDate DATE null,agreedToTermsOfUse BOOLEAN,emailAddressVerified BOOLEAN,status INTEGER)";
 	public static final String TABLE_SQL_DROP = "drop table User_";
+	public static final String ORDER_BY_JPQL = " ORDER BY user.userId ASC";
+	public static final String ORDER_BY_SQL = " ORDER BY User_.userId ASC";
 	public static final String DATA_SOURCE = "liferayDataSource";
 	public static final String SESSION_FACTORY = "liferaySessionFactory";
 	public static final String TX_MANAGER = "liferayTransactionManager";
@@ -119,15 +122,17 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 			true);
 	public static long COMPANYID_COLUMN_BITMASK = 1L;
 	public static long CONTACTID_COLUMN_BITMASK = 2L;
-	public static long DEFAULTUSER_COLUMN_BITMASK = 4L;
-	public static long EMAILADDRESS_COLUMN_BITMASK = 8L;
-	public static long FACEBOOKID_COLUMN_BITMASK = 16L;
-	public static long OPENID_COLUMN_BITMASK = 32L;
-	public static long PORTRAITID_COLUMN_BITMASK = 64L;
-	public static long SCREENNAME_COLUMN_BITMASK = 128L;
-	public static long STATUS_COLUMN_BITMASK = 256L;
-	public static long USERID_COLUMN_BITMASK = 512L;
-	public static long UUID_COLUMN_BITMASK = 1024L;
+	public static long CREATEDATE_COLUMN_BITMASK = 4L;
+	public static long DEFAULTUSER_COLUMN_BITMASK = 8L;
+	public static long EMAILADDRESS_COLUMN_BITMASK = 16L;
+	public static long FACEBOOKID_COLUMN_BITMASK = 32L;
+	public static long MODIFIEDDATE_COLUMN_BITMASK = 64L;
+	public static long OPENID_COLUMN_BITMASK = 128L;
+	public static long PORTRAITID_COLUMN_BITMASK = 256L;
+	public static long SCREENNAME_COLUMN_BITMASK = 512L;
+	public static long STATUS_COLUMN_BITMASK = 1024L;
+	public static long USERID_COLUMN_BITMASK = 2048L;
+	public static long UUID_COLUMN_BITMASK = 4096L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -160,6 +165,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		model.setScreenName(soapModel.getScreenName());
 		model.setEmailAddress(soapModel.getEmailAddress());
 		model.setFacebookId(soapModel.getFacebookId());
+		model.setLdapServerId(soapModel.getLdapServerId());
 		model.setOpenId(soapModel.getOpenId());
 		model.setPortraitId(soapModel.getPortraitId());
 		model.setLanguageId(soapModel.getLanguageId());
@@ -297,6 +303,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		attributes.put("screenName", getScreenName());
 		attributes.put("emailAddress", getEmailAddress());
 		attributes.put("facebookId", getFacebookId());
+		attributes.put("ldapServerId", getLdapServerId());
 		attributes.put("openId", getOpenId());
 		attributes.put("portraitId", getPortraitId());
 		attributes.put("languageId", getLanguageId());
@@ -432,6 +439,12 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 		if (facebookId != null) {
 			setFacebookId(facebookId);
+		}
+
+		Long ldapServerId = (Long)attributes.get("ldapServerId");
+
+		if (ldapServerId != null) {
+			setLdapServerId(ldapServerId);
 		}
 
 		String openId = (String)attributes.get("openId");
@@ -642,7 +655,17 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	}
 
 	public void setCreateDate(Date createDate) {
+		_columnBitmask |= CREATEDATE_COLUMN_BITMASK;
+
+		if (_originalCreateDate == null) {
+			_originalCreateDate = _createDate;
+		}
+
 		_createDate = createDate;
+	}
+
+	public Date getOriginalCreateDate() {
+		return _originalCreateDate;
 	}
 
 	@JSON
@@ -651,7 +674,17 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	}
 
 	public void setModifiedDate(Date modifiedDate) {
+		_columnBitmask |= MODIFIEDDATE_COLUMN_BITMASK;
+
+		if (_originalModifiedDate == null) {
+			_originalModifiedDate = _modifiedDate;
+		}
+
 		_modifiedDate = modifiedDate;
+	}
+
+	public Date getOriginalModifiedDate() {
+		return _originalModifiedDate;
 	}
 
 	@JSON
@@ -867,6 +900,15 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 	public long getOriginalFacebookId() {
 		return _originalFacebookId;
+	}
+
+	@JSON
+	public long getLdapServerId() {
+		return _ldapServerId;
+	}
+
+	public void setLdapServerId(long ldapServerId) {
+		_ldapServerId = ldapServerId;
 	}
 
 	@JSON
@@ -1178,13 +1220,12 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 	@Override
 	public User toEscapedModel() {
-		if (_escapedModelProxy == null) {
-			_escapedModelProxy = (User)ProxyUtil.newProxyInstance(_classLoader,
-					_escapedModelProxyInterfaces,
-					new AutoEscapeBeanHandler(this));
+		if (_escapedModel == null) {
+			_escapedModel = (User)ProxyUtil.newProxyInstance(_classLoader,
+					_escapedModelInterfaces, new AutoEscapeBeanHandler(this));
 		}
 
-		return _escapedModelProxy;
+		return _escapedModel;
 	}
 
 	@Override
@@ -1209,6 +1250,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		userImpl.setScreenName(getScreenName());
 		userImpl.setEmailAddress(getEmailAddress());
 		userImpl.setFacebookId(getFacebookId());
+		userImpl.setLdapServerId(getLdapServerId());
 		userImpl.setOpenId(getOpenId());
 		userImpl.setPortraitId(getPortraitId());
 		userImpl.setLanguageId(getLanguageId());
@@ -1293,6 +1335,10 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		userModelImpl._originalCompanyId = userModelImpl._companyId;
 
 		userModelImpl._setOriginalCompanyId = false;
+
+		userModelImpl._originalCreateDate = userModelImpl._createDate;
+
+		userModelImpl._originalModifiedDate = userModelImpl._modifiedDate;
 
 		userModelImpl._originalDefaultUser = userModelImpl._defaultUser;
 
@@ -1427,6 +1473,8 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		}
 
 		userCacheModel.facebookId = getFacebookId();
+
+		userCacheModel.ldapServerId = getLdapServerId();
 
 		userCacheModel.openId = getOpenId();
 
@@ -1569,7 +1617,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(79);
+		StringBundler sb = new StringBundler(81);
 
 		sb.append("{uuid=");
 		sb.append(getUuid());
@@ -1607,6 +1655,8 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		sb.append(getEmailAddress());
 		sb.append(", facebookId=");
 		sb.append(getFacebookId());
+		sb.append(", ldapServerId=");
+		sb.append(getLdapServerId());
 		sb.append(", openId=");
 		sb.append(getOpenId());
 		sb.append(", portraitId=");
@@ -1655,7 +1705,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	}
 
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(121);
+		StringBundler sb = new StringBundler(124);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.portal.model.User");
@@ -1732,6 +1782,10 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		sb.append(
 			"<column><column-name>facebookId</column-name><column-value><![CDATA[");
 		sb.append(getFacebookId());
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>ldapServerId</column-name><column-value><![CDATA[");
+		sb.append(getLdapServerId());
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>openId</column-name><column-value><![CDATA[");
@@ -1824,9 +1878,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	}
 
 	private static ClassLoader _classLoader = User.class.getClassLoader();
-	private static Class<?>[] _escapedModelProxyInterfaces = new Class[] {
-			User.class
-		};
+	private static Class<?>[] _escapedModelInterfaces = new Class[] { User.class };
 	private String _uuid;
 	private String _originalUuid;
 	private long _userId;
@@ -1837,7 +1889,9 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	private long _originalCompanyId;
 	private boolean _setOriginalCompanyId;
 	private Date _createDate;
+	private Date _originalCreateDate;
 	private Date _modifiedDate;
+	private Date _originalModifiedDate;
 	private boolean _defaultUser;
 	private boolean _originalDefaultUser;
 	private boolean _setOriginalDefaultUser;
@@ -1859,6 +1913,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	private long _facebookId;
 	private long _originalFacebookId;
 	private boolean _setOriginalFacebookId;
+	private long _ldapServerId;
 	private String _openId;
 	private String _originalOpenId;
 	private long _portraitId;
@@ -1886,5 +1941,5 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	private int _originalStatus;
 	private boolean _setOriginalStatus;
 	private long _columnBitmask;
-	private User _escapedModelProxy;
+	private User _escapedModel;
 }

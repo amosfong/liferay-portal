@@ -53,6 +53,8 @@ public interface WebKeys {
 
 	public static final String JAVASCRIPT_CONTEXT = "JAVASCRIPT_CONTEXT";
 
+	public static final String JOURNAL_ARTICLE = "JOURNAL_ARTICLE";
+
 	public static final String JOURNAL_ARTICLE_DISPLAY = "JOURNAL_ARTICLE_DISPLAY";
 
 	public static final String LAST_PATH = "LAST_PATH";
@@ -104,6 +106,8 @@ public interface WebKeys {
 	public static final String PORTLET_RESOURCE_STATIC_URLS = "PORTLET_RESOURCE_STATIC_URLS";
 
 	public static final String REDIRECT = "REDIRECT";
+
+	public static final String REFERER = "referer";
 
 	public static final String RENDER_PATH = "RENDER_PATH";
 

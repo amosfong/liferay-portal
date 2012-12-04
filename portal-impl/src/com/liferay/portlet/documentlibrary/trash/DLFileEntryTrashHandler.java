@@ -19,13 +19,14 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.RepositoryServiceUtil;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
@@ -35,6 +36,7 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
+import com.liferay.portlet.documentlibrary.util.DLAppHelperThreadLocal;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.trash.DuplicateEntryException;
 import com.liferay.portlet.trash.TrashEntryConstants;
@@ -44,13 +46,13 @@ import com.liferay.portlet.trash.util.TrashUtil;
 import javax.portlet.PortletRequest;
 
 /**
- * Represents the trash handler for the file entry entity.
+ * Implements trash handling for the file entry entity.
  *
  * @author Alexander Chow
  * @author Manuel de la Peña
  * @author Zsolt Berentey
  */
-public class DLFileEntryTrashHandler extends BaseTrashHandler {
+public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
 	public static final String CLASS_NAME = DLFileEntry.class.getName();
 
@@ -88,15 +90,6 @@ public class DLFileEntryTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Deletes all file entries with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the file entries to be deleted
-	 * @param  checkPermission whether to check permission before deleting each
-	 *         file entry
-	 * @throws PortalException if any one of the file entries could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
 		throws PortalException, SystemException {
 
@@ -110,18 +103,23 @@ public class DLFileEntryTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Returns the file entry entity's class name
-	 *
-	 * @return the file entry entity's class name
-	 */
 	public String getClassName() {
 		return CLASS_NAME;
 	}
 
 	@Override
-	public String getDeleteMessage() {
-		return "found-in-deleted-folder-x";
+	public ContainerModel getParentContainerModel(long classPK)
+		throws PortalException, SystemException {
+
+		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+
+		long parentFolderId = dlFileEntry.getFolderId();
+
+		if (parentFolderId <= 0) {
+			return null;
+		}
+
+		return getContainerModel(parentFolderId);
 	}
 
 	@Override
@@ -174,18 +172,51 @@ public class DLFileEntryTrashHandler extends BaseTrashHandler {
 		return false;
 	}
 
-	/**
-	 * Restores all file entries with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the file entries to be deleted
-	 * @throws PortalException if any one of the file entries could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
+	@Override
+	public boolean isRestorable(long classPK)
+		throws PortalException, SystemException {
+
+		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+
+		return !dlFileEntry.isInTrashFolder();
+	}
+
+	@Override
+	public void moveEntry(
+			long classPK, long containerModelId, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		DLAppServiceUtil.moveFileEntry(
+			classPK, containerModelId, serviceContext);
+	}
+
+	@Override
+	public void moveTrashEntry(
+			long classPK, long containerModelId, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		DLAppServiceUtil.moveFileEntryFromTrash(
+			classPK, containerModelId, serviceContext);
+	}
+
 	public void restoreTrashEntries(long[] classPKs)
 		throws PortalException, SystemException {
 
 		for (long classPK : classPKs) {
-			DLAppServiceUtil.restoreFileEntryFromTrash(classPK);
+			boolean dlAppHelperEnabled = DLAppHelperThreadLocal.isEnabled();
+
+			try {
+				DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+
+				if (dlFileEntry.isInHiddenFolder()) {
+					DLAppHelperThreadLocal.setEnabled(false);
+				}
+
+				DLAppServiceUtil.restoreFileEntryFromTrash(classPK);
+			}
+			finally {
+				DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
+			}
 		}
 	}
 
@@ -197,13 +228,13 @@ public class DLFileEntryTrashHandler extends BaseTrashHandler {
 
 		dlFileEntry.setTitle(name);
 
-		DLFileEntryLocalServiceUtil.updateDLFileEntry(dlFileEntry, false);
+		DLFileEntryLocalServiceUtil.updateDLFileEntry(dlFileEntry);
 
 		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
 		dlFileVersion.setTitle(name);
 
-		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion, false);
+		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion);
 	}
 
 	protected DLFileEntry getDLFileEntry(long classPK)
@@ -224,9 +255,31 @@ public class DLFileEntryTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
+	protected Repository getRepository(long classPK)
+		throws PortalException, SystemException {
+
+		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
+			0, classPK, 0);
+
+		if (!(repository instanceof LiferayRepository)) {
+			throw new InvalidRepositoryException(
+				"Repository " + repository.getRepositoryId() +
+					" does not support trash operations");
+		}
+
+		return repository;
+	}
+
+	@Override
 	protected boolean hasPermission(
 			PermissionChecker permissionChecker, long classPK, String actionId)
 		throws PortalException, SystemException {
+
+		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+
+		if (dlFileEntry.isInHiddenFolder()) {
+			return false;
+		}
 
 		return DLFileEntryPermission.contains(
 			permissionChecker, classPK, actionId);

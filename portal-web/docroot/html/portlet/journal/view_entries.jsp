@@ -190,8 +190,8 @@ int total = 0;
 	<c:when test='<%= displayTerms.getNavigation().equals("mine") %>'>
 
 		<%
-		results = JournalArticleServiceUtil.getArticlesByUserId(scopeGroupId, themeDisplay.getUserId(), entryStart, entryEnd, searchContainer.getOrderByComparator());
-		total = JournalArticleServiceUtil.getArticlesCountByUserId(scopeGroupId, themeDisplay.getUserId());
+		results = JournalArticleServiceUtil.getArticlesByUserId(scopeGroupId, themeDisplay.getUserId(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, entryStart, entryEnd, searchContainer.getOrderByComparator());
+		total = JournalArticleServiceUtil.getArticlesCountByUserId(scopeGroupId, themeDisplay.getUserId(), JournalArticleConstants.CLASSNAME_ID_DEFAULT);
 
 		searchContainer.setResults(results);
 		searchContainer.setTotal(total);
@@ -201,8 +201,8 @@ int total = 0;
 	<c:when test='<%= Validator.isNotNull(displayTerms.getStructureId()) || Validator.isNotNull(displayTerms.getTemplateId()) || displayTerms.getNavigation().equals("recent") %>'>
 
 		<%
-		results = JournalArticleServiceUtil.search(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), 0, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatusCode(), searchTerms.getReviewDate(), searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator());
-		total = JournalArticleServiceUtil.searchCount(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), 0, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatusCode(), searchTerms.getReviewDate());
+		results = JournalArticleServiceUtil.search(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatusCode(), searchTerms.getReviewDate(), searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator());
+		total = JournalArticleServiceUtil.searchCount(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatusCode(), searchTerms.getReviewDate());
 
 		searchContainer.setResults(results);
 		searchContainer.setTotal(total);
@@ -270,7 +270,6 @@ for (int i = 0; i < results.size(); i++) {
 
 					tempRowURL.setParameter("struts_action", "/journal/edit_article");
 					tempRowURL.setParameter("redirect", currentURL);
-					tempRowURL.setParameter("originalRedirect", currentURL);
 					tempRowURL.setParameter("groupId", String.valueOf(curArticle.getGroupId()));
 					tempRowURL.setParameter("folderId", String.valueOf(curArticle.getFolderId()));
 					tempRowURL.setParameter("articleId", curArticle.getArticleId());
@@ -297,7 +296,6 @@ for (int i = 0; i < results.size(); i++) {
 
 						rowURL.setParameter("struts_action", "/journal/edit_article");
 						rowURL.setParameter("redirect", currentURL);
-						rowURL.setParameter("originalRedirect", currentURL);
 						rowURL.setParameter("groupId", String.valueOf(curArticle.getGroupId()));
 						rowURL.setParameter("folderId", String.valueOf(curArticle.getFolderId()));
 						rowURL.setParameter("articleId", curArticle.getArticleId());
@@ -372,7 +370,6 @@ for (int i = 0; i < results.size(); i++) {
 
 					tempRowURL.setParameter("struts_action", "/journal/view");
 					tempRowURL.setParameter("redirect", currentURL);
-					tempRowURL.setParameter("originalRedirect", currentURL);
 					tempRowURL.setParameter("groupId", String.valueOf(curFolder.getGroupId()));
 					tempRowURL.setParameter("folderId", String.valueOf(curFolder.getFolderId()));
 
@@ -405,7 +402,6 @@ for (int i = 0; i < results.size(); i++) {
 
 						rowURL.setParameter("struts_action", "/journal/view");
 						rowURL.setParameter("redirect", currentURL);
-						rowURL.setParameter("originalRedirect", currentURL);
 						rowURL.setParameter("groupId", String.valueOf(curFolder.getGroupId()));
 						rowURL.setParameter("folderId", String.valueOf(curFolder.getFolderId()));
 						%>

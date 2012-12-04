@@ -132,10 +132,13 @@ public class EditGroupAction extends PortletAction {
 				updateActive(actionRequest, cmd);
 			}
 			else if (cmd.equals(Constants.DELETE)) {
-				deleteGroup(actionRequest);
+				deleteGroups(actionRequest);
 			}
 
 			if (Validator.isNotNull(closeRedirect)) {
+				redirect = HttpUtil.setParameter(
+					redirect, "closeRedirect", closeRedirect);
+
 				LiferayPortletConfig liferayPortletConfig =
 					(LiferayPortletConfig)portletConfig;
 
@@ -211,15 +214,27 @@ public class EditGroupAction extends PortletAction {
 			getForward(renderRequest, "portlet.sites_admin.edit_site"));
 	}
 
-	protected void deleteGroup(ActionRequest actionRequest) throws Exception {
+	protected void deleteGroups(ActionRequest actionRequest) throws Exception {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		long[] deleteGroupIds = null;
+
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		GroupServiceUtil.deleteGroup(groupId);
+		if (groupId > 0) {
+			deleteGroupIds = new long[] {groupId};
+		}
+		else {
+			deleteGroupIds = StringUtil.split(
+				ParamUtil.getString(actionRequest, "deleteGroupIds"), 0L);
+		}
 
-		LiveUsers.deleteGroup(themeDisplay.getCompanyId(), groupId);
+		for (long deleteGroupId : deleteGroupIds) {
+			GroupServiceUtil.deleteGroup(deleteGroupId);
+
+			LiveUsers.deleteGroup(themeDisplay.getCompanyId(), deleteGroupId);
+		}
 	}
 
 	protected long getRefererGroupId(ThemeDisplay themeDisplay)
@@ -404,8 +419,8 @@ public class EditGroupAction extends PortletAction {
 			active = ParamUtil.getBoolean(actionRequest, "active");
 
 			liveGroup = GroupServiceUtil.addGroup(
-				parentGroupId, name, description, type, friendlyURL, true,
-				active, serviceContext);
+				parentGroupId, GroupConstants.DEFAULT_LIVE_GROUP_ID, name,
+				description, type, friendlyURL, true, active, serviceContext);
 
 			LiveUsers.joinGroup(
 				themeDisplay.getCompanyId(), liveGroup.getGroupId(), userId);
@@ -478,12 +493,29 @@ public class EditGroupAction extends PortletAction {
 				getTeams(actionRequest), Team.TEAM_ID_ACCESSOR,
 				StringPool.COMMA));
 
-		String googleAnalyticsId = ParamUtil.getString(
-			actionRequest, "googleAnalyticsId",
-			typeSettingsProperties.getProperty("googleAnalyticsId"));
+		String[] analyticsTypes = PrefsPropsUtil.getStringArray(
+			themeDisplay.getCompanyId(), PropsKeys.ADMIN_ANALYTICS_TYPES,
+			StringPool.NEW_LINE);
 
-		typeSettingsProperties.setProperty(
-			"googleAnalyticsId", googleAnalyticsId);
+		for (String analyticsType : analyticsTypes) {
+			if (analyticsType.equalsIgnoreCase("google")) {
+				String googleAnalyticsId = ParamUtil.getString(
+					actionRequest, "googleAnalyticsId",
+					typeSettingsProperties.getProperty("googleAnalyticsId"));
+
+				typeSettingsProperties.setProperty(
+					"googleAnalyticsId", googleAnalyticsId);
+			}
+			else {
+				String analyticsScript = ParamUtil.getString(
+					actionRequest, SitesUtil.ANALYTICS_PREFIX + analyticsType,
+					typeSettingsProperties.getProperty(analyticsType));
+
+				typeSettingsProperties.setProperty(
+					SitesUtil.ANALYTICS_PREFIX + analyticsType,
+					analyticsScript);
+			}
+		}
 
 		String publicRobots = ParamUtil.getString(
 			actionRequest, "publicRobots",

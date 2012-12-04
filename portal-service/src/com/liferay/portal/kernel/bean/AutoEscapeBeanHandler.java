@@ -16,6 +16,8 @@ package com.liferay.portal.kernel.bean;
 
 import com.liferay.portal.kernel.util.HtmlUtil;
 
+import java.io.Serializable;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,10 +37,10 @@ import java.lang.reflect.Method;
  * @author Shuyang Zhou
  * @see    AutoEscape
  */
-public class AutoEscapeBeanHandler implements InvocationHandler {
+public class AutoEscapeBeanHandler implements InvocationHandler, Serializable {
 
 	public AutoEscapeBeanHandler(Object bean) {
-		_bean = bean;
+		_bean = (Serializable)bean;
 	}
 
 	public Object getBean() {
@@ -78,6 +80,6 @@ public class AutoEscapeBeanHandler implements InvocationHandler {
 		return result;
 	}
 
-	private Object _bean;
+	private Serializable _bean;
 
 }

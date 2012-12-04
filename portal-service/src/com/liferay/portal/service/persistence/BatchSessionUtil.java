@@ -20,8 +20,9 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermissio
 import com.liferay.portal.model.BaseModel;
 
 /**
- * @author Brian Wing Shun Chan
- * @see    BatchSession
+ * @author     Brian Wing Shun Chan
+ * @see        BatchSession
+ * @deprecated See LPS-30598.
  */
 public class BatchSessionUtil {
 

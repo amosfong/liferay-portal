@@ -157,7 +157,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setStatusDate(serviceContext.getModifiedDate(now));
 		entry.setExpandoBridgeAttributes(serviceContext);
 
-		blogsEntryPersistence.update(entry, false);
+		blogsEntryPersistence.update(entry);
 
 		// Resources
 
@@ -401,7 +401,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.findByC_LtD_NeS(
+			return blogsEntryPersistence.findByC_LtD_NotS(
 				companyId, displayDate, queryDefinition.getStatus(),
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
@@ -431,7 +431,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.countByC_LtD_NeS(
+			return blogsEntryPersistence.countByC_LtD_NotS(
 				companyId, displayDate, queryDefinition.getStatus());
 		}
 		else {
@@ -495,7 +495,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.findByG_LtD_NeS(
+			return blogsEntryPersistence.findByG_LtD_NotS(
 				groupId, displayDate, queryDefinition.getStatus(),
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
@@ -539,7 +539,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.findByG_NeS(
+			return blogsEntryPersistence.findByG_NotS(
 				groupId, queryDefinition.getStatus(),
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
@@ -568,7 +568,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.countByG_LtD_NeS(
+			return blogsEntryPersistence.countByG_LtD_NotS(
 				groupId, displayDate, queryDefinition.getStatus());
 		}
 		else {
@@ -593,7 +593,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.countByG_NeS(
+			return blogsEntryPersistence.countByG_NotS(
 				groupId, queryDefinition.getStatus());
 		}
 		else {
@@ -664,7 +664,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.findByG_U_NeS(
+			return blogsEntryPersistence.findByG_U_NotS(
 				groupId, userId, queryDefinition.getStatus(),
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
@@ -697,7 +697,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		throws SystemException {
 
 		if (queryDefinition.isExcludeStatus()) {
-			return blogsEntryPersistence.countByG_U_LtD_NeS(
+			return blogsEntryPersistence.countByG_U_LtD_NotS(
 				groupId, userId, displayDate, queryDefinition.getStatus());
 		}
 		else {
@@ -792,7 +792,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		if (oldStatus == WorkflowConstants.STATUS_PENDING) {
 			entry.setStatus(WorkflowConstants.STATUS_DRAFT);
 
-			blogsEntryPersistence.update(entry, false);
+			blogsEntryPersistence.update(entry);
 		}
 
 		updateStatus(
@@ -957,7 +957,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		entry.setExpandoBridgeAttributes(serviceContext);
 
-		blogsEntryPersistence.update(entry, false);
+		blogsEntryPersistence.update(entry);
 
 		// Resources
 
@@ -1043,7 +1043,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setStatusByUserName(user.getFullName());
 		entry.setStatusDate(serviceContext.getModifiedDate(now));
 
-		blogsEntryPersistence.update(entry, false);
+		blogsEntryPersistence.update(entry);
 
 		// Statistics
 
@@ -1485,7 +1485,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 			entry.setTrackbacks(StringPool.BLANK);
 
-			blogsEntryPersistence.update(entry, false);
+			blogsEntryPersistence.update(entry);
 		}
 
 		Set<String> oldTrackbacks = SetUtil.fromArray(
@@ -1517,7 +1517,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 			entry.setTrackbacks(newTrackbacks);
 
-			blogsEntryPersistence.update(entry, false);
+			blogsEntryPersistence.update(entry);
 		}
 	}
 

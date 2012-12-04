@@ -141,8 +141,18 @@ AUI.add(
 
 						var namespace = instance._prefixedPortletId;
 
-						A.one('#' + namespace + 'addTagButton').on(EVENT_CLICK, instance._onShowTagPanel, instance, ACTION_ADD);
-						A.one('#' + namespace + 'tagsPermissionsButton').on(EVENT_CLICK, instance._onTagChangePermissions, instance);
+						var addTagButton = A.one('#' + namespace + 'addTagButton');
+
+						if (addTagButton) {
+							addTagButton.on(EVENT_CLICK, instance._onShowTagPanel, instance, ACTION_ADD);
+						}
+
+						var tagsPermissionsButton = A.one('#' + namespace + 'tagsPermissionsButton');
+
+						if (tagsPermissionsButton) {
+							tagsPermissionsButton.on(EVENT_CLICK, instance._onTagChangePermissions, instance);
+						}
+
 						A.one('#' + namespace + 'deleteSelectedTags').on(EVENT_CLICK, instance._deleteSelectedTags, instance);
 						A.one('#' + namespace + 'mergeSelectedTags').on(EVENT_CLICK, instance._mergeSelectedTags, instance);
 
@@ -748,7 +758,7 @@ AUI.add(
 
 							tagPanelMerge.after(
 								'visibleChange',
-								function(event){
+								function(event) {
 									if (!event.newVal) {
 										instance._previousTagData = null;
 									}
@@ -1481,7 +1491,7 @@ AUI.add(
 
 						output.show();
 
-						if(autoHide !== false) {
+						if (autoHide !== false) {
 							instance._hideMessageTask();
 						}
 					},
@@ -1598,7 +1608,7 @@ AUI.add(
 							if (previousTagNextSibling) {
 								previousTagNextSibling.placeBefore(previousTag);
 							}
-							else if (previousTagPrevSibling){
+							else if (previousTagPrevSibling) {
 								previousTagPrevSibling.placeAfter(previousTag);
 							}
 							else {
@@ -1651,7 +1661,7 @@ AUI.add(
 				EXTENDS: A.Base,
 				NAME: 'tagssearch',
 				prototype: {
-					initializer: function () {
+					initializer: function() {
 						this._bindUIACBase();
 						this._syncUIACBase();
 					}

@@ -36,6 +36,18 @@ Set<Long> categorySubscriptionClassPKs = (Set<Long>)row.getParameter("categorySu
 			image="edit"
 			url="<%= editURL %>"
 		/>
+
+		<portlet:renderURL var="moveURL">
+			<portlet:param name="struts_action" value="/message_boards/move_category" />
+			<portlet:param name="redirect" value="<%= currentURL %>" />
+			<portlet:param name="mbCategoryId" value="<%= String.valueOf(category.getCategoryId()) %>" />
+		</portlet:renderURL>
+
+		<liferay-ui:icon
+			image="submit"
+			message="move"
+			url="<%= moveURL %>"
+		/>
 	</c:if>
 
 	<c:if test="<%= MBCategoryPermission.contains(permissionChecker, category, ActionKeys.PERMISSIONS) %>">
@@ -54,11 +66,9 @@ Set<Long> categorySubscriptionClassPKs = (Set<Long>)row.getParameter("categorySu
 
 	<c:if test="<%= portletName.equals(PortletKeys.MESSAGE_BOARDS) %>">
 
-		<c:if test="<%= PortalUtil.isRSSFeedsEnabled() %>">
+		<c:if test="<%= enableRSS %>">
 
 			<%
-			rssURL.setParameter("p_l_id", String.valueOf(plid));
-
 			if (category.getCategoryId() > 0) {
 				rssURL.setParameter("mbCategoryId", String.valueOf(category.getCategoryId()));
 			}
@@ -67,11 +77,11 @@ Set<Long> categorySubscriptionClassPKs = (Set<Long>)row.getParameter("categorySu
 			}
 			%>
 
-			<liferay-ui:icon
-				image="rss"
-				method="get"
-				target="_blank"
-				url="<%= rssURL.toString() %>"
+			<liferay-ui:rss
+				delta="<%= rssDelta %>"
+				displayStyle="<%= rssDisplayStyle %>"
+				feedType="<%= rssFeedType %>"
+				resourceURL="<%= rssURL %>"
 			/>
 		</c:if>
 

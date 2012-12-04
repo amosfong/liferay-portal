@@ -45,6 +45,7 @@ import com.liferay.portlet.journal.StructureInheritanceException;
 import com.liferay.portlet.journal.StructureNameException;
 import com.liferay.portlet.journal.StructureXsdException;
 import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.model.JournalArticleConstants;
 import com.liferay.portlet.journal.model.JournalStructure;
 import com.liferay.portlet.journal.model.JournalStructureConstants;
 import com.liferay.portlet.journal.service.base.JournalStructureLocalServiceBaseImpl;
@@ -112,7 +113,7 @@ public class JournalStructureLocalServiceImpl
 		structure.setDescriptionMap(descriptionMap);
 		structure.setXsd(xsd);
 
-		journalStructurePersistence.update(structure, false);
+		journalStructurePersistence.update(structure);
 
 		// Resources
 
@@ -197,7 +198,7 @@ public class JournalStructureLocalServiceImpl
 
 			structure.setXsd(xsd);
 
-			journalStructurePersistence.update(structure, false);
+			journalStructurePersistence.update(structure);
 		}
 	}
 
@@ -245,7 +246,7 @@ public class JournalStructureLocalServiceImpl
 		newStructure.setDescriptionMap(oldStructure.getDescriptionMap());
 		newStructure.setXsd(oldStructure.getXsd());
 
-		journalStructurePersistence.update(newStructure, false);
+		journalStructurePersistence.update(newStructure);
 
 		// Resources
 
@@ -284,7 +285,8 @@ public class JournalStructureLocalServiceImpl
 		}
 		else {
 			if (journalArticlePersistence.countByG_C_S(
-					structure.getGroupId(), 0,
+					structure.getGroupId(),
+					JournalArticleConstants.CLASSNAME_ID_DEFAULT,
 					structure.getStructureId()) > 0) {
 
 				throw new RequiredStructureException(
@@ -388,9 +390,9 @@ public class JournalStructureLocalServiceImpl
 
 		if (groupId == 0) {
 			_log.error(
-				"No group id was passed for " + structureId + ". Group id is " +
+				"No group ID was passed for " + structureId + ". Group ID is " +
 					"required since 4.2.0. Please update all custom code and " +
-						"data that references structures without a group id.");
+						"data that references structures without a group ID.");
 
 			List<JournalStructure> structures =
 				journalStructurePersistence.findByStructureId(structureId);
@@ -400,7 +402,7 @@ public class JournalStructureLocalServiceImpl
 			}
 
 			throw new NoSuchStructureException(
-				"No JournalStructure exists with the structure id " +
+				"No JournalStructure exists with the structure ID " +
 					structureId);
 		}
 
@@ -413,7 +415,7 @@ public class JournalStructureLocalServiceImpl
 
 		if (!includeGlobalStructures) {
 			throw new NoSuchStructureException(
-				"No JournalStructure exists with the structure id " +
+				"No JournalStructure exists with the structure ID " +
 					structureId);
 		}
 
@@ -511,7 +513,7 @@ public class JournalStructureLocalServiceImpl
 		structure.setDescriptionMap(descriptionMap);
 		structure.setXsd(xsd);
 
-		journalStructurePersistence.update(structure, false);
+		journalStructurePersistence.update(structure);
 
 		// Expando
 

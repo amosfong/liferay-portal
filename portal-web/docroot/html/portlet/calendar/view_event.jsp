@@ -19,6 +19,14 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
+if (Validator.isNull(redirect)) {
+	PortletURL portletURL = renderResponse.createRenderURL();
+
+	portletURL.setParameter("struts_action", "/calendar/view");
+
+	redirect = portletURL.toString();
+}
+
 CalEvent event = (CalEvent)request.getAttribute(WebKeys.CALENDAR_EVENT);
 
 Recurrence recurrence = null;
@@ -87,7 +95,7 @@ request.setAttribute("view_event.jsp-event", event);
 						<liferay-ui:message key="end-date" />:
 					</c:when>
 					<c:otherwise>
-						<liferay-ui:message key="ocurrence-s" />:
+						<liferay-ui:message key="occurrence-s" />:
 					</c:otherwise>
 				</c:choose>
 			</dt>

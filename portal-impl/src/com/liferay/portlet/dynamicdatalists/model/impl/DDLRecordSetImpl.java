@@ -42,16 +42,19 @@ public class DDLRecordSetImpl extends DDLRecordSetBaseImpl {
 		return DDMStructureLocalServiceUtil.getStructure(getDDMStructureId());
 	}
 
-	public DDMStructure getDDMStructure(long detailDDMTemplateId)
+	public DDMStructure getDDMStructure(long formDDMTemplateId)
 		throws PortalException, SystemException {
 
 		DDMStructure ddmStructure = getDDMStructure();
 
-		if (detailDDMTemplateId > 0) {
+		if (formDDMTemplateId > 0) {
 			try {
 				DDMTemplate ddmTemplate =
-					DDMTemplateLocalServiceUtil.getTemplate(
-						detailDDMTemplateId);
+					DDMTemplateLocalServiceUtil.getTemplate(formDDMTemplateId);
+
+				// Clone ddmStructure to make sure changes are never persisted
+
+				ddmStructure = (DDMStructure)ddmStructure.clone();
 
 				ddmStructure.setXsd(ddmTemplate.getScript());
 			}

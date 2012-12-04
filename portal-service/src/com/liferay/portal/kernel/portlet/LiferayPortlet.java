@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
-import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -34,9 +33,6 @@ import java.io.IOException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -97,8 +93,7 @@ public class LiferayPortlet extends GenericPortlet {
 			Throwable cause = pe.getCause();
 
 			if (isSessionErrorException(cause)) {
-				SessionErrors.add(
-					actionRequest, cause.getClass().getName(), cause);
+				SessionErrors.add(actionRequest, cause.getClass(), cause);
 			}
 			else {
 				throw pe;
@@ -128,7 +123,7 @@ public class LiferayPortlet extends GenericPortlet {
 		String successMessage = ParamUtil.getString(
 			actionRequest, "successMessage");
 
-		SessionMessages.add(actionRequest, "request_processed", successMessage);
+		SessionMessages.add(actionRequest, "requestProcessed", successMessage);
 	}
 
 	protected boolean callActionMethod(
@@ -146,9 +141,11 @@ public class LiferayPortlet extends GenericPortlet {
 		}
 
 		try {
-			Method method = MethodCache.get(
-				_classesMap, _methodsMap, getClass().getName(), actionName,
-				new Class[] {ActionRequest.class, ActionResponse.class});
+			MethodKey methodKey = new MethodKey(
+				getClass(), actionName, ActionRequest.class,
+				ActionResponse.class);
+
+			Method method = methodKey.getMethod();
 
 			method.invoke(this, actionRequest, actionResponse);
 
@@ -322,9 +319,8 @@ public class LiferayPortlet extends GenericPortlet {
 		if (cause instanceof PortalException) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	protected void sendRedirect(
@@ -403,9 +399,5 @@ public class LiferayPortlet extends GenericPortlet {
 	protected boolean addProcessActionSuccessMessage;
 
 	private static final boolean _PROCESS_PORTLET_REQUEST = true;
-
-	private Map<String, Class<?>> _classesMap = new HashMap<String, Class<?>>();
-	private Map<MethodKey, Method> _methodsMap =
-		new HashMap<MethodKey, Method>();
 
 }

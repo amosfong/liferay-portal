@@ -38,15 +38,6 @@ String redirect = ParamUtil.getString(request, "redirect");
 	}
 }*/
 
-String originalRedirect = ParamUtil.getString(request, "originalRedirect", StringPool.BLANK);
-
-if (originalRedirect.equals(StringPool.BLANK)) {
-	originalRedirect = redirect;
-}
-else {
-	redirect = originalRedirect;
-}
-
 String backURL = ParamUtil.getString(request, "backURL");
 
 String referringPortletResource = ParamUtil.getString(request, "referringPortletResource");
@@ -116,6 +107,9 @@ if (Validator.isNotNull(toLanguageId)) {
 else if ((article != null) && (article.getId() > 0)) {
 	mainSections = PropsValues.JOURNAL_ARTICLE_FORM_UPDATE;
 }
+else if (classNameId > JournalArticleConstants.CLASSNAME_ID_DEFAULT) {
+	mainSections = PropsValues.JOURNAL_ARTICLE_FORM_DEFAULT_VALUES;
+}
 
 String[][] categorySections = {mainSections};
 
@@ -155,7 +149,6 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
 	<aui:input name="tabs2" type="hidden" value="<%= tabs2 %>" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
-	<aui:input name="originalRedirect" type="hidden" value="<%= originalRedirect %>" />
 	<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
 	<aui:input name="referringPortletResource" type="hidden" value="<%= referringPortletResource %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
@@ -252,7 +245,7 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 						publishButtonLabel = "submit-for-publication";
 					}
 
-					if (classNameId > 0) {
+					if (classNameId > JournalArticleConstants.CLASSNAME_ID_DEFAULT) {
 						publishButtonLabel = "save";
 					}
 					%>
@@ -260,7 +253,7 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 					<c:choose>
 						<c:when test="<%= Validator.isNull(toLanguageId) %>">
 							<c:if test="<%= hasSavePermission %>">
-								<c:if test="<%= classNameId == 0 %>">
+								<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
 									<aui:button name="saveButton" value="<%= saveButtonLabel %>" />
 								</c:if>
 

@@ -855,6 +855,10 @@ public class DLFileEntryWrapper implements DLFileEntry,
 		return new DLFileEntryWrapper(_dlFileEntry.toEscapedModel());
 	}
 
+	public com.liferay.portlet.documentlibrary.model.DLFileEntry toUnescapedModel() {
+		return new DLFileEntryWrapper(_dlFileEntry.toUnescapedModel());
+	}
+
 	@Override
 	public java.lang.String toString() {
 		return _dlFileEntry.toString();
@@ -952,6 +956,10 @@ public class DLFileEntryWrapper implements DLFileEntry,
 
 	public boolean isCheckedOut() {
 		return _dlFileEntry.isCheckedOut();
+	}
+
+	public boolean isInHiddenFolder() {
+		return _dlFileEntry.isInHiddenFolder();
 	}
 
 	public boolean isInTrashFolder() {

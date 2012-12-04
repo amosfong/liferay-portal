@@ -67,7 +67,7 @@ public class ExpandoColumnLocalServiceImpl
 		column.setType(type);
 		column.setDefaultData(value.getData());
 
-		expandoColumnPersistence.update(column, false);
+		expandoColumnPersistence.update(column);
 
 		// Resources
 
@@ -109,11 +109,11 @@ public class ExpandoColumnLocalServiceImpl
 	}
 
 	public void deleteColumn(long tableId, String name) throws SystemException {
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			tableId, name);
 
-		if (!columns.isEmpty()) {
-			deleteColumn(columns.get(0));
+		if (column != null) {
+			expandoColumnPersistence.remove(column);
 		}
 	}
 
@@ -171,27 +171,13 @@ public class ExpandoColumnLocalServiceImpl
 			return null;
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
-			table.getTableId(), name);
-
-		if (!columns.isEmpty()) {
-			return columns.get(0);
-		}
-
-		return null;
+		return expandoColumnPersistence.fetchByT_N(table.getTableId(), name);
 	}
 
 	public ExpandoColumn getColumn(long tableId, String name)
 		throws SystemException {
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
-			tableId, name);
-
-		if (!columns.isEmpty()) {
-			return columns.get(0);
-		}
-
-		return null;
+		return expandoColumnPersistence.fetchByT_N(tableId, name);
 	}
 
 	public ExpandoColumn getColumn(
@@ -378,7 +364,7 @@ public class ExpandoColumnLocalServiceImpl
 		column.setType(type);
 		column.setDefaultData(value.getData());
 
-		expandoColumnPersistence.update(column, false);
+		expandoColumnPersistence.update(column);
 
 		return column;
 	}
@@ -391,7 +377,7 @@ public class ExpandoColumnLocalServiceImpl
 
 		column.setTypeSettings(typeSettings);
 
-		expandoColumnPersistence.update(column, false);
+		expandoColumnPersistence.update(column);
 
 		return column;
 	}
@@ -405,12 +391,10 @@ public class ExpandoColumnLocalServiceImpl
 			throw new ColumnNameException();
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			tableId, name);
 
-		if (!columns.isEmpty()) {
-			ExpandoColumn column = columns.get(0);
-
+		if (column != null) {
 			if (column.getColumnId() != columnId) {
 				throw new DuplicateColumnNameException();
 			}

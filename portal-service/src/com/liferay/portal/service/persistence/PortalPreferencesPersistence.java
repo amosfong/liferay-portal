@@ -36,73 +36,6 @@ public interface PortalPreferencesPersistence extends BasePersistence<PortalPref
 	 */
 
 	/**
-	* Caches the portal preferences in the entity cache if it is enabled.
-	*
-	* @param portalPreferences the portal preferences
-	*/
-	public void cacheResult(
-		com.liferay.portal.model.PortalPreferences portalPreferences);
-
-	/**
-	* Caches the portal preferenceses in the entity cache if it is enabled.
-	*
-	* @param portalPreferenceses the portal preferenceses
-	*/
-	public void cacheResult(
-		java.util.List<com.liferay.portal.model.PortalPreferences> portalPreferenceses);
-
-	/**
-	* Creates a new portal preferences with the primary key. Does not add the portal preferences to the database.
-	*
-	* @param portalPreferencesId the primary key for the new portal preferences
-	* @return the new portal preferences
-	*/
-	public com.liferay.portal.model.PortalPreferences create(
-		long portalPreferencesId);
-
-	/**
-	* Removes the portal preferences with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param portalPreferencesId the primary key of the portal preferences
-	* @return the portal preferences that was removed
-	* @throws com.liferay.portal.NoSuchPreferencesException if a portal preferences with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.PortalPreferences remove(
-		long portalPreferencesId)
-		throws com.liferay.portal.NoSuchPreferencesException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public com.liferay.portal.model.PortalPreferences updateImpl(
-		com.liferay.portal.model.PortalPreferences portalPreferences,
-		boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the portal preferences with the primary key or throws a {@link com.liferay.portal.NoSuchPreferencesException} if it could not be found.
-	*
-	* @param portalPreferencesId the primary key of the portal preferences
-	* @return the portal preferences
-	* @throws com.liferay.portal.NoSuchPreferencesException if a portal preferences with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.PortalPreferences findByPrimaryKey(
-		long portalPreferencesId)
-		throws com.liferay.portal.NoSuchPreferencesException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the portal preferences with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param portalPreferencesId the primary key of the portal preferences
-	* @return the portal preferences, or <code>null</code> if a portal preferences with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.PortalPreferences fetchByPrimaryKey(
-		long portalPreferencesId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or throws a {@link com.liferay.portal.NoSuchPreferencesException} if it could not be found.
 	*
 	* @param ownerId the owner ID
@@ -142,6 +75,96 @@ public interface PortalPreferencesPersistence extends BasePersistence<PortalPref
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
+	* Removes the portal preferences where ownerId = &#63; and ownerType = &#63; from the database.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the portal preferences that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.PortalPreferences removeByO_O(
+		long ownerId, int ownerType)
+		throws com.liferay.portal.NoSuchPreferencesException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the number of portal preferenceses where ownerId = &#63; and ownerType = &#63;.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the number of matching portal preferenceses
+	* @throws SystemException if a system exception occurred
+	*/
+	public int countByO_O(long ownerId, int ownerType)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Caches the portal preferences in the entity cache if it is enabled.
+	*
+	* @param portalPreferences the portal preferences
+	*/
+	public void cacheResult(
+		com.liferay.portal.model.PortalPreferences portalPreferences);
+
+	/**
+	* Caches the portal preferenceses in the entity cache if it is enabled.
+	*
+	* @param portalPreferenceses the portal preferenceses
+	*/
+	public void cacheResult(
+		java.util.List<com.liferay.portal.model.PortalPreferences> portalPreferenceses);
+
+	/**
+	* Creates a new portal preferences with the primary key. Does not add the portal preferences to the database.
+	*
+	* @param portalPreferencesId the primary key for the new portal preferences
+	* @return the new portal preferences
+	*/
+	public com.liferay.portal.model.PortalPreferences create(
+		long portalPreferencesId);
+
+	/**
+	* Removes the portal preferences with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param portalPreferencesId the primary key of the portal preferences
+	* @return the portal preferences that was removed
+	* @throws com.liferay.portal.NoSuchPreferencesException if a portal preferences with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.PortalPreferences remove(
+		long portalPreferencesId)
+		throws com.liferay.portal.NoSuchPreferencesException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public com.liferay.portal.model.PortalPreferences updateImpl(
+		com.liferay.portal.model.PortalPreferences portalPreferences)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the portal preferences with the primary key or throws a {@link com.liferay.portal.NoSuchPreferencesException} if it could not be found.
+	*
+	* @param portalPreferencesId the primary key of the portal preferences
+	* @return the portal preferences
+	* @throws com.liferay.portal.NoSuchPreferencesException if a portal preferences with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.PortalPreferences findByPrimaryKey(
+		long portalPreferencesId)
+		throws com.liferay.portal.NoSuchPreferencesException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the portal preferences with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param portalPreferencesId the primary key of the portal preferences
+	* @return the portal preferences, or <code>null</code> if a portal preferences with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.PortalPreferences fetchByPrimaryKey(
+		long portalPreferencesId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
 	* Returns all the portal preferenceses.
 	*
 	* @return the portal preferenceses
@@ -154,7 +177,7 @@ public interface PortalPreferencesPersistence extends BasePersistence<PortalPref
 	* Returns a range of all the portal preferenceses.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PortalPreferencesModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of portal preferenceses
@@ -170,7 +193,7 @@ public interface PortalPreferencesPersistence extends BasePersistence<PortalPref
 	* Returns an ordered range of all the portal preferenceses.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PortalPreferencesModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of portal preferenceses
@@ -185,35 +208,11 @@ public interface PortalPreferencesPersistence extends BasePersistence<PortalPref
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Removes the portal preferences where ownerId = &#63; and ownerType = &#63; from the database.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the portal preferences that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.PortalPreferences removeByO_O(
-		long ownerId, int ownerType)
-		throws com.liferay.portal.NoSuchPreferencesException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Removes all the portal preferenceses from the database.
 	*
 	* @throws SystemException if a system exception occurred
 	*/
 	public void removeAll()
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the number of portal preferenceses where ownerId = &#63; and ownerType = &#63;.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the number of matching portal preferenceses
-	* @throws SystemException if a system exception occurred
-	*/
-	public int countByO_O(long ownerId, int ownerType)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**

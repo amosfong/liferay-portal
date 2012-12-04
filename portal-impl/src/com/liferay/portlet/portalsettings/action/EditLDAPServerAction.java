@@ -16,7 +16,9 @@ package com.liferay.portlet.portalsettings.action;
 
 import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.ldap.DuplicateLDAPServerNameException;
+import com.liferay.portal.kernel.ldap.LDAPFilterException;
 import com.liferay.portal.kernel.ldap.LDAPServerNameException;
+import com.liferay.portal.kernel.ldap.LDAPUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -74,6 +76,7 @@ public class EditLDAPServerAction extends PortletAction {
 		}
 		catch (Exception e) {
 			if (e instanceof DuplicateLDAPServerNameException ||
+				e instanceof LDAPFilterException ||
 				e instanceof LDAPServerNameException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
@@ -202,7 +205,12 @@ public class EditLDAPServerAction extends PortletAction {
 			actionRequest, "settings--");
 
 		validateLDAPServerName(
-			themeDisplay.getCompanyId(), ldapServerId, properties);
+			ldapServerId, themeDisplay.getCompanyId(), properties);
+
+		String filter = ParamUtil.getString(
+			actionRequest, "importUserSearchFilter");
+
+		LDAPUtil.validateFilter(filter);
 
 		if (ldapServerId <= 0) {
 			properties = addLDAPServer(themeDisplay.getCompanyId(), properties);
@@ -213,7 +221,7 @@ public class EditLDAPServerAction extends PortletAction {
 	}
 
 	protected void validateLDAPServerName(
-			long companyId, long ldapServerId, UnicodeProperties properties)
+			long ldapServerId, long companyId, UnicodeProperties properties)
 		throws Exception {
 
 		String ldapServerName = properties.getProperty(

@@ -17,6 +17,8 @@ package com.liferay.portlet.wiki.trash;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
+import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.PermissionChecker;
@@ -25,11 +27,18 @@ import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.portlet.wiki.asset.WikiNodeTrashRenderer;
 import com.liferay.portlet.wiki.model.WikiNode;
+import com.liferay.portlet.wiki.model.WikiPage;
 import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.portlet.wiki.service.WikiNodeServiceUtil;
+import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiNodePermission;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
+ * Implements trash handling for the wiki node entity.
+ *
  * @author Eudaldo Alonso
  */
 public class WikiNodeTrashHandler extends BaseTrashHandler {
@@ -66,15 +75,6 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Deletes all wiki nodes with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the wiki nodes to be deleted
-	 * @param  checkPermission whether to check permission before deleting each
-	 *         folder
-	 * @throws PortalException if any one of the wiki nodes could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
 		throws PortalException, SystemException {
 
@@ -88,23 +88,46 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Returns the wiki node entity's class name
-	 *
-	 * @return the wiki node entity's class name
-	 */
 	public String getClassName() {
 		return CLASS_NAME;
 	}
 
-	/**
-	 * Returns the trash renderer associated to the trash entry.
-	 *
-	 * @param  classPK the primary key of the wiki node
-	 * @return the trash renderer associated to the wiki node
-	 * @throws PortalException if the wiki node could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
+	@Override
+	public String getTrashContainedModelName() {
+		return "wiki-pages";
+	}
+
+	@Override
+	public int getTrashContainedModelsCount(long classPK)
+		throws SystemException {
+
+		return WikiPageLocalServiceUtil.getPagesCount(classPK);
+	}
+
+	@Override
+	public List<TrashRenderer> getTrashContainedModelTrashRenderers(
+			long classPK, int start, int end)
+		throws PortalException, SystemException {
+
+		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
+
+		List<WikiPage> pages = WikiPageLocalServiceUtil.getPages(
+			classPK, start, end);
+
+		for (WikiPage page : pages) {
+			TrashHandler trashHandler =
+				TrashHandlerRegistryUtil.getTrashHandler(
+					WikiPage.class.getName());
+
+			TrashRenderer trashRenderer = trashHandler.getTrashRenderer(
+				page.getResourcePrimKey());
+
+			trashRenderers.add(trashRenderer);
+		}
+
+		return trashRenderers;
+	}
+
 	@Override
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException {
@@ -112,6 +135,11 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		WikiNode node = WikiNodeLocalServiceUtil.getNode(classPK);
 
 		return new WikiNodeTrashRenderer(node);
+	}
+
+	@Override
+	public boolean isContainerModel() {
+		return true;
 	}
 
 	public boolean isInTrash(long classPK)
@@ -122,13 +150,6 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		return node.isInTrash();
 	}
 
-	/**
-	 * Restores all wiki nodes with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the wiki nodes to be deleted
-	 * @throws PortalException if any one of the wiki nodes could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void restoreTrashEntries(long[] classPKs)
 		throws PortalException, SystemException {
 
@@ -145,7 +166,7 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 
 		node.setName(name);
 
-		WikiNodeLocalServiceUtil.updateWikiNode(node, false);
+		WikiNodeLocalServiceUtil.updateWikiNode(node);
 	}
 
 	@Override

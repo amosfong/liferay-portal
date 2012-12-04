@@ -18,41 +18,26 @@ import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.util.InitialThreadLocal;
 import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.model.ClassedModel;
 
 /**
- * @author Raymond Augé
- * @author Brian Wing Shun Chan
+ * @author     Raymond Augé
+ * @author     Brian Wing Shun Chan
+ * @deprecated See LPS-30598.
  */
 public class BatchSessionImpl implements BatchSession {
 
 	public void delete(Session session, BaseModel<?> model)
 		throws ORMException {
 
-		if (model.isCachedModel() || isEnabled()) {
-			Object staleObject = session.get(
-				model.getClass(), model.getPrimaryKeyObj());
+		if (!session.contains(model)) {
+			ClassedModel classedModel = model;
 
-			if (staleObject != null) {
-				session.evict(staleObject);
-			}
+			model = (BaseModel<?>)session.get(
+				classedModel.getModelClass(), model.getPrimaryKeyObj());
 		}
 
 		session.delete(model);
-
-		if (!isEnabled()) {
-			session.flush();
-
-			return;
-		}
-
-		if ((PropsValues.HIBERNATE_JDBC_BATCH_SIZE == 0) ||
-			((_counter.get() % PropsValues.HIBERNATE_JDBC_BATCH_SIZE) == 0)) {
-
-			session.flush();
-		}
-
-		_counter.set(_counter.get() + 1);
 	}
 
 	public boolean isEnabled() {
@@ -66,50 +51,16 @@ public class BatchSessionImpl implements BatchSession {
 	public void update(Session session, BaseModel<?> model, boolean merge)
 		throws ORMException {
 
-		if (merge || model.isCachedModel()) {
-			session.merge(model);
+		if (model.isNew()) {
+			session.save(model);
+
+			model.setNew(false);
 		}
 		else {
-			if (model.isNew()) {
-				session.save(model);
-			}
-			else {
-				boolean contains = false;
-
-				if (isEnabled()) {
-					Object obj = session.get(
-						model.getClass(), model.getPrimaryKeyObj());
-
-					if ((obj != null) && obj.equals(model)) {
-						contains = true;
-					}
-				}
-
-				if (!contains && !session.contains(model)) {
-					session.saveOrUpdate(model);
-				}
-			}
+			session.merge(model);
 		}
-
-		if (!isEnabled()) {
-			session.flush();
-
-			return;
-		}
-
-		if ((PropsValues.HIBERNATE_JDBC_BATCH_SIZE == 0) ||
-			((_counter.get() % PropsValues.HIBERNATE_JDBC_BATCH_SIZE) == 0)) {
-
-			session.flush();
-		}
-
-		_counter.set(_counter.get() + 1);
 	}
 
-	private static final long _INITIAL_COUNTER = 1;
-
-	private static ThreadLocal<Long> _counter = new InitialThreadLocal<Long>(
-		BatchSessionImpl.class + "._counter", _INITIAL_COUNTER);
 	private static ThreadLocal<Boolean> _enabled =
 		new InitialThreadLocal<Boolean>(
 			BatchSessionImpl.class + "._enabled", false);

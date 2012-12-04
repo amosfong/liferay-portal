@@ -94,7 +94,7 @@ public class ClassPathUtil {
 			return;
 		}
 
-		StringBundler sb = new StringBundler(7);
+		StringBundler sb = new StringBundler(8);
 
 		String appServerGlobalClassPath = _buildClassPath(
 			classLoader, ServletException.class.getName());
@@ -114,7 +114,8 @@ public class ClassPathUtil {
 			_buildClassPath(
 				classLoader, "com.liferay.portal.servlet.MainServlet"));
 		sb.append(File.pathSeparator);
-		sb.append(servletContext.getRealPath("").concat("/WEB-INF/classes"));
+		sb.append(servletContext.getRealPath(""));
+		sb.append("/WEB-INF/classes");
 
 		_portalClassPath = sb.toString();
 	}

@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortlet;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalClassInvoker;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -199,17 +198,8 @@ public class MVCPortlet extends LiferayPortlet {
 
 		PortletConfig portletConfig = getPortletConfig();
 
-		PortalClassInvoker.invoke(
-			true,
-			"com.liferay.portlet.messageboards.action.EditDiscussionAction",
-			"processAction",
-			new String[] {
-				"org.apache.struts.action.ActionMapping",
-				"org.apache.struts.action.ActionForm",
-				PortletConfig.class.getName(), ActionRequest.class.getName(),
-				ActionResponse.class.getName()
-			},
-			null, null, portletConfig, actionRequest, actionResponse);
+		PortalUtil.invokeTaglibDiscussion(
+			portletConfig, actionRequest, actionResponse);
 	}
 
 	@Override

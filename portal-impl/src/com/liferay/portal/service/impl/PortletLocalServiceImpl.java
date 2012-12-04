@@ -872,7 +872,7 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 		portlet.setRoles(roles);
 		portlet.setActive(active);
 
-		portletPersistence.update(portlet, false);
+		portletPersistence.update(portlet);
 
 		portlet = getPortletById(companyId, portletId);
 
@@ -1321,6 +1321,19 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 			GetterUtil.getString(
 				portletElement.elementText("portlet-data-handler-class"),
 				portletModel.getPortletDataHandlerClass()));
+
+		List<String> stagedModelDataHandlerClasses = new ArrayList<String>();
+
+		for (Element stagedModelDataHandlerClassElement :
+				portletElement.elements("staged-model-data-handler-class")) {
+
+			stagedModelDataHandlerClasses.add(
+				stagedModelDataHandlerClassElement.getText());
+		}
+
+		portletModel.setStagedModelDataHandlerClasses(
+			stagedModelDataHandlerClasses);
+
 		portletModel.setPortletDisplayTemplateHandlerClass(
 			GetterUtil.getString(
 				portletElement.elementText("portlet-display-template-handler"),

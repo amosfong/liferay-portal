@@ -90,12 +90,19 @@
 	}
 
 	.user-portrait {
-		text-decoration: none;
-	}
+		&, &:hover span {
+			text-decoration: none;
+		}
 
-	.user-avatar img {
-		vertical-align: middle;
-		width: 25px;
+		img {
+			text-decoration: none;
+			vertical-align: middle;
+			width: 25px;
+		}
+
+		span {
+			text-decoration: underline;
+		}
 	}
 
 	.impersonating-user {
@@ -170,7 +177,7 @@ html > .lfr-dockbar-pinned {
 	margin: 1em 0 0 1em;
 	padding: 0;
 
-	.aproximate-date {
+	.approximate-date {
 		color: #999;
 		font-weight: bold;
 	}

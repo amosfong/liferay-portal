@@ -19,36 +19,31 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CompanyConstants;
-import com.liferay.portal.model.Group;
+import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.PortletURLFactoryUtil;
-import com.liferay.portlet.documentlibrary.NoSuchDirectoryException;
-import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
 import com.liferay.portlet.trash.DuplicateEntryException;
 import com.liferay.portlet.trash.TrashEntryConstants;
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.portlet.wiki.asset.WikiPageAssetRenderer;
 import com.liferay.portlet.wiki.model.WikiPage;
-import com.liferay.portlet.wiki.model.WikiPageConstants;
 import com.liferay.portlet.wiki.model.WikiPageResource;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.portlet.wiki.service.WikiPageResourceLocalServiceUtil;
 import com.liferay.portlet.wiki.service.WikiPageServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiPagePermission;
 
-import java.util.Date;
-
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
-/*
+
+/**
+ * Implements trash handling for the wiki page entity.
+ *
  * @author Eudaldo Alonso
  */
 public class WikiPageTrashHandler extends BaseTrashHandler {
@@ -75,11 +70,15 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 
 		String originalTitle = TrashUtil.stripTrashNamespace(restoredTitle);
 
-		WikiPage duplicatePage = WikiPageLocalServiceUtil.fetchPage(
-			containerModelId, originalTitle, page.getVersion());
+		WikiPageResource pageResource =
+			WikiPageResourceLocalServiceUtil.fetchPageResource(
+				containerModelId, originalTitle);
 
-		if (duplicatePage != null) {
+		if (pageResource != null) {
 			DuplicateEntryException dee = new DuplicateEntryException();
+
+			WikiPage duplicatePage = WikiPageLocalServiceUtil.getPage(
+				pageResource.getResourcePrimKey());
 
 			dee.setDuplicateEntryId(duplicatePage.getPageId());
 			dee.setOldName(duplicatePage.getTitle());
@@ -89,55 +88,6 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Deletes trash attachments from all the wiki pages from a group that were
-	 * deleted after a given date.
-	 *
-	 * @param  group the group
-	 * @param  date the date from which attachments will be deleted
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public void deleteTrashAttachments(Group group, Date date)
-		throws PortalException, SystemException {
-
-		long repositoryId = CompanyConstants.SYSTEM;
-
-		String[] fileNames = null;
-
-		try {
-			fileNames = DLStoreUtil.getFileNames(
-				group.getCompanyId(), repositoryId, "wiki");
-		}
-		catch (NoSuchDirectoryException nsde) {
-			return;
-		}
-
-		for (String fileName : fileNames) {
-			String fileTitle = StringUtil.extractLast(
-				fileName, StringPool.FORWARD_SLASH);
-
-			if (fileTitle.startsWith(TrashUtil.TRASH_ATTACHMENTS_DIR)) {
-				String[] attachmentFileNames = DLStoreUtil.getFileNames(
-					group.getCompanyId(), repositoryId,
-					WikiPageConstants.BASE_ATTACHMENTS_DIR + fileTitle);
-
-				TrashUtil.deleteEntriesAttachments(
-					group.getCompanyId(), repositoryId, date,
-					attachmentFileNames);
-			}
-		}
-	}
-
-	/**
-	 * Deletes all wiki page with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the wiki pages to be deleted
-	 * @param  checkPermission whether to check permission before deleting each
-	 *         folder
-	 * @throws PortalException if any one of the wiki pages could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
 		throws PortalException, SystemException {
 
@@ -155,13 +105,17 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	/**
-	 * Returns the wiki page entity's class name
-	 *
-	 * @return the wiki page entity's class name
-	 */
 	public String getClassName() {
 		return CLASS_NAME;
+	}
+
+	@Override
+	public ContainerModel getParentContainerModel(long classPK)
+		throws PortalException, SystemException {
+
+		WikiPage page = WikiPageLocalServiceUtil.getPage(classPK);
+
+		return page.getNode();
 	}
 
 	@Override
@@ -197,14 +151,6 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 		return page.getTitle();
 	}
 
-	/**
-	 * Returns the trash renderer associated to the trash entry.
-	 *
-	 * @param  classPK the primary key of the wiki page
-	 * @return the trash renderer associated to the wiki page
-	 * @throws PortalException if the wiki page could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	@Override
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException {
@@ -226,13 +172,6 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 		return false;
 	}
 
-	/**
-	 * Restores all wiki pages with the matching primary keys.
-	 *
-	 * @param  classPKs the primary keys of the wiki pages to be deleted
-	 * @throws PortalException if any one of the wiki pages could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
 	public void restoreTrashEntries(long[] classPKs)
 		throws PortalException, SystemException {
 
@@ -249,7 +188,7 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 
 		page.setTitle(name);
 
-		WikiPageLocalServiceUtil.updateWikiPage(page, false);
+		WikiPageLocalServiceUtil.updateWikiPage(page);
 
 		WikiPageResource pageResource =
 			WikiPageResourceLocalServiceUtil.getPageResource(
@@ -257,8 +196,7 @@ public class WikiPageTrashHandler extends BaseTrashHandler {
 
 		pageResource.setTitle(name);
 
-		WikiPageResourceLocalServiceUtil.updateWikiPageResource(
-			pageResource, false);
+		WikiPageResourceLocalServiceUtil.updateWikiPageResource(pageResource);
 	}
 
 	@Override

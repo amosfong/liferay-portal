@@ -19,15 +19,38 @@
 <%
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
-Group group = (Group)row.getObject();
+Group group = null;
 
-boolean organizationUser = GetterUtil.getBoolean(row.getParameter("organizationUser"));
-boolean userGroupUser = GetterUtil.getBoolean(row.getParameter("userGroupUser"));
+boolean organizationUser = false;
+boolean userGroupUser = false;
+
+if (row != null) {
+	group = (Group)row.getObject();
+
+	organizationUser = GetterUtil.getBoolean(row.getParameter("organizationUser"));
+	userGroupUser = GetterUtil.getBoolean(row.getParameter("userGroupUser"));
+}
+else {
+	group = (Group)request.getAttribute("view_tree.jspf-site");
+
+	GroupSearchTerms searchTerms = (GroupSearchTerms)request.getAttribute("view_tree.jspf-searchTerms");
+
+	if (!group.isOrganization()) {
+		organizationUser = SitesUtil.isOrganizationUser(company.getCompanyId(), group, user, searchTerms, new ArrayList<String>());
+		userGroupUser = SitesUtil.isUserGroupUser(company.getCompanyId(), group, user, new ArrayList<String>());
+	}
+}
 
 boolean hasUpdatePermission = GroupPermissionUtil.contains(permissionChecker, group.getGroupId(), ActionKeys.UPDATE);
+
+boolean view = false;
+
+if (row == null) {
+	view = true;
+}
 %>
 
-<liferay-ui:icon-menu>
+<liferay-ui:icon-menu showExpanded="<%= view %>" showWhenSingleIcon="<%= view %>">
 	<c:if test="<%= hasUpdatePermission %>">
 		<liferay-portlet:renderURL doAsGroupId="<%= group.getGroupId() %>" portletName="<%= PortletKeys.SITE_SETTINGS %>" var="editURL">
 			<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -96,7 +119,7 @@ boolean hasUpdatePermission = GroupPermissionUtil.contains(permissionChecker, gr
 		/>
 	</c:if>
 
-	<c:if test="<%= (!(organizationUser || userGroupUser) && (group.getType() == GroupConstants.TYPE_SITE_OPEN) || (group.getType() == GroupConstants.TYPE_SITE_RESTRICTED)) %>">
+	<c:if test="<%= (!(organizationUser || userGroupUser) && ((group.getType() == GroupConstants.TYPE_SITE_OPEN) || (group.getType() == GroupConstants.TYPE_SITE_RESTRICTED)) && GroupLocalServiceUtil.hasUserGroup(user.getUserId(), group.getGroupId())) %>">
 		<portlet:actionURL var="leaveURL">
 			<portlet:param name="struts_action" value="/sites_admin/edit_site_assignments" />
 			<portlet:param name="<%= Constants.CMD %>" value="group_users" />

@@ -16,7 +16,6 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchCompanyException;
 import com.liferay.portal.NoSuchModelException;
-import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -34,6 +33,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnmodifiableList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.Company;
@@ -72,52 +72,6 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
-	public static final FinderPath FINDER_PATH_FETCH_BY_WEBID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByWebId",
-			new String[] { String.class.getName() },
-			CompanyModelImpl.WEBID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_WEBID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByWebId",
-			new String[] { String.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_MX = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByMx",
-			new String[] { String.class.getName() },
-			CompanyModelImpl.MX_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_MX = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByMx",
-			new String[] { String.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_LOGOID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByLogoId",
-			new String[] { Long.class.getName() },
-			CompanyModelImpl.LOGOID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_LOGOID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByLogoId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_SYSTEM = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findBySystem",
-			new String[] {
-				Boolean.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM =
-		new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findBySystem",
-			new String[] { Boolean.class.getName() },
-			CompanyModelImpl.SYSTEM_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_SYSTEM = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countBySystem",
-			new String[] { Boolean.class.getName() });
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
 			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
@@ -127,428 +81,15 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
 			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the company in the entity cache if it is enabled.
-	 *
-	 * @param company the company
-	 */
-	public void cacheResult(Company company) {
-		EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyImpl.class, company.getPrimaryKey(), company);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
-			new Object[] { company.getWebId() }, company);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
-			new Object[] { company.getMx() }, company);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
-			new Object[] { Long.valueOf(company.getLogoId()) }, company);
-
-		company.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the companies in the entity cache if it is enabled.
-	 *
-	 * @param companies the companies
-	 */
-	public void cacheResult(List<Company> companies) {
-		for (Company company : companies) {
-			if (EntityCacheUtil.getResult(
-						CompanyModelImpl.ENTITY_CACHE_ENABLED,
-						CompanyImpl.class, company.getPrimaryKey()) == null) {
-				cacheResult(company);
-			}
-			else {
-				company.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all companies.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(CompanyImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(CompanyImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the company.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Company company) {
-		EntityCacheUtil.removeResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyImpl.class, company.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(company);
-	}
-
-	@Override
-	public void clearCache(List<Company> companies) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Company company : companies) {
-			EntityCacheUtil.removeResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-				CompanyImpl.class, company.getPrimaryKey());
-
-			clearUniqueFindersCache(company);
-		}
-	}
-
-	protected void clearUniqueFindersCache(Company company) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID,
-			new Object[] { company.getWebId() });
-
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX,
-			new Object[] { company.getMx() });
-
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID,
-			new Object[] { Long.valueOf(company.getLogoId()) });
-	}
-
-	/**
-	 * Creates a new company with the primary key. Does not add the company to the database.
-	 *
-	 * @param companyId the primary key for the new company
-	 * @return the new company
-	 */
-	public Company create(long companyId) {
-		Company company = new CompanyImpl();
-
-		company.setNew(true);
-		company.setPrimaryKey(companyId);
-
-		return company;
-	}
-
-	/**
-	 * Removes the company with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param companyId the primary key of the company
-	 * @return the company that was removed
-	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company remove(long companyId)
-		throws NoSuchCompanyException, SystemException {
-		return remove(Long.valueOf(companyId));
-	}
-
-	/**
-	 * Removes the company with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the company
-	 * @return the company that was removed
-	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Company remove(Serializable primaryKey)
-		throws NoSuchCompanyException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Company company = (Company)session.get(CompanyImpl.class, primaryKey);
-
-			if (company == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchCompanyException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(company);
-		}
-		catch (NoSuchCompanyException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Company removeImpl(Company company) throws SystemException {
-		company = toUnwrappedModel(company);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, company);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(company);
-
-		return company;
-	}
-
-	@Override
-	public Company updateImpl(com.liferay.portal.model.Company company,
-		boolean merge) throws SystemException {
-		company = toUnwrappedModel(company);
-
-		boolean isNew = company.isNew();
-
-		CompanyModelImpl companyModelImpl = (CompanyModelImpl)company;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, company, merge);
-
-			company.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !CompanyModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((companyModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Boolean.valueOf(companyModelImpl.getOriginalSystem())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_SYSTEM, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM,
-					args);
-
-				args = new Object[] {
-						Boolean.valueOf(companyModelImpl.getSystem())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_SYSTEM, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-			CompanyImpl.class, company.getPrimaryKey(), company);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
-				new Object[] { company.getWebId() }, company);
-
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
-				new Object[] { company.getMx() }, company);
-
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
-				new Object[] { Long.valueOf(company.getLogoId()) }, company);
-		}
-		else {
-			if ((companyModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_WEBID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { companyModelImpl.getOriginalWebId() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_WEBID, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
-					new Object[] { company.getWebId() }, company);
-			}
-
-			if ((companyModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_MX.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { companyModelImpl.getOriginalMx() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MX, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
-					new Object[] { company.getMx() }, company);
-			}
-
-			if ((companyModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_LOGOID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(companyModelImpl.getOriginalLogoId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_LOGOID, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
-					new Object[] { Long.valueOf(company.getLogoId()) }, company);
-			}
-		}
-
-		return company;
-	}
-
-	protected Company toUnwrappedModel(Company company) {
-		if (company instanceof CompanyImpl) {
-			return company;
-		}
-
-		CompanyImpl companyImpl = new CompanyImpl();
-
-		companyImpl.setNew(company.isNew());
-		companyImpl.setPrimaryKey(company.getPrimaryKey());
-
-		companyImpl.setCompanyId(company.getCompanyId());
-		companyImpl.setAccountId(company.getAccountId());
-		companyImpl.setWebId(company.getWebId());
-		companyImpl.setKey(company.getKey());
-		companyImpl.setMx(company.getMx());
-		companyImpl.setHomeURL(company.getHomeURL());
-		companyImpl.setLogoId(company.getLogoId());
-		companyImpl.setSystem(company.isSystem());
-		companyImpl.setMaxUsers(company.getMaxUsers());
-		companyImpl.setActive(company.isActive());
-
-		return companyImpl;
-	}
-
-	/**
-	 * Returns the company with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the company
-	 * @return the company
-	 * @throws com.liferay.portal.NoSuchModelException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Company findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the company with the primary key or throws a {@link com.liferay.portal.NoSuchCompanyException} if it could not be found.
-	 *
-	 * @param companyId the primary key of the company
-	 * @return the company
-	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company findByPrimaryKey(long companyId)
-		throws NoSuchCompanyException, SystemException {
-		Company company = fetchByPrimaryKey(companyId);
-
-		if (company == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + companyId);
-			}
-
-			throw new NoSuchCompanyException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				companyId);
-		}
-
-		return company;
-	}
-
-	/**
-	 * Returns the company with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the company
-	 * @return the company, or <code>null</code> if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Company fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the company with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param companyId the primary key of the company
-	 * @return the company, or <code>null</code> if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company fetchByPrimaryKey(long companyId) throws SystemException {
-		Company company = (Company)EntityCacheUtil.getResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-				CompanyImpl.class, companyId);
-
-		if (company == _nullCompany) {
-			return null;
-		}
-
-		if (company == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				company = (Company)session.get(CompanyImpl.class,
-						Long.valueOf(companyId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (company != null) {
-					cacheResult(company);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
-						CompanyImpl.class, companyId, _nullCompany);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return company;
-	}
+	public static final FinderPath FINDER_PATH_FETCH_BY_WEBID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByWebId",
+			new String[] { String.class.getName() },
+			CompanyModelImpl.WEBID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_WEBID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByWebId",
+			new String[] { String.class.getName() });
 
 	/**
 	 * Returns the company where webId = &#63; or throws a {@link com.liferay.portal.NoSuchCompanyException} if it could not be found.
@@ -621,7 +162,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 		}
 
 		if (result == null) {
-			StringBundler query = new StringBundler(2);
+			StringBundler query = new StringBundler(3);
 
 			query.append(_SQL_SELECT_COMPANY_WHERE);
 
@@ -654,16 +195,14 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 
 				List<Company> list = q.list();
 
-				result = list;
-
-				Company company = null;
-
 				if (list.isEmpty()) {
 					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
 						finderArgs, list);
 				}
 				else {
-					company = list.get(0);
+					Company company = list.get(0);
+
+					result = company;
 
 					cacheResult(company);
 
@@ -673,30 +212,116 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 							finderArgs, company);
 					}
 				}
-
-				return company;
 			}
 			catch (Exception e) {
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID,
+					finderArgs);
+
 				throw processException(e);
 			}
 			finally {
-				if (result == null) {
-					FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID,
-						finderArgs);
-				}
-
 				closeSession(session);
 			}
 		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
 		else {
-			if (result instanceof List<?>) {
-				return null;
-			}
-			else {
-				return (Company)result;
-			}
+			return (Company)result;
 		}
 	}
+
+	/**
+	 * Removes the company where webId = &#63; from the database.
+	 *
+	 * @param webId the web ID
+	 * @return the company that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company removeByWebId(String webId)
+		throws NoSuchCompanyException, SystemException {
+		Company company = findByWebId(webId);
+
+		return remove(company);
+	}
+
+	/**
+	 * Returns the number of companies where webId = &#63;.
+	 *
+	 * @param webId the web ID
+	 * @return the number of matching companies
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByWebId(String webId) throws SystemException {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_WEBID;
+
+		Object[] finderArgs = new Object[] { webId };
+
+		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
+				this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_COMPANY_WHERE);
+
+			if (webId == null) {
+				query.append(_FINDER_COLUMN_WEBID_WEBID_1);
+			}
+			else {
+				if (webId.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_WEBID_WEBID_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_WEBID_WEBID_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (webId != null) {
+					qPos.add(webId);
+				}
+
+				count = (Long)q.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_WEBID_WEBID_1 = "company.webId IS NULL";
+	private static final String _FINDER_COLUMN_WEBID_WEBID_2 = "company.webId = ?";
+	private static final String _FINDER_COLUMN_WEBID_WEBID_3 = "(company.webId IS NULL OR company.webId = ?)";
+	public static final FinderPath FINDER_PATH_FETCH_BY_MX = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByMx",
+			new String[] { String.class.getName() },
+			CompanyModelImpl.MX_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_MX = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByMx",
+			new String[] { String.class.getName() });
 
 	/**
 	 * Returns the company where mx = &#63; or throws a {@link com.liferay.portal.NoSuchCompanyException} if it could not be found.
@@ -769,7 +394,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 		}
 
 		if (result == null) {
-			StringBundler query = new StringBundler(2);
+			StringBundler query = new StringBundler(3);
 
 			query.append(_SQL_SELECT_COMPANY_WHERE);
 
@@ -802,16 +427,21 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 
 				List<Company> list = q.list();
 
-				result = list;
-
-				Company company = null;
-
 				if (list.isEmpty()) {
 					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
 						finderArgs, list);
 				}
 				else {
-					company = list.get(0);
+					if ((list.size() > 1) && _log.isWarnEnabled()) {
+						_log.warn(
+							"CompanyPersistenceImpl.fetchByMx(String, boolean) with parameters (" +
+							StringUtil.merge(finderArgs) +
+							") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+					}
+
+					Company company = list.get(0);
+
+					result = company;
 
 					cacheResult(company);
 
@@ -821,30 +451,115 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 							finderArgs, company);
 					}
 				}
-
-				return company;
 			}
 			catch (Exception e) {
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX, finderArgs);
+
 				throw processException(e);
 			}
 			finally {
-				if (result == null) {
-					FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX,
-						finderArgs);
-				}
-
 				closeSession(session);
 			}
 		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
 		else {
-			if (result instanceof List<?>) {
-				return null;
-			}
-			else {
-				return (Company)result;
-			}
+			return (Company)result;
 		}
 	}
+
+	/**
+	 * Removes the company where mx = &#63; from the database.
+	 *
+	 * @param mx the mx
+	 * @return the company that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company removeByMx(String mx)
+		throws NoSuchCompanyException, SystemException {
+		Company company = findByMx(mx);
+
+		return remove(company);
+	}
+
+	/**
+	 * Returns the number of companies where mx = &#63;.
+	 *
+	 * @param mx the mx
+	 * @return the number of matching companies
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByMx(String mx) throws SystemException {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_MX;
+
+		Object[] finderArgs = new Object[] { mx };
+
+		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
+				this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_COMPANY_WHERE);
+
+			if (mx == null) {
+				query.append(_FINDER_COLUMN_MX_MX_1);
+			}
+			else {
+				if (mx.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_MX_MX_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_MX_MX_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (mx != null) {
+					qPos.add(mx);
+				}
+
+				count = (Long)q.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_MX_MX_1 = "company.mx IS NULL";
+	private static final String _FINDER_COLUMN_MX_MX_2 = "company.mx = ?";
+	private static final String _FINDER_COLUMN_MX_MX_3 = "(company.mx IS NULL OR company.mx = ?)";
+	public static final FinderPath FINDER_PATH_FETCH_BY_LOGOID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByLogoId",
+			new String[] { Long.class.getName() },
+			CompanyModelImpl.LOGOID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_LOGOID = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByLogoId",
+			new String[] { Long.class.getName() });
 
 	/**
 	 * Returns the company where logoId = &#63; or throws a {@link com.liferay.portal.NoSuchCompanyException} if it could not be found.
@@ -917,7 +632,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 		}
 
 		if (result == null) {
-			StringBundler query = new StringBundler(2);
+			StringBundler query = new StringBundler(3);
 
 			query.append(_SQL_SELECT_COMPANY_WHERE);
 
@@ -938,16 +653,21 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 
 				List<Company> list = q.list();
 
-				result = list;
-
-				Company company = null;
-
 				if (list.isEmpty()) {
 					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
 						finderArgs, list);
 				}
 				else {
-					company = list.get(0);
+					if ((list.size() > 1) && _log.isWarnEnabled()) {
+						_log.warn(
+							"CompanyPersistenceImpl.fetchByLogoId(long, boolean) with parameters (" +
+							StringUtil.merge(finderArgs) +
+							") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+					}
+
+					Company company = list.get(0);
+
+					result = company;
 
 					cacheResult(company);
 
@@ -956,30 +676,112 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 							finderArgs, company);
 					}
 				}
-
-				return company;
 			}
 			catch (Exception e) {
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID,
+					finderArgs);
+
 				throw processException(e);
 			}
 			finally {
-				if (result == null) {
-					FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID,
-						finderArgs);
-				}
-
 				closeSession(session);
 			}
 		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
 		else {
-			if (result instanceof List<?>) {
-				return null;
-			}
-			else {
-				return (Company)result;
-			}
+			return (Company)result;
 		}
 	}
+
+	/**
+	 * Removes the company where logoId = &#63; from the database.
+	 *
+	 * @param logoId the logo ID
+	 * @return the company that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company removeByLogoId(long logoId)
+		throws NoSuchCompanyException, SystemException {
+		Company company = findByLogoId(logoId);
+
+		return remove(company);
+	}
+
+	/**
+	 * Returns the number of companies where logoId = &#63;.
+	 *
+	 * @param logoId the logo ID
+	 * @return the number of matching companies
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByLogoId(long logoId) throws SystemException {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_LOGOID;
+
+		Object[] finderArgs = new Object[] { logoId };
+
+		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
+				this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_COMPANY_WHERE);
+
+			query.append(_FINDER_COLUMN_LOGOID_LOGOID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(logoId);
+
+				count = (Long)q.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_LOGOID_LOGOID_2 = "company.logoId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_SYSTEM = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findBySystem",
+			new String[] {
+				Boolean.class.getName(),
+				
+			Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM =
+		new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, CompanyImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findBySystem",
+			new String[] { Boolean.class.getName() },
+			CompanyModelImpl.SYSTEM_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_SYSTEM = new FinderPath(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countBySystem",
+			new String[] { Boolean.class.getName() });
 
 	/**
 	 * Returns all the companies where system = &#63;.
@@ -996,7 +798,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 * Returns a range of all the companies where system = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CompanyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param system the system
@@ -1014,7 +816,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 * Returns an ordered range of all the companies where system = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CompanyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param system the system
@@ -1026,11 +828,13 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 */
 	public List<Company> findBySystem(boolean system, int start, int end,
 		OrderByComparator orderByComparator) throws SystemException {
+		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
 
 		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
 				(orderByComparator == null)) {
+			pagination = false;
 			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM;
 			finderArgs = new Object[] { system };
 		}
@@ -1060,7 +864,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 						(orderByComparator.getOrderByFields().length * 3));
 			}
 			else {
-				query = new StringBundler(2);
+				query = new StringBundler(3);
 			}
 
 			query.append(_SQL_SELECT_COMPANY_WHERE);
@@ -1070,6 +874,10 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 			if (orderByComparator != null) {
 				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
 					orderByComparator);
+			}
+			else
+			 if (pagination) {
+				query.append(CompanyModelImpl.ORDER_BY_JPQL);
 			}
 
 			String sql = query.toString();
@@ -1085,21 +893,29 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 
 				qPos.add(system);
 
-				list = (List<Company>)QueryUtil.list(q, getDialect(), start, end);
+				if (!pagination) {
+					list = (List<Company>)QueryUtil.list(q, getDialect(),
+							start, end, false);
+
+					Collections.sort(list);
+
+					list = new UnmodifiableList<Company>(list);
+				}
+				else {
+					list = (List<Company>)QueryUtil.list(q, getDialect(),
+							start, end);
+				}
+
+				cacheResult(list);
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
 				throw processException(e);
 			}
 			finally {
-				if (list == null) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-				else {
-					cacheResult(list);
-
-					FinderCacheUtil.putResult(finderPath, finderArgs, list);
-				}
-
 				closeSession(session);
 			}
 		}
@@ -1319,6 +1135,9 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 				}
 			}
 		}
+		else {
+			query.append(CompanyModelImpl.ORDER_BY_JPQL);
+		}
 
 		String sql = query.toString();
 
@@ -1350,6 +1169,508 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	}
 
 	/**
+	 * Removes all the companies where system = &#63; from the database.
+	 *
+	 * @param system the system
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeBySystem(boolean system) throws SystemException {
+		for (Company company : findBySystem(system, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null)) {
+			remove(company);
+		}
+	}
+
+	/**
+	 * Returns the number of companies where system = &#63;.
+	 *
+	 * @param system the system
+	 * @return the number of matching companies
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countBySystem(boolean system) throws SystemException {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_SYSTEM;
+
+		Object[] finderArgs = new Object[] { system };
+
+		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
+				this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_COMPANY_WHERE);
+
+			query.append(_FINDER_COLUMN_SYSTEM_SYSTEM_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(system);
+
+				count = (Long)q.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_SYSTEM_SYSTEM_2 = "company.system = ?";
+
+	/**
+	 * Caches the company in the entity cache if it is enabled.
+	 *
+	 * @param company the company
+	 */
+	public void cacheResult(Company company) {
+		EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyImpl.class, company.getPrimaryKey(), company);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
+			new Object[] { company.getWebId() }, company);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
+			new Object[] { company.getMx() }, company);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
+			new Object[] { Long.valueOf(company.getLogoId()) }, company);
+
+		company.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the companies in the entity cache if it is enabled.
+	 *
+	 * @param companies the companies
+	 */
+	public void cacheResult(List<Company> companies) {
+		for (Company company : companies) {
+			if (EntityCacheUtil.getResult(
+						CompanyModelImpl.ENTITY_CACHE_ENABLED,
+						CompanyImpl.class, company.getPrimaryKey()) == null) {
+				cacheResult(company);
+			}
+			else {
+				company.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all companies.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(CompanyImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(CompanyImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the company.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Company company) {
+		EntityCacheUtil.removeResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyImpl.class, company.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(company);
+	}
+
+	@Override
+	public void clearCache(List<Company> companies) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Company company : companies) {
+			EntityCacheUtil.removeResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+				CompanyImpl.class, company.getPrimaryKey());
+
+			clearUniqueFindersCache(company);
+		}
+	}
+
+	protected void clearUniqueFindersCache(Company company) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID,
+			new Object[] { company.getWebId() });
+
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX,
+			new Object[] { company.getMx() });
+
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID,
+			new Object[] { Long.valueOf(company.getLogoId()) });
+	}
+
+	/**
+	 * Creates a new company with the primary key. Does not add the company to the database.
+	 *
+	 * @param companyId the primary key for the new company
+	 * @return the new company
+	 */
+	public Company create(long companyId) {
+		Company company = new CompanyImpl();
+
+		company.setNew(true);
+		company.setPrimaryKey(companyId);
+
+		return company;
+	}
+
+	/**
+	 * Removes the company with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param companyId the primary key of the company
+	 * @return the company that was removed
+	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company remove(long companyId)
+		throws NoSuchCompanyException, SystemException {
+		return remove(Long.valueOf(companyId));
+	}
+
+	/**
+	 * Removes the company with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the company
+	 * @return the company that was removed
+	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Company remove(Serializable primaryKey)
+		throws NoSuchCompanyException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Company company = (Company)session.get(CompanyImpl.class, primaryKey);
+
+			if (company == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchCompanyException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(company);
+		}
+		catch (NoSuchCompanyException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Company removeImpl(Company company) throws SystemException {
+		company = toUnwrappedModel(company);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(company)) {
+				company = (Company)session.get(CompanyImpl.class,
+						company.getPrimaryKeyObj());
+			}
+
+			if (company != null) {
+				session.delete(company);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (company != null) {
+			clearCache(company);
+		}
+
+		return company;
+	}
+
+	@Override
+	public Company updateImpl(com.liferay.portal.model.Company company)
+		throws SystemException {
+		company = toUnwrappedModel(company);
+
+		boolean isNew = company.isNew();
+
+		CompanyModelImpl companyModelImpl = (CompanyModelImpl)company;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (company.isNew()) {
+				session.save(company);
+
+				company.setNew(false);
+			}
+			else {
+				session.merge(company);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !CompanyModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((companyModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Boolean.valueOf(companyModelImpl.getOriginalSystem())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_SYSTEM, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM,
+					args);
+
+				args = new Object[] {
+						Boolean.valueOf(companyModelImpl.getSystem())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_SYSTEM, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_SYSTEM,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+			CompanyImpl.class, company.getPrimaryKey(), company);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
+				new Object[] { company.getWebId() }, company);
+
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
+				new Object[] { company.getMx() }, company);
+
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
+				new Object[] { Long.valueOf(company.getLogoId()) }, company);
+		}
+		else {
+			if ((companyModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_WEBID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] { companyModelImpl.getOriginalWebId() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_WEBID, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_WEBID, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_WEBID,
+					new Object[] { company.getWebId() }, company);
+			}
+
+			if ((companyModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_MX.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] { companyModelImpl.getOriginalMx() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MX, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_MX, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_MX,
+					new Object[] { company.getMx() }, company);
+			}
+
+			if ((companyModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_LOGOID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(companyModelImpl.getOriginalLogoId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_LOGOID, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_LOGOID, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_LOGOID,
+					new Object[] { Long.valueOf(company.getLogoId()) }, company);
+			}
+		}
+
+		return company;
+	}
+
+	protected Company toUnwrappedModel(Company company) {
+		if (company instanceof CompanyImpl) {
+			return company;
+		}
+
+		CompanyImpl companyImpl = new CompanyImpl();
+
+		companyImpl.setNew(company.isNew());
+		companyImpl.setPrimaryKey(company.getPrimaryKey());
+
+		companyImpl.setCompanyId(company.getCompanyId());
+		companyImpl.setAccountId(company.getAccountId());
+		companyImpl.setWebId(company.getWebId());
+		companyImpl.setKey(company.getKey());
+		companyImpl.setMx(company.getMx());
+		companyImpl.setHomeURL(company.getHomeURL());
+		companyImpl.setLogoId(company.getLogoId());
+		companyImpl.setSystem(company.isSystem());
+		companyImpl.setMaxUsers(company.getMaxUsers());
+		companyImpl.setActive(company.isActive());
+
+		return companyImpl;
+	}
+
+	/**
+	 * Returns the company with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the company
+	 * @return the company
+	 * @throws com.liferay.portal.NoSuchModelException if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Company findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the company with the primary key or throws a {@link com.liferay.portal.NoSuchCompanyException} if it could not be found.
+	 *
+	 * @param companyId the primary key of the company
+	 * @return the company
+	 * @throws com.liferay.portal.NoSuchCompanyException if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company findByPrimaryKey(long companyId)
+		throws NoSuchCompanyException, SystemException {
+		Company company = fetchByPrimaryKey(companyId);
+
+		if (company == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + companyId);
+			}
+
+			throw new NoSuchCompanyException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				companyId);
+		}
+
+		return company;
+	}
+
+	/**
+	 * Returns the company with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the company
+	 * @return the company, or <code>null</code> if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Company fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the company with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param companyId the primary key of the company
+	 * @return the company, or <code>null</code> if a company with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Company fetchByPrimaryKey(long companyId) throws SystemException {
+		Company company = (Company)EntityCacheUtil.getResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+				CompanyImpl.class, companyId);
+
+		if (company == _nullCompany) {
+			return null;
+		}
+
+		if (company == null) {
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				company = (Company)session.get(CompanyImpl.class,
+						Long.valueOf(companyId));
+
+				if (company != null) {
+					cacheResult(company);
+				}
+				else {
+					EntityCacheUtil.putResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+						CompanyImpl.class, companyId, _nullCompany);
+				}
+			}
+			catch (Exception e) {
+				EntityCacheUtil.removeResult(CompanyModelImpl.ENTITY_CACHE_ENABLED,
+					CompanyImpl.class, companyId);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return company;
+	}
+
+	/**
 	 * Returns all the companies.
 	 *
 	 * @return the companies
@@ -1363,7 +1684,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 * Returns a range of all the companies.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CompanyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of companies
@@ -1379,7 +1700,7 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 * Returns an ordered range of all the companies.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.CompanyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of companies
@@ -1390,11 +1711,13 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	 */
 	public List<Company> findAll(int start, int end,
 		OrderByComparator orderByComparator) throws SystemException {
+		boolean pagination = true;
 		FinderPath finderPath = null;
-		Object[] finderArgs = new Object[] { start, end, orderByComparator };
+		Object[] finderArgs = null;
 
 		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
 				(orderByComparator == null)) {
+			pagination = false;
 			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL;
 			finderArgs = FINDER_ARGS_EMPTY;
 		}
@@ -1423,6 +1746,10 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 			}
 			else {
 				sql = _SQL_SELECT_COMPANY;
+
+				if (pagination) {
+					sql = sql.concat(CompanyModelImpl.ORDER_BY_JPQL);
+				}
 			}
 
 			Session session = null;
@@ -1432,89 +1759,34 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 
 				Query q = session.createQuery(sql);
 
-				if (orderByComparator == null) {
+				if (!pagination) {
 					list = (List<Company>)QueryUtil.list(q, getDialect(),
 							start, end, false);
 
 					Collections.sort(list);
+
+					list = new UnmodifiableList<Company>(list);
 				}
 				else {
 					list = (List<Company>)QueryUtil.list(q, getDialect(),
 							start, end);
 				}
+
+				cacheResult(list);
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
 				throw processException(e);
 			}
 			finally {
-				if (list == null) {
-					FinderCacheUtil.removeResult(finderPath, finderArgs);
-				}
-				else {
-					cacheResult(list);
-
-					FinderCacheUtil.putResult(finderPath, finderArgs, list);
-				}
-
 				closeSession(session);
 			}
 		}
 
 		return list;
-	}
-
-	/**
-	 * Removes the company where webId = &#63; from the database.
-	 *
-	 * @param webId the web ID
-	 * @return the company that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company removeByWebId(String webId)
-		throws NoSuchCompanyException, SystemException {
-		Company company = findByWebId(webId);
-
-		return remove(company);
-	}
-
-	/**
-	 * Removes the company where mx = &#63; from the database.
-	 *
-	 * @param mx the mx
-	 * @return the company that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company removeByMx(String mx)
-		throws NoSuchCompanyException, SystemException {
-		Company company = findByMx(mx);
-
-		return remove(company);
-	}
-
-	/**
-	 * Removes the company where logoId = &#63; from the database.
-	 *
-	 * @param logoId the logo ID
-	 * @return the company that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Company removeByLogoId(long logoId)
-		throws NoSuchCompanyException, SystemException {
-		Company company = findByLogoId(logoId);
-
-		return remove(company);
-	}
-
-	/**
-	 * Removes all the companies where system = &#63; from the database.
-	 *
-	 * @param system the system
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeBySystem(boolean system) throws SystemException {
-		for (Company company : findBySystem(system)) {
-			remove(company);
-		}
 	}
 
 	/**
@@ -1526,242 +1798,6 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 		for (Company company : findAll()) {
 			remove(company);
 		}
-	}
-
-	/**
-	 * Returns the number of companies where webId = &#63;.
-	 *
-	 * @param webId the web ID
-	 * @return the number of matching companies
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByWebId(String webId) throws SystemException {
-		Object[] finderArgs = new Object[] { webId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_WEBID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_COMPANY_WHERE);
-
-			if (webId == null) {
-				query.append(_FINDER_COLUMN_WEBID_WEBID_1);
-			}
-			else {
-				if (webId.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_WEBID_WEBID_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_WEBID_WEBID_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				if (webId != null) {
-					qPos.add(webId);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_WEBID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of companies where mx = &#63;.
-	 *
-	 * @param mx the mx
-	 * @return the number of matching companies
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByMx(String mx) throws SystemException {
-		Object[] finderArgs = new Object[] { mx };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_MX,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_COMPANY_WHERE);
-
-			if (mx == null) {
-				query.append(_FINDER_COLUMN_MX_MX_1);
-			}
-			else {
-				if (mx.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_MX_MX_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_MX_MX_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				if (mx != null) {
-					qPos.add(mx);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_MX, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of companies where logoId = &#63;.
-	 *
-	 * @param logoId the logo ID
-	 * @return the number of matching companies
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByLogoId(long logoId) throws SystemException {
-		Object[] finderArgs = new Object[] { logoId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_LOGOID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_COMPANY_WHERE);
-
-			query.append(_FINDER_COLUMN_LOGOID_LOGOID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(logoId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_LOGOID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of companies where system = &#63;.
-	 *
-	 * @param system the system
-	 * @return the number of matching companies
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countBySystem(boolean system) throws SystemException {
-		Object[] finderArgs = new Object[] { system };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_SYSTEM,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_COMPANY_WHERE);
-
-			query.append(_FINDER_COLUMN_SYSTEM_SYSTEM_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(system);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_SYSTEM,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -1783,18 +1819,17 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 				Query q = session.createQuery(_SQL_COUNT_COMPANY);
 
 				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
 
 				FinderCacheUtil.putResult(FINDER_PATH_COUNT_ALL,
 					FINDER_ARGS_EMPTY, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_ALL,
+					FINDER_ARGS_EMPTY);
 
+				throw processException(e);
+			}
+			finally {
 				closeSession(session);
 			}
 		}
@@ -1830,143 +1865,14 @@ public class CompanyPersistenceImpl extends BasePersistenceImpl<Company>
 	public void destroy() {
 		EntityCacheUtil.removeCache(CompanyImpl.class.getName());
 		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
-	@BeanReference(type = AccountPersistence.class)
-	protected AccountPersistence accountPersistence;
-	@BeanReference(type = AddressPersistence.class)
-	protected AddressPersistence addressPersistence;
-	@BeanReference(type = BrowserTrackerPersistence.class)
-	protected BrowserTrackerPersistence browserTrackerPersistence;
-	@BeanReference(type = ClassNamePersistence.class)
-	protected ClassNamePersistence classNamePersistence;
-	@BeanReference(type = ClusterGroupPersistence.class)
-	protected ClusterGroupPersistence clusterGroupPersistence;
-	@BeanReference(type = CompanyPersistence.class)
-	protected CompanyPersistence companyPersistence;
-	@BeanReference(type = ContactPersistence.class)
-	protected ContactPersistence contactPersistence;
-	@BeanReference(type = CountryPersistence.class)
-	protected CountryPersistence countryPersistence;
-	@BeanReference(type = EmailAddressPersistence.class)
-	protected EmailAddressPersistence emailAddressPersistence;
-	@BeanReference(type = GroupPersistence.class)
-	protected GroupPersistence groupPersistence;
-	@BeanReference(type = ImagePersistence.class)
-	protected ImagePersistence imagePersistence;
-	@BeanReference(type = LayoutPersistence.class)
-	protected LayoutPersistence layoutPersistence;
-	@BeanReference(type = LayoutBranchPersistence.class)
-	protected LayoutBranchPersistence layoutBranchPersistence;
-	@BeanReference(type = LayoutPrototypePersistence.class)
-	protected LayoutPrototypePersistence layoutPrototypePersistence;
-	@BeanReference(type = LayoutRevisionPersistence.class)
-	protected LayoutRevisionPersistence layoutRevisionPersistence;
-	@BeanReference(type = LayoutSetPersistence.class)
-	protected LayoutSetPersistence layoutSetPersistence;
-	@BeanReference(type = LayoutSetBranchPersistence.class)
-	protected LayoutSetBranchPersistence layoutSetBranchPersistence;
-	@BeanReference(type = LayoutSetPrototypePersistence.class)
-	protected LayoutSetPrototypePersistence layoutSetPrototypePersistence;
-	@BeanReference(type = ListTypePersistence.class)
-	protected ListTypePersistence listTypePersistence;
-	@BeanReference(type = LockPersistence.class)
-	protected LockPersistence lockPersistence;
-	@BeanReference(type = MembershipRequestPersistence.class)
-	protected MembershipRequestPersistence membershipRequestPersistence;
-	@BeanReference(type = OrganizationPersistence.class)
-	protected OrganizationPersistence organizationPersistence;
-	@BeanReference(type = OrgGroupRolePersistence.class)
-	protected OrgGroupRolePersistence orgGroupRolePersistence;
-	@BeanReference(type = OrgLaborPersistence.class)
-	protected OrgLaborPersistence orgLaborPersistence;
-	@BeanReference(type = PasswordPolicyPersistence.class)
-	protected PasswordPolicyPersistence passwordPolicyPersistence;
-	@BeanReference(type = PasswordPolicyRelPersistence.class)
-	protected PasswordPolicyRelPersistence passwordPolicyRelPersistence;
-	@BeanReference(type = PasswordTrackerPersistence.class)
-	protected PasswordTrackerPersistence passwordTrackerPersistence;
-	@BeanReference(type = PhonePersistence.class)
-	protected PhonePersistence phonePersistence;
-	@BeanReference(type = PluginSettingPersistence.class)
-	protected PluginSettingPersistence pluginSettingPersistence;
-	@BeanReference(type = PortalPreferencesPersistence.class)
-	protected PortalPreferencesPersistence portalPreferencesPersistence;
-	@BeanReference(type = PortletPersistence.class)
-	protected PortletPersistence portletPersistence;
-	@BeanReference(type = PortletItemPersistence.class)
-	protected PortletItemPersistence portletItemPersistence;
-	@BeanReference(type = PortletPreferencesPersistence.class)
-	protected PortletPreferencesPersistence portletPreferencesPersistence;
-	@BeanReference(type = RegionPersistence.class)
-	protected RegionPersistence regionPersistence;
-	@BeanReference(type = ReleasePersistence.class)
-	protected ReleasePersistence releasePersistence;
-	@BeanReference(type = RepositoryPersistence.class)
-	protected RepositoryPersistence repositoryPersistence;
-	@BeanReference(type = RepositoryEntryPersistence.class)
-	protected RepositoryEntryPersistence repositoryEntryPersistence;
-	@BeanReference(type = ResourceActionPersistence.class)
-	protected ResourceActionPersistence resourceActionPersistence;
-	@BeanReference(type = ResourceBlockPersistence.class)
-	protected ResourceBlockPersistence resourceBlockPersistence;
-	@BeanReference(type = ResourceBlockPermissionPersistence.class)
-	protected ResourceBlockPermissionPersistence resourceBlockPermissionPersistence;
-	@BeanReference(type = ResourcePermissionPersistence.class)
-	protected ResourcePermissionPersistence resourcePermissionPersistence;
-	@BeanReference(type = ResourceTypePermissionPersistence.class)
-	protected ResourceTypePermissionPersistence resourceTypePermissionPersistence;
-	@BeanReference(type = RolePersistence.class)
-	protected RolePersistence rolePersistence;
-	@BeanReference(type = ServiceComponentPersistence.class)
-	protected ServiceComponentPersistence serviceComponentPersistence;
-	@BeanReference(type = ShardPersistence.class)
-	protected ShardPersistence shardPersistence;
-	@BeanReference(type = SubscriptionPersistence.class)
-	protected SubscriptionPersistence subscriptionPersistence;
-	@BeanReference(type = TeamPersistence.class)
-	protected TeamPersistence teamPersistence;
-	@BeanReference(type = TicketPersistence.class)
-	protected TicketPersistence ticketPersistence;
-	@BeanReference(type = UserPersistence.class)
-	protected UserPersistence userPersistence;
-	@BeanReference(type = UserGroupPersistence.class)
-	protected UserGroupPersistence userGroupPersistence;
-	@BeanReference(type = UserGroupGroupRolePersistence.class)
-	protected UserGroupGroupRolePersistence userGroupGroupRolePersistence;
-	@BeanReference(type = UserGroupRolePersistence.class)
-	protected UserGroupRolePersistence userGroupRolePersistence;
-	@BeanReference(type = UserIdMapperPersistence.class)
-	protected UserIdMapperPersistence userIdMapperPersistence;
-	@BeanReference(type = UserNotificationEventPersistence.class)
-	protected UserNotificationEventPersistence userNotificationEventPersistence;
-	@BeanReference(type = UserTrackerPersistence.class)
-	protected UserTrackerPersistence userTrackerPersistence;
-	@BeanReference(type = UserTrackerPathPersistence.class)
-	protected UserTrackerPathPersistence userTrackerPathPersistence;
-	@BeanReference(type = VirtualHostPersistence.class)
-	protected VirtualHostPersistence virtualHostPersistence;
-	@BeanReference(type = WebDAVPropsPersistence.class)
-	protected WebDAVPropsPersistence webDAVPropsPersistence;
-	@BeanReference(type = WebsitePersistence.class)
-	protected WebsitePersistence websitePersistence;
-	@BeanReference(type = WorkflowDefinitionLinkPersistence.class)
-	protected WorkflowDefinitionLinkPersistence workflowDefinitionLinkPersistence;
-	@BeanReference(type = WorkflowInstanceLinkPersistence.class)
-	protected WorkflowInstanceLinkPersistence workflowInstanceLinkPersistence;
 	private static final String _SQL_SELECT_COMPANY = "SELECT company FROM Company company";
 	private static final String _SQL_SELECT_COMPANY_WHERE = "SELECT company FROM Company company WHERE ";
 	private static final String _SQL_COUNT_COMPANY = "SELECT COUNT(company) FROM Company company";
 	private static final String _SQL_COUNT_COMPANY_WHERE = "SELECT COUNT(company) FROM Company company WHERE ";
-	private static final String _FINDER_COLUMN_WEBID_WEBID_1 = "company.webId IS NULL";
-	private static final String _FINDER_COLUMN_WEBID_WEBID_2 = "company.webId = ?";
-	private static final String _FINDER_COLUMN_WEBID_WEBID_3 = "(company.webId IS NULL OR company.webId = ?)";
-	private static final String _FINDER_COLUMN_MX_MX_1 = "company.mx IS NULL";
-	private static final String _FINDER_COLUMN_MX_MX_2 = "company.mx = ?";
-	private static final String _FINDER_COLUMN_MX_MX_3 = "(company.mx IS NULL OR company.mx = ?)";
-	private static final String _FINDER_COLUMN_LOGOID_LOGOID_2 = "company.logoId = ?";
-	private static final String _FINDER_COLUMN_SYSTEM_SYSTEM_2 = "company.system = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "company.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Company exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Company exists with the key {";

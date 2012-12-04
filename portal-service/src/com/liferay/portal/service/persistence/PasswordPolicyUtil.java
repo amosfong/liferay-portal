@@ -94,99 +94,19 @@ public class PasswordPolicyUtil {
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel)
+	 */
+	public static PasswordPolicy update(PasswordPolicy passwordPolicy)
+		throws SystemException {
+		return getPersistence().update(passwordPolicy);
+	}
+
+	/**
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, ServiceContext)
 	 */
 	public static PasswordPolicy update(PasswordPolicy passwordPolicy,
-		boolean merge) throws SystemException {
-		return getPersistence().update(passwordPolicy, merge);
-	}
-
-	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean, ServiceContext)
-	 */
-	public static PasswordPolicy update(PasswordPolicy passwordPolicy,
-		boolean merge, ServiceContext serviceContext) throws SystemException {
-		return getPersistence().update(passwordPolicy, merge, serviceContext);
-	}
-
-	/**
-	* Caches the password policy in the entity cache if it is enabled.
-	*
-	* @param passwordPolicy the password policy
-	*/
-	public static void cacheResult(
-		com.liferay.portal.model.PasswordPolicy passwordPolicy) {
-		getPersistence().cacheResult(passwordPolicy);
-	}
-
-	/**
-	* Caches the password policies in the entity cache if it is enabled.
-	*
-	* @param passwordPolicies the password policies
-	*/
-	public static void cacheResult(
-		java.util.List<com.liferay.portal.model.PasswordPolicy> passwordPolicies) {
-		getPersistence().cacheResult(passwordPolicies);
-	}
-
-	/**
-	* Creates a new password policy with the primary key. Does not add the password policy to the database.
-	*
-	* @param passwordPolicyId the primary key for the new password policy
-	* @return the new password policy
-	*/
-	public static com.liferay.portal.model.PasswordPolicy create(
-		long passwordPolicyId) {
-		return getPersistence().create(passwordPolicyId);
-	}
-
-	/**
-	* Removes the password policy with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param passwordPolicyId the primary key of the password policy
-	* @return the password policy that was removed
-	* @throws com.liferay.portal.NoSuchPasswordPolicyException if a password policy with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PasswordPolicy remove(
-		long passwordPolicyId)
-		throws com.liferay.portal.NoSuchPasswordPolicyException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().remove(passwordPolicyId);
-	}
-
-	public static com.liferay.portal.model.PasswordPolicy updateImpl(
-		com.liferay.portal.model.PasswordPolicy passwordPolicy, boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().updateImpl(passwordPolicy, merge);
-	}
-
-	/**
-	* Returns the password policy with the primary key or throws a {@link com.liferay.portal.NoSuchPasswordPolicyException} if it could not be found.
-	*
-	* @param passwordPolicyId the primary key of the password policy
-	* @return the password policy
-	* @throws com.liferay.portal.NoSuchPasswordPolicyException if a password policy with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PasswordPolicy findByPrimaryKey(
-		long passwordPolicyId)
-		throws com.liferay.portal.NoSuchPasswordPolicyException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().findByPrimaryKey(passwordPolicyId);
-	}
-
-	/**
-	* Returns the password policy with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param passwordPolicyId the primary key of the password policy
-	* @return the password policy, or <code>null</code> if a password policy with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PasswordPolicy fetchByPrimaryKey(
-		long passwordPolicyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByPrimaryKey(passwordPolicyId);
+		ServiceContext serviceContext) throws SystemException {
+		return getPersistence().update(passwordPolicy, serviceContext);
 	}
 
 	/**
@@ -236,6 +156,34 @@ public class PasswordPolicyUtil {
 	}
 
 	/**
+	* Removes the password policy where companyId = &#63; and defaultPolicy = &#63; from the database.
+	*
+	* @param companyId the company ID
+	* @param defaultPolicy the default policy
+	* @return the password policy that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PasswordPolicy removeByC_DP(
+		long companyId, boolean defaultPolicy)
+		throws com.liferay.portal.NoSuchPasswordPolicyException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByC_DP(companyId, defaultPolicy);
+	}
+
+	/**
+	* Returns the number of password policies where companyId = &#63; and defaultPolicy = &#63;.
+	*
+	* @param companyId the company ID
+	* @param defaultPolicy the default policy
+	* @return the number of matching password policies
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByC_DP(long companyId, boolean defaultPolicy)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByC_DP(companyId, defaultPolicy);
+	}
+
+	/**
 	* Returns the password policy where companyId = &#63; and name = &#63; or throws a {@link com.liferay.portal.NoSuchPasswordPolicyException} if it could not be found.
 	*
 	* @param companyId the company ID
@@ -281,6 +229,114 @@ public class PasswordPolicyUtil {
 	}
 
 	/**
+	* Removes the password policy where companyId = &#63; and name = &#63; from the database.
+	*
+	* @param companyId the company ID
+	* @param name the name
+	* @return the password policy that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PasswordPolicy removeByC_N(
+		long companyId, java.lang.String name)
+		throws com.liferay.portal.NoSuchPasswordPolicyException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByC_N(companyId, name);
+	}
+
+	/**
+	* Returns the number of password policies where companyId = &#63; and name = &#63;.
+	*
+	* @param companyId the company ID
+	* @param name the name
+	* @return the number of matching password policies
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByC_N(long companyId, java.lang.String name)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByC_N(companyId, name);
+	}
+
+	/**
+	* Caches the password policy in the entity cache if it is enabled.
+	*
+	* @param passwordPolicy the password policy
+	*/
+	public static void cacheResult(
+		com.liferay.portal.model.PasswordPolicy passwordPolicy) {
+		getPersistence().cacheResult(passwordPolicy);
+	}
+
+	/**
+	* Caches the password policies in the entity cache if it is enabled.
+	*
+	* @param passwordPolicies the password policies
+	*/
+	public static void cacheResult(
+		java.util.List<com.liferay.portal.model.PasswordPolicy> passwordPolicies) {
+		getPersistence().cacheResult(passwordPolicies);
+	}
+
+	/**
+	* Creates a new password policy with the primary key. Does not add the password policy to the database.
+	*
+	* @param passwordPolicyId the primary key for the new password policy
+	* @return the new password policy
+	*/
+	public static com.liferay.portal.model.PasswordPolicy create(
+		long passwordPolicyId) {
+		return getPersistence().create(passwordPolicyId);
+	}
+
+	/**
+	* Removes the password policy with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param passwordPolicyId the primary key of the password policy
+	* @return the password policy that was removed
+	* @throws com.liferay.portal.NoSuchPasswordPolicyException if a password policy with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PasswordPolicy remove(
+		long passwordPolicyId)
+		throws com.liferay.portal.NoSuchPasswordPolicyException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().remove(passwordPolicyId);
+	}
+
+	public static com.liferay.portal.model.PasswordPolicy updateImpl(
+		com.liferay.portal.model.PasswordPolicy passwordPolicy)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().updateImpl(passwordPolicy);
+	}
+
+	/**
+	* Returns the password policy with the primary key or throws a {@link com.liferay.portal.NoSuchPasswordPolicyException} if it could not be found.
+	*
+	* @param passwordPolicyId the primary key of the password policy
+	* @return the password policy
+	* @throws com.liferay.portal.NoSuchPasswordPolicyException if a password policy with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PasswordPolicy findByPrimaryKey(
+		long passwordPolicyId)
+		throws com.liferay.portal.NoSuchPasswordPolicyException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByPrimaryKey(passwordPolicyId);
+	}
+
+	/**
+	* Returns the password policy with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param passwordPolicyId the primary key of the password policy
+	* @return the password policy, or <code>null</code> if a password policy with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PasswordPolicy fetchByPrimaryKey(
+		long passwordPolicyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByPrimaryKey(passwordPolicyId);
+	}
+
+	/**
 	* Returns all the password policies.
 	*
 	* @return the password policies
@@ -295,7 +351,7 @@ public class PasswordPolicyUtil {
 	* Returns a range of all the password policies.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PasswordPolicyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of password policies
@@ -313,7 +369,7 @@ public class PasswordPolicyUtil {
 	* Returns an ordered range of all the password policies.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PasswordPolicyModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of password policies
@@ -330,36 +386,6 @@ public class PasswordPolicyUtil {
 	}
 
 	/**
-	* Removes the password policy where companyId = &#63; and defaultPolicy = &#63; from the database.
-	*
-	* @param companyId the company ID
-	* @param defaultPolicy the default policy
-	* @return the password policy that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PasswordPolicy removeByC_DP(
-		long companyId, boolean defaultPolicy)
-		throws com.liferay.portal.NoSuchPasswordPolicyException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByC_DP(companyId, defaultPolicy);
-	}
-
-	/**
-	* Removes the password policy where companyId = &#63; and name = &#63; from the database.
-	*
-	* @param companyId the company ID
-	* @param name the name
-	* @return the password policy that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PasswordPolicy removeByC_N(
-		long companyId, java.lang.String name)
-		throws com.liferay.portal.NoSuchPasswordPolicyException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByC_N(companyId, name);
-	}
-
-	/**
 	* Removes all the password policies from the database.
 	*
 	* @throws SystemException if a system exception occurred
@@ -367,32 +393,6 @@ public class PasswordPolicyUtil {
 	public static void removeAll()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().removeAll();
-	}
-
-	/**
-	* Returns the number of password policies where companyId = &#63; and defaultPolicy = &#63;.
-	*
-	* @param companyId the company ID
-	* @param defaultPolicy the default policy
-	* @return the number of matching password policies
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByC_DP(long companyId, boolean defaultPolicy)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByC_DP(companyId, defaultPolicy);
-	}
-
-	/**
-	* Returns the number of password policies where companyId = &#63; and name = &#63;.
-	*
-	* @param companyId the company ID
-	* @param name the name
-	* @return the number of matching password policies
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByC_N(long companyId, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByC_N(companyId, name);
 	}
 
 	/**

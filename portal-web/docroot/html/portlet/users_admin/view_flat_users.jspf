@@ -31,8 +31,8 @@ if (!ParamUtil.getBoolean(renderRequest, "advancedSearch")) {
 <liferay-ui:search-container
 	searchContainer="<%= userSearch %>"
 >
-	<aui:input name="deleteUserIds" type="hidden" />
 	<aui:input disabled="<%= true %>" name="usersRedirect" type="hidden" value="<%= currentURLObj.toString() %>" />
+	<aui:input name="deleteUserIds" type="hidden" />
 
 	<%
 	UserSearchTerms searchTerms = (UserSearchTerms)searchContainer.getSearchTerms();
@@ -151,7 +151,7 @@ if (!ParamUtil.getBoolean(renderRequest, "advancedSearch")) {
 	</c:if>
 
 	<%
-	LinkedHashMap userParams = new LinkedHashMap();
+	LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
 	if (userOrganizationId > 0) {
 		userParams.put("usersOrgs", new Long(userOrganizationId));

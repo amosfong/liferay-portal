@@ -68,12 +68,13 @@
 			<finder-column name="name" />
 			<finder-column name="vocabularyId" />
 		</finder>
-		<finder name="G_P_N" return-type="Collection">
-			<finder-column name="groupId" />
+		<finder name="P_N_V" return-type="AssetCategory" unique="true">
 			<finder-column name="parentCategoryId" />
 			<finder-column name="name" />
+			<finder-column name="vocabularyId" />
 		</finder>
-		<finder name="P_N_V" return-type="AssetCategory" unique="true">
+		<finder name="G_P_N_V" return-type="Collection">
+			<finder-column name="groupId" />
 			<finder-column name="parentCategoryId" />
 			<finder-column name="name" />
 			<finder-column name="vocabularyId" />
@@ -180,6 +181,9 @@
 		</finder>
 		<finder name="ExpirationDate" return-type="Collection">
 			<finder-column name="expirationDate" />
+		</finder>
+		<finder name="LayoutUuid" return-type="Collection">
+			<finder-column name="layoutUuid" />
 		</finder>
 		<finder name="G_CU" return-type="AssetEntry">
 			<finder-column name="groupId" />

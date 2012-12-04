@@ -25,7 +25,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Release;
 import com.liferay.portal.model.ReleaseConstants;
@@ -73,7 +72,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			release.setTestString(ReleaseConstants.TEST_STRING);
 		}
 
-		releasePersistence.update(release, false);
+		releasePersistence.update(release);
 
 		return release;
 	}
@@ -165,8 +164,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			testSupportsStringCaseSensitiveQuery();
 
 			Release release = getRelease(
-				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME,
-				ReleaseInfo.getParentBuildNumber());
+				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 
 			return release.getBuildNumber();
 		}
@@ -176,7 +174,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		}
 	}
 
-	public Release getRelease(String servletContextName, int buildNumber)
+	public Release getRelease(String servletContextName)
 		throws PortalException, SystemException {
 
 		if (Validator.isNull(servletContextName)) {
@@ -211,7 +209,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		release.setBuildDate(buildDate);
 		release.setVerified(verified);
 
-		releasePersistence.update(release, false);
+		releasePersistence.update(release);
 
 		return release;
 	}

@@ -821,7 +821,7 @@ public class ExpandoValueLocalServiceImpl
 			row.setTableId(tableId);
 			row.setClassPK(classPK);
 
-			expandoRowPersistence.update(row, false);
+			expandoRowPersistence.update(row);
 		}
 
 		boolean rowModified = false;
@@ -854,7 +854,7 @@ public class ExpandoValueLocalServiceImpl
 
 				value.setData(dataString);
 
-				expandoValuePersistence.update(value, false);
+				expandoValuePersistence.update(value);
 
 				rowModified = true;
 			}
@@ -863,7 +863,7 @@ public class ExpandoValueLocalServiceImpl
 		if (rowModified) {
 			row.setModifiedDate(new Date());
 
-			expandoRowPersistence.update(row, false);
+			expandoRowPersistence.update(row);
 		}
 	}
 
@@ -1018,14 +1018,12 @@ public class ExpandoValueLocalServiceImpl
 			return;
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			table.getTableId(), columnName);
 
-		if (columns.isEmpty()) {
+		if (column == null) {
 			return;
 		}
-
-		ExpandoColumn column = columns.get(0);
 
 		ExpandoValue value = expandoValuePersistence.fetchByT_C_C(
 			table.getTableId(), column.getColumnId(), classPK);
@@ -1092,14 +1090,12 @@ public class ExpandoValueLocalServiceImpl
 			return Collections.emptyList();
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			table.getTableId(), columnName);
 
-		if (columns.isEmpty()) {
+		if (column == null) {
 			return Collections.emptyList();
 		}
-
-		ExpandoColumn column = columns.get(0);
 
 		if (data == null) {
 			return expandoValuePersistence.findByT_C(
@@ -1173,14 +1169,12 @@ public class ExpandoValueLocalServiceImpl
 			return 0;
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			table.getTableId(), columnName);
 
-		if (columns.isEmpty()) {
+		if (column == null) {
 			return 0;
 		}
-
-		ExpandoColumn column = columns.get(0);
 
 		if (data == null) {
 			return expandoValuePersistence.countByT_C(
@@ -1940,14 +1934,12 @@ public class ExpandoValueLocalServiceImpl
 			return null;
 		}
 
-		List<ExpandoColumn> columns = expandoColumnPersistence.findByT_N(
+		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			table.getTableId(), columnName);
 
-		if (columns.isEmpty()) {
+		if (column == null) {
 			return null;
 		}
-
-		ExpandoColumn column = columns.get(0);
 
 		return expandoValuePersistence.fetchByT_C_C(
 			table.getTableId(), column.getColumnId(), classPK);
@@ -2006,7 +1998,7 @@ public class ExpandoValueLocalServiceImpl
 			row.setTableId(tableId);
 			row.setClassPK(classPK);
 
-			expandoRowPersistence.update(row, false);
+			expandoRowPersistence.update(row);
 		}
 
 		ExpandoValue value = expandoValuePersistence.fetchByC_R(
@@ -2028,11 +2020,11 @@ public class ExpandoValueLocalServiceImpl
 		if (value.isNew() || !Validator.equals(value.getData(), data)) {
 			value.setData(data);
 
-			expandoValuePersistence.update(value, false);
+			expandoValuePersistence.update(value);
 
 			row.setModifiedDate(new Date());
 
-			expandoRowPersistence.update(row, false);
+			expandoRowPersistence.update(row);
 		}
 
 		return value;

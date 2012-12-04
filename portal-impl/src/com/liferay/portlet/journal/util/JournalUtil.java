@@ -237,6 +237,8 @@ public class JournalUtil {
 			addPortletBreadcrumbEntries(folder, request, renderResponse);
 		}
 
+		JournalArticle unescapedArticle = article.toUnescapedModel();
+
 		PortletURL portletURL = renderResponse.createRenderURL();
 
 		portletURL.setParameter("struts_action", "/article/view_article");
@@ -246,7 +248,7 @@ public class JournalUtil {
 			"articleId", String.valueOf(article.getArticleId()));
 
 		PortalUtil.addPortletBreadcrumbEntry(
-			request, article.getTitle(), portletURL.toString());
+			request, unescapedArticle.getTitle(), portletURL.toString());
 	}
 
 	public static void addPortletBreadcrumbEntries(
@@ -308,13 +310,16 @@ public class JournalUtil {
 			if (folder.getFolderId() !=
 				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
+				JournalFolder unescapedFolder = folder.toUnescapedModel();
+
 				Map<String, Object> data = new HashMap<String, Object>();
 
 				data.put("direction-right", Boolean.TRUE.toString());
 				data.put("folder-id", folder.getFolderId());
 
 				PortalUtil.addPortletBreadcrumbEntry(
-					request, folder.getName(), portletURL.toString(), data);
+					request, unescapedFolder.getName(), portletURL.toString(),
+					data);
 			}
 		}
 	}
@@ -1441,7 +1446,8 @@ public class JournalUtil {
 				"path-friendly-url-private-group");
 		}
 
-		String layoutSetFriendlyUrl = StringPool.BLANK;
+		String layoutSetFriendlyUrl = themeDisplayElement.elementText(
+			"i18n-path");
 
 		String virtualHostname = layoutSet.getVirtualHostname();
 
@@ -1522,7 +1528,7 @@ public class JournalUtil {
 			friendlyUrlCurrent = themeDisplay.getPathFriendlyURLPrivateGroup();
 		}
 
-		String layoutSetFriendlyUrl = StringPool.BLANK;
+		String layoutSetFriendlyUrl = themeDisplay.getI18nPath();
 
 		String virtualHostname = layoutSet.getVirtualHostname();
 

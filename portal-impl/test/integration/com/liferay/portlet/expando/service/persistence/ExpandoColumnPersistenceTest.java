@@ -22,14 +22,17 @@ import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.expando.NoSuchColumnException;
 import com.liferay.portlet.expando.model.ExpandoColumn;
+import com.liferay.portlet.expando.model.impl.ExpandoColumnModelImpl;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -118,7 +121,7 @@ public class ExpandoColumnPersistenceTest {
 
 		newExpandoColumn.setTypeSettings(ServiceTestUtil.randomString());
 
-		_persistence.update(newExpandoColumn, false);
+		_persistence.update(newExpandoColumn);
 
 		ExpandoColumn existingExpandoColumn = _persistence.findByPrimaryKey(newExpandoColumn.getPrimaryKey());
 
@@ -250,6 +253,25 @@ public class ExpandoColumnPersistenceTest {
 		Assert.assertEquals(0, result.size());
 	}
 
+	@Test
+	public void testResetOriginalValues() throws Exception {
+		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			return;
+		}
+
+		ExpandoColumn newExpandoColumn = addExpandoColumn();
+
+		_persistence.clearCache();
+
+		ExpandoColumnModelImpl existingExpandoColumnModelImpl = (ExpandoColumnModelImpl)_persistence.findByPrimaryKey(newExpandoColumn.getPrimaryKey());
+
+		Assert.assertEquals(existingExpandoColumnModelImpl.getTableId(),
+			existingExpandoColumnModelImpl.getOriginalTableId());
+		Assert.assertTrue(Validator.equals(
+				existingExpandoColumnModelImpl.getName(),
+				existingExpandoColumnModelImpl.getOriginalName()));
+	}
+
 	protected ExpandoColumn addExpandoColumn() throws Exception {
 		long pk = ServiceTestUtil.nextLong();
 
@@ -267,7 +289,7 @@ public class ExpandoColumnPersistenceTest {
 
 		expandoColumn.setTypeSettings(ServiceTestUtil.randomString());
 
-		_persistence.update(expandoColumn, false);
+		_persistence.update(expandoColumn);
 
 		return expandoColumn;
 	}

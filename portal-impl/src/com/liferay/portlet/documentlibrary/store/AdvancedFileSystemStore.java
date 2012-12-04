@@ -85,8 +85,8 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 					FileUtil.stripExtension(fileNameVersion) +
 						StringPool.PERIOD + _HOOK_EXTENSION);
 
-			boolean renamed = fileNameVersionFile.renameTo(
-				newFileNameVersionFile);
+			boolean renamed = FileUtil.move(
+				fileNameVersionFile, newFileNameVersionFile);
 
 			if (!renamed) {
 				throw new SystemException(
@@ -104,7 +104,7 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 			return;
 		}
 
-		for (int i = 0;i < fileNameFragmentLength;i += 2) {
+		for (int i = 0; i < fileNameFragmentLength; i += 2) {
 			if ((i + 2) < fileNameFragmentLength) {
 				sb.append(fileNameFragment.substring(i, i + 2));
 				sb.append(StringPool.SLASH);

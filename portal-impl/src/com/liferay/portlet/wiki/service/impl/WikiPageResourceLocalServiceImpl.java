@@ -37,7 +37,7 @@ public class WikiPageResourceLocalServiceImpl
 		pageResource.setNodeId(nodeId);
 		pageResource.setTitle(title);
 
-		wikiPageResourcePersistence.update(pageResource, false);
+		wikiPageResourcePersistence.update(pageResource);
 
 		return pageResource;
 	}
@@ -46,6 +46,12 @@ public class WikiPageResourceLocalServiceImpl
 		throws PortalException, SystemException {
 
 		wikiPageResourcePersistence.removeByN_T(nodeId, title);
+	}
+
+	public WikiPageResource fetchPageResource(long nodeId, String title)
+		throws SystemException {
+
+		return wikiPageResourcePersistence.fetchByN_T(nodeId, title);
 	}
 
 	public WikiPageResource getPageResource(long pageResourcePrimKey)
@@ -76,7 +82,7 @@ public class WikiPageResourceLocalServiceImpl
 			pageResource.setNodeId(nodeId);
 			pageResource.setTitle(title);
 
-			wikiPageResourcePersistence.update(pageResource, false);
+			wikiPageResourcePersistence.update(pageResource);
 		}
 
 		return pageResource.getResourcePrimKey();

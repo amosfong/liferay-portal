@@ -15,8 +15,8 @@
 package com.liferay.portal.kernel.io;
 
 import com.liferay.portal.kernel.util.CharBufferPool;
-import com.liferay.portal.kernel.util.ClassLoaderObjectInputStream;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
+import com.liferay.portal.kernel.util.ClassResolverUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +26,9 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 /**
+ * Deserializes data in a ClassLoader-aware manner. This class is the
+ * counterpart of {@link Serializer} for deserialization.
+ *
  * @author Shuyang Zhou
  * @see    Serializer
  */
@@ -114,6 +117,15 @@ public class Deserializer {
 			case SerializationConstants.TC_CHARACTER:
 				return (T)Character.valueOf(readChar());
 
+			case SerializationConstants.TC_CLASS:
+				String contextName = readString();
+				String className = readString();
+
+				ClassLoader classLoader = ClassLoaderPool.getClassLoader(
+					contextName);
+
+				return (T)ClassResolverUtil.resolve(className, classLoader);
+
 			case SerializationConstants.TC_DOUBLE:
 				return (T)Double.valueOf(readDouble());
 
@@ -135,16 +147,10 @@ public class Deserializer {
 			case SerializationConstants.TC_STRING:
 				return (T)readString();
 
-			case SerializationConstants.TC_CONTEXT_NAME:
-				String contextName = readString();
-
-				ClassLoader classLoader = ClassLoaderPool.getClassLoader(
-					contextName);
-
+			case SerializationConstants.TC_OBJECT:
 				try {
 					ObjectInputStream objectInpputStream =
-						new ClassLoaderObjectInputStream(
-							new BufferInputStream(), classLoader);
+						new AnnotatedObjectInputStream(new BufferInputStream());
 
 					T t = (T)objectInpputStream.readObject();
 
@@ -207,7 +213,12 @@ public class Deserializer {
 	}
 
 	/**
-	 * This method is final so that JIT can inline it.
+	 * Detects a buffer underflow throwing an {@link
+	 * java.lang.IllegalStateException} if the input data is shorter than the
+	 * reserved space. This method is final so JIT can perform an inline
+	 * expansion.
+	 *
+	 * @param availableBytes number of bytes available in input buffer
 	 */
 	protected final void detectBufferUnderflow(int availableBytes) {
 		if ((index + availableBytes) > limit) {

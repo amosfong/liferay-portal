@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
@@ -73,6 +74,8 @@ public class SourceFormatter {
 				GetterUtil.getString(
 					System.getProperty("source.formatter.excludes")));
 
+			_portalSource = _isPortalSource();
+
 			_sourceFormatterHelper = new SourceFormatterHelper(false);
 
 			_sourceFormatterHelper.init();
@@ -87,6 +90,8 @@ public class SourceFormatter {
 						_formatDDLStructuresXML();
 						_formatFriendlyURLRoutesXML();
 						_formatFTL();
+						_formatJS();
+						_formatPortalProperties();
 						_formatPortletXML();
 						_formatServiceXML();
 						_formatSH();
@@ -240,8 +245,9 @@ public class SourceFormatter {
 
 			if ((includeFileName.endsWith("jsp") ||
 				 includeFileName.endsWith("jspf")) &&
-				!includeFileNames.contains(includeFileName) &&
-				!includeFileName.contains("html/portlet/init.jsp")) {
+				!includeFileName.endsWith("html/portlet/init.jsp") &&
+				!includeFileName.endsWith("html/taglib/init.jsp") &&
+				!includeFileNames.contains(includeFileName)) {
 
 				includeFileNames.add(includeFileName);
 			}
@@ -327,12 +333,6 @@ public class SourceFormatter {
 			if (parameterType.endsWith("...")) {
 				parameterType = StringUtil.replaceLast(
 					parameterType, "...", StringPool.BLANK);
-			}
-
-			int pos = parameterType.lastIndexOf(StringPool.PERIOD);
-
-			if (pos != -1) {
-				parameterType = parameterType.substring(pos + 1);
 			}
 
 			parameterTypes.add(parameterType);
@@ -434,6 +434,54 @@ public class SourceFormatter {
 					}
 
 					level -= 1;
+				}
+			}
+		}
+	}
+
+	private static void _checkLanguageKeys(
+			String fileName, String content, Pattern pattern)
+		throws IOException {
+
+		String fileExtension = _fileUtil.getExtension(fileName);
+
+		if (!_portalSource || fileExtension.equals("vm")) {
+			return;
+		}
+
+		if (_portalLanguageKeysProperties == null) {
+			_portalLanguageKeysProperties = new Properties();
+
+			ClassLoader classLoader = SourceFormatter.class.getClassLoader();
+
+			InputStream inputStream = classLoader.getResourceAsStream(
+				"content/Language.properties");
+
+			_portalLanguageKeysProperties.load(inputStream);
+		}
+
+		Matcher matcher = pattern.matcher(content);
+
+		while (matcher.find()) {
+			String[] languageKeys = _getLanguageKeys(matcher);
+
+			for (String languageKey : languageKeys) {
+				if (Validator.isNumber(languageKey) ||
+					languageKey.endsWith(StringPool.DASH) ||
+					languageKey.endsWith(StringPool.PERIOD) ||
+					languageKey.endsWith(StringPool.UNDERLINE) ||
+					languageKey.startsWith(StringPool.DASH) ||
+					languageKey.startsWith(StringPool.PERIOD) ||
+					languageKey.startsWith(StringPool.UNDERLINE)) {
+
+					continue;
+				}
+
+				if (!_portalLanguageKeysProperties.containsKey(languageKey)) {
+					_sourceFormatterHelper.printError(
+						fileName,
+						"missing language key: " + languageKey +
+							StringPool.SPACE + fileName);
 				}
 			}
 		}
@@ -786,6 +834,80 @@ public class SourceFormatter {
 		return content;
 	}
 
+	private static String _fixSessionKey(
+		String fileName, String content, Pattern pattern) {
+
+		Matcher matcher = pattern.matcher(content);
+
+		if (!matcher.find()) {
+			return content;
+		}
+
+		String newContent = content;
+
+		do {
+			String match = matcher.group();
+
+			int x = -1;
+
+			if (pattern.equals(_sessionKeyPattern)) {
+				x = match.indexOf(StringPool.COMMA);
+			}
+			else if (pattern.equals(_taglibSessionKeyPattern)) {
+				x = match.indexOf("key=");
+			}
+
+			String substring = match.substring(x + 1).trim();
+
+			String quote = StringPool.BLANK;
+
+			if (substring.startsWith(StringPool.APOSTROPHE)) {
+				quote = StringPool.APOSTROPHE;
+			}
+			else if (substring.startsWith(StringPool.QUOTE)) {
+				quote = StringPool.QUOTE;
+			}
+			else {
+				continue;
+			}
+
+			int y = match.indexOf(quote, x + 1);
+			int z = match.indexOf(quote, y + 1);
+
+			if ((x == -1) || (y == -1) || (z == -1)) {
+				continue;
+			}
+
+			String prefix = match.substring(0, y + 1);
+			String suffix = match.substring(z);
+			String oldKey = match.substring(y + 1, z);
+
+			for (char c : oldKey.toCharArray()) {
+				if (!Validator.isChar(c) || !Validator.isDigit(c) ||
+					(c != CharPool.DASH) || (c != CharPool.UNDERLINE)) {
+
+					continue;
+				}
+			}
+
+			String newKey = TextFormatter.format(oldKey, TextFormatter.O);
+
+			newKey = TextFormatter.format(newKey, TextFormatter.M);
+
+			if (newKey.equals(oldKey)) {
+				continue;
+			}
+
+			String oldSub = prefix.concat(oldKey).concat(suffix);
+			String newSub = prefix.concat(newKey).concat(suffix);
+
+			newContent = StringUtil.replaceFirst(newContent, oldSub, newSub);
+		}
+		while (matcher.find());
+
+		return newContent;
+	}
+
 	private static void _formatAntXML() throws DocumentException, IOException {
 		String basedir = "./";
 
@@ -946,7 +1068,7 @@ public class SourceFormatter {
 	}
 
 	private static String _formatFriendlyURLRoutesXML(String content)
-	 	throws DocumentException {
+		throws DocumentException {
 
 		Document document = _saxReaderUtil.read(content);
 
@@ -1080,8 +1202,7 @@ public class SourceFormatter {
 			new String[] {
 				"**\\journal\\dependencies\\template.ftl",
 				"**\\servicebuilder\\dependencies\\props.ftl"
-			}
-		);
+			});
 
 		List<String> fileNames = _sourceFormatterHelper.scanForFiles(
 			directoryScanner);
@@ -1158,8 +1279,6 @@ public class SourceFormatter {
 	}
 
 	private static void _formatJava() throws IOException {
-		String basedir = "./";
-
 		String copyright = _getCopyright();
 		String oldCopyright = _getOldCopyright();
 
@@ -1167,14 +1286,12 @@ public class SourceFormatter {
 
 		Collection<String> fileNames = null;
 
-		if (_fileUtil.exists(basedir + "portal-impl")) {
+		if (_portalSource) {
 			fileNames = _getPortalJavaFiles();
 
-			_javaTermAlphabetizeExclusionsProperties =
-				_getPortalExclusionsProperties(
-					"source_formatter_javaterm_alphabetize_exclusions." +
-						"properties");
-			_lineLengthExclusionsProperties = _getPortalExclusionsProperties(
+			_javaTermSortExclusions = _getPortalExclusionsProperties(
+				"source_formatter_javaterm_sort_exclusions.properties");
+			_lineLengthExclusions = _getPortalExclusionsProperties(
 				"source_formatter_line_length_exclusions.properties");
 		}
 		else {
@@ -1182,11 +1299,9 @@ public class SourceFormatter {
 
 			fileNames = _getPluginJavaFiles();
 
-			_javaTermAlphabetizeExclusionsProperties =
-				_getPluginExclusionsProperties(
-					"source_formatter_javaterm_alphabetize_exclusions." +
-						"properties");
-			_lineLengthExclusionsProperties = _getPluginExclusionsProperties(
+			_javaTermSortExclusions = _getPluginExclusionsProperties(
+				"source_formatter_javaterm_sort_exclusions.properties");
+			_lineLengthExclusions = _getPluginExclusionsProperties(
 				"source_formatter_line_length_exclusions.properties");
 		}
 
@@ -1270,6 +1385,8 @@ public class SourceFormatter {
 			}
 
 			newContent = _fixDataAccessConnection(className, newContent);
+			newContent = _fixSessionKey(
+				fileName, newContent, _sessionKeyPattern);
 
 			newContent = StringUtil.replace(
 				newContent,
@@ -1354,6 +1471,8 @@ public class SourceFormatter {
 						fileName, "Use getInt(1) for count: " + fileName);
 				}
 			}
+
+			_checkLanguageKeys(fileName, newContent, _languageKeyPattern);
 
 			String oldContent = newContent;
 
@@ -1484,17 +1603,8 @@ public class SourceFormatter {
 
 			String excluded = null;
 
-			if (_javaTermAlphabetizeExclusionsProperties != null) {
-				excluded = _javaTermAlphabetizeExclusionsProperties.getProperty(
-					StringUtil.replace(
-						fileName, "\\", "/") + StringPool.AT + lineCount);
-
-				if (excluded == null) {
-					excluded =
-						_javaTermAlphabetizeExclusionsProperties.getProperty(
-							StringUtil.replace(fileName, "\\", "/"));
-				}
-			}
+			String fileNameWithForwardSlashes = StringUtil.replace(
+				fileName, "\\", "/");
 
 			if (line.startsWith(StringPool.TAB + "private ") ||
 				line.startsWith(StringPool.TAB + "protected ") ||
@@ -1517,6 +1627,23 @@ public class SourceFormatter {
 
 						if (isConstructorOrMethod) {
 							readParameterTypes = true;
+						}
+
+						if (_javaTermSortExclusions != null) {
+							excluded = _javaTermSortExclusions.getProperty(
+								fileNameWithForwardSlashes + StringPool.AT +
+									lineCount);
+
+							if (excluded == null) {
+								excluded = _javaTermSortExclusions.getProperty(
+									fileNameWithForwardSlashes + StringPool.AT +
+										javaTermName);
+							}
+
+							if (excluded == null) {
+								excluded = _javaTermSortExclusions.getProperty(
+									fileNameWithForwardSlashes);
+							}
 						}
 
 						if (excluded == null) {
@@ -1633,17 +1760,27 @@ public class SourceFormatter {
 					}
 
 					for (int x = -1;;) {
-						x = line.indexOf(StringPool.COMMA, x + 1);
+						int posComma = line.indexOf(StringPool.COMMA, x + 1);
+						int posSemicolon = line.indexOf(
+							StringPool.SEMICOLON, x + 1);
+
+						if ((posComma == -1) && (posSemicolon == -1)) {
+							break;
+						}
+
+						x = Math.min(posComma, posSemicolon);
 
 						if (x == -1) {
-							break;
+							x = Math.max(posComma, posSemicolon);
 						}
 
 						if (line.length() > (x + 1)) {
 							char nextChar = line.charAt(x + 1);
 
-							if ((nextChar != CharPool.SPACE) &&
-								(nextChar != CharPool.APOSTROPHE)) {
+							if ((nextChar != CharPool.APOSTROPHE) &&
+								(nextChar != CharPool.CLOSE_PARENTHESIS) &&
+								(nextChar != CharPool.SPACE) &&
+								(nextChar != CharPool.STAR)) {
 
 								line = StringUtil.insert(
 									line, StringPool.SPACE, x + 1);
@@ -1709,14 +1846,13 @@ public class SourceFormatter {
 
 			excluded = null;
 
-			if (_lineLengthExclusionsProperties != null) {
-				excluded = _lineLengthExclusionsProperties.getProperty(
-					StringUtil.replace(
-						fileName, "\\", "/") + StringPool.AT + lineCount);
+			if (_lineLengthExclusions != null) {
+				excluded = _lineLengthExclusions.getProperty(
+					fileNameWithForwardSlashes + StringPool.AT + lineCount);
 
 				if (excluded == null) {
-					excluded = _lineLengthExclusionsProperties.getProperty(
-						StringUtil.replace(fileName, "\\", "/"));
+					excluded = _lineLengthExclusions.getProperty(
+						fileNameWithForwardSlashes);
 				}
 			}
 
@@ -1758,7 +1894,8 @@ public class SourceFormatter {
 								"line break: " + fileName + " " + lineCount);
 						}
 
-						if (((previousLine.endsWith(StringPool.COLON) &&
+						if (Validator.isNotNull(trimmedLine) &&
+							((previousLine.endsWith(StringPool.COLON) &&
 							  previousLine.contains(StringPool.TAB + "for ")) ||
 							 (previousLine.endsWith(
 								 StringPool.OPEN_PARENTHESIS) &&
@@ -1897,13 +2034,89 @@ public class SourceFormatter {
 		return newContent;
 	}
 
+	private static void _formatJS() throws IOException {
+		String basedir = "./";
+
+		DirectoryScanner directoryScanner = new DirectoryScanner();
+
+		directoryScanner.setBasedir(basedir);
+
+		String[] excludes = {
+			"**\\js\\aui\\**", "**\\js\\editor\\**", "**\\js\\misc\\**",
+			"**\\tools\\**", "**\\VAADIN\\**"
+		};
+
+		excludes = ArrayUtil.append(excludes, _excludes);
+
+		directoryScanner.setExcludes(excludes);
+
+		directoryScanner.setIncludes(new String[] {"**\\*.js"});
+
+		List<String> fileNames = _sourceFormatterHelper.scanForFiles(
+			directoryScanner);
+
+		for (String fileName : fileNames) {
+			File file = new File(basedir + fileName);
+
+			String content = _fileUtil.read(file);
+
+			String newContent = _trimContent(content);
+
+			newContent = StringUtil.replace(
+				newContent,
+				new String[] {
+					"else{", "for(", "function (", "if(", "while(", "){\n",
+					"= new Array();", "= new Object();"
+				},
+				new String[] {
+					"else {", "for (", "function(", "if (", "while (", ") {\n",
+					"= [];", "= {};"
+				});
+
+			Pattern pattern = Pattern.compile("\t+var \\w+\\, ");
+
+			for (;;) {
+				Matcher matcher = pattern.matcher(newContent);
+
+				if (!matcher.find()) {
+					break;
+				}
+
+				String match = newContent.substring(
+					matcher.start(), matcher.end());
+
+				int pos = match.indexOf("var ");
+
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(match.substring(0, match.length() - 2));
+				sb.append(StringPool.SEMICOLON);
+				sb.append("\n");
+				sb.append(match.substring(0, pos + 4));
+
+				newContent = StringUtil.replace(
+					newContent, match, sb.toString());
+			}
+
+			if (newContent.endsWith("\n")) {
+				newContent = newContent.substring(0, newContent.length() - 1);
+			}
+
+			_checkLanguageKeys(fileName, newContent, _languageKeyPattern);
+
+			if ((newContent != null) && !content.equals(newContent)) {
+				_fileUtil.write(file, newContent);
+
+				_sourceFormatterHelper.printError(fileName, file);
+			}
+		}
+	}
+
 	private static void _formatJSP() throws IOException {
 		String basedir = "./";
 
 		String copyright = _getCopyright();
 		String oldCopyright = _getOldCopyright();
-
-		List<String> list = new ArrayList<String>();
 
 		DirectoryScanner directoryScanner = new DirectoryScanner();
 
@@ -1921,9 +2134,8 @@ public class SourceFormatter {
 		directoryScanner.setIncludes(
 			new String[] {"**\\*.jsp", "**\\*.jspf", "**\\*.vm"});
 
-		list.addAll(_sourceFormatterHelper.scanForFiles(directoryScanner));
-
-		String[] fileNames = list.toArray(new String[list.size()]);
+		List<String> fileNames = _sourceFormatterHelper.scanForFiles(
+			directoryScanner);
 
 		for (String fileName : fileNames) {
 			File file = new File(basedir + fileName);
@@ -2066,6 +2278,13 @@ public class SourceFormatter {
 				}
 			}
 
+			newContent = _fixSessionKey(
+				fileName, newContent, _sessionKeyPattern);
+			newContent = _fixSessionKey(
+				fileName, newContent, _taglibSessionKeyPattern);
+
+			_checkLanguageKeys(fileName, newContent, _languageKeyPattern);
+			_checkLanguageKeys(fileName, newContent, _taglibLanguageKeyPattern);
 			_checkXSS(fileName, newContent);
 
 			if ((newContent != null) && !content.equals(newContent)) {
@@ -2344,12 +2563,101 @@ public class SourceFormatter {
 		return content;
 	}
 
+	private static void _formatPortalProperties() throws IOException {
+		String basedir = "./";
+
+		String portalPortalProperties = null;
+
+		if (_portalSource) {
+			File portalPortalPropertiesFile = new File(
+				basedir + "portal-impl/src/portal.properties");
+
+			portalPortalProperties = _fileUtil.read(portalPortalPropertiesFile);
+		}
+		else {
+			portalPortalProperties = ContentUtil.get("portal.properties");
+		}
+
+		DirectoryScanner directoryScanner = new DirectoryScanner();
+
+		directoryScanner.setBasedir(basedir);
+
+		if (_portalSource) {
+			directoryScanner.setExcludes(
+				new String[] {"**\\classes\\**", "**\\bin\\**"});
+			directoryScanner.setIncludes(
+				new String[] {
+					"**\\portal-ext.properties",
+					"**\\portal-legacy-*.properties",
+				});
+		}
+		else {
+			directoryScanner.setIncludes(
+				new String[] {
+					"**\\portal.properties", "**\\portal-ext.properties"
+				});
+		}
+
+		List<String> fileNames = _sourceFormatterHelper.scanForFiles(
+			directoryScanner);
+
+		for (String fileName : fileNames) {
+			File file = new File(basedir + fileName);
+
+			String content = _fileUtil.read(file);
+
+			_formatPortalProperties(fileName, content, portalPortalProperties);
+		}
+	}
+
+	private static void _formatPortalProperties(
+			String fileName, String content, String portalPortalProperties)
+		throws IOException {
+
+		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
+			new UnsyncStringReader(content));
+
+		int lineCount = 0;
+
+		String line = null;
+
+		int previousPos = -1;
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			lineCount++;
+
+			int pos = line.indexOf(StringPool.EQUAL);
+
+			if (pos == -1) {
+				continue;
+			}
+
+			String property = line.substring(0, pos + 1);
+
+			property = property.trim();
+
+			pos = portalPortalProperties.indexOf(
+				StringPool.FOUR_SPACES + property);
+
+			if (pos == -1) {
+				continue;
+			}
+
+			if (pos < previousPos) {
+				_sourceFormatterHelper.printError(
+					fileName, "sort " + fileName + " " + lineCount);
+			}
+
+			previousPos = pos;
+		}
+	}
+
 	private static void _formatPortletXML()
 		throws DocumentException, IOException {
 
 		String basedir = "./";
 
-		if (_fileUtil.exists(basedir + "portal-impl")) {
+		if (_portalSource) {
 			File file = new File(
 				basedir + "portal-web/docroot/WEB-INF/portlet-custom.xml");
 
@@ -2623,11 +2931,11 @@ public class SourceFormatter {
 	}
 
 	private static void _formatStrutsConfigXML()
-		throws IOException, DocumentException {
+		throws DocumentException, IOException {
 
 		String basedir = "./";
 
-		if (!_fileUtil.exists(basedir + "portal-impl")) {
+		if (!_portalSource) {
 			return;
 		}
 
@@ -2733,11 +3041,11 @@ public class SourceFormatter {
 	}
 
 	private static void _formatTilesDefsXML()
-		throws IOException, DocumentException {
+		throws DocumentException, IOException {
 
 		String basedir = "./";
 
-		if (!_fileUtil.exists(basedir + "portal-impl")) {
+		if (!_portalSource) {
 			return;
 		}
 
@@ -2782,7 +3090,7 @@ public class SourceFormatter {
 	private static void _formatWebXML() throws IOException {
 		String basedir = "./";
 
-		if (_fileUtil.exists(basedir + "portal-impl")) {
+		if (_portalSource) {
 			Properties properties = new Properties();
 
 			String propertiesContent = _fileUtil.read(
@@ -3160,9 +3468,7 @@ public class SourceFormatter {
 		return copyright;
 	}
 
-	private static String _getCustomCopyright(File file)
-		throws IOException {
-
+	private static String _getCustomCopyright(File file) throws IOException {
 		String absolutePath = _fileUtil.getAbsolutePath(file);
 
 		for (int x = absolutePath.length();;) {
@@ -3378,6 +3684,67 @@ public class SourceFormatter {
 		}
 
 		return duplicateImports;
+	}
+
+	private static String[] _getLanguageKeys(Matcher matcher) {
+		if (matcher.groupCount() > 0) {
+			String languageKey = matcher.group(1);
+
+			if (Validator.isNotNull(languageKey)) {
+				return new String[] {languageKey};
+			}
+		}
+
+		StringBundler sb = new StringBundler();
+
+		String match = matcher.group();
+
+		int count = 0;
+
+		for (int i = 0; i < match.length(); i++) {
+			char c = match.charAt(i);
+
+			switch (c) {
+				case CharPool.CLOSE_PARENTHESIS:
+					if (count <= 1) {
+						return new String[0];
+					}
+
+					count--;
+
+					break;
+
+				case CharPool.OPEN_PARENTHESIS:
+					count++;
+
+					break;
+
+				case CharPool.QUOTE:
+					if (count > 1) {
+						break;
+					}
+
+					while (i < match.length()) {
+						i++;
+
+						if (match.charAt(i) == CharPool.QUOTE) {
+							String languageKey = sb.toString();
+
+							if (match.startsWith("names")) {
+								return StringUtil.split(languageKey);
+							}
+							else {
+								return new String[] {languageKey};
+							}
+
+						}
+
+						sb.append(match.charAt(i));
+					}
+			}
+		}
+
+		return new String[0];
 	}
 
 	private static int _getLineLength(String line) {
@@ -3787,6 +4154,17 @@ public class SourceFormatter {
 		return false;
 	}
 
+	private static boolean _isPortalSource() {
+		String basedir = "./";
+
+		if (_fileUtil.exists(basedir + "portal-impl")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	private static boolean _isValidJavaParameter(String javaParameter) {
 		int quoteCount = StringUtil.count(javaParameter, StringPool.QUOTE);
 
@@ -4080,6 +4458,22 @@ public class SourceFormatter {
 		return content;
 	}
 
+	private static String _stripQuotes(String s) {
+		String[] parts = StringUtil.split(s, CharPool.QUOTE);
+
+		int i = 1;
+
+		while (i < parts.length) {
+			s = StringUtil.replaceFirst(
+				s, StringPool.QUOTE + parts[i] + StringPool.QUOTE,
+				StringPool.BLANK);
+
+			i = i + 2;
+		}
+
+		return s;
+	}
+
 	private static String _stripRedundantParentheses(String s) {
 		for (int x = 0;;) {
 			x = s.indexOf(StringPool.OPEN_PARENTHESIS, x + 1);
@@ -4100,22 +4494,6 @@ public class SourceFormatter {
 				s = s.substring(0, x) + s.substring(y + 1);
 			}
 		}
-	}
-
-	private static String _stripQuotes(String s) {
-		String[] parts = StringUtil.split(s, CharPool.QUOTE);
-
-		int i = 1;
-
-		while (i < parts.length) {
-			s = StringUtil.replaceFirst(
-				s, StringPool.QUOTE + parts[i] + StringPool.QUOTE,
-				StringPool.BLANK);
-
-			i = i + 2;
-		}
-
-		return s;
 	}
 
 	private static Properties _stripTopLevelDirectories(
@@ -4298,7 +4676,7 @@ public class SourceFormatter {
 	private static FileImpl _fileUtil = FileImpl.getInstance();
 	private static Pattern _javaImportPattern = Pattern.compile(
 		"(^[ \t]*import\\s+.*;\n+)+", Pattern.MULTILINE);
-	private static Properties _javaTermAlphabetizeExclusionsProperties;
+	private static Properties _javaTermSortExclusions;
 	private static Pattern _jspAttributeNamePattern = Pattern.compile(
 		"[a-z]+[-_a-zA-Z0-9]*");
 	private static Map<String, String> _jspContents =
@@ -4307,9 +4685,23 @@ public class SourceFormatter {
 		"(<.*\n*page.import=\".*>\n*)+", Pattern.MULTILINE);
 	private static Pattern _jspIncludeFilePattern = Pattern.compile(
 		"/.*[.]jsp[f]?");
-	private static Properties _lineLengthExclusionsProperties;
+	private static Pattern _languageKeyPattern = Pattern.compile(
+		"LanguageUtil.(?:get|format)\\([^;%]+|Liferay.Language.get\\('([^']+)");
+	private static Properties _lineLengthExclusions;
+	private static Properties _portalLanguageKeysProperties;
+	private static boolean _portalSource;
 	private static SAXReaderImpl _saxReaderUtil = SAXReaderImpl.getInstance();
+	private static Pattern _sessionKeyPattern = Pattern.compile(
+		"SessionErrors.(?:add|contains|get)\\([^;%&|!]+|".concat(
+			"SessionMessages.(?:add|contains|get)\\([^;%&|!]+"),
+		Pattern.MULTILINE);
 	private static SourceFormatterHelper _sourceFormatterHelper;
+	private static Pattern _taglibLanguageKeyPattern = Pattern.compile(
+		"(?:confirmation|label|(?:M|m)essage|message key|names|title)=\"[^A-Z" +
+			"<=%\\[\\s]+\"");
+	private static Pattern _taglibSessionKeyPattern = Pattern.compile(
+		"<liferay-ui:error [^>]+>|<liferay-ui:success [^>]+>",
+		Pattern.MULTILINE);
 	private static Pattern _xssPattern = Pattern.compile(
 		"String\\s+([^\\s]+)\\s*=\\s*(Bean)?ParamUtil\\.getString\\(");
 

@@ -480,7 +480,7 @@ public class EditServerAction extends PortletAction {
 			unsyncPrintWriter.flush();
 
 			SessionMessages.add(
-				actionRequest, "script_output",
+				actionRequest, "scriptOutput",
 				unsyncByteArrayOutputStream.toString());
 		}
 		catch (ScriptingException se) {
@@ -862,8 +862,8 @@ public class EditServerAction extends PortletAction {
 	private static Log _log = LogFactoryUtil.getLog(EditServerAction.class);
 
 	private static MethodKey _loadIndexesFromClusterMethodKey = new MethodKey(
-		LuceneClusterUtil.class.getName(), "loadIndexesFromCluster",
-		long[].class, Address.class);
+		LuceneClusterUtil.class, "loadIndexesFromCluster", long[].class,
+		Address.class);
 
 	private static class ClusterLoadingSyncJob implements Runnable {
 

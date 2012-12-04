@@ -58,11 +58,16 @@ public interface Group extends GroupModel, PersistedModel {
 
 	public com.liferay.portal.model.Group getLiveGroup();
 
+	public java.lang.String getLiveParentTypeSettingsProperty(
+		java.lang.String key);
+
 	public long getOrganizationId();
 
 	public com.liferay.portal.model.Group getParentGroup()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
+
+	public com.liferay.portal.kernel.util.UnicodeProperties getParentLiveGroupTypeSettingsProperties();
 
 	public java.lang.String getPathFriendlyURL(boolean privateLayout,
 		com.liferay.portal.theme.ThemeDisplay themeDisplay);
@@ -101,6 +106,8 @@ public interface Group extends GroupModel, PersistedModel {
 	public boolean isControlPanel();
 
 	public boolean isGuest();
+
+	public boolean isInStagingPortlet(java.lang.String portletId);
 
 	public boolean isLayout();
 

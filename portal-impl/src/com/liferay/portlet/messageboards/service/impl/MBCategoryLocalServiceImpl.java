@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.messageboards.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.Indexer;
@@ -79,7 +80,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		category.setDescription(description);
 		category.setDisplayStyle(displayStyle);
 
-		mbCategoryPersistence.update(category, false);
+		mbCategoryPersistence.update(category);
 
 		// Resources
 
@@ -347,6 +348,32 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		return mbCategoryFinder.countByS_G_U_P(groupId, userId, null);
 	}
 
+	public MBCategory moveCategory(
+			long categoryId, long parentCategoryId,
+			boolean mergeWithParentCategory)
+		throws PortalException, SystemException {
+
+		MBCategory category = mbCategoryPersistence.findByPrimaryKey(
+			categoryId);
+
+		parentCategoryId = getParentCategoryId(category, parentCategoryId);
+
+		if (mergeWithParentCategory &&
+			(categoryId != parentCategoryId) &&
+			(parentCategoryId !=
+				MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) &&
+			(parentCategoryId != MBCategoryConstants.DISCUSSION_CATEGORY_ID)) {
+
+			mergeCategories(category, parentCategoryId);
+
+			return category;
+		}
+
+		category.setParentCategoryId(parentCategoryId);
+
+		return mbCategoryPersistence.update(category);
+	}
+
 	public void subscribeCategory(long userId, long groupId, long categoryId)
 		throws PortalException, SystemException {
 
@@ -413,9 +440,14 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		category.setParentCategoryId(parentCategoryId);
 		category.setName(name);
 		category.setDescription(description);
-		category.setDisplayStyle(displayStyle);
 
-		mbCategoryPersistence.update(category, false);
+		if (!displayStyle.equals(category.getDisplayStyle())) {
+			category.setDisplayStyle(displayStyle);
+
+			updateChildCategoriesDisplayStyle(category, displayStyle);
+		}
+
+		mbCategoryPersistence.update(category);
 
 		// Mailing list
 
@@ -533,7 +565,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 			thread.setCategoryId(toCategoryId);
 
-			mbThreadPersistence.update(thread, false);
+			mbThreadPersistence.update(thread);
 
 			List<MBMessage> messages = mbMessagePersistence.findByThreadId(
 				thread.getThreadId());
@@ -544,7 +576,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 				message.setCategoryId(toCategoryId);
 
-				mbMessagePersistence.update(message, false);
+				mbMessagePersistence.update(message);
 
 				// Indexer
 
@@ -563,9 +595,26 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		toCategory.setMessageCount(
 			fromCategory.getMessageCount() + toCategory.getMessageCount());
 
-		mbCategoryPersistence.update(toCategory, false);
+		mbCategoryPersistence.update(toCategory);
 
 		deleteCategory(fromCategory);
+	}
+
+	protected void updateChildCategoriesDisplayStyle(
+			MBCategory category, String displayStyle)
+		throws PortalException, SystemException {
+
+		List<MBCategory> categories = getCategories(
+			category.getGroupId(), category.getCategoryId(), QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS);
+
+		for (MBCategory curCategory : categories) {
+			updateChildCategoriesDisplayStyle(curCategory, displayStyle);
+
+			curCategory.setDisplayStyle(displayStyle);
+
+			mbCategoryPersistence.update(curCategory);
+		}
 	}
 
 	protected void validate(String name) throws PortalException {

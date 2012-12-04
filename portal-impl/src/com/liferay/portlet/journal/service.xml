@@ -76,6 +76,9 @@
 		<finder name="TemplateId" return-type="Collection">
 			<finder-column name="templateId" />
 		</finder>
+		<finder name="LayoutUuid" return-type="Collection">
+			<finder-column name="layoutUuid" />
+		</finder>
 		<finder name="SmallImageId" return-type="Collection">
 			<finder-column name="smallImageId" />
 		</finder>
@@ -147,6 +150,11 @@
 			<finder-column name="groupId" />
 			<finder-column name="classNameId" />
 			<finder-column name="layoutUuid" />
+		</finder>
+		<finder name="G_U_C" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="userId" />
+			<finder-column name="classNameId" />
 		</finder>
 		<finder name="G_A_V" return-type="JournalArticle" unique="true">
 			<finder-column name="groupId" />
@@ -352,7 +360,7 @@
 		<column name="targetLayoutFriendlyUrl" type="String" />
 		<column name="targetPortletId" type="String" />
 		<column name="contentField" type="String" />
-		<column name="feedType" type="String" />
+		<column name="feedFormat" type="String" />
 		<column name="feedVersion" type="double" />
 
 		<!-- Order -->

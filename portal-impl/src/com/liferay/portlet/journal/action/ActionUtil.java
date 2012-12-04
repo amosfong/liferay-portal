@@ -30,11 +30,13 @@ import com.liferay.portlet.journal.NoSuchArticleException;
 import com.liferay.portlet.journal.NoSuchFolderException;
 import com.liferay.portlet.journal.NoSuchStructureException;
 import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.model.JournalArticleConstants;
 import com.liferay.portlet.journal.model.JournalFeed;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.model.JournalFolderConstants;
 import com.liferay.portlet.journal.model.JournalStructure;
 import com.liferay.portlet.journal.model.JournalTemplate;
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalArticleServiceUtil;
 import com.liferay.portlet.journal.service.JournalFeedServiceUtil;
 import com.liferay.portlet.journal.service.JournalFolderServiceUtil;
@@ -166,7 +168,9 @@ public class ActionUtil {
 			article = JournalArticleServiceUtil.getLatestArticle(
 				groupId, articleId, WorkflowConstants.STATUS_ANY);
 		}
-		else if ((classNameId > 0) && (classPK > 0)) {
+		else if ((classNameId > 0) &&
+				 (classPK > JournalArticleConstants.CLASSNAME_ID_DEFAULT)) {
+
 			String className = PortalUtil.getClassName(classNameId);
 
 			article = JournalArticleServiceUtil.getLatestArticle(
@@ -199,7 +203,8 @@ public class ActionUtil {
 			article.setNew(true);
 
 			article.setId(0);
-			article.setClassNameId(0);
+			article.setClassNameId(
+				JournalArticleConstants.CLASSNAME_ID_DEFAULT);
 			article.setClassPK(0);
 			article.setArticleId(null);
 			article.setVersion(0);
@@ -395,6 +400,25 @@ public class ActionUtil {
 			WebKeys.JOURNAL_TEMPLATE);
 
 		JournalUtil.addRecentTemplate(portletRequest, template);
+	}
+
+	protected static boolean hasArticle(ActionRequest actionRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		String articleId = ParamUtil.getString(actionRequest, "articleId");
+
+		try {
+			JournalArticleLocalServiceUtil.getArticle(
+				themeDisplay.getScopeGroupId(), articleId);
+		}
+		catch (NoSuchArticleException nsae) {
+			return false;
+		}
+
+		return true;
 	}
 
 }

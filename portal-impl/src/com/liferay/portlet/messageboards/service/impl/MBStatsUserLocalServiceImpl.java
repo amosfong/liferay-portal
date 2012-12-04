@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -55,7 +55,7 @@ public class MBStatsUserLocalServiceImpl
 		statsUser.setUserId(userId);
 
 		try {
-			mbStatsUserPersistence.update(statsUser, false);
+			mbStatsUserPersistence.update(statsUser);
 		}
 		catch (SystemException se) {
 			if (_log.isWarnEnabled()) {
@@ -121,9 +121,11 @@ public class MBStatsUserLocalServiceImpl
 
 		Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
 
+		QueryDefinition queryDefinition = new QueryDefinition(
+			WorkflowConstants.STATUS_IN_TRASH);
+
 		List<MBThread> threads = mbThreadLocalService.getGroupThreads(
-			groupId, WorkflowConstants.STATUS_IN_TRASH, QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS);
+			groupId, queryDefinition);
 
 		for (MBThread thread : threads) {
 			disjunction.add(property.ne(thread.getThreadId()));
@@ -242,9 +244,11 @@ public class MBStatsUserLocalServiceImpl
 		int messageCount = mbMessagePersistence.countByG_U_S(
 			groupId, userId, WorkflowConstants.STATUS_APPROVED);
 
+		QueryDefinition queryDefinition = new QueryDefinition(
+			WorkflowConstants.STATUS_IN_TRASH);
+
 		List<MBThread> threads = mbThreadLocalService.getGroupThreads(
-			groupId, WorkflowConstants.STATUS_IN_TRASH, QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS);
+			groupId, queryDefinition);
 
 		for (MBThread thread : threads) {
 			messageCount = messageCount - thread.getMessageCount();
@@ -265,7 +269,7 @@ public class MBStatsUserLocalServiceImpl
 			statsUser.setLastPostDate(lastPostDate);
 		}
 
-		mbStatsUserPersistence.update(statsUser, false);
+		mbStatsUserPersistence.update(statsUser);
 
 		return statsUser;
 	}

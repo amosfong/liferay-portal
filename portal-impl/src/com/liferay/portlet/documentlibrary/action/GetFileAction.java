@@ -27,7 +27,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.struts.ActionConstants;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -46,6 +45,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -199,6 +200,19 @@ public class GetFileAction extends PortletAction {
 					DLFileEntryLocalServiceUtil.fetchFileEntryByName(
 						groupId, folderId, name);
 
+				if (dlFileEntry == null) {
+
+					// LPS-30374
+
+					List<DLFileEntry> dlFileEntries =
+						DLFileEntryLocalServiceUtil.getFileEntries(
+							folderId, name);
+
+					if (!dlFileEntries.isEmpty()) {
+						dlFileEntry = dlFileEntries.get(0);
+					}
+				}
+
 				if (dlFileEntry != null) {
 					fileEntry = new LiferayFileEntry(dlFileEntry);
 				}
@@ -271,15 +285,7 @@ public class GetFileAction extends PortletAction {
 		PermissionChecker permissionChecker =
 			themeDisplay.getPermissionChecker();
 
-		long userId = permissionChecker.getUserId();
-
-		User user = null;
-
-		try {
-			user = UserLocalServiceUtil.getUser(userId);
-		}
-		catch (Exception e) {
-		}
+		User user = permissionChecker.getUser();
 
 		if ((user != null) && !user.isDefaultUser()) {
 			PortalUtil.sendError(

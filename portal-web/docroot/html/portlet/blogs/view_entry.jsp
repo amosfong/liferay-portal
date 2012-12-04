@@ -24,19 +24,19 @@ String redirect = ParamUtil.getString(request, "redirect");
 String portletId = portletDisplay.getId();
 
 if (Validator.isNull(redirect) || (strutsAction.equals("/blogs/view_entry") && !portletId.equals(PortletKeys.BLOGS))) {
-	PortletURL viewURL = renderResponse.createRenderURL();
+	PortletURL portletURL = renderResponse.createRenderURL();
 
 	if (portletId.equals(PortletKeys.BLOGS_ADMIN)) {
-		viewURL.setParameter("struts_action", "/blogs_admin/view");
+		portletURL.setParameter("struts_action", "/blogs_admin/view");
 	}
 	else if (portletId.equals(PortletKeys.BLOGS_AGGREGATOR)) {
-		viewURL.setParameter("struts_action", "/blogs_aggregator/view");
+		portletURL.setParameter("struts_action", "/blogs_aggregator/view");
 	}
 	else {
-		viewURL.setParameter("struts_action", "/blogs/view");
+		portletURL.setParameter("struts_action", "/blogs/view");
 	}
 
-	redirect = viewURL.toString();
+	redirect = portletURL.toString();
 }
 
 BlogsEntry entry = (BlogsEntry)request.getAttribute(WebKeys.BLOGS_ENTRY);

@@ -94,21 +94,93 @@ public class PortalPreferencesUtil {
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel)
 	 */
-	public static PortalPreferences update(
-		PortalPreferences portalPreferences, boolean merge)
+	public static PortalPreferences update(PortalPreferences portalPreferences)
 		throws SystemException {
-		return getPersistence().update(portalPreferences, merge);
+		return getPersistence().update(portalPreferences);
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean, ServiceContext)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, ServiceContext)
 	 */
 	public static PortalPreferences update(
-		PortalPreferences portalPreferences, boolean merge,
-		ServiceContext serviceContext) throws SystemException {
-		return getPersistence().update(portalPreferences, merge, serviceContext);
+		PortalPreferences portalPreferences, ServiceContext serviceContext)
+		throws SystemException {
+		return getPersistence().update(portalPreferences, serviceContext);
+	}
+
+	/**
+	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or throws a {@link com.liferay.portal.NoSuchPreferencesException} if it could not be found.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the matching portal preferences
+	* @throws com.liferay.portal.NoSuchPreferencesException if a matching portal preferences could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PortalPreferences findByO_O(
+		long ownerId, int ownerType)
+		throws com.liferay.portal.NoSuchPreferencesException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByO_O(ownerId, ownerType);
+	}
+
+	/**
+	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the matching portal preferences, or <code>null</code> if a matching portal preferences could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PortalPreferences fetchByO_O(
+		long ownerId, int ownerType)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByO_O(ownerId, ownerType);
+	}
+
+	/**
+	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @param retrieveFromCache whether to use the finder cache
+	* @return the matching portal preferences, or <code>null</code> if a matching portal preferences could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PortalPreferences fetchByO_O(
+		long ownerId, int ownerType, boolean retrieveFromCache)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByO_O(ownerId, ownerType, retrieveFromCache);
+	}
+
+	/**
+	* Removes the portal preferences where ownerId = &#63; and ownerType = &#63; from the database.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the portal preferences that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.PortalPreferences removeByO_O(
+		long ownerId, int ownerType)
+		throws com.liferay.portal.NoSuchPreferencesException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().removeByO_O(ownerId, ownerType);
+	}
+
+	/**
+	* Returns the number of portal preferenceses where ownerId = &#63; and ownerType = &#63;.
+	*
+	* @param ownerId the owner ID
+	* @param ownerType the owner type
+	* @return the number of matching portal preferenceses
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByO_O(long ownerId, int ownerType)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByO_O(ownerId, ownerType);
 	}
 
 	/**
@@ -158,10 +230,9 @@ public class PortalPreferencesUtil {
 	}
 
 	public static com.liferay.portal.model.PortalPreferences updateImpl(
-		com.liferay.portal.model.PortalPreferences portalPreferences,
-		boolean merge)
+		com.liferay.portal.model.PortalPreferences portalPreferences)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().updateImpl(portalPreferences, merge);
+		return getPersistence().updateImpl(portalPreferences);
 	}
 
 	/**
@@ -193,51 +264,6 @@ public class PortalPreferencesUtil {
 	}
 
 	/**
-	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or throws a {@link com.liferay.portal.NoSuchPreferencesException} if it could not be found.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the matching portal preferences
-	* @throws com.liferay.portal.NoSuchPreferencesException if a matching portal preferences could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PortalPreferences findByO_O(
-		long ownerId, int ownerType)
-		throws com.liferay.portal.NoSuchPreferencesException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().findByO_O(ownerId, ownerType);
-	}
-
-	/**
-	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the matching portal preferences, or <code>null</code> if a matching portal preferences could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PortalPreferences fetchByO_O(
-		long ownerId, int ownerType)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByO_O(ownerId, ownerType);
-	}
-
-	/**
-	* Returns the portal preferences where ownerId = &#63; and ownerType = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @param retrieveFromCache whether to use the finder cache
-	* @return the matching portal preferences, or <code>null</code> if a matching portal preferences could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PortalPreferences fetchByO_O(
-		long ownerId, int ownerType, boolean retrieveFromCache)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByO_O(ownerId, ownerType, retrieveFromCache);
-	}
-
-	/**
 	* Returns all the portal preferenceses.
 	*
 	* @return the portal preferenceses
@@ -252,7 +278,7 @@ public class PortalPreferencesUtil {
 	* Returns a range of all the portal preferenceses.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PortalPreferencesModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of portal preferenceses
@@ -270,7 +296,7 @@ public class PortalPreferencesUtil {
 	* Returns an ordered range of all the portal preferenceses.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.PortalPreferencesModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of portal preferenceses
@@ -287,21 +313,6 @@ public class PortalPreferencesUtil {
 	}
 
 	/**
-	* Removes the portal preferences where ownerId = &#63; and ownerType = &#63; from the database.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the portal preferences that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.portal.model.PortalPreferences removeByO_O(
-		long ownerId, int ownerType)
-		throws com.liferay.portal.NoSuchPreferencesException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByO_O(ownerId, ownerType);
-	}
-
-	/**
 	* Removes all the portal preferenceses from the database.
 	*
 	* @throws SystemException if a system exception occurred
@@ -309,19 +320,6 @@ public class PortalPreferencesUtil {
 	public static void removeAll()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().removeAll();
-	}
-
-	/**
-	* Returns the number of portal preferenceses where ownerId = &#63; and ownerType = &#63;.
-	*
-	* @param ownerId the owner ID
-	* @param ownerType the owner type
-	* @return the number of matching portal preferenceses
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByO_O(long ownerId, int ownerType)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByO_O(ownerId, ownerType);
 	}
 
 	/**

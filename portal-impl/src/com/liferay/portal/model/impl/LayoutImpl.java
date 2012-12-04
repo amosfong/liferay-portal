@@ -83,11 +83,19 @@ public class LayoutImpl extends LayoutBaseImpl {
 	}
 
 	public static int validateFriendlyURL(String friendlyURL) {
+		return validateFriendlyURL(friendlyURL, true);
+	}
+
+	public static int validateFriendlyURL(
+		String friendlyURL, boolean checkMaxLength) {
+
 		if (friendlyURL.length() < 2) {
 			return LayoutFriendlyURLException.TOO_SHORT;
 		}
 
-		if (friendlyURL.length() > LayoutConstants.FRIENDLY_URL_MAX_LENGTH) {
+		if (checkMaxLength &&
+			(friendlyURL.length() > LayoutConstants.FRIENDLY_URL_MAX_LENGTH)) {
+
 			return LayoutFriendlyURLException.TOO_LONG;
 		}
 
@@ -194,17 +202,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 		Layout layout = this;
 
-		while (true) {
-			if (!layout.isRootLayout()) {
-				layout = LayoutLocalServiceUtil.getLayout(
-					layout.getGroupId(), layout.isPrivateLayout(),
-					layout.getParentLayoutId());
+		while (!layout.isRootLayout()) {
+			layout = LayoutLocalServiceUtil.getLayout(
+				layout.getGroupId(), layout.isPrivateLayout(),
+				layout.getParentLayoutId());
 
-				layouts.add(layout);
-			}
-			else {
-				break;
-			}
+			layouts.add(layout);
 		}
 
 		return layouts;
@@ -491,27 +494,24 @@ public class LayoutImpl extends LayoutBaseImpl {
 		if (Validator.isNotNull(defaultAssetPublisherPortletId)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isFirstChild() {
 		if (getPriority() == 0) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isFirstParent() {
 		if (isFirstChild() && isRootLayout()) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isInheritLookAndFeel() {
@@ -520,9 +520,8 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isInheritWapLookAndFeel() {
@@ -531,9 +530,8 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isLayoutPrototypeLinkActive() {
@@ -554,9 +552,8 @@ public class LayoutImpl extends LayoutBaseImpl {
 		if (getParentLayoutId() == LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isSelected(
@@ -587,63 +584,56 @@ public class LayoutImpl extends LayoutBaseImpl {
 		if (getType().equals(LayoutConstants.TYPE_ARTICLE)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypeControlPanel() {
 		if (getType().equals(LayoutConstants.TYPE_CONTROL_PANEL)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypeEmbedded() {
 		if (getType().equals(LayoutConstants.TYPE_EMBEDDED)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypeLinkToLayout() {
 		if (getType().equals(LayoutConstants.TYPE_LINK_TO_LAYOUT)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypePanel() {
 		if (getType().equals(LayoutConstants.TYPE_PANEL)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypePortlet() {
 		if (getType().equals(LayoutConstants.TYPE_PORTLET)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	public boolean isTypeURL() {
 		if (getType().equals(LayoutConstants.TYPE_URL)) {
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 
 	@Override
@@ -683,10 +673,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 		friendlyURL = friendlyURL.toLowerCase();
 
 		for (String keyword : _friendlyURLKeywords) {
-			if (friendlyURL.startsWith(keyword) ||
-				keyword.equals(friendlyURL + StringPool.SLASH)) {
-
+			if (friendlyURL.startsWith(keyword)) {
 				return keyword;
+			}
+
+			if (keyword.equals(friendlyURL + StringPool.SLASH)) {
+				return friendlyURL;
 			}
 		}
 

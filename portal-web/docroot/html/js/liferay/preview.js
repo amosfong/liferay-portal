@@ -248,7 +248,11 @@ AUI.add(
 						var maxOverlayMask = instance._maxOverlayMask;
 
 						if (!maxOverlayMask) {
-							maxOverlayMask = new A.OverlayMask();
+							maxOverlayMask = new A.OverlayMask(
+								{
+									visible: true
+								}
+							);
 
 							instance._maxOverlayMask = maxOverlayMask;
 						}
@@ -278,7 +282,6 @@ AUI.add(
 									cssClass: 'lfr-preview-file-image-overlay',
 									height: '90%',
 									width: '85%',
-									visible: false,
 									zIndex: 1005
 								}
 							).render();
@@ -327,7 +330,7 @@ AUI.add(
 
 						var baseImageURL = instance._baseImageURL;
 
-						while(instance._previewFileCountDown < maxIndex && i++ < 10) {
+						while (instance._previewFileCountDown < maxIndex && i++ < 10) {
 							displayedIndex = previewFileCountDown + 1;
 
 							MAP_IMAGE_DATA.displayedIndex = displayedIndex;

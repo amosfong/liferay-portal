@@ -245,7 +245,7 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 			layoutRevision.setIconImage(iconImage.booleanValue());
 
 			if (iconImage.booleanValue()) {
-				long iconImageId = originalLayout.getIconImageId();
+				long iconImageId = layoutRevision.getIconImageId();
 
 				if (iconImageId <= 0) {
 					iconImageId = CounterLocalServiceUtil.increment();
@@ -261,7 +261,7 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 		originalLayout.setLayoutPrototypeLinkEnabled(
 			layoutPrototypeLinkEnabled);
 
-		LayoutUtil.update(originalLayout, false);
+		LayoutUtil.update(originalLayout);
 
 		boolean hasWorkflowTask = StagingUtil.hasWorkflowTask(
 			serviceContext.getUserId(), layoutRevision);
@@ -286,7 +286,7 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 		if (iconImage != null) {
 			if ((iconBytes != null) && (iconBytes.length > 0)) {
 				ImageLocalServiceUtil.updateImage(
-					originalLayout.getIconImageId(), iconBytes);
+					layoutRevision.getIconImageId(), iconBytes);
 			}
 		}
 

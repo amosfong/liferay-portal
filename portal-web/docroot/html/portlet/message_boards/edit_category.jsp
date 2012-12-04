@@ -25,7 +25,15 @@ long categoryId = MBUtil.getCategoryId(request, category);
 
 long parentCategoryId = BeanParamUtil.getLong(category, request, "parentCategoryId", MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
 
-String displayStyle = BeanParamUtil.getString(category, request, "displayStyle", MBCategoryConstants.DEFAULT_DISPLAY_STYLE);
+String defaultDisplayStyle = MBCategoryConstants.DEFAULT_DISPLAY_STYLE;
+
+if ((category == null) && (parentCategoryId > 0)) {
+	MBCategory parentCategory = MBCategoryLocalServiceUtil.getCategory(parentCategoryId);
+
+	defaultDisplayStyle = parentCategory.getDisplayStyle();
+}
+
+String displayStyle = BeanParamUtil.getString(category, request, "displayStyle", defaultDisplayStyle);
 
 MBMailingList mailingList = null;
 
@@ -67,7 +75,7 @@ catch (NoSuchMailingListException nsmle) {
 	<aui:model-context bean="<%= category %>" model="<%= MBCategory.class %>" />
 
 	<aui:fieldset>
-		<aui:field-wrapper label="parent-category">
+		<c:if test="<%= parentCategoryId != MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID %>">
 
 			<%
 			String parentCategoryName = StringPool.BLANK;
@@ -81,28 +89,17 @@ catch (NoSuchMailingListException nsmle) {
 			}
 			%>
 
-			<portlet:renderURL var="viewCategoryURL">
-				<portlet:param name="struts_action" value="/message_boards/view" />
-				<portlet:param name="mbCategoryId" value="<%= String.valueOf(parentCategoryId) %>" />
-			</portlet:renderURL>
+			<c:if test="<%= category != null %>">
+				<aui:field-wrapper label="parent-category">
+					<portlet:renderURL var="viewCategoryURL">
+						<portlet:param name="struts_action" value="/message_boards/view" />
+						<portlet:param name="mbCategoryId" value="<%= String.valueOf(parentCategoryId) %>" />
+					</portlet:renderURL>
 
-			<aui:a href="<%= viewCategoryURL %>" id="parentCategoryName"><%= parentCategoryName %></aui:a>
-
-			<portlet:renderURL var="selectCategoryURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-				<portlet:param name="struts_action" value="/message_boards/select_category" />
-				<portlet:param name="mbCategoryId" value="<%= String.valueOf((category == null) ? MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID : category.getParentCategoryId()) %>" />
-			</portlet:renderURL>
-
-			<%
-			String taglibOpenCategoryWindow = "var categoryWindow = window.open('" + HtmlUtil.escape(selectCategoryURL) + "','category', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=680'); void(''); categoryWindow.focus();";
-			%>
-
-			<aui:button onClick="<%= taglibOpenCategoryWindow %>" value="select" />
-
-			<aui:button id="removeCategoryButton" onClick='<%= renderResponse.getNamespace() + "removeCategory();" %>' value="remove" />
-
-			<aui:input label="merge-with-parent-category" name="mergeWithParentCategory" type="checkbox" />
-		</aui:field-wrapper>
+					<aui:a href="<%= viewCategoryURL %>" id="parentCategoryName"><%= parentCategoryName %></aui:a>
+				</aui:field-wrapper>
+			</c:if>
+		</c:if>
 
 		<aui:input name="name" />
 
@@ -219,27 +216,9 @@ catch (NoSuchMailingListException nsmle) {
 </aui:form>
 
 <aui:script>
-	function <portlet:namespace />removeCategory() {
-		document.<portlet:namespace />fm.<portlet:namespace />parentCategoryId.value = "<%= MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID %>";
-
-		var nameEl = document.getElementById("<portlet:namespace />parentCategoryName");
-
-		nameEl.href = "";
-		nameEl.innerHTML = "";
-	}
-
 	function <portlet:namespace />saveCategory() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (category == null) ? Constants.ADD : Constants.UPDATE %>";
 		submitForm(document.<portlet:namespace />fm);
-	}
-
-	function <portlet:namespace />selectCategory(parentCategoryId, parentCategoryName) {
-		document.<portlet:namespace />fm.<portlet:namespace />parentCategoryId.value = parentCategoryId;
-
-		var nameEl = document.getElementById("<portlet:namespace />parentCategoryName");
-
-		nameEl.href = "<portlet:renderURL><portlet:param name="struts_action" value="/message_boards/view" /></portlet:renderURL>&<portlet:namespace />mbCategoryId=" + parentCategoryId;
-		nameEl.innerHTML = parentCategoryName + "&nbsp;";
 	}
 
 	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">

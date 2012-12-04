@@ -60,16 +60,16 @@ request.setAttribute("record_set_action.jsp-selRecordSet", selRecordSet);
 		%>
 
 		<aui:fieldset label="templates">
-			<aui:select helpMessage="select-the-list-template-used-to-diplay-the-list-records" label="list-template" name="listTemplateId" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "listDDMTemplateId.value = this.value;" %>'>
+			<aui:select helpMessage="select-the-display-template-used-to-diplay-the-list-records" label="display-template" name="displayTemplateId" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "displayDDMTemplateId.value = this.value;" %>'>
 				<aui:option label="default" value="<%= 0 %>" />
 
 				<%
-				List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.getTemplates(structureClassNameId, selRecordSet.getDDMStructureId(), DDMTemplateConstants.TEMPLATE_TYPE_LIST);
+				List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.getTemplates(structureClassNameId, selRecordSet.getDDMStructureId(), DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
 
 				for (DDMTemplate template : templates) {
 					boolean selected = false;
 
-					if (listDDMTemplateId == template.getTemplateId()) {
+					if (displayDDMTemplateId == template.getTemplateId()) {
 						selected = true;
 					}
 				%>
@@ -82,16 +82,16 @@ request.setAttribute("record_set_action.jsp-selRecordSet", selRecordSet);
 
 			</aui:select>
 
-			<aui:select helpMessage="select-the-detail-template-used-to-add-records-to-the-list" label="detail-template" name="detailTemplateId" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "detailDDMTemplateId.value = this.value;" %>'>
+			<aui:select helpMessage="select-the-form-template-used-to-add-records-to-the-list" label="form-template" name="formTemplateId" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "formDDMTemplateId.value = this.value;" %>'>
 				<aui:option label="default" value="<%= 0 %>" />
 
 				<%
-				List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.getTemplates(structureClassNameId, selRecordSet.getDDMStructureId(), DDMTemplateConstants.TEMPLATE_TYPE_DETAIL, DDMTemplateConstants.TEMPLATE_MODE_CREATE);
+				List<DDMTemplate> templates = DDMTemplateLocalServiceUtil.getTemplates(structureClassNameId, selRecordSet.getDDMStructureId(), DDMTemplateConstants.TEMPLATE_TYPE_FORM, DDMTemplateConstants.TEMPLATE_MODE_CREATE);
 
 				for (DDMTemplate template : templates) {
 					boolean selected = false;
 
-					if (detailDDMTemplateId == template.getTemplateId()) {
+					if (formDDMTemplateId == template.getTemplateId()) {
 						selected = true;
 					}
 				%>
@@ -104,7 +104,20 @@ request.setAttribute("record_set_action.jsp-selRecordSet", selRecordSet);
 
 			</aui:select>
 
-			<aui:input helpMessage="check-to-allow-users-to-add-records-to-the-list" name="editable" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "editable.value = this.checked;" %>' type="checkbox" value="<%= editable %>" />
+			<%
+			String editableHelpMessage = null;
+
+			Group scopeGroup = themeDisplay.getScopeGroup();
+
+			if (scopeGroup.isInStagingPortlet(portletDisplay.getId())) {
+				editableHelpMessage = "check-to-allow-users-to-add-records-to-the-list-once-this-application-is-published-to-live";
+			}
+			else {
+				editableHelpMessage = "check-to-allow-users-to-add-records-to-the-list";
+			}
+			%>
+
+			<aui:input helpMessage="<%= editableHelpMessage %>" name="editable" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "editable.value = this.checked;" %>' type="checkbox" value="<%= editable %>" />
 
 			<aui:input helpMessage="check-to-view-the-list-records-in-a-spreadsheet" label="spreadsheet-view" name="spreadsheet" onChange='<%= "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "spreadsheet.value = this.checked;" %>' type="checkbox" value="<%= spreadsheet %>" />
 		</aui:fieldset>
@@ -172,8 +185,8 @@ request.setAttribute("record_set_action.jsp-selRecordSet", selRecordSet);
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value='<%= configurationRenderURL + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur" + cur %>' />
 	<aui:input name="preferences--recordSetId--" type="hidden" value="<%= recordSetId %>" />
-	<aui:input name="preferences--detailDDMTemplateId--" type="hidden" value="<%= detailDDMTemplateId %>" />
-	<aui:input name="preferences--listDDMTemplateId--" type="hidden" value="<%= listDDMTemplateId %>" />
+	<aui:input name="preferences--displayDDMTemplateId--" type="hidden" value="<%= displayDDMTemplateId %>" />
+	<aui:input name="preferences--formDDMTemplateId--" type="hidden" value="<%= formDDMTemplateId %>" />
 	<aui:input name="preferences--editable--" type="hidden" value="<%= editable %>" />
 	<aui:input name="preferences--spreadsheet--" type="hidden" value="<%= spreadsheet %>" />
 
@@ -196,8 +209,8 @@ request.setAttribute("record_set_action.jsp-selRecordSet", selRecordSet);
 			var A = AUI();
 
 			document.<portlet:namespace />fm.<portlet:namespace />recordSetId.value = recordSetId;
-			document.<portlet:namespace />fm.<portlet:namespace />detailDDMTemplateId.value = "";
-			document.<portlet:namespace />fm.<portlet:namespace />listDDMTemplateId.value = "";
+			document.<portlet:namespace />fm.<portlet:namespace />displayDDMTemplateId.value = "";
+			document.<portlet:namespace />fm.<portlet:namespace />formDDMTemplateId.value = "";
 
 			A.one('.displaying-record-set-id-holder').show();
 			A.one('.displaying-help-message-holder').hide();

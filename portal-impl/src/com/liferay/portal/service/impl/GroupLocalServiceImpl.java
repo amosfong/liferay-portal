@@ -316,7 +316,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			group.setExpandoBridgeAttributes(serviceContext);
 		}
 
-		groupPersistence.update(group, false);
+		groupPersistence.update(group);
 
 		// Layout sets
 
@@ -369,26 +369,29 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	/**
 	 * Adds the group using the default live group.
 	 *
-	 * @param  userId the primary key of the group's creator/owner
-	 * @param  parentGroupId the primary key of the parent group
-	 * @param  className the entity's class name
-	 * @param  classPK the primary key of the entity's instance
-	 * @param  name the entity's name
-	 * @param  description the group's description (optionally
-	 *         <code>null</code>)
-	 * @param  type the group's type. For more information see {@link
-	 *         com.liferay.portal.model.GroupConstants}
-	 * @param  friendlyURL the group's friendlyURL
-	 * @param  site whether the group is to be associated with a main site
-	 * @param  active whether the group is active
-	 * @param  serviceContext the service context to be applied (optionally
-	 *         <code>null</code>). Can set asset category IDs and asset tag
-	 *         names for the group, and whether the group is for staging.
-	 * @return the group
-	 * @throws PortalException if a creator could not be found, if the group's
-	 *         information was invalid, if a layout could not be found, or if a
-	 *         valid friendly URL could not be created for the group
-	 * @throws SystemException if a system exception occurred
+	 * @param      userId the primary key of the group's creator/owner
+	 * @param      parentGroupId the primary key of the parent group
+	 * @param      className the entity's class name
+	 * @param      classPK the primary key of the entity's instance
+	 * @param      name the entity's name
+	 * @param      description the group's description (optionally
+	 *             <code>null</code>)
+	 * @param      type the group's type. For more information see {@link
+	 *             com.liferay.portal.model.GroupConstants}
+	 * @param      friendlyURL the group's friendlyURL
+	 * @param      site whether the group is to be associated with a main site
+	 * @param      active whether the group is active
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs and asset tag
+	 *             names for the group, and whether the group is for staging.
+	 * @return     the group
+	 * @throws     PortalException if a creator could not be found, if the
+	 *             group's information was invalid, if a layout could not be
+	 *             found, or if a valid friendly URL could not be created for
+	 *             the group
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated {@link #addGroup(long, long, String, long, long, String,
+	 *             String, int, String, boolean, boolean, ServiceContext)}
 	 */
 	public Group addGroup(
 			long userId, long parentGroupId, String className, long classPK,
@@ -457,8 +460,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			groupLocalService.addGroup(
 				defaultUserId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
-				Company.class.getName(), companyId, GroupConstants.GLOBAL, null,
-				0, GroupConstants.GLOBAL_FRIENDLY_URL, false, true, null);
+				Company.class.getName(), companyId,
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, GroupConstants.GLOBAL,
+				null, 0, GroupConstants.GLOBAL_FRIENDLY_URL, false, true, null);
 		}
 	}
 
@@ -521,8 +525,8 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 				group = groupLocalService.addGroup(
 					defaultUserId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
-					className, classPK, name, null, type, friendlyURL, site,
-					true, null);
+					className, classPK, GroupConstants.DEFAULT_LIVE_GROUP_ID,
+					name, null, type, friendlyURL, site, true, null);
 
 				if (name.equals(GroupConstants.USER_PERSONAL_SITE)) {
 					initUserPersonalSitePermissions(group);
@@ -725,7 +729,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			group.setSite(false);
 
-			groupPersistence.update(group, false);
+			groupPersistence.update(group);
 		}
 		else {
 			groupPersistence.remove(group);
@@ -1019,6 +1023,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	public List<Group> getGroups(
 			long companyId, long parentGroupId, boolean site)
 		throws SystemException {
+
+		if (parentGroupId == GroupConstants.ANY_PARENT_GROUP_ID) {
+			return groupPersistence.findByC_S(companyId, site);
+		}
 
 		return groupPersistence.findByC_P_S(companyId, parentGroupId, site);
 	}
@@ -2875,7 +2883,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		group.setFriendlyURL(friendlyURL);
 
-		groupPersistence.update(group, false);
+		groupPersistence.update(group);
 
 		return group;
 	}
@@ -2954,7 +2962,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			group.setExpandoBridgeAttributes(serviceContext);
 		}
 
-		groupPersistence.update(group, false);
+		groupPersistence.update(group);
 
 		// Asset
 
@@ -3003,7 +3011,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		group.setTypeSettings(typeSettings);
 
-		groupPersistence.update(group, false);
+		groupPersistence.update(group);
 
 		return group;
 	}
@@ -3029,7 +3037,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		group.setSite(site);
 
-		groupPersistence.update(group, false);
+		groupPersistence.update(group);
 
 		return group;
 	}

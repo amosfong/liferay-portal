@@ -1,5 +1,12 @@
 <#ftl strip_whitespace=true>
 
+<#--
+Use computer number format to prevent issues with locale settings. See
+LPS-30525.
+-->
+
+<#setting number_format="computer">
+
 <#assign css_main_file = "" />
 
 <#if themeDisplay??>
@@ -11,6 +18,22 @@
 <#if themeDisplay??>
 	<#assign js_main_file = htmlUtil.escape(portalUtil.getStaticResourceURL(request, "${themeDisplay.getPathThemeJavaScript()}/main.js")) />
 </#if>
+
+<#function max x y>
+	<#if (x < y)>
+		<#return y>
+	<#else>
+		<#return x>
+	</#if>
+</#function>
+
+<#function min x y>
+	<#if (x > y)>
+		<#return y>
+	<#else>
+		<#return x>
+	</#if>
+</#function>
 
 <#macro css file_name>
 	<#if file_name = css_main_file>

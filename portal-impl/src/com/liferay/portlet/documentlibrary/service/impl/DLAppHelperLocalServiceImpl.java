@@ -63,6 +63,7 @@ import com.liferay.portlet.trash.util.TrashUtil;
 import java.io.Serializable;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -444,8 +445,22 @@ public class DLAppHelperLocalServiceImpl
 
 			// App helper
 
-			return dlAppService.moveFileEntry(
+			fileEntry = dlAppService.moveFileEntry(
 				fileEntry.getFileEntryId(), newFolderId, serviceContext);
+
+			// Social
+
+			socialActivityCounterLocalService.enableActivityCounters(
+				DLFileEntryConstants.getClassName(),
+				fileEntry.getFileEntryId());
+
+			socialActivityLocalService.addActivity(
+				userId, fileEntry.getGroupId(),
+				DLFileEntryConstants.getClassName(), fileEntry.getFileEntryId(),
+				SocialActivityConstants.TYPE_RESTORE_FROM_TRASH,
+				StringPool.BLANK, 0);
+
+			return fileEntry;
 		}
 	}
 
@@ -459,7 +474,7 @@ public class DLAppHelperLocalServiceImpl
 		dlFileEntry.setTitle(
 			TrashUtil.appendTrashNamespace(dlFileEntry.getTitle()));
 
-		dlFileEntryPersistence.update(dlFileEntry, false);
+		dlFileEntryPersistence.update(dlFileEntry);
 
 		List<DLFileVersion> dlFileVersions =
 			dlFileVersionLocalService.getFileVersions(
@@ -611,7 +626,7 @@ public class DLAppHelperLocalServiceImpl
 
 		dlFolder.setName(TrashUtil.appendTrashNamespace(dlFolder.getName()));
 
-		dlFolderPersistence.update(dlFolder, false);
+		dlFolderPersistence.update(dlFolder);
 
 		// File rank
 
@@ -630,7 +645,7 @@ public class DLAppHelperLocalServiceImpl
 		dlFileEntry.setTitle(
 			TrashUtil.stripTrashNamespace(dlFileEntry.getTitle()));
 
-		dlFileEntryPersistence.update(dlFileEntry, false);
+		dlFileEntryPersistence.update(dlFileEntry);
 
 		FileVersion fileVersion = new LiferayFileVersion(
 			dlFileEntry.getLatestFileVersion(true));
@@ -983,18 +998,24 @@ public class DLAppHelperLocalServiceImpl
 
 			// Social
 
-			int activityType = DLActivityKeys.UPDATE_FILE_ENTRY;
+			if ((oldStatus != WorkflowConstants.STATUS_IN_TRASH) &&
+				!latestFileVersion.isInTrashFolder()) {
 
-			if (latestFileVersionVersion.equals(
-					DLFileEntryConstants.VERSION_DEFAULT)) {
+				Date activityDate = latestFileVersion.getModifiedDate();
 
-				activityType = DLActivityKeys.ADD_FILE_ENTRY;
-			}
+				int activityType = DLActivityKeys.UPDATE_FILE_ENTRY;
 
-			if (oldStatus != WorkflowConstants.STATUS_IN_TRASH) {
+				if (latestFileVersionVersion.equals(
+						DLFileEntryConstants.VERSION_DEFAULT)) {
+
+					activityDate = latestFileVersion.getCreateDate();
+
+					activityType = DLActivityKeys.ADD_FILE_ENTRY;
+				}
+
 				socialActivityLocalService.addUniqueActivity(
 					latestFileVersion.getStatusByUserId(),
-					fileEntry.getGroupId(), latestFileVersion.getCreateDate(),
+					fileEntry.getGroupId(), activityDate,
 					DLFileEntryConstants.getClassName(),
 					fileEntry.getFileEntryId(), activityType, StringPool.BLANK,
 					0);
@@ -1127,7 +1148,7 @@ public class DLAppHelperLocalServiceImpl
 
 						dlFileVersion.setStatus(WorkflowConstants.STATUS_DRAFT);
 
-						dlFileVersionPersistence.update(dlFileVersion, false);
+						dlFileVersionPersistence.update(dlFileVersion);
 
 						workflowInstanceLinkLocalService.
 							deleteWorkflowInstanceLink(
@@ -1189,7 +1210,8 @@ public class DLAppHelperLocalServiceImpl
 			new Callable<Void>() {
 
 				public Void call() throws Exception {
-					DLProcessorRegistryUtil.trigger(fileEntry, fileVersion);
+					DLProcessorRegistryUtil.trigger(
+						fileEntry, fileVersion, true);
 
 					return null;
 				}

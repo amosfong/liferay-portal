@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 /**
  * @author Samuel Kong
- * @author Janghyun Kim
+ * @author Jang Kim
  */
 public class EventTimeComparator implements Comparator<CalEvent> {
 

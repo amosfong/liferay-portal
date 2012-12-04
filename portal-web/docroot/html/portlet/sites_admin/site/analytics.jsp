@@ -31,13 +31,33 @@ else {
 
 <liferay-ui:error-marker key="errorSection" value="analytics" />
 
-<liferay-ui:message key="set-the-google-analytics-id-that-will-be-used-for-this-set-of-pages" />
+<%
+String[] analyticsTypes = PrefsPropsUtil.getStringArray(company.getCompanyId(), PropsKeys.ADMIN_ANALYTICS_TYPES, StringPool.NEW_LINE);
 
-<aui:field-wrapper label="google-analytics-id">
+for (String analyticsType : analyticsTypes) {
+%>
 
-	<%
-	String googleAnalyticsId = PropertiesParamUtil.getString(groupTypeSettings, request, "googleAnalyticsId");
-	%>
+	<c:choose>
+		<c:when test='<%= analyticsType.equalsIgnoreCase("google") %>'>
 
-	<input name="<portlet:namespace />googleAnalyticsId" size="30" type="text" value="<%= HtmlUtil.escape(googleAnalyticsId) %>" />
-</aui:field-wrapper>
+			<%
+			String googleAnalyticsId = PropertiesParamUtil.getString(groupTypeSettings, request, "googleAnalyticsId");
+			%>
+
+			<aui:input helpMessage="set-the-google-analytics-id-that-will-be-used-for-this-set-of-pages" label="google-analytics-id" name="googleAnalyticsId" size="30" type="text" value="<%= googleAnalyticsId %>" />
+		</c:when>
+		<c:otherwise>
+
+			<%
+			String analyticsName = TextFormatter.format(analyticsType, TextFormatter.J);
+
+			String analyticsScript = PropertiesParamUtil.getString(groupTypeSettings, request, SitesUtil.ANALYTICS_PREFIX + analyticsType);
+			%>
+
+			<aui:input cols="60" helpMessage='<%= LanguageUtil.format(pageContext, "set-the-script-for-x-that-will-be-used-for-this-set-of-pages", analyticsName) %>' label="<%= analyticsName %>" name="<%= SitesUtil.ANALYTICS_PREFIX + analyticsType %>" rows="15" type="textarea" value="<%= analyticsScript %>" wrap="soft" />
+		</c:otherwise>
+	</c:choose>
+
+<%
+}
+%>

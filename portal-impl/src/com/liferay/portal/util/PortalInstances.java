@@ -15,6 +15,8 @@
 package com.liferay.portal.util;
 
 import com.liferay.portal.NoSuchCompanyException;
+import com.liferay.portal.dao.shard.ShardDataSourceTargetSource;
+import com.liferay.portal.dao.shard.ShardSessionFactoryTargetSource;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.shard.ShardUtil;
@@ -24,6 +26,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -34,8 +37,6 @@ import com.liferay.portal.model.PortletCategory;
 import com.liferay.portal.model.VirtualHost;
 import com.liferay.portal.search.lucene.LuceneHelperUtil;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
-import com.liferay.portal.security.ldap.LDAPSettingsUtil;
-import com.liferay.portal.security.ldap.PortalLDAPImporterUtil;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
@@ -289,6 +290,28 @@ public class PortalInstances {
 	private long[] _getCompanyIdsBySQL() throws SQLException {
 		List<Long> companyIds = new ArrayList<Long>();
 
+		String currentShardName = ShardUtil.getCurrentShardName();
+
+		ShardDataSourceTargetSource shardDataSourceTargetSource =
+			(ShardDataSourceTargetSource)
+				InfrastructureUtil.getShardDataSourceTargetSource();
+
+		ShardSessionFactoryTargetSource shardSessionFactoryTargetSource = null;
+
+		if (shardDataSourceTargetSource != null) {
+			shardDataSourceTargetSource.setDataSource(
+				PropsValues.SHARD_DEFAULT_NAME);
+
+			shardSessionFactoryTargetSource =
+				(ShardSessionFactoryTargetSource)
+					InfrastructureUtil.getShardSessionFactoryTargetSource();
+
+			shardSessionFactoryTargetSource.setSessionFactory(
+				PropsValues.SHARD_DEFAULT_NAME);
+
+			ShardUtil.pushCompanyService(PropsValues.SHARD_DEFAULT_NAME);
+		}
+
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -297,6 +320,8 @@ public class PortalInstances {
 			con = DataAccess.getConnection();
 
 			ps = con.prepareStatement(_GET_COMPANY_IDS);
+
+			ps.setString(1, currentShardName);
 
 			rs = ps.executeQuery();
 
@@ -307,6 +332,15 @@ public class PortalInstances {
 			}
 		}
 		finally {
+			if (shardDataSourceTargetSource != null) {
+				ShardUtil.popCompanyService();
+
+				shardSessionFactoryTargetSource.setSessionFactory(
+					currentShardName);
+
+				shardDataSourceTargetSource.setDataSource(currentShardName);
+			}
+
 			DataAccess.cleanUp(con, ps, rs);
 		}
 
@@ -442,17 +476,6 @@ public class PortalInstances {
 			}
 		}
 
-		// LDAP Import
-
-		try {
-			if (LDAPSettingsUtil.isImportOnStartup(companyId)) {
-				PortalLDAPImporterUtil.importFromLDAP(companyId);
-			}
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-
 		// Process application startup events
 
 		if (_log.isDebugEnabled()) {
@@ -526,7 +549,8 @@ public class PortalInstances {
 	}
 
 	private static final String _GET_COMPANY_IDS =
-		"select companyId from Company";
+		"select companyId from Company, Shard where Company.companyId = " +
+			"Shard.classPK and Shard.name = ?";
 
 	private static Log _log = LogFactoryUtil.getLog(PortalInstances.class);
 

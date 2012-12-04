@@ -17,6 +17,8 @@
 <%@ include file="/html/portlet/users_admin/init.jsp" %>
 
 <%
+String toolbarItem = ParamUtil.getString(request, "toolbarItem", "browse");
+
 String viewUsersRedirect = ParamUtil.getString(request, "viewUsersRedirect");
 String backURL = ParamUtil.getString(request, "backURL", viewUsersRedirect);
 
@@ -44,6 +46,7 @@ String portletURLString = portletURL.toString();
 <aui:form action="<%= portletURLString %>" method="get" name="fm">
 	<liferay-portlet:renderURLParams varImpl="portletURL" />
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
+	<aui:input name="toolbarItem" type="hidden" value="<%= toolbarItem %>" />
 	<aui:input name="redirect" type="hidden" value="<%= portletURLString %>" />
 
 	<%
@@ -54,9 +57,7 @@ String portletURLString = portletURL.toString();
 	%>
 
 	<c:if test="<%= portletName.equals(PortletKeys.USERS_ADMIN) %>">
-		<liferay-util:include page="/html/portlet/users_admin/toolbar.jsp">
-			<liferay-util:param name="toolbarItem" value="view-all" />
-		</liferay-util:include>
+		<liferay-util:include page="/html/portlet/users_admin/toolbar.jsp" />
 
 		<c:if test="<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS) || usersListView.equals(UserConstants.LIST_VIEW_FLAT_USERS) %>">
 			<portlet:renderURL var="headerBackURL">

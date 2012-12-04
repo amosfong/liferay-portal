@@ -133,7 +133,7 @@ else if (yearNullable) {
 			</c:choose>
 		</div>
 		<div class="aui-datepicker-button-wrapper">
-			<button class="aui-buttonitem aui-buttonitem-content aui-buttonitem-icon-only aui-component aui-state-default yui3-widget" id="buttonTest" type="button">
+			<button class="aui-buttonitem aui-buttonitem-content aui-buttonitem-icon-only aui-component aui-state-default yui3-widget" id="buttonTest" title="<liferay-ui:message key="display-a-datepicker" />" type="button">
 				<span class="aui-buttonitem-icon aui-icon aui-icon-calendar"></span>
 			</button>
 		</div>
@@ -150,6 +150,8 @@ else if (yearNullable) {
 		function() {
 			if (handle) {
 				handle.detach();
+
+				handle = null;
 			}
 
 			return new A.DatePickerSelect(

@@ -36,69 +36,6 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 	 */
 
 	/**
-	* Caches the virtual host in the entity cache if it is enabled.
-	*
-	* @param virtualHost the virtual host
-	*/
-	public void cacheResult(com.liferay.portal.model.VirtualHost virtualHost);
-
-	/**
-	* Caches the virtual hosts in the entity cache if it is enabled.
-	*
-	* @param virtualHosts the virtual hosts
-	*/
-	public void cacheResult(
-		java.util.List<com.liferay.portal.model.VirtualHost> virtualHosts);
-
-	/**
-	* Creates a new virtual host with the primary key. Does not add the virtual host to the database.
-	*
-	* @param virtualHostId the primary key for the new virtual host
-	* @return the new virtual host
-	*/
-	public com.liferay.portal.model.VirtualHost create(long virtualHostId);
-
-	/**
-	* Removes the virtual host with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param virtualHostId the primary key of the virtual host
-	* @return the virtual host that was removed
-	* @throws com.liferay.portal.NoSuchVirtualHostException if a virtual host with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.VirtualHost remove(long virtualHostId)
-		throws com.liferay.portal.NoSuchVirtualHostException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public com.liferay.portal.model.VirtualHost updateImpl(
-		com.liferay.portal.model.VirtualHost virtualHost, boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the virtual host with the primary key or throws a {@link com.liferay.portal.NoSuchVirtualHostException} if it could not be found.
-	*
-	* @param virtualHostId the primary key of the virtual host
-	* @return the virtual host
-	* @throws com.liferay.portal.NoSuchVirtualHostException if a virtual host with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.VirtualHost findByPrimaryKey(
-		long virtualHostId)
-		throws com.liferay.portal.NoSuchVirtualHostException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the virtual host with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param virtualHostId the primary key of the virtual host
-	* @return the virtual host, or <code>null</code> if a virtual host with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.VirtualHost fetchByPrimaryKey(
-		long virtualHostId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Returns the virtual host where hostname = &#63; or throws a {@link com.liferay.portal.NoSuchVirtualHostException} if it could not be found.
 	*
 	* @param hostname the hostname
@@ -132,6 +69,28 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 	*/
 	public com.liferay.portal.model.VirtualHost fetchByHostname(
 		java.lang.String hostname, boolean retrieveFromCache)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Removes the virtual host where hostname = &#63; from the database.
+	*
+	* @param hostname the hostname
+	* @return the virtual host that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.VirtualHost removeByHostname(
+		java.lang.String hostname)
+		throws com.liferay.portal.NoSuchVirtualHostException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the number of virtual hosts where hostname = &#63;.
+	*
+	* @param hostname the hostname
+	* @return the number of matching virtual hosts
+	* @throws SystemException if a system exception occurred
+	*/
+	public int countByHostname(java.lang.String hostname)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
@@ -174,6 +133,93 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
+	* Removes the virtual host where companyId = &#63; and layoutSetId = &#63; from the database.
+	*
+	* @param companyId the company ID
+	* @param layoutSetId the layout set ID
+	* @return the virtual host that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.VirtualHost removeByC_L(long companyId,
+		long layoutSetId)
+		throws com.liferay.portal.NoSuchVirtualHostException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the number of virtual hosts where companyId = &#63; and layoutSetId = &#63;.
+	*
+	* @param companyId the company ID
+	* @param layoutSetId the layout set ID
+	* @return the number of matching virtual hosts
+	* @throws SystemException if a system exception occurred
+	*/
+	public int countByC_L(long companyId, long layoutSetId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Caches the virtual host in the entity cache if it is enabled.
+	*
+	* @param virtualHost the virtual host
+	*/
+	public void cacheResult(com.liferay.portal.model.VirtualHost virtualHost);
+
+	/**
+	* Caches the virtual hosts in the entity cache if it is enabled.
+	*
+	* @param virtualHosts the virtual hosts
+	*/
+	public void cacheResult(
+		java.util.List<com.liferay.portal.model.VirtualHost> virtualHosts);
+
+	/**
+	* Creates a new virtual host with the primary key. Does not add the virtual host to the database.
+	*
+	* @param virtualHostId the primary key for the new virtual host
+	* @return the new virtual host
+	*/
+	public com.liferay.portal.model.VirtualHost create(long virtualHostId);
+
+	/**
+	* Removes the virtual host with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param virtualHostId the primary key of the virtual host
+	* @return the virtual host that was removed
+	* @throws com.liferay.portal.NoSuchVirtualHostException if a virtual host with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.VirtualHost remove(long virtualHostId)
+		throws com.liferay.portal.NoSuchVirtualHostException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public com.liferay.portal.model.VirtualHost updateImpl(
+		com.liferay.portal.model.VirtualHost virtualHost)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the virtual host with the primary key or throws a {@link com.liferay.portal.NoSuchVirtualHostException} if it could not be found.
+	*
+	* @param virtualHostId the primary key of the virtual host
+	* @return the virtual host
+	* @throws com.liferay.portal.NoSuchVirtualHostException if a virtual host with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.VirtualHost findByPrimaryKey(
+		long virtualHostId)
+		throws com.liferay.portal.NoSuchVirtualHostException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the virtual host with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param virtualHostId the primary key of the virtual host
+	* @return the virtual host, or <code>null</code> if a virtual host with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portal.model.VirtualHost fetchByPrimaryKey(
+		long virtualHostId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
 	* Returns all the virtual hosts.
 	*
 	* @return the virtual hosts
@@ -186,7 +232,7 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 	* Returns a range of all the virtual hosts.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.VirtualHostModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of virtual hosts
@@ -202,7 +248,7 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 	* Returns an ordered range of all the virtual hosts.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.VirtualHostModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of virtual hosts
@@ -217,57 +263,11 @@ public interface VirtualHostPersistence extends BasePersistence<VirtualHost> {
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Removes the virtual host where hostname = &#63; from the database.
-	*
-	* @param hostname the hostname
-	* @return the virtual host that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.VirtualHost removeByHostname(
-		java.lang.String hostname)
-		throws com.liferay.portal.NoSuchVirtualHostException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Removes the virtual host where companyId = &#63; and layoutSetId = &#63; from the database.
-	*
-	* @param companyId the company ID
-	* @param layoutSetId the layout set ID
-	* @return the virtual host that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.portal.model.VirtualHost removeByC_L(long companyId,
-		long layoutSetId)
-		throws com.liferay.portal.NoSuchVirtualHostException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Removes all the virtual hosts from the database.
 	*
 	* @throws SystemException if a system exception occurred
 	*/
 	public void removeAll()
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the number of virtual hosts where hostname = &#63;.
-	*
-	* @param hostname the hostname
-	* @return the number of matching virtual hosts
-	* @throws SystemException if a system exception occurred
-	*/
-	public int countByHostname(java.lang.String hostname)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the number of virtual hosts where companyId = &#63; and layoutSetId = &#63;.
-	*
-	* @param companyId the company ID
-	* @param layoutSetId the layout set ID
-	* @return the number of matching virtual hosts
-	* @throws SystemException if a system exception occurred
-	*/
-	public int countByC_L(long companyId, long layoutSetId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**

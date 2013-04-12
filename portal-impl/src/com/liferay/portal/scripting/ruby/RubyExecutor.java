@@ -137,10 +137,10 @@ public class RubyExecutor extends BaseScriptingExecutor {
 				"Constrained execution not supported for Ruby");
 		}
 
-		try {
-			LocalContextProvider localContextProvider =
-				_scriptingContainer.getProvider();
+		LocalContextProvider localContextProvider =
+			_scriptingContainer.getProvider();
 
+		try {
 			RubyInstanceConfig rubyInstanceConfig =
 				localContextProvider.getRubyInstanceConfig();
 
@@ -194,6 +194,9 @@ public class RubyExecutor extends BaseScriptingExecutor {
 		}
 		catch (FileNotFoundException fnfe) {
 			throw new ScriptingException(fnfe);
+		}
+		finally {
+			localContextProvider.terminate();
 		}
 	}
 

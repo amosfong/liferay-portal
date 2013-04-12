@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -193,14 +193,11 @@ public class EditStructureAction extends PortletAction {
 
 		String availableFields = ParamUtil.getString(
 			actionRequest, "availableFields");
-		String saveCallback = ParamUtil.getString(
-			actionRequest, "saveCallback");
+		String eventName = ParamUtil.getString(actionRequest, "eventName");
 
 		PortletURLImpl portletURL = new PortletURLImpl(
 			actionRequest, portletConfig.getPortletName(),
 			themeDisplay.getPlid(), PortletRequest.RENDER_PHASE);
-
-		portletURL.setWindowState(actionRequest.getWindowState());
 
 		portletURL.setParameter(Constants.CMD, Constants.UPDATE, false);
 		portletURL.setParameter(
@@ -217,7 +214,8 @@ public class EditStructureAction extends PortletAction {
 		portletURL.setParameter(
 			"classPK", String.valueOf(structure.getStructureId()), false);
 		portletURL.setParameter("availableFields", availableFields, false);
-		portletURL.setParameter("saveCallback", saveCallback, false);
+		portletURL.setParameter("eventName", eventName, false);
+		portletURL.setWindowState(actionRequest.getWindowState());
 
 		return portletURL.toString();
 	}

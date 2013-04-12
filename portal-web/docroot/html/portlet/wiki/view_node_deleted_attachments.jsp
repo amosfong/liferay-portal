@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -56,7 +56,7 @@ iteratorURL.setParameter("viewTrashAttachments", Boolean.TRUE.toString());
 <liferay-ui:trash-empty
 	confirmMessage="are-you-sure-you-want-to-remove-the-attachments-for-this-wiki-node"
 	emptyMessage="remove-the-attachments-for-this-wiki-node"
-	infoMessage="attachments-that-have-been-removed-for-more-than-x-days-will-be-automatically-deleted"
+	infoMessage="attachments-that-have-been-removed-for-more-than-x-will-be-automatically-deleted"
 	portletURL="<%= emptyTrashURL.toString() %>"
 	totalEntries="<%= attachmentsFileEntries.size() %>"
 />

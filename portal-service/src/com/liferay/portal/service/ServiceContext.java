@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,11 +17,15 @@ package com.liferay.portal.service;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.Group;
@@ -30,6 +34,7 @@ import com.liferay.portal.model.PortletPreferencesIds;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 
 import java.io.Serializable;
@@ -40,8 +45,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Contains context information about a given API call.
@@ -93,6 +100,7 @@ public class ServiceContext implements Cloneable, Serializable {
 		serviceContext.setCreateDate(getCreateDate());
 		serviceContext.setCurrentURL(getCurrentURL());
 		serviceContext.setExpandoBridgeAttributes(getExpandoBridgeAttributes());
+		serviceContext.setFailOnPortalException(isFailOnPortalException());
 		serviceContext.setGroupPermissions(getGroupPermissions());
 		serviceContext.setGuestPermissions(getGuestPermissions());
 		serviceContext.setHeaders(getHeaders());
@@ -101,6 +109,11 @@ public class ServiceContext implements Cloneable, Serializable {
 		serviceContext.setLayoutFullURL(getLayoutFullURL());
 		serviceContext.setLayoutURL(getLayoutURL());
 		serviceContext.setModifiedDate(getModifiedDate());
+		serviceContext.setPathFriendlyURLPrivateGroup(
+			getPathFriendlyURLPrivateGroup());
+		serviceContext.setPathFriendlyURLPrivateUser(
+			getPathFriendlyURLPrivateUser());
+		serviceContext.setPathFriendlyURLPublic(getPathFriendlyURLPublic());
 		serviceContext.setPathMain(getPathMain());
 		serviceContext.setPlid(getPlid());
 		serviceContext.setPortalURL(getPortalURL());
@@ -445,6 +458,30 @@ public class ServiceContext implements Cloneable, Serializable {
 		return _layoutURL;
 	}
 
+	public LiferayPortletRequest getLiferayPortletRequest() {
+		if (_request == null) {
+			return null;
+		}
+
+		LiferayPortletRequest liferayPortletRequest =
+			(LiferayPortletRequest)_request.getAttribute(
+				JavaConstants.JAVAX_PORTLET_REQUEST);
+
+		return liferayPortletRequest;
+	}
+
+	public LiferayPortletResponse getLiferayPortletResponse() {
+		if (_request == null) {
+			return null;
+		}
+
+		LiferayPortletResponse liferayPortletResponse =
+			(LiferayPortletResponse)_request.getAttribute(
+				JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+		return liferayPortletResponse;
+	}
+
 	public Locale getLocale() {
 		return LocaleUtil.fromLanguageId(_languageId);
 	}
@@ -478,6 +515,18 @@ public class ServiceContext implements Cloneable, Serializable {
 		else {
 			return new Date();
 		}
+	}
+
+	public String getPathFriendlyURLPrivateGroup() {
+		return _pathFriendlyURLPrivateGroup;
+	}
+
+	public String getPathFriendlyURLPrivateUser() {
+		return _pathFriendlyURLPrivateUser;
+	}
+
+	public String getPathFriendlyURLPublic() {
+		return _pathFriendlyURLPublic;
 	}
 
 	/**
@@ -571,6 +620,17 @@ public class ServiceContext implements Cloneable, Serializable {
 		return _request;
 	}
 
+	public HttpServletResponse getResponse() {
+		LiferayPortletResponse liferayPortletResponse =
+			getLiferayPortletResponse();
+
+		if (liferayPortletResponse == null) {
+			return null;
+		}
+
+		return PortalUtil.getHttpServletResponse(liferayPortletResponse);
+	}
+
 	public String getRootPortletId() {
 		String portletId = getPortletId();
 
@@ -579,6 +639,10 @@ public class ServiceContext implements Cloneable, Serializable {
 		}
 
 		return PortletConstants.getRootPortletId(portletId);
+	}
+
+	public Group getScopeGroup() throws PortalException, SystemException {
+		return GroupLocalServiceUtil.getGroup(_scopeGroupId);
 	}
 
 	/**
@@ -590,6 +654,18 @@ public class ServiceContext implements Cloneable, Serializable {
 	 */
 	public long getScopeGroupId() {
 		return _scopeGroupId;
+	}
+
+	public ThemeDisplay getThemeDisplay() {
+		if (_request == null) {
+			return null;
+		}
+
+		return (ThemeDisplay)_request.getAttribute(WebKeys.THEME_DISPLAY);
+	}
+
+	public TimeZone getTimeZone() {
+		return _timeZone;
 	}
 
 	/**
@@ -719,6 +795,10 @@ public class ServiceContext implements Cloneable, Serializable {
 		return _deriveDefaultPermissions;
 	}
 
+	public boolean isFailOnPortalException() {
+		return _failOnPortalException;
+	}
+
 	/**
 	 * Returns whether the primary entity of this service context is to be
 	 * indexed/re-indexed.
@@ -739,6 +819,122 @@ public class ServiceContext implements Cloneable, Serializable {
 	 */
 	public boolean isSignedIn() {
 		return _signedIn;
+	}
+
+	public void merge(ServiceContext serviceContext) {
+		setAddGroupPermissions(serviceContext.isAddGroupPermissions());
+		setAddGuestPermissions(serviceContext.isAddGuestPermissions());
+
+		if (serviceContext.getAssetCategoryIds() != null) {
+			setAssetCategoryIds(serviceContext.getAssetCategoryIds());
+		}
+
+		if (serviceContext.getAssetLinkEntryIds() != null) {
+			setAssetLinkEntryIds(serviceContext.getAssetLinkEntryIds());
+		}
+
+		if (serviceContext.getAssetTagNames() != null) {
+			setAssetTagNames(serviceContext.getAssetTagNames());
+		}
+
+		if (serviceContext.getAttributes() != null) {
+			setAttributes(serviceContext.getAttributes());
+		}
+
+		if (Validator.isNotNull(serviceContext.getCommand())) {
+			setCommand(serviceContext.getCommand());
+		}
+
+		if (serviceContext.getCompanyId() > 0) {
+			setCompanyId(serviceContext.getCompanyId());
+		}
+
+		if (serviceContext.getCreateDate() != null) {
+			setCreateDate(serviceContext.getCreateDate());
+		}
+
+		if (Validator.isNotNull(serviceContext.getCurrentURL())) {
+			setCurrentURL(serviceContext.getCurrentURL());
+		}
+
+		if (serviceContext.getExpandoBridgeAttributes() != null) {
+			setExpandoBridgeAttributes(
+				serviceContext.getExpandoBridgeAttributes());
+		}
+
+		if (serviceContext.getGroupPermissions() != null) {
+			setGroupPermissions(serviceContext.getGroupPermissions());
+		}
+
+		if (serviceContext.getGuestPermissions() != null) {
+			setGuestPermissions(serviceContext.getGuestPermissions());
+		}
+
+		if (serviceContext.getHeaders() != null) {
+			setHeaders(serviceContext.getHeaders());
+		}
+
+		setFailOnPortalException(serviceContext.isFailOnPortalException());
+		setLanguageId(serviceContext.getLanguageId());
+
+		if (Validator.isNotNull(serviceContext.getLayoutFullURL())) {
+			setLayoutFullURL(serviceContext.getLayoutFullURL());
+		}
+
+		if (Validator.isNotNull(serviceContext.getLayoutURL())) {
+			setLayoutURL(serviceContext.getLayoutURL());
+		}
+
+		if (serviceContext.getModifiedDate() != null) {
+			setModifiedDate(serviceContext.getModifiedDate());
+		}
+
+		if (Validator.isNotNull(serviceContext.getPathMain())) {
+			setPathMain(serviceContext.getPathMain());
+		}
+
+		if (serviceContext.getPlid() > 0) {
+			setPlid(serviceContext.getPlid());
+		}
+
+		if (Validator.isNotNull(serviceContext.getPortalURL())) {
+			setPortalURL(serviceContext.getPortalURL());
+		}
+
+		if (serviceContext.getPortletPreferencesIds() != null) {
+			setPortletPreferencesIds(serviceContext.getPortletPreferencesIds());
+		}
+
+		if (Validator.isNotNull(serviceContext.getRemoteAddr())) {
+			setRemoteAddr(serviceContext.getRemoteAddr());
+		}
+
+		if (Validator.isNotNull(serviceContext.getRemoteHost())) {
+			setRemoteHost(serviceContext.getRemoteHost());
+		}
+
+		if (serviceContext.getScopeGroupId() > 0) {
+			setScopeGroupId(serviceContext.getScopeGroupId());
+		}
+
+		setSignedIn(serviceContext.isSignedIn());
+
+		if (Validator.isNotNull(serviceContext.getUserDisplayURL())) {
+
+			setUserDisplayURL(serviceContext.getUserDisplayURL());
+		}
+
+		if (serviceContext.getUserId() > 0) {
+			setUserId(serviceContext.getUserId());
+		}
+
+		if (Validator.isNotNull(serviceContext.getUuid())) {
+			setUuid(serviceContext.getUuid());
+		}
+
+		if (serviceContext.getWorkflowAction() > 0) {
+			setWorkflowAction(serviceContext.getWorkflowAction());
+		}
 	}
 
 	/**
@@ -924,6 +1120,10 @@ public class ServiceContext implements Cloneable, Serializable {
 		_expandoBridgeAttributes = expandoBridgeAttributes;
 	}
 
+	public void setFailOnPortalException(boolean failOnPortalException) {
+		_failOnPortalException = failOnPortalException;
+	}
+
 	/**
 	 * Sets the date when an <code>aui:form</code> was generated in this service
 	 * context. The form date can be used in detecting situations in which an
@@ -1042,6 +1242,22 @@ public class ServiceContext implements Cloneable, Serializable {
 		_modifiedDate = modifiedDate;
 	}
 
+	public void setPathFriendlyURLPrivateGroup(
+		String pathFriendlyURLPrivateGroup) {
+
+		_pathFriendlyURLPrivateGroup = pathFriendlyURLPrivateGroup;
+	}
+
+	public void setPathFriendlyURLPrivateUser(
+		String pathFriendlyURLPrivateUser) {
+
+		_pathFriendlyURLPrivateUser = pathFriendlyURLPrivateUser;
+	}
+
+	public void setPathFriendlyURLPublic(String pathFriendlyURLPublic) {
+		_pathFriendlyURLPublic = pathFriendlyURLPublic;
+	}
+
 	/**
 	 * Sets the main context path of the portal, concatenated with
 	 * <code>/c</code>.
@@ -1148,6 +1364,10 @@ public class ServiceContext implements Cloneable, Serializable {
 		_signedIn = signedIn;
 	}
 
+	public void setTimeZone(TimeZone timeZone) {
+		_timeZone = timeZone;
+	}
+
 	/**
 	 * Sets the complete URL of this service context's current user's profile
 	 * page.
@@ -1226,6 +1446,7 @@ public class ServiceContext implements Cloneable, Serializable {
 	private String _currentURL;
 	private boolean _deriveDefaultPermissions;
 	private Map<String, Serializable> _expandoBridgeAttributes;
+	private boolean _failOnPortalException = true;
 	private Date _formDate;
 	private String[] _groupPermissions;
 	private String[] _guestPermissions;
@@ -1235,6 +1456,9 @@ public class ServiceContext implements Cloneable, Serializable {
 	private String _layoutFullURL;
 	private String _layoutURL;
 	private Date _modifiedDate;
+	private String _pathFriendlyURLPrivateGroup;
+	private String _pathFriendlyURLPrivateUser;
+	private String _pathFriendlyURLPublic;
 	private String _pathMain;
 	private long _plid;
 	private String _portalURL;
@@ -1244,6 +1468,7 @@ public class ServiceContext implements Cloneable, Serializable {
 	private transient HttpServletRequest _request;
 	private long _scopeGroupId;
 	private boolean _signedIn;
+	private TimeZone _timeZone;
 	private String _userDisplayURL;
 	private long _userId;
 	private String _uuid;

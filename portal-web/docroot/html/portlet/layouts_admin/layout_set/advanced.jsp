@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -35,8 +35,8 @@ boolean mergeGuestPublicPages = PropertiesParamUtil.getBoolean(groupTypeSettings
 		<c:when test="<%= !privateLayout && (liveGroup.getGroupId() != guestGroup.getGroupId()) %>">
 
 			<%
-			String taglibLabel = LanguageUtil.format(pageContext, "merge-x-public-pages", guestGroup.getDescriptiveName(locale));
-			String taglibHelpMessage = LanguageUtil.format(pageContext, "you-can-configure-the-top-level-pages-of-this-public-site-to-merge-with-the-top-level-pages-of-the-public-x-site", guestGroup.getDescriptiveName(locale));
+			String taglibLabel = LanguageUtil.format(pageContext, "merge-x-public-pages", HtmlUtil.escape(guestGroup.getDescriptiveName(locale)));
+			String taglibHelpMessage = LanguageUtil.format(pageContext, "you-can-configure-the-top-level-pages-of-this-public-site-to-merge-with-the-top-level-pages-of-the-public-x-site", HtmlUtil.escape(guestGroup.getDescriptiveName(locale)));
 			%>
 
 			<aui:input helpMessage="<%= taglibHelpMessage %>" label="<%= taglibLabel %>" name="mergeGuestPublicPages" type="checkbox" value="<%= mergeGuestPublicPages %>" />

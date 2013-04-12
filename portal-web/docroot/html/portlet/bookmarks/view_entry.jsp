@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -46,6 +46,7 @@ request.setAttribute("view_entry.jsp-entry", entry);
 		<liferay-ui:header
 			backLabel='<%= (folder != null) ? folder.getName() : "home" %>'
 			backURL="<%= backURL.toString() %>"
+			escapeXml="<%= false %>"
 			localizeTitle="<%= false %>"
 			title="<%= entry.getName() %>"
 		/>
@@ -53,6 +54,7 @@ request.setAttribute("view_entry.jsp-entry", entry);
 	<c:otherwise>
 		<liferay-ui:header
 			backURL="<%= redirect %>"
+			escapeXml="<%= false %>"
 			localizeTitle="<%= false %>"
 			title="<%= entry.getName() %>"
 		/>

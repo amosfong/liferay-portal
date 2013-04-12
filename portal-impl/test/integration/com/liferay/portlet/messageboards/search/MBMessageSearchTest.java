@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,7 @@ import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.search.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
@@ -53,7 +54,37 @@ import org.junit.runner.RunWith;
 public class MBMessageSearchTest extends BaseSearchTestCase {
 
 	@Override
+	public void testSearchByDDMStructureField() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
 	public void testSearchComments() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireAllVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireLatestVersion() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchStatus() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchWithinDDMStructure() throws Exception {
 		Assert.assertTrue("This test does not apply", true);
 	}
 
@@ -69,13 +100,16 @@ public class MBMessageSearchTest extends BaseSearchTestCase {
 			existingFiles.add(fileEntry.getTitle());
 		}
 
-		ServiceContext serviceContext = new ServiceContext();
+		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
+			message.getGroupId());
 
-		serviceContext.setScopeGroupId(message.getGroupId());
+		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
+			MBTestUtil.getInputStreamOVPs(
+				"OSX_Test.docx", getClass(), getSearchKeywords());
 
 		MBMessageLocalServiceUtil.updateMessage(
 			TestPropsValues.getUserId(), message.getMessageId(),
-			getSearchKeywords(), getSearchKeywords(), _getInputStreamOVPs(),
+			getSearchKeywords(), getSearchKeywords(), inputStreamOVPs,
 			existingFiles, 0, false, serviceContext);
 	}
 
@@ -107,24 +141,6 @@ public class MBMessageSearchTest extends BaseSearchTestCase {
 	@Override
 	protected String getSearchKeywords() {
 		return "Title";
-	}
-
-	private List<ObjectValuePair<String, InputStream>> _getInputStreamOVPs() {
-		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
-			new ArrayList<ObjectValuePair<String, InputStream>>(1);
-
-		Class<?> clazz = getClass();
-
-		InputStream inputStream = clazz.getResourceAsStream(
-			"dependencies/OSX_Test.docx");
-
-		ObjectValuePair<String, InputStream> inputStreamOVP =
-			new ObjectValuePair<String, InputStream>(
-				getSearchKeywords(), inputStream);
-
-		inputStreamOVPs.add(inputStreamOVP);
-
-		return inputStreamOVPs;
 	}
 
 }

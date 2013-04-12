@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -79,6 +79,13 @@ public class BookmarksFolderServiceWrapper implements BookmarksFolderService,
 		return _bookmarksFolderService.getFolder(folderId);
 	}
 
+	public java.util.List<java.lang.Long> getFolderIds(long groupId,
+		long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _bookmarksFolderService.getFolderIds(groupId, folderId);
+	}
+
 	public java.util.List<com.liferay.portlet.bookmarks.model.BookmarksFolder> getFolders(
 		long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -154,6 +161,13 @@ public class BookmarksFolderServiceWrapper implements BookmarksFolderService,
 		_bookmarksFolderService.getSubfolderIds(folderIds, groupId, folderId);
 	}
 
+	public java.util.List<java.lang.Long> getSubfolderIds(long groupId,
+		long folderId, boolean recurse)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _bookmarksFolderService.getSubfolderIds(groupId, folderId,
+			recurse);
+	}
+
 	public com.liferay.portlet.bookmarks.model.BookmarksFolder moveFolder(
 		long folderId, long parentFolderId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -204,14 +218,14 @@ public class BookmarksFolderServiceWrapper implements BookmarksFolderService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public BookmarksFolderService getWrappedBookmarksFolderService() {
 		return _bookmarksFolderService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedBookmarksFolderService(
 		BookmarksFolderService bookmarksFolderService) {

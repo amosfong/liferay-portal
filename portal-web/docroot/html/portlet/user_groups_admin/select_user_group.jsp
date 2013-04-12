@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,22 +17,22 @@
 <%@ include file="/html/portlet/user_groups_admin/init.jsp" %>
 
 <%
-String callback = ParamUtil.getString(request, "callback", "selectUserGroup");
-String target = ParamUtil.getString(request, "target");
+String eventName = ParamUtil.getString(request, "eventName", "selectUserGroup");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/user_groups_admin/select_user_group");
-portletURL.setParameter("callback", callback);
 
 if (selUser != null) {
 	portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
 }
+
+portletURL.setParameter("eventName", eventName);
 %>
 
-<aui:form action="<%= portletURL.toString() %>" method="post" name="fm">
+<aui:form action="<%= portletURL.toString() %>" method="post" name="selectUserGroupFm">
 	<liferay-ui:header
 		title="user-groups"
 	/>
@@ -72,43 +72,33 @@ if (selUser != null) {
 
 		<liferay-ui:search-container-row
 			className="com.liferay.portal.model.UserGroup"
-			escapedModel="<%= true %>"
+			escapedModel="<%= false %>"
 			keyProperty="userGroupId"
 			modelVar="userGroup"
 		>
-
-			<%
-			String rowHREF = null;
-
-			if (MembershipPolicyUtil.isMembershipAllowed(userGroup, selUser)) {
-				StringBundler sb = new StringBundler(10);
-
-				sb.append("javascript:opener.");
-				sb.append(renderResponse.getNamespace());
-				sb.append(callback);
-				sb.append("('");
-				sb.append(userGroup.getUserGroupId());
-				sb.append("', '");
-				sb.append(UnicodeFormatter.toString(userGroup.getName()));
-				sb.append("', '");
-				sb.append(target);
-				sb.append("'); window.close();");
-
-				rowHREF = sb.toString();
-			}
-			%>
-
 			<liferay-ui:search-container-column-text
-				href="<%= rowHREF %>"
 				name="name"
-				property="name"
+				value="<%= HtmlUtil.escape(userGroup.getName()) %>"
 			/>
 
 			<liferay-ui:search-container-column-text
-				href="<%= rowHREF %>"
 				name="description"
-				value="<%= LanguageUtil.get(pageContext, userGroup.getDescription()) %>"
+				value="<%= HtmlUtil.escape(userGroup.getDescription()) %>"
 			/>
+
+			<liferay-ui:search-container-column-text>
+				<c:if test="<%= (UserGroupMembershipPolicyUtil.isMembershipAllowed((selUser != null) ? selUser.getUserId() : 0, userGroup.getUserGroupId())) %>">
+
+					<%
+					Map<String, Object> data = new HashMap<String, Object>();
+
+					data.put("usergroupid", userGroup.getUserGroupId());
+					data.put("usergroupname", HtmlUtil.escape(userGroup.getName()));
+					%>
+
+					<aui:button cssClass="selector-button" data="<%= data %>" value="choose" />
+				</c:if>
+			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
 		<liferay-ui:search-iterator />
@@ -116,5 +106,21 @@ if (selUser != null) {
 </aui:form>
 
 <aui:script>
-	Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
+	Liferay.Util.focusFormField(document.<portlet:namespace />selectUserGroupFm.<portlet:namespace />name);
+</aui:script>
+
+<aui:script use="aui-base">
+	var Util = Liferay.Util;
+
+	A.one('#<portlet:namespace />selectUserGroupFm').delegate(
+		'click',
+		function(event) {
+			var result = Util.getAttributes(event.currentTarget, 'data-');
+
+			Util.getOpener().Liferay.fire('<portlet:namespace /><%= eventName %>', result);
+
+			Util.getWindow().close();
+		},
+		'.selector-button input'
+	);
 </aui:script>

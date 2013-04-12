@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -26,15 +26,16 @@ public interface Checker {
 
 	public void afterPropertiesSet();
 
-	public void checkPermission(Permission permission);
-
-	public String[] generateRule(Object... arguments);
+	public AuthorizationProperty generateAuthorizationProperty(
+		Object... arguments);
 
 	public ClassLoader getClassLoader();
 
 	public PACLPolicy getPACLPolicy();
 
 	public String getServletContextName();
+
+	public boolean implies(Permission permission);
 
 	public void setPACLPolicy(PACLPolicy paclPolicy);
 

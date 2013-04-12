@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,13 +15,18 @@
 package com.liferay.portlet.journal.service.persistence;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceTestUtil;
@@ -130,6 +135,14 @@ public class JournalFolderPersistenceTest {
 
 		newJournalFolder.setDescription(ServiceTestUtil.randomString());
 
+		newJournalFolder.setStatus(ServiceTestUtil.nextInt());
+
+		newJournalFolder.setStatusByUserId(ServiceTestUtil.nextLong());
+
+		newJournalFolder.setStatusByUserName(ServiceTestUtil.randomString());
+
+		newJournalFolder.setStatusDate(ServiceTestUtil.nextDate());
+
 		_persistence.update(newJournalFolder);
 
 		JournalFolder existingJournalFolder = _persistence.findByPrimaryKey(newJournalFolder.getPrimaryKey());
@@ -158,6 +171,15 @@ public class JournalFolderPersistenceTest {
 			newJournalFolder.getName());
 		Assert.assertEquals(existingJournalFolder.getDescription(),
 			newJournalFolder.getDescription());
+		Assert.assertEquals(existingJournalFolder.getStatus(),
+			newJournalFolder.getStatus());
+		Assert.assertEquals(existingJournalFolder.getStatusByUserId(),
+			newJournalFolder.getStatusByUserId());
+		Assert.assertEquals(existingJournalFolder.getStatusByUserName(),
+			newJournalFolder.getStatusByUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingJournalFolder.getStatusDate()),
+			Time.getShortTimestamp(newJournalFolder.getStatusDate()));
 	}
 
 	@Test
@@ -183,6 +205,37 @@ public class JournalFolderPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testFilterFindByGroupId() throws Exception {
+		try {
+			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("JournalFolder", "uuid",
+			true, "folderId", true, "groupId", true, "companyId", true,
+			"userId", true, "userName", true, "createDate", true,
+			"modifiedDate", true, "parentFolderId", true, "name", true,
+			"description", true, "status", true, "statusByUserId", true,
+			"statusByUserName", true, "statusDate", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		JournalFolder newJournalFolder = addJournalFolder();
 
@@ -198,6 +251,26 @@ public class JournalFolderPersistenceTest {
 		JournalFolder missingJournalFolder = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingJournalFolder);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new JournalFolderActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					JournalFolder journalFolder = (JournalFolder)object;
+
+					Assert.assertNotNull(journalFolder);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -329,6 +402,14 @@ public class JournalFolderPersistenceTest {
 		journalFolder.setName(ServiceTestUtil.randomString());
 
 		journalFolder.setDescription(ServiceTestUtil.randomString());
+
+		journalFolder.setStatus(ServiceTestUtil.nextInt());
+
+		journalFolder.setStatusByUserId(ServiceTestUtil.nextLong());
+
+		journalFolder.setStatusByUserName(ServiceTestUtil.randomString());
+
+		journalFolder.setStatusDate(ServiceTestUtil.nextDate());
 
 		_persistence.update(journalFolder);
 

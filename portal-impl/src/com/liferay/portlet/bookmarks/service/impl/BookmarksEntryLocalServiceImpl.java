@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -300,9 +300,16 @@ public class BookmarksEntryLocalServiceImpl
 			long userId, long entryId, long parentFolderId)
 		throws PortalException, SystemException {
 
-		restoreEntryFromTrash(userId, entryId);
+		BookmarksEntry entry = getBookmarksEntry(entryId);
 
-		return moveEntry(entryId, parentFolderId);
+		if (entry.isInTrash()) {
+			restoreEntryFromTrash(userId, entryId);
+		}
+		else {
+			updateStatus(userId, entry, entry.getStatus());
+		}
+
+		return bookmarksEntryLocalService.moveEntry(entryId, parentFolderId);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)

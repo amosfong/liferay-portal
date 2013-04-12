@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -98,11 +98,24 @@ public class LuceneFields {
 		return fieldObj;
 	}
 
-	public static NumericField getNumber(String field, String number) {
+	public static NumericField getNumber(
+		String field, String number, Class<? extends Number> clazz) {
+
 		NumericField numericField = new NumericField(
 			field, Field.Store.YES, true);
 
-		numericField.setLongValue(GetterUtil.getLong(number));
+		if (clazz.equals(Double.class)) {
+			numericField.setDoubleValue(GetterUtil.getDouble(number));
+		}
+		else if (clazz.equals(Float.class)) {
+			numericField.setFloatValue(GetterUtil.getFloat(number));
+		}
+		else if (clazz.equals(Integer.class)) {
+			numericField.setIntValue(GetterUtil.getInteger(number));
+		}
+		else {
+			numericField.setLongValue(GetterUtil.getLong(number));
+		}
 
 		return numericField;
 	}

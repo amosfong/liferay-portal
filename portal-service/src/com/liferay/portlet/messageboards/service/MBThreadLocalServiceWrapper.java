@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,6 +188,22 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
+	* Returns the message boards thread matching the UUID and group.
+	*
+	* @param uuid the message boards thread's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message boards thread
+	* @throws PortalException if a matching message boards thread could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portlet.messageboards.model.MBThread getMBThreadByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadLocalService.getMBThreadByUuidAndGroupId(uuid, groupId);
+	}
+
+	/**
 	* Returns a range of all the message boards threads.
 	*
 	* <p>
@@ -249,10 +265,12 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 
 	public com.liferay.portlet.messageboards.model.MBThread addThread(
 		long categoryId,
-		com.liferay.portlet.messageboards.model.MBMessage message)
+		com.liferay.portlet.messageboards.model.MBMessage message,
+		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		return _mbThreadLocalService.addThread(categoryId, message);
+		return _mbThreadLocalService.addThread(categoryId, message,
+			serviceContext);
 	}
 
 	public void deleteThread(long threadId)
@@ -295,7 +313,8 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {@link #getGroupThreads(long, QueryDefinition)}
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreads(long,
+	QueryDefinition)}
 	*/
 	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
 		long groupId, int status, int start, int end)
@@ -321,7 +340,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreads( long, long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreads(long, long,
 	boolean, boolean, QueryDefinition)}
 	*/
 	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
@@ -333,7 +352,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreads( long, long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreads(long, long,
 	boolean, QueryDefinition)}
 	*/
 	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
@@ -344,7 +363,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreads( long, long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreads(long, long,
 	QueryDefinition)}
 	*/
 	public java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
@@ -370,7 +389,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreadsCount( long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreadsCount(long,
 	QueryDefinition)}
 	*/
 	public int getGroupThreadsCount(long groupId, int status)
@@ -395,7 +414,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreadsCount( long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreadsCount(long,
 	long, QueryDefinition)}
 	*/
 	public int getGroupThreadsCount(long groupId, long userId, int status)
@@ -405,7 +424,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreadsCount( long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreadsCount(long,
 	long, boolean, QueryDefinition)}
 	*/
 	public int getGroupThreadsCount(long groupId, long userId, int status,
@@ -416,7 +435,7 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {As of 6.2.0, replaced by @link #getGroupThreadsCount( long,
+	* @deprecated As of 6.2.0, replaced by {@link #getGroupThreadsCount(long,
 	long, boolean, boolean, QueryDefinition)}
 	*/
 	public int getGroupThreadsCount(long groupId, long userId, int status,
@@ -556,7 +575,8 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	* @deprecated {@link #incrementViewCounter(long, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #incrementViewCounter(long,
+	int)}
 	*/
 	public com.liferay.portlet.messageboards.model.MBThread updateThread(
 		long threadId, int viewCount)
@@ -566,14 +586,14 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public MBThreadLocalService getWrappedMBThreadLocalService() {
 		return _mbThreadLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedMBThreadLocalService(
 		MBThreadLocalService mbThreadLocalService) {

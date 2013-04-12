@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -252,6 +252,20 @@ public abstract class MBThreadLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException, SystemException {
 		return mbThreadPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns the message boards thread matching the UUID and group.
+	 *
+	 * @param uuid the message boards thread's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching message boards thread
+	 * @throws PortalException if a matching message boards thread could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MBThread getMBThreadByUuidAndGroupId(String uuid, long groupId)
+		throws PortalException, SystemException {
+		return mbThreadPersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**

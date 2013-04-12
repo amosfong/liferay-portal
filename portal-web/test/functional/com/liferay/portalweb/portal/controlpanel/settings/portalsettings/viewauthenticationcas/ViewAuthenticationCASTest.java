@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -64,11 +64,11 @@ public class ViewAuthenticationCASTest extends BaseTestCase {
 			selenium.getText("link=Open SSO"));
 		assertEquals(RuntimeVariables.replace("SiteMinder"),
 			selenium.getText("link=SiteMinder"));
-		assertTrue(selenium.isVisible(
+		assertFalse(selenium.isChecked(
 				"//input[@id='_130_cas.auth.enabledCheckbox']"));
 		assertEquals(RuntimeVariables.replace("Enabled"),
 			selenium.getText("//label[@for='_130_cas.auth.enabledCheckbox']"));
-		assertTrue(selenium.isVisible(
+		assertFalse(selenium.isChecked(
 				"//input[@id='_130_cas.import.from.ldapCheckbox']"));
 		assertTrue(selenium.isPartialText(
 				"//label[@for='_130_cas.import.from.ldapCheckbox']",
@@ -121,8 +121,8 @@ public class ViewAuthenticationCASTest extends BaseTestCase {
 				"Mail Host Names"));
 		assertTrue(selenium.isPartialText(
 				"//a[@id='_130_emailNotificationsLink']", "Email Notifications"));
-		assertTrue(selenium.isPartialText("//a[@id='_130_recycleBinLink']",
-				"Recycle Bin"));
+		assertTrue(selenium.isPartialText(
+				"//a[@id='_130_contentSharingLink']", "Content Sharing"));
 		assertEquals(RuntimeVariables.replace("Identification"),
 			selenium.getText(
 				"//div[@class='menu-group']/h3[contains(.,'Identification')]"));

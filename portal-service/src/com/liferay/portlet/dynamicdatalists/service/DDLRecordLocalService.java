@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -179,12 +179,12 @@ public interface DDLRecordLocalService extends BaseLocalService,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Returns the d d l record with the UUID in the group.
+	* Returns the d d l record matching the UUID and group.
 	*
-	* @param uuid the UUID of d d l record
-	* @param groupId the group id of the d d l record
-	* @return the d d l record
-	* @throws PortalException if a d d l record with the UUID in the group could not be found
+	* @param uuid the d d l record's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d l record
+	* @throws PortalException if a matching d d l record could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -290,8 +290,8 @@ public interface DDLRecordLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #getCompanyRecords(long, int, int, int, int,
-	OrderByComparator)}
+	* @deprecated As of 6.2.0, replaced by {@link #getCompanyRecords(long, int,
+	int, int, int, OrderByComparator)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getCompanyRecords(
@@ -300,7 +300,8 @@ public interface DDLRecordLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #getCompanyRecordsCount(long, int, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #getCompanyRecordsCount(long,
+	int, int)}
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getCompanyRecordsCount(long companyId, int scope)

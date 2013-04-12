@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,8 +14,6 @@
 
 package com.liferay.portal.util;
 
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -28,19 +26,19 @@ public class PropsUtilTask extends Task {
 	@Override
 	public void execute() throws BuildException {
 		ClassLoader contextClassLoader =
-			PACLClassLoaderUtil.getContextClassLoader();
+			ClassLoaderUtil.getContextClassLoader();
 
 		try {
 			Class<?> clazz = getClass();
 
-			PACLClassLoaderUtil.setContextClassLoader(clazz.getClassLoader());
+			ClassLoaderUtil.setContextClassLoader(clazz.getClassLoader());
 
 			Project project = getProject();
 
 			project.setUserProperty(_result, PropsUtil.get(_key));
 		}
 		finally {
-			PACLClassLoaderUtil.setContextClassLoader(contextClassLoader);
+			ClassLoaderUtil.setContextClassLoader(contextClassLoader);
 		}
 	}
 

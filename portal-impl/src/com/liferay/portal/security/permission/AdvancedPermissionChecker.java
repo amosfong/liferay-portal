@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -418,7 +418,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 				if ((group.isSite() &&
 					 (userGroups.contains(group) ||
-						userOrgGroups.contains(group))) ||
+					  userOrgGroups.contains(group))) ||
 					group.isUserPersonalSite()) {
 
 					Role siteMemberRole = RoleLocalServiceUtil.getRole(
@@ -535,7 +535,9 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 					groupId = group.getGroupId();
 				}
 
-				if (group.isLayout()) {
+				if (group.isLayout() &&
+					!ResourceBlockLocalServiceUtil.isSupported(name)) {
+
 					Layout layout = LayoutLocalServiceUtil.getLayout(
 						group.getClassPK());
 
@@ -661,6 +663,17 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	public boolean isOrganizationAdmin(long organizationId) {
 		try {
 			return isOrganizationAdminImpl(organizationId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			return false;
+		}
+	}
+
+	public boolean isOrganizationOwner(long organizationId) {
+		try {
+			return isOrganizationOwnerImpl(organizationId);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -867,9 +880,9 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			if (ResourceBlockLocalServiceUtil.isSupported(name)) {
 
-				// It is not necessary to check guest permissions separately,
-				// as the user's resource block IDs bag will already have the
-				// guest permissions in it if checkGuest is true.
+				// It is not necessary to check guest permissions separately, as
+				// the user's resource block IDs bag will already have the guest
+				// permissions in it if checkGuest is true.
 
 				return hasUserPermission(
 					groupId, name, primKey, actionId, true);
@@ -961,10 +974,10 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 		logHasUserPermission(groupId, name, primKey, actionId, stopWatch, 3);
 
-		// Check if user has access to perform the action on the given
-		// resource scopes. The resources are scoped to check first for an
-		// individual class, then for the group that the class may belong
-		// to, and then for the company that the class belongs to.
+		// Check if user has access to perform the action on the given resource
+		// scopes. The resources are scoped to check first for an individual
+		// class, then for the group that the class may belong to, and then for
+		// the company that the class belongs to.
 
 		PermissionCheckerBag bag = getUserBag(user.getUserId(), groupId);
 
@@ -1135,6 +1148,47 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 	}
 
+	protected boolean isOrganizationOwnerImpl(long organizationId)
+		throws Exception {
+
+		if (!signedIn) {
+			return false;
+		}
+
+		if (isOmniadmin()) {
+			return true;
+		}
+
+		if (organizationId <= 0) {
+			return false;
+		}
+
+		Organization organization =
+			OrganizationLocalServiceUtil.fetchOrganization(organizationId);
+
+		if (organization == null) {
+			return false;
+		}
+
+		if (isCompanyAdmin(organization.getCompanyId())) {
+			return true;
+		}
+
+		PermissionCheckerBag bag = getUserBag(
+			user.getUserId(), organization.getGroupId());
+
+		if (bag == null) {
+			_log.error("Bag should never be null");
+		}
+
+		if (bag.isOrganizationOwner(this, organization)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	protected void logHasUserPermission(
 		long groupId, String name, String primKey, String actionId,
 		StopWatch stopWatch, int block) {
@@ -1150,7 +1204,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	protected static final String RESULTS_SEPARATOR = "_RESULTS_SEPARATOR_";
 

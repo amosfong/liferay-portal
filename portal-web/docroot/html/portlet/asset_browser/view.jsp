@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -90,8 +90,6 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				continue;
 			}
 
-			assetEntry = assetEntry.toEscapedModel();
-
 			String rowHREF = null;
 
 			Group group = GroupLocalServiceUtil.getGroup(assetEntry.getGroupId());
@@ -108,9 +106,9 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				sb.append("', '");
 				sb.append(assetRendererFactory.getTypeName(locale, true));
 				sb.append("', '");
-				sb.append(assetEntry.getTitle(locale));
+				sb.append(HtmlUtil.escapeJS(assetEntry.getTitle(locale)));
 				sb.append("', '");
-				sb.append(group.getDescriptiveName(locale));
+				sb.append(HtmlUtil.escapeJS(group.getDescriptiveName(locale)));
 				sb.append("');Liferay.Util.getWindow().close();");
 
 				rowHREF = sb.toString();
@@ -118,11 +116,11 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 			// Title
 
-			row.addText(assetEntry.getTitle(locale), rowHREF);
+			row.addText(HtmlUtil.escape(assetEntry.getTitle(locale)), rowHREF);
 
 			// Description
 
-			row.addText(HtmlUtil.stripHtml(HtmlUtil.unescape(assetEntry.getDescription(locale))), rowHREF);
+			row.addText(HtmlUtil.stripHtml(assetEntry.getDescription(locale)), rowHREF);
 
 			// User name
 
@@ -136,7 +134,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 			// Scope
 
-			row.addText(group.getDescriptiveName(locale), rowHREF);
+			row.addText(HtmlUtil.escape(group.getDescriptiveName(locale)), rowHREF);
 
 			// Add result row
 

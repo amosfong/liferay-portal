@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -163,12 +163,6 @@ else if (liveGroup.isUser()) {
 	rootNodeName = user2.getFullName();
 }
 
-LayoutLister layoutLister = new LayoutLister();
-
-LayoutView layoutView = layoutLister.getLayoutView(stagingGroupId, privateLayout, rootNodeName, locale);
-
-List layoutList = layoutView.getList();
-
 PortletURL portletURL = renderResponse.createActionURL();
 
 if (selGroup.isStaged() && selGroup.isStagedRemotely()) {
@@ -182,7 +176,6 @@ portletURL.setParameter("privateLayout", String.valueOf(privateLayout));
 
 PortletURL selectURL = renderResponse.createRenderURL();
 
-selectURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 selectURL.setParameter("struts_action", "/layouts_admin/publish_layouts");
 selectURL.setParameter(Constants.CMD, cmd);
 selectURL.setParameter("pagesRedirect", pagesRedirect);
@@ -192,14 +185,13 @@ selectURL.setParameter("privateLayout", String.valueOf(privateLayout));
 selectURL.setParameter("layoutSetBranchId", String.valueOf(layoutSetBranchId));
 selectURL.setParameter("selectPages", String.valueOf(!selectPages));
 selectURL.setParameter("schedule", String.valueOf(schedule));
+selectURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 
 request.setAttribute("edit_pages.jsp-groupId", new Long(stagingGroupId));
 request.setAttribute("edit_pages.jsp-selPlid", new Long(selPlid));
 request.setAttribute("edit_pages.jsp-privateLayout", new Boolean(privateLayout));
 
 request.setAttribute("edit_pages.jsp-rootNodeName", rootNodeName);
-
-request.setAttribute("edit_pages.jsp-layoutList", layoutList);
 
 request.setAttribute("edit_pages.jsp-portletURL", portletURL);
 

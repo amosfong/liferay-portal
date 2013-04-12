@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,12 @@
 package com.liferay.portalweb.socialofficesite.members.member;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
+import com.liferay.portalweb.socialofficesite.members.member.sendmemberinvitesousersiterolesite.SendMemberInviteSOUserSiteRoleSiteTests;
+import com.liferay.portalweb.socialofficesite.members.member.sousconfirmmemberinvitesite.SOUs_ConfirmMemberInviteSiteTests;
+import com.liferay.portalweb.socialofficesite.members.member.sousignorememberinvitesite.SOUs_IgnoreMemberInviteSiteTests;
+import com.liferay.portalweb.socialofficesite.members.member.viewmembersouserconnectionsite.ViewMemberSOUserConnectionSiteTests;
+import com.liferay.portalweb.socialofficesite.members.member.viewmembersouserfollowingsite.ViewMemberSOUserFollowingSiteTests;
+import com.liferay.portalweb.socialofficesite.members.member.viewsousermultiplejoinsite.ViewSOUserMultipleJoinSiteTests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -26,6 +32,13 @@ public class MemberTestPlan extends BaseTestSuite {
 
 	public static Test suite() {
 		TestSuite testSuite = new TestSuite();
+
+		testSuite.addTest(SendMemberInviteSOUserSiteRoleSiteTests.suite());
+		testSuite.addTest(SOUs_ConfirmMemberInviteSiteTests.suite());
+		testSuite.addTest(SOUs_IgnoreMemberInviteSiteTests.suite());
+		testSuite.addTest(ViewMemberSOUserConnectionSiteTests.suite());
+		testSuite.addTest(ViewMemberSOUserFollowingSiteTests.suite());
+		testSuite.addTest(ViewSOUserMultipleJoinSiteTests.suite());
 
 		return testSuite;
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -29,7 +29,7 @@ public class User_ViewDeleteBlogsEntrySiteTest extends BaseTestCase {
 			RuntimeVariables.replace("Blogs Test Page"));
 		selenium.waitForPageToLoad("30000");
 		assertTrue(selenium.isElementNotPresent("//div[@class='entry-title']"));
-		assertTrue(selenium.isElementNotPresent("//div[@class='entry-body']/p"));
+		assertTrue(selenium.isElementNotPresent("//div[@class='entry-body']"));
 		assertTrue(selenium.isElementNotPresent("//div[@class='entry-author']"));
 		assertTrue(selenium.isElementNotPresent("//span[@class='comments']/a"));
 		assertTrue(selenium.isElementNotPresent(
@@ -46,7 +46,5 @@ public class User_ViewDeleteBlogsEntrySiteTest extends BaseTestCase {
 				"//div[contains(@id,'ratingScore')]/div"));
 		assertTrue(selenium.isPartialText(
 				"//div[@class='subscribe']/span/a[contains(@href,'rss')]", "RSS"));
-		assertEquals(RuntimeVariables.replace("Showing 0 results."),
-			selenium.getText("//div[@class='search-results']"));
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -202,6 +202,7 @@ public class ServiceBuilder {
 		String springFileName = arguments.get("service.spring.file");
 		String springBaseFileName = arguments.get("service.spring.base.file");
 		String springClusterFileName = arguments.get("service.spring.cluster.file");
+		String springDynamicDataSourceFileName = arguments.get("service.spring.dynamic.data.source.file");
 		String springHibernateFileName = arguments.get("service.spring.hibernate.file");
 		String springInfrastructureFileName = arguments.get("service.spring.infrastructure.file");
 		String springShardDataSourceFileName = arguments.get("service.spring.shard.data.source.file");
@@ -226,13 +227,13 @@ public class ServiceBuilder {
 			new ServiceBuilder(
 				fileName, hbmFileName, ormFileName, modelHintsFileName,
 				springFileName, springBaseFileName, springClusterFileName,
-				springHibernateFileName, springInfrastructureFileName,
-				springShardDataSourceFileName, apiDir, implDir,
-				remotingFileName, sqlDir, sqlFileName, sqlIndexesFileName,
-				sqlIndexesPropertiesFileName, sqlSequencesFileName,
-				autoNamespaceTables, beanLocatorUtil, propsUtil, pluginName,
-				targetEntityName, testDir, true, buildNumber,
-				buildNumberIncrement);
+				springDynamicDataSourceFileName, springHibernateFileName,
+				springInfrastructureFileName, springShardDataSourceFileName,
+				apiDir, implDir, remotingFileName, sqlDir, sqlFileName,
+				sqlIndexesFileName, sqlIndexesPropertiesFileName,
+				sqlSequencesFileName, autoNamespaceTables, beanLocatorUtil,
+				propsUtil, pluginName, targetEntityName, testDir, true,
+				buildNumber, buildNumberIncrement);
 		}
 		catch (RuntimeException re) {
 			System.out.println(
@@ -492,7 +493,8 @@ public class ServiceBuilder {
 		String fileName, String hbmFileName, String ormFileName,
 		String modelHintsFileName, String springFileName,
 		String springBaseFileName, String springClusterFileName,
-		String springHibernateFileName, String springInfrastructureFileName,
+		String springDynamicDataSourceFileName, String springHibernateFileName,
+		String springInfrastructureFileName,
 		String springShardDataSourceFileName, String apiDir, String implDir,
 		String remotingFileName, String sqlDir, String sqlFileName,
 		String sqlIndexesFileName, String sqlIndexesPropertiesFileName,
@@ -503,9 +505,9 @@ public class ServiceBuilder {
 		this(
 			fileName, hbmFileName, ormFileName, modelHintsFileName,
 			springFileName, springBaseFileName, springClusterFileName,
-			springHibernateFileName, springInfrastructureFileName,
-			springShardDataSourceFileName, apiDir, implDir, remotingFileName,
-			sqlDir, sqlFileName, sqlIndexesFileName,
+			springDynamicDataSourceFileName, springHibernateFileName,
+			springInfrastructureFileName, springShardDataSourceFileName, apiDir,
+			implDir, remotingFileName, sqlDir, sqlFileName, sqlIndexesFileName,
 			sqlIndexesPropertiesFileName, sqlSequencesFileName,
 			autoNamespaceTables, beanLocatorUtil, propsUtil, pluginName,
 			targetEntityName, testDir, true, 1, true);
@@ -515,7 +517,8 @@ public class ServiceBuilder {
 		String fileName, String hbmFileName, String ormFileName,
 		String modelHintsFileName, String springFileName,
 		String springBaseFileName, String springClusterFileName,
-		String springHibernateFileName, String springInfrastructureFileName,
+		String springDynamicDataSourceFileName, String springHibernateFileName,
+		String springInfrastructureFileName,
 		String springShardDataSourceFileName, String apiDir, String implDir,
 		String remotingFileName, String sqlDir, String sqlFileName,
 		String sqlIndexesFileName, String sqlIndexesPropertiesFileName,
@@ -598,6 +601,7 @@ public class ServiceBuilder {
 			_springFileName = springFileName;
 			_springBaseFileName = springBaseFileName;
 			_springClusterFileName = springClusterFileName;
+			_springDynamicDataSourceFileName = springDynamicDataSourceFileName;
 			_springHibernateFileName = springHibernateFileName;
 			_springInfrastructureFileName = springInfrastructureFileName;
 			_springShardDataSourceFileName = springShardDataSourceFileName;
@@ -721,11 +725,11 @@ public class ServiceBuilder {
 					if (_isTargetEntity(entity)) {
 						System.out.println("Building " + entity.getName());
 
-						if (entity.hasColumns()) {
-							if (entity.hasLocalService()) {
-								_createActionableDynamicQuery(entity);
-							}
+						if (entity.hasActionableDynamicQuery()) {
+							_createActionableDynamicQuery(entity);
+						}
 
+						if (entity.hasColumns()) {
 							_createHbm(entity);
 							_createHbmUtil(entity);
 
@@ -835,6 +839,7 @@ public class ServiceBuilder {
 				_createProps();
 				_createSpringBaseXml();
 				_createSpringClusterXml();
+				_createSpringDynamicDataSourceXml();
 				_createSpringHibernateXml();
 				_createSpringInfrastructureXml();
 				_createSpringShardDataSourceXml();
@@ -1001,13 +1006,13 @@ public class ServiceBuilder {
 			ServiceBuilder serviceBuilder = new ServiceBuilder(
 				refFileName, _hbmFileName, _ormFileName, _modelHintsFileName,
 				_springFileName, _springBaseFileName, _springClusterFileName,
-				_springHibernateFileName, _springInfrastructureFileName,
-				_springShardDataSourceFileName, _apiDir, _implDir,
-				_remotingFileName, _sqlDir, _sqlFileName, _sqlIndexesFileName,
-				_sqlIndexesPropertiesFileName, _sqlSequencesFileName,
-				_autoNamespaceTables, _beanLocatorUtil, _propsUtil, _pluginName,
-				_targetEntityName, _testDir, false, _buildNumber,
-				_buildNumberIncrement);
+				_springDynamicDataSourceFileName, _springHibernateFileName,
+				_springInfrastructureFileName, _springShardDataSourceFileName,
+				_apiDir, _implDir, _remotingFileName, _sqlDir, _sqlFileName,
+				_sqlIndexesFileName, _sqlIndexesPropertiesFileName,
+				_sqlSequencesFileName, _autoNamespaceTables, _beanLocatorUtil,
+				_propsUtil, _pluginName, _targetEntityName, _testDir, false,
+				_buildNumber, _buildNumberIncrement);
 
 			entity = serviceBuilder.getEntity(refEntity);
 
@@ -1621,10 +1626,11 @@ public class ServiceBuilder {
 				parameterTypeName.equals(
 					"com.liferay.portlet.dynamicdatamapping.storage.Fields") ||
 				parameterTypeName.startsWith("java.io") ||
+				parameterTypeName.startsWith("java.util.LinkedHashMap") ||
 				//parameterTypeName.startsWith("java.util.List") ||
 				//parameterTypeName.startsWith("java.util.Locale") ||
 				(parameterTypeName.startsWith("java.util.Map") &&
-					!_isStringLocaleMap(javaParameter)) ||
+				 !_isStringLocaleMap(javaParameter)) ||
 				parameterTypeName.startsWith("java.util.Properties") ||
 				parameterTypeName.startsWith("javax")) {
 
@@ -3171,6 +3177,20 @@ public class ServiceBuilder {
 		FileUtil.write(ejbFile, content, true);
 	}
 
+	private void _createSpringDynamicDataSourceXml() throws Exception {
+		if (Validator.isNull(_springDynamicDataSourceFileName)) {
+			return;
+		}
+
+		File ejbFile = new File(_springDynamicDataSourceFileName);
+
+		if (ejbFile.exists()) {
+			System.out.println("Removing deprecated " + ejbFile);
+
+			ejbFile.delete();
+		}
+	}
+
 	private void _createSpringHibernateXml() throws Exception {
 		if (Validator.isNull(_springHibernateFileName)) {
 			return;
@@ -4453,8 +4473,8 @@ public class ServiceBuilder {
 		String finderClass = "";
 
 		if (FileUtil.exists(
-			_outputPath + "/service/persistence/" + ejbName +
-				"FinderImpl.java")) {
+				_outputPath + "/service/persistence/" + ejbName +
+					"FinderImpl.java")) {
 
 			finderClass =
 				_packagePath + ".service.persistence." + ejbName + "FinderImpl";
@@ -4926,6 +4946,7 @@ public class ServiceBuilder {
 	private String _serviceOutputPath;
 	private String _springBaseFileName;
 	private String _springClusterFileName;
+	private String _springDynamicDataSourceFileName;
 	private String _springFileName;
 	private String _springHibernateFileName;
 	private String _springInfrastructureFileName;

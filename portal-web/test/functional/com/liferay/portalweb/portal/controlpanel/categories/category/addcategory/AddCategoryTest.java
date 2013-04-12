@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -55,9 +55,9 @@ public class AddCategoryTest extends BaseTestCase {
 			selenium.getText(
 				"//div[@class='lfr-message-response portlet-msg-success']"));
 		selenium.waitForVisible(
-			"//div[@class='vocabulary-categories']/div/ul/li[contains(.,'Category Name')]");
+			"//div[@class='vocabulary-categories']/div/ul/li/div[contains(.,'Category Name')]");
 		assertEquals(RuntimeVariables.replace("Category Name"),
 			selenium.getText(
-				"//div[@class='vocabulary-categories']/div/ul/li[contains(.,'Category Name')]"));
+				"//div[@class='vocabulary-categories']/div/ul/li/div[contains(.,'Category Name')]"));
 	}
 }

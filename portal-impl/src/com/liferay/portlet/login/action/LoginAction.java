@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -185,8 +185,10 @@ public class LoginAction extends PortletAction {
 
 		String authType = preferences.getValue("authType", null);
 
-		LoginUtil.login(
-			request, response, login, password, rememberMe, authType);
+		if (!themeDisplay.isSignedIn()) {
+			LoginUtil.login(
+				request, response, login, password, rememberMe, authType);
+		}
 
 		if (PropsValues.PORTAL_JAAS_ENABLE) {
 			actionResponse.sendRedirect(

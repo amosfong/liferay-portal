@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,21 +15,30 @@
 package com.liferay.portlet.dynamicdatamapping.lar;
 
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelPathUtil;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Image;
+import com.liferay.portal.model.Repository;
+import com.liferay.portal.model.RepositoryEntry;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.persistence.ImageUtil;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
+import com.liferay.portlet.documentlibrary.model.DLFileRank;
+import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.dynamicdatamapping.TemplateDuplicateTemplateKeyException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateUtil;
 import com.liferay.portlet.journal.lar.JournalPortletDataHandler;
@@ -77,10 +86,14 @@ public class DDMTemplateStagedModelDataHandler
 				serviceContext);
 
 			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"A template with the key " + template.getTemplateKey() +
-						" already exists. The new generated key is " +
-							newTemplate.getTemplateKey());
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("A template with the key ");
+				sb.append(template.getTemplateKey());
+				sb.append(" already exists. The new generated key is ");
+				sb.append(newTemplate.getTemplateKey());
+
+				_log.warn(sb.toString());
 			}
 		}
 
@@ -89,28 +102,32 @@ public class DDMTemplateStagedModelDataHandler
 
 	@Override
 	protected void doExportStagedModel(
-			PortletDataContext portletDataContext, Element[] elements,
-			DDMTemplate template)
+			PortletDataContext portletDataContext, DDMTemplate template)
 		throws Exception {
 
-		Element templatesElement = elements[0];
-		Element dlFileEntryTypesElement = null;
-		Element dlFoldersElement = null;
-		Element dlFileEntriesElement = null;
-		Element dlFileRanksElement = null;
-		Element dlRepositoriesElement = null;
-		Element dlRepositoryEntriesElement = null;
+		DDMStructure structure = DDMStructureLocalServiceUtil.fetchStructure(
+			template.getClassPK());
 
-		if (elements.length > 1) {
-			dlFileEntryTypesElement = elements[1];
-			dlFoldersElement = elements[2];
-			dlFileEntriesElement = elements[3];
-			dlFileRanksElement = elements[4];
-			dlRepositoriesElement = elements[5];
-			dlRepositoryEntriesElement = elements[6];
+		if (structure != null) {
+			StagedModelDataHandlerUtil.exportStagedModel(
+				portletDataContext, structure);
 		}
 
-		Element templateElement = templatesElement.addElement("template");
+		Element dlFileEntryTypesElement =
+			portletDataContext.getExportDataGroupElement(DLFileEntryType.class);
+		Element dlFoldersElement = portletDataContext.getExportDataGroupElement(
+			DLFolder.class);
+		Element dlFileEntriesElement =
+			portletDataContext.getExportDataGroupElement(DLFileEntry.class);
+		Element dlFileRanksElement =
+			portletDataContext.getExportDataGroupElement(DLFileRank.class);
+		Element dlRepositoriesElement =
+			portletDataContext.getExportDataGroupElement(Repository.class);
+		Element dlRepositoryEntriesElement =
+			portletDataContext.getExportDataGroupElement(RepositoryEntry.class);
+
+		Element templateElement =
+			portletDataContext.getExportDataStagedModelElement(template);
 
 		if (template.isSmallImage()) {
 			Image smallImage = ImageUtil.fetchByPrimaryKey(
@@ -128,9 +145,8 @@ public class DDMTemplateStagedModelDataHandler
 				template.setSmallImageURL(smallImageURL);
 			}
 			else if (smallImage != null) {
-				String smallImagePath = StagedModelPathUtil.getPath(
-					template,
-					smallImage.getImageId() + StringPool.PERIOD +
+				String smallImagePath = ExportImportPathUtil.getModelPath(
+					template, smallImage.getImageId() + StringPool.PERIOD +
 						template.getSmallImageType());
 
 				templateElement.addAttribute(
@@ -156,14 +172,13 @@ public class DDMTemplateStagedModelDataHandler
 		}
 
 		portletDataContext.addClassedModel(
-			templateElement, StagedModelPathUtil.getPath(template), template,
-			DDMPortletDataHandler.NAMESPACE);
+			templateElement, ExportImportPathUtil.getModelPath(template),
+			template, DDMPortletDataHandler.NAMESPACE);
 	}
 
 	@Override
 	protected void doImportStagedModel(
-			PortletDataContext portletDataContext, Element element, String path,
-			DDMTemplate template)
+			PortletDataContext portletDataContext, DDMTemplate template)
 		throws Exception {
 
 		long userId = portletDataContext.getUserId(template.getUserUuid());
@@ -172,12 +187,25 @@ public class DDMTemplateStagedModelDataHandler
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 				DDMStructure.class);
 
+		String structurePath = ExportImportPathUtil.getModelPath(
+			portletDataContext, DDMStructure.class.getName(),
+			template.getClassPK());
+
+		DDMStructure structure =
+			(DDMStructure)portletDataContext.getZipEntryAsObject(structurePath);
+
+		StagedModelDataHandlerUtil.importStagedModel(
+			portletDataContext, structure);
+
 		long classPK = MapUtil.getLong(
 			structureIds, template.getClassPK(), template.getClassPK());
 
 		File smallFile = null;
 
 		if (template.isSmallImage()) {
+			Element element =
+				portletDataContext.getImportDataStagedModelElement(template);
+
 			String smallImagePath = element.attributeValue("small-image-path");
 
 			if (Validator.isNotNull(template.getSmallImageURL())) {
@@ -202,7 +230,7 @@ public class DDMTemplateStagedModelDataHandler
 		}
 
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
-			element, template, DDMPortletDataHandler.NAMESPACE);
+			template, DDMPortletDataHandler.NAMESPACE);
 
 		DDMTemplate importedTemplate = null;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -218,7 +218,7 @@ public class CacheFilter extends BasePortalFilter {
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
-				_log.error(e);
+				_log.warn(e);
 			}
 
 			return 0;
@@ -458,9 +458,9 @@ public class CacheFilter extends BasePortalFilter {
 			}
 
 			// Cache the result if and only if there is a result and the request
-			// is cacheable. We have to test the cacheability of a request
-			// twice because the user could have been authenticated after the
-			// initial test.
+			// is cacheable. We have to test the cacheability of a request twice
+			// because the user could have been authenticated after the initial
+			// test.
 
 			String cacheControl = GetterUtil.getString(
 				bufferCacheServletResponse.getHeader(

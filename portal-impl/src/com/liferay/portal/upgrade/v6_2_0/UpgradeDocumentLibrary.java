@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -39,6 +39,34 @@ import java.sql.Timestamp;
  * @author Alexander Chow
  */
 public class UpgradeDocumentLibrary extends UpgradeProcess {
+
+	protected void deleteChecksumDirectory() throws Exception {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"select distinct companyId from DLFileEntry");
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				long companyId = rs.getLong("companyId");
+
+				try {
+					DLStoreUtil.deleteDirectory(companyId, 0, "checksum");
+				}
+				catch (Exception e) {
+				}
+			}
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
+	}
 
 	protected void deleteTempDirectory() {
 		try {
@@ -82,6 +110,10 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 		upgradeTable.setIndexesSQL(DLSyncTable.TABLE_SQL_ADD_INDEXES);
 
 		upgradeTable.updateTable();
+
+		// Checksum directory
+
+		deleteChecksumDirectory();
 
 		// Temp directory
 

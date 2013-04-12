@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -167,8 +167,8 @@ public class TZSRecurrenceTest extends RecurrenceTestCase {
 	protected Calendar getInsideDSTCalendar(int month, int date) {
 
 		// Returns a candidate calendar for an event that has a start date
-		// inside DST. Set the hour to 4 because it will be midnight in New
-		// York (EST) but 4 am at Greenwich (UTC).
+		// inside DST. Set the hour to 4 because it will be midnight in New York
+		// (EST) but 4 am at Greenwich (UTC).
 
 		return getCalendar(2011, month, date, 4, 0);
 	}

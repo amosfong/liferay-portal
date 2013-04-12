@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -64,7 +64,7 @@ boolean anonymousAccount = ParamUtil.getBoolean(request, "anonymousUser");
 					},
 					on: {
 						failure: function(event, id, obj) {
-							message = Liferay.Language.get('your-request-failed-to-complete');
+							message = '<%= UnicodeLanguageUtil.get(pageContext, "your-request-failed-to-complete") %>';
 
 							<portlet:namespace />showStatusMessage('error', message);
 
@@ -92,7 +92,7 @@ boolean anonymousAccount = ParamUtil.getBoolean(request, "anonymousUser");
 								A.one('.anonymous-account').hide();
 							}
 							else {
-								message = Liferay.Language.get('your-request-failed-to-complete');
+								message = '<%= UnicodeLanguageUtil.get(pageContext, "your-request-failed-to-complete") %>';
 
 								<portlet:namespace />showStatusMessage('error', message);
 

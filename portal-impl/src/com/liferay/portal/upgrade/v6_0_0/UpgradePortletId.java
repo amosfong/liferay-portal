@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,7 +21,7 @@ public class UpgradePortletId
 	extends com.liferay.portal.upgrade.util.UpgradePortletId {
 
 	@Override
-	protected String[][] getPortletIdsArray() {
+	protected String[][] getRenamePortletIdsArray() {
 		return new String[][] {
 			new String[] {
 				"7", "1_WAR_biblegatewayportlet"

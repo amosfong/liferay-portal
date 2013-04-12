@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,7 +34,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.documentlibrary.DuplicateFileEntryTypeException;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryTypeException;
 import com.liferay.portlet.documentlibrary.NoSuchMetadataSetException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeServiceUtil;
@@ -147,13 +147,13 @@ public class EditFileEntryTypeAction extends PortletAction {
 				DDMStructure ddmStructure =
 					DDMStructureLocalServiceUtil.fetchStructure(
 						dlFileEntryType.getGroupId(),
-						PortalUtil.getClassNameId(DLFileEntry.class),
+						PortalUtil.getClassNameId(DLFileEntryMetadata.class),
 						DLUtil.getDDMStructureKey(dlFileEntryType));
 
 				if (ddmStructure == null) {
 					ddmStructure = DDMStructureLocalServiceUtil.fetchStructure(
 						dlFileEntryType.getGroupId(),
-						PortalUtil.getClassNameId(DLFileEntry.class),
+						PortalUtil.getClassNameId(DLFileEntryMetadata.class),
 						DLUtil.getDeprecatedDDMStructureKey(dlFileEntryType));
 				}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -111,16 +111,14 @@ public class UpgradeLayout extends UpgradeProcess {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
 			// Get pages with a sourcePrototypeLayoutUuid that have a page
-			// template. If the layoutUuid points to a page template, remove
-			// it. Otherwise, it points to a site template page, so leave it.
+			// template. If the layoutUuid points to a page template, remove it.
+			// Otherwise, it points to a site template page, so leave it.
 
-			StringBundler sb = new StringBundler(6);
+			StringBundler sb = new StringBundler(4);
 
 			sb.append("select plid, layoutPrototypeUuid, ");
 			sb.append("sourcePrototypeLayoutUuid from Layout where ");
-			sb.append("layoutPrototypeUuid is not null and ");
 			sb.append("layoutPrototypeUuid != '' and ");
-			sb.append("sourcePrototypeLayoutUuid is not null and ");
 			sb.append("sourcePrototypeLayoutUuid != ''");
 
 			ps = con.prepareStatement(sb.toString());

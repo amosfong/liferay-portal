@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,15 +16,17 @@ package com.liferay.portlet.journal.trash;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.journal.asset.JournalArticleAssetRenderer;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleResource;
+import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
-import com.liferay.portlet.journal.service.JournalArticleServiceUtil;
 import com.liferay.portlet.journal.service.permission.JournalArticlePermission;
 import com.liferay.portlet.journal.util.JournalUtil;
 import com.liferay.portlet.trash.DuplicateEntryException;
@@ -37,10 +39,9 @@ import javax.portlet.PortletRequest;
  *
  * @author Levente Hudák
  * @author Sergio González
+ * @author Zsolt Berentey
  */
-public class JournalArticleTrashHandler extends BaseTrashHandler {
-
-	public static final String CLASS_NAME = JournalArticle.class.getName();
+public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 
 	@Override
 	public void checkDuplicateTrashEntry(
@@ -52,6 +53,10 @@ public class JournalArticleTrashHandler extends BaseTrashHandler {
 				trashEntry.getClassPK());
 
 		String originalTitle = trashEntry.getTypeSettingsProperty("title");
+
+		if (Validator.isNotNull(newName)) {
+			originalTitle = newName;
+		}
 
 		JournalArticleResource articleResource =
 			JournalArticleResourceLocalServiceUtil.fetchArticleResource(
@@ -72,26 +77,34 @@ public class JournalArticleTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
+	public void deleteTrashEntry(long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			JournalArticle article =
-				JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
 
-			if (checkPermission) {
-				JournalArticleServiceUtil.deleteArticle(
-					article.getGroupId(), article.getArticleId(), null, null);
-			}
-			else {
-				JournalArticleLocalServiceUtil.deleteArticle(
-					article.getGroupId(), article.getArticleId(), null);
-			}
-		}
+		JournalArticleLocalServiceUtil.deleteArticle(
+			article.getGroupId(), article.getArticleId(), null);
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return JournalArticle.class.getName();
+	}
+
+	@Override
+	public ContainerModel getParentContainerModel(long classPK)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		long parentFolderId = article.getFolderId();
+
+		if (parentFolderId <= 0) {
+			return null;
+		}
+
+		return getContainerModel(parentFolderId);
 	}
 
 	@Override
@@ -117,6 +130,16 @@ public class JournalArticleTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
+	public ContainerModel getTrashContainer(long classPK)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		return article.getTrashContainer();
+	}
+
+	@Override
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException {
 
@@ -135,12 +158,59 @@ public class JournalArticleTrashHandler extends BaseTrashHandler {
 		return article.isInTrash();
 	}
 
-	public void restoreTrashEntries(long[] classPKs)
+	@Override
+	public boolean isInTrashContainer(long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			JournalArticleServiceUtil.restoreArticleFromTrash(classPK);
-		}
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		return article.isInTrashContainer();
+	}
+
+	@Override
+	public boolean isRestorable(long classPK)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		return !article.isInTrashContainer();
+	}
+
+	@Override
+	public void moveEntry(
+			long userId, long classPK, long containerModelId,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		JournalArticleLocalServiceUtil.moveArticle(
+			article.getGroupId(), article.getArticleId(), containerModelId);
+	}
+
+	@Override
+	public void moveTrashEntry(
+			long userId, long classPK, long containerId,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		JournalArticleLocalServiceUtil.moveArticleFromTrash(
+			userId, article.getGroupId(), article, containerId, serviceContext);
+	}
+
+	public void restoreTrashEntry(long userId, long classPK)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		JournalArticleLocalServiceUtil.restoreArticleFromTrash(userId, article);
 	}
 
 	@Override
@@ -162,6 +232,16 @@ public class JournalArticleTrashHandler extends BaseTrashHandler {
 
 		JournalArticleResourceLocalServiceUtil.updateJournalArticleResource(
 			articleResource);
+	}
+
+	@Override
+	protected JournalFolder getJournalFolder(long classPK)
+		throws PortalException, SystemException {
+
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
+
+		return article.getFolder();
 	}
 
 	@Override

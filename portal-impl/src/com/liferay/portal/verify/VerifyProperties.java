@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -58,6 +58,13 @@ public class VerifyProperties extends VerifyProcess {
 
 		// portal.properties
 
+		for (String[] keys : _MIGRATED_PORTAL_KEYS) {
+			String oldKey = keys[0];
+			String newKey = keys[1];
+
+			verifyMigratedPortalProperty(oldKey, newKey);
+		}
+
 		for (String[] keys : _RENAMED_PORTAL_KEYS) {
 			String oldKey = keys[0];
 			String newKey = keys[1];
@@ -105,6 +112,19 @@ public class VerifyProperties extends VerifyProcess {
 				CompanyLocalServiceUtil.updatePreferences(
 					companyId, properties);
 			}
+		}
+	}
+
+	protected void verifyMigratedPortalProperty(String oldKey, String newKey)
+		throws Exception {
+
+		String value = PropsUtil.get(oldKey);
+
+		if (value != null) {
+			_log.error(
+				"Portal property \"" + oldKey +
+					"\" was migrated to the system property \"" + newKey +
+						"\"");
 		}
 	}
 
@@ -164,6 +184,13 @@ public class VerifyProperties extends VerifyProcess {
 	private static final String[] _LDAP_KEYS = {
 		PropsKeys.LDAP_CONTACT_CUSTOM_MAPPINGS, PropsKeys.LDAP_CONTACT_MAPPINGS,
 		PropsKeys.LDAP_USER_CUSTOM_MAPPINGS
+	};
+
+	private static final String[][] _MIGRATED_PORTAL_KEYS = new String[][] {
+		new String[] {
+			"finalize.manager.thread.enabled",
+			"com.liferay.portal.kernel.memory.FinalizeManager.thread.enabled"
+		}
 	};
 
 	private static final String[][] _MIGRATED_SYSTEM_KEYS = new String[][] {
@@ -241,7 +268,14 @@ public class VerifyProperties extends VerifyProcess {
 		"buffered.increment.serial.queue.size", "cas.validate.url",
 		"cluster.executor.heartbeat.interval", "commons.pool.enabled",
 		"dl.file.entry.read.count.enabled",
+		"dynamic.data.lists.template.language.parser[ftl]",
+		"dynamic.data.lists.template.language.parser[vm]",
+		"dynamic.data.lists.template.language.parser[xsl]",
 		"dynamic.data.mapping.template.language.types", "jbi.workflow.url",
+		"journal.template.language.parser[css]",
+		"journal.template.language.parser[ftl]",
+		"journal.template.language.parser[vm]",
+		"journal.template.language.parser[xsl]",
 		"journal.template.language.types", "lucene.analyzer",
 		"lucene.store.jdbc.auto.clean.up",
 		"lucene.store.jdbc.auto.clean.up.enabled",
@@ -383,6 +417,15 @@ public class VerifyProperties extends VerifyProcess {
 				"edit_configuration.jsp",
 			"editor.wysiwyg.portal-web.docroot.html.portlet.shopping." +
 				"configuration.jsp"
+		},
+		new String[] {
+			"journal.error.template.freemarker", "journal.error.template[ftl]"
+		},
+		new String[] {
+			"journal.error.template.velocity", "journal.error.template[vm]"
+		},
+		new String[] {
+			"journal.error.template.xsl", "journal.error.template[xsl]"
 		},
 		new String[] {
 			"referer.url.domains.allowed", "redirect.url.domains.allowed"

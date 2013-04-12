@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -206,7 +206,7 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #clonePortlet(String)}
+	 * @deprecated As of 6.1.0, replaced by {@link #clonePortlet(String)}
 	 */
 	@Skip
 	public Portlet clonePortlet(long companyId, String portletId) {
@@ -1334,10 +1334,10 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 		portletModel.setStagedModelDataHandlerClasses(
 			stagedModelDataHandlerClasses);
 
-		portletModel.setPortletDisplayTemplateHandlerClass(
+		portletModel.setTemplateHandlerClass(
 			GetterUtil.getString(
-				portletElement.elementText("portlet-display-template-handler"),
-				portletModel.getPortletDisplayTemplateHandlerClass()));
+				portletElement.elementText("template-handler"),
+				portletModel.getTemplateHandlerClass()));
 		portletModel.setPortletLayoutListenerClass(
 			GetterUtil.getString(
 				portletElement.elementText("portlet-layout-listener-class"),
@@ -1350,10 +1350,19 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 			GetterUtil.getString(
 				portletElement.elementText("pop-message-listener-class"),
 				portletModel.getPopMessageListenerClass()));
-		portletModel.setSocialActivityInterpreterClass(
-			GetterUtil.getString(
-				portletElement.elementText("social-activity-interpreter-class"),
-				portletModel.getSocialActivityInterpreterClass()));
+
+		List<String> socialActivityInterpreterClasses = new ArrayList<String>();
+
+		for (Element socialActivityInterpreterClassElement :
+				portletElement.elements("social-activity-interpreter-class")) {
+
+			socialActivityInterpreterClasses.add(
+				socialActivityInterpreterClassElement.getText());
+		}
+
+		portletModel.setSocialActivityInterpreterClasses(
+			socialActivityInterpreterClasses);
+
 		portletModel.setSocialRequestInterpreterClass(
 			GetterUtil.getString(
 				portletElement.elementText("social-request-interpreter-class"),
@@ -1960,6 +1969,17 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 				qNameElement, nameElement, portletApp.getDefaultNamespace());
 
 			processingEvents.add(qName);
+
+			Set<EventDefinition> eventDefinitions =
+				portletApp.getEventDefinitions();
+
+			for (EventDefinition eventDefinition : eventDefinitions) {
+				Set<QName> qNames = eventDefinition.getQNames();
+
+				if (qNames.contains(qName)) {
+					processingEvents.addAll(qNames);
+				}
+			}
 		}
 
 		portletModel.setProcessingEvents(processingEvents);
@@ -2056,6 +2076,15 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 
 			EventDefinition eventDefinition = new EventDefinitionImpl(
 				qName, valueType, portletApp);
+
+			List<Element> aliases = eventDefinitionElement.elements("alias");
+
+			for (Element alias : aliases) {
+				qName = PortletQNameUtil.getQName(
+					alias, null, portletApp.getDefaultNamespace());
+
+				eventDefinition.addAliasQName(qName);
+			}
 
 			portletApp.addEventDefinition(eventDefinition);
 		}

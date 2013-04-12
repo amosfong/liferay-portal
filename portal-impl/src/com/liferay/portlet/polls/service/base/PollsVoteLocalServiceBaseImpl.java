@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -219,6 +219,20 @@ public abstract class PollsVoteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException, SystemException {
 		return pollsVotePersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns the polls vote matching the UUID and group.
+	 *
+	 * @param uuid the polls vote's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching polls vote
+	 * @throws PortalException if a matching polls vote could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public PollsVote getPollsVoteByUuidAndGroupId(String uuid, long groupId)
+		throws PortalException, SystemException {
+		return pollsVotePersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**

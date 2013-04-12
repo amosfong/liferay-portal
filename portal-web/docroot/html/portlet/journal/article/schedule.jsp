@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,7 +22,7 @@ JournalArticle article = (JournalArticle)request.getAttribute(WebKeys.JOURNAL_AR
 boolean neverExpire = ParamUtil.getBoolean(request, "neverExpire", true);
 
 if (article != null) {
-	if (article.getExpirationDate() != null) {
+	if ((article.getExpirationDate() != null) && !article.isExpired()) {
 		neverExpire = false;
 	}
 }

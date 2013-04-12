@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,8 +15,6 @@
 --%>
 
 <%@ include file="/html/portlet/asset_category_admin/init.jsp" %>
-
-<%@ page import="com.liferay.portlet.asset.service.AssetCategoryServiceUtil" %>
 
 <%
 long categoryId = ParamUtil.getLong(request, "categoryId");
@@ -33,15 +31,15 @@ List<AssetCategoryProperty> categoryProperties = AssetCategoryPropertyServiceUti
 	/>
 
 	<c:if test="<%= category != null %>">
-		<c:if test="<%= permissionChecker.hasPermission(scopeGroupId, AssetCategory.class.getName(), category.getCategoryId(), ActionKeys.UPDATE) %>">
+		<c:if test="<%= AssetCategoryPermission.contains(permissionChecker, category, ActionKeys.UPDATE) %>">
 			<aui:button id="editCategoryButton" value="edit" />
 		</c:if>
 
-		<c:if test="<%= permissionChecker.hasPermission(scopeGroupId, AssetCategory.class.getName(), category.getCategoryId(), ActionKeys.DELETE) %>">
+		<c:if test="<%= AssetCategoryPermission.contains(permissionChecker, category, ActionKeys.DELETE) %>">
 			<aui:button id="deleteCategoryButton" value="delete" />
 		</c:if>
 
-		<c:if test="<%= permissionChecker.hasPermission(scopeGroupId, AssetCategory.class.getName(), category.getCategoryId(), ActionKeys.PERMISSIONS) %>">
+		<c:if test="<%= AssetCategoryPermission.contains(permissionChecker, category, ActionKeys.PERMISSIONS) %>">
 			<liferay-security:permissionsURL
 				modelResource="<%= AssetCategory.class.getName() %>"
 				modelResourceDescription="<%= category.getTitle(locale) %>"
@@ -53,7 +51,7 @@ List<AssetCategoryProperty> categoryProperties = AssetCategoryPropertyServiceUti
 			<aui:button data-url="<%= permissionsURL %>" id="updateCategoryPermissions" value="permissions" />
 		</c:if>
 
-		<c:if test="<%= AssetPermission.contains(permissionChecker, themeDisplay.getSiteGroupId(), ActionKeys.ADD_CATEGORY) %>">
+		<c:if test="<%= AssetCategoryPermission.contains(permissionChecker, category, ActionKeys.ADD_CATEGORY) %>">
 			<aui:button id="addSubCategoryButton" value="add-subcategory" />
 		</c:if>
 	</c:if>

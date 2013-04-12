@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,9 +25,7 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -148,6 +146,12 @@ public class JournalContentPortletDataHandler
 		if (articleGroupId != portletDataContext.getScopeGroupId()) {
 			portletDataContext.setScopeGroupId(articleGroupId);
 		}
+		else if  (
+			articleGroupId == portletDataContext.getSourceCompanyGroupId()) {
+
+			portletDataContext.setScopeGroupId(
+				portletDataContext.getCompanyGroupId());
+		}
 
 		JournalArticle article = null;
 
@@ -168,7 +172,7 @@ public class JournalContentPortletDataHandler
 			}
 		}
 
-		Element rootElement = addExportRootElement();
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		if (article == null) {
 			portletDataContext.setScopeGroupId(previousScopeGroupId);
@@ -213,18 +217,12 @@ public class JournalContentPortletDataHandler
 				preferenceTemplateId, true);
 
 			StagedModelDataHandlerUtil.exportStagedModel(
-				portletDataContext,
-				new Element[] {
-					rootElement, dlFileEntryTypesElement, dlFoldersElement,
-					dlFilesElement, dlFileRanksElement, dlRepositoriesElement,
-					dlRepositoryEntriesElement
-				},
-				ddmTemplate);
+				portletDataContext, ddmTemplate);
 		}
 
 		portletDataContext.setScopeGroupId(previousScopeGroupId);
 
-		return rootElement.formattedString();
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -238,10 +236,6 @@ public class JournalContentPortletDataHandler
 			portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		if (Validator.isNull(data)) {
-			return null;
-		}
-
 		long previousScopeGroupId = portletDataContext.getScopeGroupId();
 
 		long importGroupId = GetterUtil.getLong(
@@ -251,27 +245,29 @@ public class JournalContentPortletDataHandler
 			portletDataContext.setScopeGroupId(portletDataContext.getGroupId());
 		}
 
-		Document document = SAXReaderUtil.read(data);
-
-		Element rootElement = document.getRootElement();
+		Element rootElement = portletDataContext.getImportDataRootElement();
 
 		JournalPortletDataHandler.importReferencedData(
 			portletDataContext, rootElement);
 
-		Element structureElement = rootElement.element("structure");
+		Element structuresElement =
+			portletDataContext.getImportDataGroupElement(DDMStructure.class);
 
-		if (structureElement != null) {
+		List<Element> structureElements = structuresElement.elements();
+
+		for (Element structureElement : structureElements) {
 			StagedModelDataHandlerUtil.importStagedModel(
 				portletDataContext, structureElement);
 		}
 
-		List<Element> templateElements = rootElement.elements("template");
+		Element templatesElement = portletDataContext.getImportDataGroupElement(
+			DDMTemplate.class);
 
-		if (templateElements != null) {
-			for (Element templateElement : templateElements) {
-				StagedModelDataHandlerUtil.importStagedModel(
-					portletDataContext, templateElement);
-			}
+		List<Element> templateElements = templatesElement.elements();
+
+		for (Element templateElement : templateElements) {
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, templateElement);
 		}
 
 		Element articleElement = rootElement.element("article");

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.image.ImageBag;
 import com.liferay.portal.kernel.image.ImageToolUtil;
 import com.liferay.portal.kernel.io.FileFilter;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -624,7 +625,8 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		StringBundler sb = new StringBundler(8);
 
 		sb.append(
-			portletDataContext.getPortletPath(PortletKeys.DOCUMENT_LIBRARY));
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.DOCUMENT_LIBRARY));
 		sb.append("/bin/");
 		sb.append(fileEntry.getFileEntryId());
 		sb.append(StringPool.SLASH);
@@ -643,7 +645,8 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		StringBundler sb = new StringBundler(8);
 
 		sb.append(
-			portletDataContext.getPortletPath(PortletKeys.DOCUMENT_LIBRARY));
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.DOCUMENT_LIBRARY));
 		sb.append("/bin/");
 		sb.append(fileEntry.getFileEntryId());
 		sb.append(StringPool.SLASH);
@@ -952,7 +955,7 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		if (!portletDataContext.isPerformDirectBinaryImport()) {
 			importPreviewFromLAR(
 				portletDataContext, importedFileEntry, fileEntryElement,
-				binPathSuffix, fileIndex);
+				binPathSuffix, previewType, fileIndex);
 		}
 		else {
 			FileVersion importedFileVersion =
@@ -986,7 +989,8 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 
 	protected void importPreviewFromLAR(
 			PortletDataContext portletDataContext, FileEntry fileEntry,
-			Element fileEntryElement, String binPathSuffix, int fileIndex)
+			Element fileEntryElement, String binPathSuffix, String previewType,
+			int fileIndex)
 		throws Exception {
 
 		FileVersion fileVersion = fileEntry.getFileVersion();
@@ -994,7 +998,7 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 		String binPathSegment = null;
 
 		if (fileIndex < 0) {
-			binPathSegment = getPreviewType(fileVersion);
+			binPathSegment = previewType;
 		}
 		else {
 			binPathSegment = Integer.toString(fileIndex + 1);
@@ -1023,8 +1027,7 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 			String previewFilePath = null;
 
 			if (fileIndex < 0) {
-				previewFilePath = getPreviewFilePath(
-					fileVersion, getPreviewType(fileVersion));
+				previewFilePath = getPreviewFilePath(fileVersion, previewType);
 			}
 			else {
 				previewFilePath = getPreviewFilePath(

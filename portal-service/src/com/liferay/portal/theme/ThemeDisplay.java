@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -53,6 +53,8 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 import javax.portlet.PortletURL;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Brian Wing Shun Chan
@@ -312,7 +314,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated Use <code>getPathThemeImages</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #getPathThemeImages}
 	 */
 	public String getPathThemeImage() {
 		return getPathThemeImages();
@@ -351,7 +353,7 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated Use <code>getScopeGroupId</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #getScopeGroupId}
 	 */
 	public long getPortletGroupId() {
 		return getScopeGroupId();
@@ -381,8 +383,16 @@ public class ThemeDisplay
 		return _realUser.getUserId();
 	}
 
+	public long getRefererGroupId() {
+		return _refererGroupId;
+	}
+
 	public long getRefererPlid() {
 		return _refererPlid;
+	}
+
+	public HttpServletRequest getRequest() {
+		return _request;
 	}
 
 	public Group getScopeGroup() {
@@ -543,6 +553,10 @@ public class ThemeDisplay
 		return _urlLayoutTemplates;
 	}
 
+	public String getURLManageSite() {
+		return _urlManageSite;
+	}
+
 	public PortletURL getURLManageSiteMemberships() {
 		return _urlManageSiteMemberships;
 	}
@@ -571,8 +585,11 @@ public class ThemeDisplay
 		return _urlSignOut;
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getURLManageSite()}
+	 */
 	public String getURLSiteContent() {
-		return _urlSiteContent;
+		return getURLManageSite();
 	}
 
 	public PortletURL getURLSiteMapSettings() {
@@ -685,6 +702,10 @@ public class ThemeDisplay
 		return _showLayoutTemplatesIcon;
 	}
 
+	public boolean isShowManageSiteIcon() {
+		return _showManageSiteIcon;
+	}
+
 	public boolean isShowManageSiteMembershipsIcon() {
 		return _showManageSiteMembershipsIcon;
 	}
@@ -713,8 +734,11 @@ public class ThemeDisplay
 		return _showSignOutIcon;
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #isShowManageSiteIcon()}
+	 */
 	public boolean isShowSiteContentIcon() {
-		return _showSiteContentIcon;
+		return isShowManageSiteIcon();
 	}
 
 	public boolean isShowSiteMapSettingsIcon() {
@@ -1114,8 +1138,16 @@ public class ThemeDisplay
 		_realUser = realUser;
 	}
 
+	public void setRefererGroupId(long refererGroupId) {
+		_refererGroupId = refererGroupId;
+	}
+
 	public void setRefererPlid(long refererPlid) {
 		_refererPlid = refererPlid;
+	}
+
+	public void setRequest(HttpServletRequest request) {
+		_request = request;
 	}
 
 	public void setScopeGroupId(long scopeGroupId) {
@@ -1169,6 +1201,10 @@ public class ThemeDisplay
 		_showLayoutTemplatesIcon = showLayoutTemplatesIcon;
 	}
 
+	public void setShowManageSiteIcon(boolean showManageSiteIcon) {
+		_showManageSiteIcon = showManageSiteIcon;
+	}
+
 	public void setShowManageSiteMembershipsIcon(
 		boolean showManageSiteMembershipsIcon) {
 
@@ -1201,8 +1237,12 @@ public class ThemeDisplay
 		_showSignOutIcon = showSignOutIcon;
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             #setShowManageSiteIcon(boolean)}
+	 */
 	public void setShowSiteContentIcon(boolean showSiteContentIcon) {
-		_showSiteContentIcon = showSiteContentIcon;
+		setShowManageSiteIcon(showSiteContentIcon);
 	}
 
 	public void setShowSiteMapSettingsIcon(boolean showSiteMapSettingsIcon) {
@@ -1304,6 +1344,10 @@ public class ThemeDisplay
 		_urlLayoutTemplates = urlLayoutTemplates;
 	}
 
+	public void setURLManageSite(String urlManageSite) {
+		_urlManageSite = urlManageSite;
+	}
+
 	public void setURLManageSiteMemberships(
 		PortletURL urlManageSiteMemberships) {
 
@@ -1334,8 +1378,11 @@ public class ThemeDisplay
 		_urlSignOut = urlSignOut;
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #setURLManageSite(String)}
+	 */
 	public void setURLSiteContent(String urlSiteContent) {
-		_urlSiteContent = urlSiteContent;
+		setURLManageSite(urlSiteContent);
 	}
 
 	public void setURLSiteMapSettings(PortletURL urlSiteMapSettings) {
@@ -1440,7 +1487,9 @@ public class ThemeDisplay
 	private int _realCompanyLogoHeight;
 	private int _realCompanyLogoWidth;
 	private User _realUser;
+	private long _refererGroupId;
 	private long _refererPlid;
+	private transient HttpServletRequest _request;
 	private Group _scopeGroup;
 	private long _scopeGroupId;
 	private boolean _secure;
@@ -1452,6 +1501,7 @@ public class ThemeDisplay
 	private boolean _showControlPanelIcon;
 	private boolean _showHomeIcon;
 	private boolean _showLayoutTemplatesIcon;
+	private boolean _showManageSiteIcon;
 	private boolean _showManageSiteMembershipsIcon;
 	private boolean _showMyAccountIcon;
 	private boolean _showPageCustomizationIcon;
@@ -1459,7 +1509,6 @@ public class ThemeDisplay
 	private boolean _showPortalIcon;
 	private boolean _showSignInIcon;
 	private boolean _showSignOutIcon;
-	private boolean _showSiteContentIcon;
 	private boolean _showSiteMapSettingsIcon;
 	private boolean _showSiteSettingsIcon;
 	private boolean _showStagingIcon;
@@ -1484,6 +1533,7 @@ public class ThemeDisplay
 	private String _urlCurrent = StringPool.BLANK;
 	private String _urlHome = StringPool.BLANK;
 	private String _urlLayoutTemplates = StringPool.BLANK;
+	private String _urlManageSite = StringPool.BLANK;
 	private transient PortletURL _urlManageSiteMemberships = null;
 	private transient PortletURL _urlMyAccount = null;
 	private transient PortletURL _urlPageSettings = null;
@@ -1491,7 +1541,6 @@ public class ThemeDisplay
 	private transient PortletURL _urlPublishToLive = null;
 	private String _urlSignIn = StringPool.BLANK;
 	private String _urlSignOut = StringPool.BLANK;
-	private String _urlSiteContent = StringPool.BLANK;
 	private transient PortletURL _urlSiteMapSettings = null;
 	private transient PortletURL _urlSiteSettings = null;
 	private transient PortletURL _urlUpdateManager = null;

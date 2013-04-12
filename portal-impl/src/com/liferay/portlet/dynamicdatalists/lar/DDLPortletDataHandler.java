@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,9 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BasePortletDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.service.DDLRecordSetLocalServiceUtil;
 import com.liferay.portlet.dynamicdatalists.service.persistence.DDLRecordSetActionableDynamicQuery;
@@ -36,7 +34,7 @@ import javax.portlet.PortletPreferences;
  */
 public class DDLPortletDataHandler extends BasePortletDataHandler {
 
-	public static final String NAMESPACE = "ddl";
+	public static final String NAMESPACE = "dynamic_data_lists";
 
 	public DDLPortletDataHandler() {
 		setAlwaysExportable(true);
@@ -71,28 +69,24 @@ public class DDLPortletDataHandler extends BasePortletDataHandler {
 			"com.liferay.portlet.dynamicdatalist",
 			portletDataContext.getScopeGroupId());
 
-		Element rootElement = addExportRootElement();
-
-		final Element recordSetsElement = rootElement.addElement("record-sets");
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		ActionableDynamicQuery actionableDynamicQuery =
 			new DDLRecordSetActionableDynamicQuery() {
 
-				@Override
-				protected void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(
-						dynamicQuery, "modifiedDate");
-				}
+			@Override
+			protected void addCriteria(DynamicQuery dynamicQuery) {
+				portletDataContext.addDateRangeCriteria(
+					dynamicQuery, "modifiedDate");
+			}
 
-				@Override
-				protected void performAction(Object object)
-					throws PortalException {
+			@Override
+			protected void performAction(Object object) throws PortalException {
+				DDLRecordSet recordSet = (DDLRecordSet)object;
 
-					DDLRecordSet recordSet = (DDLRecordSet)object;
-
-					StagedModelDataHandlerUtil.exportStagedModel(
-						portletDataContext, recordSetsElement, recordSet);
-				}
+				StagedModelDataHandlerUtil.exportStagedModel(
+					portletDataContext, recordSet);
+			}
 
 		};
 
@@ -100,7 +94,7 @@ public class DDLPortletDataHandler extends BasePortletDataHandler {
 
 		actionableDynamicQuery.performActions();
 
-		return rootElement.formattedString();
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -114,14 +108,10 @@ public class DDLPortletDataHandler extends BasePortletDataHandler {
 			portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		Document document = SAXReaderUtil.read(data);
+		Element recordSetsElement =
+			portletDataContext.getImportDataGroupElement(DDLRecordSet.class);
 
-		Element rootElement = document.getRootElement();
-
-		Element recordSetsElement = rootElement.element("record-sets");
-
-		List<Element> recordSetElements = recordSetsElement.elements(
-			"record-set");
+		List<Element> recordSetElements = recordSetsElement.elements();
 
 		for (Element recordSetElement : recordSetElements) {
 			StagedModelDataHandlerUtil.importStagedModel(

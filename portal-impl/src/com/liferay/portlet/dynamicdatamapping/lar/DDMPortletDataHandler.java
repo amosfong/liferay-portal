@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -33,9 +33,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
@@ -70,7 +68,7 @@ import javax.portlet.PortletPreferences;
  */
 public class DDMPortletDataHandler extends BasePortletDataHandler {
 
-	public static final String NAMESPACE = "ddm";
+	public static final String NAMESPACE = "dynamic_data_mapping";
 
 	public static String exportReferencedContent(
 			PortletDataContext portletDataContext,
@@ -299,8 +297,8 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 						}
 					}
 					else if (map.containsKey("image_id") ||
-						map.containsKey("img_id") ||
-						map.containsKey("i_id")) {
+							 map.containsKey("img_id") ||
+							 map.containsKey("i_id")) {
 
 						long imageId = MapUtil.getLong(map, "image_id");
 
@@ -645,31 +643,27 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 			"com.liferay.portlet.dynamicdatamapping",
 			portletDataContext.getScopeGroupId());
 
-		Element rootElement = addExportRootElement();
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		rootElement.addAttribute(
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
-		final Element structuresElement = rootElement.addElement("structures");
-
 		ActionableDynamicQuery structureActionableDynamicQuery =
 			new DDMStructureActionableDynamicQuery() {
 
-				@Override
-				protected void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(
-						dynamicQuery, "modifiedDate");
-				}
+			@Override
+			protected void addCriteria(DynamicQuery dynamicQuery) {
+				portletDataContext.addDateRangeCriteria(
+					dynamicQuery, "modifiedDate");
+			}
 
-				@Override
-				protected void performAction(Object object)
-					throws PortalException {
+			@Override
+			protected void performAction(Object object) throws PortalException {
+				DDMStructure structure = (DDMStructure)object;
 
-					DDMStructure structure = (DDMStructure)object;
-
-					StagedModelDataHandlerUtil.exportStagedModel(
-						portletDataContext, structuresElement, structure);
-				}
+				StagedModelDataHandlerUtil.exportStagedModel(
+					portletDataContext, structure);
+			}
 
 		};
 
@@ -678,26 +672,22 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 
 		structureActionableDynamicQuery.performActions();
 
-		final Element templatesElement = rootElement.addElement("templates");
-
 		ActionableDynamicQuery templateActionableDynamicQuery =
 			new DDMTemplateActionableDynamicQuery() {
 
-				@Override
-				protected void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(
-						dynamicQuery, "modifiedDate");
-				}
+			@Override
+			protected void addCriteria(DynamicQuery dynamicQuery) {
+				portletDataContext.addDateRangeCriteria(
+					dynamicQuery, "modifiedDate");
+			}
 
-				@Override
-				protected void performAction(Object object)
-					throws PortalException {
+			@Override
+			protected void performAction(Object object) throws PortalException {
+				DDMTemplate template = (DDMTemplate)object;
 
-					DDMTemplate template = (DDMTemplate)object;
-
-					StagedModelDataHandlerUtil.exportStagedModel(
-						portletDataContext, templatesElement, template);
-				}
+				StagedModelDataHandlerUtil.exportStagedModel(
+					portletDataContext, template);
+			}
 
 		};
 
@@ -706,7 +696,7 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 
 		templateActionableDynamicQuery.performActions();
 
-		return rootElement.formattedString();
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -720,14 +710,10 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 			portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		Document document = SAXReaderUtil.read(data);
+		Element structuresElement =
+			portletDataContext.getImportDataGroupElement(DDMStructure.class);
 
-		Element rootElement = document.getRootElement();
-
-		Element structuresElement = rootElement.element("structures");
-
-		List<Element> structureElements = structuresElement.elements(
-			"structure");
+		List<Element> structureElements = structuresElement.elements();
 
 		for (Element structureElement : structureElements) {
 			StagedModelDataHandlerUtil.importStagedModel(
@@ -735,10 +721,10 @@ public class DDMPortletDataHandler extends BasePortletDataHandler {
 		}
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "templates")) {
-			Element templatesElement = rootElement.element("templates");
+			Element templatesElement =
+				portletDataContext.getImportDataGroupElement(DDMTemplate.class);
 
-			List<Element> templateElements = templatesElement.elements(
-				"template");
+			List<Element> templateElements = templatesElement.elements();
 
 			for (Element templateElement : templateElements) {
 				StagedModelDataHandlerUtil.importStagedModel(

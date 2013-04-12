@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -76,8 +76,8 @@ public class WebDAVServlet extends HttpServlet {
 				return;
 			}
 
-			// Set the path only if it has not already been set. This works
-			// if and only if the servlet is not mapped to more than one URL.
+			// Set the path only if it has not already been set. This works if
+			// and only if the servlet is not mapped to more than one URL.
 
 			if (storage.getRootPath() == null) {
 				storage.setRootPath(getRootPath(request));
@@ -106,10 +106,10 @@ public class WebDAVServlet extends HttpServlet {
 			// Process the method
 
 			try {
-				WebDAVRequest webDavRequest = new WebDAVRequestImpl(
+				WebDAVRequest webDAVRequest = new WebDAVRequestImpl(
 					storage, request, response, userAgent, permissionChecker);
 
-				status = method.process(webDavRequest);
+				status = method.process(webDAVRequest);
 			}
 			catch (WebDAVException wde) {
 				boolean logError = false;

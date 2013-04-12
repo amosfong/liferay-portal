@@ -86,6 +86,10 @@
 		<column name="storageType" type="String" />
 		<column name="type" type="int" />
 
+		<!-- Relationships -->
+
+		<column name="dlFileEntryTypes" type="Collection" entity="com.liferay.portlet.documentlibrary.DLFileEntryType" mapping-table="DLFileEntryTypes_DDMStructures" />
+
 		<!-- Finder methods -->
 
 		<finder name="GroupId" return-type="Collection">
@@ -97,8 +101,12 @@
 		<finder name="StructureKey" return-type="Collection">
 			<finder-column name="structureKey" />
 		</finder>
-		<finder name="G_C" return-type="Collection" >
+		<finder name="G_P" return-type="Collection" >
 			<finder-column name="groupId" />
+			<finder-column name="parentStructureId" />
+		</finder>
+		<finder name="G_C" return-type="Collection" >
+			<finder-column name="groupId" arrayable-operator="OR" />
 			<finder-column name="classNameId" />
 		</finder>
 		<finder name="C_C" return-type="Collection">
@@ -200,6 +208,10 @@
 			<finder-column name="groupId" />
 			<finder-column name="classNameId" />
 		</finder>
+		<finder name="G_CPK" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="classPK" />
+		</finder>
 		<finder name="G_C_C" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="classNameId" />
@@ -239,6 +251,7 @@
 		<exception>ContentName</exception>
 		<exception>ContentXml</exception>
 		<exception>RequiredStructure</exception>
+		<exception>RequiredTemplate</exception>
 		<exception>Storage</exception>
 		<exception>StorageFieldName</exception>
 		<exception>StorageFieldRequired</exception>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -30,7 +31,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,6 +99,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
  * @author Brian Wing Shun Chan
  * @author Hugo Huijser
  */
+@DoPrivileged
 public class HttpImpl implements Http {
 
 	public HttpImpl() {
@@ -378,7 +379,8 @@ public class HttpImpl implements Http {
 	}
 
 	/**
-	 * @deprecated {@link #getHostConfiguration(String)}
+	 * @deprecated As of 6.1.0, replaced by {@link
+	 *             #getHostConfiguration(String)}
 	 */
 	public HostConfiguration getHostConfig(String location) throws IOException {
 		return getHostConfiguration(location);
@@ -1208,26 +1210,7 @@ public class HttpImpl implements Http {
 
 			proxifyState(httpState, hostConfiguration);
 
-			boolean checkReadFileDescriptor =
-				PortalSecurityManagerThreadLocal.isCheckReadFileDescriptor();
-			boolean checkWriteFileDescriptor =
-				PortalSecurityManagerThreadLocal.isCheckWriteFileDescriptor();
-
-			try {
-				PortalSecurityManagerThreadLocal.setCheckReadFileDescriptor(
-					false);
-				PortalSecurityManagerThreadLocal.setCheckWriteFileDescriptor(
-					false);
-
-				httpClient.executeMethod(
-					hostConfiguration, httpMethod, httpState);
-			}
-			finally {
-				PortalSecurityManagerThreadLocal.setCheckReadFileDescriptor(
-					checkReadFileDescriptor);
-				PortalSecurityManagerThreadLocal.setCheckWriteFileDescriptor(
-					checkWriteFileDescriptor);
-			}
+			httpClient.executeMethod(hostConfiguration, httpMethod, httpState);
 
 			Header locationHeader = httpMethod.getResponseHeader("location");
 

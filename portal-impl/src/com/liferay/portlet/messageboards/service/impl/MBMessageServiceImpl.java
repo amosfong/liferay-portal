@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -93,8 +93,8 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #addMessage(long, String, String, String,
-	 *             java.util.List, boolean, double, boolean,
+	 * @deprecated As of 6.2.0, replaced by {@link #addMessage(long, String,
+	 *             String, String, java.util.List, boolean, double, boolean,
 	 *             com.liferay.portal.service.ServiceContext)}
 	 */
 	public MBMessage addMessage(
@@ -177,7 +177,9 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 
 		int workFlowAction = serviceContext.getWorkflowAction();
 
-		if ((workFlowAction == WorkflowConstants.STATUS_DRAFT) && !preview) {
+		if ((workFlowAction == WorkflowConstants.STATUS_DRAFT) && !preview &&
+			!serviceContext.isSignedIn()) {
+
 			MBMessagePermission.check(
 				getPermissionChecker(), parentMessageId, ActionKeys.UPDATE);
 		}

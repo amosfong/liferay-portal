@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -221,6 +221,12 @@ public class UserFinderImpl
 			params = _emptyLinkedHashMap;
 		}
 
+		LinkedHashMap<String, Object> params1 = params;
+
+		LinkedHashMap<String, Object> params2 = null;
+
+		LinkedHashMap<String, Object> params3 = null;
+
 		Long[] groupIds = null;
 
 		if (params.get("usersGroups") instanceof Long) {
@@ -234,17 +240,24 @@ public class UserFinderImpl
 			groupIds = (Long[])params.get("usersGroups");
 		}
 
+		Long[] roleIds = null;
+
+		if (params.get("usersRoles") instanceof Long) {
+			Long roleId = (Long)params.get("usersRoles");
+
+			if (roleId > 0) {
+				roleIds = new Long[] {roleId};
+			}
+		}
+		else {
+			roleIds = (Long[])params.get("usersRoles");
+		}
+
 		boolean inherit = GetterUtil.getBoolean(params.get("inherit"));
 
-		boolean doUnion = Validator.isNotNull(groupIds) && inherit;
+		boolean doUnionOnGroup = Validator.isNotNull(groupIds) && inherit;
 
-		LinkedHashMap<String, Object> params1 = params;
-
-		LinkedHashMap<String, Object> params2 = null;
-
-		LinkedHashMap<String, Object> params3 = null;
-
-		if (doUnion) {
+		if (doUnionOnGroup) {
 			params2 = new LinkedHashMap<String, Object>(params1);
 
 			params2.remove("usersGroups");
@@ -272,9 +285,7 @@ public class UserFinderImpl
 
 				List<UserGroup> userGroups = GroupUtil.getUserGroups(groupId);
 
-				for (int i = 0; i < userGroups.size(); i++) {
-					UserGroup userGroup = userGroups.get(i);
-
+				for (UserGroup userGroup : userGroups) {
 					userGroupIds.add(userGroup.getUserGroupId());
 				}
 			}
@@ -286,6 +297,28 @@ public class UserFinderImpl
 			params3.put(
 				"usersUserGroups",
 				userGroupIds.toArray(new Long[userGroupIds.size()]));
+		}
+
+		boolean doUnionOnRole = Validator.isNotNull(roleIds) && inherit;
+
+		if (doUnionOnRole) {
+			params2 = new LinkedHashMap<String, Object>(params1);
+
+			params2.remove("usersRoles");
+
+			List<Long> roleGroupIds = new ArrayList<Long>();
+
+			for (long roleId : roleIds) {
+				List<Group> groups = RoleUtil.getGroups(roleId);
+
+				for (Group group : groups) {
+					roleGroupIds.add(group.getGroupId());
+				}
+			}
+
+			params2.put(
+				"usersGroups",
+				roleGroupIds.toArray(new Long[roleGroupIds.size()]));
 		}
 
 		Session session = null;
@@ -300,13 +333,15 @@ public class UserFinderImpl
 					session, companyId, firstNames, middleNames, lastNames,
 					screenNames, emailAddresses, status, params1, andOperator));
 
-			if (doUnion) {
+			if (doUnionOnGroup || doUnionOnRole) {
 				userIds.addAll(
 					countByC_FN_MN_LN_SN_EA_S(
 						session, companyId, firstNames, middleNames, lastNames,
 						screenNames, emailAddresses, status, params2,
 						andOperator));
+			}
 
+			if (doUnionOnGroup) {
 				userIds.addAll(
 					countByC_FN_MN_LN_SN_EA_S(
 						session, companyId, firstNames, middleNames, lastNames,
@@ -460,6 +495,12 @@ public class UserFinderImpl
 			params = _emptyLinkedHashMap;
 		}
 
+		LinkedHashMap<String, Object> params1 = params;
+
+		LinkedHashMap<String, Object> params2 = null;
+
+		LinkedHashMap<String, Object> params3 = null;
+
 		Long[] groupIds = null;
 
 		if (params.get("usersGroups") instanceof Long) {
@@ -473,17 +514,24 @@ public class UserFinderImpl
 			groupIds = (Long[])params.get("usersGroups");
 		}
 
+		Long[] roleIds = null;
+
+		if (params.get("usersRoles") instanceof Long) {
+			Long roleId = (Long)params.get("usersRoles");
+
+			if (roleId > 0) {
+				roleIds = new Long[] {roleId};
+			}
+		}
+		else {
+			roleIds = (Long[])params.get("usersRoles");
+		}
+
 		boolean inherit = GetterUtil.getBoolean(params.get("inherit"));
 
-		boolean doUnion = Validator.isNotNull(groupIds) && inherit;
+		boolean doUnionOnGroup = Validator.isNotNull(groupIds) && inherit;
 
-		LinkedHashMap<String, Object> params1 = params;
-
-		LinkedHashMap<String, Object> params2 = null;
-
-		LinkedHashMap<String, Object> params3 = null;
-
-		if (doUnion) {
+		if (doUnionOnGroup) {
 			params2 = new LinkedHashMap<String, Object>(params1);
 
 			params2.remove("usersGroups");
@@ -511,9 +559,7 @@ public class UserFinderImpl
 
 				List<UserGroup> userGroups = GroupUtil.getUserGroups(groupId);
 
-				for (int i = 0; i < userGroups.size(); i++) {
-					UserGroup userGroup = userGroups.get(i);
-
+				for (UserGroup userGroup : userGroups) {
 					userGroupIds.add(userGroup.getUserGroupId());
 				}
 			}
@@ -525,6 +571,28 @@ public class UserFinderImpl
 			params3.put(
 				"usersUserGroups",
 				userGroupIds.toArray(new Long[userGroupIds.size()]));
+		}
+
+		boolean doUnionOnRole = Validator.isNotNull(roleIds) && inherit;
+
+		if (doUnionOnRole) {
+			params2 = new LinkedHashMap<String, Object>(params1);
+
+			params2.remove("usersRoles");
+
+			List<Long> roleGroupIds = new ArrayList<Long>();
+
+			for (long roleId : roleIds) {
+				List<Group> groups = RoleUtil.getGroups(roleId);
+
+				for (Group group : groups) {
+					roleGroupIds.add(group.getGroupId());
+				}
+			}
+
+			params2.put(
+				"usersGroups",
+				roleGroupIds.toArray(new Long[roleGroupIds.size()]));
 		}
 
 		Session session = null;
@@ -560,10 +628,14 @@ public class UserFinderImpl
 			sb.append(replaceJoinAndWhere(sql, params1));
 			sb.append(StringPool.CLOSE_PARENTHESIS);
 
-			if (doUnion) {
+			if (doUnionOnGroup || doUnionOnRole) {
 				sb.append(" UNION (");
 				sb.append(replaceJoinAndWhere(sql, params2));
-				sb.append(") UNION (");
+				sb.append(StringPool.CLOSE_PARENTHESIS);
+			}
+
+			if (doUnionOnGroup) {
+				sb.append(" UNION (");
 				sb.append(replaceJoinAndWhere(sql, params3));
 				sb.append(StringPool.CLOSE_PARENTHESIS);
 			}
@@ -597,7 +669,7 @@ public class UserFinderImpl
 				qPos.add(status);
 			}
 
-			if (doUnion) {
+			if (doUnionOnGroup || doUnionOnRole) {
 				setJoin(qPos, params2);
 
 				qPos.add(companyId);
@@ -611,7 +683,9 @@ public class UserFinderImpl
 				if (status != WorkflowConstants.STATUS_ANY) {
 					qPos.add(status);
 				}
+			}
 
+			if (doUnionOnGroup) {
 				setJoin(qPos, params3);
 
 				qPos.add(companyId);
@@ -825,6 +899,15 @@ public class UserFinderImpl
 		}
 		else if (key.equals("userGroupRole")) {
 			join = CustomSQLUtil.get(JOIN_BY_USER_GROUP_ROLE);
+
+			Long[] valueArray = (Long[])value;
+
+			Long groupId = valueArray[0];
+
+			if (Validator.isNull(groupId)) {
+				join = StringUtil.replace(
+					join, "(UserGroupRole.groupId = ?) AND", StringPool.BLANK);
+			}
 		}
 		else if (key.equals("usersGroups")) {
 			if (value instanceof Long) {

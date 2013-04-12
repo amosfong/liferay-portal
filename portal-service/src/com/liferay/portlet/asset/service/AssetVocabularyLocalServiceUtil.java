@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -193,12 +193,12 @@ public class AssetVocabularyLocalServiceUtil {
 	}
 
 	/**
-	* Returns the asset vocabulary with the UUID in the group.
+	* Returns the asset vocabulary matching the UUID and group.
 	*
-	* @param uuid the UUID of asset vocabulary
-	* @param groupId the group id of the asset vocabulary
-	* @return the asset vocabulary
-	* @throws PortalException if a asset vocabulary with the UUID in the group could not be found
+	* @param uuid the asset vocabulary's UUID
+	* @param groupId the primary key of the group
+	* @return the matching asset vocabulary
+	* @throws PortalException if a matching asset vocabulary could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.asset.model.AssetVocabulary getAssetVocabularyByUuidAndGroupId(
@@ -269,7 +269,7 @@ public class AssetVocabularyLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated
+	* @deprecated As of 6.1.0
 	*/
 	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
 		long userId,
@@ -408,7 +408,7 @@ public class AssetVocabularyLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated
+	* @deprecated As of 6.1.0
 	*/
 	public static com.liferay.portlet.asset.model.AssetVocabulary updateVocabulary(
 		long vocabularyId,
@@ -448,7 +448,7 @@ public class AssetVocabularyLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(AssetVocabularyLocalService service) {
 	}

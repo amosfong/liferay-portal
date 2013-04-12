@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -216,10 +216,6 @@ if (!StringUtil.contains(tabs4Names, tabs4)) {
 			<c:if test="<%= rle.getType() == RequiredLayoutException.FIRST_LAYOUT_TYPE %>">
 				<liferay-ui:message key="your-first-page-must-have-one-of-the-following-types" />: <%= PortalUtil.getFirstPageLayoutTypes(pageContext) %>
 			</c:if>
-
-			<c:if test="<%= rle.getType() == RequiredLayoutException.FIRST_LAYOUT_HIDDEN %>">
-				<liferay-ui:message key="your-first-page-must-not-be-hidden" />
-			</c:if>
 		</liferay-ui:error>
 
 		<liferay-ui:message key="set-the-display-order-of-child-pages" />
@@ -256,7 +252,7 @@ if (!StringUtil.contains(tabs4Names, tabs4)) {
 
 		<br />
 
-		<input type="button" value="<liferay-ui:message key="update-display-order" />" onClick="<portlet:namespace />updateDisplayOrder();" />
+		<input onClick="<portlet:namespace />updateDisplayOrder();" type="button" value="<liferay-ui:message key="update-display-order" />" />
 	</c:when>
 	<c:when test='<%= tabs4.equals("merge-pages") %>'>
 
@@ -264,14 +260,14 @@ if (!StringUtil.contains(tabs4Names, tabs4)) {
 		boolean mergeGuestPublicPages = PropertiesParamUtil.getBoolean(groupTypeSettings, request, "mergeGuestPublicPages");
 		%>
 
-		<liferay-ui:message arguments="<%= company.getGroup().getDescriptiveName(locale) %>" key="you-can-configure-the-top-level-pages-of-this-public-site-to-merge-with-the-top-level-pages-of-the-public-x-site" />
+		<liferay-ui:message arguments="<%= HtmlUtil.escape(company.getGroup().getDescriptiveName(locale)) %>" key="you-can-configure-the-top-level-pages-of-this-public-site-to-merge-with-the-top-level-pages-of-the-public-x-site" />
 
 		<br /><br />
 
 		<table class="lfr-table">
 		<tr>
 			<td class="lfr-label">
-				<liferay-ui:message arguments="<%= company.getGroup().getDescriptiveName(locale) %>" key="merge-x-public-pages" />
+				<liferay-ui:message arguments="<%= HtmlUtil.escape(company.getGroup().getDescriptiveName(locale)) %>" key="merge-x-public-pages" />
 			</td>
 			<td>
 				<liferay-ui:input-checkbox defaultValue="<%= mergeGuestPublicPages %>" param="mergeGuestPublicPages" />

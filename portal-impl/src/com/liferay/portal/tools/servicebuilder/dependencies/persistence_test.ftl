@@ -22,14 +22,19 @@ import ${packagePath}.model.impl.${entity.name}ModelImpl;
 
 import ${beanLocatorUtil};
 import com.liferay.portal.kernel.dao.jdbc.OutputBlob;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
@@ -288,6 +293,51 @@ public class ${entity.name}PersistenceTest {
 		}
 	}
 
+	<#if !entity.hasCompoundPK()>
+		@Test
+		public void testFindAll() throws Exception {
+			try {
+				_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, getOrderByComparator());
+			}
+			catch (Exception e) {
+				Assert.fail(e.getMessage());
+			}
+		}
+
+		<#list entity.getFinderList() as finder>
+			<#if (finder.name == "GroupId") && entity.isPermissionCheckEnabled(finder)>
+				@Test
+				public void testFilterFindByGroupId() throws Exception {
+					try {
+						_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS, QueryUtil.ALL_POS, getOrderByComparator());
+					}
+					catch (Exception e) {
+						Assert.fail(e.getMessage());
+					}
+				}
+
+				<#break>
+			</#if>
+		</#list>
+
+		protected OrderByComparator getOrderByComparator() {
+			return OrderByComparatorFactoryUtil.create(
+				"${entity.table}",
+
+				<#list entity.regularColList as column>
+					<#if column.type != "Blob">
+						"${column.name}", true
+
+						<#if column_has_next>
+							,
+						</#if>
+					</#if>
+				</#list>
+
+				);
+		}
+	</#if>
+
 	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		${entity.name} new${entity.name} = add${entity.name}();
@@ -337,6 +387,30 @@ public class ${entity.name}PersistenceTest {
 
 		Assert.assertNull(missing${entity.name});
 	}
+
+	<#if entity.hasActionableDynamicQuery()>
+		@Test
+		public void testActionableDynamicQuery() throws Exception {
+			final IntegerWrapper count = new IntegerWrapper();
+
+			ActionableDynamicQuery actionableDynamicQuery = new ${entity.name}ActionableDynamicQuery() {
+
+				@Override
+				protected void performAction(Object object) {
+					${entity.name} ${entity.varName} = (${entity.name})object;
+
+					Assert.assertNotNull(${entity.varName});
+
+					count.increment();
+				}
+
+			};
+
+			actionableDynamicQuery.performActions();
+
+			Assert.assertEquals(count.getValue(), _persistence.countAll());
+		}
+	</#if>
 
 	@Test
 	public void testDynamicQueryByPrimaryKeyExisting() throws Exception {

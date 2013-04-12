@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,9 @@ import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.net.URL;
+
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +49,9 @@ public class FileAvailabilityUtil {
 			URL url = null;
 
 			try {
-				url = servletContext.getResource(path);
+				url = AccessController.doPrivileged(
+					new ResourcePrivilegedExceptionAction(
+						servletContext, path));
 			}
 			catch (Exception e) {
 			}
@@ -70,5 +75,24 @@ public class FileAvailabilityUtil {
 
 	private static Map<String, Boolean> _availabilities =
 		new ConcurrentHashMap<String, Boolean>();
+
+	private static class ResourcePrivilegedExceptionAction
+		implements PrivilegedExceptionAction<URL> {
+
+		public ResourcePrivilegedExceptionAction(
+			ServletContext servletContext, String path) {
+
+			_servletContext = servletContext;
+			_path = path;
+		}
+
+		public URL run() throws Exception {
+			return _servletContext.getResource(_path);
+		}
+
+		private String _path;
+		private ServletContext _servletContext;
+
+	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -103,8 +103,8 @@ public class GroupServiceWrapper implements GroupService,
 	information was invalid, if a layout could not be found, or
 	if a valid friendly URL could not be created for the group
 	* @throws SystemException if a system exception occurred
-	* @deprecated {@link #addGroup(long, long, String, String, int, String,
-	boolean, boolean, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
+	String, int, String, boolean, boolean, ServiceContext)}
 	*/
 	public com.liferay.portal.model.Group addGroup(long parentGroupId,
 		java.lang.String name, java.lang.String description, int type,
@@ -117,8 +117,8 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
-	* @deprecated {@link #addGroup(long, String, String, int, String, boolean,
-	boolean, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, String,
+	String, int, String, boolean, boolean, ServiceContext)}
 	*/
 	public com.liferay.portal.model.Group addGroup(java.lang.String name,
 		java.lang.String description, int type, java.lang.String friendlyURL,
@@ -143,6 +143,23 @@ public class GroupServiceWrapper implements GroupService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_groupService.addRoleGroups(roleId, groupIds);
+	}
+
+	/**
+	* Checks that the current user is permitted to use the group for Remote
+	* Staging.
+	*
+	* @param groupId the primary key of the group
+	* @throws PortalException if a group with the primary key could not be
+	found, if the current user did not have permission to view the
+	group, or if the group's company was different from the current
+	user's company
+	* @throws SystemException if a system exception occurred
+	*/
+	public void checkRemoteStagingGroup(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_groupService.checkRemoteStagingGroup(groupId);
 	}
 
 	/**
@@ -615,14 +632,14 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public GroupService getWrappedGroupService() {
 		return _groupService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedGroupService(GroupService groupService) {
 		_groupService = groupService;

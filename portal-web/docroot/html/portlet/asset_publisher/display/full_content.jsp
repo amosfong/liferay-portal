@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,15 +19,15 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-if (Validator.isNull(redirect)) {
+List results = (List)request.getAttribute("view.jsp-results");
+
+if (Validator.isNull(redirect) && results.isEmpty()) {
 	PortletURL portletURL = renderResponse.createRenderURL();
 
 	portletURL.setParameter("struts_action", "/asset_publisher/view");
 
 	redirect = portletURL.toString();
 }
-
-List results = (List)request.getAttribute("view.jsp-results");
 
 int assetEntryIndex = ((Integer)request.getAttribute("view.jsp-assetEntryIndex")).intValue();
 
@@ -105,7 +105,14 @@ request.setAttribute("view.jsp-showIconLabel", true);
 	// Dynamically created asset entries are never persisted so incrementing the view counter breaks
 
 	if (!assetEntry.isNew() && assetEntry.isVisible()) {
-		AssetEntry incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(assetEntry.getClassName(), assetEntry.getClassPK());
+		AssetEntry incrementAssetEntry = null;
+
+		if (assetEntryQuery.isEnablePermissions()) {
+			incrementAssetEntry = AssetEntryServiceUtil.incrementViewCounter(assetEntry.getClassName(), assetEntry.getClassPK());
+		}
+		else {
+			incrementAssetEntry = AssetEntryLocalServiceUtil.incrementViewCounter(user.getUserId(), assetEntry.getClassName(), assetEntry.getClassPK());
+		}
 
 		if (incrementAssetEntry != null) {
 			assetEntry = incrementAssetEntry;

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -42,9 +42,7 @@ String ddmStructureXSD = StringPool.BLANK;
 DDMStructure ddmStructure = (DDMStructure)request.getAttribute("edit_article.jsp-structure");
 
 if (ddmStructure != null) {
-	if (Validator.isNull(structureId)) {
-		structureId = ddmStructure.getStructureKey();
-	}
+	structureId = ddmStructure.getStructureKey();
 
 	ddmStructureGroupId = ddmStructure.getGroupId();
 	ddmStructureName = ddmStructure.getName(locale);
@@ -64,9 +62,13 @@ if (ddmStructure != null) {
 
 String templateId = BeanParamUtil.getString(article, request, "templateId");
 
-if ((ddmStructure == null) && Validator.isNotNull(templateId)) {
-	DDMTemplate ddmTemplate = null;
+DDMTemplate ddmTemplate = (DDMTemplate)request.getAttribute("edit_article.jsp-template");
 
+if (ddmTemplate != null) {
+	templateId = ddmTemplate.getTemplateKey();
+}
+
+if ((ddmStructure == null) && (ddmTemplate == null) && Validator.isNotNull(templateId)) {
 	try {
 		ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(groupId, PortalUtil.getClassNameId(DDMStructure.class), templateId, true);
 	}
@@ -272,24 +274,44 @@ if (Validator.isNotNull(content)) {
 											<span class="template-name-label">
 												<liferay-ui:message key="none" />
 											</span>
+
+											<c:if test="<%= ddmStructure != null %>">
+
+												<%
+												StringBundler sb = new StringBundler(5);
+
+												sb.append("javascript:");
+												sb.append(renderResponse.getNamespace());
+												sb.append("openDDMTemplateSelector('");
+												sb.append(ddmStructure.getStructureId());
+												sb.append("');");
+												%>
+
+												<liferay-ui:icon
+													image="add"
+													label="<%= true %>"
+													message="select"
+													url="<%= sb.toString() %>"
+												/>
+											</c:if>
 										</c:when>
 										<c:when test="<%= ddmTemplates.size() == 1 %>">
 
 											<%
-											DDMTemplate ddmTemplate = ddmTemplates.get(0);
+											DDMTemplate curDDMTemplate = ddmTemplates.get(0);
 
-											templateId = ddmTemplate.getTemplateKey();
+											templateId = curDDMTemplate.getTemplateKey();
 											%>
 
 											<aui:input name="templateId" type="hidden" value="<%= templateId %>" />
 
 											<span class="template-name-label">
-												<%= HtmlUtil.escape(ddmTemplate.getName(locale)) %>
+												<%= HtmlUtil.escape(curDDMTemplate.getName(locale)) %>
 											</span>
 
-											<c:if test="<%= DDMTemplatePermission.contains(permissionChecker, ddmTemplate, ActionKeys.UPDATE) %>">
-												<c:if test="<%= ddmTemplate.isSmallImage() %>">
-													<img class="article-template-image" id="<portlet:namespace />templateImage" src="<%= _getTemplateImage(themeDisplay, ddmTemplate) %>" />
+											<c:if test="<%= DDMTemplatePermission.contains(permissionChecker, curDDMTemplate, ActionKeys.UPDATE) %>">
+												<c:if test="<%= curDDMTemplate.isSmallImage() %>">
+													<img class="article-template-image" id="<portlet:namespace />templateImage" src="<%= _getTemplateImage(themeDisplay, curDDMTemplate) %>" />
 												</c:if>
 
 												<liferay-ui:icon id="editDDMTemplate" image="edit" url="javascript:;" />
@@ -299,23 +321,23 @@ if (Validator.isNotNull(content)) {
 											<aui:select inlineField="<%= true %>" label="" name="templateId">
 
 												<%
-												for (DDMTemplate ddmTemplate : ddmTemplates) {
-													String imageURL = _getTemplateImage(themeDisplay, ddmTemplate);
+												for (DDMTemplate curDDMTemplate : ddmTemplates) {
+													String imageURL = _getTemplateImage(themeDisplay, curDDMTemplate);
 												%>
 
 													<liferay-portlet:renderURL portletName="<%= PortletKeys.DYNAMIC_DATA_MAPPING %>" var="editTemplateURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
 														<portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template" />
 														<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
 														<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
-														<portlet:param name="templateId" value="<%= String.valueOf(ddmTemplate.getTemplateId()) %>" />
+														<portlet:param name="templateId" value="<%= String.valueOf(curDDMTemplate.getTemplateId()) %>" />
 													</liferay-portlet:renderURL>
 
 													<aui:option
 														data-img="<%= imageURL != null ? imageURL : StringPool.BLANK %>"
 														data-url="<%= editTemplateURL %>"
-														label="<%= HtmlUtil.escape(ddmTemplate.getName(locale)) %>"
-														selected="<%= templateId.equals(ddmTemplate.getTemplateKey()) %>"
-														value="<%= ddmTemplate.getTemplateKey() %>"
+														label="<%= HtmlUtil.escape(curDDMTemplate.getName(locale)) %>"
+														selected="<%= templateId.equals(curDDMTemplate.getTemplateKey()) %>"
+														value="<%= curDDMTemplate.getTemplateKey() %>"
 													/>
 
 												<%
@@ -659,25 +681,61 @@ if (Validator.isNotNull(content)) {
 </aui:script>
 
 <aui:script>
-	function <portlet:namespace />openDDMStructureSelector(strutsAction, ddmStructureId) {
+	function <portlet:namespace />openDDMStructureSelector() {
 		Liferay.Util.openDDMPortlet(
 			{
-				chooseCallback: '<portlet:namespace />selectStructure',
+				availableFields: 'Liferay.FormBuilder.AVAILABLE_FIELDS.WCM_STRUCTURE',
+				classNameId: '<%= PortalUtil.getClassNameId(DDMStructure.class) %>',
+				classPK: <%= (ddmStructure != null) ? ddmStructure.getPrimaryKey() : 0 %>,
+				ddmResource: '<%= ddmResource %>',
+				dialog: {
+					modal: true,
+					width: '80%'
+				},
+				eventName: '<portlet:namespace />selectStructure',
+				groupId: <%= groupId %>,
+				storageType: '<%= PropsValues.JOURNAL_ARTICLE_STORAGE_TYPE %>',
+				structureName: 'structure',
+				structureType: 'com.liferay.portlet.journal.model.JournalArticle',
+				struts_action: '/dynamic_data_mapping/select_structure',
+				title: '<%= UnicodeLanguageUtil.get(pageContext, "structures") %>'
+			},
+			function(event){
+				if (confirm('<%= UnicodeLanguageUtil.get(pageContext, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm1.<portlet:namespace />ddmStructureId.value != event.ddmstructureid)) {
+					document.<portlet:namespace />fm1.<portlet:namespace />ddmStructureId.value = event.ddmstructureid;
+					document.<portlet:namespace />fm1.<portlet:namespace />templateId.value = "";
+
+					submitForm(document.<portlet:namespace />fm1);
+				}
+			}
+		);
+	}
+
+	function <portlet:namespace />openDDMTemplateSelector(ddmStructureId) {
+		Liferay.Util.openDDMPortlet(
+			{
+				availableFields: 'Liferay.FormBuilder.AVAILABLE_FIELDS.WCM_STRUCTURE',
 				classNameId: '<%= PortalUtil.getClassNameId(DDMStructure.class) %>',
 				classPK: ddmStructureId,
 				ddmResource: '<%= ddmResource %>',
 				ddmResourceActionId: '<%= ActionKeys.ADD_TEMPLATE %>',
 				dialog: {
-					width: 820
+					modal: true,
+					width: '80%'
 				},
+				eventName: '<portlet:namespace />selectTemplate',
 				groupId: <%= groupId %>,
-				saveCallback: '<portlet:namespace />selectStructure',
 				storageType: '<%= PropsValues.JOURNAL_ARTICLE_STORAGE_TYPE %>',
 				structureName: 'structure',
 				structureType: 'com.liferay.portlet.journal.model.JournalArticle',
-				struts_action: strutsAction,
+				struts_action: '/dynamic_data_mapping/select_template',
 				templateType: '<%= DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY %>',
-				title: '<%= UnicodeLanguageUtil.get(pageContext, "structures") %>'
+				title: '<%= UnicodeLanguageUtil.get(pageContext, "templates") %>'
+			},
+			function(event) {
+				document.<portlet:namespace />fm1.<portlet:namespace />ddmTemplateId.value = event.ddmtemplateid;
+
+				submitForm(document.<portlet:namespace />fm1);
 			}
 		);
 	}
@@ -702,7 +760,7 @@ if (Validator.isNotNull(content)) {
 						title: '<%= UnicodeLanguageUtil.get(pageContext, "templates") %>',
 
 						<%
-						DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(groupId, PortalUtil.getClassNameId(DDMStructure.class), templateId);
+						DDMTemplate curDDMTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(groupId, PortalUtil.getClassNameId(DDMStructure.class), templateId);
 						%>
 
 						<liferay-portlet:renderURL portletName="<%= PortletKeys.DYNAMIC_DATA_MAPPING %>" var="editTemplateURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
@@ -710,7 +768,7 @@ if (Validator.isNotNull(content)) {
 							<portlet:param name="portletResource" value="<%= portletDisplay.getId() %>" />
 							<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 							<portlet:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
-							<portlet:param name="templateId" value="<%= (ddmTemplate != null) ? String.valueOf(ddmTemplate.getTemplateId()) : StringPool.BLANK %>" />
+							<portlet:param name="templateId" value="<%= (curDDMTemplate != null) ? String.valueOf(curDDMTemplate.getTemplateId()) : StringPool.BLANK %>" />
 						</liferay-portlet:renderURL>
 
 						uri: '<%= editTemplateURL %>'

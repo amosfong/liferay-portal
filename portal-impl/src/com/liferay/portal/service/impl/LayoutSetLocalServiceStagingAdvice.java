@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,17 +18,17 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.staging.LayoutStagingUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.ThemeFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.LayoutSetBranch;
 import com.liferay.portal.model.LayoutSetStagingHandler;
-import com.liferay.portal.model.impl.ColorSchemeImpl;
-import com.liferay.portal.model.impl.ThemeImpl;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
 import com.liferay.portal.service.LayoutSetLocalService;
 import com.liferay.portal.staging.StagingAdvicesThreadLocal;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.io.InputStream;
 
@@ -87,7 +87,7 @@ public class LayoutSetLocalServiceStagingAdvice
 				(InputStream)arguments[3], (Boolean)arguments[4]);
 		}
 		else if (methodName.equals("updateLookAndFeel") &&
-				(arguments.length == 6)) {
+				 (arguments.length == 6)) {
 
 			returnValue = updateLookAndFeel(
 				(LayoutSetLocalService)thisObject, (Long)arguments[0],
@@ -239,12 +239,13 @@ public class LayoutSetLocalServiceStagingAdvice
 		layoutSetBranch.setModifiedDate(new Date());
 
 		if (Validator.isNull(themeId)) {
-			themeId = ThemeImpl.getDefaultRegularThemeId(
+			themeId = ThemeFactoryUtil.getDefaultRegularThemeId(
 				layoutSetBranch.getCompanyId());
 		}
 
 		if (Validator.isNull(colorSchemeId)) {
-			colorSchemeId = ColorSchemeImpl.getDefaultRegularColorSchemeId();
+			colorSchemeId =
+				ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId();
 		}
 
 		if (wapTheme) {
@@ -322,7 +323,7 @@ public class LayoutSetLocalServiceStagingAdvice
 		}
 
 		return (LayoutSet)ProxyUtil.newProxyInstance(
-			PACLClassLoaderUtil.getPortalClassLoader(),
+			ClassLoaderUtil.getPortalClassLoader(),
 			new Class[] {LayoutSet.class},
 			new LayoutSetStagingHandler(layoutSet));
 	}
@@ -349,7 +350,11 @@ public class LayoutSetLocalServiceStagingAdvice
 			returnValue = wrapLayoutSet((LayoutSet)returnValue);
 		}
 		else if (returnValue instanceof List<?>) {
-			returnValue = wrapLayoutSets((List<LayoutSet>)returnValue);
+			List<?> list = (List<?>)returnValue;
+
+			if (!list.isEmpty() && (list.get(0) instanceof LayoutSet)) {
+				returnValue = wrapLayoutSets((List<LayoutSet>)returnValue);
+			}
 		}
 
 		return returnValue;

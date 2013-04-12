@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -391,8 +391,8 @@ public class SocialActivityCounterLocalServiceWrapper
 	* @throws PortalException if the group or a previous activity counter
 	could not be found
 	* @throws SystemException if a system exception occurred
-	* @deprecated {@link #createActivityCounter(long, long, long, String, int,
-	int, int, int, int, long, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #createActivityCounter(long,
+	long, long, String, int, int, int, int, int, long, int)}
 	*/
 	public com.liferay.portlet.social.model.SocialActivityCounter createActivityCounter(
 		long groupId, long classNameId, long classPK, java.lang.String name,
@@ -827,14 +827,14 @@ public class SocialActivityCounterLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public SocialActivityCounterLocalService getWrappedSocialActivityCounterLocalService() {
 		return _socialActivityCounterLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedSocialActivityCounterLocalService(
 		SocialActivityCounterLocalService socialActivityCounterLocalService) {

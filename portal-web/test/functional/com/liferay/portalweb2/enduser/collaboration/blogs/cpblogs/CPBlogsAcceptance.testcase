@@ -1,0 +1,33 @@
+<definition>
+	<set-up>
+		<execute macro="User#pgFirstLogin" />
+	</set-up>
+
+	<command name="AddBlogsEntry">
+		<execute macro="Page#pgAdd">
+			<var name="pageName" value="Blogs Page" />
+		</execute>
+
+		<execute macro="Portlet#pgAdd">
+			<var name="pageName" value="Blogs Page" />
+			<var name="portletName" value="Blogs" />
+		</execute>
+	</command>
+
+	<command name="DeleteBlogsEntry">
+		<execute macro="Page#pgAdd">
+			<var name="pageName" value="Blogs Page" />
+		</execute>
+
+		<execute macro="Portlet#pgAdd">
+			<var name="pageName" value="Blogs Page" />
+			<var name="portletName" value="Blogs" />
+		</execute>
+	</command>
+
+	<tear-down>
+		<execute macro="Page#pgTearDown" />
+
+		<execute macro="User#pgLogout" />
+	</tear-down>
+</definition>

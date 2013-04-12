@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,12 +188,12 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns the d d m structure with the UUID in the group.
+	* Returns the d d m structure matching the UUID and group.
 	*
-	* @param uuid the UUID of d d m structure
-	* @param groupId the group id of the d d m structure
-	* @return the d d m structure
-	* @throws PortalException if a d d m structure with the UUID in the group could not be found
+	* @param uuid the d d m structure's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d m structure
+	* @throws PortalException if a matching d d m structure could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure getDDMStructureByUuidAndGroupId(
@@ -247,6 +247,160 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void addDLFileEntryTypeDDMStructure(long fileEntryTypeId,
+		long structureId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.addDLFileEntryTypeDDMStructure(fileEntryTypeId,
+			structureId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void addDLFileEntryTypeDDMStructure(long fileEntryTypeId,
+		com.liferay.portlet.dynamicdatamapping.model.DDMStructure ddmStructure)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.addDLFileEntryTypeDDMStructure(fileEntryTypeId,
+			ddmStructure);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void addDLFileEntryTypeDDMStructures(long fileEntryTypeId,
+		long[] structureIds)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.addDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			structureIds);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void addDLFileEntryTypeDDMStructures(long fileEntryTypeId,
+		java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> DDMStructures)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.addDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			DDMStructures);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void clearDLFileEntryTypeDDMStructures(long fileEntryTypeId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.clearDLFileEntryTypeDDMStructures(fileEntryTypeId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void deleteDLFileEntryTypeDDMStructure(long fileEntryTypeId,
+		long structureId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.deleteDLFileEntryTypeDDMStructure(fileEntryTypeId,
+			structureId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void deleteDLFileEntryTypeDDMStructure(long fileEntryTypeId,
+		com.liferay.portlet.dynamicdatamapping.model.DDMStructure ddmStructure)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.deleteDLFileEntryTypeDDMStructure(fileEntryTypeId,
+			ddmStructure);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void deleteDLFileEntryTypeDDMStructures(long fileEntryTypeId,
+		long[] structureIds)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.deleteDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			structureIds);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void deleteDLFileEntryTypeDDMStructures(long fileEntryTypeId,
+		java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> DDMStructures)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.deleteDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			DDMStructures);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDLFileEntryTypeDDMStructures(
+		long fileEntryTypeId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getDLFileEntryTypeDDMStructures(fileEntryTypeId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDLFileEntryTypeDDMStructures(
+		long fileEntryTypeId, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			start, end);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDLFileEntryTypeDDMStructures(
+		long fileEntryTypeId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			start, end, orderByComparator);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public int getDLFileEntryTypeDDMStructuresCount(long fileEntryTypeId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getDLFileEntryTypeDDMStructuresCount(fileEntryTypeId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public boolean hasDLFileEntryTypeDDMStructure(long fileEntryTypeId,
+		long structureId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.hasDLFileEntryTypeDDMStructure(fileEntryTypeId,
+			structureId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public boolean hasDLFileEntryTypeDDMStructures(long fileEntryTypeId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.hasDLFileEntryTypeDDMStructures(fileEntryTypeId);
+	}
+
+	/**
+	* @throws SystemException if a system exception occurred
+	*/
+	public void setDLFileEntryTypeDDMStructures(long fileEntryTypeId,
+		long[] structureIds)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_ddmStructureLocalService.setDLFileEntryTypeDDMStructures(fileEntryTypeId,
+			structureIds);
+	}
+
+	/**
 	* Returns the Spring bean ID for this bean.
 	*
 	* @return the Spring bean ID for this bean
@@ -284,9 +438,9 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
 	* @param type the structure's type. For more information, see {@link
 	com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants}.
-	* @param serviceContext the structure's service context. Can set the UUID,
-	creation date, modification date, guest permissions, and group
-	permissions for the structure.
+	* @param serviceContext the service context to be applied. Can set the
+	UUID, creation date, modification date, guest permissions, and
+	group permissions for the structure.
 	* @return the structure
 	* @throws PortalException if a user with the primary key could not be
 	found, if the XSD was not well-formed, or if a portal exception
@@ -319,9 +473,9 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	* @param nameMap the structure's locales and localized names
 	* @param descriptionMap the structure's locales and localized descriptions
 	* @param xsd the structure's XML schema definition
-	* @param serviceContext the structure's service context. Can set the UUID,
-	creation date, modification date, guest permissions, and group
-	permissions for the structure.
+	* @param serviceContext the service context to be applied. Can set the
+	UUID, creation date, modification date, guest permissions, and
+	group permissions for the structure.
 	* @return the structure
 	* @throws PortalException if a user with the primary key could not be
 	found, if the XSD was not well-formed, or if a portal exception
@@ -360,9 +514,9 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
 	* @param type the structure's type. For more information, see {@link
 	com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants}.
-	* @param serviceContext the structure's service context. Can set the UUID,
-	creation date, modification date, guest permissions and group
-	permissions for the structure.
+	* @param serviceContext the service context to be applied. Can set the
+	UUID, creation date, modification date, guest permissions and
+	group permissions for the structure.
 	* @return the structure
 	* @throws PortalException if a user with the primary key could not be
 	found, if the XSD was not well-formed, or if a portal exception
@@ -614,7 +768,8 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getClassStructures(long, long)}
+	* @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	long)}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getClassStructures(
 		long classNameId)
@@ -623,7 +778,8 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getClassStructures(long, long, int, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	long, int, int)}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getClassStructures(
 		long classNameId, int start, int end)
@@ -698,7 +854,8 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getClassStructures(long, long, OrderByComparator)}
+	* @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	long, OrderByComparator)}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getClassStructures(
 		long classNameId,
@@ -802,7 +959,7 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getStructures}
+	* @deprecated As of 6.2.0, replaced by {@link #getStructures}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getStructureEntries()
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -810,7 +967,7 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getStructures(long)}
+	* @deprecated As of 6.2.0, replaced by {@link #getStructures(long)}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getStructureEntries(
 		long groupId)
@@ -819,7 +976,8 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* @deprecated {@link #getStructures(long, int, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #getStructures(long, int,
+	int)}
 	*/
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getStructureEntries(
 		long groupId, int start, int end)
@@ -975,6 +1133,23 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 		long[] groupIds)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStructureLocalService.getStructures(groupIds);
+	}
+
+	/**
+	* Returns all the structures matching the class name ID and belonging to
+	* the groups.
+	*
+	* @param groupIds the primary keys of the groups
+	* @param classNameId the primary key of the class name for the structure's
+	related model
+	* @return the structures matching the class name ID and belonging to the
+	groups
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getStructures(
+		long[] groupIds, long classNameId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getStructures(groupIds, classNameId);
 	}
 
 	/**
@@ -1248,14 +1423,14 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public DDMStructureLocalService getWrappedDDMStructureLocalService() {
 		return _ddmStructureLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedDDMStructureLocalService(
 		DDMStructureLocalService ddmStructureLocalService) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portal.model;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscape;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -39,7 +40,8 @@ import java.util.Map;
  * @see com.liferay.portal.model.impl.LayoutSetPrototypeModelImpl
  * @generated
  */
-public interface LayoutSetPrototypeModel extends BaseModel<LayoutSetPrototype> {
+public interface LayoutSetPrototypeModel extends BaseModel<LayoutSetPrototype>,
+	StagedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -102,6 +104,50 @@ public interface LayoutSetPrototypeModel extends BaseModel<LayoutSetPrototype> {
 	 * @param companyId the company ID of this layout set prototype
 	 */
 	public void setCompanyId(long companyId);
+
+	/**
+	 * Returns the user ID of this layout set prototype.
+	 *
+	 * @return the user ID of this layout set prototype
+	 */
+	public long getUserId();
+
+	/**
+	 * Sets the user ID of this layout set prototype.
+	 *
+	 * @param userId the user ID of this layout set prototype
+	 */
+	public void setUserId(long userId);
+
+	/**
+	 * Returns the user uuid of this layout set prototype.
+	 *
+	 * @return the user uuid of this layout set prototype
+	 * @throws SystemException if a system exception occurred
+	 */
+	public String getUserUuid() throws SystemException;
+
+	/**
+	 * Sets the user uuid of this layout set prototype.
+	 *
+	 * @param userUuid the user uuid of this layout set prototype
+	 */
+	public void setUserUuid(String userUuid);
+
+	/**
+	 * Returns the user name of this layout set prototype.
+	 *
+	 * @return the user name of this layout set prototype
+	 */
+	@AutoEscape
+	public String getUserName();
+
+	/**
+	 * Sets the user name of this layout set prototype.
+	 *
+	 * @param userName the user name of this layout set prototype
+	 */
+	public void setUserName(String userName);
 
 	/**
 	 * Returns the create date of this layout set prototype.
@@ -296,6 +342,10 @@ public interface LayoutSetPrototypeModel extends BaseModel<LayoutSetPrototype> {
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

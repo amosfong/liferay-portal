@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -72,6 +72,7 @@ import com.liferay.portlet.documentlibrary.util.comparator.RepositoryModelReadCo
 import com.liferay.portlet.documentlibrary.util.comparator.RepositoryModelSizeComparator;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
+import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.util.ContentUtil;
 
 import java.util.ArrayList;
@@ -263,10 +264,9 @@ public class DLImpl implements DL {
 			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-			portletURL.setWindowState(LiferayWindowState.POP_UP);
-
 			portletURL.setParameter("struts_action", strutsAction);
 			portletURL.setParameter("groupId", String.valueOf(groupId));
+			portletURL.setWindowState(LiferayWindowState.POP_UP);
 
 			PortalUtil.addPortletBreadcrumbEntry(
 				request, themeDisplay.translate("home"), portletURL.toString());
@@ -636,6 +636,37 @@ public class DLImpl implements DL {
 		return genericName;
 	}
 
+	public String getImagePreviewURL(
+			FileEntry fileEntry, FileVersion fileVersion,
+			ThemeDisplay themeDisplay)
+		throws Exception {
+
+		String previewQueryString = null;
+
+		if (PropsValues.DL_FILE_ENTRY_THUMBNAIL_ENABLED) {
+			if (ImageProcessorUtil.hasImages(fileVersion)) {
+				previewQueryString = "&imagePreview=1";
+			}
+			else if (PDFProcessorUtil.hasImages(fileVersion)) {
+				previewQueryString = "&previewFileIndex=1";
+			}
+			else if (VideoProcessorUtil.hasVideo(fileVersion)) {
+				previewQueryString = "&videoThumbnail=1";
+			}
+		}
+
+		return getImageSrc(
+			fileEntry, fileVersion, themeDisplay, previewQueryString);
+	}
+
+	public String getImagePreviewURL(
+			FileEntry fileEntry, ThemeDisplay themeDisplay)
+		throws Exception {
+
+		return getImagePreviewURL(
+			fileEntry, fileEntry.getFileVersion(), themeDisplay);
+	}
+
 	public String[] getMediaGalleryMimeTypes(
 		PortletPreferences portletPreferences, PortletRequest portletRequest) {
 
@@ -659,8 +690,8 @@ public class DLImpl implements DL {
 	}
 
 	/**
-	 * @deprecated {@link #getPreviewURL(FileEntry, FileVersion, ThemeDisplay,
-	 *             String, boolean, boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getPreviewURL(FileEntry,
+	 *             FileVersion, ThemeDisplay, String, boolean, boolean)}
 	 */
 	public String getPreviewURL(
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
@@ -688,7 +719,15 @@ public class DLImpl implements DL {
 		sb.append(StringPool.SLASH);
 		sb.append(fileEntry.getFolderId());
 		sb.append(StringPool.SLASH);
-		sb.append(HttpUtil.encodeURL(HtmlUtil.unescape(fileEntry.getTitle())));
+
+		String title = fileEntry.getTitle();
+
+		if (fileVersion.isInTrash()) {
+			title = TrashUtil.getOriginalTitle(fileEntry.getTitle());
+		}
+
+		sb.append(HttpUtil.encodeURL(HtmlUtil.unescape(title)));
+
 		sb.append(StringPool.SLASH);
 		sb.append(fileEntry.getUuid());
 
@@ -803,20 +842,9 @@ public class DLImpl implements DL {
 			DLFileShortcut dlFileShortcut, ThemeDisplay themeDisplay)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(4);
-
-		sb.append(themeDisplay.getPathThemeImages());
-		sb.append("/file_system/large/");
-		sb.append(getGenericName(fileEntry.getExtension()));
-		sb.append(".png");
-
-		String thumbnailSrc = sb.toString();
-
 		String thumbnailQueryString = null;
 
-		if (GetterUtil.getBoolean(
-				PropsUtil.get(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_ENABLED))) {
-
+		if (PropsValues.DL_FILE_ENTRY_THUMBNAIL_ENABLED) {
 			if (ImageProcessorUtil.hasImages(fileVersion)) {
 				thumbnailQueryString = "&imageThumbnail=1";
 			}
@@ -828,13 +856,8 @@ public class DLImpl implements DL {
 			}
 		}
 
-		if (Validator.isNotNull(thumbnailQueryString)) {
-			thumbnailSrc = getPreviewURL(
-				fileEntry, fileVersion, themeDisplay, thumbnailQueryString,
-				true, true);
-		}
-
-		return thumbnailSrc;
+		return getImageSrc(
+			fileEntry, fileVersion, themeDisplay, thumbnailQueryString);
 	}
 
 	public String getThumbnailStyle() throws Exception {
@@ -929,7 +952,7 @@ public class DLImpl implements DL {
 		webDavURL.append("/webdav");
 
 		if (manualCheckInRequired) {
-			webDavURL.append(DLUtil.MANUAL_CHECK_IN_REQUIRED_PATH);
+			webDavURL.append(MANUAL_CHECK_IN_REQUIRED_PATH);
 		}
 
 		String fileEntryTitle = null;
@@ -937,12 +960,12 @@ public class DLImpl implements DL {
 		if (fileEntry != null) {
 			String extension = fileEntry.getExtension();
 
-			fileEntryTitle = fileEntry.getTitle();
+			fileEntryTitle = HtmlUtil.unescape(fileEntry.getTitle());
 
-			if (openDocumentUrl && DLUtil.isOfficeExtension(extension) &&
+			if (openDocumentUrl && isOfficeExtension(extension) &&
 				!fileEntryTitle.endsWith(StringPool.PERIOD + extension)) {
 
-				webDavURL.append(DLUtil.OFFICE_EXTENSION_PATH);
+				webDavURL.append(OFFICE_EXTENSION_PATH);
 
 				fileEntryTitle += StringPool.PERIOD + extension;
 			}
@@ -955,7 +978,10 @@ public class DLImpl implements DL {
 
 		StringBuilder sb = new StringBuilder();
 
-		if (folder != null) {
+		if ((folder != null) &&
+			(folder.getFolderId() !=
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
+
 			Folder curFolder = folder;
 
 			while (true) {
@@ -967,10 +993,9 @@ public class DLImpl implements DL {
 
 					break;
 				}
-				else {
-					curFolder = DLAppLocalServiceUtil.getFolder(
-						curFolder.getParentFolderId());
-				}
+
+				curFolder = DLAppLocalServiceUtil.getFolder(
+					curFolder.getParentFolderId());
 			}
 		}
 
@@ -1102,6 +1127,28 @@ public class DLImpl implements DL {
 			portletPreferences.getValue(
 				"rootFolderId",
 				String.valueOf(DLFolderConstants.DEFAULT_PARENT_FOLDER_ID)));
+	}
+
+	protected String getImageSrc(
+			FileEntry fileEntry, FileVersion fileVersion,
+			ThemeDisplay themeDisplay, String queryString)
+		throws Exception {
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(themeDisplay.getPathThemeImages());
+		sb.append("/file_system/large/");
+		sb.append(getGenericName(fileEntry.getExtension()));
+		sb.append(".png");
+
+		String thumbnailSrc = sb.toString();
+
+		if (Validator.isNotNull(queryString)) {
+			thumbnailSrc = getPreviewURL(
+				fileEntry, fileVersion, themeDisplay, queryString, true, true);
+		}
+
+		return thumbnailSrc;
 	}
 
 	private static void _populateGenericNamesMap(String genericName) {

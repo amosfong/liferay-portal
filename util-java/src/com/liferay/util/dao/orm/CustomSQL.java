@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -158,6 +158,17 @@ public class CustomSQL {
 	}
 
 	/**
+	 * Returns <code>true</code> if Hibernate is connecting to a Hypersonic
+	 * database.
+	 *
+	 * @return <code>true</code> if Hibernate is connecting to a Hypersonic
+	 *         database
+	 */
+	public boolean isVendorHSQL() {
+		return _vendorHSQL;
+	}
+
+	/**
 	 * Returns <code>true</code> if Hibernate is connecting to an Informix
 	 * database.
 	 *
@@ -310,9 +321,9 @@ public class CustomSQL {
 				_functionIsNotNull = functionIsNotNull;
 
 				if (_log.isDebugEnabled()) {
-					_log.info(
+					_log.debug(
 						"functionIsNull is manually set to " + functionIsNull);
-					_log.info(
+					_log.debug(
 						"functionIsNotNull is manually set to " +
 							functionIsNotNull);
 				}
@@ -334,6 +345,13 @@ public class CustomSQL {
 
 					if (_log.isInfoEnabled()) {
 						_log.info("Detected DB2 with database name " + dbName);
+					}
+				}
+				else if (dbName.startsWith("HSQL")) {
+					_vendorHSQL = true;
+
+					if (_log.isInfoEnabled()) {
+						_log.info("Detected HSQL with database name " + dbName);
 					}
 				}
 				else if (dbName.startsWith("Informix")) {
@@ -786,6 +804,7 @@ public class CustomSQL {
 	private String _functionIsNull;
 	private Map<String, String> _sqlPool;
 	private boolean _vendorDB2;
+	private boolean _vendorHSQL;
 	private boolean _vendorInformix;
 	private boolean _vendorMySQL;
 	private boolean _vendorOracle;

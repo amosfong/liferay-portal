@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -32,6 +32,7 @@ import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.service.permission.MBDiscussionPermission;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
 
+import java.util.Date;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -52,16 +53,17 @@ public class MBMessageAssetRenderer
 		_message = message;
 	}
 
-	public String getAssetRendererFactoryClassName() {
-		return MBCategoryAssetRendererFactory.CLASS_NAME;
-	}
-
 	public String getClassName() {
 		return MBMessage.class.getName();
 	}
 
 	public long getClassPK() {
 		return _message.getMessageId();
+	}
+
+	@Override
+	public Date getDisplayDate() {
+		return _message.getModifiedDate();
 	}
 
 	public long getGroupId() {
@@ -86,6 +88,17 @@ public class MBMessageAssetRenderer
 
 	public String getSummary(Locale locale) {
 		return HtmlUtil.extractText(_message.getBody());
+	}
+
+	@Override
+	public String getThumbnailPath(PortletRequest portletRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		return themeDisplay.getPathThemeImages() +
+			"/file_system/large/message.png";
 	}
 
 	public String getTitle(Locale locale) {
@@ -123,12 +136,11 @@ public class MBMessageAssetRenderer
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
 			PortletKeys.MESSAGE_BOARDS, PortletRequest.RENDER_PHASE);
 
-		portletURL.setWindowState(windowState);
-
 		portletURL.setParameter(
 			"struts_action", "/message_boards/view_message");
 		portletURL.setParameter(
 			"messageId", String.valueOf(_message.getMessageId()));
+		portletURL.setWindowState(windowState);
 
 		return portletURL;
 	}

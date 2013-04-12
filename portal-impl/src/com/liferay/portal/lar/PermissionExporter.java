@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,7 @@
 
 package com.liferay.portal.lar;
 
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -253,7 +254,8 @@ public class PermissionExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/portlet-data-permissions.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) +
+				"/portlet-data-permissions.xml",
 			document.formattedString());
 	}
 

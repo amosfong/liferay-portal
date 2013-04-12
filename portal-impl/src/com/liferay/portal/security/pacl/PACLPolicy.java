@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,9 +14,8 @@
 
 package com.liferay.portal.security.pacl;
 
-import java.lang.reflect.Method;
-
 import java.security.Permission;
+import java.security.Policy;
 
 import java.util.Properties;
 import java.util.Set;
@@ -26,9 +25,9 @@ import java.util.Set;
  */
 public interface PACLPolicy {
 
-	public void checkPermission(Permission permission);
-
 	public ClassLoader getClassLoader();
+
+	public Policy getPolicy();
 
 	public Properties getProperties();
 
@@ -44,10 +43,9 @@ public interface PACLPolicy {
 
 	public boolean hasJNDI(String name);
 
-	public boolean hasPortalService(
-		Object object, Method method, Object[] arguments);
-
 	public boolean hasSQL(String sql);
+
+	public boolean implies(Permission permission);
 
 	public boolean isActive();
 

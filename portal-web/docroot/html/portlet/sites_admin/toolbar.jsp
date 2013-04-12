@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -81,7 +81,7 @@ String sitesListView = ParamUtil.get(request, "sitesListView", SiteConstants.LIS
 						image="site_icon"
 						message="blank-site"
 						method="get"
-						url='<%= addSiteURL.toString() %>'
+						url="<%= addSiteURL.toString() %>"
 					/>
 
 					<%
@@ -95,7 +95,7 @@ String sitesListView = ParamUtil.get(request, "sitesListView", SiteConstants.LIS
 							image="site_icon"
 							message="<%= HtmlUtil.escape(layoutSetPrototype.getName(locale)) %>"
 							method="get"
-							url='<%= addSiteURL.toString() %>'
+							url="<%= addSiteURL.toString() %>"
 						/>
 
 					<%

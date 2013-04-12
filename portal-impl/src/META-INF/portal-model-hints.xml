@@ -180,6 +180,7 @@
 		<field name="primary" type="boolean" />
 	</model>
 	<model name="com.liferay.portal.model.Group">
+		<field name="uuid" type="String" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="creatorUserId" type="long" />
@@ -201,7 +202,7 @@
 			<hint-collection name="TEXTAREA" />
 		</field>
 		<field name="friendlyURL" type="String">
-			<hint name="max-length">100</hint>
+			<hint name="max-length">255</hint>
 		</field>
 		<field name="site" type="boolean" />
 		<field name="active" type="boolean" />
@@ -289,6 +290,10 @@
 		<field name="uuid" type="String" />
 		<field name="layoutPrototypeId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="name" type="String" localized="true">
 			<validator name="required" />
 		</field>
@@ -403,6 +408,8 @@
 		<field name="uuid" type="String" />
 		<field name="layoutSetPrototypeId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="name" type="String" localized="true">
@@ -456,8 +463,13 @@
 		<field name="statusId" type="int" />
 	</model>
 	<model name="com.liferay.portal.model.Organization">
+		<field name="uuid" type="String" />
 		<field name="organizationId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="parentOrganizationId" type="long" />
 		<field name="treePath" type="String">
 			<hint name="max-length">4000</hint>
@@ -504,6 +516,7 @@
 		<field name="satClose" type="int" />
 	</model>
 	<model name="com.liferay.portal.model.PasswordPolicy">
+		<field name="uuid" type="String" />
 		<field name="passwordPolicyId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
@@ -683,6 +696,11 @@
 		<field name="uuid" type="String" />
 		<field name="repositoryEntryId" type="long" />
 		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="repositoryId" type="long" />
 		<field name="mappedId" type="String" />
 		<field name="manualCheckInRequired" type="boolean" />
@@ -732,8 +750,13 @@
 		<field name="actionIds" type="long" />
 	</model>
 	<model name="com.liferay.portal.model.Role">
+		<field name="uuid" type="String" />
 		<field name="roleId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
 		<field name="name" type="String">
@@ -865,8 +888,13 @@
 		<field name="status" type="int" />
 	</model>
 	<model name="com.liferay.portal.model.UserGroup">
+		<field name="uuid" type="String" />
 		<field name="userGroupId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="parentUserGroupId" type="long" />
 		<field name="name" type="String">
 			<hint name="display-width">150</hint>
@@ -1820,6 +1848,10 @@
 		<field name="description" type="String">
 			<hint-collection name="TEXTAREA" />
 		</field>
+		<field name="status" type="int" />
+		<field name="statusByUserId" type="long" />
+		<field name="statusByUserName" type="String" />
+		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.journal.model.JournalStructure">
 		<field name="uuid" type="String" />
@@ -1880,6 +1912,7 @@
 		</field>
 	</model>
 	<model name="com.liferay.portlet.messageboards.model.MBBan">
+		<field name="uuid" type="String" />
 		<field name="banId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
@@ -1915,7 +1948,14 @@
 		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.messageboards.model.MBDiscussion">
+		<field name="uuid" type="String" />
 		<field name="discussionId" type="long" />
+		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
 		<field name="threadId" type="long" />
@@ -1993,9 +2033,14 @@
 		<field name="lastPostDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.messageboards.model.MBThread">
+		<field name="uuid" type="String" />
 		<field name="threadId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="categoryId" type="long" />
 		<field name="rootMessageId" type="long" />
 		<field name="rootMessageUserId" type="long" />
@@ -2011,8 +2056,13 @@
 		<field name="statusDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.messageboards.model.MBThreadFlag">
+		<field name="uuid" type="String" />
 		<field name="threadFlagId" type="long" />
+		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="threadId" type="long" />
 	</model>
@@ -2103,6 +2153,12 @@
 	<model name="com.liferay.portlet.polls.model.PollsChoice">
 		<field name="uuid" type="String" />
 		<field name="choiceId" type="long" />
+		<field name="groupId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
 		<field name="questionId" type="long" />
 		<field name="name" type="String" />
 		<field name="description" type="String" localized="true">
@@ -2132,7 +2188,9 @@
 		<field name="lastVoteDate" type="Date" />
 	</model>
 	<model name="com.liferay.portlet.polls.model.PollsVote">
+		<field name="uuid" type="String" />
 		<field name="voteId" type="long" />
+		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
 		<field name="userName" type="String" />

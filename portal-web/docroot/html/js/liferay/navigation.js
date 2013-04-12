@@ -108,6 +108,10 @@ AUI.add(
 											cssClassBuffer.push('lfr-nav-deletable');
 										}
 
+										if (layoutConfig.sortable) {
+											cssClassBuffer.push('lfr-nav-sortable');
+										}
+
 										if (layoutConfig.updateable) {
 											cssClassBuffer.push('lfr-nav-updateable');
 										}
@@ -543,7 +547,7 @@ AUI.add(
 						{
 							container: navBlock,
 							moveType: 'move',
-							nodes: '.lfr-nav-updateable',
+							nodes: '.lfr-nav-sortable',
 							opacity: '.5',
 							opacityNode: 'currentNode'
 						}
@@ -596,7 +600,7 @@ AUI.add(
 					var data = {
 						cmd: 'delete',
 						doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
-						groupId: themeDisplay.getParentGroupId(),
+						groupId: themeDisplay.getSiteGroupId(),
 						layoutId: tab._LFR_layoutId,
 						layoutSetBranchId: instance.get('layoutSetBranchId'),
 						p_auth: Liferay.authToken,
@@ -657,7 +661,7 @@ AUI.add(
 							data = {
 								cmd: 'name',
 								doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
-								groupId: themeDisplay.getParentGroupId(),
+								groupId: themeDisplay.getSiteGroupId(),
 								languageId: themeDisplay.getLanguageId(),
 								layoutId: themeDisplay.getLayoutId(),
 								name: pageTitle,
@@ -697,7 +701,7 @@ AUI.add(
 							cmd: 'add',
 							doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
 							explicitCreation: true,
-							groupId: themeDisplay.getParentGroupId(),
+							groupId: themeDisplay.getSiteGroupId(),
 							layoutPrototypeId: layoutPrototypeId,
 							mainPath: themeDisplay.getPathMain(),
 							name: pageTitle,
@@ -727,8 +731,12 @@ AUI.add(
 
 							comboBox.destroy();
 
+							if (data.sortable) {
+								listItem.addClass('sortable-item lfr-nav-sortable');
+							}
+
 							if (data.updateable) {
-								listItem.addClass('sortable-item lfr-nav-updateable');
+								listItem.addClass('lfr-nav-updateable');
 							}
 
 							if (data.deletable) {
@@ -786,7 +794,7 @@ AUI.add(
 				var data = {
 					cmd: 'priority',
 					doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
-					groupId: themeDisplay.getParentGroupId(),
+					groupId: themeDisplay.getSiteGroupId(),
 					layoutId: node._LFR_layoutId,
 					p_auth: Liferay.authToken,
 					priority: priority,

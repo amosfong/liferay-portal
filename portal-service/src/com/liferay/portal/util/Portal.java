@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -51,6 +51,7 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
+import javax.portlet.PortletURL;
 import javax.portlet.PreferencesValidator;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -76,7 +77,7 @@ public interface Portal {
 
 	public static final String PATH_MAIN = "/c";
 
-	public static final String PATH_MODULE = "/o/";
+	public static final String PATH_MODULE = "/o";
 
 	public static final String PATH_PORTAL_LAYOUT = "/portal/layout";
 
@@ -382,7 +383,8 @@ public interface Portal {
 		throws PortalException, SystemException;
 
 	/**
-	 * @deprecated Replaced by the more general {@link #getCDNHost(boolean)}
+	 * @deprecated As of 6.2.0, replaced by the more general {@link
+	 *             #getCDNHost(boolean)}
 	 */
 	public String getCDNHost();
 
@@ -488,6 +490,14 @@ public interface Portal {
 	public List<Portlet> getControlPanelPortlets(
 			String category, ThemeDisplay themeDisplay)
 		throws SystemException;
+
+	public PortletURL getControlPanelPortletURL(
+		HttpServletRequest request, String portletId, long referrerPlid,
+		String lifecycle);
+
+	public PortletURL getControlPanelPortletURL(
+		PortletRequest portletRequest, String portletId, long referrerPlid,
+		String lifecycle);
 
 	public String getCreateAccountURL(
 			HttpServletRequest request, ThemeDisplay themeDisplay)
@@ -814,7 +824,8 @@ public interface Portal {
 	public String getPortalLibDir();
 
 	/**
-	 * @deprecated Replaced by the more general {@link #getPortalPort(boolean)}
+	 * @deprecated As of 6.2.0, replaced by the more general {@link
+	 *             #getPortalPort(boolean)}
 	 */
 	public int getPortalPort();
 
@@ -846,7 +857,8 @@ public interface Portal {
 	public Set<String> getPortletAddDefaultResourceCheckWhitelistActions();
 
 	/**
-	 * @deprecated Renamed to {@link #getPortletBreadcrumbs(HttpServletRequest)}
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             #getPortletBreadcrumbs(HttpServletRequest)}
 	 */
 	public List<BreadcrumbEntry> getPortletBreadcrumbList(
 		HttpServletRequest request);
@@ -1223,6 +1235,8 @@ public interface Portal {
 	public String[] stripURLAnchor(String url, String separator);
 
 	public String transformCustomSQL(String sql);
+
+	public String transformSQL(String sql);
 
 	public PortletMode updatePortletMode(
 		String portletId, User user, Layout layout, PortletMode portletMode,

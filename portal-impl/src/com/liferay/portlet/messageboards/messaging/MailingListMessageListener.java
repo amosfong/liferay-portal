@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -109,15 +109,11 @@ public class MailingListMessageListener extends BaseMessageListener {
 	}
 
 	protected Folder getFolder(Store store) throws Exception {
-		Folder defaultFolder = store.getDefaultFolder();
+		Folder folder = store.getFolder("INBOX");
 
-		Folder[] folders = defaultFolder.list();
-
-		if ((folders != null) && (folders.length == 0)) {
+		if (!folder.exists()) {
 			throw new MessagingException("Inbox not found");
 		}
-
-		Folder folder = folders[0];
 
 		folder.open(Folder.READ_WRITE);
 

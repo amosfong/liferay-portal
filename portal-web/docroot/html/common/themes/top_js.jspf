@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -206,7 +206,7 @@
 					return "<%= themeDisplay.getURLControlPanel() %>";
 				},
 				getURLHome: function() {
-					return "<%= themeDisplay.getURLHome() %>";
+					return "<%= HtmlUtil.escapeJS(themeDisplay.getURLHome()) %>";
 				},
 				getUserId: function() {
 					return "<%= themeDisplay.getUserId() %>";
@@ -442,7 +442,7 @@ for (String analyticsType : analyticsTypes) {
 		<c:otherwise>
 
 			<%
-			String analyticsScript = groupTypeSettings.getProperty(SitesUtil.ANALYTICS_PREFIX + analyticsType);
+			String analyticsScript = groupTypeSettings.getProperty(Sites.ANALYTICS_PREFIX + analyticsType);
 			%>
 
 			<c:if test="<%= Validator.isNotNull(analyticsScript) %>">

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,4 +34,4 @@ if (Validator.isNull(id)) {
 
 <input id="<%= id %>" name="<%= namespace %><%= param %>" type="hidden" value="<%= value %>" />
 
-<input <%= value ? "checked" : "" %> <%= Validator.isNotNull(cssClass) ? "class=\"" + cssClass + "\"" : StringPool.BLANK %> <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= id %>Checkbox" name="<%= namespace %><%= param %>Checkbox" type="checkbox" onClick="Liferay.Util.updateCheckboxValue(this); <%= onClick %>" />
+<input <%= value ? "checked" : "" %> class="<%= cssClass %>" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= id %>Checkbox" name="<%= namespace %><%= param %>Checkbox" type="checkbox" onClick="Liferay.Util.updateCheckboxValue(this); <%= onClick %>" />

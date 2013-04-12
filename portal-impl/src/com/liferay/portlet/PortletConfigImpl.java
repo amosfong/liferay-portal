@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -191,12 +191,12 @@ public class PortletConfigImpl implements LiferayPortletConfig {
 		return Collections.enumeration(supportedLocales);
 	}
 
-	public boolean isWARFile() {
-		return _portletApp.isWARFile();
+	public boolean isCopyRequestParameters() {
+		return _copyRequestParameters;
 	}
 
-	protected boolean isCopyRequestParameters() {
-		return _copyRequestParameters;
+	public boolean isWARFile() {
+		return _portletApp.isWARFile();
 	}
 
 	protected Set<javax.xml.namespace.QName> toJavaxQNames(

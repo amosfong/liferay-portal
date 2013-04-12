@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,6 +40,7 @@ import com.liferay.portlet.asset.model.AssetCategoryProperty;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.base.AssetCategoryLocalServiceBaseImpl;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -229,7 +230,14 @@ public class AssetCategoryLocalServiceImpl
 	public List<AssetCategory> getCategories(long classNameId, long classPK)
 		throws SystemException {
 
-		return assetCategoryFinder.findByC_C(classNameId, classPK);
+		AssetEntry entry = assetEntryPersistence.fetchByC_C(
+			classNameId, classPK);
+
+		if (entry == null) {
+			return Collections.emptyList();
+		}
+
+		return assetEntryPersistence.getAssetCategories(entry.getEntryId());
 	}
 
 	public List<AssetCategory> getCategories(String className, long classPK)
@@ -299,7 +307,13 @@ public class AssetCategoryLocalServiceImpl
 	public List<AssetCategory> getEntryCategories(long entryId)
 		throws SystemException {
 
-		return assetCategoryFinder.findByEntryId(entryId);
+		return assetEntryPersistence.getAssetCategories(entryId);
+	}
+
+	public List<Long> getSubcategoryIds(long parentCategoryId)
+		throws SystemException {
+
+		return assetCategoryFinder.findByG_L(parentCategoryId);
 	}
 
 	public List<AssetCategory> getVocabularyCategories(
@@ -332,6 +346,13 @@ public class AssetCategoryLocalServiceImpl
 		return getVocabularyCategories(
 			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, vocabularyId,
 			start, end, obc);
+	}
+
+	public int getVocabularyRootCategoriesCount(long vocabularyId)
+		throws SystemException {
+
+		return assetCategoryPersistence.countByP_V(
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, vocabularyId);
 	}
 
 	public void mergeCategories(long fromCategoryId, long toCategoryId)

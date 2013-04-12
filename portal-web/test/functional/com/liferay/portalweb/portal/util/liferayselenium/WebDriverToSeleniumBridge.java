@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@ package com.liferay.portalweb.portal.util.liferayselenium;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portalweb.portal.BaseTestCase;
@@ -24,7 +25,9 @@ import com.liferay.portalweb.portal.util.TestPropsValues;
 
 import com.thoughtworks.selenium.Selenium;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -35,6 +38,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
@@ -53,6 +57,7 @@ public class WebDriverToSeleniumBridge
 		super(webDriver);
 
 		initKeys();
+		initKeysSpecialChars();
 
 		_defaultWindowHandle = getWindowHandle();
 	}
@@ -364,11 +369,19 @@ public class WebDriverToSeleniumBridge
 
 		WebDriverWait webDriverWait = new WebDriverWait(this, 1);
 
-		Alert alert = webDriverWait.until(ExpectedConditions.alertIsPresent());
+		try {
+			Alert alert = webDriverWait.until(
+				ExpectedConditions.alertIsPresent());
 
-		acceptConfirmation();
+			String confirmation = alert.getText();
 
-		return alert.getText();
+			alert.accept();
+
+			return confirmation;
+		}
+		catch (Exception e) {
+			throw new WebDriverException();
+		}
 	}
 
 	public String getCookie() {
@@ -460,14 +473,24 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public String getSelectedLabel(String selectLocator) {
-		WebElement selectLocatorWebElement = getWebElement(selectLocator);
+		return getSelectedLabel(selectLocator, null);
+	}
 
-		Select select = new Select(selectLocatorWebElement);
+	public String getSelectedLabel(String selectLocator, String timeout) {
+		try {
+			WebElement selectLocatorWebElement = getWebElement(
+				selectLocator, timeout);
 
-		WebElement firstSelectedOptionWebElement =
-			select.getFirstSelectedOption();
+			Select select = new Select(selectLocatorWebElement);
 
-		return firstSelectedOptionWebElement.getText();
+			WebElement firstSelectedOptionWebElement =
+				select.getFirstSelectedOption();
+
+			return firstSelectedOptionWebElement.getText();
+		}
+		catch (Exception e) {
+			return null;
+		}
 	}
 
 	public String[] getSelectedLabels(String selectLocator) {
@@ -1045,20 +1068,17 @@ public class WebDriverToSeleniumBridge
 		Set<String> windowHandles = getWindowHandles();
 
 		if (windowID.equals("") || windowID.equals("null")) {
-			String currentWindowTitle = getTitle();
+			String title = getTitle();
 
 			for (String windowHandle : windowHandles) {
 				WebDriver.TargetLocator targetLocator = switchTo();
 
 				targetLocator.window(windowHandle);
 
-				if (!currentWindowTitle.equals(getTitle())) {
+				if (!title.equals(getTitle())) {
 					return;
 				}
 			}
-
-			BaseTestCase.fail(
-				"Unable to find the window ID \"" + windowID + "\"");
 		}
 		else {
 			selectWindow(windowID);
@@ -1068,7 +1088,23 @@ public class WebDriverToSeleniumBridge
 	public void selectWindow(String windowID) {
 		Set<String> windowHandles = getWindowHandles();
 
-		if (windowID.equals("null")) {
+		if (windowID.equals("name=undefined")) {
+			String title = getTitle();
+
+			for (String windowHandle : windowHandles) {
+				WebDriver.TargetLocator targetLocator = switchTo();
+
+				targetLocator.window(windowHandle);
+
+				if (!title.equals(getTitle())) {
+					return;
+				}
+			}
+
+			BaseTestCase.fail(
+				"Unable to find the window ID \"" + windowID + "\"");
+		}
+		else if (windowID.equals("null")) {
 			WebDriver.TargetLocator targetLocator = switchTo();
 
 			targetLocator.window(_defaultWindowHandle);
@@ -1190,7 +1226,38 @@ public class WebDriverToSeleniumBridge
 	public void typeKeys(String locator, String value) {
 		WebElement webElement = getWebElement(locator);
 
-		if (webElement.isEnabled()) {
+		if (!webElement.isEnabled()) {
+			return;
+		}
+
+		StringBundler sb = new StringBundler();
+
+		sb.append(".*[");
+
+		Set<String> keysSpecialCharsSet = _keysSpecialChars.keySet();
+
+		for (String specialChar : keysSpecialCharsSet) {
+			sb.append("\\");
+			sb.append(specialChar);
+		}
+
+		sb.append("]*.*");
+
+		if (value.matches(sb.toString())) {
+			char[] chars = value.toCharArray();
+
+			for (char c : chars) {
+				String s = String.valueOf(c);
+
+				if (keysSpecialCharsSet.contains(s)) {
+					webElement.sendKeys(Keys.SHIFT, _keysSpecialChars.get(s));
+				}
+				else {
+					webElement.sendKeys(s);
+				}
+			}
+		}
+		else {
 			webElement.sendKeys(value);
 		}
 	}
@@ -1428,7 +1495,19 @@ public class WebDriverToSeleniumBridge
 		//keyTable[] = Keys.UP;
 	}
 
+	protected void initKeysSpecialChars() {
+		_keysSpecialChars.put("&", "7");
+		_keysSpecialChars.put("$", "4");
+		_keysSpecialChars.put("%", "5");
+		_keysSpecialChars.put("<", ",");
+		_keysSpecialChars.put(">", ".");
+		_keysSpecialChars.put("(", "9");
+		_keysSpecialChars.put(")", "0");
+	}
+
 	private String _defaultWindowHandle;
 	private Keys[] _keysArray = new Keys[128];
+	private Map<String, String> _keysSpecialChars =
+		new HashMap<String, String>();
 
 }

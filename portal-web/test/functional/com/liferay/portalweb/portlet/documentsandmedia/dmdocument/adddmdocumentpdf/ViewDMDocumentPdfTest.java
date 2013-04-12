@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -98,19 +98,23 @@ public class ViewDMDocumentPdfTest extends BaseTestCase {
 				"Automatically Extracted Metadata"),
 			selenium.getText(
 				"//div[@id='documentLibraryAssetMetadataPanel']/div/div/span"));
-		assertEquals(RuntimeVariables.replace("Creator Writer"),
+		assertEquals(RuntimeVariables.replace("Creator Liferay"),
 			selenium.getText(
-				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div[1]"));
+				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div/div[1]"));
+		assertEquals(RuntimeVariables.replace(
+				"metadata.DublinCore.CREATED 2012-05-08T17:38:02Z"),
+			selenium.getText(
+				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div/div[2]"));
 		assertEquals(RuntimeVariables.replace("Content Type application/pdf"),
 			selenium.getText(
-				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div[2]"));
+				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div/div[3]"));
 		assertEquals(RuntimeVariables.replace("Author Liferay"),
 			selenium.getText(
-				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div[3]"));
+				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div/div[4]"));
 		assertEquals(RuntimeVariables.replace(
 				"Creation Date 2012-05-08T17:38:02Z"),
 			selenium.getText(
-				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div[4]"));
+				"//div[@id='documentLibraryAssetMetadataPanel']/div[2]/div/div[5]"));
 		assertEquals(RuntimeVariables.replace("Version History"),
 			selenium.getText(
 				"//div[@id='documentLibraryVersionHistoryPanel']/div/div/span"));

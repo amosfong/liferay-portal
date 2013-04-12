@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -47,9 +47,7 @@ public class PortalSessionListener implements HttpSessionListener {
 
 		HttpSession session = httpSessionEvent.getSession();
 
-		session.setAttribute(
-			PortalSessionActivationListener.class.getName(),
-			PortalSessionActivationListener.getInstance());
+		PortalSessionActivationListener.setInstance(session);
 
 		if (PropsValues.SESSION_MAX_ALLOWED > 0) {
 			if (_counter.incrementAndGet() > PropsValues.SESSION_MAX_ALLOWED) {

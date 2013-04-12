@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -37,8 +37,8 @@ import java.util.Date;
  * @see com.liferay.portal.model.impl.PasswordPolicyModelImpl
  * @generated
  */
-public interface PasswordPolicyModel extends AuditedModel,
-	BaseModel<PasswordPolicy> {
+public interface PasswordPolicyModel extends BaseModel<PasswordPolicy>,
+	StagedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -58,6 +58,21 @@ public interface PasswordPolicyModel extends AuditedModel,
 	 * @param primaryKey the primary key of this password policy
 	 */
 	public void setPrimaryKey(long primaryKey);
+
+	/**
+	 * Returns the uuid of this password policy.
+	 *
+	 * @return the uuid of this password policy
+	 */
+	@AutoEscape
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this password policy.
+	 *
+	 * @param uuid the uuid of this password policy
+	 */
+	public void setUuid(String uuid);
 
 	/**
 	 * Returns the password policy ID of this password policy.
@@ -618,6 +633,10 @@ public interface PasswordPolicyModel extends AuditedModel,
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

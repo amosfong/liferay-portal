@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,8 +30,13 @@ import freemarker.template.Template;
 
 import java.io.Writer;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Mika Koivisto
@@ -63,6 +68,12 @@ public class FreeMarkerTemplate extends AbstractTemplate {
 
 	public Object get(String key) {
 		return _context.get(key);
+	}
+
+	public String[] getKeys() {
+		Set<String> keys = _context.keySet();
+
+		return keys.toArray(new String[keys.size()]);
 	}
 
 	public void put(String key, Object value) {
@@ -123,11 +134,13 @@ public class FreeMarkerTemplate extends AbstractTemplate {
 			TemplateConstants.LANG_TYPE_FTL, templateResource);
 
 		try {
-			Template template = _configuration.getTemplate(
-				getTemplateResourceUUID(templateResource),
-				TemplateConstants.DEFAUT_ENCODING);
+			Template template = AccessController.doPrivileged(
+				new TemplatePrivilegedExceptionAction(templateResource));
 
 			template.process(_context, writer);
+		}
+		catch (PrivilegedActionException pae) {
+			throw pae.getException();
 		}
 		finally {
 			TemplateResourceThreadLocal.setTemplateResource(
@@ -137,5 +150,24 @@ public class FreeMarkerTemplate extends AbstractTemplate {
 
 	private Configuration _configuration;
 	private Map<String, Object> _context;
+
+	private class TemplatePrivilegedExceptionAction
+		implements PrivilegedExceptionAction<Template> {
+
+		public TemplatePrivilegedExceptionAction(
+			TemplateResource templateResource) {
+
+			_templateResource = templateResource;
+		}
+
+		public Template run() throws Exception {
+			return _configuration.getTemplate(
+				getTemplateResourceUUID(_templateResource),
+				TemplateConstants.DEFAUT_ENCODING);
+		}
+
+		private TemplateResource _templateResource;
+
+	}
 
 }

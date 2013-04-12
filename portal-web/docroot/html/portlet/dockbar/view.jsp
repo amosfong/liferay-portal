@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -160,25 +160,7 @@ boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChec
 
 							<c:if test="<%= themeDisplay.isShowSiteSettingsIcon() %>">
 								<li class='<%= "settings" + useDialogFullDialog %>'>
-									<aui:a href="<%= themeDisplay.getURLSiteSettings().toString() %>" label="site-settings" title="edit-site-settings" />
-								</li>
-							</c:if>
-
-							<c:if test="<%= themeDisplay.isShowSiteMapSettingsIcon() %>">
-								<li class='<%= "sitemap" + useDialogFullDialog %>'>
-									<aui:a href="<%= themeDisplay.getURLSiteMapSettings().toString() %>" label="site-pages" title="manage-site-pages" />
-								</li>
-							</c:if>
-
-							<c:if test="<%= themeDisplay.isShowManageSiteMembershipsIcon() %>">
-								<li class='<%= "manage-site-memberships" + useDialogFullDialog %>'>
-									<aui:a href="<%= themeDisplay.getURLManageSiteMemberships().toString() %>" label="site-memberships" title="manage-site-memberships" />
-								</li>
-							</c:if>
-
-							<c:if test="<%= themeDisplay.isShowSiteContentIcon() %>">
-								<li class='<%= "manage-site-content" + useDialogFullDialog %>'>
-									<aui:a href="<%= themeDisplay.getURLSiteContent() %>" label="site-content" title="manage-site-content" />
+									<aui:a href="<%= themeDisplay.getURLSiteContent() %>" label="site" title="manage-site" />
 								</li>
 							</c:if>
 						</ul>
@@ -219,14 +201,10 @@ boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChec
 				if (refererLayout != null) {
 					Group refererGroup = refererLayout.getGroup();
 
-					if (refererGroup.isUserGroup()) {
-						Group scopeGroup = themeDisplay.getScopeGroup();
+					if (refererGroup.isUserGroup() && (themeDisplay.getRefererGroupId() > 0)) {
+						refererGroup = GroupLocalServiceUtil.getGroup(themeDisplay.getRefererGroupId());
 
-						if (scopeGroup.isUser()) {
-							refererGroup = scopeGroup;
-
-							refererLayout = new VirtualLayout(refererLayout, refererGroup);
-						}
+						refererLayout = new VirtualLayout(refererLayout, refererGroup);
 					}
 
 					refererGroupDescriptiveName = refererGroup.getDescriptiveName(locale);
@@ -500,17 +478,19 @@ boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChec
 
 			<liferay-ui:icon cssClass='<%= layoutTypePortlet.isCustomizedView() ? StringPool.BLANK : "false" %>' id="toggleCustomizedView" image="<%= taglibImage %>" label="<%= true %>" message="<%= taglibMessage %>" url="javascript:;" />
 
-			<liferay-portlet:actionURL portletName="<%= PortletKeys.LAYOUTS_ADMIN %>" var="resetCustomizationViewURL">
-				<portlet:param name="struts_action" value="/layouts_admin/edit_layouts" />
-				<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getSiteGroupId()) %>" />
-				<portlet:param name="<%= Constants.CMD %>" value="reset_customized_view" />
-			</liferay-portlet:actionURL>
+			<c:if test="<%= layoutTypePortlet.isCustomizedView() %>">
+				<liferay-portlet:actionURL portletName="<%= PortletKeys.LAYOUTS_ADMIN %>" var="resetCustomizationViewURL">
+					<portlet:param name="struts_action" value="/layouts_admin/edit_layouts" />
+					<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getSiteGroupId()) %>" />
+					<portlet:param name="<%= Constants.CMD %>" value="reset_customized_view" />
+				</liferay-portlet:actionURL>
 
-			<%
-			String taglibURL = "javascript:if (confirm('" + UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-reset-your-customizations-to-default") + "')){submitForm(document.hrefFm, '" + HttpUtil.encodeURL(resetCustomizationViewURL) + "');}";
-			%>
+				<%
+				String taglibURL = "javascript:if (confirm('" + UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-reset-your-customizations-to-default") + "')){submitForm(document.hrefFm, '" + HttpUtil.encodeURL(resetCustomizationViewURL) + "');}";
+				%>
 
-			<liferay-ui:icon image="../portlet/refresh" label="<%= true %>" message="reset-my-customizations" url="<%= taglibURL %>" />
+				<liferay-ui:icon image="../portlet/refresh" label="<%= true %>" message="reset-my-customizations" url="<%= taglibURL %>" />
+			</c:if>
 		</span>
 	</div>
 

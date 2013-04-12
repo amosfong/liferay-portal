@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -27,17 +27,37 @@ import java.util.Set;
  */
 public class LicenseManagerUtil {
 
-	public static final int STATE_ABSENT = 1;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link LicenseManager#STATE_ABSENT}
+	 */
+	public static final int STATE_ABSENT = LicenseManager.STATE_ABSENT;
 
-	public static final int STATE_EXPIRED = 2;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link LicenseManager#STATE_EXPIRED}
+	 */
+	public static final int STATE_EXPIRED = LicenseManager.STATE_EXPIRED;
 
-	public static final int STATE_GOOD = 3;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link LicenseManager#STATE_GOOD}
+	 */
+	public static final int STATE_GOOD = LicenseManager.STATE_GOOD;
 
-	public static final int STATE_INACTIVE = 4;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             LicenseManager#STATE_INACTIVE}
+	 */
+	public static final int STATE_INACTIVE = LicenseManager.STATE_INACTIVE;
 
-	public static final int STATE_INVALID = 5;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link LicenseManager#STATE_INVALID}
+	 */
+	public static final int STATE_INVALID = LicenseManager.STATE_INVALID;
 
-	public static final int STATE_OVERLOAD = 6;
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             LicenseManager#STATE_OVERLOAD}
+	 */
+	public static final int STATE_OVERLOAD = LicenseManager.STATE_OVERLOAD;
 
 	public static void checkLicense(String productId) {
 		getLicenseManager().checkLicense(productId);

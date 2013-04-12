@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -267,9 +267,16 @@ public class LayoutSetPrototypeLocalServiceUtil {
 			description, active, layoutsUpdateable, serviceContext);
 	}
 
+	public static com.liferay.portal.model.LayoutSetPrototype fetchLayoutSetPrototypeByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchLayoutSetPrototypeByUuidAndCompanyId(uuid, companyId);
+	}
+
 	/**
-	* @deprecated {@link #getLayoutSetPrototypeByUuidAndCompanyId(String,
-	long)}
+	* @deprecated As of 6.2.0, replaced by {@link
+	#getLayoutSetPrototypeByUuidAndCompanyId(String, long)}
 	*/
 	public static com.liferay.portal.model.LayoutSetPrototype getLayoutSetPrototypeByUuid(
 		java.lang.String uuid)
@@ -331,7 +338,7 @@ public class LayoutSetPrototypeLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(LayoutSetPrototypeLocalService service) {
 	}

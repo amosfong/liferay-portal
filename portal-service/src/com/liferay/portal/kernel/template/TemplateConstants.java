@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,9 @@ public interface TemplateConstants {
 
 	public static final String DEFAUT_ENCODING = StringPool.UTF8;
 
+	/**
+	 * @deprecated As of 6.2.0
+	 */
 	public static final String JOURNAL_SEPARATOR = "_JOURNAL_CONTEXT_";
 
 	public static final String LANG_TYPE_CSS = "css";
@@ -40,7 +43,11 @@ public interface TemplateConstants {
 	public static final String TEMPLATE_RESOURCE_UUID_PREFIX =
 		"TEMPLATE_RESOURCE_UUID";
 
+	public static final String TEMPLATE_SEPARATOR = "_TEMPLATE_CONTEXT_";
+
 	public static final String THEME_LOADER_SEPARATOR =
 		"_THEME_LOADER_CONTEXT_";
+
+	public static final String WRITER = "writer";
 
 }

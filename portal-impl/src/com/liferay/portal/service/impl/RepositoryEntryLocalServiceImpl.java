@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,28 +17,40 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.RepositoryEntry;
+import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.RepositoryEntryLocalServiceBaseImpl;
+
+import java.util.Date;
 
 /**
  * @author Brian Wing Shun Chan
  * @author Michael C. Han
+ * @author Mate Thurzo
  */
 public class RepositoryEntryLocalServiceImpl
 	extends RepositoryEntryLocalServiceBaseImpl {
 
 	public RepositoryEntry addRepositoryEntry(
-			long groupId, long repositoryId, String mappedId,
+			long userId, long groupId, long repositoryId, String mappedId,
 			ServiceContext serviceContext)
-		throws SystemException {
+		throws PortalException, SystemException {
+
+		User user = userPersistence.findByPrimaryKey(userId);
+		Date now = new Date();
 
 		long repositoryEntryId = counterLocalService.increment();
 
 		RepositoryEntry repositoryEntry = repositoryEntryPersistence.create(
 			repositoryEntryId);
 
-		repositoryEntry.setGroupId(groupId);
 		repositoryEntry.setUuid(serviceContext.getUuid());
+		repositoryEntry.setGroupId(groupId);
+		repositoryEntry.setCompanyId(user.getCompanyId());
+		repositoryEntry.setUserId(userId);
+		repositoryEntry.setUserName(user.getFullName());
+		repositoryEntry.setCreateDate(serviceContext.getCreateDate(now));
+		repositoryEntry.setModifiedDate(serviceContext.getModifiedDate(now));
 		repositoryEntry.setRepositoryId(repositoryId);
 		repositoryEntry.setMappedId(mappedId);
 
@@ -54,6 +66,7 @@ public class RepositoryEntryLocalServiceImpl
 		RepositoryEntry repositoryEntry =
 			repositoryEntryPersistence.findByPrimaryKey(repositoryEntryId);
 
+		repositoryEntry.setModifiedDate(new Date());
 		repositoryEntry.setMappedId(mappedId);
 
 		repositoryEntryPersistence.update(repositoryEntry);

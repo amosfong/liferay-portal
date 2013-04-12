@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -234,6 +234,20 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException, SystemException {
 		return mbThreadFlagPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns the message boards thread flag matching the UUID and group.
+	 *
+	 * @param uuid the message boards thread flag's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching message boards thread flag
+	 * @throws PortalException if a matching message boards thread flag could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MBThreadFlag getMBThreadFlagByUuidAndGroupId(String uuid,
+		long groupId) throws PortalException, SystemException {
+		return mbThreadFlagPersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**

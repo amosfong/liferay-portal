@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -31,11 +31,24 @@ else {
 }
 
 boolean useRichEditor = editorType.equals("rich");
+
+Map<String, TemplateVariableGroup> templateVariableGroups = Collections.emptyMap();
+
+if (classPK > 0) {
+	DDMStructure ddmStructure = DDMStructureServiceUtil.getStructure(classPK);
+
+	classNameId = ddmStructure.getClassNameId();
+}
+else if (template != null) {
+	classNameId = template.getClassNameId();
+}
+
+templateVariableGroups = TemplateContextHelper.getTemplateVariableGroups(classNameId, classPK, locale);
 %>
 
 <aui:input name="scriptContent" type="hidden" value="<%= script %>" />
 
-<liferay-ui:panel-container extended="<%= false %>" id="templateScriptPanelContainer" persistState="<%= true %>">
+<liferay-ui:panel-container extended="<%= false %>" id="templateScriptContainer" persistState="<%= true %>">
 	<liferay-ui:panel collapsible="<%= true %>" extended="<%= false %>" id="templateScriptSectionPanel" persistState="<%= true %>" title="script">
 		<div class="editor-toolbar">
 			<aui:select cssClass="language-type" inlineField="<%= true %>" label="" name="language" title="language-type">
@@ -66,24 +79,301 @@ boolean useRichEditor = editorType.equals("rich");
 			</aui:select>
 		</div>
 
-		<div class="lfr-plain-editor <%= useRichEditor ? "aui-helper-hidden" : StringPool.BLANK %>" id="<portlet:namespace />plainEditor">
-			<aui:input cssClass="lfr-template-editor" inputCssClass="lfr-editor-textarea" label="" name="plainEditorField" onKeyDown="Liferay.Util.checkTab(this); Liferay.Util.disableEsc();" type="textarea" value="" wrap="off" />
-		</div>
+		<div class="lfr-template-editor-container">
+			<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+				<div class="lfr-template-palette-container<%= (language.equalsIgnoreCase("ftl") || language.equalsIgnoreCase("vm")) ? "" : " aui-helper-hidden" %>" id="<portlet:namespace />templatePaletteContainer">
+					<div class="minimize-panels" id="<portlet:namespace />paletteToggler">
+						<a href="javascript:;">
+							<span><liferay-ui:message key="minimize-panels" /></span>
+						</a>
+					</div>
 
-		<div class="lfr-rich-editor <%= !useRichEditor ? "aui-helper-hidden" : StringPool.BLANK %>" id="<portlet:namespace />richEditor"></div>
+					<div class="lfr-template-palette" id="<portlet:namespace />paletteDataContainer">
+						<div id="<portlet:namespace />paletteData">
+
+							<%
+							for (TemplateVariableGroup templateVariableGroup : templateVariableGroups.values()) {
+							%>
+
+								<div class="palette-section">
+									<div class="palette-item-header aui-toggler-header-expanded">
+										<span class="palette-item-header-icon"></span>
+
+										<span><liferay-ui:message key="<%= templateVariableGroup.getLabel() %>" /></span>
+									</div>
+
+									<ul class="palette-item-content">
+
+										<%
+										for (TemplateVariableDefinition templateVariableDefinition : templateVariableGroup.getTemplateVariableDefinitions()) {
+											String dataContent1 = _getVariableCode(templateVariableDefinition.getName(), language);
+											String dataContent2 = StringPool.BLANK;
+											String dataContent3 = StringPool.BLANK;
+
+											String dataType = templateVariableDefinition.getDataType();
+
+											if (dataType.equals("boolean")) {
+												String[] booleanCodeArray = _getBooleanCodeArray(templateVariableDefinition.getName(), language);
+
+												dataContent1 = booleanCodeArray[0];
+												dataContent2 = booleanCodeArray[1];
+											}
+											else if (dataType.equals("date")) {
+												String[] dateCodeArray = _getDateCodeArray(templateVariableDefinition.getName(), language);
+
+												dataContent1 = dateCodeArray[0];
+												dataContent2 = dateCodeArray[1];
+											}
+											else if (dataType.equals("document-library") || dataType.equals("file-upload")) {
+												dataContent1 = "<a href=\"" + _getVariableCode(templateVariableDefinition.getName() + ".getData()", language) + "\">";
+												dataContent2 = LanguageUtil.format(pageContext, "download-x", templateVariableDefinition.getLabel());
+												dataContent3 = "</a>";
+											}
+											else if (dataType.equals("image")) {
+												dataContent1 = "<img alt=\"" + templateVariableDefinition.getLabel() + "\" src=\"" + _getVariableCode(templateVariableDefinition.getName() + ".getData()", language) + "\" />";
+											}
+											else if (dataType.equals("link-to-page")) {
+												dataContent1 = "<a href=\"" + _getVariableCode(templateVariableDefinition.getName() + ".getFriendlyUrl()", language) + "\">";
+												dataContent2 = templateVariableDefinition.getLabel();
+												dataContent3 = "</a>";
+											}
+											else if (templateVariableDefinition.isCollection()) {
+												TemplateVariableDefinition itemTemplateVariableDefinition = templateVariableDefinition.getItemTemplateVariableDefinition();
+
+												String[] listCodeArray = _getListCodeArray(templateVariableDefinition.getName() + ".getSiblings()", itemTemplateVariableDefinition.getName(), language);
+
+												dataContent1 = listCodeArray[0];
+												dataContent2 = listCodeArray[1];
+											}
+											else if (templateVariableDefinition.isRepeatable()) {
+												String itemName = "cur_" + templateVariableDefinition.getName();
+
+												String[] listCodeArray = _getListCodeArray(templateVariableDefinition.getName(), itemName, language);
+
+												dataContent1 = listCodeArray[0];
+												dataContent2 = _getVariableCode(itemName + ".getData()", language);
+												dataContent3 = listCodeArray[1];
+											}
+											else if (Validator.isNotNull(dataType)) {
+												dataContent1 = _getVariableCode(templateVariableDefinition.getName() + ".getData()", language);
+											}
+										%>
+
+											<li class="palette-item-container">
+												<span class="palette-item" data-content1="<%= HtmlUtil.escapeAttribute(dataContent1) %>" <c:if test="<%= Validator.isNotNull(dataContent2) %>">data-content2="<%= HtmlUtil.escapeAttribute(dataContent2) %>"</c:if> <c:if test="<%= Validator.isNotNull(dataContent3) %>">data-content3="<%= HtmlUtil.escapeAttribute(dataContent3) %>"</c:if> title="<%= HtmlUtil.escapeAttribute(_getPaletteItemTitle(pageContext, templateVariableDefinition)) %>">
+													<liferay-ui:message key="<%= templateVariableDefinition.getLabel() %>" /> <c:if test="<%= templateVariableDefinition.isCollection() || templateVariableDefinition.isRepeatable() %>">*</c:if>
+												</span>
+											</li>
+
+										<%
+										}
+										%>
+
+									</ul>
+								</div>
+
+							<%
+							}
+							%>
+
+						</div>
+					</div>
+				</div>
+			</c:if>
+
+			<%
+			String editorContainerClass = "lfr-editor-container";
+
+			if (!language.equalsIgnoreCase("ftl") && !language.equalsIgnoreCase("vm")) {
+				editorContainerClass += " lfr-editor-container-full";
+			}
+			%>
+
+			<div class="<%= editorContainerClass %>" id="<portlet:namespace />editorContainer">
+				<div class="lfr-plain-editor <%= useRichEditor ? "aui-helper-hidden" : StringPool.BLANK %>" id="<portlet:namespace />plainEditor">
+					<aui:input cssClass="lfr-template-editor" inputCssClass="lfr-editor-textarea" label="" name="plainEditorField" onKeyDown="Liferay.Util.checkTab(this); Liferay.Util.disableEsc();" type="textarea" value="" wrap="off" />
+				</div>
+
+				<div class="lfr-rich-editor <%= !useRichEditor ? "aui-helper-hidden" : StringPool.BLANK %>" id="<portlet:namespace />richEditor"></div>
+			</div>
+		</div>
 
 		<aui:input label="script-file" name="script" type="file" />
 	</liferay-ui:panel>
 </liferay-ui:panel-container>
 
-<aui:script use="aui-ace-editor">
+<aui:script use="aui-ace-autocomplete-freemarker,aui-ace-autocomplete-plugin,aui-ace-autocomplete-velocity,aui-toggler,aui-tooltip,event-mouseenter,transition">
+	var ACPlugin = A.Plugin.AceAutoComplete;
+	var AObject = A.Object;
+	var Util = Liferay.Util;
+
 	var editorType = '<%= HtmlUtil.escapeJS(editorType) %>';
 
-	var plainEditorField = A.one('#<portlet:namespace />plainEditorField');
+	var panelScriptContainer = A.one('#templateScriptContainer');
 
-	var richEditor;
+	var editorContainer = panelScriptContainer.one('#<portlet:namespace />editorContainer');
+	var plainEditorField = panelScriptContainer.one('#<portlet:namespace />plainEditorField');
+	var selectLanguageNode = panelScriptContainer.one('#<portlet:namespace />language');
 
 	var prevEditorContent;
+	var richEditor;
+
+	<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+		var CSS_EDITOR_CONTAINER_FULL = 'lfr-editor-container-full';
+
+		var CSS_EDITOR_CONTAINER_PALETTE_MINIMIZED = 'lfr-editor-container-palette-minimized';
+
+		var CSS_PALETTE_CONTAINER_MINIMIZED = 'lfr-template-palette-container-minimized';
+
+		var MAP_OPACITY = {
+			mouseenter: 1,
+			mouseleave: 0
+		};
+
+		var paletteToggler = panelScriptContainer.one('#<portlet:namespace />paletteToggler');
+
+		var paletteContainer = panelScriptContainer.one('#<portlet:namespace />templatePaletteContainer');
+		var paletteDataContainer = panelScriptContainer.one('#<portlet:namespace />paletteDataContainer');
+		var paletteDataNode = panelScriptContainer.one('#<portlet:namespace />paletteData');
+		var paletteTogglerLink = paletteToggler.one('a');
+
+		var paletteHandle;
+
+		function attachPaletteInteraction() {
+			paletteHandle = paletteContainer.on(['mouseenter', 'mouseleave'], togglePaletteAction);
+		}
+
+		function detachPaletteInteraction() {
+			if (paletteHandle) {
+				paletteHandle.detach();
+			}
+		}
+
+		function hidePalette() {
+			paletteContainer.hide();
+
+			editorContainer.addClass(CSS_EDITOR_CONTAINER_FULL);
+		}
+
+		function maximizePalette() {
+			editorContainer.removeClass(CSS_EDITOR_CONTAINER_PALETTE_MINIMIZED);
+
+			paletteContainer.transition(
+				{
+					duration: 0.5,
+					width: '200px'
+				},
+				function() {
+					paletteContainer.removeClass(CSS_PALETTE_CONTAINER_MINIMIZED);
+
+					paletteDataContainer.appendChild(paletteDataNode);
+
+					attachPaletteInteraction();
+				}
+			);
+		}
+
+		function minimizePalette() {
+			paletteDataNode.remove();
+
+			detachPaletteInteraction();
+
+			paletteContainer.transition(
+				{
+					duration: 0.5,
+					width: '13px'
+				},
+				function() {
+					paletteContainer.addClass(CSS_PALETTE_CONTAINER_MINIMIZED);
+					editorContainer.addClass(CSS_EDITOR_CONTAINER_PALETTE_MINIMIZED);
+
+					paletteToggler.setStyle('opacity', '1');
+				}
+			);
+		}
+
+		function onPaletteItemChosen(event) {
+			var editor = richEditor.getEditor();
+
+			var item = event.currentTarget;
+
+			var contentAttrs = Util.getAttributes(item, 'data-content');
+
+			var cursorPos;
+			var processed;
+
+			var aceAutocomplete = richEditor['aui-ace-autocomplete-plugin'];
+
+			aceAutocomplete._lockEditor = true;
+
+			AObject.each(
+				contentAttrs,
+				function(item, index) {
+					if (processed) {
+						editor.insert('\n');
+
+						cursorPos = editor.getCursorPosition();
+
+						editor.insert('\n');
+					}
+
+					processed = true;
+
+					editor.insert(item);
+				}
+			);
+
+			if (cursorPos) {
+				editor.moveCursorToPosition(cursorPos);
+			}
+
+			editor.focus();
+
+			aceAutocomplete._lockEditor = false;
+		}
+
+		function showPalette() {
+			editorContainer.removeClass(CSS_EDITOR_CONTAINER_FULL);
+
+			paletteContainer.show();
+		}
+
+		function togglePaletteCollapse() {
+			if (paletteContainer.hasClass(CSS_PALETTE_CONTAINER_MINIMIZED)) {
+				maximizePalette();
+			}
+			else {
+				minimizePalette();
+			}
+		}
+
+		function togglePaletteAction(event) {
+			if (!paletteContainer.hasClass(CSS_PALETTE_CONTAINER_MINIMIZED)) {
+				var opacity = 0;
+
+				if (event) {
+					opacity = MAP_OPACITY[event.type];
+				}
+
+				paletteToggler.transition(
+					{
+						opacity: opacity
+					}
+				);
+			}
+		}
+
+		function updatePalette() {
+			var selectedLanguage = getSelectedLanguage();
+
+			if ((selectedLanguage === 'ftl') || (selectedLanguage === 'vm')) {
+				showPalette();
+			}
+			else {
+				hidePalette();
+			}
+		}
+	</c:if>
 
 	function getEditorContent(type) {
 		var content = '';
@@ -98,6 +388,18 @@ boolean useRichEditor = editorType.equals("rich");
 		return content;
 	}
 
+	function getSelectedLanguage() {
+		return selectLanguageNode.val();
+	}
+
+	function onTemplateLanguageChange(event) {
+		<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+			updatePalette(event);
+		</c:if>
+
+		updateEditorPlugins(event);
+	}
+
 	function setEditorContent(type, content) {
 		if (type == 'plain') {
 			plainEditorField.val(content);
@@ -109,10 +411,48 @@ boolean useRichEditor = editorType.equals("rich");
 		prevEditorContent = content;
 	}
 
+	function updateEditorPlugins(event) {
+		var selectedOptionValue = getSelectedLanguage();
+
+		var processor;
+
+		if (selectedOptionValue === 'ftl') {
+			processor = new A.AceEditor.AutoCompleteFreemarker(
+				{
+					variables: <%= DDMTemplateHelperUtil.getAutocompleteJSON(request) %>
+				}
+			);
+		}
+		else if (selectedOptionValue === 'vm') {
+			processor = new A.AceEditor.AutoCompleteVelocity(
+				{
+					variables: <%= DDMTemplateHelperUtil.getAutocompleteJSON(request) %>
+				}
+			);
+		}
+
+		if (processor) {
+			richEditor.unplug(ACPlugin);
+
+			richEditor.plug(
+				ACPlugin,
+				{
+					processor: processor,
+					render: true,
+					visible: false,
+					zIndex: 10000
+				}
+			);
+		}
+		else {
+			richEditor.unplug(ACPlugin);
+		}
+	}
+
 	function updateEditorType(event) {
 		var oldEditorType = editorType;
 
-		var newEditorType = A.one('#<portlet:namespace />editorType').val();
+		var newEditorType = panelScriptContainer.one('#<portlet:namespace />editorType').val();
 
 		var oldEditorContent = getEditorContent(oldEditorType);
 
@@ -120,16 +460,23 @@ boolean useRichEditor = editorType.equals("rich");
 
 		var richEditorType = (newEditorType != 'plain');
 
-		A.one('#<portlet:namespace />plainEditor').toggle(!richEditorType);
-		A.one('#<portlet:namespace />richEditor').toggle(richEditorType);
+		panelScriptContainer.one('#<portlet:namespace />plainEditor').toggle(!richEditorType);
+		panelScriptContainer.one('#<portlet:namespace />richEditor').toggle(richEditorType);
 
 		if (richEditorType) {
+			<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+				hidePalette();
+			</c:if>
+
 			richEditor.editor.resize();
 		}
+		<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+			else {
+				showPalette();
+			}
+		</c:if>
 
-		var uri = '<portlet:renderURL><portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template_display" /></portlet:renderURL>&editorType=' + newEditorType;
-
-		A.io.request(uri);
+		A.io.request('<portlet:renderURL><portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template_display" /></portlet:renderURL>&editorType=' + newEditorType);
 
 		editorType = newEditorType;
 	}
@@ -144,9 +491,9 @@ boolean useRichEditor = editorType.equals("rich");
 			richEditor = new A.AceEditor(
 				{
 					boundingBox: '#<portlet:namespace />richEditor',
-					width: '100%',
-					height: '400',
-					mode: '<%= EditorUtil.getEditorMode(langType) %>'
+					height: 400,
+					mode: '<%= EditorUtil.getEditorMode(langType) %>',
+					width: '100%'
 				}
 			).render();
 
@@ -156,7 +503,7 @@ boolean useRichEditor = editorType.equals("rich");
 				setEditorContent(editorType, editorContentElement.val());
 			}
 
-			A.one('#<portlet:namespace />editorType').on('change', updateEditorType);
+			panelScriptContainer.one('#<portlet:namespace />editorType').on('change', updateEditorType);
 
 			Liferay.on(
 				'<portlet:namespace />saveTemplate',
@@ -164,7 +511,169 @@ boolean useRichEditor = editorType.equals("rich");
 					editorContentElement.val(getEditorContent());
 				}
 			);
+
+			selectLanguageNode.on('change', onTemplateLanguageChange);
+
+			updateEditorPlugins();
+
+			<c:if test="<%= !templateVariableGroups.isEmpty() %>">
+				paletteContainer.delegate('click', onPaletteItemChosen, '.palette-item');
+
+				attachPaletteInteraction();
+
+				paletteToggler.on('click', togglePaletteCollapse);
+
+				var togglerDelegate = new A.TogglerDelegate(
+					{
+						animated: true,
+						container: paletteDataContainer,
+						content: '.palette-item-content',
+						header: '.palette-item-header'
+					}
+				);
+
+				var t1 = new A.Tooltip(
+					{
+						align: {
+							points: ['bl', 'tr']
+						},
+						title: true,
+						trigger: '.palette-item'
+					}
+				).render(paletteContainer);
+			</c:if>
 		},
 		'#<portlet:namespace />richEditor'
 	);
 </aui:script>
+
+<%!
+private String[] _getBooleanCodeArray(String testClause, String language) {
+	String[] booleanCodeArray = new String[2];
+
+	if (language.equalsIgnoreCase("ftl")) {
+		booleanCodeArray[0] = "<#if getterUtil.getBoolean(" + testClause + ".getData())>";
+		booleanCodeArray[1] = "</#if>";
+	}
+	else if (language.equalsIgnoreCase("vm")) {
+		booleanCodeArray[0] = "#if ($getterUtil.getBoolean($" + testClause + ".getData())";
+		booleanCodeArray[1] = "#end";
+	}
+
+	return booleanCodeArray;
+}
+
+private String[] _getDateCodeArray(String variableName, String language) {
+	String[] dateCodeArray = new String[2];
+
+	if (language.equalsIgnoreCase("ftl")) {
+		dateCodeArray[0] = "<#assign " + variableName + "_DateObj = dateUtil.newDate(getterUtil.getLong(" + variableName + ".getData()))>";
+		dateCodeArray[1] = "${dateUtil.getDate(" + variableName + "_DateObj, \"dd MMM yyyy - HH:mm:ss\", locale)}";
+	}
+	else if (language.equalsIgnoreCase("vm")) {
+		dateCodeArray[0] = "#set " + variableName + "_DateObj = dateUtil.newDate(getterUtil.getLong(" + variableName + ".getData()))>";
+		dateCodeArray[1] = "$dateUtil.getDate(" + variableName + "_DateObj, \"dd MMM yyyy - HH:mm:ss\", locale)";
+	}
+
+	return dateCodeArray;
+}
+
+private String[] _getListCodeArray(String variableName, String itemName, String language) {
+	String[] listCodeArray = new String[2];
+
+	if (language.equalsIgnoreCase("ftl")) {
+		listCodeArray[0] = "<#if " + variableName + "?has_content>\n\t<#list " + variableName + ".getSiblings() as " + itemName + ">";
+		listCodeArray[1] = "</#list>\n</#if>";
+	}
+	else if (language.equalsIgnoreCase("vm")) {
+		listCodeArray[0] = "#if (!$"+ variableName + ".isEmpty())\n #foreach ($" + itemName + " in $" + variableName + ".getSiblings()" + ")";
+		listCodeArray[1] = "#end\n#end";
+	}
+
+	return listCodeArray;
+}
+
+private String _getPaletteItemTitle(PageContext pageContext, String label, Class<?> clazz) {
+	StringBundler sb = new StringBundler();
+
+	if (clazz == null) {
+		return StringPool.BLANK;
+	}
+
+	String className = clazz.getName();
+
+	sb.append("<br />");
+	sb.append(LanguageUtil.get(pageContext, label));
+	sb.append(StringPool.COLON);
+	sb.append("&nbsp;");
+
+	String javadocURL = null;
+
+	if (className.startsWith("com.liferay")) {
+		javadocURL = "http://docs.liferay.com/portal/6.1/javadocs/";
+	}
+
+	if (Validator.isNotNull(javadocURL)) {
+		sb.append("<a href=\"");
+		sb.append(javadocURL);
+		sb.append(StringUtil.replace(className, StringPool.PERIOD, StringPool.SLASH));
+		sb.append(".html\" target=\"_blank\">");
+	}
+
+	sb.append(clazz.getSimpleName());
+
+	if (Validator.isNull(javadocURL)) {
+		sb.append("</a>");
+	}
+
+	return sb.toString();
+}
+
+private String _getPaletteItemTitle(PageContext pageContext, TemplateVariableDefinition templateVariableDefinition) {
+	StringBundler sb = new StringBundler();
+
+	String help = templateVariableDefinition.getHelp();
+
+	if (Validator.isNotNull(help)) {
+		sb.append("<p>");
+		sb.append(LanguageUtil.get(pageContext, help));
+		sb.append("</p>");
+	}
+
+	if (templateVariableDefinition.isCollection()) {
+		sb.append("<p><i>* ");
+		sb.append(LanguageUtil.get(pageContext, "this-is-a-collection-of-fields"));
+		sb.append("</i></p>");
+	}
+	else if (templateVariableDefinition.isRepeatable()) {
+		sb.append("<p><i>* ");
+		sb.append(LanguageUtil.get(pageContext, "this-is-a-repeatable-field"));
+		sb.append("</i></p>");
+	}
+
+	sb.append(LanguageUtil.get(pageContext, "variable"));
+	sb.append(StringPool.COLON);
+	sb.append("&nbsp;");
+	sb.append(templateVariableDefinition.getName());
+	sb.append(_getPaletteItemTitle(pageContext, "class", templateVariableDefinition.getClazz()));
+
+	if (templateVariableDefinition.isCollection()) {
+		TemplateVariableDefinition itemTemplateVariableDefinition = templateVariableDefinition.getItemTemplateVariableDefinition();
+
+		sb.append(_getPaletteItemTitle(pageContext, "items-class", itemTemplateVariableDefinition.getClazz()));
+	}
+
+	return sb.toString();
+}
+
+private String _getVariableCode(String variableName, String language) {
+	if (language.equalsIgnoreCase("ftl")) {
+		return "${" + variableName + "}";
+	}
+	else if (language.equalsIgnoreCase("vm")) {
+		return "$" + variableName;
+	}
+
+	return variableName;
+}
+%>

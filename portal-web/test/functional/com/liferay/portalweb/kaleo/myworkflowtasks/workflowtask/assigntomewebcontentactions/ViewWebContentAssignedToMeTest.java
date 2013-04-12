@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -84,12 +84,12 @@ public class ViewWebContentAssignedToMeTest extends BaseTestCase {
 		selenium.waitForPageToLoad("30000");
 		assertTrue(selenium.isVisible(
 				"//a[contains(@title,'Web Content Name')]/div/img"));
-		assertTrue(selenium.isPartialText(
-				"//a[@class='entry-link']/span[@class='entry-title']",
-				"Web Content Name"));
+		assertEquals(RuntimeVariables.replace("Web Content Name"),
+			selenium.getText(
+				"//a[@class='entry-link']/span[@class='entry-title']/span[1]"));
 		assertEquals(RuntimeVariables.replace("(Pending)"),
 			selenium.getText(
-				"//a[@class='entry-link']/span[@class='entry-title']/span"));
+				"//a[@class='entry-link']/span[@class='entry-title']/span[2]"));
 		selenium.clickAt("link=Workflow", RuntimeVariables.replace("Workflow"));
 		selenium.waitForPageToLoad("30000");
 		selenium.clickAt("link=Submissions",

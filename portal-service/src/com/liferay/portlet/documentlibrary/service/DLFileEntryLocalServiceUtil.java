@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -193,12 +193,12 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	/**
-	* Returns the document library file entry with the UUID in the group.
+	* Returns the document library file entry matching the UUID and group.
 	*
-	* @param uuid the UUID of document library file entry
-	* @param groupId the group id of the document library file entry
-	* @return the document library file entry
-	* @throws PortalException if a document library file entry with the UUID in the group could not be found
+	* @param uuid the document library file entry's UUID
+	* @param groupId the primary key of the group
+	* @return the matching document library file entry
+	* @throws PortalException if a matching document library file entry could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry getDLFileEntryByUuidAndGroupId(
@@ -302,7 +302,8 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #checkInFileEntry(long, long, String, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long, long,
+	String, ServiceContext)}
 	*/
 	public static void checkInFileEntry(long userId, long fileEntryId,
 		java.lang.String lockUuid)
@@ -321,7 +322,8 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #checkOutFileEntry(long, long, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
+	long, ServiceContext)}
 	*/
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry checkOutFileEntry(
 		long userId, long fileEntryId)
@@ -340,8 +342,8 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #checkOutFileEntry(long, long, String, long,
-	ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
+	long, String, long, ServiceContext)}
 	*/
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry checkOutFileEntry(
 		long userId, long fileEntryId, java.lang.String owner,
@@ -414,11 +416,11 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().deleteFileEntry(userId, fileEntryId);
 	}
 
-	public static void deleteFileVersion(long userId, long fileEntryId,
-		java.lang.String version)
+	public static com.liferay.portlet.documentlibrary.model.DLFileEntry deleteFileVersion(
+		long userId, long fileEntryId, java.lang.String version)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		getService().deleteFileVersion(userId, fileEntryId, version);
+		return getService().deleteFileVersion(userId, fileEntryId, version);
 	}
 
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry fetchFileEntry(
@@ -437,6 +439,12 @@ public class DLFileEntryLocalServiceUtil {
 		long groupId, long folderId, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchFileEntryByName(groupId, folderId, name);
+	}
+
+	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getDDMStructureFileEntries(
+		long[] ddmStructureIds)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getDDMStructureFileEntries(ddmStructureIds);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getExtraSettingsFileEntries(
@@ -729,7 +737,7 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(DLFileEntryLocalService service) {
 	}

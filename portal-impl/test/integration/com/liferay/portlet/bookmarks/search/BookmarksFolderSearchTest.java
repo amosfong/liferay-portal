@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -49,7 +49,37 @@ public class BookmarksFolderSearchTest extends BaseSearchTestCase {
 	}
 
 	@Override
+	public void testSearchByDDMStructureField() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
 	public void testSearchComments() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireAllVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireLatestVersion() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchStatus() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchWithinDDMStructure() throws Exception {
 		Assert.assertTrue("This test does not apply", true);
 	}
 
@@ -62,7 +92,7 @@ public class BookmarksFolderSearchTest extends BaseSearchTestCase {
 		BookmarksFolder parentFolder = (BookmarksFolder)parentBaseModel;
 
 		return BookmarksTestUtil.addFolder(
-			parentFolder.getGroupId(), parentFolder.getFolderId(), keywords);
+			parentFolder.getFolderId(), keywords, serviceContext);
 	}
 
 	@Override
@@ -76,9 +106,8 @@ public class BookmarksFolderSearchTest extends BaseSearchTestCase {
 		throws Exception {
 
 		return BookmarksTestUtil.addFolder(
-			group.getGroupId(),
 			BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			ServiceTestUtil.randomString());
+			ServiceTestUtil.randomString(), serviceContext);
 	}
 
 	@Override

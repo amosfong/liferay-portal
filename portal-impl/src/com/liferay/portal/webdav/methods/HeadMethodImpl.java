@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -27,13 +27,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HeadMethodImpl implements Method {
 
-	public int process(WebDAVRequest webDavRequest) throws WebDAVException {
+	public int process(WebDAVRequest webDAVRequest) throws WebDAVException {
 		try {
-			WebDAVStorage storage = webDavRequest.getWebDAVStorage();
+			WebDAVStorage storage = webDAVRequest.getWebDAVStorage();
 			HttpServletResponse response =
-				webDavRequest.getHttpServletResponse();
+				webDAVRequest.getHttpServletResponse();
 
-			Resource resource = storage.getResource(webDavRequest);
+			Resource resource = storage.getResource(webDAVRequest);
 
 			if (resource == null) {
 				return HttpServletResponse.SC_NOT_FOUND;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -146,10 +146,11 @@ public class WikiPagePermission {
 			while (page != null) {
 				if (!permissionChecker.hasOwnerPermission(
 						page.getCompanyId(), WikiPage.class.getName(),
-						page.getPageId(), page.getUserId(), ActionKeys.VIEW) &&
+						page.getResourcePrimKey(), page.getUserId(),
+						ActionKeys.VIEW) &&
 					!permissionChecker.hasPermission(
 						page.getGroupId(), WikiPage.class.getName(),
-						page.getPageId(), ActionKeys.VIEW)) {
+						page.getResourcePrimKey(), ActionKeys.VIEW)) {
 
 					return false;
 				}
@@ -188,10 +189,10 @@ public class WikiPagePermission {
 
 			if (permissionChecker.hasOwnerPermission(
 					page.getCompanyId(), WikiPage.class.getName(),
-					page.getPageId(), page.getUserId(), actionId) ||
+					page.getResourcePrimKey(), page.getUserId(), actionId) ||
 				permissionChecker.hasPermission(
 					page.getGroupId(), WikiPage.class.getName(),
-					page.getPageId(), actionId)) {
+					page.getResourcePrimKey(), actionId)) {
 
 				return true;
 			}

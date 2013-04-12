@@ -57,6 +57,23 @@
 				(DLFileEntry.custom2ImageId = ?)
 		]]>
 	</sql>
+	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryFinder.findByDDMStructureIds">
+		<![CDATA[
+			SELECT
+				{DLFileEntry.*}
+			FROM
+				DLFileEntry
+			WHERE
+				(DLFileEntry.fileEntryTypeId IN (
+					SELECT
+						DLFileEntryTypes_DDMStructures.fileEntryTypeId
+					FROM
+						DLFileEntryTypes_DDMStructures
+					WHERE
+						[$DDM_STRUCTURE_ID$]
+				))
+		]]>
+	</sql>
 	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryFinder.findByMisversioned">
 		<![CDATA[
 			SELECT
@@ -237,7 +254,7 @@
 			WHERE
 				(DLFolder.groupId = ?) AND
 				(DLFolder.mountPoint = ?) AND
-				(DLFolder.hidden = [$FALSE$]) AND
+				(DLFolder.hidden_ = [$FALSE$]) AND
 				([$STATUS$]) AND
 				[$FOLDER_PARENT_FOLDER_ID$]
 		]]>
@@ -294,7 +311,7 @@
 			WHERE
 				(DLFolder.groupId = ?) AND
 				(DLFolder.mountPoint = ?) AND
-				(DLFolder.hidden = [$FALSE$]) AND
+				(DLFolder.hidden_ = [$FALSE$]) AND
 				([$STATUS$]) AND
 				[$FOLDER_PARENT_FOLDER_ID$]
 		]]>

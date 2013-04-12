@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,12 +30,13 @@ public class ViewWikiNodeFrontPageTest extends BaseTestCase {
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Wiki FrontPage Content"),
 			selenium.getText("//div[@class='wiki-body']/p"));
-		selenium.clickAt("link=Wiki Node Name",
+		selenium.clickAt("//ul[@class='top-links-nodes']/li[contains(.,'Wiki Node Name')]/a",
 			RuntimeVariables.replace("Wiki Node Name"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Wiki Node Front Page Content"),
 			selenium.getText("//div[@class='wiki-body']/p"));
-		selenium.clickAt("link=Main", RuntimeVariables.replace("Main"));
+		selenium.clickAt("//ul[@class='top-links-nodes']/li[contains(.,'Main')]/a",
+			RuntimeVariables.replace("Main"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Wiki FrontPage Content"),
 			selenium.getText("//div[@class='wiki-body']/p"));

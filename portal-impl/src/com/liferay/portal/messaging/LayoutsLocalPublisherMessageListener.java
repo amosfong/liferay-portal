@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -52,7 +52,7 @@ public class LayoutsLocalPublisherMessageListener
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	public LayoutsLocalPublisherMessageListener(
 		SingleDestinationMessageSender statusSender,
@@ -155,7 +155,7 @@ public class LayoutsLocalPublisherMessageListener
 					parameterMap, startDate, endDate);
 			}
 			else if (command.equals(
-				LayoutsLocalPublisherRequest.COMMAND_SELECTED_PAGES)) {
+						LayoutsLocalPublisherRequest.COMMAND_SELECTED_PAGES)) {
 
 				StagingUtil.publishLayouts(
 					userId, sourceGroupId, targetGroupId, privateLayout,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,7 +40,7 @@ import jodd.bean.BeanUtil;
 
 import jodd.typeconverter.TypeConverterManager;
 
-import jodd.util.KeyValue;
+import jodd.util.NameValue;
 import jodd.util.ReflectUtil;
 
 /**
@@ -280,24 +280,24 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			return;
 		}
 
-		List<KeyValue<String, Object>> innerParameters =
+		List<NameValue<String, Object>> innerParameters =
 			_jsonWebServiceActionParameters.getInnerParameters(parameterName);
 
 		if (innerParameters == null) {
 			return;
 		}
 
-		for (KeyValue<String, Object> innerParameter : innerParameters) {
+		for (NameValue<String, Object> innerParameter : innerParameters) {
 			try {
 				BeanUtil.setProperty(
-					parameterValue, innerParameter.getKey(),
+					parameterValue, innerParameter.getName(),
 					innerParameter.getValue());
 			}
 			catch (Exception e) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
 						"Unable to set inner parameter " + parameterName + "." +
-							innerParameter.getKey(),
+							innerParameter.getName(),
 						e);
 				}
 			}
@@ -361,6 +361,23 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 					parameterValue = _convertValueToParameterValue(
 						value, parameterType,
 						methodParameters[i].getGenericTypes());
+
+					ServiceContext serviceContext =
+						_jsonWebServiceActionParameters.getServiceContext();
+
+					if ((serviceContext != null) &&
+						parameterName.equals("serviceContext")) {
+
+						if ((parameterValue != null) &&
+							ServiceContext.class.isAssignableFrom(
+								parameterValue.getClass())) {
+
+							serviceContext.merge(
+								(ServiceContext)parameterValue);
+						}
+
+						parameterValue = serviceContext;
+					}
 				}
 			}
 

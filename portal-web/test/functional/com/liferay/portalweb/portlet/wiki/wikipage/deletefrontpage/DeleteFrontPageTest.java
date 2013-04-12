@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -35,7 +35,7 @@ public class DeleteFrontPageTest extends BaseTestCase {
 				selenium.waitForPageToLoad("30000");
 				assertFalse(selenium.isTextPresent(
 						"This page is empty. Edit it to add some text."));
-				selenium.clickAt("link=All Pages",
+				selenium.clickAt("//ul[@class='top-links-navigation']/li[contains(.,'All Pages')]/span/a/span",
 					RuntimeVariables.replace("All Pages"));
 				selenium.waitForPageToLoad("30000");
 				assertEquals(RuntimeVariables.replace("FrontPage"),

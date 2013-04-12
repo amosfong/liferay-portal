@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -103,7 +103,7 @@
 				}
 
 				if (!manageableSites.isEmpty() && !manageableSites.contains(curLiveGroup)) {
-					if (curLiveGroup.isSite() && PortletPermissionUtil.contains(permissionChecker, curLiveGroup.getGroupId(), 0, categoryPortlets, ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+					if (curLiveGroup.isSite() && PortletPermissionUtil.hasControlPanelAccessPermission(permissionChecker, curLiveGroup.getGroupId(), categoryPortlets)) {
 						manageableSites.add(0, curLiveGroup);
 					}
 					else {
@@ -152,7 +152,7 @@
 									String message = group.getDescriptiveName(locale);
 
 									if (group.isUser()) {
-										message = LanguageUtil.format(pageContext, "x-personal-site", group.getDescriptiveName(locale));
+										message = LanguageUtil.format(pageContext, "x-personal-site", HtmlUtil.escape(group.getDescriptiveName(locale)));
 									}
 
 									String url = null;
@@ -190,7 +190,7 @@
 					</c:choose>
 				</liferay-util:buffer>
 
-				<%
+			<%
 				scopeLayouts.addAll(LayoutLocalServiceUtil.getScopeGroupLayouts(curGroup.getGroupId(), false));
 				scopeLayouts.addAll(LayoutLocalServiceUtil.getScopeGroupLayouts(curGroup.getGroupId(), true));
 
@@ -204,18 +204,6 @@
 			}
 
 			List<Portlet> portlets = PortalUtil.getControlPanelPortlets(curCategory, themeDisplay);
-
-			Iterator<Portlet> itr = portlets.iterator();
-
-			while (itr.hasNext()) {
-				Portlet portlet = itr.next();
-
-				String portletId = portlet.getPortletId();
-
-				if (Validator.isNotNull(controlPanelCategory) && controlPanelCategory.equals(PortletCategoryKeys.CONTENT) && (portletId.equals(PortletKeys.GROUP_PAGES) || portletId.equals(PortletKeys.SITE_MEMBERSHIPS_ADMIN) || portletId.equals(PortletKeys.SITE_SETTINGS))) {
-					itr.remove();
-				}
-			}
 			%>
 
 			<liferay-util:buffer var="categoryPortletsContent">
@@ -256,7 +244,14 @@
 					%>
 
 							<li class="<%= ppid.equals(portletId) ? "selected-portlet" : "" %>">
-								<a href="<liferay-portlet:renderURL doAsGroupId="<%= themeDisplay.getScopeGroupId() %>" portletName="<%= portlet.getRootPortletId() %>" windowState="<%= WindowState.MAXIMIZED.toString() %>" />" id="<portlet:namespace />portlet_<%= portletId %>">
+								<liferay-portlet:renderURL
+									doAsGroupId="<%= themeDisplay.getScopeGroupId() %>"
+									portletName="<%= portlet.getRootPortletId() %>"
+									var="portletURL"
+									windowState="<%= WindowState.MAXIMIZED.toString() %>"
+								/>
+
+								<a href="<%= portletURL %>" id="<portlet:namespace />portlet_<%= portletId %>">
 									<c:choose>
 										<c:when test="<%= Validator.isNull(portlet.getIcon()) %>">
 											<liferay-ui:icon src='<%= themeDisplay.getPathContext() + "/html/icons/default.png" %>' />
@@ -269,6 +264,30 @@
 									<%= PortalUtil.getPortletTitle(portlet, application, locale) %>
 								</a>
 							</li>
+
+							<c:if test="<%= !ppid.equals(portletId) %>">
+
+								<%
+								String portletClassName = portlet.getPortletClass();
+								%>
+
+								<%
+								if (portletClassName.equals(AlloyPortlet.class.getName())) {
+									PortletConfig alloyPortletConfig = PortletConfigFactoryUtil.create(portlet, application);
+
+									PortletContext alloyPortletContext = alloyPortletConfig.getPortletContext();
+
+									if (alloyPortletContext.getAttribute(BaseAlloyControllerImpl.TOUCH + portlet.getRootPortletId()) != Boolean.FALSE) {
+								%>
+
+										<iframe height="0" src="<%= portletURL %>" style="display: none; visibility: hidden;" width="0"></iframe>
+
+								<%
+									}
+								}
+								%>
+
+							</c:if>
 
 					<%
 						}

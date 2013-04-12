@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,8 +34,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author Eduardo Lundgren
  */
 public class SessionTreeJSClicks {
-
-	public static final String CLASS_NAME = SessionTreeJSClicks.class.getName();
 
 	public static void closeLayoutNodes(
 		HttpServletRequest request, String treeId, boolean privateLayout,
@@ -174,7 +172,8 @@ public class SessionTreeJSClicks {
 			PortalPreferences preferences =
 				PortletPreferencesFactoryUtil.getPortalPreferences(request);
 
-			return preferences.getValue(CLASS_NAME, key);
+			return preferences.getValue(
+				SessionTreeJSClicks.class.getName(), key);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -210,7 +209,8 @@ public class SessionTreeJSClicks {
 			PortalPreferences preferences =
 				PortletPreferencesFactoryUtil.getPortalPreferences(request);
 
-			preferences.setValue(CLASS_NAME, key, value);
+			preferences.setValue(
+				SessionTreeJSClicks.class.getName(), key, value);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,9 +16,9 @@ package com.liferay.portlet.polls.model;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -40,7 +40,7 @@ import java.util.Date;
  * @see com.liferay.portlet.polls.model.impl.PollsVoteModelImpl
  * @generated
  */
-public interface PollsVoteModel extends AuditedModel, BaseModel<PollsVote> {
+public interface PollsVoteModel extends BaseModel<PollsVote>, StagedGroupedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -62,6 +62,21 @@ public interface PollsVoteModel extends AuditedModel, BaseModel<PollsVote> {
 	public void setPrimaryKey(long primaryKey);
 
 	/**
+	 * Returns the uuid of this polls vote.
+	 *
+	 * @return the uuid of this polls vote
+	 */
+	@AutoEscape
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this polls vote.
+	 *
+	 * @param uuid the uuid of this polls vote
+	 */
+	public void setUuid(String uuid);
+
+	/**
 	 * Returns the vote ID of this polls vote.
 	 *
 	 * @return the vote ID of this polls vote
@@ -74,6 +89,20 @@ public interface PollsVoteModel extends AuditedModel, BaseModel<PollsVote> {
 	 * @param voteId the vote ID of this polls vote
 	 */
 	public void setVoteId(long voteId);
+
+	/**
+	 * Returns the group ID of this polls vote.
+	 *
+	 * @return the group ID of this polls vote
+	 */
+	public long getGroupId();
+
+	/**
+	 * Sets the group ID of this polls vote.
+	 *
+	 * @param groupId the group ID of this polls vote
+	 */
+	public void setGroupId(long groupId);
 
 	/**
 	 * Returns the company ID of this polls vote.
@@ -218,6 +247,10 @@ public interface PollsVoteModel extends AuditedModel, BaseModel<PollsVote> {
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

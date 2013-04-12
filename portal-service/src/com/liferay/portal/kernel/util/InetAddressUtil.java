@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 
 import java.util.Enumeration;
 
@@ -53,6 +54,12 @@ public class InetAddressUtil {
 		}
 
 		throw new SystemException("No local internet address");
+	}
+
+	public static InetAddress getLoopbackInetAddress()
+		throws UnknownHostException {
+
+		return InetAddress.getByName("127.0.0.1");
 	}
 
 	private static class LocalHostNameHolder {

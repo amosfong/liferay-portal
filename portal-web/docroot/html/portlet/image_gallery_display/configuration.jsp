@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -82,11 +82,11 @@ String redirect = ParamUtil.getString(request, "redirect");
 				<div class="display-template">
 
 					<%
-					PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(FileEntry.class.getName());
+					TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(FileEntry.class.getName());
 					%>
 
 					<liferay-ui:ddm-template-selector
-						classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
+						classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
 						preferenceName="displayTemplate"
 						preferenceValue="<%= displayTemplate %>"
 						refreshURL="<%= currentURL %>"
@@ -106,7 +106,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 					<aui:a href="<%= viewFolderURL %>" id="rootFolderName"><%= rootFolderName %></aui:a>
 
-					<aui:button name="openFolderSelectorButton" onClick='<%= renderResponse.getNamespace() + "openFolderSelector();" %>' value="select" />
+					<aui:button name="openFolderSelectorButton" value="select" />
 
 					<%
 					String taglibRemoveFolder = "Liferay.Util.removeFolderSelection('rootFolderId', 'rootFolderName', '" + renderResponse.getNamespace() + "');";
@@ -128,24 +128,43 @@ String redirect = ParamUtil.getString(request, "redirect");
 	</aui:button-row>
 </aui:form>
 
+<liferay-portlet:renderURL portletName="<%= portletResource %>" var="selectFolderURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+	<portlet:param name="struts_action" value='<%= "/image_gallery_display/select_folder" %>' />
+</liferay-portlet:renderURL>
+
+<aui:script use="aui-base">
+	A.one('#<portlet:namespace />openFolderSelectorButton').on(
+		'click',
+		function(event) {
+			Liferay.Util.selectEntity(
+				{
+					dialog: {
+						align: Liferay.Util.Window.ALIGN_CENTER,
+						constrain: true,
+						modal: true,
+						stack: true,
+						width: 680
+					},
+					id: '_<%= portletResource %>_selectFolder',
+					title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "folder") %>',
+					uri: '<%= selectFolderURL.toString() %>'
+				},
+				function(event) {
+					var folderData = {
+						idString: 'rootFolderId',
+						idValue: event.folderid,
+						nameString: 'rootFolderName',
+						nameValue: event.foldername
+					};
+
+					Liferay.Util.selectFolder(folderData, '<liferay-portlet:renderURL portletName="<%= portletResource %>"><portlet:param name="struts_action" value='<%= "/image_gallery_display/view" %>' /></liferay-portlet:renderURL>', '<portlet:namespace />');
+				}
+			);
+		}
+	);
+</aui:script>
+
 <aui:script>
-	function <portlet:namespace />openFolderSelector() {
-		var folderWindow = window.open('<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>" portletName="<%= portletResource %>"><portlet:param name="struts_action" value='<%= "/image_gallery_display/select_folder" %>' /></liferay-portlet:renderURL>', 'folder', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=830');
-
-		folderWindow.focus();
-	}
-
-	function <%= PortalUtil.getPortletNamespace(portletResource) %>selectFolder(rootFolderId, rootFolderName) {
-		var folderData = {
-			idString: 'rootFolderId',
-			idValue: rootFolderId,
-			nameString: 'rootFolderName',
-			nameValue: rootFolderName
-		};
-
-		Liferay.Util.selectFolder(folderData, '<liferay-portlet:renderURL portletName="<%= portletResource %>"><portlet:param name="struts_action" value='<%= "/image_gallery_display/view" %>' /></liferay-portlet:renderURL>', '<portlet:namespace />');
-	}
-
 	Liferay.provide(
 		window,
 		'<portlet:namespace />saveConfiguration',

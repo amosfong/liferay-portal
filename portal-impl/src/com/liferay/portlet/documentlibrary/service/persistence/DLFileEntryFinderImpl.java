@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -33,6 +33,7 @@ import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileVersionImpl;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,6 +58,9 @@ public class DLFileEntryFinderImpl
 
 	public static final String FIND_BY_EXTRA_SETTINGS =
 		DLFileEntryFinder.class.getName() + ".findByExtraSettings";
+
+	public static final String FIND_BY_DDM_STRUCTURE_IDS =
+		DLFileEntryFinder.class.getName() + ".findByDDMStructureIds";
 
 	public static final String FIND_BY_MISVERSIONED =
 		DLFileEntryFinder.class.getName() + ".findByMisversioned";
@@ -122,66 +126,6 @@ public class DLFileEntryFinderImpl
 			groupId, userId, folderIds, mimeTypes, queryDefinition, false);
 	}
 
-	public List<DLFileEntry> doFindByG_U_F_M(
-			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition, boolean inlineSQLHelper)
-		throws SystemException {
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			String id = null;
-
-			if (userId <= 0) {
-				id = FIND_BY_G_F;
-			}
-			else {
-				id = FIND_BY_G_U_F;
-			}
-
-			String sql = getFileEntriesSQL(
-				id, groupId, folderIds, mimeTypes, queryDefinition,
-				inlineSQLHelper);
-
-			sql = CustomSQLUtil.replaceOrderBy(
-				sql, queryDefinition.getOrderByComparator());
-
-			SQLQuery q = session.createSQLQuery(sql);
-
-			q.addEntity(DLFileEntryImpl.TABLE_NAME, DLFileEntryImpl.class);
-
-			QueryPos qPos = QueryPos.getInstance(q);
-
-			qPos.add(groupId);
-
-			if (userId > 0) {
-				qPos.add(userId);
-			}
-
-			qPos.add(queryDefinition.getStatus());
-
-			for (Long folderId : folderIds) {
-				qPos.add(folderId);
-			}
-
-			if (mimeTypes != null) {
-				qPos.add(mimeTypes);
-			}
-
-			return (List<DLFileEntry>)QueryUtil.list(
-				q, getDialect(), queryDefinition.getStart(),
-				queryDefinition.getEnd());
-		}
-		catch (Exception e) {
-			throw new SystemException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
 	public DLFileEntry fetchByAnyImageId(long imageId) throws SystemException {
 		Session session = null;
 
@@ -244,6 +188,44 @@ public class DLFileEntryFinderImpl
 
 		throw new NoSuchFileEntryException(
 			"No DLFileEntry exists with the imageId " + imageId);
+	}
+
+	public List<DLFileEntry> findByDDMStructureIds(
+			long[] ddmStructureIds, int start, int end)
+		throws SystemException {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil.get(FIND_BY_DDM_STRUCTURE_IDS);
+
+			if ((ddmStructureIds == null) || (ddmStructureIds.length <= 0)) {
+				return Collections.emptyList();
+			}
+
+			sql = StringUtil.replace(
+				sql, "[$DDM_STRUCTURE_ID$]",
+				getDDMStructureIds(ddmStructureIds));
+
+			SQLQuery q = session.createSQLQuery(sql);
+
+			q.addEntity(DLFileEntryImpl.TABLE_NAME, DLFileEntryImpl.class);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(ddmStructureIds);
+
+			return (List<DLFileEntry>)QueryUtil.list(
+				q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	public List<DLFileEntry> findByExtraSettings(int start, int end)
@@ -421,6 +403,85 @@ public class DLFileEntryFinderImpl
 		}
 	}
 
+	protected List<DLFileEntry> doFindByG_U_F_M(
+			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
+			QueryDefinition queryDefinition, boolean inlineSQLHelper)
+		throws SystemException {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String id = null;
+
+			if (userId <= 0) {
+				id = FIND_BY_G_F;
+			}
+			else {
+				id = FIND_BY_G_U_F;
+			}
+
+			String sql = getFileEntriesSQL(
+				id, groupId, folderIds, mimeTypes, queryDefinition,
+				inlineSQLHelper);
+
+			sql = CustomSQLUtil.replaceOrderBy(
+				sql, queryDefinition.getOrderByComparator());
+
+			SQLQuery q = session.createSQLQuery(sql);
+
+			q.addEntity(DLFileEntryImpl.TABLE_NAME, DLFileEntryImpl.class);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			if (userId > 0) {
+				qPos.add(userId);
+			}
+
+			qPos.add(queryDefinition.getStatus());
+
+			for (Long folderId : folderIds) {
+				qPos.add(folderId);
+			}
+
+			if (mimeTypes != null) {
+				qPos.add(mimeTypes);
+			}
+
+			return (List<DLFileEntry>)QueryUtil.list(
+				q, getDialect(), queryDefinition.getStart(),
+				queryDefinition.getEnd());
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected String getDDMStructureIds(long[] ddmStructureIds) {
+		StringBundler sb = new StringBundler(
+			(ddmStructureIds.length * 2 - 1) + 2);
+
+		sb.append(StringPool.OPEN_PARENTHESIS);
+
+		for (int i = 0; i < ddmStructureIds.length; i++) {
+			sb.append("DLFileEntryTypes_DDMStructures.structureId = ?");
+
+			if ((i + 1) != ddmStructureIds.length) {
+				sb.append(WHERE_OR);
+			}
+		}
+
+		sb.append(StringPool.CLOSE_PARENTHESIS);
+
+		return sb.toString();
+	}
+
 	protected String getFileEntriesSQL(
 		String id, long groupId, List<Long> folderIds, String[] mimeTypes,
 		QueryDefinition queryDefinition, boolean inlineSQLHelper) {
@@ -465,15 +526,17 @@ public class DLFileEntryFinderImpl
 		return StringUtil.replace(sql, "[$FOLDER_ID$]", sb.toString());
 	}
 
-	protected String getFolderIds(List<Long> folderIds, String table) {
+	protected String getFolderIds(List<Long> folderIds, String tableName) {
 		if (folderIds.isEmpty()) {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(folderIds.size() * 2 - 1);
+		StringBundler sb = new StringBundler(folderIds.size() * 3 + 1);
+
+		sb.append(StringPool.OPEN_PARENTHESIS);
 
 		for (int i = 0; i < folderIds.size(); i++) {
-			sb.append(table);
+			sb.append(tableName);
 			sb.append(".folderId = ? ");
 
 			if ((i + 1) != folderIds.size()) {
@@ -481,10 +544,12 @@ public class DLFileEntryFinderImpl
 			}
 		}
 
+		sb.append(StringPool.CLOSE_PARENTHESIS);
+
 		return sb.toString();
 	}
 
-	protected String getMimeTypes(String[] mimeTypes, String table) {
+	protected String getMimeTypes(String[] mimeTypes, String tableName) {
 		if (mimeTypes.length == 0) {
 			return StringPool.BLANK;
 		}
@@ -492,7 +557,7 @@ public class DLFileEntryFinderImpl
 		StringBundler sb = new StringBundler(mimeTypes.length * 2 - 1);
 
 		for (int i = 0; i < mimeTypes.length; i++) {
-			sb.append(table);
+			sb.append(tableName);
 			sb.append(".mimeType = ?");
 
 			if ((i + 1) != mimeTypes.length) {

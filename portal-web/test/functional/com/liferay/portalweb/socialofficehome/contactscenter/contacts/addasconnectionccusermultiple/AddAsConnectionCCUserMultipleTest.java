@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -78,11 +78,11 @@ public class AddAsConnectionCCUserMultipleTest extends BaseTestCase {
 		selenium.waitForVisible("xPath=(//div[@class='lfr-contact-thumb'])[6]");
 		assertTrue(selenium.isVisible(
 				"xPath=(//div[@class='lfr-contact-thumb'])[6]"));
-		assertEquals(RuntimeVariables.replace("Add Connection"),
+		assertEquals(RuntimeVariables.replace("Connect"),
 			selenium.getText(
 				"//button[@id='_1_WAR_contactsportlet_addConnectionButton']"));
 		selenium.clickAt("//button[@id='_1_WAR_contactsportlet_addConnectionButton']",
-			RuntimeVariables.replace("Add Connection"));
+			RuntimeVariables.replace("Connect"));
 		selenium.waitForVisible("//span[@class='portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"This user has received a connection request from you."),

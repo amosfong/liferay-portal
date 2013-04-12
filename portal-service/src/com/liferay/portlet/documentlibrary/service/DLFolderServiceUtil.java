@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -125,7 +125,8 @@ public class DLFolderServiceUtil {
 		return getService().getFolder(groupId, parentFolderId, name);
 	}
 
-	public static long[] getFolderIds(long groupId, long folderId)
+	public static java.util.List<java.lang.Long> getFolderIds(long groupId,
+		long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getFolderIds(groupId, folderId);
@@ -286,18 +287,17 @@ public class DLFolderServiceUtil {
 				   .refreshFolderLock(lockUuid, companyId, expirationTime);
 	}
 
-	public static void unlockFolder(long groupId, long folderId,
-		java.lang.String lockUuid)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		getService().unlockFolder(groupId, folderId, lockUuid);
-	}
-
 	public static void unlockFolder(long groupId, long parentFolderId,
 		java.lang.String name, java.lang.String lockUuid)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().unlockFolder(groupId, parentFolderId, name, lockUuid);
+	}
+
+	public static void unlockFolder(long folderId, java.lang.String lockUuid)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().unlockFolder(folderId, lockUuid);
 	}
 
 	public static com.liferay.portlet.documentlibrary.model.DLFolder updateFolder(
@@ -333,7 +333,7 @@ public class DLFolderServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(DLFolderService service) {
 	}

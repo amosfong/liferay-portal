@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -27,6 +27,7 @@ import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.asset.model.AssetTagDisplay;
 import com.liferay.portlet.asset.service.base.AssetTagServiceBaseImpl;
 import com.liferay.portlet.asset.service.permission.AssetPermission;
 import com.liferay.portlet.asset.service.permission.AssetTagPermission;
@@ -111,6 +112,31 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 		return assetTagPersistence.filterCountByGroupId(groupId);
 	}
 
+	public AssetTagDisplay getGroupTagsDisplay(
+			long groupId, String name, int start, int end)
+		throws SystemException {
+
+		List<AssetTag> tags = null;
+		int total = 0;
+
+		if (Validator.isNotNull(name)) {
+			name = (CustomSQLUtil.keywords(name))[0];
+
+			tags = getTags(groupId, name, new String[0], start, end);
+			total = getTagsCount(groupId, name, new String[0]);
+		}
+		else {
+			tags = getGroupTags(groupId, start, end, null);
+			total = getGroupTagsCount(groupId);
+		}
+
+		return new AssetTagDisplay(tags, total, start, end);
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getGroupTagsDisplay(long,
+	 *             String, int, int)}
+	 */
 	public JSONObject getJSONGroupTags(
 			long groupId, String name, int start, int end)
 		throws PortalException, SystemException {
@@ -121,7 +147,7 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 
 		jsonObject.put("page", page);
 
-		List<AssetTag> tags = new ArrayList<AssetTag>();
+		List<AssetTag> tags = null;
 		int total = 0;
 
 		if (Validator.isNotNull(name)) {

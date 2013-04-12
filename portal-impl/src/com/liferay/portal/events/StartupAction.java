@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,13 +30,9 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.servlet.JspFactorySwapper;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
-import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.plugin.PluginPackageIndexer;
-import com.liferay.portal.security.lang.PortalSecurityManager;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.tools.DBUpgrader;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.messageboards.util.MBMessageIndexer;
 
 /**
@@ -71,11 +67,7 @@ public class StartupAction extends SimpleAction {
 			_log.debug("Clear locks");
 		}
 
-		boolean enabled = PortalSecurityManagerThreadLocal.isEnabled();
-
 		try {
-			PortalSecurityManagerThreadLocal.setEnabled(false);
-
 			LockLocalServiceUtil.clear();
 		}
 		catch (Exception e) {
@@ -83,9 +75,6 @@ public class StartupAction extends SimpleAction {
 				_log.warn(
 					"Unable to clear locks because Lock table does not exist");
 			}
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setEnabled(enabled);
 		}
 
 		// Shutdown hook
@@ -97,29 +86,6 @@ public class StartupAction extends SimpleAction {
 		Runtime runtime = Runtime.getRuntime();
 
 		runtime.addShutdownHook(new Thread(new ShutdownHook()));
-
-		// Security manager
-
-		String portalSecurityManagerStrategy =
-			PropsValues.PORTAL_SECURITY_MANAGER_STRATEGY;
-
-		if (portalSecurityManagerStrategy.equals("smart")) {
-			if (ServerDetector.isWebSphere()) {
-				portalSecurityManagerStrategy = "none";
-			}
-			else {
-				portalSecurityManagerStrategy = "default";
-			}
-		}
-
-		if (portalSecurityManagerStrategy.equals("liferay")) {
-			if (System.getSecurityManager() == null) {
-				System.setSecurityManager(new PortalSecurityManager());
-			}
-		}
-		else if (portalSecurityManagerStrategy.equals("none")) {
-			System.setSecurityManager(null);
-		}
 
 		// Template manager
 
@@ -140,16 +106,7 @@ public class StartupAction extends SimpleAction {
 			_log.debug("Upgrade database");
 		}
 
-		enabled = PortalSecurityManagerThreadLocal.isEnabled();
-
-		try {
-			PortalSecurityManagerThreadLocal.setEnabled(false);
-
-			DBUpgrader.upgrade();
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setEnabled(enabled);
-		}
+		DBUpgrader.upgrade();
 
 		// Messaging
 

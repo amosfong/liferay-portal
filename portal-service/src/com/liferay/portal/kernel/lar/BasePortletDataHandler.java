@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,11 +17,14 @@ package com.liferay.portal.kernel.lar;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+
+import java.io.IOException;
 
 import javax.portlet.PortletPreferences;
 
@@ -129,6 +132,8 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 
 				Element rootElement = document.getRootElement();
 
+				portletDataContext.setImportDataRootElement(rootElement);
+
 				long portletSourceGroupId = GetterUtil.getLong(
 					rootElement.attributeValue("group-id"));
 
@@ -170,12 +175,18 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 		return _publishToLiveByDefault;
 	}
 
-	protected Element addExportRootElement() {
+	protected Element addExportDataRootElement(
+		PortletDataContext portletDataContext) {
+
 		Document document = SAXReaderUtil.createDocument();
 
 		Class<?> clazz = getClass();
 
-		return document.addElement(clazz.getSimpleName());
+		Element rootElement = document.addElement(clazz.getSimpleName());
+
+		portletDataContext.setExportDataRootElement(rootElement);
+
+		return rootElement;
 	}
 
 	protected PortletPreferences doDeleteData(
@@ -200,6 +211,21 @@ public abstract class BasePortletDataHandler implements PortletDataHandler {
 		throws Exception {
 
 		return null;
+	}
+
+	protected String getExportDataRootElementString(Element rootElement) {
+		if (rootElement == null) {
+			return StringPool.BLANK;
+		}
+
+		try {
+			Document document = rootElement.getDocument();
+
+			return document.formattedString();
+		}
+		catch (IOException ioe) {
+			return StringPool.BLANK;
+		}
 	}
 
 	protected void setAlwaysExportable(boolean alwaysExportable) {

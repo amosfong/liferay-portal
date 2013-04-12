@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,7 +25,7 @@ import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetPrototypeLocalServiceUtil;
 import com.liferay.portal.service.persistence.LayoutSetPrototypeUtil;
-import com.liferay.portlet.sites.util.SitesUtil;
+import com.liferay.portlet.sites.util.Sites;
 
 import java.util.Date;
 
@@ -73,7 +73,7 @@ public class LayoutSetPrototypeLayoutListener
 			UnicodeProperties settingsProperties =
 				layoutSet.getSettingsProperties();
 
-			settingsProperties.remove(SitesUtil.MERGE_FAIL_COUNT);
+			settingsProperties.remove(Sites.MERGE_FAIL_COUNT);
 
 			LayoutSetLocalServiceUtil.updateLayoutSet(layoutSet);
 		}

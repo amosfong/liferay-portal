@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -92,7 +92,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 				</liferay-portlet:renderURL>
 
 				<liferay-ui:icon
+					cssClass="icon-action icon-action-add"
 					image="add_template_form"
+					label="<%= true %>"
 					message="add-form-template"
 					url="<%= addFormTemplateURL %>"
 				/>
@@ -109,7 +111,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 				</liferay-portlet:renderURL>
 
 				<liferay-ui:icon
+					cssClass="icon-action icon-action-add"
 					image="add_template_display"
+					label="<%= true %>"
 					message="add-display-template"
 					url="<%= addDisplayTemplateURL %>"
 				/>
@@ -126,7 +130,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 				</liferay-portlet:renderURL>
 
 				<liferay-ui:icon
+					cssClass="icon-action icon-action-edit-template"
 					image="../file_system/small/xml"
+					label="<%= true %>"
 					message="edit-form-template"
 					url="<%= editFormTemplateURL %>"
 				/>
@@ -141,7 +147,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 				</liferay-portlet:renderURL>
 
 				<liferay-ui:icon
+					cssClass="icon-action icon-action-edit-template"
 					image="../file_system/small/xml"
+					label="<%= true %>"
 					message="edit-display-template"
 					url="<%= editDisplayTemplateURL %>"
 				/>
@@ -149,8 +157,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 
 			<c:if test="<%= hasConfigurationPermission %>">
 				<liferay-ui:icon
-					cssClass="portlet-configuration"
+					cssClass="icon-action icon-action-configuration"
 					image="configuration"
+					label="<%= true %>"
 					message="select-list"
 					method="get"
 					onClick="<%= portletDisplay.getURLConfigurationJS() %>"
@@ -167,7 +176,9 @@ boolean showEditFormTemplateIcon = (formDDMTemplateId != 0) && DDMTemplatePermis
 				</liferay-portlet:renderURL>
 
 				<liferay-ui:icon
+					cssClass="icon-action icon-action-add"
 					image="add_article"
+					label="<%= true %>"
 					message="add-list"
 					url="<%= addListURL %>"
 				/>

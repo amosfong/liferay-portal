@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -28,7 +28,7 @@ public class ViewWCWebContentScopeGlobalWCDTest extends BaseTestCase {
 		selenium.clickAt("link=Web Content Display Test Page",
 			RuntimeVariables.replace("Web Content Display Test Page"));
 		selenium.waitForPageToLoad("30000");
-		assertEquals(RuntimeVariables.replace("WC WebContent Content"),
+		assertEquals(RuntimeVariables.replace("WC WebContent Global Content"),
 			selenium.getText("//div[@class='journal-content-article']"));
 		assertTrue(selenium.isVisible(
 				"//div[@class='icon-actions']/span/a/span[contains(.,'Edit')]"));

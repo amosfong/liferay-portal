@@ -3,7 +3,7 @@
 
 <service-builder package-path="com.liferay.portlet.messageboards">
 	<namespace>MB</namespace>
-	<entity name="MBBan" human-name="message boards ban" local-service="true" remote-service="true">
+	<entity name="MBBan" human-name="message boards ban" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -115,11 +115,23 @@
 		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
 		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
 	</entity>
-	<entity name="MBDiscussion" human-name="message boards discussion" local-service="true" remote-service="false">
+	<entity name="MBDiscussion" human-name="message boards discussion" uuid="true" local-service="true" remote-service="false">
 
 		<!-- PK fields -->
 
 		<column name="discussionId" type="long" primary="true" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -321,6 +333,12 @@
 			<finder-column name="classPK" />
 			<finder-column name="status" />
 		</finder>
+		<finder name="G_U_C_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="userId" />
+			<finder-column name="categoryId" arrayable-operator="OR" />
+			<finder-column name="status" />
+		</finder>
 		<finder name="G_C_T_A" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="categoryId" />
@@ -405,11 +423,11 @@
 
 		<reference package-path="com.liferay.portal" entity="Group" />
 	</entity>
-	<entity name="MBThread" human-name="message boards thread" local-service="true" remote-service="true">
+	<entity name="MBThread" human-name="message boards thread" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
-		<column name="threadId" type="long" primary="true" />
+		<column name="threadId" type="long" primary="true" container-model="true" />
 
 		<!-- Group instance -->
 
@@ -418,10 +436,14 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
-		<column name="categoryId" type="long" />
+		<column name="categoryId" type="long" parent-container-model="true" />
 		<column name="rootMessageId" type="long" />
 		<column name="rootMessageUserId" type="long" />
 		<column name="messageCount" type="int" />
@@ -507,15 +529,22 @@
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivityCounter" />
 		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
 	</entity>
-	<entity name="MBThreadFlag" human-name="message boards thread flag" local-service="true" remote-service="false">
+	<entity name="MBThreadFlag" human-name="message boards thread flag" uuid="true" local-service="true" remote-service="false">
 
 		<!-- PK fields -->
 
 		<column name="threadFlagId" type="long" primary="true" />
 
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
 		<!-- Audit fields -->
 
+		<column name="companyId" type="long" />
 		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
 		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->

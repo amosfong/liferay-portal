@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,6 +40,30 @@ public class FileEntryProxyBean
 		super(classLoader);
 
 		_fileEntry = fileEntry;
+	}
+
+	@Override
+	public Object clone() {
+		FileEntryProxyBean fileEntryProxyBean = newFileEntryProxyBean(
+			_fileEntry);
+
+		fileEntryProxyBean.setCompanyId(getCompanyId());
+		fileEntryProxyBean.setCreateDate(getCreateDate());
+		fileEntryProxyBean.setGroupId(getGroupId());
+		fileEntryProxyBean.setModifiedDate(getModifiedDate());
+		fileEntryProxyBean.setPrimaryKeyObj(getPrimaryKeyObj());
+		fileEntryProxyBean.setUserId(getUserId());
+		fileEntryProxyBean.setUserName(getUserName());
+
+		try {
+			fileEntryProxyBean.setUserUuid(getUserUuid());
+		}
+		catch (SystemException se) {
+		}
+
+		fileEntryProxyBean.setUuid(getUuid());
+
+		return fileEntryProxyBean;
 	}
 
 	public boolean containsPermission(
@@ -290,6 +314,10 @@ public class FileEntryProxyBean
 
 	public void setUserUuid(String userUuid) {
 		_fileEntry.setUserUuid(userUuid);
+	}
+
+	public void setUuid(String uuid) {
+		_fileEntry.setUuid(uuid);
 	}
 
 	public FileEntry toEscapedModel() {

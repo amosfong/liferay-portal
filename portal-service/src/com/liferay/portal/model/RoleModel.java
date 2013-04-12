@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,12 +16,14 @@ package com.liferay.portal.model;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscape;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,7 +40,7 @@ import java.util.Map;
  * @see com.liferay.portal.model.impl.RoleModelImpl
  * @generated
  */
-public interface RoleModel extends AttachedModel, BaseModel<Role> {
+public interface RoleModel extends AttachedModel, BaseModel<Role>, StagedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -58,6 +60,21 @@ public interface RoleModel extends AttachedModel, BaseModel<Role> {
 	 * @param primaryKey the primary key of this role
 	 */
 	public void setPrimaryKey(long primaryKey);
+
+	/**
+	 * Returns the uuid of this role.
+	 *
+	 * @return the uuid of this role
+	 */
+	@AutoEscape
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this role.
+	 *
+	 * @param uuid the uuid of this role
+	 */
+	public void setUuid(String uuid);
 
 	/**
 	 * Returns the role ID of this role.
@@ -86,6 +103,78 @@ public interface RoleModel extends AttachedModel, BaseModel<Role> {
 	 * @param companyId the company ID of this role
 	 */
 	public void setCompanyId(long companyId);
+
+	/**
+	 * Returns the user ID of this role.
+	 *
+	 * @return the user ID of this role
+	 */
+	public long getUserId();
+
+	/**
+	 * Sets the user ID of this role.
+	 *
+	 * @param userId the user ID of this role
+	 */
+	public void setUserId(long userId);
+
+	/**
+	 * Returns the user uuid of this role.
+	 *
+	 * @return the user uuid of this role
+	 * @throws SystemException if a system exception occurred
+	 */
+	public String getUserUuid() throws SystemException;
+
+	/**
+	 * Sets the user uuid of this role.
+	 *
+	 * @param userUuid the user uuid of this role
+	 */
+	public void setUserUuid(String userUuid);
+
+	/**
+	 * Returns the user name of this role.
+	 *
+	 * @return the user name of this role
+	 */
+	@AutoEscape
+	public String getUserName();
+
+	/**
+	 * Sets the user name of this role.
+	 *
+	 * @param userName the user name of this role
+	 */
+	public void setUserName(String userName);
+
+	/**
+	 * Returns the create date of this role.
+	 *
+	 * @return the create date of this role
+	 */
+	public Date getCreateDate();
+
+	/**
+	 * Sets the create date of this role.
+	 *
+	 * @param createDate the create date of this role
+	 */
+	public void setCreateDate(Date createDate);
+
+	/**
+	 * Returns the modified date of this role.
+	 *
+	 * @return the modified date of this role
+	 */
+	public Date getModifiedDate();
+
+	/**
+	 * Sets the modified date of this role.
+	 *
+	 * @param modifiedDate the modified date of this role
+	 */
+	public void setModifiedDate(Date modifiedDate);
 
 	/**
 	 * Returns the fully qualified class name of this role.
@@ -383,6 +472,10 @@ public interface RoleModel extends AttachedModel, BaseModel<Role> {
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.LayoutSet;
+import com.liferay.portal.model.User;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
@@ -52,7 +53,7 @@ public class I18nFilter extends BasePortalFilter {
 	}
 
 	public static void setLanguageIds(Set<String> languageIds) {
-		_languageIds.clear();
+		_languageIds = new HashSet<String>();
 
 		for (String languageId : languageIds) {
 			languageId = languageId.substring(1);
@@ -105,11 +106,21 @@ public class I18nFilter extends BasePortalFilter {
 			return null;
 		}
 
+		String guestLanguageId = null;
+
+		User user = (User)request.getAttribute(WebKeys.USER);
+
+		if (user != null) {
+			guestLanguageId = user.getLanguageId();
+		}
+
+		if (Validator.isNull(guestLanguageId)) {
+			guestLanguageId = CookieKeys.getCookie(
+				request, CookieKeys.GUEST_LANGUAGE_ID, false);
+		}
+
 		String defaultLanguageId = LocaleUtil.toLanguageId(
 			LocaleUtil.getDefault());
-
-		String guestLanguageId = CookieKeys.getCookie(
-			request, CookieKeys.GUEST_LANGUAGE_ID, false);
 
 		if (Validator.isNull(guestLanguageId)) {
 			guestLanguageId = defaultLanguageId;
@@ -261,6 +272,6 @@ public class I18nFilter extends BasePortalFilter {
 
 	private static Log _log = LogFactoryUtil.getLog(I18nFilter.class);
 
-	private static Set<String> _languageIds = new HashSet<String>();
+	private static Set<String> _languageIds;
 
 }

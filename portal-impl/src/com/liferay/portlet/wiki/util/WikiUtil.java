@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -107,12 +107,12 @@ public class WikiUtil {
 		String targetContent = StringPool.BLANK;
 
 		if (sourcePage != null) {
-			sourceContent = WikiUtil.convert(
+			sourceContent = convert(
 				sourcePage, viewPageURL, editPageURL, attachmentURLPrefix);
 		}
 
 		if (targetPage != null) {
-			targetContent = WikiUtil.convert(
+			targetContent = convert(
 				targetPage, viewPageURL, editPageURL, attachmentURLPrefix);
 		}
 
@@ -156,6 +156,23 @@ public class WikiUtil {
 		orphans = ListUtil.sort(orphans);
 
 		return orphans;
+	}
+
+	public static String getAttachmentURLPrefix(
+		String mainPath, long plid, long nodeId, String title) {
+
+		StringBundler sb = new StringBundler(8);
+
+		sb.append(mainPath);
+		sb.append("/wiki/get_page_attachment?p_l_id=");
+		sb.append(plid);
+		sb.append("&nodeId=");
+		sb.append(nodeId);
+		sb.append("&title=");
+		sb.append(HttpUtil.encodeURL(title));
+		sb.append("&fileName=");
+
+		return sb.toString();
 	}
 
 	public static String getEditPage(String format) {
@@ -367,8 +384,8 @@ public class WikiUtil {
 
 		for (WikiNode node : nodes) {
 			if ((Arrays.binarySearch(hiddenNodes, node.getName()) < 0) &&
-				(WikiNodePermission.contains(
-					permissionChecker, node, ActionKeys.VIEW))) {
+				WikiNodePermission.contains(
+					permissionChecker, node, ActionKeys.VIEW)) {
 
 				return node;
 			}
@@ -416,7 +433,7 @@ public class WikiUtil {
 			}
 		}
 
-		return WikiUtil.convert(
+		return convert(
 			wikiPage, curViewPageURL, curEditPageURL, attachmentURLPrefix);
 	}
 

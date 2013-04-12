@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -119,7 +119,7 @@ public class ShellHook implements Hook {
 		);
 	}
 
-	protected void execute(String cmdLine[]) {
+	protected void execute(String[] cmdLine) {
 		for (int i = 0; i < cmdLine.length; i++) {
 			if (cmdLine[i].trim().length() == 0) {
 				cmdLine[i] = StringPool.UNDERLINE;

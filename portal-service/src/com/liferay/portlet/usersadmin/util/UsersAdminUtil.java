@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -48,6 +48,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UsersAdminUtil {
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link UsersAdmin#CUSTOM_QUESTION}
+	 */
 	public static final String CUSTOM_QUESTION = "write-my-own-question";
 
 	public static void addPortletBreadcrumbEntries(
@@ -99,6 +102,23 @@ public class UsersAdminUtil {
 		PermissionChecker permissionChecker, List<Role> roles) {
 
 		return getUsersAdmin().filterRoles(permissionChecker, roles);
+	}
+
+	public static long[] filterUnsetGroupUserIds(
+			PermissionChecker permissionChecker, long groupId, long[] userIds)
+		throws PortalException, SystemException {
+
+		return getUsersAdmin().filterUnsetGroupUserIds(
+			permissionChecker, groupId, userIds);
+	}
+
+	public static long[] filterUnsetOrganizationUserIds(
+			PermissionChecker permissionChecker, long organizationId,
+			long[] userIds)
+		throws PortalException, SystemException {
+
+		return getUsersAdmin().filterUnsetOrganizationUserIds(
+			permissionChecker, organizationId, userIds);
 	}
 
 	public static List<UserGroupRole> filterUserGroupRoles(

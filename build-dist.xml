@@ -1075,11 +1075,17 @@ release was successful.</echo>
 			src="${app.server.parent.dir}/${app.server.jetty.zip.name}"
 		>
 			<patternset
-				excludes="jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/bin/**,jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/contexts/**,jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/contexts-available/**,jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/javadoc/**,jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/overlays/**,jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/webapps/**"
+				excludes="
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/bin/**,
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/contexts/**,
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/contexts-available/**,
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/javadoc/**,
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/overlays/**,
+					jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/webapps/**"
 			/>
 			<mapper
 				type="glob"
-				from="jetty-hightide-${app.server.jetty.version}.v${app.server.jetty.version.date}/*"
+				from="jetty-distribution-${app.server.jetty.version}.v${app.server.jetty.version.date}/*"
 				to="jetty-${app.server.jetty.version}/*"
 			/>
 		</unzip>
@@ -1096,7 +1102,7 @@ release was successful.</echo>
 
 		<replace file="${app.server.jetty.bin.dir}/run.bat">
 			<replacetoken>set "JAVA_OPTS=-D</replacetoken>
-			<replacevalue>set "JAVA_OPTS=-Dapp.server.jetty.version=${app.server.jetty.version} -Dapp.server.jetty.version.date=${app.server.jetty.version.date} -D</replacevalue>
+			<replacevalue>set "JAVA_OPTS=-Dapp.server.jetty.version=${app.server.jetty.version} -Dapp.server.jetty.version.date=${app.server.jetty.version.date} -Djava.io.tmpdir=${app.server.jetty.dir}/temp -D</replacevalue>
 		</replace>
 
 		<loadfile property="run.bat.content" srcfile="${app.server.jetty.bin.dir}/run.bat">
@@ -1755,7 +1761,7 @@ closeTemplate()
 				<fail>
 .
 
-Please download ${app.server.websphere.fix.jdk.name},
+Please download ${app.server.websphere.fix.pack.jdk.name},
 ${app.server.websphere.fix.pack.was.name},
 ${app.server.websphere.update.installer.zip.name}, and
 ${app.server.websphere.zip.name} from ${app.server.websphere.zip.url} and put

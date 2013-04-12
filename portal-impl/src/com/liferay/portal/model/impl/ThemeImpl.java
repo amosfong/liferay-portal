@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,14 +14,12 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.util.ContextPathUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThemeHelper;
@@ -35,7 +33,6 @@ import com.liferay.portal.theme.ThemeCompanyId;
 import com.liferay.portal.theme.ThemeCompanyLimit;
 import com.liferay.portal.theme.ThemeGroupLimit;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.HashMap;
@@ -53,39 +50,6 @@ import javax.servlet.ServletContext;
  * @author Raymond Augé
  */
 public class ThemeImpl extends PluginBaseImpl implements Theme {
-
-	/**
-	 * @deprecated
-	 */
-	public static String getDefaultRegularThemeId() {
-		return PortalUtil.getJsSafePortletId(
-			PropsValues.DEFAULT_REGULAR_THEME_ID);
-	}
-
-	public static String getDefaultRegularThemeId(long companyId)
-		throws SystemException {
-
-		String defaultRegularThemeId = PrefsPropsUtil.getString(
-			companyId, PropsKeys.DEFAULT_REGULAR_THEME_ID);
-
-		return PortalUtil.getJsSafePortletId(defaultRegularThemeId);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public static String getDefaultWapThemeId() {
-		return PortalUtil.getJsSafePortletId(PropsValues.DEFAULT_WAP_THEME_ID);
-	}
-
-	public static String getDefaultWapThemeId(long companyId)
-		throws SystemException {
-
-		String defaultWapThemeId = PrefsPropsUtil.getString(
-			companyId, PropsKeys.DEFAULT_WAP_THEME_ID);
-
-		return PortalUtil.getJsSafePortletId(defaultWapThemeId);
-	}
 
 	public ThemeImpl() {
 	}
@@ -553,9 +517,8 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 
 			if ((includes.size() != 0) && (excludes.size() != 0)) {
 
-				// Since includes and excludes are specified, check to
-				// make sure the current company id is included and also
-				// not excluded
+				// Since includes and excludes are specified, check to make sure
+				// the current company id is included and also not excluded
 
 				if (_log.isDebugEnabled()) {
 					_log.debug("Check includes and excludes");
@@ -569,8 +532,8 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 			}
 			else if ((includes.size() == 0) && (excludes.size() != 0)) {
 
-				// Since no includes are specified, check to make sure
-				// the current company id is not excluded
+				// Since no includes are specified, check to make sure the
+				// current company id is not excluded
 
 				if (_log.isDebugEnabled()) {
 					_log.debug("Check excludes");
@@ -580,8 +543,8 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 			}
 			else if ((includes.size() != 0) && (excludes.size() == 0)) {
 
-				// Since no excludes are specified, check to make sure
-				// the current company id is included
+				// Since no excludes are specified, check to make sure the
+				// current company id is included
 
 				if (_log.isDebugEnabled()) {
 					_log.debug("Check includes");
@@ -591,8 +554,8 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 			}
 			else {
 
-				// Since no includes or excludes are specified, this
-				// theme is available for every company
+				// Since no includes or excludes are specified, this theme is
+				// available for every company
 
 				if (_log.isDebugEnabled()) {
 					_log.debug("No includes or excludes set");

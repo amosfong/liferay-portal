@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -707,7 +707,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	/**
-	* @deprecated Renamed to {@link #isApproved()}
+	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
 	public boolean getApproved() {
 		return _wikiPage.getApproved();
@@ -827,6 +827,16 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_wikiPage.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_wikiPage.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_wikiPage.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -871,35 +881,31 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 		_wikiPage.persist();
 	}
 
-	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries()
+	public com.liferay.portal.kernel.repository.model.Folder addAttachmentsFolder()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPage.addAttachmentsFolder();
+	}
+
+	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries()
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getAttachmentsFileEntries();
 	}
 
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries(
 		int start, int end)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getAttachmentsFileEntries(start, end);
 	}
 
 	public int getAttachmentsFileEntriesCount()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getAttachmentsFileEntriesCount();
 	}
 
 	public long getAttachmentsFolderId()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getAttachmentsFolderId();
-	}
-
-	public long getNodeAttachmentsFolderId()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _wikiPage.getNodeAttachmentsFolderId();
 	}
 
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getChildPages() {
@@ -907,26 +913,28 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getDeletedAttachmentsFileEntries()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getDeletedAttachmentsFileEntries();
 	}
 
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getDeletedAttachmentsFileEntries(
 		int start, int end)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getDeletedAttachmentsFileEntries(start, end);
 	}
 
 	public int getDeletedAttachmentsFileEntriesCount()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPage.getDeletedAttachmentsFileEntriesCount();
 	}
 
 	public com.liferay.portlet.wiki.model.WikiNode getNode() {
 		return _wikiPage.getNode();
+	}
+
+	public long getNodeAttachmentsFolderId()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPage.getNodeAttachmentsFolderId();
 	}
 
 	public com.liferay.portlet.wiki.model.WikiPage getParentPage() {
@@ -939,6 +947,10 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 
 	public com.liferay.portlet.wiki.model.WikiPage getRedirectPage() {
 		return _wikiPage.getRedirectPage();
+	}
+
+	public com.liferay.portlet.wiki.model.WikiNode getTrashContainer() {
+		return _wikiPage.getTrashContainer();
 	}
 
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getViewableChildPages() {
@@ -962,7 +974,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public WikiPage getWrappedWikiPage() {
 		return _wikiPage;

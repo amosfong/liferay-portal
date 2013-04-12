@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
@@ -40,6 +41,7 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -76,7 +78,6 @@ import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.model.impl.ColorSchemeImpl;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.GroupLocalServiceUtil;
@@ -104,6 +105,7 @@ import com.liferay.portlet.journal.lar.JournalPortletDataHandler;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.service.JournalContentSearchLocalServiceUtil;
 import com.liferay.portlet.journalcontent.util.JournalContentUtil;
+import com.liferay.portlet.sites.util.Sites;
 import com.liferay.portlet.sites.util.SitesUtil;
 
 import java.io.File;
@@ -401,6 +403,13 @@ public class LayoutImporter {
 
 		validateLayoutPrototypes(companyId, layoutsElement, layoutElements);
 
+		// Company group id
+
+		long sourceCompanyGroupId = GetterUtil.getLong(
+			headerElement.attributeValue("company-group-id"));
+
+		portletDataContext.setSourceCompanyGroupId(sourceCompanyGroupId);
+
 		// Group id
 
 		long sourceGroupId = GetterUtil.getLong(
@@ -549,7 +558,7 @@ public class LayoutImporter {
 			if (importThemeId != null) {
 				themeId = importThemeId;
 				colorSchemeId =
-					ColorSchemeImpl.getDefaultRegularColorSchemeId();
+					ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId();
 			}
 
 			if (_log.isDebugEnabled()) {
@@ -709,10 +718,10 @@ public class LayoutImporter {
 
 			portletElement = portletDocument.getRootElement();
 
-			// The order of the import is important. You must always import
-			// the portlet preferences first, then the portlet data, then
-			// the portlet permissions. The import of the portlet data
-			// assumes that portlet preferences already exist.
+			// The order of the import is important. You must always import the
+			// portlet preferences first, then the portlet data, then the
+			// portlet permissions. The import of the portlet data assumes that
+			// portlet preferences already exist.
 
 			_portletImporter.setPortletScope(
 				portletDataContext, portletElement);
@@ -801,11 +810,18 @@ public class LayoutImporter {
 
 		GroupLocalServiceUtil.updateSite(groupId, true);
 
-		// Web content layout type
+		// Last merge time must be the same for merged layouts and the layout
+		// set
+
+		long lastMergeTime = System.currentTimeMillis();
 
 		for (Layout layout : newLayouts) {
+			boolean modifiedTypeSettingsProperties = false;
+
 			UnicodeProperties typeSettingsProperties =
 				layout.getTypeSettingsProperties();
+
+			// Journal article layout type
 
 			String articleId = typeSettingsProperties.getProperty("article-id");
 
@@ -819,11 +835,27 @@ public class LayoutImporter {
 					"article-id",
 					MapUtil.getString(articleIds, articleId, articleId));
 
+				modifiedTypeSettingsProperties = true;
+			}
+
+			// Last merge time for layout
+
+			if (layoutsImportMode.equals(
+					PortletDataHandlerKeys.
+						LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE)) {
+
+				typeSettingsProperties.setProperty(
+					Sites.LAST_MERGE_TIME, String.valueOf(lastMergeTime));
+
+				modifiedTypeSettingsProperties = true;
+			}
+
+			if (modifiedTypeSettingsProperties) {
 				LayoutUtil.update(layout);
 			}
 		}
 
-		// Last merge time for layout set prototypes
+		// Last merge time for layout set
 
 		if (layoutsImportMode.equals(
 				PortletDataHandlerKeys.
@@ -833,8 +865,7 @@ public class LayoutImporter {
 				layoutSet.getSettingsProperties();
 
 			settingsProperties.setProperty(
-				SitesUtil.LAST_MERGE_TIME,
-				String.valueOf(System.currentTimeMillis()));
+				Sites.LAST_MERGE_TIME, String.valueOf(lastMergeTime));
 
 			LayoutSetLocalServiceUtil.updateLayoutSet(layoutSet);
 		}
@@ -890,16 +921,11 @@ public class LayoutImporter {
 			url.substring(0, x) + group.getFriendlyURL() + url.substring(y));
 	}
 
-	protected String getLayoutSetPrototype(
+	protected String getLayoutSetPrototypePath(
 		PortletDataContext portletDataContext, String layoutSetPrototypeUuid) {
 
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(portletDataContext.getSourceRootPath());
-		sb.append("/layout-set-prototype/");
-		sb.append(layoutSetPrototypeUuid);
-
-		return sb.toString();
+		return ExportImportPathUtil.getSourceRootPath(portletDataContext) +
+			"/layout-set-prototype/" + layoutSetPrototypeUuid;
 	}
 
 	protected void importJournalArticle(
@@ -1349,7 +1375,7 @@ public class LayoutImporter {
 			String layoutSetPrototypeUuid, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		String path = getLayoutSetPrototype(
+		String path = getLayoutSetPrototypePath(
 			portletDataContext, layoutSetPrototypeUuid);
 
 		LayoutSetPrototype layoutSetPrototype = null;

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -55,11 +55,10 @@ long controlPanelPlid = PortalUtil.getControlPanelPlid(company.getCompanyId());
 
 PortletURL assetBrowserURL = PortletURLFactoryUtil.create(request, PortletKeys.ASSET_BROWSER, controlPanelPlid, PortletRequest.RENDER_PHASE);
 
-assetBrowserURL.setWindowState(LiferayWindowState.POP_UP);
-assetBrowserURL.setPortletMode(PortletMode.VIEW);
-
 assetBrowserURL.setParameter("struts_action", "/asset_browser/view");
 assetBrowserURL.setParameter("groupId", scopeGroupId.toString());
+assetBrowserURL.setPortletMode(PortletMode.VIEW);
+assetBrowserURL.setWindowState(LiferayWindowState.POP_UP);
 %>
 
 <liferay-ui:icon-menu align="left" cssClass="select-existing-selector" icon='<%= themeDisplay.getPathThemeImages() + "/common/search.png" %>' id='<%= randomNamespace + "inputAssetLinks" %>' message="select" showWhenSingleIcon="<%= true %>">
@@ -78,7 +77,7 @@ assetBrowserURL.setParameter("groupId", scopeGroupId.toString());
 		%>
 
 			<liferay-ui:icon
-				message='<%= assetRendererFactory.getTypeName(locale, false) %>'
+				message="<%= assetRendererFactory.getTypeName(locale, false) %>"
 				src="<%= assetRendererFactory.getIconPath(portletRequest) %>"
 				url="<%= href %>"
 			/>
@@ -145,7 +144,7 @@ assetBrowserURL.setParameter("groupId", scopeGroupId.toString());
 
 		<liferay-ui:search-container-column-text
 			name="scope"
-			value="<%= assetLinkEntryGroup.getDescriptiveName(locale) %>"
+			value="<%= HtmlUtil.escape(assetLinkEntryGroup.getDescriptiveName(locale)) %>"
 		/>
 
 		<liferay-ui:search-container-column-text>
@@ -185,11 +184,11 @@ assetBrowserURL.setParameter("groupId", scopeGroupId.toString());
 
 			var entryLink = '<a class="modify-link" data-rowId="' + entryId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeLinkIcon) %></a>';
 
-			searchContainer.addRow([entryType, entryTitle, entryScope, entryLink], entryId);
+			searchContainer.addRow([entryType, A.Escape.html(entryTitle), A.Escape.html(entryScope), entryLink], entryId);
 
 			searchContainer.updateDataStore();
 		},
-		['liferay-search-container']
+		['liferay-search-container','escape']
 	);
 
 </aui:script>

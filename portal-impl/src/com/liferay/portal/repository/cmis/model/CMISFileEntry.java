@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -73,6 +73,26 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 		_uuid = uuid;
 		_fileEntryId = fileEntryId;
 		_document = document;
+	}
+
+	@Override
+	public Object clone() {
+		CMISFileEntry cmisFileEntry = new CMISFileEntry(
+			_cmisRepository, _uuid, _fileEntryId, _document);
+
+		cmisFileEntry.setCompanyId(getCompanyId());
+		cmisFileEntry.setFileEntryId(getFileEntryId());
+		cmisFileEntry.setGroupId(getGroupId());
+
+		try {
+			cmisFileEntry.setParentFolder(getParentFolder());
+		}
+		catch (Exception e) {
+		}
+
+		cmisFileEntry.setPrimaryKey(getPrimaryKey());
+
+		return cmisFileEntry;
 	}
 
 	public boolean containsPermission(
@@ -524,6 +544,9 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 	}
 
 	public void setUserUuid(String userUuid) {
+	}
+
+	public void setUuid(String uuid) {
 	}
 
 	public FileEntry toEscapedModel() {

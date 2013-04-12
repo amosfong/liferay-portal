@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,11 +16,13 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.PortletApp;
+import com.liferay.portal.security.lang.DoPrivilegedUtil;
 
 import java.io.InputStream;
 
@@ -30,7 +32,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Set;
 
-import javax.portlet.PortletContext;
 import javax.portlet.PortletRequestDispatcher;
 
 import javax.servlet.RequestDispatcher;
@@ -40,7 +41,7 @@ import javax.servlet.ServletContext;
  * @author Brian Wing Shun Chan
  * @author Brett Randall
  */
-public class PortletContextImpl implements PortletContext {
+public class PortletContextImpl implements LiferayPortletContext {
 
 	public PortletContextImpl(Portlet portlet, ServletContext servletContext) {
 		_portlet = portlet;
@@ -100,8 +101,9 @@ public class PortletContextImpl implements PortletContext {
 		}
 
 		if (requestDispatcher != null) {
-			return new PortletRequestDispatcherImpl(
-				requestDispatcher, true, this);
+			return DoPrivilegedUtil.wrap(
+				new PortletRequestDispatcherImpl(
+					requestDispatcher, true, this), true);
 		}
 		else {
 			return null;
@@ -131,8 +133,9 @@ public class PortletContextImpl implements PortletContext {
 		}
 
 		if (requestDispatcher != null) {
-			return new PortletRequestDispatcherImpl(
-				requestDispatcher, false, this, path);
+			return DoPrivilegedUtil.wrap(
+				new PortletRequestDispatcherImpl(
+					requestDispatcher, false, this, path), true);
 		}
 		else {
 			return null;

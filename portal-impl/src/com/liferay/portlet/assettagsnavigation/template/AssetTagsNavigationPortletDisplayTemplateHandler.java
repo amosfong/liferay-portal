@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,14 +16,18 @@ package com.liferay.portlet.assettagsnavigation.template;
 
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler;
+import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateConstants;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Juan Fernández
@@ -50,6 +54,26 @@ public class AssetTagsNavigationPortletDisplayTemplateHandler
 	@Override
 	public String getTemplatesHelpPropertyKey() {
 		return PropsKeys.ASSET_TAGS_NAVIGATION_DISPLAY_TEMPLATES_HELP;
+	}
+
+	@Override
+	public Map<String, TemplateVariableGroup> getTemplateVariableGroups(
+			long classPK, Locale locale)
+		throws Exception {
+
+		Map<String, TemplateVariableGroup> templateVariableGroups =
+			super.getTemplateVariableGroups(classPK, locale);
+
+		TemplateVariableGroup templateVariableGroup =
+			templateVariableGroups.get("fields");
+
+		templateVariableGroup.empty();
+
+		templateVariableGroup.addCollectionVariable(
+			"tags", List.class, PortletDisplayTemplateConstants.ENTRIES, "tag",
+			AssetTag.class, "curTag");
+
+		return templateVariableGroups;
 	}
 
 	@Override

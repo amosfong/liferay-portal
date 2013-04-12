@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,12 +22,14 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.plugin.Version;
 import com.liferay.portal.kernel.servlet.ServletContextUtil;
+import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.ContextPathUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.ThemeFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -36,8 +38,6 @@ import com.liferay.portal.model.ColorScheme;
 import com.liferay.portal.model.PluginSetting;
 import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.Theme;
-import com.liferay.portal.model.impl.ColorSchemeImpl;
-import com.liferay.portal.model.impl.ThemeImpl;
 import com.liferay.portal.plugin.PluginUtil;
 import com.liferay.portal.service.base.ThemeLocalServiceBaseImpl;
 import com.liferay.portal.theme.ThemeCompanyId;
@@ -121,16 +121,12 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 
 		if (colorScheme == null) {
 			if (wapTheme) {
-				colorSchemeId = ColorSchemeImpl.getDefaultWapColorSchemeId();
+				colorScheme = ColorSchemeFactoryUtil.getDefaultWapColorScheme();
 			}
 			else {
-				colorSchemeId =
-					ColorSchemeImpl.getDefaultRegularColorSchemeId();
+				colorScheme =
+					ColorSchemeFactoryUtil.getDefaultRegularColorScheme();
 			}
-		}
-
-		if (colorScheme == null) {
-			colorScheme = ColorSchemeImpl.getNullColorScheme();
 		}
 
 		return colorScheme;
@@ -153,10 +149,10 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 			}
 
 			if (wapTheme) {
-				themeId = ThemeImpl.getDefaultWapThemeId(companyId);
+				themeId = ThemeFactoryUtil.getDefaultWapThemeId(companyId);
 			}
 			else {
-				themeId = ThemeImpl.getDefaultRegularThemeId(companyId);
+				themeId = ThemeFactoryUtil.getDefaultRegularThemeId(companyId);
 			}
 
 			theme = _themes.get(themeId);
@@ -405,7 +401,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 			ColorScheme colorSchemeModel = colorSchemes.get(id);
 
 			if (colorSchemeModel == null) {
-				colorSchemeModel = new ColorSchemeImpl(id);
+				colorSchemeModel = ColorSchemeFactoryUtil.getColorScheme(id);
 			}
 
 			String name = GetterUtil.getString(
@@ -564,7 +560,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 			Theme theme = _themes.get(themeId);
 
 			if (theme == null) {
-				theme = new ThemeImpl(themeId);
+				theme = ThemeFactoryUtil.getTheme(themeId);
 			}
 
 			theme.setTimestamp(timestamp);

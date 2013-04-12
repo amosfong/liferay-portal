@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -39,12 +39,16 @@ public class AccessControlAdvisorImpl implements AccessControlAdvisor {
 	public void accept(Method method, AccessControlled accessControlled)
 		throws SecurityException {
 
-		checkAllowedHosts();
+		if (accessControlled.hostAllowedValidationEnabled()) {
+			checkAllowedHosts();
+		}
 
 		PermissionChecker permissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
-		if ((permissionChecker == null) || !permissionChecker.isSignedIn()) {
+		if (!accessControlled.guestAccessEnabled() &&
+			((permissionChecker == null) || !permissionChecker.isSignedIn())) {
+
 			throw new SecurityException("Authenticated access required");
 		}
 	}

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -62,7 +62,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 					<div class="display-template">
 
 						<%
-						PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(AssetTag.class.getName());
+						TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(AssetTag.class.getName());
 
 						List<String> displayStyles = new ArrayList<String>();
 
@@ -71,7 +71,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 						%>
 
 						<liferay-ui:ddm-template-selector
-							classNameId="<%= PortalUtil.getClassNameId(portletDisplayTemplateHandler.getClassName()) %>"
+							classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
 							displayStyles="<%= displayStyles %>"
 							preferenceValue="<%= displayStyle %>"
 							refreshURL="<%= currentURL %>"

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -48,6 +48,13 @@ Locale[] locales = LanguageUtil.getAvailableLocales();
 	localizeTitle="<%= layoutSetPrototype.isNew() %>"
 	title='<%= layoutSetPrototype.isNew() ? "new-site-template" : layoutSetPrototype.getName(locale) %>'
 />
+
+<%
+request.setAttribute("edit_layout_set_prototype.jsp-layoutSetPrototype", layoutSetPrototype);
+request.setAttribute("edit_layout_set_prototype.jsp-redirect", currentURL);
+%>
+
+<liferay-util:include page="/html/portlet/layout_set_prototypes/merge_alert.jsp" />
 
 <aui:form method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveLayoutSetPrototype();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -190,12 +190,12 @@ public class JournalArticleResourceLocalServiceWrapper
 	}
 
 	/**
-	* Returns the journal article resource with the UUID in the group.
+	* Returns the journal article resource matching the UUID and group.
 	*
-	* @param uuid the UUID of journal article resource
-	* @param groupId the group id of the journal article resource
-	* @return the journal article resource
-	* @throws PortalException if a journal article resource with the UUID in the group could not be found
+	* @param uuid the journal article resource's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal article resource
+	* @throws PortalException if a matching journal article resource could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.journal.model.JournalArticleResource getJournalArticleResourceByUuidAndGroupId(
@@ -281,6 +281,13 @@ public class JournalArticleResourceLocalServiceWrapper
 			articleId);
 	}
 
+	public com.liferay.portlet.journal.model.JournalArticleResource fetchArticleResource(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleResourceLocalService.fetchArticleResource(uuid,
+			groupId);
+	}
+
 	public com.liferay.portlet.journal.model.JournalArticleResource getArticleResource(
 		long articleResourcePrimKey)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -309,14 +316,14 @@ public class JournalArticleResourceLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public JournalArticleResourceLocalService getWrappedJournalArticleResourceLocalService() {
 		return _journalArticleResourceLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedJournalArticleResourceLocalService(
 		JournalArticleResourceLocalService journalArticleResourceLocalService) {

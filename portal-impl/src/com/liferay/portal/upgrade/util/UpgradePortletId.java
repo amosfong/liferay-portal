@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,8 +15,12 @@
 package com.liferay.portal.upgrade.util;
 
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.model.PortletConstants;
+import com.liferay.portal.model.impl.LayoutTypePortletImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,20 +34,45 @@ public class UpgradePortletId extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 
-		// This is only tested to work on instanceable portlets
+		// Rename instanceable portlet IDs. We expect the root form of the
+		// portlet ID because we will rename all instances of the portlet ID.
 
-		String[][] portletIdsArray = getPortletIdsArray();
+		String[][] renamePortletIdsArray = getRenamePortletIdsArray();
 
-		for (String[] portletIds : portletIdsArray) {
-			String oldRootPortletId = portletIds[0];
-			String newRootPortletId = portletIds[1];
+		for (String[] renamePortletIds : renamePortletIdsArray) {
+			String oldRootPortletId = renamePortletIds[0];
+			String newRootPortletId = renamePortletIds[1];
 
 			updatePortlet(oldRootPortletId, newRootPortletId);
 			updateLayouts(oldRootPortletId, newRootPortletId);
 		}
+
+		// Rename uninstanceable portlet IDs to instanceable portlet IDs
+
+		String[] uninstanceablePortletIds = getUninstanceablePortletIds();
+
+		for (String portletId : uninstanceablePortletIds) {
+			if (portletId.contains(PortletConstants.INSTANCE_SEPARATOR)) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Portlet " + portletId + " is already instanceable");
+				}
+
+				continue;
+			}
+
+			String instanceId = LayoutTypePortletImpl.generateInstanceId();
+
+			String newPortletId = PortletConstants.assemblePortletId(
+				portletId, instanceId);
+
+			updateResourcePermission(portletId, newPortletId, false);
+			updateInstanceablePortletPreferences(portletId, newPortletId);
+			updateLayouts(portletId, newPortletId);
+		}
 	}
 
-	protected String[][] getPortletIdsArray() {
+	protected String[][] getRenamePortletIdsArray() {
 		return new String[][] {
 			new String[] {
 				"109", "1_WAR_webformportlet"
@@ -61,6 +90,10 @@ public class UpgradePortletId extends UpgradeProcess {
 				"1_WAR_googlemapsportlet"
 			}
 		};
+	}
+
+	protected String[] getUninstanceablePortletIds() {
+		return new String[0];
 	}
 
 	protected void updateInstanceablePortletPreferences(
@@ -191,7 +224,7 @@ public class UpgradePortletId extends UpgradeProcess {
 			"update ResourceAction set name = '" + newRootPortletId +
 				"' where name = '" + oldRootPortletId + "'");
 
-		updateResourcePermission(oldRootPortletId, newRootPortletId);
+		updateResourcePermission(oldRootPortletId, newRootPortletId, true);
 
 		updateInstanceablePortletPreferences(
 			oldRootPortletId, newRootPortletId);
@@ -245,7 +278,8 @@ public class UpgradePortletId extends UpgradeProcess {
 	}
 
 	protected void updateResourcePermission(
-			String oldRootPortletId, String newRootPortletId)
+			String oldRootPortletId, String newRootPortletId,
+			boolean updateName)
 		throws Exception {
 
 		Connection con = null;
@@ -267,8 +301,13 @@ public class UpgradePortletId extends UpgradeProcess {
 				String name = rs.getString("name");
 				String primKey = rs.getString("primKey");
 
-				String newName = StringUtil.replace(
-					name, oldRootPortletId, newRootPortletId);
+				String newName = name;
+
+				if (updateName) {
+					newName = StringUtil.replace(
+						name, oldRootPortletId, newRootPortletId);
+				}
+
 				String newPrimKey = StringUtil.replace(
 					primKey, oldRootPortletId, newRootPortletId);
 
@@ -280,5 +319,7 @@ public class UpgradePortletId extends UpgradeProcess {
 			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(UpgradePortletId.class);
 
 }

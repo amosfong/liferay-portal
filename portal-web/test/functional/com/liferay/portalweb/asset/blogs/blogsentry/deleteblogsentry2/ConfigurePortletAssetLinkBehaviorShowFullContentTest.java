@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,7 +30,7 @@ public class ConfigurePortletAssetLinkBehaviorShowFullContentTest
 		selenium.click(RuntimeVariables.replace(
 				"link=Asset Publisher Test Page"));
 		selenium.waitForPageToLoad("30000");
-		Thread.sleep(5000);
+		Thread.sleep(1000);
 		assertEquals(RuntimeVariables.replace("Options"),
 			selenium.getText("//span[@title='Options']/ul/li/strong/a"));
 		selenium.clickAt("//span[@title='Options']/ul/li/strong/a",
@@ -49,12 +49,20 @@ public class ConfigurePortletAssetLinkBehaviorShowFullContentTest
 		selenium.waitForElementPresent(
 			"//script[contains(@src,'/liferay/navigation_interaction.js')]");
 		selenium.waitForVisible(
-			"//div[@id='assetPublisherDisplaySettingsPanel']/div[2]/fieldset[1]/div/span[5]/span/label");
+			"//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]");
+		assertEquals(RuntimeVariables.replace("Display Settings"),
+			selenium.getText(
+				"//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]"));
+		selenium.clickAt("//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]",
+			RuntimeVariables.replace("Display Settings"));
+		assertEquals(RuntimeVariables.replace("Asset Link Behavior"),
+			selenium.getText("//label[@for='_86_assetLinkBehavior']"));
 		selenium.select("//select[@id='_86_assetLinkBehavior']",
 			RuntimeVariables.replace("Show Full Content"));
 		selenium.clickAt("//input[@value='Save']",
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
+		selenium.waitForVisible("//div[@class='portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"You have successfully updated the setup."),
 			selenium.getText("//div[@class='portlet-msg-success']"));

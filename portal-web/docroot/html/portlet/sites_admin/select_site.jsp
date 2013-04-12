@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,8 @@
 <%@ include file="/html/portlet/sites_admin/init.jsp" %>
 
 <%
+String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
+long groupId = ParamUtil.getLong(request, "groupId");
 boolean includeCompany = ParamUtil.getBoolean(request, "includeCompany");
 boolean includeUserPersonalSite = ParamUtil.getBoolean(request, "includeUserPersonalSite");
 String callback = ParamUtil.getString(request, "callback", "selectGroup");
@@ -27,14 +29,16 @@ User selUser = PortalUtil.getSelectedUser(request);
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/sites_admin/select_site");
-portletURL.setParameter("includeCompany", String.valueOf(includeCompany));
-portletURL.setParameter("includeUserPersonalSite", String.valueOf(includeUserPersonalSite));
-portletURL.setParameter("callback", callback);
-portletURL.setParameter("target", target);
 
 if (selUser != null) {
 	portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
 }
+
+portletURL.setParameter("groupId", String.valueOf(groupId));
+portletURL.setParameter("includeCompany", String.valueOf(includeCompany));
+portletURL.setParameter("includeUserPersonalSite", String.valueOf(includeUserPersonalSite));
+portletURL.setParameter("callback", callback);
+portletURL.setParameter("target", target);
 %>
 
 <aui:form action="<%= portletURL.toString() %>" method="post" name="fm">
@@ -60,6 +64,27 @@ if (selUser != null) {
 			<%
 			results.clear();
 
+			if (groupId > 0) {
+				List<Long> excludedGroupIds = new ArrayList<Long>();
+
+				Group group = GroupLocalServiceUtil.getGroup(groupId);
+
+				if (group.isStagingGroup()) {
+					excludedGroupIds.add(group.getLiveGroupId());
+				}
+				else {
+					excludedGroupIds.add(groupId);
+				}
+
+				groupParams.put("excludedGroupIds", excludedGroupIds);
+			}
+
+			groupParams.put("site", Boolean.TRUE);
+
+			if (filterManageableGroups) {
+				groupParams.put("usersGroups", user.getUserId());
+			}
+
 			int additionalSites = 0;
 
 			if (includeCompany) {
@@ -79,12 +104,6 @@ if (selUser != null) {
 
 				additionalSites++;
 			}
-
-			if (filterManageableGroups) {
-				groupParams.put("usersGroups", user.getUserId());
-			}
-
-			groupParams.put("site", Boolean.TRUE);
 
 			int start = searchContainer.getStart();
 
@@ -127,7 +146,7 @@ if (selUser != null) {
 			<%
 			String rowHREF = null;
 
-			if (MembershipPolicyUtil.isMembershipAllowed(group, selUser)) {
+			if (Validator.isNull(p_u_i_d) || SiteMembershipPolicyUtil.isMembershipAllowed((selUser != null) ? selUser.getUserId() : 0, group.getGroupId())) {
 				StringBundler sb = new StringBundler(10);
 
 				sb.append("javascript:opener.");
@@ -136,7 +155,7 @@ if (selUser != null) {
 				sb.append("('");
 				sb.append(group.getGroupId());
 				sb.append("', '");
-				sb.append(UnicodeFormatter.toString(group.getDescriptiveName(locale)));
+				sb.append(HtmlUtil.escapeJS(group.getDescriptiveName(locale)));
 				sb.append("', '");
 				sb.append(target);
 				sb.append("'); window.close();");

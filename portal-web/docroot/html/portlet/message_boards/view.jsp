@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,7 +188,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 						/>
 					</c:if>
 
-					<c:if test="<%= MBCategoryPermission.contains(permissionChecker, category, ActionKeys.SUBSCRIBE) %>">
+					<c:if test="<%= MBCategoryPermission.contains(permissionChecker, category, ActionKeys.SUBSCRIBE) && (MBUtil.getEmailMessageAddedEnabled(preferences) || MBUtil.getEmailMessageUpdatedEnabled(preferences)) %>">
 						<c:choose>
 							<c:when test="<%= (categorySubscriptionClassPKs != null) && categorySubscriptionClassPKs.contains(category.getCategoryId()) %>">
 								<portlet:actionURL var="unsubscribeURL">
@@ -263,10 +263,10 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				emptyResultsMessage="you-are-not-subscribed-to-any-categories"
 				headerNames="category,categories,threads,posts"
 				iteratorURL="<%= portletURL %>"
+				total="<%= MBCategoryServiceUtil.getSubscribedCategoriesCount(scopeGroupId, user.getUserId()) %>"
 			>
 				<liferay-ui:search-container-results
 					results="<%= MBCategoryServiceUtil.getSubscribedCategories(scopeGroupId, user.getUserId(), searchContainer.getStart(), searchContainer.getEnd()) %>"
-					total="<%= MBCategoryServiceUtil.getSubscribedCategoriesCount(scopeGroupId, user.getUserId()) %>"
 				/>
 
 				<liferay-ui:search-container-row
@@ -349,10 +349,10 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				<liferay-ui:search-container
 					emptyResultsMessage="there-are-no-top-posters"
 					iteratorURL="<%= portletURL %>"
+					total="<%= MBStatsUserLocalServiceUtil.getStatsUsersByGroupIdCount(scopeGroupId) %>"
 				>
 					<liferay-ui:search-container-results
 						results="<%= MBStatsUserLocalServiceUtil.getStatsUsersByGroupId(scopeGroupId, searchContainer.getStart(), searchContainer.getEnd()) %>"
-						total="<%= MBStatsUserLocalServiceUtil.getStatsUsersByGroupIdCount(scopeGroupId) %>"
 					/>
 
 					<liferay-ui:search-container-row
@@ -381,10 +381,10 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 			emptyResultsMessage="there-are-no-banned-users"
 			headerNames="banned-user,banned-by,ban-date"
 			iteratorURL="<%= portletURL %>"
+			total="<%= MBBanLocalServiceUtil.getBansCount(scopeGroupId) %>"
 		>
 			<liferay-ui:search-container-results
 				results="<%= MBBanLocalServiceUtil.getBans(scopeGroupId, searchContainer.getStart(), searchContainer.getEnd()) %>"
-				total="<%= MBBanLocalServiceUtil.getBansCount(scopeGroupId) %>"
 			/>
 
 			<liferay-ui:search-container-row

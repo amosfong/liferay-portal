@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -360,11 +360,10 @@
 							<%
 							PortletURL loginURL = new PortletURLImpl(request, PortletKeys.LOGIN, plid, PortletRequest.ACTION_PHASE);
 
-							loginURL.setWindowState(WindowState.NORMAL);
-							loginURL.setPortletMode(PortletMode.VIEW);
-
 							loginURL.setParameter("saveLastPath", Boolean.FALSE.toString());
 							loginURL.setParameter("struts_action", "/login/login");
+							loginURL.setPortletMode(PortletMode.VIEW);
+							loginURL.setWindowState(WindowState.NORMAL);
 							%>
 
 							<aui:form action="<%= loginURL %>" method="post" name="fm">

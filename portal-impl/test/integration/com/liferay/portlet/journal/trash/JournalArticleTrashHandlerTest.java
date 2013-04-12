@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,22 +19,24 @@ import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
+import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.test.TransactionalExecutionTestListener;
 import com.liferay.portal.util.TestPropsValues;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleResource;
+import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.model.JournalFolderConstants;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
+import com.liferay.portlet.journal.service.JournalArticleServiceUtil;
+import com.liferay.portlet.journal.service.JournalFolderServiceUtil;
 import com.liferay.portlet.journal.util.JournalTestUtil;
 import com.liferay.portlet.trash.BaseTrashHandlerTestCase;
 import com.liferay.portlet.trash.util.TrashUtil;
 
-import org.junit.Assert;
 import org.junit.runner.RunWith;
 
 /**
@@ -42,28 +44,12 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
-		SynchronousDestinationExecutionTestListener.class,
-		TransactionalExecutionTestListener.class
+		MainServletExecutionTestListener.class,
+		SynchronousDestinationExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Sync
 public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
-
-	@Override
-	public void testTrashParentAndDeleteParent() throws Exception {
-		Assert.assertTrue("This test does not apply yet", true);
-	}
-
-	@Override
-	public void testTrashParentAndDeleteTrashEntries() throws Exception {
-		Assert.assertTrue("This test does not apply yet", true);
-	}
-
-	@Override
-	public void testTrashParentAndRestoreModel() throws Exception {
-		Assert.assertTrue("This test does not apply yet", true);
-	}
 
 	@Override
 	protected BaseModel<?> addBaseModelWithWorkflow(
@@ -71,9 +57,11 @@ public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 			ServiceContext serviceContext)
 		throws Exception {
 
+		JournalFolder folder = (JournalFolder)parentBaseModel;
+
 		return JournalTestUtil.addArticleWithWorkflow(
-			serviceContext.getScopeGroupId(), getSearchKeywords(),
-			getSearchKeywords(), approved);
+			serviceContext.getScopeGroupId(), folder.getFolderId(),
+			getSearchKeywords(), getSearchKeywords(), approved);
 	}
 
 	@Override
@@ -110,12 +98,42 @@ public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Override
+	protected int getMineBaseModelsCount(long groupId, long userId)
+		throws Exception {
+
+		return JournalArticleServiceUtil.getGroupArticlesCount(
+			groupId, userId, JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+	}
+
+	@Override
 	protected int getNotInTrashBaseModelsCount(BaseModel<?> parentBaseModel)
 		throws Exception {
 
+		JournalFolder folder = (JournalFolder)parentBaseModel;
+
 		return JournalArticleLocalServiceUtil.getNotInTrashArticlesCount(
-			((Group)parentBaseModel).getGroupId(),
-			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+			folder.getGroupId(), folder.getFolderId());
+	}
+
+	@Override
+	protected BaseModel<?> getParentBaseModel(
+			Group group, ServiceContext serviceContext)
+		throws Exception {
+
+		return JournalTestUtil.addFolder(
+			group.getGroupId(), JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			ServiceTestUtil.randomString(_FOLDER_NAME_MAX_LENGTH));
+	}
+
+	@Override
+	protected Class<?> getParentBaseModelClass() {
+		return JournalFolder.class;
+	}
+
+	@Override
+	protected int getRecentBaseModelsCount(long groupId) throws Exception {
+		return JournalArticleServiceUtil.getGroupArticlesCount(
+			groupId, 0, JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 	}
 
 	@Override
@@ -140,6 +158,22 @@ public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Override
+	protected BaseModel<?> moveBaseModelFromTrash(
+			ClassedModel classedModel, Group group,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		BaseModel<?> parentBaseModel = getParentBaseModel(
+			group, serviceContext);
+
+		JournalArticleServiceUtil.moveArticleFromTrash(
+			group.getGroupId(), getAssetClassPK(classedModel),
+			(Long)parentBaseModel.getPrimaryKeyObj(), serviceContext);
+
+		return parentBaseModel;
+	}
+
+	@Override
 	protected void moveBaseModelToTrash(long primaryKey) throws Exception {
 		JournalArticle article = JournalArticleLocalServiceUtil.getArticle(
 			primaryKey);
@@ -147,5 +181,27 @@ public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 		JournalArticleLocalServiceUtil.moveArticleToTrash(
 			TestPropsValues.getUserId(), article);
 	}
+
+	@Override
+	protected void moveParentBaseModelToTrash(long primaryKey)
+		throws Exception {
+
+		JournalFolderServiceUtil.moveFolderToTrash(primaryKey);
+	}
+
+	@Override
+	protected BaseModel<?> updateBaseModel(
+			long primaryKey, ServiceContext serviceContext)
+		throws Exception {
+
+		JournalArticle article = JournalArticleLocalServiceUtil.getArticle(
+			primaryKey);
+
+		return JournalTestUtil.updateArticle(
+			article, "Content: Enterprise. Open Source. For Life.",
+			article.getContent());
+	}
+
+	private static final int _FOLDER_NAME_MAX_LENGTH = 100;
 
 }

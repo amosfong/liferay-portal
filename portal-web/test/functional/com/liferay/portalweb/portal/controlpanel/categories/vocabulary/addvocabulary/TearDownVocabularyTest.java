@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -80,14 +80,15 @@ public class TearDownVocabularyTest extends BaseTestCase {
 						"//input[@name='vocabulary-item-check']"));
 
 			case 2:
+				Thread.sleep(1000);
 				assertEquals(RuntimeVariables.replace(
 						"There are no vocabularies."),
 					selenium.getText(
-						"xpath=(//div[@class='lfr-message-response portlet-msg-info'])[1]"));
+						"xPath=(//div[@class='lfr-message-response portlet-msg-info'])[1]"));
 				assertEquals(RuntimeVariables.replace(
 						"There are no categories."),
 					selenium.getText(
-						"xpath=(//div[@class='lfr-message-response portlet-msg-info'])[2]"));
+						"xPath=(//div[@class='lfr-message-response portlet-msg-info'])[2]"));
 
 			case 100:
 				label = -1;

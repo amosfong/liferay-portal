@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -99,14 +99,13 @@ public class EditPagesAction extends PortletAction {
 				request, PortletKeys.LAYOUTS_ADMIN, layout.getPlid(),
 				PortletRequest.RENDER_PHASE);
 
-			portletURL.setWindowState(WindowState.MAXIMIZED);
-			portletURL.setPortletMode(PortletMode.VIEW);
-
 			portletURL.setParameter(
 				"struts_action", "/layouts_admin/edit_layouts");
 			portletURL.setParameter("tabs1", tabs1);
 			portletURL.setParameter("redirect", redirect);
 			portletURL.setParameter("groupId", String.valueOf(groupId));
+			portletURL.setPortletMode(PortletMode.VIEW);
+			portletURL.setWindowState(WindowState.MAXIMIZED);
 
 			actionResponse.sendRedirect(portletURL.toString());
 		}

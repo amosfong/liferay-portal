@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +15,6 @@
 package com.liferay.portal.tools;
 
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.SortedArrayList;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -34,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.tools.ant.DirectoryScanner;
@@ -231,7 +232,7 @@ public class PluginsEnvironmentBuilder {
 
 		properties.load(new FileInputStream(propertiesFile));
 
-		List<String> jars = new SortedArrayList<String>();
+		Set<String> jars = new TreeSet<String>();
 
 		jars.addAll(getCommonJars());
 
@@ -579,7 +580,7 @@ public class PluginsEnvironmentBuilder {
 		_fileUtil.write(projectFile, sb.toString());
 	}
 
-	private static final String _BRANCH = "trunk";
+	private static final String _BRANCH = "master";
 
 	private static final String[] _SOURCE_DIR_NAMES = new String[] {
 		"docroot/WEB-INF/ext-impl/src", "docroot/WEB-INF/ext-service/src",

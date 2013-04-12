@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -887,9 +887,11 @@ public class SeleneseToJavaBuilder {
 			else if (param1.equals("check") || param1.equals("click") ||
 					 param1.equals("doubleClick") ||
 					 param1.equals("downloadTempFile") ||
+					 param1.equals("makeVisible") ||
 					 param1.equals("mouseDown") || param1.equals("mouseMove") ||
 					 param1.equals("mouseOver") || param1.equals("mouseUp") ||
-					 param1.equals("open") || param1.equals("selectFrame") ||
+					 param1.equals("open") || param1.equals("runScript") ||
+					 param1.equals("selectFrame") ||
 					 param1.equals("selectPopUp") ||
 					 param1.equals("selectWindow") ||
 					 param1.equals("setTimeout") ||

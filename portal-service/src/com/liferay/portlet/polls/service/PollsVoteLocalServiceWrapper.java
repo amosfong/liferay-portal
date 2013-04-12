@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -186,6 +186,22 @@ public class PollsVoteLocalServiceWrapper implements PollsVoteLocalService,
 	}
 
 	/**
+	* Returns the polls vote matching the UUID and group.
+	*
+	* @param uuid the polls vote's UUID
+	* @param groupId the primary key of the group
+	* @return the matching polls vote
+	* @throws PortalException if a matching polls vote could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.portlet.polls.model.PollsVote getPollsVoteByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _pollsVoteLocalService.getPollsVoteByUuidAndGroupId(uuid, groupId);
+	}
+
+	/**
 	* Returns a range of all the polls votes.
 	*
 	* <p>
@@ -284,14 +300,14 @@ public class PollsVoteLocalServiceWrapper implements PollsVoteLocalService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public PollsVoteLocalService getWrappedPollsVoteLocalService() {
 		return _pollsVoteLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedPollsVoteLocalService(
 		PollsVoteLocalService pollsVoteLocalService) {

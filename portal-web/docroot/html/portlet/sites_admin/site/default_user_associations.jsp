@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/portlet/portal_settings/init.jsp" %>
+<%@ include file="/html/portlet/sites_admin/init.jsp" %>
 
 <%
 Group liveGroup = (Group)request.getAttribute("site.liveGroup");
@@ -96,10 +96,11 @@ for (long defaultTeamId : defaultTeamIds) {
 
 <liferay-ui:icon
 	cssClass="modify-link"
+	id="selectSiteRoleLink"
 	image="add"
 	label="<%= true %>"
 	message="select"
-	url='<%= "javascript:" + renderResponse.getNamespace() + "openSiteRoleSelector();" %>'
+	url="javascript:;"
 />
 
 <br /><br />
@@ -135,10 +136,11 @@ for (long defaultTeamId : defaultTeamIds) {
 
 <liferay-ui:icon
 	cssClass="modify-link"
+	id="selectTeamLink"
 	image="add"
 	label="<%= true %>"
 	message="select"
-	url='<%= "javascript:" + renderResponse.getNamespace() + "openTeamSelector();" %>'
+	url="javascript:;"
 />
 
 <aui:script use="liferay-search-container">
@@ -179,6 +181,96 @@ for (long defaultTeamId : defaultTeamIds) {
 	);
 </aui:script>
 
+<portlet:renderURL var="selectTeamURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+	<portlet:param name="struts_action" value="/sites_admin/select_team" />
+	<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
+</portlet:renderURL>
+
+<aui:script use="liferay-search-container,escape">
+	A.one('#<portlet:namespace />selectSiteRoleLink').on(
+		'click',
+		function(event) {
+			Liferay.Util.selectEntity(
+				{
+					dialog: {
+						align: Liferay.Util.Window.ALIGN_CENTER,
+						constrain: true,
+						modal: true,
+						stack: true,
+						width: 600
+					},
+					id: '<portlet:namespace />selectSiteRole',
+					title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "site-role") %>',
+					uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/sites_admin/select_site_role" /><portlet:param name="step" value="2" /><portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" /></portlet:renderURL>'
+				},
+				function(event){
+					searchContainer = Liferay.SearchContainer.get('<portlet:namespace />' + event.searchcontainername + 'SearchContainer');
+
+					var rowColumns = [];
+
+					rowColumns.push(A.Escape.html(event.roletitle));
+
+					if (event.groupid) {
+						rowColumns.push('<a class="modify-link" data-rowId="' + event.roleid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
+
+						<portlet:namespace />siteRolesRoleIds.push(event.roleid);
+
+						document.<portlet:namespace />fm.<portlet:namespace />siteRolesRoleIds.value = <portlet:namespace />siteRolesRoleIds.join(',');
+					}
+					else {
+						rowColumns.push('<a class="modify-link" data-rowId="' + event.roleid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
+					}
+
+					searchContainer.addRow(rowColumns, event.roleid);
+
+					searchContainer.updateDataStore();
+				}
+			);
+		}
+	);
+
+	A.one('#<portlet:namespace />selectTeamLink').on(
+		'click',
+		function(event) {
+			Liferay.Util.selectEntity(
+				{
+					dialog: {
+						align: Liferay.Util.Window.ALIGN_CENTER,
+						constrain: true,
+						modal: true,
+						stack: true,
+						width: 680
+					},
+					id: '<portlet:namespace />selectTeam',
+					title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "team") %>',
+					uri: '<%= selectTeamURL.toString() %>'
+				},
+				function(event) {
+					searchContainer = Liferay.SearchContainer.get('<portlet:namespace />' + event.teamsearchcontainername + 'SearchContainer');
+
+					var rowColumns = [];
+
+					rowColumns.push(event.teamname);
+
+					if (event.teamid) {
+						rowColumns.push('<a class="modify-link" data-rowId="' + event.teamid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
+
+						<portlet:namespace />teamsTeamIds.push(event.teamid);
+
+						document.<portlet:namespace />fm.<portlet:namespace />teamsTeamIds.value = <portlet:namespace />teamsTeamIds.join(',');
+					}
+					else {
+						rowColumns.push('<a class="modify-link" data-rowId="' + event.teamid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
+					}
+
+					searchContainer.addRow(rowColumns, event.teamid);
+					searchContainer.updateDataStore();
+				}
+			);
+		}
+	);
+</aui:script>
+
 <aui:script>
 	var <portlet:namespace />siteRolesRoleIds = ['<%= ListUtil.toString(defaultSiteRoles, Role.ROLE_ID_ACCESSOR, "', '") %>'];
 	var <portlet:namespace />teamsTeamIds = ['<%= ListUtil.toString(defaultTeams, Team.TEAM_ID_ACCESSOR, "', '") %>'];
@@ -206,82 +298,4 @@ for (long defaultTeamId : defaultTeamIds) {
 
 		document.<portlet:namespace />fm.<portlet:namespace />teamsTeamIds.value = <portlet:namespace />teamsTeamIds.join(',');
 	}
-
-	function <portlet:namespace />openSiteRoleSelector() {
-		var url = '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/sites_admin/select_site_role" /><portlet:param name="step" value="2" /><portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" /></portlet:renderURL>';
-
-		var roleWindow = window.open(url, 'role', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=680');
-
-		roleWindow.focus();
-	}
-
-	function <portlet:namespace />openTeamSelector() {
-		var url = '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/sites_admin/select_team" /><portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" /></portlet:renderURL>';
-
-		var teamWindow = window.open(url, 'role', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=680');
-
-		teamWindow.focus();
-	}
-
-	Liferay.provide(
-		window,
-		'<portlet:namespace />selectRole',
-		function(roleId, name, searchContainer, groupName, groupId) {
-			var A = AUI();
-
-			var searchContainerName = '<portlet:namespace />' + searchContainer + 'SearchContainer';
-
-			searchContainer = Liferay.SearchContainer.get(searchContainerName);
-
-			var rowColumns = [];
-
-			rowColumns.push(name);
-
-			if (groupId) {
-				rowColumns.push('<a class="modify-link" data-rowId="' + roleId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
-
-				<portlet:namespace />siteRolesRoleIds.push(roleId);
-
-				document.<portlet:namespace />fm.<portlet:namespace />siteRolesRoleIds.value = <portlet:namespace />siteRolesRoleIds.join(',');
-			}
-			else {
-				rowColumns.push('<a class="modify-link" data-rowId="' + roleId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
-			}
-
-			searchContainer.addRow(rowColumns, roleId);
-			searchContainer.updateDataStore();
-		},
-		['liferay-search-container']
-	);
-
-	Liferay.provide(
-		window,
-		'<portlet:namespace />selectTeam',
-		function(teamId, name, searchContainer, description, groupId) {
-			var A = AUI();
-
-			var searchContainerName = '<portlet:namespace />' + searchContainer + 'SearchContainer';
-
-			searchContainer = Liferay.SearchContainer.get(searchContainerName);
-
-			var rowColumns = [];
-
-			rowColumns.push(name);
-
-			if (groupId) {
-				rowColumns.push('<a class="modify-link" data-rowId="' + teamId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
-
-				<portlet:namespace />teamsTeamIds.push(teamId);
-
-				document.<portlet:namespace />fm.<portlet:namespace />teamsTeamIds.value = <portlet:namespace />teamsTeamIds.join(',');
-			}
-			else {
-				rowColumns.push('<a class="modify-link" data-rowId="' + teamId + '" href="javascript:;"><%= UnicodeFormatter.toString(removeRoleIcon) %></a>');
-			}
-
-			searchContainer.addRow(rowColumns, teamId);
-			searchContainer.updateDataStore();
-		},
-		['liferay-search-container']
-	);
 </aui:script>

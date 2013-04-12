@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -26,18 +26,23 @@ public class ExpandoBridgeFactoryUtil {
 	public static ExpandoBridge getExpandoBridge(
 		long companyId, String className) {
 
+		PortalRuntimePermission.checkExpandoBridge(className);
+
 		return getExpandoBridgeFactory().getExpandoBridge(companyId, className);
 	}
 
 	public static ExpandoBridge getExpandoBridge(
 		long companyId, String className, long classPK) {
 
+		PortalRuntimePermission.checkExpandoBridge(className);
+
 		return getExpandoBridgeFactory().getExpandoBridge(
 			companyId, className, classPK);
 	}
 
 	/**
-	 * @deprecated {@link #getExpandoBridge(long, String)}
+	 * @deprecated As of 6.1.0, replaced by {@link #getExpandoBridge(long,
+	 *             String)}
 	 */
 	public static ExpandoBridge getExpandoBridge(String className) {
 		long companyId = CompanyThreadLocal.getCompanyId();
@@ -46,7 +51,8 @@ public class ExpandoBridgeFactoryUtil {
 	}
 
 	/**
-	 * @deprecated {@link #getExpandoBridge(long, String, long)}
+	 * @deprecated As of 6.1.0, replaced by {@link #getExpandoBridge(long,
+	 *             String, long)}
 	 */
 	public static ExpandoBridge getExpandoBridge(
 		String className, long classPK) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -31,15 +31,20 @@ import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.persistence.ImageUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
+import com.liferay.portlet.dynamicdatamapping.RequiredTemplateException;
 import com.liferay.portlet.dynamicdatamapping.TemplateDuplicateTemplateKeyException;
 import com.liferay.portlet.dynamicdatamapping.TemplateNameException;
 import com.liferay.portlet.dynamicdatamapping.TemplateScriptException;
 import com.liferay.portlet.dynamicdatamapping.TemplateSmallImageNameException;
 import com.liferay.portlet.dynamicdatamapping.TemplateSmallImageSizeException;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.service.base.DDMTemplateLocalServiceBaseImpl;
+import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.service.persistence.JournalArticleUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,8 +87,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  userId the primary key of the template's creator/owner
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  nameMap the template's locales and localized names
 	 * @param  descriptionMap the template's locales and localized descriptions
@@ -95,9 +100,9 @@ public class DDMTemplateLocalServiceImpl
 	 *         see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
 	 * @param  script the template's script
-	 * @param  serviceContext the template's service context. Can set the UUID,
-	 *         creation date, modification date, guest permissions, and group
-	 *         permissions for the template.
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         UUID, creation date, modification date, guest permissions, and
+	 *         group permissions for the template.
 	 * @return the template
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
@@ -120,8 +125,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  userId the primary key of the template's creator/owner
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  templateKey the unique string identifying the template
 	 *         (optionally <code>null</code>)
@@ -141,9 +146,9 @@ public class DDMTemplateLocalServiceImpl
 	 *         <code>null</code>)
 	 * @param  smallImageFile the template's small image file (optionally
 	 *         <code>null</code>)
-	 * @param  serviceContext the template's service context. Can set the UUID,
-	 *         creation date, modification date, guest permissions, and group
-	 *         permissions for the template.
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         UUID, creation date, modification date, guest permissions, and
+	 *         group permissions for the template.
 	 * @return the template
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
@@ -339,8 +344,8 @@ public class DDMTemplateLocalServiceImpl
 	 * ones and updating their class PKs.
 	 *
 	 * @param  userId the primary key of the template's creator/owner
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  oldClassPK the primary key of the old template's related entity
 	 * @param  newClassPK the primary key of the new template's related entity
 	 * @param  type the template's type. For more information, see {@link
@@ -383,6 +388,38 @@ public class DDMTemplateLocalServiceImpl
 		throws PortalException, SystemException {
 
 		// Template
+
+		if (template.getClassNameId() ==
+				PortalUtil.getClassNameId(DDMStructure.class.getName())) {
+
+			DDMStructure structure = ddmStructureLocalService.fetchDDMStructure(
+				template.getClassPK());
+
+			if ((structure != null) &&
+				(structure.getClassNameId() ==
+					PortalUtil.getClassNameId(
+						JournalArticle.class.getName()))) {
+
+				Group companyGroup = groupLocalService.getCompanyGroup(
+					template.getCompanyId());
+
+				if (template.getGroupId() == companyGroup.getGroupId()) {
+					if (JournalArticleUtil.countByTemplateId(
+							template.getTemplateKey()) > 0) {
+
+						throw new RequiredTemplateException();
+					}
+				}
+				else {
+					if (JournalArticleUtil.countByG_T(
+							template.getGroupId(),
+							template.getTemplateKey()) > 0) {
+
+						throw new RequiredTemplateException();
+					}
+				}
+			}
+		}
 
 		ddmTemplatePersistence.remove(template);
 
@@ -431,6 +468,8 @@ public class DDMTemplateLocalServiceImpl
 	 * Returns the template matching the group and template key.
 	 *
 	 * @param  groupId the primary key of the group
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  templateKey the unique string identifying the template
 	 * @return the matching template, or <code>null</code> if a matching
 	 *         template could not be found
@@ -457,6 +496,8 @@ public class DDMTemplateLocalServiceImpl
 	 * </p>
 	 *
 	 * @param  groupId the primary key of the group
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  templateKey the unique string identifying the template
 	 * @param  includeGlobalTemplates whether to include the global scope in the
 	 *         search
@@ -521,6 +562,8 @@ public class DDMTemplateLocalServiceImpl
 	 * Returns the template matching the group and template key.
 	 *
 	 * @param  groupId the primary key of the group
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  templateKey the unique string identifying the template
 	 * @return the matching template
 	 * @throws PortalException if a matching template could not be found
@@ -547,6 +590,8 @@ public class DDMTemplateLocalServiceImpl
 	 * </p>
 	 *
 	 * @param  groupId the primary key of the group
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  templateKey the unique string identifying the template
 	 * @param  includeGlobalTemplates whether to include the global scope in the
 	 *         search
@@ -597,8 +642,8 @@ public class DDMTemplateLocalServiceImpl
 	 * Returns all the templates matching the group and class name ID.
 	 *
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @return the matching templates
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -613,8 +658,8 @@ public class DDMTemplateLocalServiceImpl
 	 * PK.
 	 *
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @return the matching templates
 	 * @throws SystemException if a system exception occurred
@@ -632,8 +677,8 @@ public class DDMTemplateLocalServiceImpl
 	 * and type.
 	 *
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  type the template's type. For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
@@ -653,8 +698,8 @@ public class DDMTemplateLocalServiceImpl
 	 * type, and mode.
 	 *
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  type the template's type. For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
@@ -673,6 +718,54 @@ public class DDMTemplateLocalServiceImpl
 	}
 
 	/**
+	 * Returns all the templates matching the group and class PK.
+	 *
+	 * @param  groupId the primary key of the group
+	 * @param  classPK the primary key of the template's related entity
+	 * @return the matching templates
+	 * @throws SystemException if a system exception occurred
+	 */
+	public List<DDMTemplate> getTemplatesByClassPK(long groupId, long classPK)
+		throws SystemException {
+
+		return ddmTemplatePersistence.findByG_CPK(groupId, classPK);
+	}
+
+	/**
+	 * Returns an ordered range of all the templates matching the group and
+	 * structure class name ID.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end -
+	 * start</code> instances. <code>start</code> and <code>end</code> are not
+	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
+	 * refers to the first result in the set. Setting both <code>start</code>
+	 * and <code>end</code> to {@link
+	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * result set.
+	 * </p>
+	 *
+	 * @param  groupId the primary key of the group
+	 * @param  structureClassNameId the primary key of the class name for the
+	 *         template's related structure
+	 * @param  start the lower bound of the range of templates to return
+	 * @param  end the upper bound of the range of templates to return (not
+	 *         inclusive)
+	 * @param  orderByComparator the comparator to order the templates
+	 *         (optionally <code>null</code>)
+	 * @return the range of matching templates ordered by the comparator
+	 * @throws SystemException if a system exception occurred
+	 */
+	public List<DDMTemplate> getTemplatesByStructureClassNameId(
+			long groupId, long structureClassNameId, int start, int end,
+			OrderByComparator orderByComparator)
+		throws SystemException {
+
+		return ddmTemplateFinder.findByG_SC(
+			groupId, structureClassNameId, start, end, orderByComparator);
+	}
+
+	/**
 	 * Returns the number of templates belonging to the group.
 	 *
 	 * @param  groupId the primary key of the group
@@ -687,8 +780,8 @@ public class DDMTemplateLocalServiceImpl
 	 * Returns the number of templates matching the group and class name ID.
 	 *
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @return the number of matching templates
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -715,8 +808,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  companyId the primary key of the template's company
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  keywords the keywords (space separated), which may occur in the
 	 *         template's name or description (optionally <code>null</code>)
@@ -762,8 +855,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  companyId the primary key of the template's company
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  name the name keywords (optionally <code>null</code>)
 	 * @param  description the description keywords (optionally
@@ -907,8 +1000,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  companyId the primary key of the template's company
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  keywords the keywords (space separated), which may occur in the
 	 *         template's name or description (optionally <code>null</code>)
@@ -936,8 +1029,8 @@ public class DDMTemplateLocalServiceImpl
 	 *
 	 * @param  companyId the primary key of the template's company
 	 * @param  groupId the primary key of the group
-	 * @param  classNameId the primary key of the entity's instance the template
-	 *         is related to
+	 * @param  classNameId the primary key of the class name for template's
+	 *         related model
 	 * @param  classPK the primary key of the template's related entity
 	 * @param  name the name keywords (optionally <code>null</code>)
 	 * @param  description the description keywords (optionally

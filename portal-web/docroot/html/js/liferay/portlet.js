@@ -38,7 +38,7 @@
 						p_auth: Liferay.authToken,
 						p_l_id: event.plid,
 						p_p_id: event.portletId,
-						p_v_l_s_g_id: themeDisplay.getParentGroupId()
+						p_v_l_s_g_id: themeDisplay.getSiteGroupId()
 					}
 				}
 			);
@@ -115,6 +115,7 @@
 			Liferay.fire('initLayout');
 
 			var plid = options.plid || themeDisplay.getPlid();
+			var portletData = options.portletData;
 			var portletId = options.portletId;
 			var portletItemId = options.portletItemId;
 			var doAsUserId = options.doAsUserId || themeDisplay.getDoAsUserIdEncoded();
@@ -130,7 +131,20 @@
 
 			var positionOptions = options.positionOptions;
 			var beforePortletLoaded = options.beforePortletLoaded;
-			var onComplete = options.onComplete;
+			var onCompleteFn = options.onComplete;
+
+			var onComplete = function(portlet, portletId) {
+				if (onCompleteFn) {
+					onCompleteFn(portlet, portletId);
+				}
+
+				Liferay.fire(
+					'addPortlet',
+					{
+						portlet: portlet
+					}
+				);
+			};
 
 			var container = null;
 
@@ -165,6 +179,7 @@
 				cmd: 'add',
 				dataType: 'json',
 				doAsUserId: doAsUserId,
+				portletData: portletData,
 				p_auth: Liferay.authToken,
 				p_l_id: plid,
 				p_p_col_id: currentColumnId,
@@ -172,7 +187,7 @@
 				p_p_id: portletId,
 				p_p_i_id: portletItemId,
 				p_p_isolated: true,
-				p_v_l_s_g_id: themeDisplay.getParentGroupId()
+				p_v_l_s_g_id: themeDisplay.getSiteGroupId()
 			};
 
 			var firstPortlet = container.one('.portlet-boundary');
@@ -446,7 +461,7 @@
 								p_l_id: plid,
 								p_p_id: portlet.portletId,
 								p_p_restore: restore,
-								p_v_l_s_g_id: themeDisplay.getParentGroupId()
+								p_v_l_s_g_id: themeDisplay.getSiteGroupId()
 							}
 						}
 					);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -309,8 +309,8 @@ public class LayoutSetBranchLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated {@link #getUserLayoutSetBranch(long, long, boolean, long,
-	long)}
+	* @deprecated As of 6.2.0, replaced by {@link #getUserLayoutSetBranch(long,
+	long, boolean, long, long)}
 	*/
 	public com.liferay.portal.model.LayoutSetBranch getUserLayoutSetBranch(
 		long userId, long groupId, boolean privateLayout, long layoutSetBranchId)
@@ -349,14 +349,14 @@ public class LayoutSetBranchLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public LayoutSetBranchLocalService getWrappedLayoutSetBranchLocalService() {
 		return _layoutSetBranchLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedLayoutSetBranchLocalService(
 		LayoutSetBranchLocalService layoutSetBranchLocalService) {

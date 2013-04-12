@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,7 @@ String cssPath = ParamUtil.getString(request, "cssPath");
 String cssClasses = ParamUtil.getString(request, "cssClasses");
 boolean inlineEdit = ParamUtil.getBoolean(request, "inlineEdit");
 String languageId = ParamUtil.getString(request, "languageId");
+boolean resizable = ParamUtil.getBoolean(request, "resizable");
 
 response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 %>
@@ -57,6 +58,8 @@ if (!CKEDITOR.stylesSet.get('liferayStyles')) {
 	);
 }
 
+CKEDITOR.config.autoParagraph = false;
+
 CKEDITOR.config.autoSaveTimeout = 3000;
 
 CKEDITOR.config.bodyClass = 'html-editor <%= HtmlUtil.escapeJS(cssClasses) %>';
@@ -72,6 +75,12 @@ CKEDITOR.config.extraPlugins = 'ajaxsave,restore';
 CKEDITOR.config.height = 265;
 
 CKEDITOR.config.language = '<%= HtmlUtil.escapeJS(languageId) %>';
+
+CKEDITOR.config.resize_enabled = <%= resizable %>;
+
+<c:if test="<%= resizable %>">
+	CKEDITOR.config.resize_dir = 'vertical';
+</c:if>
 
 CKEDITOR.config.stylesCombo_stylesSet = 'liferayStyles';
 

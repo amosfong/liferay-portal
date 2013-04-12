@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -39,7 +39,10 @@ import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.AssetTagException;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
+import com.liferay.portlet.assetpublisher.util.AssetPublisher;
 import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
+
+import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -158,8 +161,7 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 		String[] scopeIds = preferences.getValues(
 			"scopeIds",
 			new String[] {
-				AssetPublisherUtil.SCOPE_ID_GROUP_PREFIX +
-					GroupConstants.DEFAULT
+				AssetPublisher.SCOPE_ID_GROUP_PREFIX + GroupConstants.DEFAULT
 			});
 
 		String scopeId = ParamUtil.getString(actionRequest, "scopeId");
@@ -190,7 +192,8 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 	}
 
 	protected String[] getClassTypeIds(
-		ActionRequest actionRequest, String[] classNameIds) throws Exception {
+			ActionRequest actionRequest, String[] classNameIds)
+		throws Exception {
 
 		String anyAssetTypeString = getParameter(actionRequest, "anyAssetType");
 
@@ -223,9 +226,10 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 			themeDisplay.getCompanyGroupId(), themeDisplay.getSiteGroupId()
 		};
 
-		if (assetRendererFactory.getClassTypes(
-				groupIds, themeDisplay.getLocale()) == null) {
+		Map<Long, String> classTypes = assetRendererFactory.getClassTypes(
+			groupIds, themeDisplay.getLocale());
 
+		if (classTypes.isEmpty()) {
 			return null;
 		}
 
@@ -309,8 +313,7 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 		String[] scopeIds = preferences.getValues(
 			"scopeIds",
 			new String[] {
-				AssetPublisherUtil.SCOPE_ID_GROUP_PREFIX +
-					GroupConstants.DEFAULT
+				AssetPublisher.SCOPE_ID_GROUP_PREFIX + GroupConstants.DEFAULT
 			});
 
 		String scopeId = ParamUtil.getString(actionRequest, "scopeId");
@@ -533,7 +536,7 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 			SessionErrors.add(actionRequest, "emailFromName");
 		}
 		else if (!Validator.isEmailAddress(emailFromAddress) &&
-			!Validator.isVariableTerm(emailFromAddress)) {
+				 !Validator.isVariableTerm(emailFromAddress)) {
 
 			SessionErrors.add(actionRequest, "emailFromAddress");
 		}

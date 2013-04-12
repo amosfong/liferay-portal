@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -114,7 +114,8 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 	}
 
 	/**
-	* @deprecated {@link #search(long[], String, long[], int, int)}
+	* @deprecated As of 6.2.0, replaced by {@link #search(long[], String,
+	long[], int, int)}
 	*/
 	public com.liferay.portal.kernel.json.JSONArray getJSONSearch(
 		long groupId, java.lang.String name, long[] vocabularyIds, int start,
@@ -125,6 +126,11 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 			vocabularyIds, start, end);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link
+	#getVocabularyCategoriesDisplay(long, int, int,
+	OrderByComparator)}
+	*/
 	public com.liferay.portal.kernel.json.JSONObject getJSONVocabularyCategories(
 		long vocabularyId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator obc)
@@ -134,6 +140,11 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 			start, end, obc);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link
+	#getVocabularyCategoriesDisplay(long, String, long, int, int,
+	OrderByComparator)}
+	*/
 	public com.liferay.portal.kernel.json.JSONObject getJSONVocabularyCategories(
 		long groupId, java.lang.String name, long vocabularyId, int start,
 		int end, com.liferay.portal.kernel.util.OrderByComparator obc)
@@ -182,6 +193,29 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 			name, vocabularyId);
 	}
 
+	public com.liferay.portlet.asset.model.AssetCategoryDisplay getVocabularyCategoriesDisplay(
+		long vocabularyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _assetCategoryService.getVocabularyCategoriesDisplay(vocabularyId,
+			start, end, obc);
+	}
+
+	public com.liferay.portlet.asset.model.AssetCategoryDisplay getVocabularyCategoriesDisplay(
+		long groupId, java.lang.String name, long vocabularyId, int start,
+		int end, com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _assetCategoryService.getVocabularyCategoriesDisplay(groupId,
+			name, vocabularyId, start, end, obc);
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #
+	getVocabularyRootCategories(long, long, int, int,
+	OrderByComparator)}
+	*/
 	public java.util.List<com.liferay.portlet.asset.model.AssetCategory> getVocabularyRootCategories(
 		long vocabularyId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator obc)
@@ -189,6 +223,20 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _assetCategoryService.getVocabularyRootCategories(vocabularyId,
 			start, end, obc);
+	}
+
+	public java.util.List<com.liferay.portlet.asset.model.AssetCategory> getVocabularyRootCategories(
+		long groupId, long vocabularyId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetCategoryService.getVocabularyRootCategories(groupId,
+			vocabularyId, start, end, obc);
+	}
+
+	public int getVocabularyRootCategoriesCount(long groupId, long vocabularyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetCategoryService.getVocabularyRootCategoriesCount(groupId,
+			vocabularyId);
 	}
 
 	public com.liferay.portlet.asset.model.AssetCategory moveCategory(
@@ -239,14 +287,14 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public AssetCategoryService getWrappedAssetCategoryService() {
 		return _assetCategoryService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedAssetCategoryService(
 		AssetCategoryService assetCategoryService) {

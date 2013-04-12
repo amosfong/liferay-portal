@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -249,9 +249,8 @@ SearchContainer searchContainer = (SearchContainer)request.getAttribute("view.js
 <%
 PortletURL embeddedPlayerURL = renderResponse.createRenderURL();
 
-embeddedPlayerURL.setWindowState(LiferayWindowState.POP_UP);
-
 embeddedPlayerURL.setParameter("struts_action", "/image_gallery_display/embedded_player");
+embeddedPlayerURL.setWindowState(LiferayWindowState.POP_UP);
 %>
 
 <aui:script use="aui-image-viewer-gallery,aui-media-viewer-plugin">

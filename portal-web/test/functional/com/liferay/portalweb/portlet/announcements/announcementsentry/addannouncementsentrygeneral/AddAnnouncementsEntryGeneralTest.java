@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -50,9 +50,11 @@ public class AddAnnouncementsEntryGeneralTest extends BaseTestCase {
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Announcements Entry Title"),
-			selenium.getText("//td[1]/a"));
+			selenium.getText(
+				"//tr[contains(.,'Announcements Entry Title')]/td[1]/a"));
 		assertEquals(RuntimeVariables.replace("General"),
-			selenium.getText("//td[2]/a"));
+			selenium.getText(
+				"//tr[contains(.,'Announcements Entry Title')]/td[2]/a"));
 		selenium.open("/web/guest/home/");
 		selenium.clickAt("link=Announcements Test Page",
 			RuntimeVariables.replace("Announcements Test Page"));
@@ -61,8 +63,8 @@ public class AddAnnouncementsEntryGeneralTest extends BaseTestCase {
 			selenium.getText("//h3[@class='entry-title']/a"));
 		assertEquals(RuntimeVariables.replace("General"),
 			selenium.getText("//span[@class='entry-scope']"));
-		assertEquals(RuntimeVariables.replace("Announcements Entry Content"),
-			selenium.getText(
-				"//div[@class=' entry-content entry-type-general']/p"));
+		assertTrue(selenium.isPartialText(
+				"//div[@class=' entry-content entry-type-general']",
+				"Announcements Entry Content"));
 	}
 }

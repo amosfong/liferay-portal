@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,11 +34,10 @@ else {
 	portletURL = new PortletURLImpl(request, PortletKeys.SEARCH, plid, PortletRequest.RENDER_PHASE);
 }
 
-portletURL.setWindowState(WindowState.MAXIMIZED);
-portletURL.setPortletMode(PortletMode.VIEW);
-
 portletURL.setParameter("struts_action", "/search/search");
 portletURL.setParameter("redirect", currentURL);
+portletURL.setPortletMode(PortletMode.VIEW);
+portletURL.setWindowState(WindowState.MAXIMIZED);
 
 pageContext.setAttribute("portletURL", portletURL);
 %>
@@ -46,7 +45,7 @@ pageContext.setAttribute("portletURL", portletURL);
 <form action="<%= portletURL.toString() %>" method="get" name="<%= randomNamespace %><%= namespace %>fm" onSubmit="<%= randomNamespace %><%= namespace %>search(); return false;">
 <liferay-portlet:renderURLParams varImpl="portletURL" />
 
-<input name="<%= namespace %>keywords" size="30" title="<liferay-ui:message key="search" />" type="text" value="<%= HtmlUtil.escapeAttribute(keywords) %>"  />
+<input name="<%= namespace %>keywords" size="30" title="<liferay-ui:message key="search" />" type="text" value="<%= HtmlUtil.escapeAttribute(keywords) %>" />
 
 <select name="<%= namespace %>groupId" title="<liferay-ui:message key="scope" /> ">
 	<option value="0" <%= (groupId == 0) ? "selected" : "" %>><liferay-ui:message key="everything" /></option>

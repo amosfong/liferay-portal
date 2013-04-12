@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,19 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.impl.RoleModelImpl;
@@ -108,7 +114,17 @@ public class RolePersistenceTest {
 
 		Role newRole = _persistence.create(pk);
 
+		newRole.setUuid(ServiceTestUtil.randomString());
+
 		newRole.setCompanyId(ServiceTestUtil.nextLong());
+
+		newRole.setUserId(ServiceTestUtil.nextLong());
+
+		newRole.setUserName(ServiceTestUtil.randomString());
+
+		newRole.setCreateDate(ServiceTestUtil.nextDate());
+
+		newRole.setModifiedDate(ServiceTestUtil.nextDate());
 
 		newRole.setClassNameId(ServiceTestUtil.nextLong());
 
@@ -128,8 +144,16 @@ public class RolePersistenceTest {
 
 		Role existingRole = _persistence.findByPrimaryKey(newRole.getPrimaryKey());
 
+		Assert.assertEquals(existingRole.getUuid(), newRole.getUuid());
 		Assert.assertEquals(existingRole.getRoleId(), newRole.getRoleId());
 		Assert.assertEquals(existingRole.getCompanyId(), newRole.getCompanyId());
+		Assert.assertEquals(existingRole.getUserId(), newRole.getUserId());
+		Assert.assertEquals(existingRole.getUserName(), newRole.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(existingRole.getCreateDate()),
+			Time.getShortTimestamp(newRole.getCreateDate()));
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingRole.getModifiedDate()),
+			Time.getShortTimestamp(newRole.getModifiedDate()));
 		Assert.assertEquals(existingRole.getClassNameId(),
 			newRole.getClassNameId());
 		Assert.assertEquals(existingRole.getClassPK(), newRole.getClassPK());
@@ -164,6 +188,25 @@ public class RolePersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("Role_", "uuid", true,
+			"roleId", true, "companyId", true, "userId", true, "userName",
+			true, "createDate", true, "modifiedDate", true, "classNameId",
+			true, "classPK", true, "name", true, "title", true, "description",
+			true, "type", true, "subtype", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		Role newRole = addRole();
 
@@ -179,6 +222,26 @@ public class RolePersistenceTest {
 		Role missingRole = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingRole);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new RoleActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					Role role = (Role)object;
+
+					Assert.assertNotNull(role);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -283,7 +346,17 @@ public class RolePersistenceTest {
 
 		Role role = _persistence.create(pk);
 
+		role.setUuid(ServiceTestUtil.randomString());
+
 		role.setCompanyId(ServiceTestUtil.nextLong());
+
+		role.setUserId(ServiceTestUtil.nextLong());
+
+		role.setUserName(ServiceTestUtil.randomString());
+
+		role.setCreateDate(ServiceTestUtil.nextDate());
+
+		role.setModifiedDate(ServiceTestUtil.nextDate());
 
 		role.setClassNameId(ServiceTestUtil.nextLong());
 

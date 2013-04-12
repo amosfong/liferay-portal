@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -113,13 +113,13 @@ portletURL.setParameter("struts_action", "/dynamic_data_lists/view");
 							handler: function() {
 								submitForm(form, url, false);
 							},
-							label: Liferay.Language.get('ok')
+							label: '<%= UnicodeLanguageUtil.get(pageContext, "ok") %>'
 						},
 						{
 							handler: function() {
 								this.close();
 							},
-							label: Liferay.Language.get('cancel')
+							label: '<%= UnicodeLanguageUtil.get(pageContext, "cancel") %>'
 						}
 					],
 					modal: true,

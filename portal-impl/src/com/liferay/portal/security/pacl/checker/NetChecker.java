@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,6 @@ package com.liferay.portal.security.pacl.checker;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.JavaDetector;
 
 import java.security.Permission;
 
@@ -30,62 +29,57 @@ public class NetChecker extends BaseChecker {
 	public void afterPropertiesSet() {
 	}
 
-	public void checkPermission(Permission permission) {
+	public boolean implies(Permission permission) {
 		String name = permission.getName();
 
 		if (name.equals(NET_PERMISSION_GET_PROXY_SELECTOR)) {
-			if (!hasGetProxySelector()) {
-				throwSecurityException(_log, "Attempted to get proxy selector");
+			if (!hasGetProxySelector(permission)) {
+				logSecurityException(_log, "Attempted to get proxy selector");
+
+				return false;
 			}
 		}
 		else if (name.equals(NET_PERMISSION_SPECIFY_STREAM_HANDLER)) {
+			if (!hasSpecifyStreamHandler(permission)) {
+				logSecurityException(
+					_log, "Attempted to specify stream handler");
 
-			// TODO
-
-		}
-	}
-
-	protected boolean hasGetProxySelector() {
-		if (JavaDetector.isJDK7()) {
-			Class<?> callerClass8 = Reflection.getCallerClass(8);
-
-			String className8 = callerClass8.getName();
-
-			if (className8.startsWith(_CLASS_NAME_SOCKS_SOCKET_IMPL) &&
-				CheckerUtil.isAccessControllerDoPrivileged(9)) {
-
-				logGetProxySelector(callerClass8, 8);
-
-				return true;
+				return false;
 			}
 		}
 		else {
-			Class<?> callerClass7 = Reflection.getCallerClass(7);
+			logSecurityException(
+				_log, "Attempted " + name + " network operation");
 
-			String className7 = callerClass7.getName();
+			return false;
+		}
 
-			if (className7.startsWith(_CLASS_NAME_SOCKS_SOCKET_IMPL) &&
-				CheckerUtil.isAccessControllerDoPrivileged(8)) {
+		return true;
+	}
 
-				logGetProxySelector(callerClass7, 7);
+	protected boolean hasGetProxySelector(Permission permission) {
+		int stackIndex = getStackIndex(11, 10);
 
-				return true;
-			}
+		Class<?> callerClass = Reflection.getCallerClass(stackIndex);
+
+		if (isTrustedCaller(callerClass, permission)) {
+			return true;
 		}
 
 		return false;
 	}
 
-	protected void logGetProxySelector(Class<?> callerClass, int frame) {
-		if (_log.isInfoEnabled()) {
-			_log.info(
-				"Allowing frame " + frame + " with caller " + callerClass +
-					" to get the proxy selector");
-		}
-	}
+	protected boolean hasSpecifyStreamHandler(Permission permission) {
+		int stackIndex = getStackIndex(11, 10);
 
-	private static final String _CLASS_NAME_SOCKS_SOCKET_IMPL =
-		"java.net.SocksSocketImpl$";
+		Class<?> callerClass = Reflection.getCallerClass(stackIndex);
+
+		if (isTrustedCaller(callerClass, permission)) {
+			return true;
+		}
+
+		return false;
+	}
 
 	private static Log _log = LogFactoryUtil.getLog(NetChecker.class);
 

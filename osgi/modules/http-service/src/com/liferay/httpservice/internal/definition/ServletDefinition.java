@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,8 +14,10 @@
 
 package com.liferay.httpservice.internal.definition;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 
@@ -24,19 +26,12 @@ import javax.servlet.Servlet;
  */
 public class ServletDefinition {
 
-	public ServletDefinition() {
+	public void addURLPattern(String urlPattern) {
+		_urlPatterns.add(urlPattern);
 	}
 
-	public ServletDefinition(
-		String name, Servlet servlet, Dictionary<Object, Object> initParams) {
-
-		_name = name;
-		_servlet = servlet;
-		_initParams = initParams;
-	}
-
-	public Dictionary<Object, Object> getInitParams() {
-		return _initParams;
+	public Map<String, String> getInitParameters() {
+		return _initParameters;
 	}
 
 	public String getName() {
@@ -47,16 +42,16 @@ public class ServletDefinition {
 		return _servlet;
 	}
 
-	public void setInitParam(Object key, Object value) {
-		if (_initParams == null) {
-			_initParams = new Hashtable<Object, Object>();
-		}
-
-		_initParams.put(key, value);
+	public List<String> getURLPatterns() {
+		return _urlPatterns;
 	}
 
-	public void setInitParams(Dictionary<Object, Object> initParams) {
-		_initParams = initParams;
+	public void setInitParameter(String name, String value) {
+		_initParameters.put(name, value);
+	}
+
+	public void setInitParameters(Map<String, String> initParameters) {
+		_initParameters = initParameters;
 	}
 
 	public void setName(String name) {
@@ -67,8 +62,13 @@ public class ServletDefinition {
 		_servlet = servlet;
 	}
 
-	private Dictionary<Object, Object> _initParams;
+	public void setURLPatterns(List<String> urlPatterns) {
+		_urlPatterns = urlPatterns;
+	}
+
+	private Map<String, String> _initParameters = new HashMap<String, String>();
 	private String _name;
 	private Servlet _servlet;
+	private List<String> _urlPatterns = new ArrayList<String>();
 
 }

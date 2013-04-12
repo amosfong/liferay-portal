@@ -14,6 +14,7 @@ import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.model.GroupedModel;
 import com.liferay.portal.model.ResourcedModel;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
@@ -46,7 +47,7 @@ public interface ${entity.name}Model extends
 		AttachedModel,
 	</#if>
 
-	<#if entity.isAuditedModel() && !entity.isGroupedModel()>
+	<#if entity.isAuditedModel() && !entity.isGroupedModel() && !entity.isStagedModel()>
 		AuditedModel,
 	</#if>
 
@@ -56,7 +57,7 @@ public interface ${entity.name}Model extends
 		, ContainerModel
 	</#if>
 
-	<#if entity.isGroupedModel()>
+	<#if entity.isGroupedModel() && !entity.isStagedGroupedModel()>
 		, GroupedModel
 	</#if>
 
@@ -64,7 +65,11 @@ public interface ${entity.name}Model extends
 		, ResourcedModel
 	</#if>
 
-	<#if entity.isStagedModel()>
+	<#if entity.isStagedGroupedModel()>
+		, StagedGroupedModel
+	</#if>
+
+	<#if !entity.isStagedGroupedModel()&& entity.isStagedModel()>
 		, StagedModel
 	</#if>
 
@@ -265,7 +270,7 @@ public interface ${entity.name}Model extends
 
 	<#if entity.isWorkflowEnabled()>
 		/**
-		 * @deprecated Renamed to {@link #isApproved()}
+		 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 		 */
 		public boolean getApproved();
 
@@ -394,6 +399,10 @@ public interface ${entity.name}Model extends
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

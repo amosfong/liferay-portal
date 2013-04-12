@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +43,13 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("roleId", getRoleId());
 		attributes.put("companyId", getCompanyId());
+		attributes.put("userId", getUserId());
+		attributes.put("userName", getUserName());
+		attributes.put("createDate", getCreateDate());
+		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
 		attributes.put("name", getName());
@@ -56,6 +62,12 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long roleId = (Long)attributes.get("roleId");
 
 		if (roleId != null) {
@@ -66,6 +78,30 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 
 		if (companyId != null) {
 			setCompanyId(companyId);
+		}
+
+		Long userId = (Long)attributes.get("userId");
+
+		if (userId != null) {
+			setUserId(userId);
+		}
+
+		String userName = (String)attributes.get("userName");
+
+		if (userName != null) {
+			setUserName(userName);
+		}
+
+		Date createDate = (Date)attributes.get("createDate");
+
+		if (createDate != null) {
+			setCreateDate(createDate);
+		}
+
+		Date modifiedDate = (Date)attributes.get("modifiedDate");
+
+		if (modifiedDate != null) {
+			setModifiedDate(modifiedDate);
 		}
 
 		Long classNameId = (Long)attributes.get("classNameId");
@@ -130,6 +166,24 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	/**
+	* Returns the uuid of this role.
+	*
+	* @return the uuid of this role
+	*/
+	public java.lang.String getUuid() {
+		return _role.getUuid();
+	}
+
+	/**
+	* Sets the uuid of this role.
+	*
+	* @param uuid the uuid of this role
+	*/
+	public void setUuid(java.lang.String uuid) {
+		_role.setUuid(uuid);
+	}
+
+	/**
 	* Returns the role ID of this role.
 	*
 	* @return the role ID of this role
@@ -163,6 +217,98 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	*/
 	public void setCompanyId(long companyId) {
 		_role.setCompanyId(companyId);
+	}
+
+	/**
+	* Returns the user ID of this role.
+	*
+	* @return the user ID of this role
+	*/
+	public long getUserId() {
+		return _role.getUserId();
+	}
+
+	/**
+	* Sets the user ID of this role.
+	*
+	* @param userId the user ID of this role
+	*/
+	public void setUserId(long userId) {
+		_role.setUserId(userId);
+	}
+
+	/**
+	* Returns the user uuid of this role.
+	*
+	* @return the user uuid of this role
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.lang.String getUserUuid()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _role.getUserUuid();
+	}
+
+	/**
+	* Sets the user uuid of this role.
+	*
+	* @param userUuid the user uuid of this role
+	*/
+	public void setUserUuid(java.lang.String userUuid) {
+		_role.setUserUuid(userUuid);
+	}
+
+	/**
+	* Returns the user name of this role.
+	*
+	* @return the user name of this role
+	*/
+	public java.lang.String getUserName() {
+		return _role.getUserName();
+	}
+
+	/**
+	* Sets the user name of this role.
+	*
+	* @param userName the user name of this role
+	*/
+	public void setUserName(java.lang.String userName) {
+		_role.setUserName(userName);
+	}
+
+	/**
+	* Returns the create date of this role.
+	*
+	* @return the create date of this role
+	*/
+	public java.util.Date getCreateDate() {
+		return _role.getCreateDate();
+	}
+
+	/**
+	* Sets the create date of this role.
+	*
+	* @param createDate the create date of this role
+	*/
+	public void setCreateDate(java.util.Date createDate) {
+		_role.setCreateDate(createDate);
+	}
+
+	/**
+	* Returns the modified date of this role.
+	*
+	* @return the modified date of this role
+	*/
+	public java.util.Date getModifiedDate() {
+		return _role.getModifiedDate();
+	}
+
+	/**
+	* Sets the modified date of this role.
+	*
+	* @param modifiedDate the modified date of this role
+	*/
+	public void setModifiedDate(java.util.Date modifiedDate) {
+		_role.setModifiedDate(modifiedDate);
 	}
 
 	/**
@@ -555,6 +701,16 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_role.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_role.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_role.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -620,7 +776,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public Role getWrappedRole() {
 		return _role;

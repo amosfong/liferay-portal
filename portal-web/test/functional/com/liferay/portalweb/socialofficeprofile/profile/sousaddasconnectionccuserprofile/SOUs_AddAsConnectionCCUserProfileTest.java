@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -43,7 +43,7 @@ public class SOUs_AddAsConnectionCCUserProfileTest extends BaseTestCase {
 			selenium.getText("//div[contains(@class, 'lfr-contact-name')]/a"));
 		assertEquals(RuntimeVariables.replace("test@liferay.com"),
 			selenium.getText("//div[contains(@class, 'lfr-contact-extra')]"));
-		Thread.sleep(5000);
+		Thread.sleep(1000);
 		selenium.clickAt("//div[contains(@class, 'lfr-contact-name')]/a",
 			RuntimeVariables.replace("Bloggs, Joe"));
 		selenium.waitForVisible("//div[contains(@class, 'contacts-profile')]");
@@ -59,10 +59,10 @@ public class SOUs_AddAsConnectionCCUserProfileTest extends BaseTestCase {
 			selenium.getText("//div[@class='lfr-contact-extra']"));
 		assertTrue(selenium.isElementNotPresent(
 				"//div[contains(@class, 'contacts-center-home-content')]"));
-		assertEquals(RuntimeVariables.replace("Add Connection"),
+		assertEquals(RuntimeVariables.replace("Connect"),
 			selenium.getText("//span[@class='action add-connection']/a"));
 		selenium.clickAt("//span[@class='action add-connection']/a",
-			RuntimeVariables.replace("Add Connection"));
+			RuntimeVariables.replace("Connect"));
 		selenium.waitForVisible("//span[contains(.,'Connection Requested')]");
 		assertEquals(RuntimeVariables.replace("Connection Requested"),
 			selenium.getText("//span[contains(.,'Connection Requested')]"));

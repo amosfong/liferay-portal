@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -112,9 +114,9 @@ public class DDMStructureLocalServiceImpl
 	 *         com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
 	 * @param  type the structure's type. For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants}.
-	 * @param  serviceContext the structure's service context. Can set the UUID,
-	 *         creation date, modification date, guest permissions, and group
-	 *         permissions for the structure.
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         UUID, creation date, modification date, guest permissions, and
+	 *         group permissions for the structure.
 	 * @return the structure
 	 * @throws PortalException if a user with the primary key could not be
 	 *         found, if the XSD was not well-formed, or if a portal exception
@@ -202,9 +204,9 @@ public class DDMStructureLocalServiceImpl
 	 * @param  nameMap the structure's locales and localized names
 	 * @param  descriptionMap the structure's locales and localized descriptions
 	 * @param  xsd the structure's XML schema definition
-	 * @param  serviceContext the structure's service context. Can set the UUID,
-	 *         creation date, modification date, guest permissions, and group
-	 *         permissions for the structure.
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         UUID, creation date, modification date, guest permissions, and
+	 *         group permissions for the structure.
 	 * @return the structure
 	 * @throws PortalException if a user with the primary key could not be
 	 *         found, if the XSD was not well-formed, or if a portal exception
@@ -244,9 +246,9 @@ public class DDMStructureLocalServiceImpl
 	 *         com.liferay.portlet.dynamicdatamapping.storage.StorageType}.
 	 * @param  type the structure's type. For more information, see {@link
 	 *         com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants}.
-	 * @param  serviceContext the structure's service context. Can set the UUID,
-	 *         creation date, modification date, guest permissions and group
-	 *         permissions for the structure.
+	 * @param  serviceContext the service context to be applied. Can set the
+	 *         UUID, creation date, modification date, guest permissions and
+	 *         group permissions for the structure.
 	 * @return the structure
 	 * @throws PortalException if a user with the primary key could not be
 	 *         found, if the XSD was not well-formed, or if a portal exception
@@ -573,7 +575,8 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@link #getClassStructures(long, long)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	 *             long)}
 	 */
 	public List<DDMStructure> getClassStructures(long classNameId)
 		throws SystemException {
@@ -582,7 +585,8 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@link #getClassStructures(long, long, int, int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	 *             long, int, int)}
 	 */
 	public List<DDMStructure> getClassStructures(
 			long classNameId, int start, int end)
@@ -661,7 +665,8 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@link #getClassStructures(long, long, OrderByComparator)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
+	 *             long, OrderByComparator)}
 	 */
 	public List<DDMStructure> getClassStructures(
 			long classNameId, OrderByComparator orderByComparator)
@@ -789,14 +794,14 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@link #getStructures}
+	 * @deprecated As of 6.2.0, replaced by {@link #getStructures}
 	 */
 	public List<DDMStructure> getStructureEntries() throws SystemException {
 		return getStructures();
 	}
 
 	/**
-	 * @deprecated {@link #getStructures(long)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getStructures(long)}
 	 */
 	public List<DDMStructure> getStructureEntries(long groupId)
 		throws SystemException {
@@ -805,7 +810,8 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated {@link #getStructures(long, int, int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getStructures(long, int,
+	 *             int)}
 	 */
 	public List<DDMStructure> getStructureEntries(
 			long groupId, int start, int end)
@@ -963,6 +969,23 @@ public class DDMStructureLocalServiceImpl
 		throws SystemException {
 
 		return ddmStructurePersistence.findByGroupId(groupIds);
+	}
+
+	/**
+	 * Returns all the structures matching the class name ID and belonging to
+	 * the groups.
+	 *
+	 * @param  groupIds the primary keys of the groups
+	 * @param  classNameId the primary key of the class name for the structure's
+	 *         related model
+	 * @return the structures matching the class name ID and belonging to the
+	 *         groups
+	 * @throws SystemException if a system exception occurred
+	 */
+	public List<DDMStructure> getStructures(long[] groupIds, long classNameId)
+		throws SystemException {
+
+		return ddmStructurePersistence.findByG_C(groupIds, classNameId);
 	}
 
 	/**
@@ -1362,7 +1385,45 @@ public class DDMStructureLocalServiceImpl
 
 		syncStructureTemplatesFields(structure);
 
+		Indexer indexer = IndexerRegistryUtil.getIndexer(
+			structure.getClassName());
+
+		if (indexer != null) {
+			List<Long> ddmStructureIds = getChildrenStructureIds(
+				structure.getGroupId(), structure.getStructureId());
+
+			indexer.reindexDDMStructures(ddmStructureIds);
+		}
+
 		return structure;
+	}
+
+	protected void getChildrenStructureIds(
+			List<Long> structureIds, long groupId, long structureId)
+		throws PortalException, SystemException {
+
+		List<DDMStructure> structures = ddmStructurePersistence.findByG_P(
+			groupId, structureId);
+
+		for (DDMStructure structure : structures) {
+			structureIds.add(structure.getStructureId());
+
+			getChildrenStructureIds(
+				structureIds, structure.getGroupId(),
+				structure.getParentStructureId());
+		}
+	}
+
+	protected List<Long> getChildrenStructureIds(long groupId, long structureId)
+		throws PortalException, SystemException {
+
+		List<Long> structureIds = new ArrayList<Long>();
+
+		getChildrenStructureIds(structureIds, groupId, structureId);
+
+		structureIds.add(0, structureId);
+
+		return structureIds;
 	}
 
 	protected void syncStructureTemplatesFields(DDMStructure structure)
@@ -1528,7 +1589,12 @@ public class DDMStructureLocalServiceImpl
 			groupId, classNameId, structureKey);
 
 		if (structure != null) {
-			throw new StructureDuplicateStructureKeyException();
+			StructureDuplicateStructureKeyException sdske =
+				new StructureDuplicateStructureKeyException();
+
+			sdske.setStructureKey(structure.getStructureKey());
+
+			throw sdske;
 		}
 
 		validate(nameMap, xsd);

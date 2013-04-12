@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,11 +16,12 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +36,7 @@ import javax.servlet.ServletContext;
  * @author Brian Wing Shun Chan
  * @author Shuyang Zhou
  */
+@DoPrivileged
 public class PortletInstanceFactoryImpl implements PortletInstanceFactory {
 
 	public PortletInstanceFactoryImpl() {
@@ -122,7 +124,7 @@ public class PortletInstanceFactoryImpl implements PortletInstanceFactory {
 				PortletBagFactory portletBagFactory = new PortletBagFactory();
 
 				portletBagFactory.setClassLoader(
-					PACLClassLoaderUtil.getPortalClassLoader());
+					ClassLoaderUtil.getPortalClassLoader());
 				portletBagFactory.setServletContext(servletContext);
 				portletBagFactory.setWARFile(false);
 

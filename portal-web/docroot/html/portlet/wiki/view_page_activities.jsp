@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,11 @@
 <liferay-util:include page="/html/portlet/wiki/top_links.jsp" />
 
 <liferay-util:include page="/html/portlet/wiki/page_tabs.jsp">
-	<liferay-util:param name="tabs1" value="activities" />
+	<liferay-util:param name="tabs1" value="history" />
+</liferay-util:include>
+
+<liferay-util:include page="/html/portlet/wiki/page_tabs_history.jsp">
+	<liferay-util:param name="tabs3" value="activities" />
 </liferay-util:include>
 
 <%
@@ -33,12 +37,10 @@ portletURL.setParameter("title", wikiPage.getTitle());
 
 PortalUtil.addPortletBreadcrumbEntry(request, wikiPage.getTitle(), portletURL.toString());
 
-portletURL.setParameter("struts_action", "/wiki/view_page_activities");
+portletURL.setParameter("struts_action", "/wiki/view_page_history");
 portletURL.setParameter("redirect", currentURL);
-portletURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
-portletURL.setParameter("title", wikiPage.getTitle());
 
-PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "activities"), portletURL.toString());
+PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "history"), portletURL.toString());
 
 PortletURL iteratorURL = renderResponse.createRenderURL();
 
@@ -117,21 +119,21 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 								<liferay-ui:icon
 									image="clip"
 									label="<%= true %>"
-									message='<%= LanguageUtil.format(pageContext, "activity-wiki-add-attachment", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
+									message='<%= LanguageUtil.format(pageContext, "x-added-the-attachment-x", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
 								/>
 							</c:when>
 							<c:when test="<%= socialActivity.getType() == SocialActivityConstants.TYPE_MOVE_ATTACHMENT_TO_TRASH %>">
 								<liferay-ui:icon
 									image="delete_attachment"
 									label="<%= true %>"
-									message='<%= LanguageUtil.format(pageContext, "activity-wiki-delete-attachment", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
+									message='<%= LanguageUtil.format(pageContext, "x-removed-the-attachment-x", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
 								/>
 							</c:when>
 							<c:when test="<%= socialActivity.getType() == SocialActivityConstants.TYPE_RESTORE_ATTACHMENT_FROM_TRASH %>">
 								<liferay-ui:icon
 									image="undo"
 									label="<%= true %>"
-									message='<%= LanguageUtil.format(pageContext, "activity-wiki-restore-attachment", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
+									message='<%= LanguageUtil.format(pageContext, "x-restored-the-attachment-x", new Object[] {socialActivityUser.getFullName(), attachmentTitle}) %>'
 								/>
 							</c:when>
 						</c:choose>
@@ -161,22 +163,28 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 								<liferay-ui:icon
 									image="add_article"
 									label="<%= true %>"
-									message='<%= LanguageUtil.format(pageContext, "activity-wiki-add-page", new Object[] {StringPool.BLANK, socialActivityUser.getFullName(), pageTitleLink}) %>'
+									message='<%= LanguageUtil.format(pageContext, "x-added-the-page-x", new Object[] {socialActivityUser.getFullName(), pageTitleLink}) %>'
 								/>
 							</c:when >
 							<c:when test="<%= socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE %>">
 								<liferay-util:buffer var="pageTitleLink">
-									<aui:a href="<%= viewPageURL.toString() %>"><%= version %></aui:a>
+									<aui:a href="<%= viewPageURL.toString() %>">
+										<%= version %>
+
+										<c:if test="<%= socialActivityWikiPage.isMinorEdit() %>">
+											(<liferay-ui:message key="minor-edit" />)
+										</c:if>
+									</aui:a>
 								</liferay-util:buffer>
 
 								<liferay-ui:icon
 									image="edit"
 									label="<%= true %>"
-									message='<%= LanguageUtil.format(pageContext, "activity-wiki-update-page", new Object[] {socialActivityUser.getFullName(), pageTitleLink}) %>'
+									message='<%= LanguageUtil.format(pageContext, "x-updated-the-page-to-version-x", new Object[] {socialActivityUser.getFullName(), pageTitleLink}) %>'
 								/>
 
 								<c:if test="<%= socialActivityWikiPage.getStatus() != WorkflowConstants.STATUS_APPROVED %>">
-									<em><liferay-ui:message key="<%= WorkflowConstants.toLabel(socialActivityWikiPage.getStatus()) %>" /></em>
+									<span class="activity-status"><liferay-ui:message key="<%= WorkflowConstants.toLabel(socialActivityWikiPage.getStatus()) %>" /></span>
 								</c:if>
 
 								<c:if test="<%= Validator.isNotNull(socialActivityWikiPage.getSummary()) %>">

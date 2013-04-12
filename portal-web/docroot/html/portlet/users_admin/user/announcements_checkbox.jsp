@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,25 +22,36 @@ SearchEntry entry = (SearchEntry)request.getAttribute(WebKeys.SEARCH_CONTAINER_R
 
 AnnouncementsDelivery delivery = (AnnouncementsDelivery)row.getObject();
 
-int index = entry.getIndex();
-
-String param = "announcementsType" + delivery.getType();
 boolean defaultValue = false;
 boolean disabled = false;
+String messageKey = StringPool.BLANK;
+String param = "announcementsType" + delivery.getType();
+
+int index = entry.getIndex();
 
 if (index == 1) {
-	param += "Email";
 	defaultValue = delivery.isEmail();
+	messageKey = "receive-x-announcements-via-email";
+	param += "Email";
 }
 else if (index == 2) {
-	param += "Sms";
 	defaultValue = delivery.isSms();
+	messageKey = "receive-x-announcements-via-sms";
+	param += "Sms";
 }
 else if (index == 3) {
-	param += "Website";
 	defaultValue = delivery.isWebsite();
 	disabled = true;
+	messageKey = "receive-x-announcements-via-website";
+	param += "Website";
 }
 %>
 
-<aui:input disabled="<%= disabled %>" label="" name="<%= param %>" type="checkbox" value="<%= defaultValue %>" />
+<aui:input
+	disabled="<%= disabled %>"
+	label=""
+	name="<%= param %>"
+	title="<%= LanguageUtil.format(pageContext, messageKey, delivery.getType(), true) %>"
+	type="checkbox"
+	value="<%= defaultValue %>"
+/>

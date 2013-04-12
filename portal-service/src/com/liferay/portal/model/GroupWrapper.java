@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -42,6 +42,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("creatorUserId", getCreatorUserId());
@@ -62,6 +63,12 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long groupId = (Long)attributes.get("groupId");
 
 		if (groupId != null) {
@@ -169,6 +176,24 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	*/
 	public void setPrimaryKey(long primaryKey) {
 		_group.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	* Returns the uuid of this group.
+	*
+	* @return the uuid of this group
+	*/
+	public java.lang.String getUuid() {
+		return _group.getUuid();
+	}
+
+	/**
+	* Sets the uuid of this group.
+	*
+	* @param uuid the uuid of this group
+	*/
+	public void setUuid(java.lang.String uuid) {
+		_group.setUuid(uuid);
 	}
 
 	/**
@@ -525,6 +550,16 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_group.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_group.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_group.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -734,6 +769,10 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 		return _group.isLayoutSetPrototype();
 	}
 
+	public boolean isLimitedToParentSiteMembers() {
+		return _group.isLimitedToParentSiteMembers();
+	}
+
 	public boolean isOrganization() {
 		return _group.isOrganization();
 	}
@@ -788,7 +827,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public Group getWrappedGroup() {
 		return _group;

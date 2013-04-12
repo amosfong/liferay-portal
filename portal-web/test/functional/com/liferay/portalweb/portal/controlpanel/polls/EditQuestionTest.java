@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -75,6 +75,6 @@ public class EditQuestionTest extends BaseTestCase {
 			RuntimeVariables.replace("Edited Test Question 2"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("d. NEW Test Choice D"),
-			selenium.getText("//span[4]/span/label"));
+			selenium.getText("xPath=(//label[@class='aui-choice-label'])[4]"));
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -46,6 +46,10 @@ public class FacebookAutoLogin extends BaseAutoLogin {
 
 		User user = getUser(request, companyId);
 
+		if (user == null) {
+			return null;
+		}
+
 		String[] credentials = new String[3];
 
 		credentials[0] = String.valueOf(user.getUserId());
@@ -73,9 +77,13 @@ public class FacebookAutoLogin extends BaseAutoLogin {
 			long facebookId = GetterUtil.getLong(
 				(String)session.getAttribute(WebKeys.FACEBOOK_USER_ID));
 
-			return UserLocalServiceUtil.getUserByFacebookId(
-				companyId, facebookId);
+			if (facebookId > 0) {
+				return UserLocalServiceUtil.getUserByFacebookId(
+					companyId, facebookId);
+			}
 		}
+
+		return null;
 	}
 
 }

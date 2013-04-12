@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,12 +18,8 @@ import com.liferay.portal.kernel.lar.BasePortletDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandlerRegistryUtil;
-import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.xml.Document;
+import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
 
@@ -52,40 +48,9 @@ public class PortletDisplayTemplatePortletDataHandler
 			PortletPreferences portletPreferences)
 		throws Exception {
 
-		Element rootElement = addExportRootElement();
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
-		exportPortletDisplayTemplates(portletDataContext, rootElement);
-
-		return rootElement.formattedString();
-	}
-
-	@Override
-	protected PortletPreferences doImportData(
-			PortletDataContext portletDataContext, String portletId,
-			PortletPreferences portletPreferences, String data)
-		throws Exception {
-
-		Document document = SAXReaderUtil.read(data);
-
-		Element rootElement = document.getRootElement();
-
-		List<Element> ddmTemplateElements = rootElement.elements("template");
-
-		for (Element ddmTemplateElement : ddmTemplateElements) {
-			StagedModelDataHandlerUtil.importStagedModel(
-				portletDataContext, ddmTemplateElement);
-		}
-
-		return null;
-	}
-
-	protected void exportPortletDisplayTemplates(
-			PortletDataContext portletDataContext,
-			Element portletDisplayTemplatesElement)
-		throws Exception {
-
-		long[] classNameIds =
-			PortletDisplayTemplateHandlerRegistryUtil.getClassNameIds();
+		long[] classNameIds = TemplateHandlerRegistryUtil.getClassNameIds();
 
 		for (long classNameId : classNameIds) {
 			List<DDMTemplate> ddmTemplates =
@@ -94,25 +59,30 @@ public class PortletDisplayTemplatePortletDataHandler
 
 			for (DDMTemplate ddmTemplate : ddmTemplates) {
 				StagedModelDataHandlerUtil.exportStagedModel(
-					portletDataContext, portletDisplayTemplatesElement,
-					ddmTemplate);
+					portletDataContext, ddmTemplate);
 			}
 		}
+
+		return getExportDataRootElementString(rootElement);
 	}
 
-	protected String getTemplatePath(
-		PortletDataContext portletDataContext, DDMTemplate template) {
+	@Override
+	protected PortletPreferences doImportData(
+			PortletDataContext portletDataContext, String portletId,
+			PortletPreferences portletPreferences, String data)
+		throws Exception {
 
-		StringBundler sb = new StringBundler(4);
+		Element ddmTemplatesElement =
+			portletDataContext.getImportDataGroupElement(DDMTemplate.class);
 
-		sb.append(
-			portletDataContext.getPortletPath(
-				PortletKeys.PORTLET_DISPLAY_TEMPLATES));
-		sb.append("/templates/");
-		sb.append(template.getTemplateId());
-		sb.append(".xml");
+		List<Element> ddmTemplateElements = ddmTemplatesElement.elements();
 
-		return sb.toString();
+		for (Element ddmTemplateElement : ddmTemplateElements) {
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, ddmTemplateElement);
+		}
+
+		return null;
 	}
 
 }

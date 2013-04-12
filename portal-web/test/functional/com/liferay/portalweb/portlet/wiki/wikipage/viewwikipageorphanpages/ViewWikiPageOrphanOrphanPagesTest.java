@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,14 +25,13 @@ public class ViewWikiPageOrphanOrphanPagesTest extends BaseTestCase {
 		selenium.selectWindow("null");
 		selenium.selectFrame("relative=top");
 		selenium.open("/web/guest/home/");
-		selenium.waitForVisible("link=Wiki Test Page");
 		selenium.clickAt("link=Wiki Test Page",
 			RuntimeVariables.replace("Wiki Test Page"));
 		selenium.waitForPageToLoad("30000");
-		selenium.clickAt("link=Orphan Pages",
+		selenium.clickAt("//ul[@class='top-links-navigation']/li[contains(.,'Recent Changes')]/span/a/span",
 			RuntimeVariables.replace("Orphan Pages"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Wiki Page2 Title"),
-			selenium.getText("//tr[5]/td[1]/a"));
+			selenium.getText("//tr[contains(.,'Wiki Page2 Title')]/td[1]/a"));
 	}
 }

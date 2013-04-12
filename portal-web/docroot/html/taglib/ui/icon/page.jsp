@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,15 +17,7 @@
 <%@ include file="/html/taglib/ui/icon/init.jsp" %>
 
 <%
-String cssClassHtml = StringPool.BLANK;
-
-if (Validator.isNotNull(cssClass)) {
-	cssClassHtml = "class=\"".concat(cssClass).concat("\"");
-}
-
-boolean srcIsNotNull = Validator.isNotNull(src);
-
-if (srcIsNotNull && themeDisplay.isThemeImagesFastLoad() && !auiImage) {
+if (Validator.isNotNull(src) && themeDisplay.isThemeImagesFastLoad() && !auiImage) {
 	SpriteImage spriteImage = null;
 	String spriteFileName = null;
 	String spriteFileURL = null;
@@ -121,28 +113,11 @@ if (auiImage) {
 	imgClass = imgClass.concat(" aui-icon-").concat(image.substring(_AUI_PATH.length()));
 }
 
-boolean forcePost = method.equals("post") && (url.startsWith(Http.HTTP_WITH_SLASH) || url.startsWith(Http.HTTPS_WITH_SLASH));
-
-if (Validator.isNull(data)) {
-	data = new HashMap<String, Object>();
-}
-
-boolean scrHoverIsNotNull = Validator.isNotNull(srcHover);
-
-if (scrHoverIsNotNull || forcePost) {
-	data.put("force-post", forcePost);
-
-	if (scrHoverIsNotNull) {
-		data.put("src", src);
-		data.put("src-hover", srcHover);
-	}
-}
-
 boolean urlIsNotNull = Validator.isNotNull(url);
 %>
 
 <liferay-util:buffer var="linkContent">
-	<c:if test="<%= srcIsNotNull %>">
+	<c:if test="<%= Validator.isNotNull(src) %>">
 		<c:choose>
 			<c:when test="<%= urlIsNotNull %>">
 				<img class="<%= imgClass %>" src="<%= src %>" <%= details %> />
@@ -170,7 +145,7 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 
 <c:choose>
 	<c:when test="<%= (iconListIconCount != null) && ((iconListSingleIcon == null) || iconListShowWhenSingleIcon) %>">
-		<li <%= cssClassHtml %>>
+		<li class="<%= cssClass %>">
 			<c:choose>
 				<c:when test="<%= urlIsNotNull %>">
 					<aui:a cssClass='<%= linkCssClass + " taglib-icon" %>' data="<%= data %>" href="<%= url %>" id="<%= id %>" lang="<%= lang %>" target="<%= target %>">
@@ -184,7 +159,7 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 		</li>
 	</c:when>
 	<c:when test="<%= (iconMenuIconCount != null) && ((iconMenuSingleIcon == null) || iconMenuShowWhenSingleIcon) %>">
-		<li <%= cssClassHtml %>>
+		<li class="<%= cssClass %>">
 			<c:choose>
 				<c:when test="<%= urlIsNotNull %>">
 					<aui:a cssClass='<%= linkCssClass + " taglib-icon" %>' data="<%= data %>" href="<%= url %>" id="<%= id %>" lang="<%= lang %>" onClick='<%= Validator.isNotNull(onClick) ? onClick : "" %>' target="<%= target %>">
@@ -198,7 +173,7 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 		</li>
 	</c:when>
 	<c:otherwise>
-		<span <%= cssClassHtml %> >
+		<span class="<%= cssClass %>">
 			<c:choose>
 				<c:when test="<%= urlIsNotNull %>">
 					<aui:a cssClass='<%= linkCssClass + " taglib-icon" %>' data="<%= data %>" href="<%= url %>" id="<%= id %>" lang="<%= lang %>" onClick='<%= Validator.isNotNull(onClick) ? onClick : "" %>' target="<%= target %>">
@@ -213,8 +188,22 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 	</c:otherwise>
 </c:choose>
 
-<c:if test="<%= forcePost || scrHoverIsNotNull %>">
+<%
+boolean forcePost = method.equals("post") && (url.startsWith(Http.HTTP_WITH_SLASH) || url.startsWith(Http.HTTPS_WITH_SLASH));
+%>
+
+<c:if test="<%= Validator.isNotNull(srcHover) || forcePost %>">
 	<aui:script use="liferay-icon">
-		Liferay.Icon.register('<portlet:namespace /><%= id %>');
+		Liferay.Icon.register(
+			{
+				forcePost: <%= forcePost %>,
+				id: '<portlet:namespace /><%= id %>'
+
+				<c:if test="<%= Validator.isNotNull(srcHover) %>">
+					, src: '<%= src %>',
+					srcHover: '<%= srcHover %>'
+				</c:if>
+			}
+		);
 	</aui:script>
 </c:if>

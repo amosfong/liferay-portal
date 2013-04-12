@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,7 +36,6 @@ import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.LayoutStagingHandler;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalService;
 import com.liferay.portal.service.LayoutRevisionLocalServiceUtil;
@@ -46,7 +45,7 @@ import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.persistence.LayoutRevisionUtil;
 import com.liferay.portal.service.persistence.LayoutUtil;
 import com.liferay.portal.staging.StagingAdvicesThreadLocal;
-import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -280,6 +279,8 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 		originalLayout.setLayoutPrototypeLinkEnabled(
 			layoutPrototypeLinkEnabled);
 
+		originalLayout.setExpandoBridgeAttributes(serviceContext);
+
 		LayoutUtil.update(originalLayout);
 
 		boolean hasWorkflowTask = StagingUtil.hasWorkflowTask(
@@ -308,12 +309,6 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 					layoutRevision.getIconImageId(), iconBytes);
 			}
 		}
-
-		// Expando
-
-		ExpandoBridge expandoBridge = originalLayout.getExpandoBridge();
-
-		expandoBridge.setAttributes(serviceContext);
 
 		return layout;
 	}
@@ -488,8 +483,8 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 		}
 
 		return (Layout)ProxyUtil.newProxyInstance(
-			PACLClassLoaderUtil.getPortalClassLoader(),
-			new Class[] {Layout.class}, new LayoutStagingHandler(layout));
+			ClassLoaderUtil.getPortalClassLoader(), new Class[] {Layout.class},
+			new LayoutStagingHandler(layout));
 	}
 
 	protected List<Layout> wrapLayouts(

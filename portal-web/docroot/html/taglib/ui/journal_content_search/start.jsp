@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -37,9 +37,6 @@ else {
 	portletURL = new PortletURLImpl(request, PortletKeys.JOURNAL_CONTENT_SEARCH, plid, PortletRequest.RENDER_PHASE);
 }
 
-portletURL.setWindowState(WindowState.MAXIMIZED);
-portletURL.setPortletMode(PortletMode.VIEW);
-
 portletURL.setParameter("struts_action", "/journal_content_search/search");
 portletURL.setParameter("showListed", String.valueOf(showListed));
 
@@ -50,6 +47,9 @@ if (Validator.isNotNull(targetPortletId)) {
 if (Validator.isNotNull(type)) {
 	portletURL.setParameter("type", type);
 }
+
+portletURL.setPortletMode(PortletMode.VIEW);
+portletURL.setWindowState(WindowState.MAXIMIZED);
 %>
 
 <form action="<%= HtmlUtil.escape(portletURL.toString()) %>" class="aui-form" method="post" name="<%= namespace %>fm" onSubmit="submitForm(this); return false;">

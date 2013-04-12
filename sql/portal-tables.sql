@@ -681,7 +681,7 @@ create table DLFolder (
 	description STRING null,
 	lastPostDate DATE null,
 	defaultFileEntryTypeId LONG,
-	hidden BOOLEAN,
+	hidden_ BOOLEAN,
 	overrideFileEntryTypes BOOLEAN,
 	status INTEGER,
 	statusByUserId LONG,
@@ -756,6 +756,7 @@ create table ExpandoValue (
 );
 
 create table Group_ (
+	uuid_ VARCHAR(75) null,
 	groupId LONG not null primary key,
 	companyId LONG,
 	creatorUserId LONG,
@@ -768,7 +769,7 @@ create table Group_ (
 	description STRING null,
 	type_ INTEGER,
 	typeSettings STRING null,
-	friendlyURL VARCHAR(100) null,
+	friendlyURL VARCHAR(255) null,
 	site BOOLEAN,
 	active_ BOOLEAN
 );
@@ -901,7 +902,11 @@ create table JournalFolder (
 	modifiedDate DATE null,
 	parentFolderId LONG,
 	name VARCHAR(100) null,
-	description STRING null
+	description STRING null,
+	status INTEGER,
+	statusByUserId LONG,
+	statusByUserName VARCHAR(75) null,
+	statusDate DATE null
 );
 
 create table JournalStructure (
@@ -958,7 +963,7 @@ create table Layout (
 	robots STRING null,
 	type_ VARCHAR(75) null,
 	typeSettings TEXT null,
-	hidden BOOLEAN,
+	hidden_ BOOLEAN,
 	friendlyURL VARCHAR(255) null,
 	iconImage BOOLEAN,
 	iconImageId LONG,
@@ -990,6 +995,10 @@ create table LayoutPrototype (
 	uuid_ VARCHAR(75) null,
 	layoutPrototypeId LONG not null primary key,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	name STRING null,
 	description STRING null,
 	settings_ STRING null,
@@ -1078,6 +1087,8 @@ create table LayoutSetPrototype (
 	uuid_ VARCHAR(75) null,
 	layoutSetPrototypeId LONG not null primary key,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
 	name STRING null,
@@ -1107,6 +1118,7 @@ create table Lock_ (
 );
 
 create table MBBan (
+	uuid_ VARCHAR(75) null,
 	banId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
@@ -1140,7 +1152,14 @@ create table MBCategory (
 );
 
 create table MBDiscussion (
+	uuid_ VARCHAR(75) null,
 	discussionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
 	threadId LONG
@@ -1212,9 +1231,14 @@ create table MBStatsUser (
 );
 
 create table MBThread (
+	uuid_ VARCHAR(75) null,
 	threadId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	categoryId LONG,
 	rootMessageId LONG,
 	rootMessageUserId LONG,
@@ -1231,8 +1255,13 @@ create table MBThread (
 );
 
 create table MBThreadFlag (
+	uuid_ VARCHAR(75) null,
 	threadFlagId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
 	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
 	modifiedDate DATE null,
 	threadId LONG
 );
@@ -1313,8 +1342,13 @@ create table MembershipRequest (
 );
 
 create table Organization_ (
+	uuid_ VARCHAR(75) null,
 	organizationId LONG not null primary key,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	parentOrganizationId LONG,
 	treePath STRING null,
 	name VARCHAR(100) null,
@@ -1354,6 +1388,7 @@ create table OrgLabor (
 );
 
 create table PasswordPolicy (
+	uuid_ VARCHAR(75) null,
 	passwordPolicyId LONG not null primary key,
 	companyId LONG,
 	userId LONG,
@@ -1430,6 +1465,12 @@ create table PluginSetting (
 create table PollsChoice (
 	uuid_ VARCHAR(75) null,
 	choiceId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	questionId LONG,
 	name VARCHAR(75) null,
 	description STRING null
@@ -1451,7 +1492,9 @@ create table PollsQuestion (
 );
 
 create table PollsVote (
+	uuid_ VARCHAR(75) null,
 	voteId LONG not null primary key,
+	groupId LONG,
 	companyId LONG,
 	userId LONG,
 	userName VARCHAR(75) null,
@@ -1561,6 +1604,11 @@ create table RepositoryEntry (
 	uuid_ VARCHAR(75) null,
 	repositoryEntryId LONG not null primary key,
 	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	repositoryId LONG,
 	mappedId VARCHAR(75) null,
 	manualCheckInRequired BOOLEAN
@@ -1610,8 +1658,13 @@ create table ResourceTypePermission (
 );
 
 create table Role_ (
+	uuid_ VARCHAR(75) null,
 	roleId LONG not null primary key,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
 	name VARCHAR(75) null,
@@ -2091,8 +2144,13 @@ create table User_ (
 );
 
 create table UserGroup (
+	uuid_ VARCHAR(75) null,
 	userGroupId LONG not null primary key,
 	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
 	parentUserGroupId LONG,
 	name VARCHAR(75) null,
 	description STRING null,

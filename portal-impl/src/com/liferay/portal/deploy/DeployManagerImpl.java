@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,9 +19,9 @@ import com.liferay.portal.kernel.deploy.DeployManager;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployListener;
 import com.liferay.portal.kernel.deploy.auto.context.AutoDeploymentContext;
 import com.liferay.portal.kernel.plugin.PluginPackage;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.plugin.PluginPackageUtil;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
 
 import java.io.File;
 
@@ -33,6 +33,7 @@ import java.util.Properties;
  * @author Brian Wing Shun Chan
  * @author Ryan Park
  */
+@DoPrivileged
 public class DeployManagerImpl implements DeployManager {
 
 	public void deploy(AutoDeploymentContext autoDeploymentContext)
@@ -58,16 +59,7 @@ public class DeployManagerImpl implements DeployManager {
 			return file.getAbsolutePath();
 		}
 
-		boolean enabled = PortalSecurityManagerThreadLocal.isEnabled();
-
-		try {
-			PortalSecurityManagerThreadLocal.setEnabled(false);
-
-			return DeployUtil.getAutoDeployDestDir();
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setEnabled(enabled);
-		}
+		return DeployUtil.getAutoDeployDestDir();
 	}
 
 	public PluginPackage getInstalledPluginPackage(String context) {

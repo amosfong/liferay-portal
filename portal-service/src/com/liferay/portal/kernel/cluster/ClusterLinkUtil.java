@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -28,8 +28,12 @@ import java.util.List;
  */
 public class ClusterLinkUtil {
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             ClusterLink#CLUSTER_FORWARD_MESSAGE}
+	 */
 	public static final String CLUSTER_FORWARD_MESSAGE =
-		"CLUSTER_FORWARD_MESSAGE";
+		ClusterLink.CLUSTER_FORWARD_MESSAGE;
 
 	public static Address getAddress(Message message) {
 		return (Address)message.get(_ADDRESS);
@@ -70,7 +74,7 @@ public class ClusterLinkUtil {
 	}
 
 	public static boolean isForwardMessage(Message message) {
-		return message.getBoolean(CLUSTER_FORWARD_MESSAGE);
+		return message.getBoolean(ClusterLink.CLUSTER_FORWARD_MESSAGE);
 	}
 
 	public static void sendMulticastMessage(
@@ -112,7 +116,7 @@ public class ClusterLinkUtil {
 	}
 
 	public static void setForwardMessage(Message message) {
-		message.put(CLUSTER_FORWARD_MESSAGE, true);
+		message.put(ClusterLink.CLUSTER_FORWARD_MESSAGE, true);
 	}
 
 	public void setClusterLink(ClusterLink clusterLink) {

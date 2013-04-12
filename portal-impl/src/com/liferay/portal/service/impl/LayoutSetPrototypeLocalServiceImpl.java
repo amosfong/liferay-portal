@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.LayoutSetPrototypeLocalServiceBaseImpl;
@@ -49,6 +50,7 @@ public class LayoutSetPrototypeLocalServiceImpl
 
 		// Layout set prototype
 
+		User user = userPersistence.findByPrimaryKey(userId);
 		Date now = new Date();
 
 		long layoutSetPrototypeId = counterLocalService.increment();
@@ -58,6 +60,8 @@ public class LayoutSetPrototypeLocalServiceImpl
 
 		layoutSetPrototype.setUuid(serviceContext.getUuid());
 		layoutSetPrototype.setCompanyId(companyId);
+		layoutSetPrototype.setUserId(userId);
+		layoutSetPrototype.setUserName(user.getFullName());
 		layoutSetPrototype.setCreateDate(serviceContext.getCreateDate(now));
 		layoutSetPrototype.setModifiedDate(serviceContext.getModifiedDate(now));
 		layoutSetPrototype.setNameMap(nameMap);
@@ -152,9 +156,17 @@ public class LayoutSetPrototypeLocalServiceImpl
 		return deleteLayoutSetPrototype(layoutSetPrototype);
 	}
 
+	public LayoutSetPrototype fetchLayoutSetPrototypeByUuidAndCompanyId(
+			String uuid, long companyId)
+		throws SystemException {
+
+		return layoutSetPrototypePersistence.fetchByUuid_C_First(
+			uuid, companyId, null);
+	}
+
 	/**
-	 * @deprecated {@link #getLayoutSetPrototypeByUuidAndCompanyId(String,
-	 *             long)}
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             #getLayoutSetPrototypeByUuidAndCompanyId(String, long)}
 	 */
 	public LayoutSetPrototype getLayoutSetPrototypeByUuid(String uuid)
 		throws PortalException, SystemException {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,11 +15,14 @@
 package com.liferay.portal.model;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
+
+import java.util.Date;
 
 /**
  * The base model interface for the Organization service. Represents a row in the &quot;Organization_&quot; database table, with each column mapped to a property of this class.
@@ -34,7 +37,7 @@ import java.io.Serializable;
  * @see com.liferay.portal.model.impl.OrganizationModelImpl
  * @generated
  */
-public interface OrganizationModel extends BaseModel<Organization> {
+public interface OrganizationModel extends BaseModel<Organization>, StagedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -54,6 +57,21 @@ public interface OrganizationModel extends BaseModel<Organization> {
 	 * @param primaryKey the primary key of this organization
 	 */
 	public void setPrimaryKey(long primaryKey);
+
+	/**
+	 * Returns the uuid of this organization.
+	 *
+	 * @return the uuid of this organization
+	 */
+	@AutoEscape
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this organization.
+	 *
+	 * @param uuid the uuid of this organization
+	 */
+	public void setUuid(String uuid);
 
 	/**
 	 * Returns the organization ID of this organization.
@@ -82,6 +100,78 @@ public interface OrganizationModel extends BaseModel<Organization> {
 	 * @param companyId the company ID of this organization
 	 */
 	public void setCompanyId(long companyId);
+
+	/**
+	 * Returns the user ID of this organization.
+	 *
+	 * @return the user ID of this organization
+	 */
+	public long getUserId();
+
+	/**
+	 * Sets the user ID of this organization.
+	 *
+	 * @param userId the user ID of this organization
+	 */
+	public void setUserId(long userId);
+
+	/**
+	 * Returns the user uuid of this organization.
+	 *
+	 * @return the user uuid of this organization
+	 * @throws SystemException if a system exception occurred
+	 */
+	public String getUserUuid() throws SystemException;
+
+	/**
+	 * Sets the user uuid of this organization.
+	 *
+	 * @param userUuid the user uuid of this organization
+	 */
+	public void setUserUuid(String userUuid);
+
+	/**
+	 * Returns the user name of this organization.
+	 *
+	 * @return the user name of this organization
+	 */
+	@AutoEscape
+	public String getUserName();
+
+	/**
+	 * Sets the user name of this organization.
+	 *
+	 * @param userName the user name of this organization
+	 */
+	public void setUserName(String userName);
+
+	/**
+	 * Returns the create date of this organization.
+	 *
+	 * @return the create date of this organization
+	 */
+	public Date getCreateDate();
+
+	/**
+	 * Sets the create date of this organization.
+	 *
+	 * @param createDate the create date of this organization
+	 */
+	public void setCreateDate(Date createDate);
+
+	/**
+	 * Returns the modified date of this organization.
+	 *
+	 * @return the modified date of this organization
+	 */
+	public Date getModifiedDate();
+
+	/**
+	 * Sets the modified date of this organization.
+	 *
+	 * @param modifiedDate the modified date of this organization
+	 */
+	public void setModifiedDate(Date modifiedDate);
 
 	/**
 	 * Returns the parent organization ID of this organization.
@@ -234,6 +324,10 @@ public interface OrganizationModel extends BaseModel<Organization> {
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

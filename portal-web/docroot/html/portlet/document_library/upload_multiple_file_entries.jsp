@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,7 +188,12 @@ long folderId = BeanParamUtil.getLong(fileEntry, request, "folderId");
 										<portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" />
 									</liferay-portlet:resourceURL>
 
-									commonFileMetadataContainer.load('<%= uploadMultipleFileEntries %>');
+									if (commonFileMetadataContainer.io) {
+										commonFileMetadataContainer.io.start();
+									}
+									else {
+										commonFileMetadataContainer.load('<%= uploadMultipleFileEntries %>');
+									}
 
 									Liferay.fire('filesSaved');
 								},

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.trash.TrashRenderer;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.security.permission.PermissionChecker;
@@ -33,7 +34,6 @@ import com.liferay.portlet.wiki.asset.WikiNodeTrashRenderer;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.model.WikiPage;
 import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
-import com.liferay.portlet.wiki.service.WikiNodeServiceUtil;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiNodePermission;
 
@@ -50,8 +50,6 @@ import javax.portlet.PortletURL;
  */
 public class WikiNodeTrashHandler extends BaseTrashHandler {
 
-	public static final String CLASS_NAME = WikiNode.class.getName();
-
 	@Override
 	public void checkDuplicateTrashEntry(
 			TrashEntry trashEntry, long containerModelId, String newName)
@@ -61,6 +59,10 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 			trashEntry.getClassPK());
 
 		String originalTitle = trashEntry.getTypeSettingsProperty("title");
+
+		if (Validator.isNotNull(newName)) {
+			originalTitle = newName;
+		}
 
 		WikiNode duplicateNode = WikiNodeLocalServiceUtil.fetchWikiNode(
 			node.getGroupId(), originalTitle);
@@ -76,21 +78,14 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		}
 	}
 
-	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
+	public void deleteTrashEntry(long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			if (checkPermission) {
-				WikiNodeServiceUtil.deleteNode(classPK);
-			}
-			else {
-				WikiNodeLocalServiceUtil.deleteNode(classPK);
-			}
-		}
+		WikiNodeLocalServiceUtil.deleteNode(classPK);
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return WikiNode.class.getName();
 	}
 
 	@Override
@@ -184,12 +179,12 @@ public class WikiNodeTrashHandler extends BaseTrashHandler {
 		return node.isInTrash();
 	}
 
-	public void restoreTrashEntries(long[] classPKs)
+	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			WikiNodeServiceUtil.restoreNodeFromTrash(classPK);
-		}
+		WikiNode node = WikiNodeLocalServiceUtil.getNode(classPK);
+
+		WikiNodeLocalServiceUtil.restoreNodeFromTrash(userId, node);
 	}
 
 	@Override

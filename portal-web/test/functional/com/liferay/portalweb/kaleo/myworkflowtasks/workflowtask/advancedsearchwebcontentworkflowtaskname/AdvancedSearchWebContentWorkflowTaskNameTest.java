@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -65,6 +65,8 @@ public class AdvancedSearchWebContentWorkflowTaskNameTest extends BaseTestCase {
 				selenium.waitForVisible("//select[@id='_153_andOperator']");
 				selenium.select("//select[@id='_153_andOperator']",
 					RuntimeVariables.replace("label=Any"));
+				assertEquals(RuntimeVariables.replace("Task"),
+					selenium.getText("//label[@for='_153_name']"));
 				selenium.type("//input[@id='_153_name']",
 					RuntimeVariables.replace("Review"));
 				selenium.select("//select[@id='_153_type']",
@@ -97,7 +99,7 @@ public class AdvancedSearchWebContentWorkflowTaskNameTest extends BaseTestCase {
 				assertEquals(RuntimeVariables.replace(
 						"There are no pending tasks assigned to your roles with the specified search criteria."),
 					selenium.getText(
-						"xPath=(//div[@class='portlet-msg-info'])[2]"));
+						"xPath=(//div[@class='portlet-msg-info'])[3]"));
 				selenium.clickAt("//a[.='\u00ab Basic']",
 					RuntimeVariables.replace("\u00ab Basic"));
 

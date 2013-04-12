@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -38,8 +38,8 @@ public class ConfigureWebContentSingleApproverScopeOrganizationTest
 		selenium.clickAt("link=Control Panel",
 			RuntimeVariables.replace("Control Panel"));
 		selenium.waitForPageToLoad("30000");
-		Thread.sleep(5000);
-		selenium.clickAt("//strong/a/span",
+		Thread.sleep(1000);
+		selenium.clickAt("//a[@id='_160_groupSelectorButton']/span",
 			RuntimeVariables.replace("Scope Selector"));
 		selenium.waitForVisible(
 			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Organization Name')]");
@@ -49,9 +49,10 @@ public class ConfigureWebContentSingleApproverScopeOrganizationTest
 		selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Organization Name')]",
 			RuntimeVariables.replace("Organization Name"));
 		selenium.waitForPageToLoad("30000");
-		selenium.waitForText("//strong/a/span", "Organization Name");
+		selenium.waitForText("//a[@id='_160_groupSelectorButton']/span",
+			"Organization Name");
 		assertEquals(RuntimeVariables.replace("Organization Name"),
-			selenium.getText("//strong/a/span"));
+			selenium.getText("//a[@id='_160_groupSelectorButton']/span"));
 		selenium.clickAt("link=Workflow Configuration",
 			RuntimeVariables.replace("Workflow Configuration"));
 		selenium.waitForPageToLoad("30000");

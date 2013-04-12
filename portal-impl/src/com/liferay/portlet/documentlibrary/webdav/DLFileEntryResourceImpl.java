@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,7 +30,7 @@ import java.io.InputStream;
 public class DLFileEntryResourceImpl extends BaseResourceImpl {
 
 	public DLFileEntryResourceImpl(
-		WebDAVRequest webDavRequest, FileEntry fileEntry, String parentPath,
+		WebDAVRequest webDAVRequest, FileEntry fileEntry, String parentPath,
 		String name) {
 
 		super(
@@ -41,7 +41,7 @@ public class DLFileEntryResourceImpl extends BaseResourceImpl {
 		setClassName(DLFileEntry.class.getName());
 		setPrimaryKey(fileEntry.getPrimaryKey());
 
-		//_webDavRequest = webDavRequest;
+		//_webDAVRequest = webDAVRequest;
 		_fileEntry = fileEntry;
 	}
 

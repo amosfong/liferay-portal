@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -174,7 +174,7 @@ else {
 				</c:if>
 
 				<%
-				List<DDMStructure> ddmStructures = DDMStructureLocalServiceUtil.getStructures(scopeGroupId, PortalUtil.getClassNameId(JournalArticle.class));
+				List<DDMStructure> ddmStructures = DDMStructureLocalServiceUtil.getStructures(PortalUtil.getSiteAndCompanyGroupIds(themeDisplay), PortalUtil.getClassNameId(JournalArticle.class));
 				%>
 
 				<c:if test="<%= !ddmStructures.isEmpty() %>">
@@ -195,7 +195,7 @@ else {
 					%>
 
 					<liferay-ui:app-view-navigation-entry
-						cssClassName="folder structure"
+						cssClass="folder structure"
 						dataView="<%= dataView %>"
 						entryTitle='<%= LanguageUtil.get(pageContext, "basic-web-content") %>'
 						iconImage="copy"
@@ -225,7 +225,7 @@ else {
 					%>
 
 					<liferay-ui:app-view-navigation-entry
-						cssClassName="folder structure"
+						cssClass="folder structure"
 						dataView="<%= dataView %>"
 						entryTitle="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
 						iconImage="copy"

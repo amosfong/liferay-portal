@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -143,12 +143,14 @@ public class CopyStructureAction extends PortletAction {
 
 		Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
 			actionRequest, "name");
+		Map<Locale, String> descriptionMap =
+			LocalizationUtil.getLocalizationMap(actionRequest, "description");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			DDMStructure.class.getName(), actionRequest);
 
 		DDMStructure structure = DDMStructureServiceUtil.copyStructure(
-			classPK, nameMap, null, serviceContext);
+			classPK, nameMap, descriptionMap, serviceContext);
 
 		copyTemplates(actionRequest, classPK, structure.getStructureId());
 
@@ -195,8 +197,6 @@ public class CopyStructureAction extends PortletAction {
 			actionRequest, portletConfig.getPortletName(),
 			themeDisplay.getPlid(), PortletRequest.RENDER_PHASE);
 
-		portletURL.setWindowState(actionRequest.getWindowState());
-
 		portletURL.setParameter(
 			"struts_action", "/dynamic_data_mapping/copy_structure");
 
@@ -213,6 +213,7 @@ public class CopyStructureAction extends PortletAction {
 		portletURL.setParameter(
 			"copyListTemplates",
 			ParamUtil.getString(actionRequest, "copyListTemplates"), false);
+		portletURL.setWindowState(actionRequest.getWindowState());
 
 		return portletURL.toString();
 	}

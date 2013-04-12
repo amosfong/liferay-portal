@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -50,7 +50,37 @@ public class DLFolderSearchTest extends BaseSearchTestCase {
 	}
 
 	@Override
+	public void testSearchByDDMStructureField() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
 	public void testSearchComments() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireAllVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchExpireLatestVersion() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchStatus() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchVersions() throws Exception {
+		Assert.assertTrue("This test does not apply", true);
+	}
+
+	@Override
+	public void testSearchWithinDDMStructure() throws Exception {
 		Assert.assertTrue("This test does not apply", true);
 	}
 
@@ -63,8 +93,7 @@ public class DLFolderSearchTest extends BaseSearchTestCase {
 		DLFolder parentDLFolder = (DLFolder)parentBaseModel;
 
 		Folder folder = DLAppTestUtil.addFolder(
-			parentDLFolder.getGroupId(), parentDLFolder.getFolderId(),
-			keywords);
+			parentDLFolder.getFolderId(), keywords, serviceContext);
 
 		return (DLFolder)folder.getModel();
 	}
@@ -80,8 +109,9 @@ public class DLFolderSearchTest extends BaseSearchTestCase {
 		throws Exception {
 
 		Folder folder = DLAppTestUtil.addFolder(
-			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			ServiceTestUtil.randomString(_FOLDER_NAME_MAX_LENGTH));
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			ServiceTestUtil.randomString(_FOLDER_NAME_MAX_LENGTH),
+			serviceContext);
 
 		return (DLFolder)folder.getModel();
 	}

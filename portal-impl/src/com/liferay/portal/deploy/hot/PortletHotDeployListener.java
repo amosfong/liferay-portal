@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -80,6 +80,7 @@ import com.liferay.portlet.PortletResourceBundles;
 import com.liferay.portlet.PortletURLListenerFactory;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
+import com.liferay.portlet.social.model.SocialActivityInterpreter;
 import com.liferay.portlet.social.service.SocialActivityInterpreterLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialRequestInterpreterLocalServiceUtil;
 import com.liferay.util.bridges.php.PHPPortlet;
@@ -235,8 +236,17 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		POPServerUtil.deleteListener(portlet.getPopMessageListenerInstance());
 
-		SocialActivityInterpreterLocalServiceUtil.deleteActivityInterpreter(
-			portlet.getSocialActivityInterpreterInstance());
+		List<SocialActivityInterpreter> socialActivityInterpreters =
+			portlet.getSocialActivityInterpreterInstances();
+
+		if (socialActivityInterpreters != null) {
+			for (SocialActivityInterpreter socialActivityInterpreter :
+					socialActivityInterpreters) {
+
+				SocialActivityInterpreterLocalServiceUtil.
+					deleteActivityInterpreter(socialActivityInterpreter);
+			}
+		}
 
 		SocialRequestInterpreterLocalServiceUtil.deleteRequestInterpreter(
 			portlet.getSocialRequestInterpreterInstance());

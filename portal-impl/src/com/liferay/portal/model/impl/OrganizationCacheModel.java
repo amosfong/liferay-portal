@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.Date;
+
 /**
  * The cache model class for representing Organization in entity cache.
  *
@@ -35,12 +37,22 @@ public class OrganizationCacheModel implements CacheModel<Organization>,
 	Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(33);
 
-		sb.append("{organizationId=");
+		sb.append("{uuid=");
+		sb.append(uuid);
+		sb.append(", organizationId=");
 		sb.append(organizationId);
 		sb.append(", companyId=");
 		sb.append(companyId);
+		sb.append(", userId=");
+		sb.append(userId);
+		sb.append(", userName=");
+		sb.append(userName);
+		sb.append(", createDate=");
+		sb.append(createDate);
+		sb.append(", modifiedDate=");
+		sb.append(modifiedDate);
 		sb.append(", parentOrganizationId=");
 		sb.append(parentOrganizationId);
 		sb.append(", treePath=");
@@ -67,8 +79,38 @@ public class OrganizationCacheModel implements CacheModel<Organization>,
 	public Organization toEntityModel() {
 		OrganizationImpl organizationImpl = new OrganizationImpl();
 
+		if (uuid == null) {
+			organizationImpl.setUuid(StringPool.BLANK);
+		}
+		else {
+			organizationImpl.setUuid(uuid);
+		}
+
 		organizationImpl.setOrganizationId(organizationId);
 		organizationImpl.setCompanyId(companyId);
+		organizationImpl.setUserId(userId);
+
+		if (userName == null) {
+			organizationImpl.setUserName(StringPool.BLANK);
+		}
+		else {
+			organizationImpl.setUserName(userName);
+		}
+
+		if (createDate == Long.MIN_VALUE) {
+			organizationImpl.setCreateDate(null);
+		}
+		else {
+			organizationImpl.setCreateDate(new Date(createDate));
+		}
+
+		if (modifiedDate == Long.MIN_VALUE) {
+			organizationImpl.setModifiedDate(null);
+		}
+		else {
+			organizationImpl.setModifiedDate(new Date(modifiedDate));
+		}
+
 		organizationImpl.setParentOrganizationId(parentOrganizationId);
 
 		if (treePath == null) {
@@ -110,8 +152,13 @@ public class OrganizationCacheModel implements CacheModel<Organization>,
 	}
 
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		uuid = objectInput.readUTF();
 		organizationId = objectInput.readLong();
 		companyId = objectInput.readLong();
+		userId = objectInput.readLong();
+		userName = objectInput.readUTF();
+		createDate = objectInput.readLong();
+		modifiedDate = objectInput.readLong();
 		parentOrganizationId = objectInput.readLong();
 		treePath = objectInput.readUTF();
 		name = objectInput.readUTF();
@@ -125,8 +172,26 @@ public class OrganizationCacheModel implements CacheModel<Organization>,
 
 	public void writeExternal(ObjectOutput objectOutput)
 		throws IOException {
+		if (uuid == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(uuid);
+		}
+
 		objectOutput.writeLong(organizationId);
 		objectOutput.writeLong(companyId);
+		objectOutput.writeLong(userId);
+
+		if (userName == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(userName);
+		}
+
+		objectOutput.writeLong(createDate);
+		objectOutput.writeLong(modifiedDate);
 		objectOutput.writeLong(parentOrganizationId);
 
 		if (treePath == null) {
@@ -163,8 +228,13 @@ public class OrganizationCacheModel implements CacheModel<Organization>,
 		}
 	}
 
+	public String uuid;
 	public long organizationId;
 	public long companyId;
+	public long userId;
+	public String userName;
+	public long createDate;
+	public long modifiedDate;
 	public long parentOrganizationId;
 	public String treePath;
 	public String name;

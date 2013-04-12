@@ -52,6 +52,8 @@
 
 		<delete dir="${module.framework.base.dir}" />
 
+		<delete dir="test-coverage" />
+
 		<if>
 			<equals arg1="${app.server.type}" arg2="glassfish" />
 			<then>
@@ -148,8 +150,8 @@
 
 		<ant dir="portal-impl" target="compile" inheritAll="false" />
 
-		<ant dir="osgi/bootstrap" target="compile" inheritAll="false" />
-		<ant dir="osgi/modules" target="compile" inheritAll="false" />
+		<ant dir="osgi/bootstrap" target="deploy" inheritAll="false" />
+		<ant dir="osgi/modules" target="deploy" inheritAll="false" />
 	</target>
 
 	<target name="deploy">
@@ -192,9 +194,6 @@ ${app.server.tomcat.dir}, then run "ant -buildfile build-dist.xml unzip-tomcat".
 
 		<ant dir="portal-impl" target="deploy" inheritAll="false" />
 
-		<ant dir="osgi/bootstrap" target="deploy" inheritAll="false" />
-		<ant dir="osgi/modules" target="deploy" inheritAll="false" />
-
 		<ant dir="portal-web" target="deploy" inheritAll="false" />
 
 		<copy todir="${liferay.home}/data/hsql">
@@ -225,15 +224,6 @@ ${app.server.tomcat.dir}, then run "ant -buildfile build-dist.xml unzip-tomcat".
 
 		<copy todir="${app.server.lib.portal.dir}">
 			<fileset dir="lib/portal" />
-		</copy>
-
-		<copy todir="${liferay.home}/data/osgi/core">
-			<fileset dir="osgi/lib/${module.framework.implementation}/core" includes="*.jar" />
-		</copy>
-
-		<copy todir="${liferay.home}/data/osgi/portal">
-			<fileset dir="osgi/lib/common/portal" includes="*.jar" />
-			<fileset dir="osgi/lib/${module.framework.implementation}/portal" includes="*.jar" />
 		</copy>
 
 		<if>
@@ -486,7 +476,11 @@ ${app.server.tomcat.dir}, then run "ant -buildfile build-dist.xml unzip-tomcat".
 		<if>
 			<equals arg1="${app.server.type}" arg2="websphere" />
 			<then>
-				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe">
+				<exec dir="${app.server.websphere.bin.dir}" executable="/bin/sh" os="${os.unix}">
+					<arg line="startServer.sh server1" />
+				</exec>
+
+				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe" os="${os.windows}">
 					<arg line="/c startServer.bat server1" />
 				</exec>
 
@@ -524,13 +518,21 @@ print AdminConfig.save()
 print AdminControl.invoke(appManager, 'startApplication', 'liferay-portal')
 				</echo>
 
-				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe">
+				<exec dir="${app.server.websphere.bin.dir}" executable="/bin/sh" os="${os.unix}">
+					<arg line="wsadmin.sh -f ${basedir}/wsadmin.py" />
+				</exec>
+
+				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe" os="${os.windows}">
 					<arg line="/c wsadmin.bat -f ${basedir}\wsadmin.py" />
 				</exec>
 
 				<delete file="wsadmin.py" />
 
-				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe">
+				<exec dir="${app.server.websphere.bin.dir}" executable="/bin/sh" os="${os.unix}">
+					<arg line="stopServer.sh server1" />
+				</exec>
+
+				<exec dir="${app.server.websphere.bin.dir}" executable="cmd.exe" os="${os.windows}">
 					<arg line="/c stopServer.bat server1" />
 				</exec>
 			</then>
@@ -540,9 +542,22 @@ print AdminControl.invoke(appManager, 'startApplication', 'liferay-portal')
 	</target>
 
 	<target name="deploy-properties">
-		<copy todir="${app.server.classes.portal.dir}" overwrite="true">
-			<fileset dir="portal-impl/src" includes="portal-*.properties,system-*.properties" />
-		</copy>
+		<if>
+			<and>
+				<equals arg1="${app.server.bundled}" arg2="true" />
+				<equals arg1="${app.server.type}" arg2="glassfish" />
+			</and>
+			<then>
+				<war destfile="${app.server.glassfish.portal.dir}" update="true">
+					<classes dir="portal-impl/src" includes="portal-*.properties,system-*.properties" />
+				</war>
+			</then>
+			<else>
+				<copy todir="${app.server.classes.portal.dir}" overwrite="true">
+					<fileset dir="portal-impl/src" includes="portal-*.properties,system-*.properties" />
+				</copy>
+			</else>
+		</if>
 	</target>
 
 	<target name="dist">
@@ -585,9 +600,6 @@ print AdminControl.invoke(appManager, 'startApplication', 'liferay-portal')
 		<ant dir="util-taglib" target="jar" inheritAll="false" />
 
 		<ant dir="portal-impl" target="jar" inheritAll="false" />
-
-		<ant dir="osgi/bootstrap" target="jar" inheritAll="false" />
-		<ant dir="osgi/modules" target="jar" inheritAll="false" />
 
 		<ant dir="portal-web" target="war" inheritAll="false" />
 

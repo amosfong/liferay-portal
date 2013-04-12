@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,14 +15,20 @@
 package com.liferay.portlet.messageboards.service.persistence;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
@@ -109,7 +115,17 @@ public class MBThreadFlagPersistenceTest {
 
 		MBThreadFlag newMBThreadFlag = _persistence.create(pk);
 
+		newMBThreadFlag.setUuid(ServiceTestUtil.randomString());
+
+		newMBThreadFlag.setGroupId(ServiceTestUtil.nextLong());
+
+		newMBThreadFlag.setCompanyId(ServiceTestUtil.nextLong());
+
 		newMBThreadFlag.setUserId(ServiceTestUtil.nextLong());
+
+		newMBThreadFlag.setUserName(ServiceTestUtil.randomString());
+
+		newMBThreadFlag.setCreateDate(ServiceTestUtil.nextDate());
 
 		newMBThreadFlag.setModifiedDate(ServiceTestUtil.nextDate());
 
@@ -119,10 +135,21 @@ public class MBThreadFlagPersistenceTest {
 
 		MBThreadFlag existingMBThreadFlag = _persistence.findByPrimaryKey(newMBThreadFlag.getPrimaryKey());
 
+		Assert.assertEquals(existingMBThreadFlag.getUuid(),
+			newMBThreadFlag.getUuid());
 		Assert.assertEquals(existingMBThreadFlag.getThreadFlagId(),
 			newMBThreadFlag.getThreadFlagId());
+		Assert.assertEquals(existingMBThreadFlag.getGroupId(),
+			newMBThreadFlag.getGroupId());
+		Assert.assertEquals(existingMBThreadFlag.getCompanyId(),
+			newMBThreadFlag.getCompanyId());
 		Assert.assertEquals(existingMBThreadFlag.getUserId(),
 			newMBThreadFlag.getUserId());
+		Assert.assertEquals(existingMBThreadFlag.getUserName(),
+			newMBThreadFlag.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBThreadFlag.getCreateDate()),
+			Time.getShortTimestamp(newMBThreadFlag.getCreateDate()));
 		Assert.assertEquals(Time.getShortTimestamp(
 				existingMBThreadFlag.getModifiedDate()),
 			Time.getShortTimestamp(newMBThreadFlag.getModifiedDate()));
@@ -154,6 +181,24 @@ public class MBThreadFlagPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("MBThreadFlag", "uuid",
+			true, "threadFlagId", true, "groupId", true, "companyId", true,
+			"userId", true, "userName", true, "createDate", true,
+			"modifiedDate", true, "threadId", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		MBThreadFlag newMBThreadFlag = addMBThreadFlag();
 
@@ -169,6 +214,26 @@ public class MBThreadFlagPersistenceTest {
 		MBThreadFlag missingMBThreadFlag = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingMBThreadFlag);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new MBThreadFlagActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					MBThreadFlag mbThreadFlag = (MBThreadFlag)object;
+
+					Assert.assertNotNull(mbThreadFlag);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -257,6 +322,12 @@ public class MBThreadFlagPersistenceTest {
 
 		MBThreadFlagModelImpl existingMBThreadFlagModelImpl = (MBThreadFlagModelImpl)_persistence.findByPrimaryKey(newMBThreadFlag.getPrimaryKey());
 
+		Assert.assertTrue(Validator.equals(
+				existingMBThreadFlagModelImpl.getUuid(),
+				existingMBThreadFlagModelImpl.getOriginalUuid()));
+		Assert.assertEquals(existingMBThreadFlagModelImpl.getGroupId(),
+			existingMBThreadFlagModelImpl.getOriginalGroupId());
+
 		Assert.assertEquals(existingMBThreadFlagModelImpl.getUserId(),
 			existingMBThreadFlagModelImpl.getOriginalUserId());
 		Assert.assertEquals(existingMBThreadFlagModelImpl.getThreadId(),
@@ -268,7 +339,17 @@ public class MBThreadFlagPersistenceTest {
 
 		MBThreadFlag mbThreadFlag = _persistence.create(pk);
 
+		mbThreadFlag.setUuid(ServiceTestUtil.randomString());
+
+		mbThreadFlag.setGroupId(ServiceTestUtil.nextLong());
+
+		mbThreadFlag.setCompanyId(ServiceTestUtil.nextLong());
+
 		mbThreadFlag.setUserId(ServiceTestUtil.nextLong());
+
+		mbThreadFlag.setUserName(ServiceTestUtil.randomString());
+
+		mbThreadFlag.setCreateDate(ServiceTestUtil.nextDate());
 
 		mbThreadFlag.setModifiedDate(ServiceTestUtil.nextDate());
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -44,7 +44,7 @@ public class ViewDMPortletFoldersPerPage5Test extends BaseTestCase {
 			selenium.getText(
 				"xPath=(//a[contains(@class,'entry-link')]/span[@class='entry-title'])[5]"));
 		assertFalse(selenium.isTextPresent("DM Folder6 Name"));
-		Thread.sleep(5000);
+		Thread.sleep(1000);
 		selenium.clickAt("xPath=(//a[@class='aui-paginator-link aui-paginator-next-link'])[2]",
 			RuntimeVariables.replace("Next"));
 		selenium.waitForText("xPath=(//a[contains(@class,'entry-link')]/span[@class='entry-title'])[1]",

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -187,12 +187,14 @@ public abstract class BaseSandboxHandler implements SandboxHandler {
 			return null;
 		}
 
-		String dirName = System.getenv("CATALINA_BASE") + "/conf";
+		String dirName = System.getProperty("catalina.base") + "/conf";
 
 		String[] fileNames = FileUtil.find(dirName, "**/ROOT.xml", null);
 
 		if (fileNames.length == 0) {
-			_log.error("Unable to locate ROOT.xml under CATALINA_BASE/conf");
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to locate ROOT.xml under CATALINA_BASE/conf");
+			}
 
 			return null;
 		}

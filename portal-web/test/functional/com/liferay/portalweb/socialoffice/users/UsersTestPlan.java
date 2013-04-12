@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@ package com.liferay.portalweb.socialoffice.users;
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.socialoffice.users.organizations.OrganizationsTestPlan;
 import com.liferay.portalweb.socialoffice.users.sites.SitesTestPlan;
+import com.liferay.portalweb.socialoffice.users.teams.TeamsTestPlan;
 import com.liferay.portalweb.socialoffice.users.user.UserTestPlan;
 import com.liferay.portalweb.socialoffice.users.usergroups.UsergroupTestPlan;
 
@@ -33,6 +34,7 @@ public class UsersTestPlan extends BaseTestSuite {
 
 		testSuite.addTest(OrganizationsTestPlan.suite());
 		testSuite.addTest(SitesTestPlan.suite());
+		testSuite.addTest(TeamsTestPlan.suite());
 		testSuite.addTest(UserTestPlan.suite());
 		testSuite.addTest(UsergroupTestPlan.suite());
 

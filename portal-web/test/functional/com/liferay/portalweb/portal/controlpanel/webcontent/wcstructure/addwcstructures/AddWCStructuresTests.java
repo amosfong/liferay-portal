@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,11 +30,9 @@ public class AddWCStructuresTests extends BaseTestSuite {
 	public static Test suite() {
 		TestSuite testSuite = new TestSuite();
 		testSuite.addTestSuite(AddWCStructure1Test.class);
-		testSuite.addTestSuite(ViewWCStructure1Test.class);
 		testSuite.addTestSuite(AddWCStructure2Test.class);
-		testSuite.addTestSuite(ViewWCStructure2Test.class);
 		testSuite.addTestSuite(AddWCStructure3Test.class);
-		testSuite.addTestSuite(ViewWCStructure3Test.class);
+		testSuite.addTestSuite(ViewWCStructuresTest.class);
 		testSuite.addTestSuite(TearDownWCStructureTest.class);
 
 		return testSuite;

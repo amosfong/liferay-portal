@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -23,30 +23,14 @@ import com.liferay.portal.kernel.io.OutputStreamWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncTeeWriter;
-import com.liferay.portal.kernel.util.DateUtil_IW;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil_IW;
-import com.liferay.portal.model.Contact;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.User;
 import com.liferay.portal.tools.ArgumentsUtil;
 import com.liferay.portal.util.InitUtil;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
-import com.liferay.portlet.dynamicdatalists.model.DDLRecord;
-import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.wiki.model.WikiNode;
-import com.liferay.portlet.wiki.model.WikiPage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,7 +59,11 @@ public class SampleSQLBuilder {
 	public static void main(String[] args) {
 		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
 
-		InitUtil.initWithSpring();
+		List<String> extraConfigLocations = new ArrayList<String>();
+
+		extraConfigLocations.add("META-INF/portlet-container-spring.xml");
+
+		InitUtil.initWithSpring(false, extraConfigLocations);
 
 		try {
 			new SampleSQLBuilder(arguments);
@@ -111,6 +99,8 @@ public class SampleSQLBuilder {
 			arguments.get("sample.sql.max.journal.article.count"));
 		_maxJournalArticleSize = GetterUtil.getInteger(
 			arguments.get("sample.sql.max.journal.article.size"));
+		_maxJournalArticleVersionCount = GetterUtil.getInteger(
+			arguments.get("sample.sql.max.journal.article.version.count"));
 		_maxMBCategoryCount = GetterUtil.getInteger(
 			arguments.get("sample.sql.max.mb.category.count"));
 		_maxMBMessageCount = GetterUtil.getInteger(
@@ -134,9 +124,9 @@ public class SampleSQLBuilder {
 			arguments.get("sample.sql.output.merge"));
 
 		_dataFactory = new DataFactory(
-			baseDir, _maxGroupCount, _maxJournalArticleSize,
-			_maxMBCategoryCount, _maxMBThreadCount, _maxMBMessageCount,
-			_maxUserToGroupCount);
+			baseDir, _maxBlogsEntryCount, _maxGroupCount,
+			_maxJournalArticleSize, _maxMBCategoryCount, _maxMBThreadCount,
+			_maxMBMessageCount, _maxUserToGroupCount);
 
 		_db = DBFactoryUtil.getDB(_dbType);
 
@@ -195,139 +185,6 @@ public class SampleSQLBuilder {
 		FileUtil.write(
 			new File(_outputDir, "benchmarks-actual.properties"),
 			sb.toString());
-	}
-
-	public void insertBlogsEntry(BlogsEntry blogsEntry) throws Exception {
-		Map<String, Object> context = getContext();
-
-		put(context, "blogsEntry", blogsEntry);
-
-		processTemplate(_tplBlogsEntry, context);
-	}
-
-	public void insertDDLRecord(
-			DDLRecord ddlRecord, DDLRecordSet ddlRecordSet, int ddlRecordCount)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "ddlRecord", ddlRecord);
-		put(context, "ddlRecordCount", ddlRecordCount);
-		put(context, "ddlRecordSet", ddlRecordSet);
-
-		processTemplate(_tplDDLRecord, context);
-	}
-
-	public void insertDDLRecordSet(DDMStructure ddmStructure) throws Exception {
-		Map<String, Object> context = getContext();
-
-		put(context, "ddmStructure", ddmStructure);
-
-		processTemplate(_tplDLFolders, context);
-	}
-
-	public void insertDLFileEntry(
-			DLFileEntry dlFileEntry, DDMStructure ddmStructure)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "ddmStructure", ddmStructure);
-		put(context, "dlFileEntry", dlFileEntry);
-
-		processTemplate(_tplDLFileEntry, context);
-	}
-
-	public void insertDLFolder(DLFolder dlFolder, DDMStructure ddmStructure)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "ddmStructure", ddmStructure);
-		put(context, "dlFolder", dlFolder);
-
-		processTemplate(_tplDLFolder, context);
-	}
-
-	public void insertDLFolders(
-			long parentDLFolderId, int dlFolderDepth, DDMStructure ddmStructure)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "ddmStructure", ddmStructure);
-		put(context, "dlFolderDepth", dlFolderDepth);
-		put(context, "parentDLFolderId", parentDLFolderId);
-
-		processTemplate(_tplDLFolders, context);
-	}
-
-	public void insertGroup(
-			Group group, List<Layout> privateLayouts,
-			List<Layout> publicLayouts)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "group", group);
-		put(context, "privateLayouts", privateLayouts);
-		put(context, "publicLayouts", publicLayouts);
-
-		processTemplate(_tplGroup, context);
-	}
-
-	public void insertMBCategory(MBCategory mbCategory) throws Exception {
-		Map<String, Object> context = getContext();
-
-		put(context, "mbCategory", mbCategory);
-
-		processTemplate(_tplMBCategory, context);
-	}
-
-	public void insertMBMessage(MBMessage mbMessage) throws Exception {
-		Map<String, Object> context = getContext();
-
-		put(context, "mbMessage", mbMessage);
-
-		processTemplate(_tplMBMessage, context);
-	}
-
-	public void insertResourcePermission(String name, String primKey)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "resourceName", name);
-		put(context, "resourcePrimkey", primKey);
-
-		processTemplate(_tplResourcePermission, context);
-	}
-
-	public void insertUser(
-			Contact contact, List<Long> groupIds, List<Long> organizationIds,
-			List<Role> roleIds, User user)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "contact", contact);
-		put(context, "groupIds", groupIds);
-		put(context, "organizationIds", organizationIds);
-		put(context, "roleIds", roleIds);
-		put(context, "user", user);
-
-		processTemplate(_tplUser, context);
-	}
-
-	public void insertWikiPage(WikiNode wikiNode, WikiPage wikiPage)
-		throws Exception {
-
-		Map<String, Object> context = getContext();
-
-		put(context, "wikiNode", wikiNode);
-		put(context, "wikiPage", wikiPage);
-
-		processTemplate(_tplWikiPage, context);
 	}
 
 	protected void compressInsertSQL(String insertSQL) throws IOException {
@@ -473,11 +330,8 @@ public class SampleSQLBuilder {
 	protected Map<String, Object> getContext() {
 		Map<String, Object> context = new HashMap<String, Object>();
 
-		put(context, "companyId", _dataFactory.getCompanyId());
 		put(context, "counter", _dataFactory.getCounter());
 		put(context, "dataFactory", _dataFactory);
-		put(context, "dateUtil", DateUtil_IW.getInstance());
-		put(context, "defaultUserId", _dataFactory.getDefaultUserId());
 		put(context, "maxDLFileEntrySize", _maxDLFileEntrySize);
 		put(context, "maxBlogsEntryCommentCount", _maxBlogsEntryCommentCount);
 		put(context, "maxBlogsEntryCount", _maxBlogsEntryCount);
@@ -488,6 +342,9 @@ public class SampleSQLBuilder {
 		put(context, "maxDLFolderDepth", _maxDLFolderDepth);
 		put(context, "maxGroupCount", _maxGroupCount);
 		put(context, "maxJournalArticleCount", _maxJournalArticleCount);
+		put(
+			context, "maxJournalArticleVersionCount",
+			_maxJournalArticleVersionCount);
 		put(context, "maxMBCategoryCount", _maxMBCategoryCount);
 		put(context, "maxMBMessageCount", _maxMBMessageCount);
 		put(context, "maxMBThreadCount", _maxMBThreadCount);
@@ -496,12 +353,7 @@ public class SampleSQLBuilder {
 		put(context, "maxWikiNodeCount", _maxWikiNodeCount);
 		put(context, "maxWikiPageCommentCount", _maxWikiPageCommentCount);
 		put(context, "maxWikiPageCount", _maxWikiPageCount);
-		put(context, "portalUUIDUtil", SequentialUUID.getSequentialUUID());
-		put(context, "sampleSQLBuilder", this);
 		put(context, "stringUtil", StringUtil_IW.getInstance());
-		put(
-			context, "userScreenNameCounter",
-			_dataFactory.getUserScreenNameCounter());
 		put(context, "writerBlogsCSV", _writerBlogsCSV);
 		put(context, "writerCompanyCSV", _writerCompanyCSV);
 		put(context, "writerDocumentLibraryCSV", _writerDocumentLibraryCSV);
@@ -643,6 +495,7 @@ public class SampleSQLBuilder {
 	private int _maxGroupCount;
 	private int _maxJournalArticleCount;
 	private int _maxJournalArticleSize;
+	private int _maxJournalArticleVersionCount;
 	private int _maxMBCategoryCount;
 	private int _maxMBMessageCount;
 	private int _maxMBThreadCount;
@@ -656,19 +509,7 @@ public class SampleSQLBuilder {
 	private String _outputDir;
 	private boolean _outputMerge;
 	private File _tempDir;
-	private String _tplBlogsEntry = _TPL_ROOT + "blogs_entry.ftl";
-	private String _tplDDLRecord = _TPL_ROOT + "ddl_record.ftl";
-	private String _tplDLFileEntry = _TPL_ROOT + "dl_file_entry.ftl";
-	private String _tplDLFolder = _TPL_ROOT + "dl_folder.ftl";
-	private String _tplDLFolders = _TPL_ROOT + "dl_folders.ftl";
-	private String _tplGroup = _TPL_ROOT + "group.ftl";
-	private String _tplMBCategory = _TPL_ROOT + "mb_category.ftl";
-	private String _tplMBMessage = _TPL_ROOT + "mb_message.ftl";;
-	private String _tplResourcePermission =
-		_TPL_ROOT + "resource_permission.ftl";
 	private String _tplSample = _TPL_ROOT + "sample.ftl";
-	private String _tplUser = _TPL_ROOT + "user.ftl";
-	private String _tplWikiPage = _TPL_ROOT + "wiki_page.ftl";
 	private Writer _writerBlogsCSV;
 	private Writer _writerCompanyCSV;
 	private Writer _writerDocumentLibraryCSV;

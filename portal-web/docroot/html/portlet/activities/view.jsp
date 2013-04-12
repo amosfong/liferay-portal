@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,11 +36,11 @@ ResourceURL rssURL = liferayPortletResponse.createResourceURL();
 rssURL.setCacheability(ResourceURL.FULL);
 rssURL.setParameter("struts_action", "/activities/rss");
 
-String feedTitle = LanguageUtil.format(pageContext, "x's-activities", group.getDescriptiveName(locale));
+String feedTitle = LanguageUtil.format(pageContext, "x's-activities", HtmlUtil.escape(group.getDescriptiveName(locale)));
 
 rssURL.setParameter("feedTitle", feedTitle);
 
-String taglibFeedTitle = LanguageUtil.format(pageContext, "subscribe-to-x's-activities", group.getDescriptiveName(locale));
+String taglibFeedTitle = LanguageUtil.format(pageContext, "subscribe-to-x's-activities", HtmlUtil.escape(group.getDescriptiveName(locale)));
 %>
 
 <liferay-ui:social-activities
@@ -48,7 +48,7 @@ String taglibFeedTitle = LanguageUtil.format(pageContext, "subscribe-to-x's-acti
 	feedDisplayStyle="<%= rssDisplayStyle %>"
 	feedEnabled="<%= enableRSS %>"
 	feedLink="<%= rssURL.toString() %>"
-	feedLinkMessage="<%= HtmlUtil.escape(taglibFeedTitle) %>"
-	feedTitle="<%= HtmlUtil.escape(taglibFeedTitle) %>"
+	feedLinkMessage="<%= taglibFeedTitle %>"
+	feedTitle="<%= taglibFeedTitle %>"
 	feedType="<%= rssFeedType %>"
 />

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,13 +19,14 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portalweb.portal.BaseTestCase;
 import com.liferay.portalweb.portal.util.TestPropsValues;
 
 import java.util.Calendar;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.internal.WrapsDriver;
 
 /**
  * @author Brian Wing Shun Chan
@@ -219,6 +220,10 @@ public abstract class BaseWebDriverImpl
 		super.waitForPageToLoad("30000");
 	}
 
+	public boolean isConfirmation(String pattern) {
+		return LiferaySeleniumHelper.isConfirmation(this, pattern);
+	}
+
 	public boolean isElementNotPresent(String locator) {
 		return LiferaySeleniumHelper.isElementNotPresent(this, locator);
 	}
@@ -229,6 +234,14 @@ public abstract class BaseWebDriverImpl
 
 	public boolean isNotPartialText(String locator, String value) {
 		return LiferaySeleniumHelper.isNotPartialText(this, locator, value);
+	}
+
+	public boolean isNotSelectedLabel(String selectLocator, String pattern) {
+		if (isElementNotPresent(selectLocator)) {
+			return false;
+		}
+
+		return !pattern.equals(getSelectedLabel(selectLocator, "1"));
 	}
 
 	public boolean isNotText(String locator, String value) {
@@ -251,8 +264,20 @@ public abstract class BaseWebDriverImpl
 		return text.contains(value);
 	}
 
+	public boolean isSelectedLabel(String selectLocator, String pattern) {
+		if (isElementNotPresent(selectLocator)) {
+			return false;
+		}
+
+		return pattern.equals(getSelectedLabel(selectLocator, "1"));
+	}
+
 	public boolean isText(String locator, String value) {
 		return value.equals(getText(locator, "1"));
+	}
+
+	public boolean isTextNotPresent(String pattern) {
+		return LiferaySeleniumHelper.isTextNotPresent(this, pattern);
 	}
 
 	public boolean isValue(String locator, String value) {
@@ -272,6 +297,27 @@ public abstract class BaseWebDriverImpl
 	public void keyUpAndWait(String locator, String keySequence) {
 		super.keyUp(locator, keySequence);
 		super.waitForPageToLoad("30000");
+	}
+
+	public void makeVisible(String locator) {
+		WebElement bodyElement = getWebElement("//body");
+
+		WrapsDriver wrapsDriver = (WrapsDriver)bodyElement;
+
+		WebDriver webDriver = wrapsDriver.getWrappedDriver();
+
+		JavascriptExecutor javascriptExecutor = (JavascriptExecutor)webDriver;
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("var element = arguments[0];");
+		sb.append("element.style.display = 'inline-block';");
+		sb.append("element.style.overflow = 'visible';");
+		sb.append("element.style.visibility = 'visible';");
+
+		WebElement webElement = getWebElement(locator);
+
+		javascriptExecutor.executeScript(sb.toString(), webElement);
 	}
 
 	public void paste(String location) {
@@ -330,11 +376,11 @@ public abstract class BaseWebDriverImpl
 
 		for (int second = 0;; second++) {
 			if (second >= timeout) {
-				BaseTestCase.fail("Timeout");
+				assertConfirmation(pattern);
 			}
 
 			try {
-				if (pattern.equals(getConfirmation())) {
+				if (isConfirmation(pattern)) {
 					break;
 				}
 			}

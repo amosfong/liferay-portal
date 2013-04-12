@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -81,8 +81,8 @@ public class Differ {
 			// It is possible that there are two or more blocks with the same
 			// weak checksum, in which case the map will only contain the strong
 			// checksum of the last one. In some cases, this may cause a data
-			// block to be sent when a reference block could have been sent,
-			// but it doesn't really matter.
+			// block to be sent when a reference block could have been sent, but
+			// it doesn't really matter.
 
 			_blockDatas.put(
 				weakChecksum, new BlockData(blockNumber, strongChecksum));

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -610,7 +610,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 
 						<%
 						try {
-							List<DDMStructure> ddmStructures = DDMStructureLocalServiceUtil.getClassStructures(company.getCompanyId(), PortalUtil.getClassNameId(DLFileEntry.class), new StructureStructureKeyComparator(true));
+							List<DDMStructure> ddmStructures = DDMStructureLocalServiceUtil.getClassStructures(company.getCompanyId(), PortalUtil.getClassNameId(RawMetadataProcessor.class), new StructureStructureKeyComparator(true));
 
 							for (DDMStructure ddmStructure : ddmStructures) {
 								Fields fields = null;
@@ -844,7 +844,7 @@ request.setAttribute("view_file_entry.jsp-fileEntry", fileEntry);
 					null,
 					function(exception) {
 						var errorMessage = A.Lang.sub(
-							Liferay.Language.get('cannot-open-the-requested-document-due-to-the-following-reason'),
+							'<%= UnicodeLanguageUtil.get(pageContext, "cannot-open-the-requested-document-due-to-the-following-reason") %>',
 							[exception.message]
 						);
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -292,7 +292,9 @@ public class SocialActivityCounterLocalServiceImpl
 				activity.getGroupId(), activity.getClassName(),
 				activity.getType());
 
-		if ((activityDefinition == null) || !activityDefinition.isEnabled()) {
+		if ((activityDefinition == null) ||
+			!activityDefinition.isCountersEnabled()) {
+
 			return;
 		}
 
@@ -370,8 +372,8 @@ public class SocialActivityCounterLocalServiceImpl
 	 * @throws     PortalException if the group or a previous activity counter
 	 *             could not be found
 	 * @throws     SystemException if a system exception occurred
-	 * @deprecated {@link #createActivityCounter(long, long, long, String, int,
-	 *             int, int, int, int, long, int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #createActivityCounter(long,
+	 *             long, long, String, int, int, int, int, int, long, int)}
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public SocialActivityCounter createActivityCounter(

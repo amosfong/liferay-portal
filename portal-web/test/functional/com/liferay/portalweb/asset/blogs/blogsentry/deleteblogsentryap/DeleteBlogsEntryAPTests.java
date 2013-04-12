@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,7 @@ import com.liferay.portalweb.asset.assetpublisher.portlet.addportletap.AddPageAP
 import com.liferay.portalweb.asset.assetpublisher.portlet.addportletap.AddPortletAPTest;
 import com.liferay.portalweb.asset.assetpublisher.portlet.configureportletassetselectionmanual.ConfigurePortletAssetSelectionManualTest;
 import com.liferay.portalweb.asset.blogs.blogsentry.addnewblogsentryapactions.AddNewBlogsEntryAPActionsTest;
+import com.liferay.portalweb.asset.blogs.blogsentry.selectexistingblogsentryapactions.SelectExistingBlogsEntryAPActionsTest;
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.portal.util.TearDownPageTest;
 import com.liferay.portalweb.portlet.blogs.blogsentry.addblogsentry.TearDownBlogsEntryTest;

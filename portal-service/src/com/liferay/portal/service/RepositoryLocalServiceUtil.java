@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -193,12 +193,12 @@ public class RepositoryLocalServiceUtil {
 	}
 
 	/**
-	* Returns the repository with the UUID in the group.
+	* Returns the repository matching the UUID and group.
 	*
-	* @param uuid the UUID of repository
-	* @param groupId the group id of the repository
-	* @return the repository
-	* @throws PortalException if a repository with the UUID in the group could not be found
+	* @param uuid the repository's UUID
+	* @param groupId the primary key of the group
+	* @return the matching repository
+	* @throws PortalException if a matching repository could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portal.model.Repository getRepositoryByUuidAndGroupId(
@@ -268,9 +268,10 @@ public class RepositoryLocalServiceUtil {
 		getService().setBeanIdentifier(beanIdentifier);
 	}
 
-	public static long addRepository(long userId, long groupId,
-		long classNameId, long parentFolderId, java.lang.String name,
-		java.lang.String description, java.lang.String portletId,
+	public static com.liferay.portal.model.Repository addRepository(
+		long userId, long groupId, long classNameId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String portletId,
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties,
 		boolean hidden, com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -282,12 +283,14 @@ public class RepositoryLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated {@link #addRepository(long, long, long, long, String, String,
-	String, UnicodeProperties, boolean, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addRepository(long, long,
+	long, long, String, String, String, UnicodeProperties,
+	boolean, ServiceContext)}
 	*/
-	public static long addRepository(long userId, long groupId,
-		long classNameId, long parentFolderId, java.lang.String name,
-		java.lang.String description, java.lang.String portletId,
+	public static com.liferay.portal.model.Repository addRepository(
+		long userId, long groupId, long classNameId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String portletId,
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -335,6 +338,20 @@ public class RepositoryLocalServiceUtil {
 				   .getLocalRepositoryImpl(folderId, fileEntryId, fileVersionId);
 	}
 
+	public static com.liferay.portal.model.Repository getRepository(
+		long groupId, java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getRepository(groupId, portletId);
+	}
+
+	public static com.liferay.portal.model.Repository getRepository(
+		long groupId, java.lang.String name, java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getRepository(groupId, name, portletId);
+	}
+
 	public static com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -376,7 +393,7 @@ public class RepositoryLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(RepositoryLocalService service) {
 	}

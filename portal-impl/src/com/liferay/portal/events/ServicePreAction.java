@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -61,7 +62,6 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Theme;
 import com.liferay.portal.model.User;
-import com.liferay.portal.model.impl.ColorSchemeImpl;
 import com.liferay.portal.model.impl.VirtualLayout;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -372,6 +372,8 @@ public class ServicePreAction extends Action {
 		String doAsUserLanguageId = ParamUtil.getString(
 			request, "doAsUserLanguageId");
 		long doAsGroupId = ParamUtil.getLong(request, "doAsGroupId");
+
+		long refererGroupId = ParamUtil.getLong(request, "refererGroupId");
 
 		long refererPlid = ParamUtil.getLong(request, "refererPlid");
 
@@ -734,7 +736,7 @@ public class ServicePreAction extends Action {
 			String themeId = PrefsPropsUtil.getString(
 				companyId, PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID);
 			String colorSchemeId =
-				ColorSchemeImpl.getDefaultRegularColorSchemeId();
+				ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId();
 
 			theme = ThemeLocalServiceUtil.getTheme(
 				companyId, themeId, wapTheme);
@@ -790,6 +792,8 @@ public class ServicePreAction extends Action {
 
 		ThemeDisplay themeDisplay = ThemeDisplayFactory.create();
 
+		themeDisplay.setRequest(request);
+
 		// Set the CDN host, portal URL, and Facebook application ID first
 		// because other methods (setLookAndFeel) depend on them being set
 
@@ -811,6 +815,7 @@ public class ServicePreAction extends Action {
 		themeDisplay.setDoAsUserId(doAsUserId);
 		themeDisplay.setDoAsUserLanguageId(doAsUserLanguageId);
 		themeDisplay.setDoAsGroupId(doAsGroupId);
+		themeDisplay.setRefererGroupId(refererGroupId);
 		themeDisplay.setRefererPlid(refererPlid);
 		themeDisplay.setControlPanelCategory(controlPanelCategory);
 		themeDisplay.setLayoutSet(layoutSet);
@@ -871,7 +876,7 @@ public class ServicePreAction extends Action {
 		themeDisplay.setShowSignInIcon(!signedIn);
 		themeDisplay.setShowSignOutIcon(signedIn);
 
-		boolean showSiteContentIcon = false;
+		boolean showManageSiteIcon = false;
 
 		long controlPanelPlid = 0;
 
@@ -899,12 +904,12 @@ public class ServicePreAction extends Action {
 
 			siteContentPortlets.remove(siteSettingsPortlet);
 
-			showSiteContentIcon = PortletPermissionUtil.contains(
-				permissionChecker, scopeGroupId, controlPanelPlid,
-				siteContentPortlets, ActionKeys.VIEW);
+			showManageSiteIcon =
+				PortletPermissionUtil.hasControlPanelAccessPermission(
+					permissionChecker, scopeGroupId, siteContentPortlets);
 		}
 
-		themeDisplay.setShowSiteContentIcon(showSiteContentIcon);
+		themeDisplay.setShowManageSiteIcon(showManageSiteIcon);
 
 		themeDisplay.setShowStagingIcon(false);
 
@@ -932,6 +937,23 @@ public class ServicePreAction extends Action {
 				urlControlPanel, "doAsGroupId", scopeGroupId);
 		}
 
+		if (refererGroupId > 0) {
+			urlControlPanel = HttpUtil.addParameter(
+				urlControlPanel, "refererGroupId", refererGroupId);
+		}
+		else if (scopeGroupId > 0) {
+			Layout refererLayout = LayoutLocalServiceUtil.fetchLayout(plid);
+
+			if (refererLayout != null) {
+				Group refererLayoutGroup = refererLayout.getGroup();
+
+				if (refererLayoutGroup.isUserGroup()) {
+					urlControlPanel = HttpUtil.addParameter(
+						urlControlPanel, "refererGroupId", scopeGroupId);
+				}
+			}
+		}
+
 		if (refererPlid > 0) {
 			urlControlPanel = HttpUtil.addParameter(
 				urlControlPanel, "refererPlid", refererPlid);
@@ -948,14 +970,6 @@ public class ServicePreAction extends Action {
 
 		themeDisplay.setURLControlPanel(urlControlPanel);
 
-		String siteContentURL = urlControlPanel;
-
-		siteContentURL = HttpUtil.addParameter(
-			siteContentURL, "controlPanelCategory",
-			PortletCategoryKeys.CONTENT);
-
-		themeDisplay.setURLSiteContent(siteContentURL);
-
 		String currentURL = PortalUtil.getCurrentURL(request);
 
 		themeDisplay.setURLCurrent(currentURL);
@@ -963,6 +977,13 @@ public class ServicePreAction extends Action {
 		String urlHome = PortalUtil.getHomeURL(request);
 
 		themeDisplay.setURLHome(urlHome);
+
+		String manageSiteURL = urlControlPanel;
+
+		manageSiteURL = HttpUtil.addParameter(
+			manageSiteURL, "controlPanelCategory", PortletCategoryKeys.CONTENT);
+
+		themeDisplay.setURLManageSite(manageSiteURL);
 
 		if (layout != null) {
 			if (layout.isTypePortlet()) {
@@ -1033,9 +1054,9 @@ public class ServicePreAction extends Action {
 					pageSettingsURL.setWindowState(LiferayWindowState.POP_UP);
 				}
 				else {
-					pageSettingsURL.setPlid(plid);
 					pageSettingsURL.setParameter(
 						"redirect", themeDisplay.getURLHome());
+					pageSettingsURL.setPlid(plid);
 					pageSettingsURL.setWindowState(WindowState.MAXIMIZED);
 				}
 
@@ -1080,11 +1101,11 @@ public class ServicePreAction extends Action {
 							LiferayWindowState.POP_UP);
 					}
 					else {
-						manageSiteMembershipsURL.setPlid(plid);
 						manageSiteMembershipsURL.setParameter(
 							"redirect", themeDisplay.getURLHome());
 						manageSiteMembershipsURL.setParameter(
 							"showBackURL", Boolean.FALSE.toString());
+						manageSiteMembershipsURL.setPlid(plid);
 						manageSiteMembershipsURL.setWindowState(
 							WindowState.MAXIMIZED);
 					}
@@ -1140,9 +1161,9 @@ public class ServicePreAction extends Action {
 					siteSettingsURL.setWindowState(LiferayWindowState.POP_UP);
 				}
 				else {
-					siteSettingsURL.setPlid(plid);
 					siteSettingsURL.setParameter(
 						"redirect", themeDisplay.getURLHome());
+					siteSettingsURL.setPlid(plid);
 					siteSettingsURL.setWindowState(
 						LiferayWindowState.MAXIMIZED);
 				}
@@ -1185,9 +1206,9 @@ public class ServicePreAction extends Action {
 						LiferayWindowState.POP_UP);
 				}
 				else {
-					siteMapSettingsURL.setPlid(plid);
 					siteMapSettingsURL.setParameter(
 						"redirect", themeDisplay.getURLHome());
+					siteMapSettingsURL.setPlid(plid);
 					siteMapSettingsURL.setWindowState(
 						LiferayWindowState.MAXIMIZED);
 				}
@@ -1284,6 +1305,7 @@ public class ServicePreAction extends Action {
 		if (group.isLayoutPrototype()) {
 			themeDisplay.setShowControlPanelIcon(false);
 			themeDisplay.setShowHomeIcon(false);
+			themeDisplay.setShowManageSiteIcon(false);
 			themeDisplay.setShowManageSiteMembershipsIcon(false);
 			themeDisplay.setShowMyAccountIcon(false);
 			themeDisplay.setShowPageCustomizationIcon(false);
@@ -1291,7 +1313,6 @@ public class ServicePreAction extends Action {
 			themeDisplay.setShowPortalIcon(false);
 			themeDisplay.setShowSignInIcon(false);
 			themeDisplay.setShowSignOutIcon(false);
-			themeDisplay.setShowSiteContentIcon(false);
 			themeDisplay.setShowSiteSettingsIcon(false);
 			themeDisplay.setShowStagingIcon(false);
 		}
@@ -1303,9 +1324,9 @@ public class ServicePreAction extends Action {
 
 		if (group.hasStagingGroup() && !group.isStagingGroup()) {
 			themeDisplay.setShowLayoutTemplatesIcon(false);
+			themeDisplay.setShowManageSiteIcon(false);
 			themeDisplay.setShowPageCustomizationIcon(false);
 			themeDisplay.setShowPageSettingsIcon(false);
-			themeDisplay.setShowSiteContentIcon(false);
 			themeDisplay.setShowSiteMapSettingsIcon(false);
 			themeDisplay.setShowSiteSettingsIcon(false);
 		}
@@ -1751,7 +1772,7 @@ public class ServicePreAction extends Action {
 		if (accessibleLayouts.isEmpty()) {
 			layouts = null;
 
-			if (!hasViewLayoutPermission) {
+			if (!isLoginRequest(request) && !hasViewLayoutPermission) {
 				SessionErrors.add(
 					request, LayoutPermissionException.class.getName());
 			}
@@ -1859,7 +1880,7 @@ public class ServicePreAction extends Action {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	protected boolean isViewableCommunity(
 			User user, long groupId, boolean privateLayout,
@@ -1871,7 +1892,7 @@ public class ServicePreAction extends Action {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	protected boolean isViewableGroup(
 			User user, long groupId, boolean privateLayout, long layoutId,

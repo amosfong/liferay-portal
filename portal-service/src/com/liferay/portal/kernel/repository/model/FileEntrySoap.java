@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.repository.model;
 
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +78,8 @@ public class FileEntrySoap implements Serializable {
 	}
 
 	public static FileEntrySoap[] toSoapModels(List<FileEntry> models) {
-		List<FileEntrySoap> soapModels = new ArrayList<FileEntrySoap>(models.size());
+		List<FileEntrySoap> soapModels = new ArrayList<FileEntrySoap>(
+			models.size());
 
 		for (FileEntry model : models) {
 			soapModels.add(toSoapModel(model));
@@ -241,23 +243,23 @@ public class FileEntrySoap implements Serializable {
 		_versionUserName = versionUserName;
 	}
 
-	private String _uuid;
-	private long _fileEntryId;
-	private long _groupId;
 	private long _companyId;
-	private long _userId;
-	private String _userName;
-	private long _versionUserId;
-	private String _versionUserName;
 	private Date _createDate;
+	private String _description;
+	private String _extension;
+	private long _fileEntryId;
+	private long _folderId;
+	private long _groupId;
+	private String _mimeType;
 	private Date _modifiedDate;
 	private long _repositoryId;
-	private long _folderId;
-	private String _extension;
-	private String _mimeType;
-	private String _title;
-	private String _description;
-	private String _version;
 	private long _size;
+	private String _title;
+	private long _userId;
+	private String _userName;
+	private String _uuid;
+	private String _version;
+	private long _versionUserId;
+	private String _versionUserName;
 
 }

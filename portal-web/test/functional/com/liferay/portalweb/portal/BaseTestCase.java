@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,9 @@ import com.liferay.portalweb.portal.util.LiferaySeleneseTestCase;
 import com.liferay.portalweb.portal.util.SeleniumUtil;
 import com.liferay.portalweb.portal.util.TestPropsValues;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Brian Wing Shun Chan
  */
@@ -31,6 +34,11 @@ public class BaseTestCase extends LiferaySeleneseTestCase {
 			TestPropsValues.SELENIUM_EXECUTABLE_DIR + "\\chromedriver.exe";
 
 		System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+
+		String ieDriverPath =
+			TestPropsValues.SELENIUM_EXECUTABLE_DIR + "\\IEDriverServer.exe";
+
+		System.setProperty("webdriver.ie.driver", ieDriverPath);
 	}
 
 	@Override
@@ -101,5 +109,10 @@ public class BaseTestCase extends LiferaySeleneseTestCase {
 		}
 
 	}
+
+	protected Map<String, String> commandScopeVariables;
+	protected Map<String, String> definitionScopeVariables =
+		new HashMap<String, String>();
+	protected Map<String, String> executeScopeVariables;
 
 }

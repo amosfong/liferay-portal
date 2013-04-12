@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -51,9 +51,8 @@ addPortletURLs = getAddPortletURLs(liferayPortletRequest, liferayPortletResponse
 	<liferay-ui:icon-menu
 		align="left"
 		icon='<%= themeDisplay.getPathThemeImages() + "/common/add.png" %>'
-		id='<%= taglibId %>'
-		message='<%= LanguageUtil.format(pageContext, (groupIds.length == 1) ? "add-new" : "add-new-in-x", new Object[] {(GroupLocalServiceUtil.getGroup(groupId)).getDescriptiveName(locale)}) %>'
-		showWhenSingleIcon="<%= true %>"
+		id="<%= taglibId %>"
+		message='<%= LanguageUtil.format(pageContext, (groupIds.length == 1) ? "add-new" : "add-new-in-x", new Object[] {HtmlUtil.escape((GroupLocalServiceUtil.getGroup(groupId)).getDescriptiveName(locale))}) %>'
 	>
 
 		<%
@@ -94,14 +93,24 @@ addPortletURLs = getAddPortletURLs(liferayPortletRequest, liferayPortletResponse
 				addPortletURLString = HttpUtil.addParameter(addPortletURLString, "layoutUuid", layout.getUuid());
 			}
 
-			String taglibEditURL = "javascript:Liferay.Util.openWindow({dialog: {width: 960}, id: '" + liferayPortletResponse.getNamespace() + "editAsset', title: '" + LanguageUtil.format(pageContext, "new-x", message) + "', uri:'" + HtmlUtil.escapeURL(addPortletURLString) + "'});";
+			String taglibEditURL = "javascript:Liferay.Util.openWindow({dialog: {align: Liferay.Util.Window.ALIGN_CENTER, width: 960}, id: '" + liferayPortletResponse.getNamespace() + "editAsset', title: '" + HtmlUtil.escapeJS(LanguageUtil.format(pageContext, "new-x", HtmlUtil.escape(message))) + "', uri: '" + HtmlUtil.escapeJS(addPortletURLString) + "'});";
 		%>
 
-			<liferay-ui:icon
-				message="<%= HtmlUtil.escape(message) %>"
-				src="<%= assetRendererFactory.getIconPath(renderRequest) %>"
-				url="<%= taglibEditURL %>"
-			/>
+			<c:choose>
+				<c:when test="<%= addPortletURLs.size() == 1 %>">
+					<aui:button
+						onClick="<%= taglibEditURL %>"
+						value='<%= LanguageUtil.format(pageContext, "add-x", HtmlUtil.escape(message)) %>'
+					/>
+				</c:when>
+				<c:otherwise>
+					<liferay-ui:icon
+						message="<%= HtmlUtil.escape(message) %>"
+						src="<%= assetRendererFactory.getIconPath(renderRequest) %>"
+						url="<%= taglibEditURL %>"
+					/>
+				</c:otherwise>
+			</c:choose>
 
 		<%
 		}
@@ -136,7 +145,7 @@ public Map<String, PortletURL> getAddPortletURLs(LiferayPortletRequest liferayPo
 
 		Map<Long, String> classTypes = assetRendererFactory.getClassTypes(new long[] {themeDisplay.getCompanyGroupId(), themeDisplay.getScopeGroupId()}, themeDisplay.getLocale());
 
-		if ((classTypeIds.length == 0) || (classTypes == null)) {
+		if ((classTypeIds.length == 0) || classTypes.isEmpty()) {
 			PortletURL addPortletURL = AssetUtil.getAddPortletURL(liferayPortletRequest, liferayPortletResponse, className, 0, allAssetCategoryIds, allAssetTagNames, redirectURL.toString());
 
 			if (addPortletURL != null) {
@@ -144,16 +153,14 @@ public Map<String, PortletURL> getAddPortletURLs(LiferayPortletRequest liferayPo
 			}
 		}
 
-		if (classTypes != null) {
-			for (long classTypeId : classTypes.keySet()) {
-				if (ArrayUtil.contains(classTypeIds, classTypeId) || (classTypeIds.length == 0)) {
-					PortletURL addPortletURL = AssetUtil.getAddPortletURL(liferayPortletRequest, liferayPortletResponse, className, classTypeId, allAssetCategoryIds, allAssetTagNames, redirectURL.toString());
+		for (long classTypeId : classTypes.keySet()) {
+			if (ArrayUtil.contains(classTypeIds, classTypeId) || (classTypeIds.length == 0)) {
+				PortletURL addPortletURL = AssetUtil.getAddPortletURL(liferayPortletRequest, liferayPortletResponse, className, classTypeId, allAssetCategoryIds, allAssetTagNames, redirectURL.toString());
 
-					if (addPortletURL != null) {
-						String mesage = className + AssetUtil.CLASSNAME_SEPARATOR + classTypes.get(classTypeId);
+				if (addPortletURL != null) {
+					String mesage = className + AssetUtil.CLASSNAME_SEPARATOR + classTypes.get(classTypeId);
 
-						addPortletURLs.put(mesage, addPortletURL);
-					}
+					addPortletURLs.put(mesage, addPortletURL);
 				}
 			}
 		}

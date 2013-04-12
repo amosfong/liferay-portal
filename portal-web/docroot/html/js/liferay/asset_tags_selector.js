@@ -152,6 +152,12 @@ AUI.add(
 				NAME: NAME,
 
 				prototype: {
+					destructor: function() {
+						var instance = this;
+
+						(new A.EventHandle(instance._entriesHandles)).detach();
+					},
+
 					renderUI: function() {
 						var instance = this;
 
@@ -171,8 +177,20 @@ AUI.add(
 
 						instance._bindTagsSelector();
 
-						instance.entries.after('add', instance._updateHiddenInput, instance);
-						instance.entries.after('remove', instance._updateHiddenInput, instance);
+						var entries = instance.entries;
+
+						entries.after('add', instance._updateHiddenInput, instance);
+						entries.after('remove', instance._updateHiddenInput, instance);
+
+						instance._entriesHandles = [
+							entries.after(
+								['add', 'replace', 'remove'],
+								function(event) {
+									A.fire('formNavigator:trackChanges', instance.inputNode);
+								},
+								instance
+							)
+						];
 					},
 
 					addEntries: function() {
@@ -439,7 +457,8 @@ AUI.add(
 								},
 								icon: 'plus',
 								id: 'add',
-								label: Liferay.Language.get('add')
+								label: Liferay.Language.get('add'),
+								title: Liferay.Language.get('add-tags')
 							},
 							{
 								handler: {
@@ -448,7 +467,8 @@ AUI.add(
 								},
 								icon: 'search',
 								id: 'select',
-								label: Liferay.Language.get('select')
+								label: Liferay.Language.get('select'),
+								title: Liferay.Language.get('select-tags')
 							}
 						];
 
@@ -461,7 +481,8 @@ AUI.add(
 									},
 									icon: 'comment',
 									id: 'suggest',
-									label: Liferay.Language.get('suggestions')
+									label: Liferay.Language.get('suggestions'),
+									title: Liferay.Language.get('suggestions')
 								}
 							);
 						}

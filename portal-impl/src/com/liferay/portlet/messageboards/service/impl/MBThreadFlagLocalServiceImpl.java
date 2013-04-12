@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,9 +20,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.model.User;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.model.MBThreadFlag;
 import com.liferay.portlet.messageboards.service.base.MBThreadFlagLocalServiceBaseImpl;
+
+import java.util.Date;
 
 /**
  * @author Brian Wing Shun Chan
@@ -31,7 +34,8 @@ import com.liferay.portlet.messageboards.service.base.MBThreadFlagLocalServiceBa
 public class MBThreadFlagLocalServiceImpl
 	extends MBThreadFlagLocalServiceBaseImpl {
 
-	public void addThreadFlag(long userId, MBThread thread)
+	public void addThreadFlag(
+			long userId, MBThread thread, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
@@ -50,8 +54,14 @@ public class MBThreadFlagLocalServiceImpl
 
 			threadFlag = mbThreadFlagPersistence.create(threadFlagId);
 
+			threadFlag.setUuid(serviceContext.getUuid());
+			threadFlag.setGroupId(thread.getGroupId());
+			threadFlag.setCompanyId(user.getCompanyId());
 			threadFlag.setUserId(userId);
-			threadFlag.setModifiedDate(thread.getLastPostDate());
+			threadFlag.setUserName(user.getFullName());
+			threadFlag.setCreateDate(serviceContext.getCreateDate(new Date()));
+			threadFlag.setModifiedDate(
+				serviceContext.getModifiedDate(thread.getLastPostDate()));
 			threadFlag.setThreadId(threadId);
 
 			try {
@@ -132,9 +142,8 @@ public class MBThreadFlagLocalServiceImpl
 			userId, thread.getThreadId());
 
 		if ((threadFlag != null) &&
-			(DateUtil.equals(
-				threadFlag.getModifiedDate(), thread.getLastPostDate(),
-				true))) {
+			DateUtil.equals(
+				threadFlag.getModifiedDate(), thread.getLastPostDate(), true)) {
 
 			return true;
 		}

@@ -29,6 +29,9 @@ AUI.add(
 					namespace: {
 					},
 
+					portletNamespace: {
+					},
+
 					repeatable: {
 						validator: Lang.isBoolean,
 						value: false
@@ -94,6 +97,7 @@ AUI.add(
 									fieldName: fieldName,
 									namespace: instance.get('namespace'),
 									p_p_isolated: true,
+									portletNamespace: instance.get('portletNamespace'),
 									readOnly: instance.get('readOnly')
 								},
 								on: {
@@ -194,13 +198,13 @@ AUI.add(
 
 								fieldNode.setData('rendered-toolbar', true);
 							}
-
-							instance.getFieldsList(null, fieldNode).each(
-								function(item, index, collection) {
-									instance.renderRepeatableUI(item);
-								}
-							);
 						}
+
+						instance.getFieldsList(null, fieldNode).each(
+							function(item, index, collection) {
+								instance.renderRepeatableUI(item);
+							}
+						);
 					},
 
 					syncFieldsTreeUI: function() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,8 +16,8 @@ package com.liferay.portlet.dynamicdatamapping.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelPathUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -29,7 +29,6 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUt
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureUtil;
 
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * @author Mate Thurzo
@@ -45,13 +44,11 @@ public class DDMStructureStagedModelDataHandler
 
 	@Override
 	protected void doExportStagedModel(
-			PortletDataContext portletDataContext, Element[] elements,
-			DDMStructure structure)
+			PortletDataContext portletDataContext, DDMStructure structure)
 		throws Exception {
 
-		Element structuresElement = elements[0];
-
-		Element structureElement = structuresElement.addElement("structure");
+		Element structureElement =
+			portletDataContext.getExportDataStagedModelElement(structure);
 
 		long defaultUserId = UserLocalServiceUtil.getDefaultUserId(
 			structure.getCompanyId());
@@ -61,30 +58,28 @@ public class DDMStructureStagedModelDataHandler
 		}
 
 		portletDataContext.addClassedModel(
-			structureElement, StagedModelPathUtil.getPath(structure), structure,
-			DDMPortletDataHandler.NAMESPACE);
+			structureElement, ExportImportPathUtil.getModelPath(structure),
+			structure, DDMPortletDataHandler.NAMESPACE);
 	}
 
 	@Override
 	protected void doImportStagedModel(
-			PortletDataContext portletDataContext, Element element, String path,
-			DDMStructure structure)
+			PortletDataContext portletDataContext, DDMStructure structure)
 		throws Exception {
 
 		prepareLanguagesForImport(structure);
 
 		long userId = portletDataContext.getUserId(structure.getUserUuid());
 
-		Map<Long, Long> structureIds =
-			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
-				DDMStructure.class);
-
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
-			path, structure, DDMPortletDataHandler.NAMESPACE);
+			structure, DDMPortletDataHandler.NAMESPACE);
 
 		DDMStructure importedStructure = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
+			Element element =
+				portletDataContext.getImportDataStagedModelElement(structure);
+
 			boolean preloaded = GetterUtil.getBoolean(
 				element.attributeValue("preloaded"));
 
@@ -132,9 +127,6 @@ public class DDMStructureStagedModelDataHandler
 
 		portletDataContext.importClassedModel(
 			structure, importedStructure, DDMPortletDataHandler.NAMESPACE);
-
-		structureIds.put(
-			structure.getStructureId(), importedStructure.getStructureId());
 	}
 
 	protected void prepareLanguagesForImport(DDMStructure structure)

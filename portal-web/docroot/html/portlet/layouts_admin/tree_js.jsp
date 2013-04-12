@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -158,6 +158,7 @@ if (!selectableTree) {
 					var childLayouts = [];
 					var total = 0;
 
+					var hasChildren = node.hasChildren;
 					var nodeChildren = node.children;
 
 					if (nodeChildren) {
@@ -166,6 +167,12 @@ if (!selectableTree) {
 					}
 
 					var expanded = (total > 0);
+
+					var type = 'task';
+
+					<c:if test="<%= !selectableTree %>">
+						type = (nodeChildren && expanded) ? 'node' : 'io';
+					</c:if>
 
 					var newNode = {
 						<c:if test="<%= saveState %>">
@@ -194,22 +201,23 @@ if (!selectableTree) {
 							},
 						</c:if>
 
-						alwaysShowHitArea: node.hasChildren,
+						alwaysShowHitArea: hasChildren,
 
 						<c:if test="<%= !saveState && defaultStateChecked %>">
 							checked: true,
 						</c:if>
 
-						draggable: node.updateable,
+						draggable: node.sortable,
 						expanded: expanded,
 						id: TreeUtil.createListItemId(node.groupId, node.layoutId, node.plid),
+						leaf: !node.parentable,
 						paginator: {
 							limit: TreeUtil.PAGINATION_LIMIT,
 							offsetParam: 'start',
 							start: Math.max(childLayouts.length - TreeUtil.PAGINATION_LIMIT, 0),
 							total: total
 						},
-						type: '<%= selectableTree ? "task" : "io" %>'
+						type: type
 					};
 
 					if (nodeChildren && expanded) {
@@ -236,7 +244,7 @@ if (!selectableTree) {
 						}
 					}
 
-					if (!node.updateable) {
+					if (!node.sortable) {
 						newNode.cssClass = 'lfr-page-locked';
 					}
 
@@ -598,6 +606,15 @@ if (!selectableTree) {
 					},
 				</c:if>
 
+				'drop:hit': function(event) {
+					var dropNode = event.drop.get('node').get('parentNode');
+
+					var dropTreeNode = dropNode.getData('tree-node');
+
+					if (!dropTreeNode.get('draggable')) {
+						event.halt();
+					}
+				},
 				dropAppend: function(event) {
 					var tree = event.tree;
 

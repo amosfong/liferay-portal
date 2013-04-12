@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -42,17 +42,6 @@ public class DLFileEntryFinderUtil {
 			queryDefinition);
 	}
 
-	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> doFindByG_U_F_M(
-		long groupId, long userId, java.util.List<java.lang.Long> folderIds,
-		java.lang.String[] mimeTypes,
-		com.liferay.portal.kernel.dao.orm.QueryDefinition queryDefinition,
-		boolean inlineSQLHelper)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getFinder()
-				   .doFindByG_U_F_M(groupId, userId, folderIds, mimeTypes,
-			queryDefinition, inlineSQLHelper);
-	}
-
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry fetchByAnyImageId(
 		long imageId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -78,6 +67,12 @@ public class DLFileEntryFinderUtil {
 		throws com.liferay.portal.kernel.exception.SystemException,
 			com.liferay.portlet.documentlibrary.NoSuchFileEntryException {
 		return getFinder().findByAnyImageId(imageId);
+	}
+
+	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> findByDDMStructureIds(
+		long[] ddmStructureIds, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getFinder().findByDDMStructureIds(ddmStructureIds, start, end);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> findByExtraSettings(

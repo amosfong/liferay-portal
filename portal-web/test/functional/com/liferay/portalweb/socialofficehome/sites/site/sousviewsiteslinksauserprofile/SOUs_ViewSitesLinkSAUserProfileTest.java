@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -62,19 +62,20 @@ public class SOUs_ViewSitesLinkSAUserProfileTest extends BaseTestCase {
 		selenium.waitForPageToLoad("30000");
 		assertTrue(selenium.isElementNotPresent(
 				"//div[@class='community-title']/a"));
-		assertNotEquals(RuntimeVariables.replace("Home"),
-			selenium.getText("//nav/ul/li[1]/a/span"));
-		assertNotEquals(RuntimeVariables.replace("Calendar"),
-			selenium.getText("//nav/ul/li[2]/a/span"));
-		assertNotEquals(RuntimeVariables.replace("Documents"),
-			selenium.getText("//nav/ul/li[3]/a/span"));
-		assertNotEquals(RuntimeVariables.replace("Forums"),
-			selenium.getText("//nav/ul/li[4]/a/span"));
-		assertNotEquals(RuntimeVariables.replace("Blogs"),
-			selenium.getText("//nav/ul/li[5]/a/span"));
-		assertNotEquals(RuntimeVariables.replace("Wiki"),
-			selenium.getText("//nav/ul/li[6]/a/span"));
-		assertTrue(selenium.isElementNotPresent("//nav/ul/li[7]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Home')]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Calendar')]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[3]/a/span[contains(.,'Documents')]"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Forums')]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Blogs')]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Wiki')]/a/span"));
+		assertTrue(selenium.isElementNotPresent(
+				"//nav/ul/li[contains(.,'Members')]/a/span"));
 		selenium.open("/web/joebloggs/so/profile");
 		assertEquals(RuntimeVariables.replace("Joe Bloggs"),
 			selenium.getText("//div[@class='lfr-contact-name']/a"));

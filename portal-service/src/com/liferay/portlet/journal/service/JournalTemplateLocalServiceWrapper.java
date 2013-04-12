@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -189,12 +189,12 @@ public class JournalTemplateLocalServiceWrapper
 	}
 
 	/**
-	* Returns the journal template with the UUID in the group.
+	* Returns the journal template matching the UUID and group.
 	*
-	* @param uuid the UUID of journal template
-	* @param groupId the group id of the journal template
-	* @return the journal template
-	* @throws PortalException if a journal template with the UUID in the group could not be found
+	* @param uuid the journal template's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal template
+	* @throws PortalException if a matching journal template could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.journal.model.JournalTemplate getJournalTemplateByUuidAndGroupId(
@@ -484,14 +484,14 @@ public class JournalTemplateLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public JournalTemplateLocalService getWrappedJournalTemplateLocalService() {
 		return _journalTemplateLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedJournalTemplateLocalService(
 		JournalTemplateLocalService journalTemplateLocalService) {

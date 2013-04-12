@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -229,7 +229,8 @@ public abstract class AbstractSearchEngineConfigurator {
 		Destination searchWriterDestination = getSearchWriterDestination(
 			messageBus, searchEngineId, searchEngine);
 
-		searchEngineRegistration.setSearchWriterDestinationName(searchEngineId);
+		searchEngineRegistration.setSearchWriterDestinationName(
+			searchWriterDestination.getName());
 
 		SearchEngine originalSearchEngine =
 			SearchEngineUtil.getSearchEngineSilent(searchEngineId);

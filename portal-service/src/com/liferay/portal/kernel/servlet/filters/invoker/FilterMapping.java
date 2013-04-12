@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -245,8 +245,7 @@ public class FilterMapping {
 	private boolean _dispatcherInclude;
 	private boolean _dispatcherRequest;
 	private Filter _filter;
-	private Pattern _uriJSessionIdPattern = Pattern.compile(
-		";jsessionid=[0-9A-F]*");
+	private Pattern _uriJSessionIdPattern = Pattern.compile(";jsessionid=.*");
 	private List<String> _urlPatterns;
 	private Pattern _urlRegexIgnorePattern;
 	private Pattern _urlRegexPattern;

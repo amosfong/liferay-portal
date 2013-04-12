@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -53,7 +53,7 @@ for (int j = 0; j < entryColumns.length; j++) {
 			<liferay-ui:search-container-column-text
 				href="<%= rowHREF %>"
 				name="<%= bookmarksEntryColumn %>"
-				value="<%= entry.getUrl() %>"
+				value="<%= HtmlUtil.escape(entry.getUrl()) %>"
 			/>
 		</c:when>
 		<c:when test='<%= bookmarksEntryColumn.equals("visits") %>'>

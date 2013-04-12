@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -64,8 +64,6 @@ String openSsoLastNameAttr = PrefsPropsUtil.getString(company.getCompanyId(), Pr
 		function() {
 			var A = AUI();
 
-			var title = 'OpenSSO';
-
 			var data = {};
 
 			data.<portlet:namespace />openSsoLoginURL = document.<portlet:namespace />fm['<portlet:namespace />settings--<%= PropsKeys.OPEN_SSO_LOGIN_URL %>--'].value;
@@ -83,7 +81,7 @@ String openSsoLastNameAttr = PrefsPropsUtil.getString(company.getCompanyId(), Pr
 					align: Liferay.Util.Window.ALIGN_CENTER,
 					destroyOnClose: true,
 					modal: true,
-					title: Liferay.Language.get(title),
+					title: '<%= UnicodeLanguageUtil.get(pageContext, "open-sso") %>',
 					width: 600
 				}
 			).render();

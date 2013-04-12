@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,18 +16,24 @@ package com.liferay.portal.xsl;
 
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.template.StringTemplateResource;
-import com.liferay.portal.kernel.template.Template;
+import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.template.AbstractProcessingTemplate;
 import com.liferay.portal.template.TemplateContextHelper;
 
 import java.io.Writer;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,7 +45,7 @@ import javax.xml.transform.stream.StreamSource;
 /**
  * @author Tina Tian
  */
-public class XSLTemplate implements Template {
+public class XSLTemplate extends AbstractProcessingTemplate {
 
 	public XSLTemplate(
 		XSLTemplateResource xslTemplateResource,
@@ -72,11 +78,31 @@ public class XSLTemplate implements Template {
 		return _context.get(key);
 	}
 
+	public String[] getKeys() {
+		Set<String> keys = _context.keySet();
+
+		return keys.toArray(new String[keys.size()]);
+	}
+
+	@Override
+	public TemplateContextHelper getTemplateContextHelper() {
+		return _templateContextHelper;
+	}
+
 	public void prepare(HttpServletRequest request) {
 		_templateContextHelper.prepare(this, request);
 	}
 
-	public boolean processTemplate(Writer writer) throws TemplateException {
+	public void put(String key, Object value) {
+		if (value == null) {
+			return;
+		}
+
+		_context.put(key, value);
+	}
+
+	@Override
+	protected void doProcessTemplate(Writer writer) throws TemplateException {
 		TransformerFactory transformerFactory =
 			TransformerFactory.newInstance();
 
@@ -100,14 +126,16 @@ public class XSLTemplate implements Template {
 		StreamSource xmlSource = new StreamSource(
 			_xslTemplateResource.getXMLReader());
 
-		Transformer transformer = _getTransformer(
-			transformerFactory, _xslTemplateResource);
+		Transformer transformer = null;
 
 		if (_errorTemplateResource == null) {
 			try {
+				transformer = _getTransformer(
+					transformerFactory, _xslTemplateResource);
+
 				transformer.transform(xmlSource, new StreamResult(writer));
 
-				return true;
+				return;
 			}
 			catch (Exception e) {
 				throw new TemplateException(
@@ -120,7 +148,11 @@ public class XSLTemplate implements Template {
 		try {
 			UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
-			transformer.setParameter(WRITER, unsyncStringWriter);
+			transformer = _getTransformer(
+				transformerFactory, _xslTemplateResource);
+
+			transformer.setParameter(
+				TemplateConstants.WRITER, unsyncStringWriter);
 
 			transformer.transform(
 				xmlSource, new StreamResult(unsyncStringWriter));
@@ -128,14 +160,12 @@ public class XSLTemplate implements Template {
 			StringBundler sb = unsyncStringWriter.getStringBundler();
 
 			sb.writeTo(writer);
-
-			return true;
 		}
 		catch (Exception e1) {
 			Transformer errorTransformer = _getTransformer(
 				transformerFactory, _errorTemplateResource);
 
-			errorTransformer.setParameter(WRITER, writer);
+			errorTransformer.setParameter(TemplateConstants.WRITER, writer);
 			errorTransformer.setParameter(
 				"exception", xslErrorListener.getMessageAndLocation());
 
@@ -163,17 +193,7 @@ public class XSLTemplate implements Template {
 						_errorTemplateResource.getTemplateId(),
 					e2);
 			}
-
-			return false;
 		}
-	}
-
-	public void put(String key, Object value) {
-		if (value == null) {
-			return;
-		}
-
-		_context.put(key, value);
 	}
 
 	private Transformer _getTransformer(
@@ -185,14 +205,21 @@ public class XSLTemplate implements Template {
 			StreamSource scriptSource = new StreamSource(
 				templateResource.getReader());
 
-			Transformer transformer = transformerFactory.newTransformer(
-				scriptSource);
+			Transformer transformer = AccessController.doPrivileged(
+				new TransformerPrivilegedExceptionAction(
+					transformerFactory, scriptSource));
 
 			for (Map.Entry<String, Object> entry : _context.entrySet()) {
 				transformer.setParameter(entry.getKey(), entry.getValue());
 			}
 
 			return transformer;
+		}
+		catch (PrivilegedActionException pae) {
+			throw new TemplateException(
+				"Unable to get Transformer for template " +
+					templateResource.getTemplateId(),
+				pae.getException());
 		}
 		catch (Exception e) {
 			throw new TemplateException(
@@ -206,5 +233,24 @@ public class XSLTemplate implements Template {
 	private TemplateResource _errorTemplateResource;
 	private TemplateContextHelper _templateContextHelper;
 	private XSLTemplateResource _xslTemplateResource;
+
+	private class TransformerPrivilegedExceptionAction
+		implements PrivilegedExceptionAction<Transformer> {
+
+		public TransformerPrivilegedExceptionAction(
+			TransformerFactory transformerFactory, StreamSource scriptSource) {
+
+			_transformerFactory = transformerFactory;
+			_scriptSource = scriptSource;
+		}
+
+		public Transformer run() throws Exception {
+			return _transformerFactory.newTransformer(_scriptSource);
+		}
+
+		private StreamSource _scriptSource;
+		private TransformerFactory _transformerFactory;
+
+	}
 
 }

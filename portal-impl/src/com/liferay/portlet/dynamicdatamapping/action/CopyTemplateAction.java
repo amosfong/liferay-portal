@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -110,8 +110,8 @@ public class CopyTemplateAction extends PortletAction {
 		}
 		catch (NoSuchTemplateException nste) {
 
-			// Let this slide because the user can manually input a template
-			// key for a new template that does not yet exist
+			// Let this slide because the user can manually input a template key
+			// for a new template that does not yet exist
 
 		}
 		catch (Exception e) {
@@ -138,12 +138,14 @@ public class CopyTemplateAction extends PortletAction {
 
 		Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
 			actionRequest, "name");
+		Map<Locale, String> descriptionMap =
+			LocalizationUtil.getLocalizationMap(actionRequest, "description");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			DDMTemplate.class.getName(), actionRequest);
 
 		return DDMTemplateServiceUtil.copyTemplate(
-			templateId, nameMap, null, serviceContext);
+			templateId, nameMap, descriptionMap, serviceContext);
 	}
 
 	protected String getSaveAndContinueRedirect(

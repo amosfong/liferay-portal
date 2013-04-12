@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -35,7 +35,7 @@ Map<Long, String> classTypes = assetRendererFactory.getClassTypes(new long[] {th
 	</span>
 
 	<c:choose>
-		<c:when test="<%= (classTypes == null) || classTypes.isEmpty() %>">
+		<c:when test="<%= classTypes.isEmpty() %>">
 
 			<%
 			PortletURL addPortletURL = AssetUtil.getAddPortletURL(liferayPortletRequest, liferayPortletResponse, typeSelection, 0, null, null, portletURL.toString());
@@ -79,7 +79,7 @@ Map<Long, String> classTypes = assetRendererFactory.getClassTypes(new long[] {th
 						message="<%= assetRendererFactory.getTypeName(locale, true) %>"
 						method="get"
 						src="<%= assetRendererFactory.getIconPath(renderRequest) %>"
-						url='<%= addPortletURLString %>'
+						url="<%= addPortletURLString %>"
 					/>
 				</c:if>
 
@@ -100,10 +100,10 @@ Map<Long, String> classTypes = assetRendererFactory.getClassTypes(new long[] {th
 				%>
 
 					<liferay-ui:icon
-						message="<%= classTypes.get(classTypeId) %>"
+						message="<%= HtmlUtil.escape(classTypes.get(classTypeId)) %>"
 						method="get"
 						src="<%= assetRendererFactory.getIconPath(renderRequest) %>"
-						url='<%= addPortletURLString %>'
+						url="<%= addPortletURLString %>"
 					/>
 
 				<%

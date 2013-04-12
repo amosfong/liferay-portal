@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -65,10 +65,12 @@ public class ViewEditVocabulary1CategoryToVocabulary2DetailTest
 		assertEquals(RuntimeVariables.replace("Vocabulary2 Name"),
 			selenium.getText(
 				"//li[contains(@class,'selected')]/div/span[@class='vocabulary-item']/a"));
-		selenium.waitForText("//li/div/div[4]", "Vocabulary1 Category Name");
+		selenium.waitForText("//div[@class='vocabulary-categories']/div/ul/li/div[contains(.,'Vocabulary1 Category Name')]",
+			"Vocabulary1 Category Name");
 		assertEquals(RuntimeVariables.replace("Vocabulary1 Category Name"),
-			selenium.getText("//li/div/div[4]"));
-		selenium.clickAt("//li/div/div[4]",
+			selenium.getText(
+				"//div[@class='vocabulary-categories']/div/ul/li/div[contains(.,'Vocabulary1 Category Name')]"));
+		selenium.clickAt("//div[@class='vocabulary-categories']/div/ul/li/div[contains(.,'Vocabulary1 Category Name')]",
 			RuntimeVariables.replace("Vocabulary1 Category Name"));
 		selenium.waitForVisible("//div[@class='view-category']/div/h1/span");
 		assertEquals(RuntimeVariables.replace("Vocabulary1 Category Name"),

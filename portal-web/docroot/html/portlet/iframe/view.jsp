@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -184,10 +184,10 @@ if (windowState.equals(WindowState.MAXIMIZED)) {
 				var height = A.Plugin.ResizeIframe.getContentHeight(iframe);
 
 				if (height == null) {
-					height = <%= heightNormal %>;
+					height = '<%= heightNormal %>';
 
 					if (themeDisplay.isStateMaximized()) {
-						height = <%= heightMaximized %>;
+						height = '<%= heightMaximized %>';
 					}
 
 					iframe.setStyle('height', height);

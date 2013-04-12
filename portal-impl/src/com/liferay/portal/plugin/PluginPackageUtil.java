@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.Plugin;
+import com.liferay.portal.security.lang.DoPrivilegedBean;
 import com.liferay.portal.util.HttpImpl;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -90,11 +91,6 @@ import org.apache.commons.lang.time.StopWatch;
  * @author Sandeep Soni
  */
 public class PluginPackageUtil {
-
-	public static final String REPOSITORY_XML_FILENAME_EXTENSION = "xml";
-
-	public static final String REPOSITORY_XML_FILENAME_PREFIX =
-		"liferay-plugin-repository";
 
 	public static void endPluginPackageInstallation(String preliminaryContext) {
 		_instance._endPluginPackageInstallation(preliminaryContext);
@@ -635,16 +631,28 @@ public class PluginPackageUtil {
 
 		sb.append(repositoryURL);
 		sb.append(StringPool.SLASH);
-		sb.append(REPOSITORY_XML_FILENAME_PREFIX);
+		sb.append(PluginPackage.REPOSITORY_XML_FILENAME_PREFIX);
 		sb.append(StringPool.DASH);
 		sb.append(ReleaseInfo.getVersion());
 		sb.append(StringPool.PERIOD);
-		sb.append(REPOSITORY_XML_FILENAME_EXTENSION);
+		sb.append(PluginPackage.REPOSITORY_XML_FILENAME_EXTENSION);
 
 		String pluginsXmlURL = sb.toString();
 
 		try {
-			HttpImpl httpImpl = (HttpImpl)HttpUtil.getHttp();
+			HttpImpl httpImpl = null;
+
+			Object httpObject = HttpUtil.getHttp();
+
+			if (httpObject instanceof DoPrivilegedBean) {
+				DoPrivilegedBean doPrivilegedBean =
+					(DoPrivilegedBean)httpObject;
+
+				httpImpl = (HttpImpl)doPrivilegedBean.getActualBean();
+			}
+			else {
+				httpImpl = (HttpImpl)httpObject;
+			}
 
 			HostConfiguration hostConfiguration = httpImpl.getHostConfiguration(
 				pluginsXmlURL);
@@ -673,9 +681,9 @@ public class PluginPackageUtil {
 
 					sb.append(repositoryURL);
 					sb.append(StringPool.SLASH);
-					sb.append(REPOSITORY_XML_FILENAME_PREFIX);
+					sb.append(PluginPackage.REPOSITORY_XML_FILENAME_PREFIX);
 					sb.append(StringPool.PERIOD);
-					sb.append(REPOSITORY_XML_FILENAME_EXTENSION);
+					sb.append(PluginPackage.REPOSITORY_XML_FILENAME_EXTENSION);
 
 					pluginsXmlURL = sb.toString();
 

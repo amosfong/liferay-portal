@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.struts.Globals;
 
 /**
  * @author Brian Wing Shun Chan
@@ -52,7 +55,7 @@ public class I18nServlet extends HttpServlet {
 	}
 
 	public static void setLanguageIds(Element root) {
-		_languageIds.clear();
+		_languageIds = new HashSet<String>();
 
 		List<Element> rootElements = root.elements("servlet-mapping");
 
@@ -94,6 +97,14 @@ public class I18nServlet extends HttpServlet {
 
 				request.setAttribute(WebKeys.I18N_LANGUAGE_ID, i18nLanguageId);
 				request.setAttribute(WebKeys.I18N_PATH, i18nPath);
+
+				Locale locale = LocaleUtil.fromLanguageId(i18nLanguageId);
+
+				HttpSession session = request.getSession();
+
+				session.setAttribute(Globals.LOCALE_KEY, locale);
+
+				LanguageUtil.updateCookie(request, response, locale);
 
 				ServletContext servletContext = getServletContext();
 
@@ -157,6 +168,6 @@ public class I18nServlet extends HttpServlet {
 
 	private static Log _log = LogFactoryUtil.getLog(I18nServlet.class);
 
-	private static Set<String> _languageIds = new HashSet<String>();
+	private static Set<String> _languageIds;
 
 }

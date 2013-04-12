@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import com.liferay.portal.NoSuchPortletPreferencesException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandler;
@@ -76,7 +77,7 @@ import com.liferay.portlet.asset.service.AssetTagPropertyLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.service.persistence.AssetCategoryUtil;
 import com.liferay.portlet.asset.service.persistence.AssetVocabularyUtil;
-import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
+import com.liferay.portlet.assetpublisher.util.AssetPublisher;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.expando.model.ExpandoColumn;
@@ -282,6 +283,13 @@ public class PortletExporter {
 		}
 
 		headerElement.addAttribute("type", "portlet");
+
+		Group companyGroup = GroupLocalServiceUtil.getCompanyGroup(
+			layout.getCompanyId());
+
+		headerElement.addAttribute(
+			"company-group-id", String.valueOf(companyGroup.getGroupId()));
+
 		headerElement.addAttribute("group-id", String.valueOf(scopeGroupId));
 		headerElement.addAttribute(
 			"private-layout", String.valueOf(layout.isPrivateLayout()));
@@ -336,7 +344,8 @@ public class PortletExporter {
 		exportAssetCategories(portletDataContext, rootElement);
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/categories-hierarchy.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) +
+				"/categories-hierarchy.xml",
 			document.formattedString());
 	}
 
@@ -498,7 +507,7 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/links.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) + "/links.xml",
 			document.formattedString());
 	}
 
@@ -572,7 +581,7 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/tags.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) + "/tags.xml",
 			document.formattedString());
 	}
 
@@ -661,7 +670,8 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/comments.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) +
+				"/comments.xml",
 			document.formattedString());
 	}
 
@@ -713,7 +723,8 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/expando-tables.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) +
+				"/expando-tables.xml",
 			document.formattedString());
 	}
 
@@ -750,7 +761,7 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/locks.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) + "/locks.xml",
 			document.formattedString());
 	}
 
@@ -928,7 +939,8 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(portletDataContext.getPortletPath(portletId));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(portletDataContext, portletId));
 		sb.append(StringPool.SLASH);
 		sb.append(plid);
 		sb.append("/portlet.xml");
@@ -999,7 +1011,8 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(portletDataContext.getPortletPath(portletId));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(portletDataContext, portletId));
 		sb.append(StringPool.SLASH);
 
 		if (portlet.isPreferencesUniquePerLayout()) {
@@ -1241,7 +1254,8 @@ public class PortletExporter {
 		}
 
 		portletDataContext.addZipEntry(
-			portletDataContext.getRootPath() + "/ratings.xml",
+			ExportImportPathUtil.getRootPath(portletDataContext) +
+				"/ratings.xml",
 			document.formattedString());
 	}
 
@@ -1250,7 +1264,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/categories/");
 		sb.append(assetCategoryId);
 		sb.append(".xml");
@@ -1263,7 +1277,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/tags/");
 		sb.append(assetCategoryId);
 		sb.append(".xml");
@@ -1276,7 +1290,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/vocabularies/");
 		sb.append(assetVocabularyId);
 		sb.append(".xml");
@@ -1290,7 +1304,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/comments/");
 		sb.append(PortalUtil.getClassNameId(className));
 		sb.append(CharPool.FORWARD_SLASH);
@@ -1308,7 +1322,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/comments/");
 		sb.append(PortalUtil.getClassNameId(className));
 		sb.append(CharPool.FORWARD_SLASH);
@@ -1324,7 +1338,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/locks/");
 		sb.append(PortalUtil.getClassNameId(className));
 		sb.append(CharPool.FORWARD_SLASH);
@@ -1339,8 +1353,10 @@ public class PortletExporter {
 	protected String getPortletDataPath(
 		PortletDataContext portletDataContext, String portletId) {
 
-		return portletDataContext.getPortletPath(portletId) +
-			"/portlet-data.xml";
+		String portletPath = ExportImportPathUtil.getPortletPath(
+			portletDataContext, portletId);
+
+		return portletPath + "/portlet-data.xml";
 	}
 
 	protected String getPortletPreferencesPath(
@@ -1349,7 +1365,8 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append(portletDataContext.getPortletPath(portletId));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(portletDataContext, portletId));
 		sb.append("/preferences/");
 
 		if (ownerType == PortletKeys.PREFS_OWNER_TYPE_COMPANY) {
@@ -1383,7 +1400,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/ratings/");
 		sb.append(PortalUtil.getClassNameId(className));
 		sb.append(CharPool.FORWARD_SLASH);
@@ -1399,7 +1416,7 @@ public class PortletExporter {
 
 		StringBundler sb = new StringBundler(8);
 
-		sb.append(portletDataContext.getRootPath());
+		sb.append(ExportImportPathUtil.getRootPath(portletDataContext));
 		sb.append("/ratings/");
 		sb.append(PortalUtil.getClassNameId(className));
 		sb.append(CharPool.FORWARD_SLASH);
@@ -1539,26 +1556,25 @@ public class PortletExporter {
 		Group companyGroup = company.getGroup();
 
 		String companyGroupScopeId =
-			AssetPublisherUtil.SCOPE_ID_GROUP_PREFIX +
-				companyGroup.getGroupId();
+			AssetPublisher.SCOPE_ID_GROUP_PREFIX + companyGroup.getGroupId();
 
 		String[] newValues = new String[oldValues.length];
 
 		for (int i = 0; i < oldValues.length; i++) {
 			String oldValue = oldValues[i];
 
-			if (oldValue.startsWith(AssetPublisherUtil.SCOPE_ID_GROUP_PREFIX)) {
+			if (oldValue.startsWith(AssetPublisher.SCOPE_ID_GROUP_PREFIX)) {
 				newValues[i] = StringUtil.replace(
 					oldValue, companyGroupScopeId,
 					"[$COMPANY_GROUP_SCOPE_ID$]");
 			}
 			else if (oldValue.startsWith(
-						AssetPublisherUtil.SCOPE_ID_LAYOUT_PREFIX)) {
+						AssetPublisher.SCOPE_ID_LAYOUT_PREFIX)) {
 
 				// Legacy preferences
 
 				String scopeIdSuffix = oldValue.substring(
-					AssetPublisherUtil.SCOPE_ID_LAYOUT_PREFIX.length());
+					AssetPublisher.SCOPE_ID_LAYOUT_PREFIX.length());
 
 				long scopeIdLayoutId = GetterUtil.getLong(scopeIdSuffix);
 
@@ -1567,7 +1583,7 @@ public class PortletExporter {
 					scopeIdLayoutId);
 
 				newValues[i] =
-					AssetPublisherUtil.SCOPE_ID_LAYOUT_UUID_PREFIX +
+					AssetPublisher.SCOPE_ID_LAYOUT_UUID_PREFIX +
 						scopeIdLayout.getUuid();
 			}
 			else {

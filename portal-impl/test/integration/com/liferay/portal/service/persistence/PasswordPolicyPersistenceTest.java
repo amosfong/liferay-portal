@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,18 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchPasswordPolicyException;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.PasswordPolicy;
@@ -109,6 +114,8 @@ public class PasswordPolicyPersistenceTest {
 
 		PasswordPolicy newPasswordPolicy = _persistence.create(pk);
 
+		newPasswordPolicy.setUuid(ServiceTestUtil.randomString());
+
 		newPasswordPolicy.setCompanyId(ServiceTestUtil.nextLong());
 
 		newPasswordPolicy.setUserId(ServiceTestUtil.nextLong());
@@ -177,6 +184,8 @@ public class PasswordPolicyPersistenceTest {
 
 		PasswordPolicy existingPasswordPolicy = _persistence.findByPrimaryKey(newPasswordPolicy.getPrimaryKey());
 
+		Assert.assertEquals(existingPasswordPolicy.getUuid(),
+			newPasswordPolicy.getUuid());
 		Assert.assertEquals(existingPasswordPolicy.getPasswordPolicyId(),
 			newPasswordPolicy.getPasswordPolicyId());
 		Assert.assertEquals(existingPasswordPolicy.getCompanyId(),
@@ -271,6 +280,33 @@ public class PasswordPolicyPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("PasswordPolicy", "uuid",
+			true, "passwordPolicyId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true,
+			"defaultPolicy", true, "name", true, "description", true,
+			"changeable", true, "changeRequired", true, "minAge", true,
+			"checkSyntax", true, "allowDictionaryWords", true,
+			"minAlphanumeric", true, "minLength", true, "minLowerCase", true,
+			"minNumbers", true, "minSymbols", true, "minUpperCase", true,
+			"regex", true, "history", true, "historyCount", true, "expireable",
+			true, "maxAge", true, "warningTime", true, "graceLimit", true,
+			"lockout", true, "maxFailure", true, "lockoutDuration", true,
+			"requireUnlock", true, "resetFailureCount", true,
+			"resetTicketMaxAge", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		PasswordPolicy newPasswordPolicy = addPasswordPolicy();
 
@@ -286,6 +322,26 @@ public class PasswordPolicyPersistenceTest {
 		PasswordPolicy missingPasswordPolicy = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingPasswordPolicy);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new PasswordPolicyActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					PasswordPolicy passwordPolicy = (PasswordPolicy)object;
+
+					Assert.assertNotNull(passwordPolicy);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -390,6 +446,8 @@ public class PasswordPolicyPersistenceTest {
 		long pk = ServiceTestUtil.nextLong();
 
 		PasswordPolicy passwordPolicy = _persistence.create(pk);
+
+		passwordPolicy.setUuid(ServiceTestUtil.randomString());
 
 		passwordPolicy.setCompanyId(ServiceTestUtil.nextLong());
 

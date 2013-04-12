@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,18 @@ import java.util.Set;
  * @author Amos Fong
  */
 public interface LicenseManager {
+
+	public static final int STATE_ABSENT = 1;
+
+	public static final int STATE_EXPIRED = 2;
+
+	public static final int STATE_GOOD = 3;
+
+	public static final int STATE_INACTIVE = 4;
+
+	public static final int STATE_INVALID = 5;
+
+	public static final int STATE_OVERLOAD = 6;
 
 	public void checkLicense(String productId);
 

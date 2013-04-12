@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -107,12 +107,11 @@ boolean expired = true;
 									<%
 									PortletURL printPageURL = renderResponse.createRenderURL();
 
-									printPageURL.setWindowState(LiferayWindowState.POP_UP);
-
 									printPageURL.setParameter("struts_action", "/journal_content/view");
 									printPageURL.setParameter("groupId", String.valueOf(articleDisplay.getGroupId()));
 									printPageURL.setParameter("articleId", articleDisplay.getArticleId());
 									printPageURL.setParameter("viewMode", Constants.PRINT);
+									printPageURL.setWindowState(LiferayWindowState.POP_UP);
 									%>
 
 									<div class="print-action">
@@ -138,11 +137,10 @@ boolean expired = true;
 							<%
 							PortletURL exportArticleURL = renderResponse.createActionURL();
 
-							exportArticleURL.setWindowState(LiferayWindowState.EXCLUSIVE);
-
 							exportArticleURL.setParameter("struts_action", "/journal_content/export_article");
 							exportArticleURL.setParameter("groupId", String.valueOf(articleDisplay.getGroupId()));
 							exportArticleURL.setParameter("articleId", articleDisplay.getArticleId());
+							exportArticleURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 							%>
 
 							<div class="export-actions">
@@ -188,7 +186,7 @@ boolean expired = true;
 					</div>
 				</c:if>
 
-				<div class="journal-content-article" id="article_<%= articleDisplay.getCompanyId() %>_<%= articleDisplay.getGroupId() %>_<%= articleDisplay.getArticleId() %>_<%= articleDisplay.getVersion() %>">
+				<div class="journal-content-article">
 					<%= RuntimePageUtil.processXML(request, response, articleDisplay.getContent()) %>
 				</div>
 

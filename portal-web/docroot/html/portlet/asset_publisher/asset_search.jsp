@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -43,7 +43,7 @@ long groupId = ParamUtil.getLong(request, "groupId");
 				Group group = GroupLocalServiceUtil.getGroup(groupId);
 			%>
 
-				<aui:option label="<%= group.getDescriptiveName(locale) %>" selected="true" value="<%= groupId %>" />
+				<aui:option label="<%= HtmlUtil.escape(group.getDescriptiveName(locale)) %>" selected="true" value="<%= groupId %>" />
 
 			<%
 			}
@@ -52,7 +52,7 @@ long groupId = ParamUtil.getLong(request, "groupId");
 					Group group = GroupLocalServiceUtil.getGroup(curGroupId);
 				%>
 
-					<aui:option label="<%= group.getDescriptiveName(locale) %>" selected="<%= displayTerms.getGroupId() == curGroupId %>" value="<%= curGroupId %>" />
+					<aui:option label="<%= HtmlUtil.escape(group.getDescriptiveName(locale)) %>" selected="<%= displayTerms.getGroupId() == curGroupId %>" value="<%= curGroupId %>" />
 
 				<%
 				}

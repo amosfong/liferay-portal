@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -44,6 +44,7 @@ import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.model.PublicRenderParameter;
 import com.liferay.portal.model.impl.VirtualLayout;
 import com.liferay.portal.security.auth.AuthTokenUtil;
+import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.PortletDisplay;
@@ -62,6 +63,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import java.security.Key;
+import java.security.PrivilegedAction;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -616,6 +618,12 @@ public class PortletURLImpl
 		}
 	}
 
+	public void setRefererGroupId(long refererGroupId) {
+		_refererGroupId = refererGroupId;
+
+		clearCache();
+	}
+
 	public void setRefererPlid(long refererPlid) {
 		_refererPlid = refererPlid;
 
@@ -673,12 +681,7 @@ public class PortletURLImpl
 			return _toString;
 		}
 
-		if (_wsrp) {
-			_toString = generateWSRPToString();
-		}
-		else {
-			_toString = generateToString();
-		}
+		_toString = DoPrivilegedUtil.wrap(new ToStringPrivilegedAction());
 
 		return _toString;
 	}
@@ -885,7 +888,7 @@ public class PortletURLImpl
 			String name = entry.getKey();
 
 			if (!isParameterIncludedInPath(name)) {
-				sb.append(name);
+				sb.append(HttpUtil.encodeURL(name));
 				sb.append(StringPool.EQUAL);
 				sb.append(processValue(key, entry.getValue()));
 				sb.append(StringPool.AMPERSAND);
@@ -942,6 +945,19 @@ public class PortletURLImpl
 			sb.append(StringPool.AMPERSAND);
 		}
 
+		long refererGroupId = _refererGroupId;
+
+		if (refererGroupId <= 0) {
+			refererGroupId = themeDisplay.getRefererGroupId();
+		}
+
+		if (refererGroupId > 0) {
+			sb.append("refererGroupId");
+			sb.append(StringPool.EQUAL);
+			sb.append(processValue(key, refererGroupId));
+			sb.append(StringPool.AMPERSAND);
+		}
+
 		long refererPlid = _refererPlid;
 
 		if (refererPlid <= 0) {
@@ -958,7 +974,11 @@ public class PortletURLImpl
 		String controlPanelCategory = _controlPanelCategory;
 
 		if (Validator.isNull(controlPanelCategory)) {
-			controlPanelCategory = themeDisplay.getControlPanelCategory();
+			HttpServletRequest request = PortalUtil.getOriginalServletRequest(
+				_request);
+
+			controlPanelCategory = ParamUtil.getString(
+				request, "controlPanelCategory");
 		}
 
 		if (Validator.isNotNull(controlPanelCategory)) {
@@ -979,7 +999,7 @@ public class PortletURLImpl
 				sb.append(StringPool.AMPERSAND);
 			}
 
-			sb.append(entry.getKey());
+			sb.append(HttpUtil.encodeURL(entry.getKey()));
 			sb.append(StringPool.EQUAL);
 			sb.append(processValue(key, entry.getValue()[0]));
 			sb.append(StringPool.AMPERSAND);
@@ -1006,7 +1026,7 @@ public class PortletURLImpl
 				name = publicRenderParameterName;
 			}
 
-			name = prependNamespace(name);
+			name = HttpUtil.encodeURL(prependNamespace(name));
 
 			for (String value : values) {
 				sb.append(name);
@@ -1041,7 +1061,7 @@ public class PortletURLImpl
 				}
 
 				sb.append("#p_");
-				sb.append(_portletId);
+				sb.append(HttpUtil.encodeURL(_portletId));
 			}
 		}
 
@@ -1145,7 +1165,7 @@ public class PortletURLImpl
 				sb.append("wsrp-fragmentID");
 				sb.append(StringPool.EQUAL);
 				sb.append("#p_");
-				sb.append(_portletId);
+				sb.append(HttpUtil.encodeURL(_portletId));
 				sb.append(StringPool.AMPERSAND);
 			}
 		}
@@ -1173,7 +1193,7 @@ public class PortletURLImpl
 				name = publicRenderParameterName;
 			}
 
-			name = prependNamespace(name);
+			name = HttpUtil.encodeURL(prependNamespace(name));
 
 			for (String value : values) {
 				parameterSb.append(name);
@@ -1392,6 +1412,7 @@ public class PortletURLImpl
 	private String _portletId;
 	private String _portletModeString;
 	private PortletRequest _portletRequest;
+	private long _refererGroupId;
 	private long _refererPlid;
 	private Set<String> _removedParameterNames;
 	private Map<String, String[]> _removePublicRenderParameters;
@@ -1403,5 +1424,16 @@ public class PortletURLImpl
 	private boolean _windowStateRestoreCurrentView;
 	private String _windowStateString;
 	private boolean _wsrp;
+
+	private class ToStringPrivilegedAction implements PrivilegedAction<String> {
+
+		public String run() {
+			if (_wsrp) {
+				return generateWSRPToString();
+			}
+
+			return generateToString();
+		}
+	}
 
 }

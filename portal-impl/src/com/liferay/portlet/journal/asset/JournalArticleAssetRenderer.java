@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.asset;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.trash.TrashRenderer;
@@ -74,12 +76,13 @@ public class JournalArticleAssetRenderer
 		_article = article;
 	}
 
-	public JournalArticle getArticle() {
-		return _article;
+	@Override
+	public String getAddToPagePortletId() throws Exception {
+		return PortletKeys.JOURNAL_CONTENT;
 	}
 
-	public String getAssetRendererFactoryClassName() {
-		return JournalArticleAssetRendererFactory.CLASS_NAME;
+	public JournalArticle getArticle() {
+		return _article;
 	}
 
 	@Override
@@ -105,6 +108,11 @@ public class JournalArticleAssetRenderer
 		}
 	}
 
+	@Override
+	public Date getDisplayDate() {
+		return _article.getDisplayDate();
+	}
+
 	public long getGroupId() {
 		return _article.getGroupId();
 	}
@@ -115,6 +123,23 @@ public class JournalArticleAssetRenderer
 
 	public String getSummary(Locale locale) {
 		return _article.getDescription(locale);
+	}
+
+	@Override
+	public String getThumbnailPath(PortletRequest portletRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		String thumbnailSrc = _article.getArticleImageURL(themeDisplay);
+
+		if (Validator.isNotNull(thumbnailSrc)) {
+			return thumbnailSrc;
+		}
+
+		return themeDisplay.getPathThemeImages() +
+			"/file_system/large/article.png";
 	}
 
 	public String getTitle(Locale locale) {
@@ -179,32 +204,31 @@ public class JournalArticleAssetRenderer
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (Validator.isNotNull(_article.getLayoutUuid())) {
-			String portletId = (String)liferayPortletRequest.getAttribute(
-				WebKeys.PORTLET_ID);
+		String portletId = (String)liferayPortletRequest.getAttribute(
+			WebKeys.PORTLET_ID);
 
-			PortletPreferences portletSetup =
-				PortletPreferencesFactoryUtil.getLayoutPortletSetup(
-					layout, portletId);
+		PortletPreferences portletSetup =
+			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+				layout, portletId);
 
-			String linkToLayoutUuid = GetterUtil.getString(
-				portletSetup.getValue("portletSetupLinkToLayoutUuid", null));
+		String linkToLayoutUuid = GetterUtil.getString(
+			portletSetup.getValue("portletSetupLinkToLayoutUuid", null));
 
-			if (linkToLayoutUuid.equals(_article.getLayoutUuid())) {
-				Group group = themeDisplay.getScopeGroup();
+		if (Validator.isNotNull(_article.getLayoutUuid()) &&
+			Validator.isNull(linkToLayoutUuid)) {
 
-				if (group.getGroupId() != _article.getGroupId()) {
-					group = GroupLocalServiceUtil.getGroup(
-						_article.getGroupId());
-				}
+			Group group = themeDisplay.getScopeGroup();
 
-				String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
-					group, false, themeDisplay);
-
-				return groupFriendlyURL.concat(
-					JournalArticleConstants.CANONICAL_URL_SEPARATOR).concat(
-						_article.getUrlTitle());
+			if (group.getGroupId() != _article.getGroupId()) {
+				group = GroupLocalServiceUtil.getGroup(_article.getGroupId());
 			}
+
+			String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
+				group, false, themeDisplay);
+
+			return groupFriendlyURL.concat(
+				JournalArticleConstants.CANONICAL_URL_SEPARATOR).concat(
+					_article.getUrlTitle());
 		}
 
 		List<Long> hitLayoutIds =
@@ -243,13 +267,17 @@ public class JournalArticleAssetRenderer
 	}
 
 	@Override
-	public boolean hasEditPermission(PermissionChecker permissionChecker) {
+	public boolean hasEditPermission(PermissionChecker permissionChecker)
+		throws PortalException, SystemException {
+
 		return JournalArticlePermission.contains(
 			permissionChecker, _article, ActionKeys.UPDATE);
 	}
 
 	@Override
-	public boolean hasViewPermission(PermissionChecker permissionChecker) {
+	public boolean hasViewPermission(PermissionChecker permissionChecker)
+		throws PortalException, SystemException {
+
 		return JournalArticlePermission.contains(
 			permissionChecker, _article, ActionKeys.VIEW);
 	}
@@ -303,6 +331,16 @@ public class JournalArticleAssetRenderer
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public void setAddToPagePreferences(
+			PortletPreferences preferences, String portletId,
+			ThemeDisplay themeDisplay)
+		throws Exception {
+
+		preferences.setValue("articleId", _article.getArticleId());
+		preferences.setValue("groupId", String.valueOf(_article.getGroupId()));
 	}
 
 	@Override

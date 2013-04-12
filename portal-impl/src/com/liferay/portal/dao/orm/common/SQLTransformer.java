@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -190,7 +190,10 @@ public class SQLTransformer {
 	private String _replaceCastLong(String sql) {
 		Matcher matcher = _castLongPattern.matcher(sql);
 
-		if (_vendorSybase) {
+		if (_vendorHypersonic) {
+			return matcher.replaceAll("CONVERT($1, SQL_BIGINT)");
+		}
+		else if (_vendorSybase) {
 			return matcher.replaceAll("CONVERT(BIGINT, $1)");
 		}
 		else {
@@ -265,6 +268,10 @@ public class SQLTransformer {
 		return matcher.replaceAll("$1 ($2)");
 	}
 
+	private String _replaceNotEqualsBlankStringComparison(String sql) {
+		return StringUtil.replace(sql, " != ''", " IS NOT NULL");
+	}
+
 	private String _replaceReplace(String newSQL) {
 		return newSQL.replaceAll("(?i)replace\\(", "str_replace(");
 	}
@@ -301,6 +308,9 @@ public class SQLTransformer {
 			if (!db.isSupportsStringCaseSensitiveQuery()) {
 				newSQL = _removeLower(newSQL);
 			}
+		}
+		else if (_vendorOracle) {
+			newSQL = _replaceNotEqualsBlankStringComparison(newSQL);
 		}
 		else if (_vendorPostgreSQL) {
 			newSQL = _replaceNegativeComparison(newSQL);

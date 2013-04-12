@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,8 +34,8 @@ import java.util.Date;
 public class DLSyncLocalServiceImpl extends DLSyncLocalServiceBaseImpl {
 
 	/**
-	 * @deprecated {@link #addSync(long, String, long, long, long, String,
-	 *             String, String, String)}
+	 * @deprecated As of 6.2.0, replaced by {@link #addSync(long, String, long,
+	 *             long, long, String, String, String, String)}
 	 */
 	public DLSync addSync(
 			long fileId, String fileUuid, long companyId, long repositoryId,
@@ -82,8 +82,8 @@ public class DLSyncLocalServiceImpl extends DLSyncLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateSync(long, long, String, String, String,
-	 *             String)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateSync(long, long,
+	 *             String, String, String, String)}
 	 */
 	public DLSync updateSync(
 			long fileId, long parentFolderId, String name, String event,

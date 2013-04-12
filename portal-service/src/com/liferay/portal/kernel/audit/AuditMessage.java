@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -263,8 +263,8 @@ public class AuditMessage implements Serializable {
 		jsonObj.put(_COMPANY_ID, _companyId);
 		jsonObj.put(_CLASS_PK, _classPK);
 		jsonObj.put(_CLASS_NAME, _className);
+		jsonObj.put(_CLIENT_HOST, _clientHost);
 		jsonObj.put(_CLIENT_IP, _clientIP);
-		jsonObj.put(_clientHost, _clientHost);
 		jsonObj.put(_MESSAGE, _message);
 		jsonObj.put(_SERVER_PORT, _serverPort);
 		jsonObj.put(_SERVER_NAME, _serverName);

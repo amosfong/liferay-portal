@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,7 +22,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -442,7 +442,7 @@ public class PortletServletRequest extends HttpServletRequestWrapper {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
@@ -498,7 +498,7 @@ public class PortletServletRequest extends HttpServletRequestWrapper {
 		// This must be called through reflection because Resin tries to load
 		// org/mortbay/jetty/servlet/AbstractSessionManager$SessionIf
 
-		ClassLoader classLoader = PACLClassLoaderUtil.getPortalClassLoader();
+		ClassLoader classLoader = ClassLoaderUtil.getPortalClassLoader();
 
 		Class<?> jettyHttpSessionWrapperClass = classLoader.loadClass(
 			"com.liferay.portal.servlet.JettyHttpSessionWrapper");

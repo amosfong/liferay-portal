@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,76 +14,12 @@
 
 package com.liferay.portal.security.pacl;
 
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 /**
- * @author Raymond Augé
+ * @author     Raymond Augé
+ * @deprecated As of 6.2.0, moved to {@link
+ *             com.liferay.portal.util.ClassLoaderUtil}
  */
-public class PACLClassLoaderUtil {
-
-	public static ClassLoader getClassLoader(Class<?> clazz) {
-		boolean checkGetClassLoader =
-			PortalSecurityManagerThreadLocal.isCheckGetClassLoader();
-
-		try {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(false);
-
-			return clazz.getClassLoader();
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(
-				checkGetClassLoader);
-		}
-	}
-
-	public static ClassLoader getContextClassLoader() {
-		boolean checkGetClassLoader =
-			PortalSecurityManagerThreadLocal.isCheckGetClassLoader();
-
-		try {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(false);
-
-			Thread thread = Thread.currentThread();
-
-			return thread.getContextClassLoader();
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(
-				checkGetClassLoader);
-		}
-	}
-
-	public static ClassLoader getPortalClassLoader() {
-		boolean checkGetClassLoader =
-			PortalSecurityManagerThreadLocal.isCheckGetClassLoader();
-
-		try {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(false);
-
-			return PortalClassLoaderUtil.getClassLoader();
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(
-				checkGetClassLoader);
-		}
-	}
-
-	public static void setContextClassLoader(ClassLoader classLoader) {
-		boolean checkGetClassLoader =
-			PortalSecurityManagerThreadLocal.isCheckGetClassLoader();
-
-		try {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(false);
-
-			Thread thread = Thread.currentThread();
-
-			thread.setContextClassLoader(classLoader);
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setCheckGetClassLoader(
-				checkGetClassLoader);
-		}
-	}
-
+public class PACLClassLoaderUtil extends ClassLoaderUtil {
 }

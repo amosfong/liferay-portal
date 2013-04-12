@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,6 @@ import com.liferay.portal.OrganizationNameException;
 import com.liferay.portal.OrganizationParentException;
 import com.liferay.portal.OrganizationTypeException;
 import com.liferay.portal.RequiredOrganizationException;
-import com.liferay.portal.kernel.cache.ThreadLocalCachable;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -51,7 +50,6 @@ import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.model.impl.OrganizationImpl;
-import com.liferay.portal.security.auth.MembershipPolicyUtil;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.OrganizationLocalServiceBaseImpl;
@@ -63,6 +61,7 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -92,6 +91,7 @@ public class OrganizationLocalServiceImpl
 	 *         could not be found
 	 * @throws SystemException if a system exception occurred
 	 */
+	@Override
 	public void addGroupOrganizations(long groupId, long[] organizationIds)
 		throws PortalException, SystemException {
 
@@ -114,16 +114,94 @@ public class OrganizationLocalServiceImpl
 	 * @param  parentOrganizationId the primary key of the organization's parent
 	 *         organization
 	 * @param  name the organization's name
+	 * @param  site whether the organization is to be associated with a main
+	 *         site
+	 * @return the organization
+	 * @throws PortalException if a creator or parent organization with the
+	 *         primary key could not be found or if the organization's
+	 *         information was invalid
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Organization addOrganization(
+			long userId, long parentOrganizationId, String name, boolean site)
+		throws PortalException, SystemException {
+
+		return addOrganization(
+			userId, parentOrganizationId, name,
+			OrganizationConstants.TYPE_REGULAR_ORGANIZATION, 0, 0,
+			ListTypeConstants.ORGANIZATION_STATUS_DEFAULT, StringPool.BLANK,
+			site, null);
+	}
+
+	/**
+	 * Adds an organization.
+	 *
+	 * <p>
+	 * This method handles the creation and bookkeeping of the organization
+	 * including its resources, metadata, and internal data structures. It is
+	 * not necessary to make a subsequent call to {@link
+	 * #addOrganizationResources(long, Organization)}.
+	 * </p>
+	 *
+	 * @param      userId the primary key of the creator/owner of the
+	 *             organization
+	 * @param      parentOrganizationId the primary key of the organization's
+	 *             parent organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether the permissions of the organization are to
+	 *             be inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs, asset tag
+	 *             names, and expando bridge attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if a creator or parent organization with the
+	 *             primary key could not be found or if the organization's
+	 *             information was invalid
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #addOrganization(long, long,
+	 *             String, String, long, long, int, String, boolean,
+	 *             ServiceContext)}
+	 */
+	public Organization addOrganization(
+			long userId, long parentOrganizationId, String name, String type,
+			boolean recursable, long regionId, long countryId, int statusId,
+			String comments, boolean site, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return addOrganization(
+			userId, parentOrganizationId, name, type, regionId, countryId,
+			statusId, comments, site, serviceContext);
+	}
+
+	/**
+	 * Adds an organization.
+	 *
+	 * <p>
+	 * This method handles the creation and bookkeeping of the organization
+	 * including its resources, metadata, and internal data structures. It is
+	 * not necessary to make a subsequent call to {@link
+	 * #addOrganizationResources(long, Organization)}.
+	 * </p>
+	 *
+	 * @param  userId the primary key of the creator/owner of the organization
+	 * @param  parentOrganizationId the primary key of the organization's parent
+	 *         organization
+	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether the permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
 	 * @param  comments the comments about the organization
 	 * @param  site whether the organization is to be associated with a main
 	 *         site
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs, asset tag names,
 	 *         and expando bridge attributes for the organization.
 	 * @return the organization
@@ -134,8 +212,8 @@ public class OrganizationLocalServiceImpl
 	 */
 	public Organization addOrganization(
 			long userId, long parentOrganizationId, String name, String type,
-			boolean recursable, long regionId, long countryId, int statusId,
-			String comments, boolean site, ServiceContext serviceContext)
+			long regionId, long countryId, int statusId, String comments,
+			boolean site, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		// Organization
@@ -143,7 +221,7 @@ public class OrganizationLocalServiceImpl
 		User user = userPersistence.findByPrimaryKey(userId);
 		parentOrganizationId = getParentOrganizationId(
 			user.getCompanyId(), parentOrganizationId);
-		recursable = true;
+		Date now = new Date();
 
 		validate(
 			user.getCompanyId(), parentOrganizationId, name, type, countryId,
@@ -154,16 +232,28 @@ public class OrganizationLocalServiceImpl
 		Organization organization = organizationPersistence.create(
 			organizationId);
 
+		if (serviceContext != null) {
+			organization.setUuid(serviceContext.getUuid());
+		}
+
 		organization.setCompanyId(user.getCompanyId());
+		organization.setUserId(user.getUserId());
+		organization.setUserName(user.getFullName());
+
+		if (serviceContext != null) {
+			organization.setCreateDate(serviceContext.getCreateDate(now));
+			organization.setModifiedDate(serviceContext.getModifiedDate(now));
+		}
+		else {
+			organization.setCreateDate(now);
+			organization.setModifiedDate(now);
+		}
+
 		organization.setParentOrganizationId(parentOrganizationId);
-
-		String treePath = organization.buildTreePath();
-
-		organization.setTreePath(treePath);
-
+		organization.setTreePath(organization.buildTreePath());
 		organization.setName(name);
 		organization.setType(type);
-		organization.setRecursable(recursable);
+		organization.setRecursable(true);
 		organization.setRegionId(regionId);
 		organization.setCountryId(countryId);
 		organization.setStatusId(statusId);
@@ -183,7 +273,11 @@ public class OrganizationLocalServiceImpl
 				organizationPersistence.fetchByPrimaryKey(parentOrganizationId);
 
 			if (parentOrganization != null) {
-				parentGroupId = parentOrganization.getGroupId();
+				Group parentGroup = parentOrganization.getGroup();
+
+				if (site && parentGroup.isSite()) {
+					parentGroupId = parentOrganization.getGroupId();
+				}
 			}
 		}
 
@@ -257,34 +351,6 @@ public class OrganizationLocalServiceImpl
 
 		passwordPolicyRelLocalService.addPasswordPolicyRels(
 			passwordPolicyId, Organization.class.getName(), organizationIds);
-	}
-
-	public void checkMembershipPolicy(User user)
-		throws PortalException, SystemException {
-
-		List<Organization> organizations =
-			organizationLocalService.getUserOrganizations(user.getUserId());
-
-		for (Organization organization : organizations) {
-			if (!MembershipPolicyUtil.isMembershipAllowed(organization, user)) {
-				userLocalService.unsetOrganizationUsers(
-					organization.getOrganizationId(),
-					new long[] {user.getUserId()});
-			}
-		}
-
-		Set<Organization> mandatoryOrganizations =
-			MembershipPolicyUtil.getMandatoryOrganizations(user);
-
-		for (Organization organization : mandatoryOrganizations) {
-			if (!hasUserOrganization(
-					user.getUserId(), organization.getOrganizationId())) {
-
-				userLocalService.addOrganizationUsers(
-					organization.getOrganizationId(),
-					new long[] {user.getUserId()});
-			}
-		}
 	}
 
 	/**
@@ -450,17 +516,18 @@ public class OrganizationLocalServiceImpl
 		return organization;
 	}
 
-	/**
-	 * Returns all the organizations belonging to the group.
-	 *
-	 * @param  groupId the primary key of the group
-	 * @return the organizations belonging to the group
-	 * @throws SystemException if a system exception occurred
-	 */
-	public List<Organization> getGroupOrganizations(long groupId)
+	public Organization fetchOrganization(long companyId, String name)
 		throws SystemException {
 
-		return groupPersistence.getOrganizations(groupId);
+		return organizationPersistence.fetchByC_N(companyId, name);
+	}
+
+	public Organization fetchOrganizationByUuidAndCompanyId(
+			String uuid, long companyId)
+		throws SystemException {
+
+		return organizationPersistence.fetchByUuid_C_First(
+			uuid, companyId, null);
 	}
 
 	/**
@@ -668,7 +735,7 @@ public class OrganizationLocalServiceImpl
 		Organization organization = organizationPersistence.findByPrimaryKey(
 			organizationId);
 
-		return getParentOrganizations(organization, true);
+		return organization.getAncestors();
 	}
 
 	/**
@@ -753,21 +820,6 @@ public class OrganizationLocalServiceImpl
 	}
 
 	/**
-	 * Returns all the organizations associated with the user.
-	 *
-	 * @param  userId the primary key of the user
-	 * @return the organizations associated with the user
-	 * @throws PortalException if a user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public List<Organization> getUserOrganizations(long userId)
-		throws PortalException, SystemException {
-
-		return getUserOrganizations(
-			userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-	}
-
-	/**
 	 * Returns all the organizations associated with the user. If
 	 * includeAdministrative is <code>true</code>, the result includes those
 	 * organizations that are not directly associated to the user but he is an
@@ -818,61 +870,6 @@ public class OrganizationLocalServiceImpl
 	}
 
 	/**
-	 * Returns a range of all the organizations associated with the user.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end -
-	 * start</code> instances. <code>start</code> and <code>end</code> are not
-	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
-	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
-	 * result set.
-	 * </p>
-	 *
-	 * @param  userId the primary key of the user
-	 * @param  start the lower bound of the range of organizations to return
-	 * @param  end the upper bound of the range of organizations to return (not
-	 *         inclusive)
-	 * @return the range organizations associated with the user
-	 * @throws PortalException if a user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public List<Organization> getUserOrganizations(
-			long userId, int start, int end)
-		throws PortalException, SystemException {
-
-		return userPersistence.getOrganizations(userId, start, end);
-	}
-
-	/**
-	 * Returns the number of organizations associated with the user.
-	 *
-	 * @param  userId the primary key of the user
-	 * @return the number of organizations associated with the user
-	 * @throws SystemException if a system exception occurred
-	 */
-	@ThreadLocalCachable
-	public int getUserOrganizationsCount(long userId) throws SystemException {
-		return userPersistence.getOrganizationsSize(userId);
-	}
-
-	/**
-	 * Returns <code>true</code> if the organization belongs to the group.
-	 *
-	 * @param  groupId the primary key of the group
-	 * @param  organizationId the primary key of the organization
-	 * @return <code>true</code> if the organization belongs to the group;
-	 *         <code>false</code> otherwise
-	 * @throws SystemException if a system exception occurred
-	 */
-	public boolean hasGroupOrganization(long groupId, long organizationId)
-		throws SystemException {
-
-		return groupPersistence.containsOrganization(groupId, organizationId);
-	}
-
-	/**
 	 * Returns <code>true</code> if the password policy has been assigned to the
 	 * organization.
 	 *
@@ -888,23 +885,6 @@ public class OrganizationLocalServiceImpl
 
 		return passwordPolicyRelLocalService.hasPasswordPolicyRel(
 			passwordPolicyId, Organization.class.getName(), organizationId);
-	}
-
-	/**
-	 * Returns <code>true</code> if the user is a member of the organization.
-	 * This method is usually called to determine if the user has view access to
-	 * a resource belonging to the organization.
-	 *
-	 * @param  userId the primary key of the user
-	 * @param  organizationId the primary key of the organization
-	 * @return <code>true</code> if the user has access to the organization;
-	 *         <code>false</code> otherwise
-	 * @throws SystemException if a system exception occurred
-	 */
-	public boolean hasUserOrganization(long userId, long organizationId)
-		throws SystemException {
-
-		return userPersistence.containsOrganization(userId, organizationId);
 	}
 
 	/**
@@ -1010,9 +990,7 @@ public class OrganizationLocalServiceImpl
 			organizationPersistence.findByCompanyId(companyId);
 
 		for (Organization organization : organizations) {
-			String treePath = organization.buildTreePath();
-
-			organization.setTreePath(treePath);
+			organization.setTreePath(organization.buildTreePath());
 
 			organizationPersistence.update(organization);
 		}
@@ -1564,6 +1542,7 @@ public class OrganizationLocalServiceImpl
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
+	@Override
 	public void setGroupOrganizations(long groupId, long[] organizationIds)
 		throws PortalException, SystemException {
 
@@ -1637,21 +1616,61 @@ public class OrganizationLocalServiceImpl
 	/**
 	 * Updates the organization.
 	 *
+	 * @param      companyId the primary key of the organization's company
+	 * @param      organizationId the primary key of the organization
+	 * @param      parentOrganizationId the primary key of organization's parent
+	 *             organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether permissions of the organization are to be
+	 *             inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs and asset tag
+	 *             names for the organization, and merge expando bridge
+	 *             attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if an organization or parent organization
+	 *             with the primary key could not be found or if the new
+	 *             information was invalid
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
+	 *             long, long, String, String, long, long, int, String, boolean,
+	 *             ServiceContext)}
+	 */
+	public Organization updateOrganization(
+			long companyId, long organizationId, long parentOrganizationId,
+			String name, String type, boolean recursable, long regionId,
+			long countryId, int statusId, String comments, boolean site,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return updateOrganization(
+			companyId, organizationId, parentOrganizationId, name, type,
+			regionId, countryId, statusId, comments, site, serviceContext);
+	}
+
+	/**
+	 * Updates the organization.
+	 *
 	 * @param  companyId the primary key of the organization's company
 	 * @param  organizationId the primary key of the organization
 	 * @param  parentOrganizationId the primary key of organization's parent
 	 *         organization
 	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
 	 * @param  comments the comments about the organization
 	 * @param  site whether the organization is to be associated with a main
 	 *         site
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs and asset tag
 	 *         names for the organization, and merge expando bridge attributes
 	 *         for the organization.
@@ -1663,8 +1682,8 @@ public class OrganizationLocalServiceImpl
 	 */
 	public Organization updateOrganization(
 			long companyId, long organizationId, long parentOrganizationId,
-			String name, String type, boolean recursable, long regionId,
-			long countryId, int statusId, String comments, boolean site,
+			String name, String type, long regionId, long countryId,
+			int statusId, String comments, boolean site,
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
@@ -1672,7 +1691,6 @@ public class OrganizationLocalServiceImpl
 
 		parentOrganizationId = getParentOrganizationId(
 			companyId, parentOrganizationId);
-		recursable = true;
 
 		validate(
 			companyId, organizationId, parentOrganizationId, name, type,
@@ -1684,15 +1702,12 @@ public class OrganizationLocalServiceImpl
 		long oldParentOrganizationId = organization.getParentOrganizationId();
 		String oldName = organization.getName();
 
+		organization.setModifiedDate(new Date());
 		organization.setParentOrganizationId(parentOrganizationId);
-
-		String treePath = organization.buildTreePath();
-
-		organization.setTreePath(treePath);
-
+		organization.setTreePath(organization.buildTreePath());
 		organization.setName(name);
 		organization.setType(type);
-		organization.setRecursable(recursable);
+		organization.setRecursable(true);
 		organization.setRegionId(regionId);
 		organization.setCountryId(countryId);
 		organization.setStatusId(statusId);
@@ -1718,7 +1733,14 @@ public class OrganizationLocalServiceImpl
 					organizationPersistence.fetchByPrimaryKey(
 						parentOrganizationId);
 
-				parentGroupId = parentOrganization.getGroupId();
+				Group parentGroup = parentOrganization.getGroup();
+
+				if (site && parentGroup.isSite()) {
+					parentGroupId = parentOrganization.getGroupId();
+				}
+				else {
+					parentGroupId = GroupConstants.DEFAULT_PARENT_GROUP_ID;
+				}
 			}
 			else {
 				parentGroupId = GroupConstants.DEFAULT_PARENT_GROUP_ID;
@@ -1805,35 +1827,6 @@ public class OrganizationLocalServiceImpl
 		return parentOrganizationId;
 	}
 
-	protected List<Organization> getParentOrganizations(
-			Organization organization, boolean lastOrganization)
-		throws PortalException, SystemException {
-
-		List<Organization> organizations = new ArrayList<Organization>();
-
-		if (!lastOrganization) {
-			organizations.add(organization);
-		}
-
-		long parentOrganizationId = organization.getParentOrganizationId();
-
-		if (parentOrganizationId ==
-				OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID) {
-
-			return organizations;
-		}
-
-		Organization parentOrganization =
-			organizationPersistence.findByPrimaryKey(parentOrganizationId);
-
-		List<Organization> parentOrganizatons = getParentOrganizations(
-			parentOrganization, false);
-
-		organizations.addAll(parentOrganizatons);
-
-		return organizations;
-	}
-
 	protected long[] getReindexOrganizationIds(Organization organization)
 		throws PortalException, SystemException {
 
@@ -1855,9 +1848,7 @@ public class OrganizationLocalServiceImpl
 		for (int i = 0; i < organizations.size(); i++) {
 			Organization curOrganization = organizations.get(i);
 
-			String treePath = curOrganization.buildTreePath();
-
-			curOrganization.setTreePath(treePath.toString());
+			curOrganization.setTreePath(curOrganization.buildTreePath());
 
 			organizationPersistence.update(curOrganization);
 
@@ -1905,13 +1896,20 @@ public class OrganizationLocalServiceImpl
 		// Return true if parentOrganizationId is among the parent organizatons
 		// of organizationId
 
-		Organization parentOrganization =
-			organizationPersistence.findByPrimaryKey(parentOrganizationId);
+		if (organizationId ==
+				OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID) {
 
-		List<Organization> parentOrganizations = getParentOrganizations(
+			return false;
+		}
+
+		Organization organization = organizationPersistence.findByPrimaryKey(
 			organizationId);
 
-		if (parentOrganizations.contains(parentOrganization)) {
+		String treePath = organization.getTreePath();
+
+		if (treePath.contains(
+				StringPool.SLASH + parentOrganizationId + StringPool.SLASH)) {
+
 			return true;
 		}
 		else {

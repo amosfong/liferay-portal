@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -13,8 +13,6 @@
  */
 
 package com.liferay.taglib.ui;
-
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,23 +35,6 @@ public class SearchIteratorTag<R> extends SearchPaginatorTag<R> {
 	@Override
 	protected String getPage() {
 		return _PAGE;
-	}
-
-	@Override
-	protected void include(String page) throws Exception {
-		Thread currentThread = Thread.currentThread();
-
-		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
-
-		try {
-			currentThread.setContextClassLoader(
-				PortalClassLoaderUtil.getClassLoader());
-
-			super.include(page);
-		}
-		finally {
-			currentThread.setContextClassLoader(contextClassLoader);
-		}
 	}
 
 	@Override

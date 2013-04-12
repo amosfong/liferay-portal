@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,10 +24,8 @@ import com.liferay.portlet.messageboards.model.MBCategory;
 public class MBCategoryCustomAttributesDisplay
 	extends BaseCustomAttributesDisplay {
 
-	public static final String CLASS_NAME = MBCategory.class.getName();
-
 	public String getClassName() {
-		return CLASS_NAME;
+		return MBCategory.class.getName();
 	}
 
 	@Override

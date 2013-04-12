@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,8 +15,8 @@
 package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portalweb.portal.BaseTestCase;
 import com.liferay.portalweb.portal.util.RuntimeVariables;
 import com.liferay.portalweb.portal.util.TestPropsValues;
 
@@ -183,6 +183,10 @@ public abstract class BaseSeleniumImpl
 		super.waitForPageToLoad("30000");
 	}
 
+	public boolean isConfirmation(String pattern) {
+		return LiferaySeleniumHelper.isConfirmation(this, pattern);
+	}
+
 	public boolean isElementNotPresent(String locator) {
 		return LiferaySeleniumHelper.isElementNotPresent(this, locator);
 	}
@@ -193,6 +197,10 @@ public abstract class BaseSeleniumImpl
 
 	public boolean isNotPartialText(String locator, String value) {
 		return LiferaySeleniumHelper.isNotPartialText(this, locator, value);
+	}
+
+	public boolean isNotSelectedLabel(String selectLocator, String pattern) {
+		return !pattern.equals(getSelectedLabel(selectLocator));
 	}
 
 	public boolean isNotText(String locator, String value) {
@@ -214,8 +222,16 @@ public abstract class BaseSeleniumImpl
 			"isPartialText", new String[] {locator, value,});
 	}
 
+	public boolean isSelectedLabel(String selectLocator, String pattern) {
+		return pattern.equals(getSelectedLabel(selectLocator));
+	}
+
 	public boolean isText(String locator, String value) {
 		return value.equals(getText(locator));
+	}
+
+	public boolean isTextNotPresent(String pattern) {
+		return LiferaySeleniumHelper.isTextNotPresent(this, pattern);
 	}
 
 	public boolean isValue(String locator, String value) {
@@ -235,6 +251,24 @@ public abstract class BaseSeleniumImpl
 	public void keyUpAndWait(String locator, String keySequence) {
 		super.keyUp(locator, keySequence);
 		super.waitForPageToLoad("30000");
+	}
+
+	public void makeVisible(String locator) {
+		StringBundler sb = new StringBundler(10);
+
+		sb.append("var xpathResult = document.evaluate(");
+		sb.append(locator);
+		sb.append(", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, ");
+		sb.append("null);");
+
+		sb.append("if (xpathResult.singleNodeValue) {");
+		sb.append("var element = xpathResult.singleNodeValue;");
+		sb.append("element.style.display = 'inline-block';");
+		sb.append("element.style.overflow = 'visible';");
+		sb.append("element.style.visibility = 'visible';");
+		sb.append("}");
+
+		super.runScript(sb.toString());
 	}
 
 	public void paste(String location) {
@@ -325,11 +359,11 @@ public abstract class BaseSeleniumImpl
 	public void waitForConfirmation(String pattern) throws Exception {
 		for (int second = 0;; second++) {
 			if (second >= TestPropsValues.TIMEOUT_EXPLICIT_WAIT) {
-				BaseTestCase.fail("Timeout");
+				assertConfirmation(pattern);
 			}
 
 			try {
-				if (pattern.equals(getConfirmation())) {
+				if (isConfirmation(pattern)) {
 					break;
 				}
 			}

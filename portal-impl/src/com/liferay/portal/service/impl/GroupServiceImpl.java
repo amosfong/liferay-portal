@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,12 +14,14 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
@@ -28,6 +30,7 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.membershippolicy.SiteMembershipPolicyUtil;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
@@ -39,6 +42,11 @@ import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.service.permission.RolePermissionUtil;
 import com.liferay.portal.service.permission.UserPermissionUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.asset.model.AssetCategory;
+import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +54,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The group remote service is responsible for accessing, creating, modifying
@@ -97,9 +106,15 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 					"a site with parent " + parentGroupId);
 		}
 
-		return groupLocalService.addGroup(
+		Group group = groupLocalService.addGroup(
 			getUserId(), parentGroupId, null, 0, liveGroupId, name, description,
 			type, friendlyURL, site, active, serviceContext);
+
+		if (site) {
+			SiteMembershipPolicyUtil.verifyPolicy(group);
+		}
+
+		return group;
 	}
 
 	/**
@@ -124,8 +139,8 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 *             information was invalid, if a layout could not be found, or
 	 *             if a valid friendly URL could not be created for the group
 	 * @throws     SystemException if a system exception occurred
-	 * @deprecated {@link #addGroup(long, long, String, String, int, String,
-	 *             boolean, boolean, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
+	 *             String, int, String, boolean, boolean, ServiceContext)}
 	 */
 	public Group addGroup(
 			long parentGroupId, String name, String description, int type,
@@ -139,8 +154,8 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #addGroup(long, String, String, int, String, boolean,
-	 *             boolean, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #addGroup(long, String,
+	 *             String, int, String, boolean, boolean, ServiceContext)}
 	 */
 	public Group addGroup(
 			String name, String description, int type, String friendlyURL,
@@ -168,6 +183,31 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			getPermissionChecker(), roleId, ActionKeys.UPDATE);
 
 		groupLocalService.addRoleGroups(roleId, groupIds);
+	}
+
+	/**
+	 * Checks that the current user is permitted to use the group for Remote
+	 * Staging.
+	 *
+	 * @param  groupId the primary key of the group
+	 * @throws PortalException if a group with the primary key could not be
+	 *         found, if the current user did not have permission to view the
+	 *         group, or if the group's company was different from the current
+	 *         user's company
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void checkRemoteStagingGroup(long groupId)
+		throws PortalException, SystemException {
+
+		Group group = getGroup(groupId);
+
+		PermissionChecker permissionChecker = getPermissionChecker();
+
+		if (group.getCompanyId() != permissionChecker.getCompanyId()) {
+			throw new NoSuchGroupException(
+				"Group " + groupId + " does not belong in company " +
+					permissionChecker.getCompanyId());
+		}
 	}
 
 	/**
@@ -285,9 +325,8 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			Group group = itr.next();
 
 			if (!group.isSite() ||
-				!PortletPermissionUtil.contains(
-					permissionChecker, group.getGroupId(), 0L, portlets,
-					ActionKeys.ACCESS_IN_CONTROL_PANEL)) {
+				!PortletPermissionUtil.hasControlPanelAccessPermission(
+					permissionChecker, group.getGroupId(), portlets)) {
 
 				itr.remove();
 			}
@@ -807,12 +846,61 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		GroupPermissionUtil.check(
-			getPermissionChecker(), groupId, ActionKeys.UPDATE);
+		Group group = groupPersistence.findByPrimaryKey(groupId);
 
-		return groupLocalService.updateGroup(
-			groupId, parentGroupId, name, description, type, friendlyURL,
-			active, serviceContext);
+		GroupPermissionUtil.check(
+			getPermissionChecker(), group, ActionKeys.UPDATE);
+
+		if (group.getParentGroupId() != parentGroupId) {
+			if (parentGroupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
+				PortalPermissionUtil.check(
+					getPermissionChecker(), ActionKeys.ADD_COMMUNITY);
+			}
+			else {
+				if (!GroupPermissionUtil.contains(
+						getPermissionChecker(), parentGroupId,
+						ActionKeys.MANAGE_SUBGROUPS) &&
+					!PortalPermissionUtil.contains(
+						getPermissionChecker(), ActionKeys.ADD_COMMUNITY)) {
+
+					throw new PrincipalException(
+						"User " + getUserId() + " does not have permissions " +
+							"to move site " + groupId + "to parent " +
+								parentGroupId);
+				}
+			}
+		}
+
+		if (group.isSite()) {
+			Group oldGroup = group;
+
+			List<AssetCategory> oldAssetCategories =
+				assetCategoryLocalService.getCategories(
+					Group.class.getName(), groupId);
+
+			List<AssetTag> oldAssetTags = assetTagLocalService.getTags(
+				Group.class.getName(), groupId);
+
+			ExpandoBridge oldExpandoBridge = oldGroup.getExpandoBridge();
+
+			Map<String, Serializable> oldExpandoAttributes =
+				oldExpandoBridge.getAttributes();
+
+			group = groupLocalService.updateGroup(
+				groupId, parentGroupId, name, description, type, friendlyURL,
+				active, serviceContext);
+
+			SiteMembershipPolicyUtil.verifyPolicy(
+				group, oldGroup, oldAssetCategories, oldAssetTags,
+				oldExpandoAttributes, null);
+
+			return group;
+		}
+		else {
+			return groupLocalService.updateGroup(
+				groupId, parentGroupId, name, description, type, friendlyURL,
+				active, serviceContext);
+		}
 	}
 
 	/**
@@ -832,7 +920,24 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		GroupPermissionUtil.check(
 			getPermissionChecker(), groupId, ActionKeys.UPDATE);
 
-		return groupLocalService.updateGroup(groupId, typeSettings);
+		Group group = groupPersistence.findByPrimaryKey(groupId);
+
+		if (group.isSite()) {
+			Group oldGroup = group;
+
+			UnicodeProperties oldTypeSettingsProperties =
+				oldGroup.getTypeSettingsProperties();
+
+			group = groupLocalService.updateGroup(groupId, typeSettings);
+
+			SiteMembershipPolicyUtil.verifyPolicy(
+				group, oldGroup, null, null, null, oldTypeSettingsProperties);
+
+			return group;
+		}
+		else {
+			return groupLocalService.updateGroup(groupId, typeSettings);
+		}
 	}
 
 	protected List<Group> filterGroups(List<Group> groups)

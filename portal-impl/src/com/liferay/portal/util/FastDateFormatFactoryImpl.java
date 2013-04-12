@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,7 @@
 
 package com.liferay.portal.util;
 
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.FastDateFormatConstants;
 import com.liferay.portal.kernel.util.FastDateFormatFactory;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -32,6 +33,7 @@ import org.apache.commons.lang.time.FastDateFormat;
 /**
  * @author Brian Wing Shun Chan
  */
+@DoPrivileged
 public class FastDateFormatFactoryImpl implements FastDateFormatFactory {
 
 	public Format getDate(int style, Locale locale, TimeZone timeZone) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -72,7 +72,8 @@ public class LiferayRequestDispatcher implements RequestDispatcher {
 	}
 
 	/**
-	 * @deprecated {@link #forward(ServletRequest, ServletResponse)}
+	 * @deprecated As of 6.2.0, replaced by {@link #forward(ServletRequest,
+	 *             ServletResponse)}
 	 */
 	public void forward(
 			ServletRequest servletRequest, ServletResponse servletResponse,
@@ -99,7 +100,8 @@ public class LiferayRequestDispatcher implements RequestDispatcher {
 	}
 
 	/**
-	 * @deprecated {@link #include(ServletRequest, ServletResponse)}
+	 * @deprecated As of 6.2.0, replaced by {@link #include(ServletRequest,
+	 *             ServletResponse)}
 	 */
 	public void include(
 			ServletRequest servletRequest, ServletResponse servletResponse,
@@ -182,7 +184,8 @@ public class LiferayRequestDispatcher implements RequestDispatcher {
 	}
 
 	/**
-	 * @deprecated {@link #invoke(ServletRequest, ServletResponse, boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #invoke(ServletRequest,
+	 *             ServletResponse, boolean)}
 	 */
 	public void invoke(
 			ServletRequest servletRequest, ServletResponse servletResponse,

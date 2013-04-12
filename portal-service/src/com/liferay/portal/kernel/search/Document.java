@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -29,11 +29,13 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @author Bruno Farache
  */
-public interface Document extends Serializable {
+public interface Document extends Cloneable, Serializable {
 
 	public void add(Field field);
 
 	public void addDate(String name, Date value);
+
+	public void addDate(String name, Date[] values);
 
 	public void addFile(String name, byte[] bytes, String fileExt)
 		throws IOException;
@@ -100,15 +102,18 @@ public interface Document extends Serializable {
 
 	public void addLocalizedKeyword(String name, Map<Locale, String> values);
 
+	public void addLocalizedKeyword(
+		String name, Map<Locale, String> values, boolean lowerCase);
+
 	public void addLocalizedText(String name, Map<Locale, String> values);
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	public void addModifiedDate();
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	public void addModifiedDate(Date modifiedDate);
 
@@ -171,6 +176,8 @@ public interface Document extends Serializable {
 		String portletId, String field1, String field2, String field3,
 		String field4);
 
+	public Object clone();
+
 	public String get(Locale locale, String name);
 
 	public String get(Locale locale, String name, String defaultName);
@@ -191,6 +198,12 @@ public interface Document extends Serializable {
 
 	public String[] getValues(String name);
 
+	public boolean hasField(String name);
+
+	public boolean isDocumentSortableTextField(String name);
+
 	public void remove(String name);
+
+	public void setSortableTextFields(String[] sortableTextFields);
 
 }

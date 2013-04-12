@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>CPBlogs</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CPBlogs</td></tr>
+</thead>
+<tbody>
+<tr>
+	<td>PAGE_NAME</td>
+	<td></td>
+	<td>CPBlogs</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>SUCCESS_MESSAGE</td>
+	<td>//div[@class='portlet-msg-success']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MOVE_RECYCLE_BIN</td>
+	<td>//input[@value='Move to the Recycle Bin']</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--ENTRIES-->
+<tr>
+	<td>BLOGS_ENTRY_TABLE_ALL_ROWS</td>
+	<td>//input[@name='_161_allRowIds']</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

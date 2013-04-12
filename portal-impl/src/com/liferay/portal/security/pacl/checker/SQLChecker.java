@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,34 +16,33 @@ package com.liferay.portal.security.pacl.checker;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.StringReader;
 
 import java.security.Permission;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.JSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
-import net.sf.jsqlparser.test.tablesfinder.TablesNamesFinder;
+import net.sf.jsqlparser.util.TablesNamesFinder;
 
 /**
  * @author Brian Wing Shun Chan
+ * @author Raymond Augé
  */
 public class SQLChecker extends BaseChecker {
 
@@ -51,8 +50,132 @@ public class SQLChecker extends BaseChecker {
 		initTableNames();
 	}
 
-	public void checkPermission(Permission permission) {
-		throw new UnsupportedOperationException();
+	@Override
+	public AuthorizationProperty generateAuthorizationProperty(
+		Object... arguments) {
+
+		if ((arguments == null) || (arguments.length != 1) ||
+			!(arguments[0] instanceof String)) {
+
+			return null;
+		}
+
+		String sql = (String)arguments[0];
+
+		Statement statement = null;
+
+		try {
+			statement = _jSqlParser.parse(new StringReader(sql));
+		}
+		catch (Exception e) {
+			_log.error("Unable to parse SQL " + sql);
+
+			return null;
+		}
+
+		String key = null;
+		String value = null;
+
+		if (statement instanceof CreateIndex) {
+			key = "security-manager-sql-tables-index-create";
+
+			CreateIndex createIndex = (CreateIndex)statement;
+
+			Table table = createIndex.getTable();
+
+			value = table.getName();
+		}
+		else if (statement instanceof CreateTable) {
+			key = "security-manager-sql-tables-create";
+
+			CreateTable createTable = (CreateTable)statement;
+
+			Table table = createTable.getTable();
+
+			value = table.getName();
+		}
+		else if (statement instanceof Delete) {
+			key = "security-manager-sql-tables-delete";
+
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+			Delete delete = (Delete)statement;
+
+			List<String> tableNames = tablesNamesFinder.getTableList(delete);
+
+			value = StringUtil.merge(tableNames);
+		}
+		else if (statement instanceof Drop) {
+			key = "security-manager-sql-tables-drop";
+
+			Drop drop = (Drop)statement;
+
+			value = drop.getName();
+		}
+		else if (statement instanceof Insert) {
+			key = "security-manager-sql-tables-insert";
+
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+			Insert insert = (Insert)statement;
+
+			List<String> tableNames = tablesNamesFinder.getTableList(insert);
+
+			value = StringUtil.merge(tableNames);
+		}
+		else if (statement instanceof Replace) {
+			key = "security-manager-sql-tables-replace";
+
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+			Replace replace = (Replace)statement;
+
+			List<String> tableNames = tablesNamesFinder.getTableList(replace);
+
+			value = StringUtil.merge(tableNames);
+		}
+		else if (statement instanceof Select) {
+			key = "security-manager-sql-tables-select";
+
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+			Select select = (Select)statement;
+
+			List<String> tableNames = tablesNamesFinder.getTableList(select);
+
+			value = StringUtil.merge(tableNames);
+		}
+		else if (statement instanceof Truncate) {
+			key = "security-manager-sql-tables-truncate";
+
+			Truncate truncate = (Truncate)statement;
+
+			Table table = truncate.getTable();
+
+			value = table.getName();
+		}
+		else if (statement instanceof Update) {
+			key = "security-manager-sql-tables-update";
+
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+
+			Update update = (Update)statement;
+
+			List<String> tableNames = tablesNamesFinder.getTableList(update);
+
+			value = StringUtil.merge(tableNames);
+		}
+		else {
+			return null;
+		}
+
+		AuthorizationProperty authorizationProperty =
+			new AuthorizationProperty();
+
+		authorizationProperty.setKey(key);
+		authorizationProperty.setValue(value);
+
+		return authorizationProperty;
 	}
 
 	public boolean hasSQL(String sql) {
@@ -67,7 +190,12 @@ public class SQLChecker extends BaseChecker {
 			return false;
 		}
 
-		if (statement instanceof CreateTable) {
+		if (statement instanceof CreateIndex) {
+			CreateIndex createIndex = (CreateIndex)statement;
+
+			return hasSQL(createIndex);
+		}
+		else if (statement instanceof CreateTable) {
 			CreateTable createTable = (CreateTable)statement;
 
 			return hasSQL(createTable);
@@ -116,14 +244,22 @@ public class SQLChecker extends BaseChecker {
 		return false;
 	}
 
+	public boolean implies(Permission permission) {
+		throw new UnsupportedOperationException();
+	}
+
+	protected boolean hasSQL(CreateIndex createIndex) {
+		return isAllowedTable(createIndex.getTable(), _indexTableNames);
+	}
+
 	protected boolean hasSQL(CreateTable createTable) {
 		return isAllowedTable(createTable.getTable(), _createTableNames);
 	}
 
 	protected boolean hasSQL(Delete delete) {
-		TableNamesFinder tableNamesFinder = new TableNamesFinder();
+		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-		List<String> tableNames = tableNamesFinder.getTableNames(delete);
+		List<String> tableNames = tablesNamesFinder.getTableList(delete);
 
 		return isAllowedTables(tableNames, _deleteTableNames);
 	}
@@ -133,25 +269,25 @@ public class SQLChecker extends BaseChecker {
 	}
 
 	protected boolean hasSQL(Insert insert) {
-		TableNamesFinder tableNamesFinder = new TableNamesFinder();
+		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-		List<String> tableNames = tableNamesFinder.getTableNames(insert);
+		List<String> tableNames = tablesNamesFinder.getTableList(insert);
 
 		return isAllowedTables(tableNames, _insertTableNames);
 	}
 
 	protected boolean hasSQL(Replace replace) {
-		TableNamesFinder tableNamesFinder = new TableNamesFinder();
+		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-		List<String> tableNames = tableNamesFinder.getTableNames(replace);
+		List<String> tableNames = tablesNamesFinder.getTableList(replace);
 
 		return isAllowedTables(tableNames, _replaceTableNames);
 	}
 
 	protected boolean hasSQL(Select select) {
-		TableNamesFinder tableNamesFinder = new TableNamesFinder();
+		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-		List<String> tableNames = tableNamesFinder.getTableNames(select);
+		List<String> tableNames = tablesNamesFinder.getTableList(select);
 
 		return isAllowedTables(tableNames, _selectTableNames);
 	}
@@ -161,9 +297,9 @@ public class SQLChecker extends BaseChecker {
 	}
 
 	protected boolean hasSQL(Update update) {
-		TableNamesFinder tableNamesFinder = new TableNamesFinder();
+		TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-		List<String> tableNames = tableNamesFinder.getTableNames(update);
+		List<String> tableNames = tablesNamesFinder.getTableList(update);
 
 		return isAllowedTables(tableNames, _updateTableNames);
 	}
@@ -175,6 +311,7 @@ public class SQLChecker extends BaseChecker {
 		_deleteTableNames = getPropertySet(
 			"security-manager-sql-tables-delete");
 		_dropTableNames = getPropertySet("security-manager-sql-tables-drop");
+		_indexTableNames = getPropertySet("security-manager-sql-tables-index");
 		_insertTableNames = getPropertySet(
 			"security-manager-sql-tables-insert");
 		_replaceTableNames = getPropertySet(
@@ -225,75 +362,12 @@ public class SQLChecker extends BaseChecker {
 	private Set<String> _createTableNames;
 	private Set<String> _deleteTableNames;
 	private Set<String> _dropTableNames;
+	private Set<String> _indexTableNames;
 	private Set<String> _insertTableNames;
 	private JSqlParser _jSqlParser = new CCJSqlParserManager();
 	private Set<String> _replaceTableNames;
 	private Set<String> _selectTableNames;
 	private Set<String> _truncateTableNames;
 	private Set<String> _updateTableNames;
-
-	private class TableNamesFinder extends TablesNamesFinder {
-
-		public TableNamesFinder() {
-			tables = new ArrayList<String>();
-		}
-
-		public List<String> getTableNames(Delete delete) {
-			Table table = delete.getTable();
-
-			tables.add(table.getName());
-
-			Expression where = delete.getWhere();
-
-			where.accept(this);
-
-			return tables;
-		}
-
-		public List<String> getTableNames(Insert insert) {
-			Table table = insert.getTable();
-
-			tables.add(table.getName());
-
-			ItemsList itemsList = insert.getItemsList();
-
-			itemsList.accept(this);
-
-			return tables;
-		}
-
-		public List<String> getTableNames(Replace replace) {
-			Table table = replace.getTable();
-
-			tables.add(table.getName());
-
-			ItemsList itemsList = replace.getItemsList();
-
-			itemsList.accept(this);
-
-			return tables;
-		}
-
-		public List<String> getTableNames(Select select) {
-			SelectBody selectBody = select.getSelectBody();
-
-			selectBody.accept(this);
-
-			return tables;
-		}
-
-		public List<String> getTableNames(Update update) {
-			Table table = update.getTable();
-
-			tables.add(table.getName());
-
-			Expression where = update.getWhere();
-
-			where.accept(this);
-
-			return tables;
-		}
-
-	}
 
 }

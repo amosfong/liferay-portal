@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,8 +24,11 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletModeFactory_IW;
 import com.liferay.portal.kernel.portlet.WindowStateFactory_IW;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
+import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateContextType;
-import com.liferay.portal.kernel.templateparser.TemplateContext;
+import com.liferay.portal.kernel.template.TemplateHandler;
+import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
+import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.util.ArrayUtil_IW;
 import com.liferay.portal.kernel.util.DateUtil_IW;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -49,10 +52,6 @@ import com.liferay.portal.kernel.util.Validator_IW;
 import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Theme;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
-import com.liferay.portal.security.pacl.PACLPolicy;
-import com.liferay.portal.security.pacl.PACLPolicyManager;
 import com.liferay.portal.service.permission.AccountPermissionUtil;
 import com.liferay.portal.service.permission.CommonPermissionUtil;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
@@ -66,11 +65,11 @@ import com.liferay.portal.service.permission.UserGroupPermissionUtil;
 import com.liferay.portal.service.permission.UserPermissionUtil;
 import com.liferay.portal.theme.NavItem;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.SessionClicks_IW;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portal.webserver.WebServerServletTokenUtil;
-import com.liferay.portlet.PortletConfigImpl;
 import com.liferay.portlet.PortletURLFactoryUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalService;
@@ -83,14 +82,20 @@ import com.liferay.util.portlet.PortletRequestUtil;
 
 import java.lang.reflect.Method;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -106,57 +111,70 @@ import org.apache.struts.tiles.ComponentContext;
  */
 public class TemplateContextHelper {
 
+	public static Map<String, TemplateVariableGroup> getTemplateVariableGroups(
+			long classNameId, long classPK, Locale locale)
+		throws Exception {
+
+		TemplateHandler templateHandler =
+			TemplateHandlerRegistryUtil.getTemplateHandler(classNameId);
+
+		if (templateHandler == null) {
+			return Collections.emptyMap();
+		}
+
+		Map<String, TemplateVariableGroup> templateVariableGroups =
+			templateHandler.getTemplateVariableGroups(classPK, locale);
+
+		TemplateVariableGroup utilTemplateVariableGroup =
+			templateVariableGroups.get("util");
+
+		utilTemplateVariableGroup.addVariable(
+			"http-request", HttpServletRequest.class, "request");
+
+		return templateVariableGroups;
+	}
+
 	public Map<String, Object> getHelperUtilities(
 		TemplateContextType templateContextType) {
 
-		ClassLoader contextClassLoader =
-			PACLClassLoaderUtil.getContextClassLoader();
-		ClassLoader portalClassLoader =
-			PACLClassLoaderUtil.getPortalClassLoader();
+		TemplateControlContext templateControlContext =
+			getTemplateControlContext();
 
-		if (contextClassLoader == portalClassLoader) {
-			return doGetHelperUtilities(
-				contextClassLoader, templateContextType);
+		AccessControlContext accessControlContext =
+			templateControlContext.getAccessControlContext();
+		ClassLoader classLoader = templateControlContext.getClassLoader();
+
+		if (accessControlContext == null) {
+			return doGetHelperUtilities(classLoader, templateContextType);
 		}
 
-		PACLPolicy threadLocalPACLPolicy =
-			PortalSecurityManagerThreadLocal.getPACLPolicy();
-
-		try {
-			PACLPolicy contextClassLoaderPACLPolicy =
-				PACLPolicyManager.getPACLPolicy(contextClassLoader);
-
-			PortalSecurityManagerThreadLocal.setPACLPolicy(
-				contextClassLoaderPACLPolicy);
-
-			return doGetHelperUtilities(
-				contextClassLoader, templateContextType);
-		}
-		finally {
-			PortalSecurityManagerThreadLocal.setPACLPolicy(
-				threadLocalPACLPolicy);
-		}
+		return AccessController.doPrivileged(
+			new DoGetHelperUtilitiesPrivilegedAction(
+				classLoader, templateContextType),
+			accessControlContext);
 	}
 
 	public Set<String> getRestrictedVariables() {
 		return Collections.emptySet();
 	}
 
-	public void prepare(
-		TemplateContext templateContext, HttpServletRequest request) {
+	public TemplateControlContext getTemplateControlContext() {
+		return _pacl.getTemplateControlContext();
+	}
+
+	public void prepare(Template template, HttpServletRequest request) {
 
 		// Request
 
-		templateContext.put("request", request);
+		template.put("request", request);
 
 		// Portlet config
 
-		PortletConfigImpl portletConfigImpl =
-			(PortletConfigImpl)request.getAttribute(
-				JavaConstants.JAVAX_PORTLET_CONFIG);
+		PortletConfig portletConfig = (PortletConfig)request.getAttribute(
+			JavaConstants.JAVAX_PORTLET_CONFIG);
 
-		if (portletConfigImpl != null) {
-			templateContext.put("portletConfig", portletConfigImpl);
+		if (portletConfig != null) {
+			template.put("portletConfig", portletConfig);
 		}
 
 		// Render request
@@ -167,7 +185,7 @@ public class TemplateContextHelper {
 
 		if (portletRequest != null) {
 			if (portletRequest instanceof RenderRequest) {
-				templateContext.put("renderRequest", portletRequest);
+				template.put("renderRequest", portletRequest);
 			}
 		}
 
@@ -179,14 +197,14 @@ public class TemplateContextHelper {
 
 		if (portletResponse != null) {
 			if (portletResponse instanceof RenderResponse) {
-				templateContext.put("renderResponse", portletResponse);
+				template.put("renderResponse", portletResponse);
 			}
 		}
 
 		// XML request
 
 		if ((portletRequest != null) && (portletResponse != null)) {
-			templateContext.put(
+			template.put(
 				"xmlRequest",
 				new Object() {
 
@@ -209,37 +227,36 @@ public class TemplateContextHelper {
 			Layout layout = themeDisplay.getLayout();
 			List<Layout> layouts = themeDisplay.getLayouts();
 
-			templateContext.put("themeDisplay", themeDisplay);
-			templateContext.put("company", themeDisplay.getCompany());
-			templateContext.put("user", themeDisplay.getUser());
-			templateContext.put("realUser", themeDisplay.getRealUser());
-			templateContext.put("layout", layout);
-			templateContext.put("layouts", layouts);
-			templateContext.put("plid", String.valueOf(themeDisplay.getPlid()));
-			templateContext.put(
+			template.put("themeDisplay", themeDisplay);
+			template.put("company", themeDisplay.getCompany());
+			template.put("user", themeDisplay.getUser());
+			template.put("realUser", themeDisplay.getRealUser());
+			template.put("layout", layout);
+			template.put("layouts", layouts);
+			template.put("plid", String.valueOf(themeDisplay.getPlid()));
+			template.put(
 				"layoutTypePortlet", themeDisplay.getLayoutTypePortlet());
-			templateContext.put(
+			template.put(
 				"scopeGroupId", new Long(themeDisplay.getScopeGroupId()));
-			templateContext.put(
+			template.put(
 				"permissionChecker", themeDisplay.getPermissionChecker());
-			templateContext.put("locale", themeDisplay.getLocale());
-			templateContext.put("timeZone", themeDisplay.getTimeZone());
-			templateContext.put("colorScheme", themeDisplay.getColorScheme());
-			templateContext.put(
-				"portletDisplay", themeDisplay.getPortletDisplay());
+			template.put("locale", themeDisplay.getLocale());
+			template.put("timeZone", themeDisplay.getTimeZone());
+			template.put("colorScheme", themeDisplay.getColorScheme());
+			template.put("portletDisplay", themeDisplay.getPortletDisplay());
 
 			// Navigation items
 
 			if (layout != null) {
 				List<NavItem> navItems = NavItem.fromLayouts(
-					request, layouts, templateContext);
+					request, layouts, template);
 
-				templateContext.put("navItems", navItems);
+				template.put("navItems", navItems);
 			}
 
 			// Deprecated
 
-			templateContext.put(
+			template.put(
 				"portletGroupId", new Long(themeDisplay.getScopeGroupId()));
 		}
 
@@ -252,12 +269,12 @@ public class TemplateContextHelper {
 		}
 
 		if (theme != null) {
-			templateContext.put("theme", theme);
+			template.put("theme", theme);
 		}
 
 		// Tiles attributes
 
-		prepareTiles(templateContext, request);
+		prepareTiles(template, request);
 
 		// Page title and subtitle
 
@@ -268,7 +285,7 @@ public class TemplateContextHelper {
 			String pageTitle = pageTitleListMergeable.mergeToString(
 				StringPool.SPACE);
 
-			templateContext.put("pageTitle", pageTitle);
+			template.put("pageTitle", pageTitle);
 		}
 
 		ListMergeable<String> pageSubtitleListMergeable =
@@ -278,7 +295,7 @@ public class TemplateContextHelper {
 			String pageSubtitle = pageSubtitleListMergeable.mergeToString(
 				StringPool.SPACE);
 
-			templateContext.put("pageSubtitle", pageSubtitle);
+			template.put("pageSubtitle", pageSubtitle);
 		}
 	}
 
@@ -384,7 +401,12 @@ public class TemplateContextHelper {
 
 		// Document library util
 
-		variables.put("dlUtil", DLUtil.getDL());
+		try {
+			variables.put("dlUtil", DLUtil.getDL());
+		}
+		catch (SecurityException se) {
+			_log.error(se, se);
+		}
 
 		// Expando column service
 
@@ -781,9 +803,7 @@ public class TemplateContextHelper {
 	protected void populateExtraHelperUtilities(Map<String, Object> variables) {
 	}
 
-	protected void prepareTiles(
-		TemplateContext templateContext, HttpServletRequest request) {
-
+	protected void prepareTiles(Template template, HttpServletRequest request) {
 		ComponentContext componentContext =
 			(ComponentContext)request.getAttribute(
 				ComponentConstants.COMPONENT_CONTEXT);
@@ -799,28 +819,66 @@ public class TemplateContextHelper {
 
 		themeDisplay.setTilesTitle(tilesTitle);
 
-		templateContext.put("tilesTitle", tilesTitle);
+		template.put("tilesTitle", tilesTitle);
 
 		String tilesContent = (String)componentContext.getAttribute("content");
 
 		themeDisplay.setTilesContent(tilesContent);
 
-		templateContext.put("tilesContent", tilesContent);
+		template.put("tilesContent", tilesContent);
 
 		boolean tilesSelectable = GetterUtil.getBoolean(
 			(String)componentContext.getAttribute("selectable"));
 
 		themeDisplay.setTilesSelectable(tilesSelectable);
 
-		templateContext.put("tilesSelectable", tilesSelectable);
+		template.put("tilesSelectable", tilesSelectable);
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(
 		TemplateContextHelper.class);
 
+	private static PACL _pacl = new NoPACL();
+
 	private Map<ClassLoader, HelperUtilitiesMap>
 		_helperUtilitiesMaps = new ConcurrentHashMap
 			<ClassLoader, HelperUtilitiesMap>();
+
+	private static class NoPACL implements PACL {
+
+		public TemplateControlContext getTemplateControlContext() {
+			ClassLoader contextClassLoader =
+				ClassLoaderUtil.getContextClassLoader();
+
+			return new TemplateControlContext(null, contextClassLoader);
+		}
+
+	}
+
+	public static interface PACL {
+
+		public TemplateControlContext getTemplateControlContext();
+
+	}
+
+	private class DoGetHelperUtilitiesPrivilegedAction
+		implements PrivilegedAction<Map<String, Object>> {
+
+		public DoGetHelperUtilitiesPrivilegedAction(
+			ClassLoader classLoader, TemplateContextType templateContextType) {
+
+			_classLoader = classLoader;
+			_templateContextType = templateContextType;
+		}
+
+		public Map<String, Object> run() {
+			return doGetHelperUtilities(_classLoader, _templateContextType);
+		}
+
+		private ClassLoader _classLoader;
+		private TemplateContextType _templateContextType;
+
+	}
 
 	private class HelperUtilitiesMap
 		extends EnumMap<TemplateContextType, Map<String, Object>> {

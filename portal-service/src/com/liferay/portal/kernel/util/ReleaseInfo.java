@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -140,7 +140,7 @@ public class ReleaseInfo {
 
 	private static final String _CODE_NAME = "Newton";
 
-	private static final String _DATE = "December 27, 2012";
+	private static final String _DATE = "February 19, 2013";
 
 	private static final String _NAME = "Liferay Portal Community Edition";
 
@@ -156,7 +156,7 @@ public class ReleaseInfo {
 
 	private static final String _VERSION = "6.2.0";
 
-	private static final String _VERSION_DISPLAY_NAME = "6.2.0 CE";
+	private static final String _VERSION_DISPLAY_NAME = "6.2.0 CE M4";
 
 	private static String _releaseInfo;
 	private static String _serverInfo;

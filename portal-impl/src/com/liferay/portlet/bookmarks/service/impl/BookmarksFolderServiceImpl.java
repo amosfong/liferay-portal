@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,7 @@ import com.liferay.portlet.bookmarks.model.BookmarksFolder;
 import com.liferay.portlet.bookmarks.service.base.BookmarksFolderServiceBaseImpl;
 import com.liferay.portlet.bookmarks.service.permission.BookmarksFolderPermission;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,6 +80,19 @@ public class BookmarksFolderServiceImpl extends BookmarksFolderServiceBaseImpl {
 			getPermissionChecker(), folder, ActionKeys.VIEW);
 
 		return folder;
+	}
+
+	public List<Long> getFolderIds(long groupId, long folderId)
+		throws PortalException, SystemException {
+
+		BookmarksFolderPermission.check(
+			getPermissionChecker(), groupId, folderId, ActionKeys.VIEW);
+
+		List<Long> folderIds = getSubfolderIds(groupId, folderId, true);
+
+		folderIds.add(0, folderId);
+
+		return folderIds;
 	}
 
 	public List<BookmarksFolder> getFolders(long groupId)
@@ -191,11 +205,26 @@ public class BookmarksFolderServiceImpl extends BookmarksFolderServiceBaseImpl {
 				groupId, folderId, WorkflowConstants.STATUS_APPROVED);
 
 		for (BookmarksFolder folder : folders) {
+			if (folder.isInTrashContainer()) {
+				continue;
+			}
+
 			folderIds.add(folder.getFolderId());
 
 			getSubfolderIds(
 				folderIds, folder.getGroupId(), folder.getFolderId());
 		}
+	}
+
+	public List<Long> getSubfolderIds(
+			long groupId, long folderId, boolean recurse)
+		throws SystemException {
+
+		List<Long> folderIds = new ArrayList<Long>();
+
+		getSubfolderIds(folderIds, groupId, folderId);
+
+		return folderIds;
 	}
 
 	public BookmarksFolder moveFolder(long folderId, long parentFolderId)

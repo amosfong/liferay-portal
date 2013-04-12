@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,7 @@
 
 <%@ include file="/html/taglib/aui/input/init.jsp" %>
 
-<c:if test='<%= !type.equals("assetCategories") && !type.equals("assetTags") && !type.equals("hidden") %>'>
+<c:if test='<%= !type.equals("assetCategories") && !type.equals("hidden") %>'>
 	<span class="<%= fieldCss %>">
 		<span class="aui-field-content">
 			<c:if test='<%= Validator.isNotNull(label) && !inlineLabel.equals("right") %>'>
@@ -68,7 +68,7 @@
 			defaultValue="<%= value %>"
 			disabled="<%= disabled %>"
 			field="<%= field %>"
-			fieldParam='<%= fieldParam %>'
+			fieldParam="<%= fieldParam %>"
 			formName="<%= formName %>"
 			format='<%= (Format)dynamicAttributes.get("format") %>'
 			id="<%= id %>"
@@ -187,7 +187,7 @@
 	</c:otherwise>
 </c:choose>
 
-<c:if test='<%= !type.equals("assetCategories") && !type.equals("assetTags") && !type.equals("hidden") %>'>
+<c:if test='<%= !type.equals("assetCategories") && !type.equals("hidden") %>'>
 			</span>
 
 			<c:if test='<%= Validator.isNotNull(suffix) && !inlineLabel.equals("right") %>'>

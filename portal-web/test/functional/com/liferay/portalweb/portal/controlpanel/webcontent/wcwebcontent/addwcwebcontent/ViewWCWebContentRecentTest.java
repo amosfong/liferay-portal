@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -73,7 +73,7 @@ public class ViewWCWebContentRecentTest extends BaseTestCase {
 				"//a[@data-navigation='recent']/span[@class='entry-title']"));
 		selenium.clickAt("//a[@data-navigation='recent']/span[@class='entry-title']",
 			RuntimeVariables.replace("Recent"));
-		selenium.waitForPageToLoad("30000");
+		selenium.waitForVisible("//a[@class='entry-link']/span");
 		assertEquals(RuntimeVariables.replace("WC WebContent Title"),
 			selenium.getText("//a[@class='entry-link']/span"));
 		selenium.clickAt("//a[@class='entry-link']/span",

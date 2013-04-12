@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,10 @@ import com.liferay.portal.template.TemplateResourceThreadLocal;
 import com.liferay.portal.util.PropsValues;
 
 import java.io.Writer;
+
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -58,6 +62,10 @@ public class VelocityTemplate extends AbstractTemplate {
 
 	public Object get(String key) {
 		return _velocityContext.get(key);
+	}
+
+	public String[] getKeys() {
+		return (String[])_velocityContext.getKeys();
 	}
 
 	public void put(String key, Object value) {
@@ -108,11 +116,13 @@ public class VelocityTemplate extends AbstractTemplate {
 			TemplateConstants.LANG_TYPE_VM, templateResource);
 
 		try {
-			Template template = _velocityEngine.getTemplate(
-				getTemplateResourceUUID(templateResource),
-				TemplateConstants.DEFAUT_ENCODING);
+			Template template = AccessController.doPrivileged(
+				new TemplatePrivilegedExceptionAction(templateResource));
 
 			template.merge(_velocityContext, writer);
+		}
+		catch (PrivilegedActionException pae) {
+			throw pae.getException();
 		}
 		finally {
 			TemplateResourceThreadLocal.setTemplateResource(
@@ -122,5 +132,24 @@ public class VelocityTemplate extends AbstractTemplate {
 
 	private VelocityContext _velocityContext;
 	private VelocityEngine _velocityEngine;
+
+	private class TemplatePrivilegedExceptionAction
+		implements PrivilegedExceptionAction<Template> {
+
+		public TemplatePrivilegedExceptionAction(
+			TemplateResource templateResource) {
+
+			_templateResource = templateResource;
+		}
+
+		public Template run() throws Exception {
+			return _velocityEngine.getTemplate(
+				getTemplateResourceUUID(_templateResource),
+				TemplateConstants.DEFAUT_ENCODING);
+		}
+
+		private TemplateResource _templateResource;
+
+	}
 
 }

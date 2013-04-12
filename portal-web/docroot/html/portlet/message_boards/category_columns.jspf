@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -51,7 +51,7 @@
 			buffer.append("<a href=\"");
 			buffer.append(rowURL);
 			buffer.append("\">");
-			buffer.append(subcategory.getName());
+			buffer.append(HtmlUtil.escape(subcategory.getName()));
 			buffer.append("</a>");
 
 			if ((j + 1) < subcategories.size()) {

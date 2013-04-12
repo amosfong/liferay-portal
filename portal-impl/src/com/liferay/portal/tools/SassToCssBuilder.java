@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -170,6 +170,29 @@ public class SassToCssBuilder {
 		PropsUtil.setProps(new PropsImpl());
 	}
 
+	private boolean _isModified(String dirName, String[] fileNames)
+		throws Exception {
+
+		for (String fileName : fileNames) {
+			fileName = _normalizeFileName(dirName, fileName);
+
+			File file = new File(fileName);
+			File cacheFile = getCacheFile(fileName);
+
+			if (file.lastModified() != cacheFile.lastModified()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private String _normalizeFileName(String dirName, String fileName) {
+		return StringUtil.replace(
+			dirName + StringPool.SLASH + fileName, StringPool.BACK_SLASH,
+			StringPool.SLASH);
+	}
+
 	private void _parseSassDirectory(String dirName) throws Exception {
 		DirectoryScanner directoryScanner = new DirectoryScanner();
 
@@ -186,20 +209,22 @@ public class SassToCssBuilder {
 
 		String[] fileNames = directoryScanner.getIncludedFiles();
 
+		if (!_isModified(dirName, fileNames)) {
+			return;
+		}
+
 		for (String fileName : fileNames) {
-			fileName = StringUtil.replace(
-				dirName + StringPool.SLASH + fileName, StringPool.BACK_SLASH,
-				StringPool.SLASH);
+			fileName = _normalizeFileName(dirName, fileName);
 
 			try {
 				long start = System.currentTimeMillis();
 
-				if (_parseSassFile(fileName)) {
-					long end = System.currentTimeMillis();
+				_parseSassFile(fileName);
 
-					System.out.println(
-						"Parsed " + fileName + " in " + (end - start) + " ms");
-				}
+				long end = System.currentTimeMillis();
+
+				System.out.println(
+					"Parsed " + fileName + " in " + (end - start) + " ms");
 			}
 			catch (Exception e) {
 				System.out.println("Unable to parse " + fileName);
@@ -209,13 +234,9 @@ public class SassToCssBuilder {
 		}
 	}
 
-	private boolean _parseSassFile(String fileName) throws Exception {
+	private void _parseSassFile(String fileName) throws Exception {
 		File file = new File(fileName);
 		File cacheFile = getCacheFile(fileName);
-
-		if (file.lastModified() == cacheFile.lastModified()) {
-			return false;
-		}
 
 		Map<String, Object> inputObjects = new HashMap<String, Object>();
 
@@ -241,8 +262,6 @@ public class SassToCssBuilder {
 		FileUtil.write(cacheFile, parsedContent);
 
 		cacheFile.setLastModified(file.lastModified());
-
-		return true;
 	}
 
 	private RubyExecutor _rubyExecutor;

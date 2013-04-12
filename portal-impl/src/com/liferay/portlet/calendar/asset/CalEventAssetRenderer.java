@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -27,6 +27,7 @@ import com.liferay.portlet.asset.model.BaseAssetRenderer;
 import com.liferay.portlet.calendar.model.CalEvent;
 import com.liferay.portlet.calendar.service.permission.CalEventPermission;
 
+import java.util.Date;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -45,8 +46,8 @@ public class CalEventAssetRenderer extends BaseAssetRenderer {
 		_event = event;
 	}
 
-	public String getAssetRendererFactoryClassName() {
-		return CalEventAssetRendererFactory.CLASS_NAME;
+	public String getClassName() {
+		return CalEvent.class.getName();
 	}
 
 	public long getClassPK() {
@@ -63,12 +64,28 @@ public class CalEventAssetRenderer extends BaseAssetRenderer {
 		}
 	}
 
+	@Override
+	public Date getDisplayDate() {
+		return _event.getModifiedDate();
+	}
+
 	public long getGroupId() {
 		return _event.getGroupId();
 	}
 
 	public String getSummary(Locale locale) {
 		return HtmlUtil.extractText(_event.getDescription());
+	}
+
+	@Override
+	public String getThumbnailPath(PortletRequest portletRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		return themeDisplay.getPathThemeImages() +
+			"/file_system/large/calendar.png";
 	}
 
 	public String getTitle(Locale locale) {
@@ -100,10 +117,9 @@ public class CalEventAssetRenderer extends BaseAssetRenderer {
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
 			PortletKeys.CALENDAR, PortletRequest.RENDER_PHASE);
 
-		portletURL.setWindowState(windowState);
-
 		portletURL.setParameter("struts_action", "/calendar/view_event");
 		portletURL.setParameter("eventId", String.valueOf(_event.getEventId()));
+		portletURL.setWindowState(windowState);
 
 		return portletURL;
 	}

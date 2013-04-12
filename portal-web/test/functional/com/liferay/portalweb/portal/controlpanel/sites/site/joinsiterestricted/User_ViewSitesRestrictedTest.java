@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -38,7 +38,15 @@ public class User_ViewSitesRestrictedTest extends BaseTestCase {
 			selenium.getText("//tr[contains(.,'Site Name')]/td[2]"));
 		assertEquals(RuntimeVariables.replace(""),
 			selenium.getText("//tr[contains(.,'Site Name')]/td[3]"));
+		assertEquals(RuntimeVariables.replace("Actions"),
+			selenium.getText(
+				"//tr[contains(.,'Site Name')]/td[4]/span[@title='Actions']/ul/li/strong/a/span"));
+		selenium.clickAt("//tr[contains(.,'Site Name')]/td[4]/span[@title='Actions']/ul/li/strong/a/span",
+			RuntimeVariables.replace("Actions"));
+		selenium.waitForVisible(
+			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Leave')]");
 		assertEquals(RuntimeVariables.replace("Leave"),
-			selenium.getText("//tr[contains(.,'Site Name')]/td[4]/span/a/span"));
+			selenium.getText(
+				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Leave')]"));
 	}
 }

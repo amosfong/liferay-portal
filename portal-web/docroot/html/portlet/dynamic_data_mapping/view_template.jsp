@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -52,6 +52,12 @@ if (!portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
 }
 %>
 
+<liferay-ui:error exception="<%= RequiredTemplateException.class %>">
+	<liferay-ui:message key="required-templates-could-not-be-deleted" />
+
+	<liferay-ui:message key="they-are-referenced-by-web-contents" />
+</liferay-ui:error>
+
 <portlet:renderURL var="viewRecordsURL">
 	<portlet:param name="struts_action" value="/dynamic_data_lists/view" />
 </portlet:renderURL>
@@ -62,6 +68,7 @@ if (!portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
 />
 
 <liferay-util:include page="/html/portlet/dynamic_data_mapping/template_toolbar.jsp">
+	<liferay-util:param name="redirect" value="<%= currentURL %>" />
 	<liferay-util:param name="classNameId" value="<%= String.valueOf(classNameId) %>" />
 	<liferay-util:param name="classPK" value="<%= String.valueOf(classPK) %>" />
 </liferay-util:include>
@@ -109,34 +116,17 @@ if (!portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
 		>
 
 			<%
-			String rowHREF = null;
+			PortletURL rowURL = renderResponse.createRenderURL();
 
-			if (Validator.isNotNull(chooseCallback)) {
-				StringBundler sb = new StringBundler(7);
+			rowURL.setParameter("struts_action", "/dynamic_data_mapping/edit_template");
+			rowURL.setParameter("redirect", currentURL);
+			rowURL.setParameter("groupId", String.valueOf(template.getGroupId()));
+			rowURL.setParameter("templateId", String.valueOf(template.getTemplateId()));
+			rowURL.setParameter("classNameId", String.valueOf(classNameId));
+			rowURL.setParameter("classPK", String.valueOf(classPK));
+			rowURL.setParameter("type", template.getType());
 
-				sb.append("javascript:Liferay.Util.getOpener()['");
-				sb.append(HtmlUtil.escapeJS(chooseCallback));
-				sb.append("']('");
-				sb.append(template.getTemplateId());
-				sb.append("', '");
-				sb.append(HtmlUtil.escapeJS(template.getName(locale)));
-				sb.append("', Liferay.Util.getWindow());");
-
-				rowHREF = sb.toString();
-			}
-			else {
-				PortletURL rowURL = renderResponse.createRenderURL();
-
-				rowURL.setParameter("struts_action", "/dynamic_data_mapping/edit_template");
-				rowURL.setParameter("redirect", currentURL);
-				rowURL.setParameter("groupId", String.valueOf(template.getGroupId()));
-				rowURL.setParameter("templateId", String.valueOf(template.getTemplateId()));
-				rowURL.setParameter("classNameId", String.valueOf(classNameId));
-				rowURL.setParameter("classPK", String.valueOf(classPK));
-				rowURL.setParameter("type", template.getType());
-
-				rowHREF = rowURL.toString();
-			}
+			String rowHREF = rowURL.toString();
 			%>
 
 			<liferay-ui:search-container-row-parameter
@@ -169,9 +159,9 @@ if (!portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
 				String value = null;
 
 				if (portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
-					PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(template.getClassNameId());
+					TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(template.getClassNameId());
 
-					value = portletDisplayTemplateHandler.getName(locale);
+					value = templateHandler.getName(locale);
 				}
 				else if (Validator.isNull(templateTypeValue)) {
 					value = LanguageUtil.get(pageContext, template.getType());

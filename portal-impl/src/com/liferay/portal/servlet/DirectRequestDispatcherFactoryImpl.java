@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,12 @@ package com.liferay.portal.servlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactory;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContextPathUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
-import com.liferay.portal.security.pacl.PACLPolicyManager;
 import com.liferay.portal.util.PropsValues;
 
 import javax.servlet.RequestDispatcher;
@@ -34,6 +33,7 @@ import javax.servlet.ServletRequest;
  * @author Raymond Augé
  * @author Shuyang Zhou
  */
+@DoPrivileged
 public class DirectRequestDispatcherFactoryImpl
 	implements DirectRequestDispatcherFactory {
 
@@ -43,14 +43,8 @@ public class DirectRequestDispatcherFactoryImpl
 		RequestDispatcher requestDispatcher = doGetRequestDispatcher(
 			servletContext, path);
 
-		if (PACLPolicyManager.isActive() &&
-			PortalSecurityManagerThreadLocal.isEnabled()) {
-
-			requestDispatcher = new PACLRequestDispatcherWrapper(
-				servletContext, requestDispatcher);
-		}
-
-		return requestDispatcher;
+		return new ClassLoaderRequestDispatcherWrapper(
+			servletContext, requestDispatcher);
 	}
 
 	public RequestDispatcher getRequestDispatcher(
@@ -102,15 +96,16 @@ public class DirectRequestDispatcherFactoryImpl
 
 		Servlet servlet = DirectServletRegistryUtil.getServlet(fullPath);
 
+		RequestDispatcher requestDispatcher = null;
+
 		if (servlet == null) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("No servlet found for " + fullPath);
 			}
 
-			RequestDispatcher requestDispatcher =
-				servletContext.getRequestDispatcher(path);
+			requestDispatcher = servletContext.getRequestDispatcher(path);
 
-			return new DirectServletPathRegisterDispatcher(
+			requestDispatcher = new DirectServletPathRegisterDispatcher(
 				path, requestDispatcher);
 		}
 		else {
@@ -118,11 +113,34 @@ public class DirectRequestDispatcherFactoryImpl
 				_log.debug("Servlet found for " + fullPath);
 			}
 
-			return new DirectRequestDispatcher(servlet, queryString);
+			requestDispatcher = new DirectRequestDispatcher(
+				servlet, queryString);
 		}
+
+		return _pacl.getRequestDispatcher(servletContext, requestDispatcher);
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(
 		DirectRequestDispatcherFactoryImpl.class);
+
+	private static PACL _pacl = new NoPACL();
+
+	private static class NoPACL implements PACL {
+
+		public RequestDispatcher getRequestDispatcher(
+			ServletContext servletContext,
+			RequestDispatcher requestDispatcher) {
+
+			return requestDispatcher;
+		}
+
+	}
+
+	public static interface PACL {
+
+		public RequestDispatcher getRequestDispatcher(
+			ServletContext servletContext, RequestDispatcher requestDispatcher);
+
+	}
 
 }

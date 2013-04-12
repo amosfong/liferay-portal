@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -36,6 +37,9 @@ import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.xml.XPath;
 import com.liferay.portal.model.CacheField;
+import com.liferay.portal.model.Group;
+import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.dynamicdatamapping.StructureFieldException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -184,6 +188,12 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 		return field.get(property);
 	}
 
+	public boolean getFieldRepeatable(String fieldName)
+		throws PortalException, SystemException {
+
+		return GetterUtil.getBoolean(getFieldProperty(fieldName, "repeatable"));
+	}
+
 	public boolean getFieldRequired(String fieldName)
 		throws PortalException, SystemException {
 
@@ -246,6 +256,19 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 		return fieldsMap;
 	}
 
+	public String getFieldTip(String fieldName, Locale locale)
+		throws PortalException, SystemException {
+
+		return getFieldTip(fieldName, LocaleUtil.toLanguageId(locale));
+	}
+
+	public String getFieldTip(String fieldName, String locale)
+		throws PortalException, SystemException {
+
+		return GetterUtil.getString(
+			getFieldProperty(fieldName, "tip", locale), fieldName);
+	}
+
 	public String getFieldType(String fieldName)
 		throws PortalException, SystemException {
 
@@ -301,6 +324,49 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 			_localizedTransientFieldsMap.get(locale);
 
 		return fieldsMap;
+	}
+
+	/**
+	 * Returns the WebDAV URL to access the structure.
+	 *
+	 * @param  themeDisplay the theme display needed to build the URL. It can
+	 *         set HTTPS access, the server name, the server port, the path
+	 *         context, and the scope group.
+	 * @param  webDAVToken the WebDAV token for the URL
+	 * @return the WebDAV URL
+	 */
+	public String getWebDavURL(ThemeDisplay themeDisplay, String webDAVToken) {
+		StringBundler sb = new StringBundler(11);
+
+		boolean secure = false;
+
+		if (themeDisplay.isSecure() ||
+			PropsValues.WEBDAV_SERVLET_HTTPS_REQUIRED) {
+
+			secure = true;
+		}
+
+		String portalURL = PortalUtil.getPortalURL(
+			themeDisplay.getServerName(), themeDisplay.getServerPort(), secure);
+
+		sb.append(portalURL);
+
+		sb.append(themeDisplay.getPathContext());
+		sb.append(StringPool.SLASH);
+		sb.append("webdav");
+
+		Group group = themeDisplay.getScopeGroup();
+
+		sb.append(group.getFriendlyURL());
+
+		sb.append(StringPool.SLASH);
+		sb.append(webDAVToken);
+		sb.append(StringPool.SLASH);
+		sb.append("Structures");
+		sb.append(StringPool.SLASH);
+		sb.append(getStructureId());
+
+		return sb.toString();
 	}
 
 	public boolean hasField(String fieldName)

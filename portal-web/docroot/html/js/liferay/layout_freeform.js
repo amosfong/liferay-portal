@@ -61,6 +61,8 @@ AUI.add(
 								instance._setupNodeStack(item);
 							}
 						);
+
+						Liferay.on('addPortlet', instance._onAddPortlet, instance);
 					},
 
 					alignPortlet: function(portletNode, referenceNode) {
@@ -86,6 +88,15 @@ AUI.add(
 								width: portletNode.getStyle('width')
 							}
 						);
+					},
+
+					_onAddPortlet: function(event) {
+						var instance = this;
+
+						var portlet = event.portlet;
+
+						instance._setupNodeResize(portlet);
+						instance._setupNodeStack(portlet);
 					},
 
 					_onPortletMouseDown: function(event) {

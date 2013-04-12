@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,19 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchUserGroupException;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.impl.UserGroupModelImpl;
@@ -108,7 +114,17 @@ public class UserGroupPersistenceTest {
 
 		UserGroup newUserGroup = _persistence.create(pk);
 
+		newUserGroup.setUuid(ServiceTestUtil.randomString());
+
 		newUserGroup.setCompanyId(ServiceTestUtil.nextLong());
+
+		newUserGroup.setUserId(ServiceTestUtil.nextLong());
+
+		newUserGroup.setUserName(ServiceTestUtil.randomString());
+
+		newUserGroup.setCreateDate(ServiceTestUtil.nextDate());
+
+		newUserGroup.setModifiedDate(ServiceTestUtil.nextDate());
 
 		newUserGroup.setParentUserGroupId(ServiceTestUtil.nextLong());
 
@@ -122,10 +138,21 @@ public class UserGroupPersistenceTest {
 
 		UserGroup existingUserGroup = _persistence.findByPrimaryKey(newUserGroup.getPrimaryKey());
 
+		Assert.assertEquals(existingUserGroup.getUuid(), newUserGroup.getUuid());
 		Assert.assertEquals(existingUserGroup.getUserGroupId(),
 			newUserGroup.getUserGroupId());
 		Assert.assertEquals(existingUserGroup.getCompanyId(),
 			newUserGroup.getCompanyId());
+		Assert.assertEquals(existingUserGroup.getUserId(),
+			newUserGroup.getUserId());
+		Assert.assertEquals(existingUserGroup.getUserName(),
+			newUserGroup.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingUserGroup.getCreateDate()),
+			Time.getShortTimestamp(newUserGroup.getCreateDate()));
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingUserGroup.getModifiedDate()),
+			Time.getShortTimestamp(newUserGroup.getModifiedDate()));
 		Assert.assertEquals(existingUserGroup.getParentUserGroupId(),
 			newUserGroup.getParentUserGroupId());
 		Assert.assertEquals(existingUserGroup.getName(), newUserGroup.getName());
@@ -158,6 +185,25 @@ public class UserGroupPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("UserGroup", "uuid", true,
+			"userGroupId", true, "companyId", true, "userId", true, "userName",
+			true, "createDate", true, "modifiedDate", true,
+			"parentUserGroupId", true, "name", true, "description", true,
+			"addedByLDAPImport", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		UserGroup newUserGroup = addUserGroup();
 
@@ -173,6 +219,26 @@ public class UserGroupPersistenceTest {
 		UserGroup missingUserGroup = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingUserGroup);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new UserGroupActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					UserGroup userGroup = (UserGroup)object;
+
+					Assert.assertNotNull(userGroup);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -271,7 +337,17 @@ public class UserGroupPersistenceTest {
 
 		UserGroup userGroup = _persistence.create(pk);
 
+		userGroup.setUuid(ServiceTestUtil.randomString());
+
 		userGroup.setCompanyId(ServiceTestUtil.nextLong());
+
+		userGroup.setUserId(ServiceTestUtil.nextLong());
+
+		userGroup.setUserName(ServiceTestUtil.randomString());
+
+		userGroup.setCreateDate(ServiceTestUtil.nextDate());
+
+		userGroup.setModifiedDate(ServiceTestUtil.nextDate());
 
 		userGroup.setParentUserGroupId(ServiceTestUtil.nextLong());
 

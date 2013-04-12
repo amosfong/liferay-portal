@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -104,6 +104,9 @@ import javax.servlet.jsp.PageContext;
  * @author Brian Wing Shun Chan
  */
 public abstract class BaseAlloyControllerImpl implements AlloyController {
+
+	public static final String TOUCH =
+		BaseAlloyControllerImpl.class.getName() + "#TOUCH#";
 
 	public void afterPropertiesSet() {
 		initClass();
@@ -259,6 +262,32 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 		}
 		else {
 			portletRequestDispatcher.include(portletRequest, portletResponse);
+		}
+
+		Boolean touch = (Boolean)portletContext.getAttribute(
+			TOUCH + portlet.getRootPortletId());
+
+		if (touch == null) {
+			String touchPath =
+				"/WEB-INF/jsp/" + portlet.getFriendlyURLMapping() +
+					"/views/touch.jsp";
+
+			if (log.isDebugEnabled()) {
+				log.debug(
+					"Touch " + portlet.getRootPortletId() + " by including " +
+						touchPath);
+			}
+
+			portletContext.setAttribute(
+				TOUCH + portlet.getRootPortletId(), Boolean.FALSE);
+
+			portletRequestDispatcher = portletContext.getRequestDispatcher(
+				touchPath);
+
+			if (portletRequestDispatcher != null) {
+				portletRequestDispatcher.include(
+					portletRequest, portletResponse);
+			}
 		}
 	}
 
@@ -761,21 +790,22 @@ public abstract class BaseAlloyControllerImpl implements AlloyController {
 			HttpServletResponse response = PortalUtil.getHttpServletResponse(
 				actionResponse);
 
-			response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
+			response.setContentType(ContentTypes.APPLICATION_JSON);
 
 			ServletResponseUtil.write(response, json.toString());
 		}
 		else if (mimeResponse != null) {
-			mimeResponse.setContentType(ContentTypes.TEXT_JAVASCRIPT);
+			mimeResponse.setContentType(ContentTypes.APPLICATION_JSON);
 
 			PortletResponseUtil.write(mimeResponse, json.toString());
 		}
 	}
 
 	protected static final String CALLED_PROCESS_ACTION =
-		"CALLED_PROCESS_ACTION";
+		BaseAlloyControllerImpl.class.getName() + "#CALLED_PROCESS_ACTION";
 
-	protected static final String VIEW_PATH = "VIEW_PATH";
+	protected static final String VIEW_PATH =
+		BaseAlloyControllerImpl.class.getName() + "#VIEW_PATH";
 
 	protected static Log log = LogFactoryUtil.getLog(
 		BaseAlloyControllerImpl.class);

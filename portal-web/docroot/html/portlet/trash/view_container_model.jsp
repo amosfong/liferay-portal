@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -109,12 +109,11 @@ TrashUtil.addContainerModelBreadcrumbEntries(request, trashHandler.getContainerM
 			/>
 
 			<%
-			StringBundler sb = new StringBundler(10);
+			StringBundler sb = new StringBundler(9);
 
 			sb.append(renderResponse.getNamespace());
 			sb.append("selectContainer('");
-			sb.append(redirect);
-			sb.append("', '");
+			sb.append("'', '");
 			sb.append(className);
 			sb.append("', ");
 			sb.append(classPK);
@@ -133,7 +132,7 @@ TrashUtil.addContainerModelBreadcrumbEntries(request, trashHandler.getContainerM
 		<aui:button-row>
 
 			<%
-			String taglibSelectOnClick = renderResponse.getNamespace() + "selectContainer('" + redirect + "', '" + className + "', " + classPK + ", " + containerModelId + ");";
+			String taglibSelectOnClick = renderResponse.getNamespace() + "selectContainer('', '" + className + "', " + classPK + ", " + containerModelId + ");";
 			%>
 
 			<aui:button

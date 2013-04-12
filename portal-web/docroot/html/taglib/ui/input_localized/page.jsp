@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,12 +22,12 @@ String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_input_
 boolean autoSize = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:autoSize"));
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:cssClass"));
 String defaultLanguageId = (String)request.getAttribute("liferay-ui:input-localized:defaultLanguageId");
-boolean disabled = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:input-localized:disabled"));
-int displayWidth = GetterUtil.getInteger((String) request.getAttribute("liferay-ui:input-localized:displayWidth"));
+boolean disabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:disabled"));
+int displayWidth = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-localized:displayWidth"));
 String id = (String)request.getAttribute("liferay-ui:input-localized:id");
 Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribute("liferay-ui:input-localized:dynamicAttributes");
 String formName = (String)request.getAttribute("liferay-ui:input-localized:formName");
-boolean ignoreRequestValue = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:input-localized:ignoreRequestValue"));
+boolean ignoreRequestValue = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:ignoreRequestValue"));
 String languageId = (String)request.getAttribute("liferay-ui:input-localized:languageId");
 String maxLength = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:maxLength"));
 String name = (String)request.getAttribute("liferay-ui:input-localized:name");
@@ -303,7 +303,7 @@ if (Validator.isNull(mainLanguageValue)) {
 
 		if (languageSelectorTrigger) {
 			Liferay.component(
-				'<%= namespace + name %>languageSelector',
+				'<%= namespace + id %>languageSelector',
 				function(event) {
 					if (handle) {
 						handle.detach();
@@ -329,7 +329,7 @@ if (Validator.isNull(mainLanguageValue)) {
 			var handle = languageSelectorTrigger.once(
 				'click',
 				function(event) {
-					Liferay.component('<%= namespace + name %>languageSelector');
+					Liferay.component('<%= namespace + id %>languageSelector');
 				}
 			);
 		}

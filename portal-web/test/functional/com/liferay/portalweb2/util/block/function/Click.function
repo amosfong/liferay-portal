@@ -1,0 +1,75 @@
+<definition>
+	<command name="clickAt">
+		<execute selenium="waitForVisible" />
+
+		<execute selenium="clickAt" />
+	</command>
+
+	<command name="clickAtAndWait">
+		<execute selenium="waitForVisible" />
+
+		<execute selenium="clickAtAndWait" />
+	</command>
+
+	<command name="partialTextClickAt">
+		<execute function="AssertTextEquals#assertPartialText" />
+
+		<execute selenium="clickAt" />
+	</command>
+
+	<command name="partialTextClickAtAndWait">
+		<execute function="AssertTextEquals#assertPartialText" />
+
+		<execute selenium="clickAtAndWait" />
+	</command>
+
+	<command name="pauseTextClickAt">
+		<execute selenium="pause" argument1="1000" />
+
+		<execute function="Click#textClickAt" />
+	</command>
+
+	<command name="textClick">
+		<execute function="AssertTextEquals#assertText" />
+
+		<execute selenium="click" />
+	</command>
+
+	<command name="textClickAndWait">
+		<execute function="AssertTextEquals#assertText" />
+
+		<execute selenium="clickAndWait" />
+	</command>
+
+	<command name="textClickAt">
+		<execute function="AssertTextEquals#assertText" />
+
+		<execute selenium="clickAt" />
+	</command>
+
+	<command name="textClickAtAndWait">
+		<execute function="AssertTextEquals#assertText" />
+
+		<execute selenium="clickAtAndWait" />
+	</command>
+
+	<command name="textClickAtClickDockbar">
+		<execute selenium="clickAt" argument1="//div[@id='dockbar']" argument2="" />
+
+		<execute selenium="waitForElementPresent" argument1="//script[contains(@src,'/aui/aui-button-item/aui-button-item-min.js')]" />
+
+		<execute function="Click#textClickAt" />
+	</command>
+
+	<command name="valueClickAt">
+		<execute function="AssertTextEquals#assertValue" />
+
+		<execute selenium="clickAt" />
+	</command>
+
+	<command name="valueClickAtAndWait">
+		<execute function="AssertTextEquals#assertValue" />
+
+		<execute selenium="clickAtAndWait" />
+	</command>
+</definition>

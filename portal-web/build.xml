@@ -5,7 +5,7 @@
 
 	<property name="war.file" value="${ant.project.name}" />
 
-	<property name="alloy.file" value="alloy-1.7.0pr3.zip" />
+	<property name="alloy.file" value="alloy-1.7.0.zip" />
 
 	<!--
 	When upgrading CKEditor, make sure to delete
@@ -22,6 +22,7 @@
 		<pathelement path="${classpath.jsp}" />
 		<pathelement location="${project.dir}/portal-impl/portal-impl.jar" />
 		<pathelement location="${project.dir}/portal-service/portal-service.jar" />
+		<pathelement location="${project.dir}/util-bridges/util-bridges.jar" />
 		<pathelement location="${project.dir}/util-java/util-java.jar" />
 		<pathelement location="${project.dir}/util-taglib/util-taglib.jar" />
 		<pathelement location="${project.dir}/lib/development/activation.jar" />
@@ -73,7 +74,7 @@
 
 				<!-- JavaScript -->
 
-				<copy todir="docroot/html/js/aui" overwrite="true">
+				<copy todir="docroot/html/js/aui" overwrite="true" preservelastmodified="true">
 					<fileset dir="docroot/html/ALLOY_ZIP/build/" />
 				</copy>
 
@@ -301,7 +302,7 @@
 					tofile="docroot/html/js/editor/ckeditor_diffs/ckeditor.js"
 				/>
 
-				<copy todir="docroot/html/js/editor/ckeditor" overwrite="true">
+				<copy todir="docroot/html/js/editor/ckeditor" overwrite="true" preservelastmodified="true">
 					<fileset dir="docroot/html/js/editor/ckeditor_diffs" />
 				</copy>
 			</then>
@@ -456,7 +457,7 @@
 					<fileset dir="docroot/html/js/editor/fckeditor/editor/filemanager/browser/default" />
 				</copy>
 
-				<copy todir="docroot/html/js/editor/fckeditor" overwrite="true">
+				<copy todir="docroot/html/js/editor/fckeditor" overwrite="true" preservelastmodified="true">
 					<fileset dir="docroot/html/js/editor/fckeditor_diffs" />
 				</copy>
 
@@ -773,7 +774,7 @@
 				<isset property="selenium.types" />
 			</not>
 			<then>
-				<property name="selenium.types" value="action,function,macro,path,testcase,testplan,testsuite" />
+				<property name="selenium.types" value="action,function,macro,path,testcase,testsuite" />
 			</then>
 		</if>
 
@@ -820,16 +821,33 @@
 		</antcall>
 	</target>
 
-	<target name="build-selenium-new-test-plan">
-		<antcall target="build-selenium-new">
-			<param name="selenium.types" value="testplan" />
-		</antcall>
-	</target>
-
 	<target name="build-selenium-new-test-suite">
 		<antcall target="build-selenium-new">
 			<param name="selenium.types" value="testsuite" />
 		</antcall>
+	</target>
+
+	<target name="build-selenium-user-extensions">
+		<property file="${project.dir}/test.${user.name}.properties" />
+		<property file="${project.dir}/test.${env.COMPUTERNAME}.properties" />
+		<property file="${project.dir}/test.${env.HOST}.properties" />
+		<property file="${project.dir}/test.${env.HOSTNAME}.properties" />
+		<property file="${project.dir}/test.properties" />
+
+		<propertyregex
+			property="basedir.double.slash"
+			input="${basedir}"
+			regexp="\\"
+			replace="\\\\\\\\"
+		/>
+
+		<loadfile property="ide.js.content" srcfile="${project.dir}/tools/selenium/extensions/ide.js">
+			<filterchain>
+				<expandproperties />
+			</filterchain>
+		</loadfile>
+
+		<echo file="${project.dir}/tools/selenium/extensions/ide.${user.name}.js">${ide.js.content}</echo>
 	</target>
 
 	<target name="build-themes">
@@ -868,14 +886,14 @@
 					</then>
 				</if>
 
-				<copy todir="@{module.name}" overwrite="true">
+				<copy todir="@{module.name}" overwrite="true" preservelastmodified="true">
 					<fileset
 						dir="docroot/html/themes/_unstyled"
 						excludes="templates/init.ftl,templates/init.vm"
 					/>
 				</copy>
 
-				<copy todir="@{module.name}" overwrite="true">
+				<copy todir="@{module.name}" overwrite="true" preservelastmodified="true">
 					<fileset
 						dir="docroot/html/themes/_styled"
 					/>
@@ -884,7 +902,7 @@
 				<if>
 					<available file="@{module.name}/_diffs" />
 					<then>
-						<copy todir="@{module.name}" overwrite="true">
+						<copy todir="@{module.name}" overwrite="true" preservelastmodified="true">
 							<fileset
 								dir="@{module.name}/_diffs"
 							/>
@@ -970,7 +988,7 @@
 
 				<move file="docroot/html/js/editor/tinymce/jscripts/tiny_mce" todir="docroot/html/js/editor" />
 
-				<copy todir="docroot/html/js/editor/tiny_mce" overwrite="true">
+				<copy todir="docroot/html/js/editor/tiny_mce" overwrite="true" preservelastmodified="true">
 					<fileset dir="docroot/html/js/editor/tiny_mce_diffs" />
 				</copy>
 

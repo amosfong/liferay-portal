@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,18 +19,28 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 
 import java.security.Permission;
 
+import sun.reflect.Reflection;
+
 /**
  * @author Brian Wing Shun Chan
  */
-public class ReflectChecker extends BaseReflectChecker {
+public class ReflectChecker extends BaseChecker {
 
 	public void afterPropertiesSet() {
 	}
 
-	public void checkPermission(Permission permission) {
-		if (!hasReflect(permission)) {
-			throwSecurityException(_log, "Attempted to reflect");
+	public boolean implies(Permission permission) {
+		int stackIndex = getStackIndex(10, 9);
+
+		Class<?> callerClass = Reflection.getCallerClass(stackIndex);
+
+		if (isTrustedCaller(callerClass, permission)) {
+			return true;
 		}
+
+		logSecurityException(_log, "Attempted to reflect");
+
+		return false;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(ReflectChecker.class);

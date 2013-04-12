@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -561,16 +561,14 @@ public class ShoppingUtil {
 		WindowState windowState = renderRequest.getWindowState();
 
 		if (windowState.equals(LiferayWindowState.POP_UP)) {
-			categoriesURL.setWindowState(LiferayWindowState.POP_UP);
-
 			categoriesURL.setParameter(
 				"struts_action", "/shopping/select_category");
+			categoriesURL.setWindowState(LiferayWindowState.POP_UP);
 		}
 		else {
-			//categoriesURL.setWindowState(WindowState.MAXIMIZED);
-
 			categoriesURL.setParameter("struts_action", "/shopping/view");
 			categoriesURL.setParameter("tabs1", "categories");
+			//categoriesURL.setWindowState(WindowState.MAXIMIZED);
 		}
 
 		String categoriesLink =
@@ -590,20 +588,18 @@ public class ShoppingUtil {
 				PortletURL portletURL = renderResponse.createRenderURL();
 
 				if (windowState.equals(LiferayWindowState.POP_UP)) {
-					portletURL.setWindowState(LiferayWindowState.POP_UP);
-
 					portletURL.setParameter(
 						"struts_action", "/shopping/select_category");
 					portletURL.setParameter(
 						"categoryId", String.valueOf(category.getCategoryId()));
+					portletURL.setWindowState(LiferayWindowState.POP_UP);
 				}
 				else {
-					//portletURL.setWindowState(WindowState.MAXIMIZED);
-
 					portletURL.setParameter("struts_action", "/shopping/view");
 					portletURL.setParameter("tabs1", "categories");
 					portletURL.setParameter(
 						"categoryId", String.valueOf(category.getCategoryId()));
+					//portletURL.setWindowState(WindowState.MAXIMIZED);
 				}
 
 				String categoryLink =

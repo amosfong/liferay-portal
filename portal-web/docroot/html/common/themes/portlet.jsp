@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -88,21 +88,22 @@ boolean wsrp = ParamUtil.getBoolean(request, "wsrp");
 	</c:when>
 	<c:when test="<%= themeDisplay.isStatePopUp() %>">
 		<div class="portlet-body">
-			<c:if test="<%= Validator.isNotNull(tilesPortletContent) %>">
-				<c:if test='<%= !tilesPortletContent.endsWith("/error.jsp") %>'>
-					<%@ include file="/html/common/themes/portlet_messages.jspf" %>
-				</c:if>
-
-				<liferay-util:include page="<%= StrutsUtil.TEXT_HTML_DIR + tilesPortletContent %>" />
+			<c:if test='<%= !tilesPortletContent.endsWith("/error.jsp") %>'>
+				<%@ include file="/html/common/themes/portlet_messages.jspf" %>
 			</c:if>
 
-			<c:if test="<%= Validator.isNull(tilesPortletContent) %>">
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(tilesPortletContent) %>">
+					<liferay-util:include page="<%= StrutsUtil.TEXT_HTML_DIR + tilesPortletContent %>" />
+				</c:when>
+				<c:otherwise>
 
-				<%
-				pageContext.getOut().print(renderRequest.getAttribute(WebKeys.PORTLET_CONTENT));
-				%>
+					<%
+					pageContext.getOut().print(renderRequest.getAttribute(WebKeys.PORTLET_CONTENT));
+					%>
 
-			</c:if>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</c:when>
 	<c:otherwise>

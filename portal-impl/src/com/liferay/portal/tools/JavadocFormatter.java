@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -256,8 +256,8 @@ public class JavadocFormatter {
 		boolean publicAccess) {
 
 		List<String> allTagNames = new ArrayList<String>();
-		List<String> commonTagNamesWithComments = new ArrayList<String>();
 		List<String> customTagNames = new ArrayList<String>();
+		List<String> requiredTagNames = new ArrayList<String>();
 
 		for (String tagName : tagNames) {
 			List<Element> elements = parentElement.elements(tagName);
@@ -280,7 +280,21 @@ public class JavadocFormatter {
 					tagName.equals("throws")) {
 
 					if (Validator.isNotNull(comment)) {
-						commonTagNamesWithComments.add(tagName);
+						requiredTagNames.add(tagName);
+					}
+					else if (tagName.equals("param")) {
+						if (GetterUtil.getBoolean(
+								element.elementText("required"))) {
+
+							requiredTagNames.add(tagName);
+						}
+					}
+					else if (tagName.equals("throws")) {
+						if (GetterUtil.getBoolean(
+								element.elementText("required"))) {
+
+							requiredTagNames.add(tagName);
+						}
 					}
 				}
 				else {
@@ -299,17 +313,17 @@ public class JavadocFormatter {
 			maxTagNameLengthTags.addAll(allTagNames);
 		}
 		else if (_updateJavadocs) {
-			if (!commonTagNamesWithComments.isEmpty()) {
+			if (!requiredTagNames.isEmpty()) {
 				maxTagNameLengthTags.addAll(allTagNames);
 			}
 			else {
-				maxTagNameLengthTags.addAll(commonTagNamesWithComments);
 				maxTagNameLengthTags.addAll(customTagNames);
+				maxTagNameLengthTags.addAll(requiredTagNames);
 			}
 		}
 		else {
-			maxTagNameLengthTags.addAll(commonTagNamesWithComments);
 			maxTagNameLengthTags.addAll(customTagNames);
+			maxTagNameLengthTags.addAll(requiredTagNames);
 		}
 
 		for (String name : maxTagNameLengthTags) {
@@ -318,7 +332,7 @@ public class JavadocFormatter {
 			}
 		}
 
-		// There should be an @ sign before the tag name and a space after it
+		// There should be an @ sign before the tag and a space after it
 
 		maxTagNameLength += 2;
 
@@ -341,11 +355,7 @@ public class JavadocFormatter {
 					comment = element.getText();
 				}
 
-				String elementName = null;
-
-				if (commentElement != null) {
-					elementName = element.elementText("name");
-				}
+				String elementName = element.elementText("name");
 
 				if (Validator.isNotNull(comment)) {
 					comment = _assembleTagComment(
@@ -369,7 +379,7 @@ public class JavadocFormatter {
 							!tagName.equals("return") &&
 							!tagName.equals("throws")) {
 
-							// Write out custom tag name
+							// Write out custom tag
 
 							comment = _assembleTagComment(
 								tagName, elementName, comment, indent,
@@ -377,7 +387,7 @@ public class JavadocFormatter {
 
 							sb.append(comment);
 						}
-						else if (!commonTagNamesWithComments.isEmpty()) {
+						else if (!requiredTagNames.isEmpty()) {
 
 							// Write out all tags
 
@@ -389,7 +399,7 @@ public class JavadocFormatter {
 						}
 						else {
 
-							// Skip empty common tag name
+							// Skip empty common tag
 
 						}
 					}
@@ -398,7 +408,7 @@ public class JavadocFormatter {
 							!tagName.equals("return") &&
 							!tagName.equals("throws")) {
 
-							// Write out custom tag name
+							// Write out custom tag
 
 							comment = _assembleTagComment(
 								tagName, elementName, comment, indent,
@@ -406,9 +416,25 @@ public class JavadocFormatter {
 
 							sb.append(comment);
 						}
+						else if (tagName.equals("param") ||
+								 tagName.equals("return") ||
+								 tagName.equals("throws")) {
+
+							if (GetterUtil.getBoolean(
+									element.elementText("required"))) {
+
+								elementName = element.elementText("name");
+
+								comment = _assembleTagComment(
+									tagName, elementName, comment, indent,
+									tagNameIndent);
+
+								sb.append(comment);
+							}
+						}
 						else {
 
-							// Skip empty common tag name
+							// Skip empty common tag
 
 						}
 					}
@@ -492,15 +518,15 @@ public class JavadocFormatter {
 
 		if (value != null) {
 			value = value.substring(name.length());
+
+			DocUtil.add(paramElement, "required", true);
 		}
 
 		value = _trimMultilineText(value);
 
-		if (Validator.isNotNull(value)) {
-			Element commentElement = paramElement.addElement("comment");
+		Element commentElement = paramElement.addElement("comment");
 
-			commentElement.addCDATA(value);
-		}
+		commentElement.addCDATA(value);
 	}
 
 	private void _addParamElements(
@@ -515,8 +541,7 @@ public class JavadocFormatter {
 		}
 	}
 
-	private void _addReturnElement(
-			Element methodElement, JavaMethod javaMethod)
+	private void _addReturnElement(Element methodElement, JavaMethod javaMethod)
 		throws Exception {
 
 		Type returns = javaMethod.getReturns();
@@ -531,6 +556,8 @@ public class JavadocFormatter {
 			return;
 		}
 
+		Element returnElement = methodElement.addElement("return");
+
 		DocletTag[] returnDocletTags = javaMethod.getTagsByName("return");
 
 		String comment = StringPool.BLANK;
@@ -539,17 +566,15 @@ public class JavadocFormatter {
 			DocletTag returnDocletTag = returnDocletTags[0];
 
 			comment = GetterUtil.getString(returnDocletTag.getValue());
+
+			DocUtil.add(returnElement, "required", true);
 		}
 
 		comment = _trimMultilineText(comment);
 
-		if (Validator.isNotNull(comment)) {
-			Element returnElement = methodElement.addElement("return");
+		Element commentElement = returnElement.addElement("comment");
 
-			Element commentElement = returnElement.addElement("comment");
-
-			commentElement.addCDATA(comment);
-		}
+		commentElement.addCDATA(comment);
 	}
 
 	private void _addThrowsElement(
@@ -582,15 +607,15 @@ public class JavadocFormatter {
 
 		if (value != null) {
 			value = value.substring(name.length());
+
+			DocUtil.add(throwsElement, "required", true);
 		}
 
 		value = _trimMultilineText(value);
 
-		if (Validator.isNotNull(value)) {
-			Element commentElement = throwsElement.addElement("comment");
+		Element commentElement = throwsElement.addElement("comment");
 
-			commentElement.addCDATA(_getCDATA(value));
-		}
+		commentElement.addCDATA(_getCDATA(value));
 	}
 
 	private void _addThrowsElements(
@@ -613,7 +638,7 @@ public class JavadocFormatter {
 
 		if (Validator.isNotNull(elementName)) {
 			if (Validator.isNotNull(comment)) {
-				comment = elementName  + StringPool.SPACE + comment;
+				comment = elementName + StringPool.SPACE + comment;
 			}
 			else {
 				comment = elementName;
@@ -700,7 +725,7 @@ public class JavadocFormatter {
 
 		// Capitalize ID
 
-		text = text.replaceAll("(?i)\\bid(s)?\\b", "ID$1");
+		text = text.replaceAll("[?@param id](?i)\\bid(s)?\\b", " ID$1");
 
 		// Wrap special constants in code tags
 
@@ -915,7 +940,7 @@ public class JavadocFormatter {
 		for (Annotation annotation : annotations) {
 			int annotationLineNumber = annotation.getLineNumber();
 
-			Map<String, String> propertyMap = annotation.getPropertyMap(); 
+			Map<String, String> propertyMap = annotation.getPropertyMap();
 
 			if (propertyMap.isEmpty()) {
 				annotationLineNumber--;
@@ -1251,7 +1276,7 @@ public class JavadocFormatter {
 		}
 	}
 
- 	private boolean _hasPublicModifier(AbstractJavaEntity abstractJavaEntity) {
+	private boolean _hasPublicModifier(AbstractJavaEntity abstractJavaEntity) {
 		String[] modifiers = abstractJavaEntity.getModifiers();
 
 		if (modifiers == null) {
@@ -1267,7 +1292,7 @@ public class JavadocFormatter {
 		return false;
 	}
 
-	private boolean  _isOverrideMethod(
+	private boolean _isOverrideMethod(
 		JavaClass javaClass, JavaMethod javaMethod,
 		Collection<JavaClass> ancestorJavaClasses) {
 
@@ -1326,9 +1351,7 @@ public class JavadocFormatter {
 		return false;
 	}
 
-	private String _removeJavadocFromJava(
-		JavaClass javaClass, String content) {
-
+	private String _removeJavadocFromJava(JavaClass javaClass, String content) {
 		Set<Integer> lineNumbers = new HashSet<Integer>();
 
 		lineNumbers.add(_getJavaClassLineNumber(javaClass));
@@ -1496,7 +1519,7 @@ public class JavadocFormatter {
 						_getIndent(lines, javaMethod) + "@Override\n";
 
 					if (Validator.isNotNull(javaMethodComment)) {
-						javaMethodComment =	javaMethodComment + overrideLine;
+						javaMethodComment = javaMethodComment + overrideLine;
 					}
 					else {
 						javaMethodComment = overrideLine;
@@ -1571,8 +1594,7 @@ public class JavadocFormatter {
 			while (matcher.find()) {
 				String wrapped = _formatInlines(matcher.group());
 
-				wrapped = StringUtil.wrap(
-					wrapped, 80 - indentLength, "\n");
+				wrapped = StringUtil.wrap(wrapped, 80 - indentLength, "\n");
 
 				matcher.appendReplacement(sb, wrapped);
 			}

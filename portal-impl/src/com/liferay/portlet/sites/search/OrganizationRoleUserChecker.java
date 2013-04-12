@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,10 +20,10 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.MembershipPolicyUtil;
+import com.liferay.portal.security.membershippolicy.OrganizationMembershipPolicyUtil;
+import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
-
-import java.util.Set;
 
 import javax.portlet.RenderResponse;
 
@@ -61,15 +61,32 @@ public class OrganizationRoleUserChecker extends RowChecker {
 	public boolean isDisabled(Object obj) {
 		User user = (User)obj;
 
-		Set<Role> mandatoryRoles = MembershipPolicyUtil.getMandatoryRoles(
-			_organization, user);
+		try {
+			PermissionChecker permissionChecker =
+				PermissionThreadLocal.getPermissionChecker();
 
-		if ((isChecked(user) && mandatoryRoles.contains(_role)) ||
-			(!isChecked(user) &&
-			 !MembershipPolicyUtil.isMembershipAllowed(
-				_organization, _role, user))) {
+			if (isChecked(user)) {
+				if (OrganizationMembershipPolicyUtil.isRoleProtected(
+						permissionChecker, user.getUserId(),
+						_organization.getOrganizationId(), _role.getRoleId()) ||
+					OrganizationMembershipPolicyUtil.isRoleRequired(
+						user.getUserId(), _organization.getOrganizationId(),
+						_role.getRoleId())) {
 
-			return true;
+					return true;
+				}
+			}
+			else {
+				if (!OrganizationMembershipPolicyUtil.isRoleAllowed(
+						user.getUserId(), _organization.getOrganizationId(),
+						_role.getRoleId())) {
+
+					return true;
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
 		return super.isDisabled(obj);

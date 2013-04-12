@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +28,7 @@ import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.Website;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.membershippolicy.OrganizationMembershipPolicyUtil;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.ServiceContext;
@@ -37,11 +38,17 @@ import com.liferay.portal.service.permission.OrganizationPermissionUtil;
 import com.liferay.portal.service.permission.PasswordPolicyPermissionUtil;
 import com.liferay.portal.service.permission.PortalPermissionUtil;
 import com.liferay.portal.service.permission.UserPermissionUtil;
+import com.liferay.portlet.asset.model.AssetCategory;
+import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
+
+import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The implementation of the organization remote service.
@@ -80,12 +87,108 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * including its resources, metadata, and internal data structures.
 	 * </p>
 	 *
+	 * @param      parentOrganizationId the primary key of the organization's
+	 *             parent organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether the permissions of the organization are to
+	 *             be inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      addresses the organization's addresses
+	 * @param      emailAddresses the organization's email addresses
+	 * @param      orgLabors the organization's hours of operation
+	 * @param      phones the organization's phone numbers
+	 * @param      websites the organization's websites
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs, asset tag
+	 *             names, and expando bridge attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if a parent organization with the primary key
+	 *             could not be found, if the organization's information was
+	 *             invalid, or if the user did not have permission to add the
+	 *             organization
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #addOrganization(long,
+	 *             String, String, long, long, int, String, boolean,
+	 *             java.util.List, java.util.List, java.util.List,
+	 *             java.util.List, java.util.List, ServiceContext)}
+	 */
+	public Organization addOrganization(
+			long parentOrganizationId, String name, String type,
+			boolean recursable, long regionId, long countryId, int statusId,
+			String comments, boolean site, List<Address> addresses,
+			List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
+			List<Phone> phones, List<Website> websites,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return addOrganization(
+			parentOrganizationId, name, type, regionId, countryId, statusId,
+			comments, site, addresses, emailAddresses, orgLabors, phones,
+			websites, serviceContext);
+	}
+
+	/**
+	 * Adds an organization.
+	 *
+	 * <p>
+	 * This method handles the creation and bookkeeping of the organization
+	 * including its resources, metadata, and internal data structures.
+	 * </p>
+	 *
+	 * @param      parentOrganizationId the primary key of the organization's
+	 *             parent organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether the permissions of the organization are to
+	 *             be inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs, asset tag
+	 *             names, and expando bridge attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if the parent organization with the primary
+	 *             key could not be found, if the organization information was
+	 *             invalid, or if the user did not have permission to add the
+	 *             organization
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #addOrganization(long,
+	 *             String, String, long, long, int, String, boolean,
+	 *             ServiceContext)}
+	 */
+	public Organization addOrganization(
+			long parentOrganizationId, String name, String type,
+			boolean recursable, long regionId, long countryId, int statusId,
+			String comments, boolean site, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return addOrganization(
+			parentOrganizationId, name, type, regionId, countryId, statusId,
+			comments, site, serviceContext);
+	}
+
+	/**
+	 * Adds an organization with additional parameters.
+	 *
+	 * <p>
+	 * This method handles the creation and bookkeeping of the organization
+	 * including its resources, metadata, and internal data structures.
+	 * </p>
+	 *
 	 * @param  parentOrganizationId the primary key of the organization's parent
 	 *         organization
 	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether the permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
@@ -97,7 +200,7 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * @param  orgLabors the organization's hours of operation
 	 * @param  phones the organization's phone numbers
 	 * @param  websites the organization's websites
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs, asset tag names,
 	 *         and expando bridge attributes for the organization.
 	 * @return the organization
@@ -108,12 +211,11 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public Organization addOrganization(
-			long parentOrganizationId, String name, String type,
-			boolean recursable, long regionId, long countryId, int statusId,
-			String comments, boolean site, List<Address> addresses,
-			List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
-			List<Phone> phones, List<Website> websites,
-			ServiceContext serviceContext)
+			long parentOrganizationId, String name, String type, long regionId,
+			long countryId, int statusId, String comments, boolean site,
+			List<Address> addresses, List<EmailAddress> emailAddresses,
+			List<OrgLabor> orgLabors, List<Phone> phones,
+			List<Website> websites, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		boolean indexingEnabled = serviceContext.isIndexingEnabled();
@@ -122,8 +224,8 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 
 		try {
 			Organization organization = addOrganization(
-				parentOrganizationId, name, type, recursable, regionId,
-				countryId, statusId, comments, site, serviceContext);
+				parentOrganizationId, name, type, regionId, countryId, statusId,
+				comments, site, serviceContext);
 
 			UsersAdminUtil.updateAddresses(
 				Organization.class.getName(), organization.getOrganizationId(),
@@ -170,15 +272,13 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 *         organization
 	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether the permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
 	 * @param  comments the comments about the organization
 	 * @param  site whether the organization is to be associated with a main
 	 *         site
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs, asset tag names,
 	 *         and expando bridge attributes for the organization.
 	 * @return the organization
@@ -188,9 +288,9 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	public Organization addOrganization(
-			long parentOrganizationId, String name, String type,
-			boolean recursable, long regionId, long countryId, int statusId,
-			String comments, boolean site, ServiceContext serviceContext)
+			long parentOrganizationId, String name, String type, long regionId,
+			long countryId, int statusId, String comments, boolean site,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		if (!OrganizationPermissionUtil.contains(
@@ -204,9 +304,13 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 					"an organization with parent " + parentOrganizationId);
 		}
 
-		return organizationLocalService.addOrganization(
-			getUserId(), parentOrganizationId, name, type, recursable, regionId,
-			countryId, statusId, comments, site, serviceContext);
+		Organization organization = organizationLocalService.addOrganization(
+			getUserId(), parentOrganizationId, name, type, regionId, countryId,
+			statusId, comments, site, serviceContext);
+
+		OrganizationMembershipPolicyUtil.verifyPolicy(organization);
+
+		return organization;
 	}
 
 	/**
@@ -276,7 +380,8 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * @return     the organizations which the user has permission to manage
 	 * @throws     PortalException if a portal exception occurred
 	 * @throws     SystemException if a system exception occurred
-	 * @deprecated Replaced by {@link #getOrganizations(long, long, int, int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #getOrganizations(long, long,
+	 *             int, int)}
 	 */
 	public List<Organization> getManageableOrganizations(
 			String actionId, int max)
@@ -511,13 +616,104 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	/**
 	 * Updates the organization with additional parameters.
 	 *
+	 * @param      organizationId the primary key of the organization
+	 * @param      parentOrganizationId the primary key of the organization's
+	 *             parent organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether the permissions of the organization are to
+	 *             be inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      addresses the organization's addresses
+	 * @param      emailAddresses the organization's email addresses
+	 * @param      orgLabors the organization's hours of operation
+	 * @param      phones the organization's phone numbers
+	 * @param      websites the organization's websites
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs and asset tag
+	 *             names for the organization, and merge expando bridge
+	 *             attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if an organization or parent organization
+	 *             with the primary key could not be found, if the user did not
+	 *             have permission to update the organization information, or if
+	 *             the new information was invalid
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
+	 *             long, String, String, long, long, int, String, boolean,
+	 *             java.util.List, java.util.List, java.util.List,
+	 *             java.util.List, java.util.List, ServiceContext)}
+	 */
+	public Organization updateOrganization(
+			long organizationId, long parentOrganizationId, String name,
+			String type, boolean recursable, long regionId, long countryId,
+			int statusId, String comments, boolean site,
+			List<Address> addresses, List<EmailAddress> emailAddresses,
+			List<OrgLabor> orgLabors, List<Phone> phones,
+			List<Website> websites, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return updateOrganization(
+			organizationId, parentOrganizationId, name, type, regionId,
+			countryId, statusId, comments, site, addresses, emailAddresses,
+			orgLabors, phones, websites, serviceContext);
+	}
+
+	/**
+	 * Updates the organization.
+	 *
+	 * @param      organizationId the primary key of the organization
+	 * @param      parentOrganizationId the primary key of the organization's
+	 *             parent organization
+	 * @param      name the organization's name
+	 * @param      type the organization's type
+	 * @param      recursable whether permissions of the organization are to be
+	 *             inherited by its suborganizations
+	 * @param      regionId the primary key of the organization's region
+	 * @param      countryId the primary key of the organization's country
+	 * @param      statusId the organization's workflow status
+	 * @param      comments the comments about the organization
+	 * @param      site whether the organization is to be associated with a main
+	 *             site
+	 * @param      serviceContext the service context to be applied (optionally
+	 *             <code>null</code>). Can set asset category IDs and asset tag
+	 *             names for the organization, and merge expando bridge
+	 *             attributes for the organization.
+	 * @return     the organization
+	 * @throws     PortalException if an organization or parent organization
+	 *             with the primary key could not be found, if the user did not
+	 *             have permission to update the organization, or if the new
+	 *             information was invalid
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
+	 *             long, String, String, long, long, int, String, boolean,
+	 *             ServiceContext)}
+	 */
+	public Organization updateOrganization(
+			long organizationId, long parentOrganizationId, String name,
+			String type, boolean recursable, long regionId, long countryId,
+			int statusId, String comments, boolean site,
+			ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		return updateOrganization(
+			organizationId, parentOrganizationId, name, type, regionId,
+			countryId, statusId, comments, site, serviceContext);
+	}
+
+	/**
+	 * Updates the organization with additional parameters.
+	 *
 	 * @param  organizationId the primary key of the organization
 	 * @param  parentOrganizationId the primary key of the organization's parent
 	 *         organization
 	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether the permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
@@ -529,7 +725,7 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 * @param  orgLabors the organization's hours of operation
 	 * @param  phones the organization's phone numbers
 	 * @param  websites the organization's websites
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs and asset tag
 	 *         names for the organization, and merge expando bridge attributes
 	 *         for the organization.
@@ -542,15 +738,40 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 */
 	public Organization updateOrganization(
 			long organizationId, long parentOrganizationId, String name,
-			String type, boolean recursable, long regionId, long countryId,
-			int statusId, String comments, boolean site,
-			List<Address> addresses, List<EmailAddress> emailAddresses,
-			List<OrgLabor> orgLabors, List<Phone> phones,
-			List<Website> websites, ServiceContext serviceContext)
+			String type, long regionId, long countryId, int statusId,
+			String comments, boolean site, List<Address> addresses,
+			List<EmailAddress> emailAddresses, List<OrgLabor> orgLabors,
+			List<Phone> phones, List<Website> websites,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
+		Organization organization = organizationPersistence.findByPrimaryKey(
+			organizationId);
+
 		OrganizationPermissionUtil.check(
-			getPermissionChecker(), organizationId, ActionKeys.UPDATE);
+			getPermissionChecker(), organization, ActionKeys.UPDATE);
+
+		if (organization.getParentOrganizationId() != parentOrganizationId) {
+			if (parentOrganizationId ==
+					OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID) {
+
+				PortalPermissionUtil.check(
+					getPermissionChecker(), ActionKeys.ADD_ORGANIZATION);
+			}
+			else {
+				if (!OrganizationPermissionUtil.contains(
+						getPermissionChecker(), parentOrganizationId,
+						ActionKeys.MANAGE_SUBORGANIZATIONS) &&
+					!PortalPermissionUtil.contains(
+						getPermissionChecker(), ActionKeys.ADD_ORGANIZATION)) {
+
+					throw new PrincipalException(
+						"User " + getUserId() + " does not have permissions " +
+							"to move organization " + organizationId + "to " +
+								"parent " + parentOrganizationId);
+				}
+			}
+		}
 
 		if (addresses != null) {
 			UsersAdminUtil.updateAddresses(
@@ -578,10 +799,30 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 
 		User user = getUser();
 
-		return organizationLocalService.updateOrganization(
+		Organization oldOrganization = organization;
+
+		List<AssetCategory> oldAssetCategories =
+			assetCategoryLocalService.getCategories(
+				Organization.class.getName(), organizationId);
+
+		List<AssetTag> oldAssetTags = assetTagLocalService.getTags(
+			Organization.class.getName(), organizationId);
+
+		ExpandoBridge oldExpandoBridge = oldOrganization.getExpandoBridge();
+
+		Map<String, Serializable> oldExpandoAttributes =
+			oldExpandoBridge.getAttributes();
+
+		organization = organizationLocalService.updateOrganization(
 			user.getCompanyId(), organizationId, parentOrganizationId, name,
-			type, recursable, regionId, countryId, statusId, comments, site,
+			type, regionId, countryId, statusId, comments, site,
 			serviceContext);
+
+		OrganizationMembershipPolicyUtil.verifyPolicy(
+			organization, oldOrganization, oldAssetCategories, oldAssetTags,
+			oldExpandoAttributes);
+
+		return organization;
 	}
 
 	/**
@@ -592,15 +833,13 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 *         organization
 	 * @param  name the organization's name
 	 * @param  type the organization's type
-	 * @param  recursable whether permissions of the organization are to be
-	 *         inherited by its suborganizations
 	 * @param  regionId the primary key of the organization's region
 	 * @param  countryId the primary key of the organization's country
 	 * @param  statusId the organization's workflow status
 	 * @param  comments the comments about the organization
 	 * @param  site whether the organization is to be associated with a main
 	 *         site
-	 * @param  serviceContext the organization's service context (optionally
+	 * @param  serviceContext the service context to be applied (optionally
 	 *         <code>null</code>). Can set asset category IDs and asset tag
 	 *         names for the organization, and merge expando bridge attributes
 	 *         for the organization.
@@ -613,15 +852,14 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 */
 	public Organization updateOrganization(
 			long organizationId, long parentOrganizationId, String name,
-			String type, boolean recursable, long regionId, long countryId,
-			int statusId, String comments, boolean site,
-			ServiceContext serviceContext)
+			String type, long regionId, long countryId, int statusId,
+			String comments, boolean site, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		return updateOrganization(
-			organizationId, parentOrganizationId, name, type, recursable,
-			regionId, countryId, statusId, comments, site, null, null, null,
-			null, null, serviceContext);
+			organizationId, parentOrganizationId, name, type, regionId,
+			countryId, statusId, comments, site, null, null, null, null, null,
+			serviceContext);
 	}
 
 }

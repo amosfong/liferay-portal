@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,8 +30,6 @@ import com.liferay.portlet.dynamicdatalists.service.permission.DDLRecordSetPermi
  */
 public class DDLRecordAssetRendererFactory extends BaseAssetRendererFactory {
 
-	public static final String CLASS_NAME = DDLRecord.class.getName();
-
 	public static final String TYPE = "record";
 
 	public AssetRenderer getAssetRenderer(long classPK, int type)
@@ -55,7 +53,7 @@ public class DDLRecordAssetRendererFactory extends BaseAssetRendererFactory {
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return DDLRecord.class.getName();
 	}
 
 	public String getType() {

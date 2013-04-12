@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -228,26 +228,13 @@ public interface UserGroupRoleLocalService extends BaseLocalService,
 	*/
 	public void setBeanIdentifier(java.lang.String beanIdentifier);
 
-	public void addUserGroupRoles(long userId, long groupId, long[] roleIds)
+	public java.util.List<com.liferay.portal.model.UserGroupRole> addUserGroupRoles(
+		long userId, long groupId, long[] roleIds)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
-	public void addUserGroupRoles(long[] userIds, long groupId, long roleId)
+	public java.util.List<com.liferay.portal.model.UserGroupRole> addUserGroupRoles(
+		long[] userIds, long groupId, long roleId)
 		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Removes any forbidden user group roles from the user and adds all
-	* mandatory user group roles to the user, if the user does not have the
-	* user group role.
-	*
-	* @param user the user
-	* @throws PortalException if the any user group roles cannot be added or
-	removed from the user.
-	* @throws SystemException if a system exception occurred
-	* @see com.liferay.portal.events.MembershipPolicyAction
-	*/
-	public void checkMembershipPolicy(com.liferay.portal.model.User user)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
 
 	public void deleteUserGroupRoles(long userId, long groupId, long[] roleIds)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -280,6 +267,11 @@ public interface UserGroupRoleLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portal.model.UserGroupRole> getUserGroupRoles(
 		long userId, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.portal.model.UserGroupRole> getUserGroupRolesByGroup(
+		long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

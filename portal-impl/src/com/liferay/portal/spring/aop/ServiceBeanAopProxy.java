@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -125,7 +125,11 @@ public class ServiceBeanAopProxy implements AopProxy, InvocationHandler {
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(
 			_advisedSupport);
 
-		return ProxyUtil.newProxyInstance(classLoader, proxiedInterfaces, this);
+		InvocationHandler invocationHandler = _pacl.getInvocationHandler(
+			this, _advisedSupport);
+
+		return ProxyUtil.newProxyInstance(
+			classLoader, proxiedInterfaces, invocationHandler);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] arguments)
@@ -236,11 +240,31 @@ public class ServiceBeanAopProxy implements AopProxy, InvocationHandler {
 
 	private static Log _log = LogFactoryUtil.getLog(ServiceBeanAopProxy.class);
 
+	private static PACL _pacl = new NoPACL();
+
 	private AdvisedSupport _advisedSupport;
 	private AdvisorChainFactory _advisorChainFactory;
 	private final List<MethodInterceptor> _classLevelMethodInterceptors;
 	private final List<MethodInterceptor> _fullMethodInterceptors;
 	private boolean _mergeSpringMethodInterceptors;
 	private ServiceBeanAopCacheManager _serviceBeanAopCacheManager;
+
+	private static class NoPACL implements PACL {
+
+		public InvocationHandler getInvocationHandler(
+			InvocationHandler invocationHandler,
+			AdvisedSupport advisedSupport) {
+
+			return invocationHandler;
+		}
+
+	}
+
+	public static interface PACL {
+
+		public InvocationHandler getInvocationHandler(
+			InvocationHandler invocationHandler, AdvisedSupport advisedSupport);
+
+	}
 
 }

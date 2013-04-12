@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -418,6 +418,16 @@ public class SearchPermissionCheckerImpl implements SearchPermissionChecker {
 					if (groupRoles.contains(role)) {
 						groupsQuery.addTerm(Field.GROUP_ID, group.getGroupId());
 					}
+				}
+
+				if (group.isSite() &&
+					!role.getName().equals(RoleConstants.SITE_MEMBER) &&
+					(role.getType() == RoleConstants.TYPE_SITE)) {
+
+					rolesQuery.addTerm(
+						Field.GROUP_ROLE_ID,
+						group.getGroupId() + StringPool.DASH +
+							role.getRoleId());
 				}
 			}
 

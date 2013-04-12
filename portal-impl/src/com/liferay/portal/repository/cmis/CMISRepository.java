@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -52,6 +52,7 @@ import com.liferay.portal.repository.cmis.model.CMISFileVersion;
 import com.liferay.portal.repository.cmis.model.CMISFolder;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.service.RepositoryEntryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.persistence.RepositoryEntryUtil;
 import com.liferay.portal.util.PropsValues;
@@ -2095,18 +2096,13 @@ public class CMISRepository extends BaseCmisRepository {
 	protected <E> List<E> subList(
 		List<E> list, int start, int end, OrderByComparator obc) {
 
-		if (obc != null) {
-			if ((obc instanceof RepositoryModelCreateDateComparator) ||
-				(obc instanceof RepositoryModelModifiedDateComparator) ||
-				(obc instanceof RepositoryModelSizeComparator)) {
+		if ((obc != null) &&
+			((obc instanceof RepositoryModelCreateDateComparator) ||
+			 (obc instanceof RepositoryModelModifiedDateComparator) ||
+			 (obc instanceof RepositoryModelNameComparator) ||
+			 (obc instanceof RepositoryModelSizeComparator))) {
 
-				list = ListUtil.sort(list, obc);
-			}
-			else if (obc instanceof RepositoryModelNameComparator) {
-				if (!obc.isAscending()) {
-					list = ListUtil.sort(list, obc);
-				}
-			}
+			list = ListUtil.sort(list, obc);
 		}
 
 		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS)) {
@@ -2255,15 +2251,10 @@ public class CMISRepository extends BaseCmisRepository {
 			getRepositoryId(), rootFolderId);
 
 		if (repositoryEntry == null) {
-			long repositoryEntryId = counterLocalService.increment();
-
-			repositoryEntry = RepositoryEntryUtil.create(repositoryEntryId);
-
-			repositoryEntry.setGroupId(getGroupId());
-			repositoryEntry.setRepositoryId(getRepositoryId());
-			repositoryEntry.setMappedId(rootFolderId);
-
-			RepositoryEntryUtil.update(repositoryEntry);
+			repositoryEntry =
+				RepositoryEntryLocalServiceUtil.addRepositoryEntry(
+					dlFolder.getUserId(), getGroupId(), getRepositoryId(),
+					rootFolderId, new ServiceContext());
 		}
 
 		return repositoryEntry.getMappedId();
@@ -2293,15 +2284,14 @@ public class CMISRepository extends BaseCmisRepository {
 	}
 
 	protected void updateMappedId(long repositoryEntryId, String mappedId)
-		throws NoSuchRepositoryEntryException, SystemException {
+		throws PortalException, SystemException {
 
 		RepositoryEntry repositoryEntry = RepositoryEntryUtil.findByPrimaryKey(
 			repositoryEntryId);
 
 		if (!mappedId.equals(repositoryEntry.getMappedId())) {
-			repositoryEntry.setMappedId(mappedId);
-
-			RepositoryEntryUtil.update(repositoryEntry);
+			RepositoryEntryLocalServiceUtil.updateRepositoryEntry(
+				repositoryEntryId, mappedId);
 		}
 	}
 

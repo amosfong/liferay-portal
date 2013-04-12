@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -58,6 +58,8 @@ public interface ContentTypes {
 	public static final String HTTPD_UNIX_DIRECTORY = "httpd/unix-directory";
 
 	public static final String IMAGE_JPEG = "image/jpeg";
+
+	public static final String IMAGE_PNG = "image/png";
 
 	public static final String MESSAGE_RFC822 = "message/rfc822";
 

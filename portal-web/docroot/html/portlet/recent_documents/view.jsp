@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -38,10 +38,9 @@ List fileRanks = DLAppLocalServiceUtil.getFileRanks(scopeGroupId, user.getUserId
 
 				PortletURL rowURL = renderResponse.createActionURL();
 
-				rowURL.setWindowState(LiferayWindowState.EXCLUSIVE);
-
 				rowURL.setParameter("struts_action", "/recent_documents/get_file");
 				rowURL.setParameter("fileEntryId", String.valueOf(fileRank.getFileEntryId()));
+				rowURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 		%>
 
 				<tr>

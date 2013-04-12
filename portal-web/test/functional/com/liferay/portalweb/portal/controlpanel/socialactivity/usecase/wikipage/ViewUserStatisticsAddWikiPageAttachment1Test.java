@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -26,7 +26,6 @@ public class ViewUserStatisticsAddWikiPageAttachment1Test extends BaseTestCase {
 		selenium.selectWindow("null");
 		selenium.selectFrame("relative=top");
 		selenium.open("/web/site-name/");
-		selenium.waitForVisible("link=User Statistics Test Page");
 		selenium.clickAt("link=User Statistics Test Page",
 			RuntimeVariables.replace("User Statistics Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -37,7 +36,7 @@ public class ViewUserStatisticsAddWikiPageAttachment1Test extends BaseTestCase {
 			selenium.getText("//div[@class='user-rank']"));
 		assertEquals(RuntimeVariables.replace("Contribution Score: 0"),
 			selenium.getText("//div[@class='contribution-score']"));
-		assertEquals(RuntimeVariables.replace("Participation Score: 22"),
+		assertEquals(RuntimeVariables.replace("Participation Score: 20"),
 			selenium.getText("//div[@class='participation-score']"));
 		assertEquals(RuntimeVariables.replace("User's Wiki Pages: 1"),
 			selenium.getText("//div[@class='social-counter-user.wikis']"));

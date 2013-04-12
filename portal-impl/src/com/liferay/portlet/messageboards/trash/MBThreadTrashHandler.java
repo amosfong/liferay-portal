@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,7 +30,6 @@ import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.MBThreadServiceUtil;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
 import com.liferay.portlet.messageboards.util.MBUtil;
 
@@ -47,23 +46,14 @@ import javax.portlet.PortletURL;
  */
 public class MBThreadTrashHandler extends BaseTrashHandler {
 
-	public static final String CLASS_NAME = MBThread.class.getName();
-
-	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
+	public void deleteTrashEntry(long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			if (checkPermission) {
-				MBThreadServiceUtil.deleteThread(classPK);
-			}
-			else {
-				MBThreadLocalServiceUtil.deleteThread(classPK);
-			}
-		}
+		MBThreadLocalServiceUtil.deleteThread(classPK);
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return MBThread.class.getName();
 	}
 
 	@Override
@@ -152,6 +142,15 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
+	public ContainerModel getTrashContainer(long classPK)
+		throws PortalException, SystemException {
+
+		MBThread thread = MBThreadLocalServiceUtil.getThread(classPK);
+
+		return thread.getTrashContainer();
+	}
+
+	@Override
 	public TrashRenderer getTrashRenderer(long classPK)
 		throws PortalException, SystemException {
 
@@ -165,11 +164,7 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 
 		MBThread thread = MBThreadLocalServiceUtil.getThread(classPK);
 
-		if (thread.isInTrash() || thread.isInTrashContainer()) {
-			return true;
-		}
-
-		return false;
+		return thread.isInTrash();
 	}
 
 	@Override
@@ -188,26 +183,27 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public void moveEntry(
-			long classPK, long containerModelId, ServiceContext serviceContext)
+			long userId, long classPK, long containerModelId,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		MBThreadServiceUtil.moveThread(containerModelId, classPK);
+		MBThreadLocalServiceUtil.moveThread(userId, containerModelId, classPK);
 	}
 
 	@Override
 	public void moveTrashEntry(
-			long classPK, long containerModelId, ServiceContext serviceContext)
+			long userId, long classPK, long containerModelId,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		MBThreadServiceUtil.moveThreadFromTrash(containerModelId, classPK);
+		MBThreadLocalServiceUtil.moveThreadFromTrash(
+			userId, containerModelId, classPK);
 	}
 
-	public void restoreTrashEntries(long[] classPKs)
+	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			MBThreadServiceUtil.restoreThreadFromTrash(classPK);
-		}
+		MBThreadLocalServiceUtil.restoreThreadFromTrash(userId, classPK);
 	}
 
 	@Override

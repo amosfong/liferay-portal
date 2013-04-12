@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -47,12 +47,12 @@ String script = BeanParamUtil.getString(template, request, "script");
 Set<String> supportedLanguageTypes = TemplateManagerUtil.getTemplateManagerNames();
 
 if (Validator.isNull(script)) {
-	PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(classNameId);
+	TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(classNameId);
 
-	if (portletDisplayTemplateHandler != null) {
-		script = ContentUtil.get(portletDisplayTemplateHandler.getTemplatesHelpPath(language));
+	if (templateHandler != null) {
+		script = ContentUtil.get(templateHandler.getTemplatesHelpPath(language));
 
-		String propertyNamePrefix = portletDisplayTemplateHandler.getTemplatesHelpPropertyKey();
+		String propertyNamePrefix = templateHandler.getTemplatesHelpPropertyKey();
 
 		supportedLanguageTypes = TemplateManagerUtil.getSupportedLanguageTypes(propertyNamePrefix);
 	}
@@ -91,7 +91,6 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	<aui:input name="classPK" type="hidden" value="<%= classPK %>" />
 	<aui:input name="type" type="hidden" value="<%= type %>" />
 	<aui:input name="structureAvailableFields" type="hidden" value="<%= structureAvailableFields %>" />
-	<aui:input name="saveCallback" type="hidden" value="<%= saveCallback %>" />
 	<aui:input name="saveAndContinue" type="hidden" value="<%= false %>" />
 
 	<liferay-ui:error exception="<%= TemplateNameException.class %>" message="please-enter-a-valid-name" />
@@ -131,9 +130,9 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	}
 	else {
 		if (classNameId > 0) {
-			PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(classNameId);
+			TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(classNameId);
 
-			title = LanguageUtil.get(pageContext, "new") + StringPool.SPACE + portletDisplayTemplateHandler.getName(locale);
+			title = LanguageUtil.get(pageContext, "new") + StringPool.SPACE + templateHandler.getName(locale);
 		}
 		else {
 			title = LanguageUtil.get(pageContext, "new-application-display-template");
@@ -163,18 +162,17 @@ if (Validator.isNotNull(structureAvailableFields)) {
 				<aui:input name="description" />
 
 				<c:if test="<%= template != null %>">
+					<aui:field-wrapper helpMessage="template-key-help" label="template-key">
+						<%= template.getTemplateKey() %>
+					</aui:field-wrapper>
+
 					<aui:field-wrapper label="url">
 						<liferay-ui:input-resource url='<%= themeDisplay.getPortalURL() + themeDisplay.getPathMain() + "/dynamic_data_mapping/get_template?templateId=" + templateId %>' />
 					</aui:field-wrapper>
 
-					<c:if test="<%= portletDisplay.isWebDAVEnabled() %>">
+					<c:if test="<%= Validator.isNotNull(refererWebDAVToken) %>">
 						<aui:field-wrapper label="webdav-url">
-
-							<%
-							Group group = GroupLocalServiceUtil.getGroup(groupId);
-							%>
-
-							<liferay-ui:input-resource url='<%= themeDisplay.getPortalURL() + themeDisplay.getPathContext() + "/webdav" + group.getFriendlyURL() + "/dynamic_data_mapping/ddmTemplates/" + templateId %>' />
+							<liferay-ui:input-resource url="<%= template.getWebDavURL(themeDisplay, refererWebDAVToken) %>" />
 						</aui:field-wrapper>
 					</c:if>
 				</c:if>
@@ -368,10 +366,16 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	<aui:script>
 		Liferay.after(
 			'<portlet:namespace />saveTemplate',
-			function(){
+			function() {
 				submitForm(document.<portlet:namespace />fm);
 			}
 		);
+
+		function <portlet:namespace />saveAndContinueTemplate() {
+			document.<portlet:namespace />fm.<portlet:namespace />saveAndContinue.value = '1';
+
+			Liferay.fire('<portlet:namespace />saveTemplate');
+		}
 	</aui:script>
 
 	<%
@@ -379,6 +383,8 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	%>
 
 	<aui:button onClick="<%= taglibOnClick %>" value='<%= LanguageUtil.get(pageContext, "save") %>' />
+
+	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(pageContext, "save-and-continue") %>' />
 
 	<aui:button href="<%= redirect %>" type="cancel" />
 </aui:button-row>

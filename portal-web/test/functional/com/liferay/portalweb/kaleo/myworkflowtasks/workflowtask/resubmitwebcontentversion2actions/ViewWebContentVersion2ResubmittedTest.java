@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -118,13 +118,13 @@ public class ViewWebContentVersion2ResubmittedTest extends BaseTestCase {
 		selenium.waitForPageToLoad("30000");
 		assertTrue(selenium.isVisible(
 				"//a[contains(@title,'Web Content Name')]/div/img"));
+		assertEquals(RuntimeVariables.replace("Web Content Name Edited"),
+			selenium.getText(
+				"//a[@class='entry-link']/span[@class='entry-title']/span[1]"));
 		assertTrue(selenium.isPartialText(
-				"//a[@class='entry-link']/span[@class='entry-title']",
-				"Web Content Name Edited"));
-		assertTrue(selenium.isPartialText(
-				"//a[@class='entry-link']/span[@class='entry-title']/span",
+				"//a[@class='entry-link']/span[@class='entry-title']/span[2]",
 				"(Pending)"));
-		selenium.clickAt("//a[@class='entry-link']/span[@class='entry-title']",
+		selenium.clickAt("//a[@class='entry-link']/span[@class='entry-title']/span[1]",
 			RuntimeVariables.replace("Web Content Name Edited"));
 		selenium.waitForPageToLoad("30000");
 		assertEquals(RuntimeVariables.replace("Pending (Review)"),

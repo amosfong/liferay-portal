@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -38,7 +38,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.comparator.GroupFriendlyURLComparator;
-import com.liferay.portlet.documentlibrary.util.DLUtil;
+import com.liferay.portlet.documentlibrary.util.DL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -318,11 +318,11 @@ public class WebDAVUtil {
 	}
 
 	public static String stripManualCheckInRequiredPath(String url) {
-		return stripToken(url, DLUtil.MANUAL_CHECK_IN_REQUIRED_PATH);
+		return stripToken(url, DL.MANUAL_CHECK_IN_REQUIRED_PATH);
 	}
 
 	public static String stripOfficeExtension(String url) {
-		String strippedUrl = stripToken(url, DLUtil.OFFICE_EXTENSION_PATH);
+		String strippedUrl = stripToken(url, DL.OFFICE_EXTENSION_PATH);
 
 		if (strippedUrl.length() != url.length()) {
 			strippedUrl = FileUtil.stripExtension(strippedUrl);

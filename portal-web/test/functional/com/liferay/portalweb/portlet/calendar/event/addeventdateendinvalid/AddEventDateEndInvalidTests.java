@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portalweb.portlet.calendar.event.addeventdateendinvalid;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.portal.util.TearDownPageTest;
+import com.liferay.portalweb.portlet.calendar.event.addevent.TearDownEventTest;
 import com.liferay.portalweb.portlet.calendar.portlet.addportletcalendar.AddPageCalendarTest;
 import com.liferay.portalweb.portlet.calendar.portlet.addportletcalendar.AddPortletCalendarTest;
 

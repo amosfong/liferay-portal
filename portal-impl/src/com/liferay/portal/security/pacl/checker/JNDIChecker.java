@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author Brian Wing Shun Chan
+ * @author Raymond Augé
  */
 public class JNDIChecker extends BaseChecker {
 
@@ -34,8 +35,23 @@ public class JNDIChecker extends BaseChecker {
 		initNames();
 	}
 
-	public void checkPermission(Permission permission) {
-		throw new UnsupportedOperationException();
+	@Override
+	public AuthorizationProperty generateAuthorizationProperty(
+		Object... arguments) {
+
+		if ((arguments == null) || (arguments.length != 1) ||
+			!(arguments[0] instanceof String)) {
+
+			return null;
+		}
+
+		AuthorizationProperty authorizationProperty =
+			new AuthorizationProperty();
+
+		authorizationProperty.setKey("security-manager-jndi-names");
+		authorizationProperty.setValue((String)arguments[0]);
+
+		return authorizationProperty;
 	}
 
 	public boolean hasJNDI(String name) {
@@ -48,6 +64,10 @@ public class JNDIChecker extends BaseChecker {
 		}
 
 		return false;
+	}
+
+	public boolean implies(Permission permission) {
+		throw new UnsupportedOperationException();
 	}
 
 	protected void initNames() {

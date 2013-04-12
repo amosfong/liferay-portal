@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -86,6 +86,7 @@ import com.liferay.portalweb.portal.controlpanel.users.user.changeuserpasswordin
 import com.liferay.portalweb.portal.controlpanel.users.user.deactivateuseractions.DeactivateUserActionsTests;
 import com.liferay.portalweb.portal.controlpanel.users.user.deactivateuserdetails.DeactivateUserDetailsTests;
 import com.liferay.portalweb.portal.controlpanel.users.user.deleteuser.DeleteUserTests;
+import com.liferay.portalweb.portal.controlpanel.users.user.editusercustomfieldtypeboolean.EditUserCustomFieldTypeBooleanTests;
 import com.liferay.portalweb.portal.controlpanel.users.user.edituserorgrole.EditUserOrgRoleTests;
 import com.liferay.portalweb.portal.controlpanel.users.user.edituserpassword.EditUserPasswordTests;
 import com.liferay.portalweb.portal.controlpanel.users.user.edituserregrole.EditUserRegRoleTests;
@@ -180,6 +181,7 @@ public class UserTestPlan extends BaseTestSuite {
 		testSuite.addTest(DeactivateUserActionsTests.suite());
 		testSuite.addTest(DeactivateUserDetailsTests.suite());
 		testSuite.addTest(DeleteUserTests.suite());
+		testSuite.addTest(EditUserCustomFieldTypeBooleanTests.suite());
 		testSuite.addTest(EditUserOrgRoleTests.suite());
 		testSuite.addTest(EditUserPasswordTests.suite());
 		testSuite.addTest(EditUserRegRoleTests.suite());

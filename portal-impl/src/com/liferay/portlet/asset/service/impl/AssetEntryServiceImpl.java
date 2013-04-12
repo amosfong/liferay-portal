@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,11 +24,11 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
+import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.service.base.AssetEntryServiceBaseImpl;
@@ -36,7 +36,6 @@ import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
 import com.liferay.portlet.asset.service.permission.AssetEntryPermission;
 import com.liferay.portlet.asset.service.permission.AssetTagPermission;
 import com.liferay.portlet.asset.service.persistence.AssetEntryQuery;
-import com.liferay.portlet.social.model.SocialActivityConstants;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -126,21 +125,8 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 		AssetEntryPermission.check(
 			getPermissionChecker(), className, classPK, ActionKeys.VIEW);
 
-		User user = getGuestOrUser();
-
-		assetEntryLocalService.incrementViewCounter(
-			user.getUserId(), className, classPK, 1);
-
-		AssetEntry assetEntry = assetEntryLocalService.getEntry(
-			className, classPK);
-
-		if (!user.isDefaultUser()) {
-			socialActivityLocalService.addActivity(
-				user.getUserId(), assetEntry.getGroupId(), className, classPK,
-				SocialActivityConstants.TYPE_VIEW, StringPool.BLANK, 0);
-		}
-
-		return assetEntry;
+		return assetEntryLocalService.incrementViewCounter(
+			getGuestOrUserId(), className, classPK);
 	}
 
 	public AssetEntry updateEntry(
@@ -164,9 +150,10 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateEntry(long, String, long, String, long, long[],
-	 *             String[], boolean, Date, Date, Date, String, String, String,
-	 *             String, String, String, int, int, Integer, boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, String,
+	 *             long, String, long, long[], String[], boolean, Date, Date,
+	 *             Date, String, String, String, String, String, String, int,
+	 *             int, Integer, boolean)}
 	 */
 	public AssetEntry updateEntry(
 			long groupId, String className, long classPK, String classUuid,
@@ -188,10 +175,10 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateEntry(long, Date, Date. String, long, String,
-	 *             long, long[], String[], boolean, Date, Date, Date, String,
-	 *             String, String, String, String, String, int, int, Integer,
-	 *             boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, Date,
+	 *             Date. String, long, String, long, long[], String[], boolean,
+	 *             Date, Date, Date, String, String, String, String, String,
+	 *             String, int, int, Integer, boolean)}
 	 */
 	public AssetEntry updateEntry(
 			long groupId, String className, long classPK, String classUuid,
@@ -236,7 +223,11 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 		List<Long> viewableCategoryIds = new ArrayList<Long>();
 
 		for (long categoryId : categoryIds) {
-			if (AssetCategoryPermission.contains(
+			AssetCategory category = assetCategoryPersistence.fetchByPrimaryKey(
+				categoryId);
+
+			if ((category != null) &&
+				AssetCategoryPermission.contains(
 					getPermissionChecker(), categoryId, ActionKeys.VIEW)) {
 
 				viewableCategoryIds.add(categoryId);
@@ -433,8 +424,8 @@ public class AssetEntryServiceImpl extends AssetEntryServiceBaseImpl {
 			(filteredEntryQuery.getAnyTagIds().length == 0)) {
 
 			// No results will be available if the original entry query
-			// specified at least one tag id, but the filtered entry query
-			// shows that the user does not have access to any tag ids
+			// specified at least one tag id, but the filtered entry query shows
+			// that the user does not have access to any tag ids
 
 			return true;
 		}

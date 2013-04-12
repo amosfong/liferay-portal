@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -189,12 +189,12 @@ public class BookmarksEntryLocalServiceWrapper
 	}
 
 	/**
-	* Returns the bookmarks entry with the UUID in the group.
+	* Returns the bookmarks entry matching the UUID and group.
 	*
-	* @param uuid the UUID of bookmarks entry
-	* @param groupId the group id of the bookmarks entry
-	* @return the bookmarks entry
-	* @throws PortalException if a bookmarks entry with the UUID in the group could not be found
+	* @param uuid the bookmarks entry's UUID
+	* @param groupId the primary key of the group
+	* @return the matching bookmarks entry
+	* @throws PortalException if a matching bookmarks entry could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.bookmarks.model.BookmarksEntry getBookmarksEntryByUuidAndGroupId(
@@ -456,14 +456,14 @@ public class BookmarksEntryLocalServiceWrapper
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public BookmarksEntryLocalService getWrappedBookmarksEntryLocalService() {
 		return _bookmarksEntryLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedBookmarksEntryLocalService(
 		BookmarksEntryLocalService bookmarksEntryLocalService) {

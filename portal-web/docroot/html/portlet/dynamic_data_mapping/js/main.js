@@ -38,9 +38,15 @@ AUI.add(
 		var XML_ATTRIBUTES_FIELD_ATTRS = {
 			dataType: 1,
 			indexType: 1,
+			multiple: 1,
 			name: 1,
 			options: 1,
-			type: 1
+			readOnly: 1,
+			repeatable: 1,
+			required: 1,
+			showLabel: 1,
+			type: 1,
+			width: 1
 		};
 
 		DEFAULTS_FORM_VALIDATOR.STRINGS.structureFieldName = Liferay.Language.get('please-enter-only-alphanumeric-characters');
@@ -185,6 +191,7 @@ AUI.add(
 
 						var field = LiferayFormBuilder.superclass.createField.apply(instance, arguments);
 
+						field.set('readOnlyAttributes', instance._getReadOnlyFieldAttributes(field));
 						field.set('strings', instance.get('strings'));
 
 						return field;
@@ -251,26 +258,15 @@ AUI.add(
 					_afterEditingLocaleChange: function(event) {
 						var instance = this;
 
-						var newVal = event.newVal;
-
-						var translationManager = instance.translationManager;
-
 						var editingField = instance.editingField;
 
-						var readOnlyAttributes = editingField.get('readOnlyAttributes');
-
-						if (newVal === translationManager.get('defaultLocale')) {
-							AArray.removeItem(readOnlyAttributes, 'name');
+						if (editingField) {
+							editingField.set('readOnlyAttributes', instance._getReadOnlyFieldAttributes(editingField));
 						}
-						else {
-							readOnlyAttributes.push('name');
-						}
-
-						editingField.set('readOnlyAttributes', readOnlyAttributes);
 
 						instance._updateFieldsLocalizationMap(event.prevVal);
 
-						instance._syncFieldsLocaleUI(newVal);
+						instance._syncFieldsLocaleUI(event.newVal);
 					},
 
 					_appendStructureChildren: function(field, buffer) {
@@ -363,8 +359,14 @@ AUI.add(
 								dataType: field.get('dataType'),
 								fieldNamespace: field.get('fieldNamespace'),
 								indexType: field.get('indexType'),
+								multiple: field.get('multiple'),
 								name: field.get('name'),
-								type: field.get('type')
+								readOnly: field.get('readOnly'),
+								repeatable: field.get('repeatable'),
+								required: field.get('required'),
+								showLabel: field.get('showLabel'),
+								type: field.get('type'),
+								width: field.get('width')
 							}
 						);
 
@@ -416,24 +418,6 @@ AUI.add(
 									}
 								);
 
-								if (instanceOf(field, A.FormBuilderTextField)) {
-									var fieldCssClassTag = instance._createDynamicNode(
-										'entry',
-										{
-											name: 'fieldCssClass'
-										}
-									);
-
-									var widthVal = field.get('width');
-									var widthCssClassVal = A.getClassName('w' + widthVal);
-
-									buffer.push(
-										fieldCssClassTag.openTag,
-										STR_CDATA_OPEN + widthCssClassVal + STR_CDATA_CLOSE,
-										fieldCssClassTag.closeTag
-									);
-								}
-
 								buffer.push(metadata.closeTag);
 							}
 						);
@@ -474,6 +458,25 @@ AUI.add(
 							closeTag: typeElement[1],
 							openTag: typeElement[0]
 						};
+					},
+
+					_getReadOnlyFieldAttributes: function(field) {
+						var instance = this;
+
+						var translationManager = instance.translationManager;
+
+						var editingLocale = translationManager.get('editingLocale');
+
+						var readOnlyAttributes = field.get('readOnlyAttributes');
+
+						if (editingLocale === translationManager.get('defaultLocale')) {
+							AArray.removeItem(readOnlyAttributes, 'name');
+						}
+						else if (AArray.indexOf(readOnlyAttributes, 'name') === -1) {
+							readOnlyAttributes.push('name');
+						}
+
+						return readOnlyAttributes;
 					},
 
 					_onPropertyModelChange: function(event) {
@@ -532,14 +535,16 @@ AUI.add(
 					_setAvailableFields: function(val) {
 						var instance = this;
 
-						var fields = [];
-
-						AArray.each(
+						var fields = AArray.map(
 							val,
 							function(item, index, collection) {
-								fields.push(
-									A.instanceOf(item, A.AvailableField) ? item : new A.LiferayAvailableField(item)
-								);
+								return A.instanceOf(item, A.AvailableField) ? item : new A.LiferayAvailableField(item);
+							}
+						);
+
+						fields.sort(
+							function(a, b) {
+								return A.ArraySort.compare(a.get('label'), b.get('label'));
 							}
 						);
 
@@ -676,7 +681,7 @@ AUI.add(
 
 		LiferayFormBuilder.DEFAULT_ICON_CLASS = 'aui-form-builder-field-icon aui-form-builder-field-icon-default';
 
-		LiferayFormBuilder.AVAILABLE_FIELDS = {
+		var AVAILABLE_FIELDS = {
 			DEFAULT: [
 				{
 					fieldLabel: Liferay.Language.get('button'),
@@ -828,8 +833,21 @@ AUI.add(
 					label: Liferay.Language.get('fieldset'),
 					type: 'fieldset'
 				}
+			],
+
+			WCM_STRUCTURE: [
+				{
+					hiddenAttributes: MAP_HIDDEN_FIELD_ATTRS.DEFAULT,
+					iconClass: 'aui-form-builder-field-icon lfr-wcm-image lfr-wcm-image-icon',
+					label: Liferay.Language.get('image'),
+					type: 'wcm-image'
+				}
 			]
 		};
+
+		AVAILABLE_FIELDS.WCM_STRUCTURE = AVAILABLE_FIELDS.WCM_STRUCTURE.concat(AVAILABLE_FIELDS.DDM_STRUCTURE);
+
+		LiferayFormBuilder.AVAILABLE_FIELDS = AVAILABLE_FIELDS;
 
 		Liferay.FormBuilder = LiferayFormBuilder;
 	},

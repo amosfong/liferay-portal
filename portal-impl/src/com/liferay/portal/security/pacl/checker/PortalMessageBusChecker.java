@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,7 @@ import java.util.TreeSet;
 
 /**
  * @author Brian Wing Shun Chan
+ * @author Raymond Augé
  */
 public class PortalMessageBusChecker extends BaseChecker {
 
@@ -33,7 +34,44 @@ public class PortalMessageBusChecker extends BaseChecker {
 		initSendDestinationNames();
 	}
 
-	public void checkPermission(Permission permission) {
+	@Override
+	public AuthorizationProperty generateAuthorizationProperty(
+		Object... arguments) {
+
+		if ((arguments == null) || (arguments.length != 1) ||
+			!(arguments[0] instanceof Permission)) {
+
+			return null;
+		}
+
+		PortalMessageBusPermission portalMessageBusPermission =
+			(PortalMessageBusPermission)arguments[0];
+
+		String name = portalMessageBusPermission.getName();
+
+		String key = null;
+
+		if (name.equals(PORTAL_MESSAGE_BUS_PERMISSION_LISTEN)) {
+			key = "security-manager-message-bus-listen";
+		}
+		else if (name.equals(PORTAL_MESSAGE_BUS_PERMISSION_SEND)) {
+			key = "security-manager-message-bus-send";
+		}
+		else {
+			return null;
+		}
+
+		AuthorizationProperty authorizationProperty =
+			new AuthorizationProperty();
+
+		authorizationProperty.setKey(key);
+		authorizationProperty.setValue(
+			portalMessageBusPermission.getDestinationName());
+
+		return authorizationProperty;
+	}
+
+	public boolean implies(Permission permission) {
 		PortalMessageBusPermission portalMessageBusPermission =
 			(PortalMessageBusPermission)permission;
 
@@ -43,17 +81,23 @@ public class PortalMessageBusChecker extends BaseChecker {
 
 		if (name.equals(PORTAL_MESSAGE_BUS_PERMISSION_LISTEN)) {
 			if (!_listenDestinationNames.contains(destinationName)) {
-				throwSecurityException(
+				logSecurityException(
 					_log,
 					"Attempted to listen on destination " + destinationName);
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_MESSAGE_BUS_PERMISSION_SEND)) {
 			if (!_sendDestinationNames.contains(destinationName)) {
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to send to " + destinationName);
+
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	protected void initListenDestinationNames() {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
+import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.spring.hibernate.PortletHibernateConfiguration;
 import com.liferay.portal.util.PropsValues;
 
@@ -161,6 +162,11 @@ public class PortletSessionFactoryImpl extends SessionFactoryImpl {
 		finally {
 			PortletClassLoaderUtil.setClassLoader(classLoader);
 		}
+	}
+
+	@Override
+	protected Session wrapSession(org.hibernate.Session session) {
+		return DoPrivilegedUtil.wrap(super.wrapSession(session), true);
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(

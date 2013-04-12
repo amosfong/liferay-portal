@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -30,21 +30,27 @@ public class MBeanChecker extends BaseChecker {
 	public void afterPropertiesSet() {
 	}
 
-	public void checkPermission(Permission permission) {
+	public boolean implies(Permission permission) {
 		String name = permission.getName();
 		String actions = permission.getActions();
 
 		if ((permission instanceof MBeanPermission) &&
 			(actions.equals(MBEAN_PERMISSION_IS_INSTANCE_OF) ||
-			 actions.equals(MBEAN_PERMISSION_REGISTER_MBEAN))) {
+			 actions.equals(MBEAN_PERMISSION_REGISTER_MBEAN) ||
+			 actions.equals(MBEAN_PERMISSION_UNREGISTER_MBEAN))) {
+
+			return true;
 		}
 		else if ((permission instanceof MBeanTrustPermission) &&
 				 name.equals(MBEAN_TRUST_PERMISSION_REGISTER)) {
+
+			return true;
 		}
-		else {
-			throwSecurityException(
-				_log, "Attempted to perform MBean operation " + permission);
-		}
+
+		logSecurityException(
+			_log, "Attempted to perform MBean operation " + permission);
+
+		return false;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(MBeanChecker.class);

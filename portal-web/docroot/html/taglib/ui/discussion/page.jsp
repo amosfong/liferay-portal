@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -189,13 +189,13 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 						</c:if>
 
 						<aui:button-row>
-							<aui:button id='<%= namespace + randomNamespace + "postReplyButton" + i %>' onClick='<%= randomNamespace + "postReply(" + i + ");" %>' value="<%= postReplyButtonLabel %>" />
+							<aui:button cssClass="aui-button-comment" id='<%= namespace + randomNamespace + "postReplyButton" + i %>' onClick='<%= randomNamespace + "postReply(" + i + ");" %>' value="<%= postReplyButtonLabel %>" />
 
 							<%
 							String taglibCancel = "document.getElementById('" + randomNamespace + "postReplyForm" + i + "').style.display = 'none'; document.getElementById('" + namespace + randomNamespace + "postReplyBody" + i + "').value = ''; void('');";
 							%>
 
-							<aui:button onClick="<%= taglibCancel %>" type="cancel" />
+							<aui:button cssClass="aui-button-comment" onClick="<%= taglibCancel %>" type="cancel" />
 						</aui:button-row>
 					</div>
 				</aui:fieldset>
@@ -430,13 +430,13 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 									<aui:input id='<%= randomNamespace + "postReplyBody" + i %>' label="" name='<%= "postReplyBody" + i %>' style='<%= "height: " + ModelHintsConstants.TEXTAREA_DISPLAY_HEIGHT + "px; width: " + ModelHintsConstants.TEXTAREA_DISPLAY_WIDTH + "px;" %>' type="textarea" wrap="soft" />
 
 									<aui:button-row>
-										<aui:button id='<%= namespace + randomNamespace + "postReplyButton" + i %>' onClick='<%= randomNamespace + "postReply(" + i + ");" %>' value='<%= themeDisplay.isSignedIn() ? "reply" : "reply-as" %>' />
+										<aui:button cssClass="aui-button-comment" id='<%= namespace + randomNamespace + "postReplyButton" + i %>' onClick='<%= randomNamespace + "postReply(" + i + ");" %>' value='<%= themeDisplay.isSignedIn() ? "reply" : "reply-as" %>' />
 
 										<%
 										String taglibCancel = "document.getElementById('" + randomNamespace + "postReplyForm" + i + "').style.display = 'none'; document.getElementById('" + namespace + randomNamespace + "postReplyBody" + i + "').value = ''; void('');";
 										%>
 
-										<aui:button onClick="<%= taglibCancel %>" type="cancel" />
+										<aui:button cssClass="aui-button-comment" onClick="<%= taglibCancel %>" type="cancel" />
 									</aui:button-row>
 								</div>
 
@@ -515,11 +515,10 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 	<%
 	PortletURL loginURL = PortletURLFactoryUtil.create(request, PortletKeys.FAST_LOGIN, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE);
 
-	loginURL.setWindowState(LiferayWindowState.POP_UP);
-	loginURL.setPortletMode(PortletMode.VIEW);
-
 	loginURL.setParameter("saveLastPath", Boolean.FALSE.toString());
 	loginURL.setParameter("struts_action", "/login/login");
+	loginURL.setPortletMode(PortletMode.VIEW);
+	loginURL.setWindowState(LiferayWindowState.POP_UP);
 	%>
 
 	<aui:script>
@@ -561,7 +560,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 							modal: true
 						},
 						id: '<%= namespace %>signInDialog',
-						title: Liferay.Language.get('sign-in'),
+						title: '<%= UnicodeLanguageUtil.get(pageContext, "sign-in") %>',
 						uri: '<%= loginURL.toString() %>'
 					}
 				);
@@ -610,20 +609,30 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 			window,
 			'<portlet:namespace />sendMessage',
 			function(form, refreshPage) {
+				var Util = Liferay.Util;
+
 				var A = AUI();
 
-				var uri = form.getAttribute('action');
+				form = A.one(form);
+
+				var commentButtonList = form.all('.aui-button-comment input');
 
 				A.io.request(
-					uri,
+					form.attr('action'),
 					{
 						dataType: 'json',
 						form: {
 							id: form
 						},
 						on: {
+							complete: function(event, id, obj) {
+								Util.toggleDisabled(commentButtonList, false);
+							},
 							failure: function(event, id, obj) {
 								<portlet:namespace />showStatusMessage('error', '<%= UnicodeLanguageUtil.get(pageContext, "your-request-failed-to-complete") %>');
+							},
+							start: function() {
+								Util.toggleDisabled(commentButtonList, true);
 							},
 							success: function(event, id, obj) {
 								var response = this.get('responseData');

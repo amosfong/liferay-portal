@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +21,10 @@ String backURL = ParamUtil.getString(request, "backURL");
 
 DDLRecord record = (DDLRecord)request.getAttribute(WebKeys.DYNAMIC_DATA_LISTS_RECORD);
 
+DDLRecordSet recordSet = record.getRecordSet();
+
+DDMStructure ddmStructure = recordSet.getDDMStructure();
+
 long formDDMTemplateId = ParamUtil.getLong(request, "formDDMTemplateId");
 
 PortletURL portletURL = renderResponse.createRenderURL();
@@ -32,7 +36,7 @@ portletURL.setParameter("recordId", String.valueOf(record.getRecordId()));
 
 <liferay-ui:header
 	backURL="<%= backURL %>"
-	title="record-history"
+	title='<%= LanguageUtil.format(pageContext, "x-history", ddmStructure.getName(locale)) %>'
 />
 
 <aui:form action="<%= portletURL.toString() %>" method="post" name="fm">
@@ -72,7 +76,7 @@ portletURL.setParameter("recordId", String.valueOf(record.getRecordId()));
 		rowURL.setParameter("struts_action", "/dynamic_data_lists/view_record");
 		rowURL.setParameter("redirect", currentURL);
 		rowURL.setParameter("recordId", String.valueOf(recordVersion.getRecordId()));
-		rowURL.setParameter("version", String.valueOf(recordVersion.getVersion()));
+		rowURL.setParameter("version", recordVersion.getVersion());
 		rowURL.setParameter("formDDMTemplateId", String.valueOf(formDDMTemplateId));
 
 		// Record version id

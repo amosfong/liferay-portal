@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,12 +188,12 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	}
 
 	/**
-	* Returns the d d m template with the UUID in the group.
+	* Returns the d d m template matching the UUID and group.
 	*
-	* @param uuid the UUID of d d m template
-	* @param groupId the group id of the d d m template
-	* @return the d d m template
-	* @throws PortalException if a d d m template with the UUID in the group could not be found
+	* @param uuid the d d m template's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d m template
+	* @throws PortalException if a matching d d m template could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate getDDMTemplateByUuidAndGroupId(
@@ -269,8 +269,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param userId the primary key of the template's creator/owner
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param nameMap the template's locales and localized names
 	* @param descriptionMap the template's locales and localized descriptions
@@ -282,9 +282,9 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	see {@link
 	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
 	* @param script the template's script
-	* @param serviceContext the template's service context. Can set the UUID,
-	creation date, modification date, guest permissions, and group
-	permissions for the template.
+	* @param serviceContext the service context to be applied. Can set the
+	UUID, creation date, modification date, guest permissions, and
+	group permissions for the template.
 	* @return the template
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
@@ -308,8 +308,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param userId the primary key of the template's creator/owner
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param templateKey the unique string identifying the template
 	(optionally <code>null</code>)
@@ -329,9 +329,9 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	<code>null</code>)
 	* @param smallImageFile the template's small image file (optionally
 	<code>null</code>)
-	* @param serviceContext the template's service context. Can set the UUID,
-	creation date, modification date, guest permissions, and group
-	permissions for the template.
+	* @param serviceContext the service context to be applied. Can set the
+	UUID, creation date, modification date, guest permissions, and
+	group permissions for the template.
 	* @return the template
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
@@ -433,8 +433,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* ones and updating their class PKs.
 	*
 	* @param userId the primary key of the template's creator/owner
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param oldClassPK the primary key of the old template's related entity
 	* @param newClassPK the primary key of the new template's related entity
 	* @param type the template's type. For more information, see {@link
@@ -500,6 +500,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* Returns the template matching the group and template key.
 	*
 	* @param groupId the primary key of the group
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param templateKey the unique string identifying the template
 	* @return the matching template, or <code>null</code> if a matching
 	template could not be found
@@ -523,6 +525,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* </p>
 	*
 	* @param groupId the primary key of the group
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param templateKey the unique string identifying the template
 	* @param includeGlobalTemplates whether to include the global scope in the
 	search
@@ -574,6 +578,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* Returns the template matching the group and template key.
 	*
 	* @param groupId the primary key of the group
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param templateKey the unique string identifying the template
 	* @return the matching template
 	* @throws PortalException if a matching template could not be found
@@ -598,6 +604,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* </p>
 	*
 	* @param groupId the primary key of the group
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param templateKey the unique string identifying the template
 	* @param includeGlobalTemplates whether to include the global scope in the
 	search
@@ -631,8 +639,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* Returns all the templates matching the group and class name ID.
 	*
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @return the matching templates
 	* @throws SystemException if a system exception occurred
 	*/
@@ -647,8 +655,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* PK.
 	*
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @return the matching templates
 	* @throws SystemException if a system exception occurred
@@ -665,8 +673,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* and type.
 	*
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param type the template's type. For more information, see {@link
 	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
@@ -685,8 +693,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* type, and mode.
 	*
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param type the template's type. For more information, see {@link
 	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
@@ -701,6 +709,53 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _ddmTemplateLocalService.getTemplates(groupId, classNameId,
 			classPK, type, mode);
+	}
+
+	/**
+	* Returns all the templates matching the group and class PK.
+	*
+	* @param groupId the primary key of the group
+	* @param classPK the primary key of the template's related entity
+	* @return the matching templates
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> getTemplatesByClassPK(
+		long groupId, long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmTemplateLocalService.getTemplatesByClassPK(groupId, classPK);
+	}
+
+	/**
+	* Returns an ordered range of all the templates matching the group and
+	* structure class name ID.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end -
+	* start</code> instances. <code>start</code> and <code>end</code> are not
+	* primary keys, they are indexes in the result set. Thus, <code>0</code>
+	* refers to the first result in the set. Setting both <code>start</code>
+	* and <code>end</code> to {@link
+	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* result set.
+	* </p>
+	*
+	* @param groupId the primary key of the group
+	* @param structureClassNameId the primary key of the class name for the
+	template's related structure
+	* @param start the lower bound of the range of templates to return
+	* @param end the upper bound of the range of templates to return (not
+	inclusive)
+	* @param orderByComparator the comparator to order the templates
+	(optionally <code>null</code>)
+	* @return the range of matching templates ordered by the comparator
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> getTemplatesByStructureClassNameId(
+		long groupId, long structureClassNameId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmTemplateLocalService.getTemplatesByStructureClassNameId(groupId,
+			structureClassNameId, start, end, orderByComparator);
 	}
 
 	/**
@@ -719,8 +774,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* Returns the number of templates matching the group and class name ID.
 	*
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @return the number of matching templates
 	* @throws SystemException if a system exception occurred
 	*/
@@ -746,8 +801,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param companyId the primary key of the template's company
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
@@ -792,8 +847,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param companyId the primary key of the template's company
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
@@ -937,8 +992,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param companyId the primary key of the template's company
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
@@ -965,8 +1020,8 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*
 	* @param companyId the primary key of the template's company
 	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's instance the template
-	is related to
+	* @param classNameId the primary key of the class name for template's
+	related model
 	* @param classPK the primary key of the template's related entity
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
@@ -1104,14 +1159,14 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public DDMTemplateLocalService getWrappedDDMTemplateLocalService() {
 		return _ddmTemplateLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedDDMTemplateLocalService(
 		DDMTemplateLocalService ddmTemplateLocalService) {

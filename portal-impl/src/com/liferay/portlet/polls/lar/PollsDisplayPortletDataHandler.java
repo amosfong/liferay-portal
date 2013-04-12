@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,21 +15,20 @@
 package com.liferay.portlet.polls.lar;
 
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portlet.polls.NoSuchQuestionException;
 import com.liferay.portlet.polls.model.PollsChoice;
 import com.liferay.portlet.polls.model.PollsQuestion;
 import com.liferay.portlet.polls.model.PollsVote;
 import com.liferay.portlet.polls.service.persistence.PollsQuestionUtil;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.portlet.PortletPreferences;
@@ -94,20 +93,15 @@ public class PollsDisplayPortletDataHandler extends PollsPortletDataHandler {
 		portletDataContext.addPermissions(
 			"com.liferay.portlet.polls", portletDataContext.getScopeGroupId());
 
-		Element rootElement = addExportRootElement();
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		rootElement.addAttribute(
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
-		Element questionsElement = rootElement.addElement("questions");
-		Element choicesElement = rootElement.addElement("choices");
-		Element votesElement = rootElement.addElement("votes");
+		StagedModelDataHandlerUtil.exportStagedModel(
+			portletDataContext, question);
 
-		PollsPortletDataHandler.exportQuestion(
-			portletDataContext, questionsElement, choicesElement, votesElement,
-			question);
-
-		return rootElement.formattedString();
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -120,61 +114,37 @@ public class PollsDisplayPortletDataHandler extends PollsPortletDataHandler {
 			"com.liferay.portlet.polls", portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		if (Validator.isNull(data)) {
-			return null;
+		Element questionsElement = portletDataContext.getImportDataGroupElement(
+			PollsQuestion.class);
+
+		List<Element> questionElements = questionsElement.elements();
+
+		for (Element questionElement : questionElements) {
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, questionElement);
 		}
 
-		Document document = SAXReaderUtil.read(data);
+		Element choicesElement = portletDataContext.getImportDataGroupElement(
+			PollsChoice.class);
 
-		Element rootElement = document.getRootElement();
+		List<Element> choiceElements = choicesElement.elements();
 
-		Element questionsElement = rootElement.element("questions");
-
-		for (Element questionElement : questionsElement.elements("question")) {
-			String path = questionElement.attributeValue("path");
-
-			if (!portletDataContext.isPathNotProcessed(path)) {
-				continue;
-			}
-
-			PollsQuestion question =
-				(PollsQuestion)portletDataContext.getZipEntryAsObject(path);
-
-			PollsPortletDataHandler.importQuestion(
-				portletDataContext, questionElement, question);
-		}
-
-		Element choicesElement = rootElement.element("choices");
-
-		for (Element choiceElement : choicesElement.elements("choice")) {
-			String path = choiceElement.attributeValue("path");
-
-			if (!portletDataContext.isPathNotProcessed(path)) {
-				continue;
-			}
-
-			PollsChoice choice =
-				(PollsChoice)portletDataContext.getZipEntryAsObject(path);
-
-			PollsPortletDataHandler.importChoice(portletDataContext, choice);
+		for (Element choiceElement : choiceElements) {
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, choiceElement);
 		}
 
 		if (portletDataContext.getBooleanParameter(
 				PollsPortletDataHandler.NAMESPACE, "votes")) {
 
-			Element votesElement = rootElement.element("votes");
+			Element votesElement = portletDataContext.getImportDataGroupElement(
+				PollsVote.class);
 
-			for (Element voteElement : votesElement.elements("vote")) {
-				String path = voteElement.attributeValue("path");
+			List<Element> voteElements = votesElement.elements();
 
-				if (!portletDataContext.isPathNotProcessed(path)) {
-					continue;
-				}
-
-				PollsVote vote =
-					(PollsVote)portletDataContext.getZipEntryAsObject(path);
-
-				PollsPortletDataHandler.importVote(portletDataContext, vote);
+			for (Element voteElement : voteElements) {
+				StagedModelDataHandlerUtil.importStagedModel(
+					portletDataContext, voteElement);
 			}
 		}
 

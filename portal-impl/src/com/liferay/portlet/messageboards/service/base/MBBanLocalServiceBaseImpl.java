@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -228,6 +228,20 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException, SystemException {
 		return mbBanPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	/**
+	 * Returns the message boards ban matching the UUID and group.
+	 *
+	 * @param uuid the message boards ban's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching message boards ban
+	 * @throws PortalException if a matching message boards ban could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MBBan getMBBanByUuidAndGroupId(String uuid, long groupId)
+		throws PortalException, SystemException {
+		return mbBanPersistence.findByUUID_G(uuid, groupId);
 	}
 
 	/**

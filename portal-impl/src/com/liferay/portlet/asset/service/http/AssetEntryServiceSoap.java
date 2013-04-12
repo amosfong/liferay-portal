@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -180,9 +180,10 @@ public class AssetEntryServiceSoap {
 	}
 
 	/**
-	* @deprecated {@link #updateEntry(long, String, long, String, long, long[],
-	String[], boolean, Date, Date, Date, String, String, String,
-	String, String, String, int, int, Integer, boolean)}
+	* @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, String,
+	long, String, long, long[], String[], boolean, Date, Date,
+	Date, String, String, String, String, String, String, int,
+	int, Integer, boolean)}
 	*/
 	public static com.liferay.portlet.asset.model.AssetEntrySoap updateEntry(
 		long groupId, java.lang.String className, long classPK,
@@ -211,10 +212,10 @@ public class AssetEntryServiceSoap {
 	}
 
 	/**
-	* @deprecated {@link #updateEntry(long, Date, Date. String, long, String,
-	long, long[], String[], boolean, Date, Date, Date, String,
-	String, String, String, String, String, int, int, Integer,
-	boolean)}
+	* @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, Date,
+	Date. String, long, String, long, long[], String[], boolean,
+	Date, Date, Date, String, String, String, String, String,
+	String, int, int, Integer, boolean)}
 	*/
 	public static com.liferay.portlet.asset.model.AssetEntrySoap updateEntry(
 		long groupId, java.lang.String className, long classPK,

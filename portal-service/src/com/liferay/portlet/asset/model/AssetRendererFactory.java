@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -57,6 +57,10 @@ public interface AssetRendererFactory {
 
 	public long getClassNameId();
 
+	public Map<String, Map<String, String>> getClassTypeFieldNames(
+			long classTypeId, Locale locale)
+		throws Exception;
+
 	public Map<Long, String> getClassTypes(long[] groupIds, Locale locale)
 		throws Exception;
 
@@ -72,6 +76,9 @@ public interface AssetRendererFactory {
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse)
 		throws PortalException, SystemException;
+
+	public boolean hasClassTypeFieldNames(long classTypeId, Locale locale)
+		throws Exception;
 
 	public boolean hasPermission(
 			PermissionChecker permissionChecker, long entryClassPK,

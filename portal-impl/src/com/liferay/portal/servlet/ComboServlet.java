@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -134,11 +134,11 @@ public class ComboServlet extends HttpServlet {
 				minifierType = "js";
 			}
 
-			int length = modulePaths.length;
+			bytesArray = new byte[modulePaths.length][];
 
-			bytesArray = new byte[length][];
+			for (int i = 0; i < modulePaths.length; i++) {
+				String modulePath = modulePaths[i];
 
-			for (String modulePath : modulePaths) {
 				if (!validateModuleExtension(modulePath)) {
 					response.setHeader(
 						HttpHeaders.CACHE_CONTROL,
@@ -154,10 +154,10 @@ public class ComboServlet extends HttpServlet {
 					modulePath = StringUtil.replaceFirst(
 						p.concat(modulePath), contextPath, StringPool.BLANK);
 
-					URL resourceURL = getResourceURL(
+					URL url = getResourceURL(
 						servletContext, rootPath, modulePath);
 
-					if (resourceURL == null) {
+					if (url == null) {
 						response.setHeader(
 							HttpHeaders.CACHE_CONTROL,
 							HttpHeaders.CACHE_CONTROL_NO_CACHE_VALUE);
@@ -167,11 +167,10 @@ public class ComboServlet extends HttpServlet {
 					}
 
 					bytes = getResourceContent(
-						request, response, resourceURL, modulePath,
-						minifierType);
+						request, response, url, modulePath, minifierType);
 				}
 
-				bytesArray[--length] = bytes;
+				bytesArray[i] = bytes;
 			}
 
 			if ((modulePathsString != null) &&
@@ -286,21 +285,21 @@ public class ComboServlet extends HttpServlet {
 
 	protected URL getResourceURL(
 			ServletContext servletContext, String rootPath, String path)
-		throws IOException {
+		throws Exception {
 
-		URL resourceURL = servletContext.getResource(path);
+		URL url = servletContext.getResource(path);
 
-		if (resourceURL == null) {
+		if (url == null) {
 			return null;
 		}
 
-		String filePath = resourceURL.toString();
+		String filePath = ServletContextUtil.getResourcePath(url);
 
 		int pos = filePath.indexOf(
 			rootPath.concat(StringPool.SLASH).concat(_JAVASCRIPT_DIR));
 
 		if (pos == 0) {
-			return resourceURL;
+			return url;
 		}
 
 		return null;

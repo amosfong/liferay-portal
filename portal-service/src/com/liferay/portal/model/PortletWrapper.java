@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -230,6 +230,16 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 
 	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
 		return _portlet.getExpandoBridge();
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_portlet.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_portlet.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	public void setExpandoBridgeAttributes(
@@ -971,24 +981,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
-	* Returns the name of the portlet display style class of the portlet.
-	*
-	* @return the name of the portlet display style class of the portlet
-	*/
-	public java.lang.String getPortletDisplayTemplateHandlerClass() {
-		return _portlet.getPortletDisplayTemplateHandlerClass();
-	}
-
-	/**
-	* Returns the portlet display style instance of the portlet.
-	*
-	* @return the portlet display style instance of the portlet
-	*/
-	public com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateHandler getPortletDisplayTemplateHandlerInstance() {
-		return _portlet.getPortletDisplayTemplateHandlerInstance();
-	}
-
-	/**
 	* Returns the filters of the portlet.
 	*
 	* @return filters of the portlet
@@ -1313,23 +1305,23 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
-	* Returns the name of the social activity interpreter class of the portlet.
+	* Returns the names of the classes that represent social activity
+	* interpreters associated with the portlet.
 	*
-	* @return the name of the social activity interpreter class of the portlet
+	* @return the names of the classes that represent social activity
+	interpreters associated with the portlet
 	*/
-	public java.lang.String getSocialActivityInterpreterClass() {
-		return _portlet.getSocialActivityInterpreterClass();
+	public java.util.List<java.lang.String> getSocialActivityInterpreterClasses() {
+		return _portlet.getSocialActivityInterpreterClasses();
 	}
 
 	/**
-	* Returns the name of the social activity interpreter instance of the
-	* portlet.
+	* Returns the social activity interpreter instances of the portlet.
 	*
-	* @return the name of the social activity interpreter instance of the
-	portlet
+	* @return the social activity interpreter instances of the portlet
 	*/
-	public com.liferay.portlet.social.model.SocialActivityInterpreter getSocialActivityInterpreterInstance() {
-		return _portlet.getSocialActivityInterpreterInstance();
+	public java.util.List<com.liferay.portlet.social.model.SocialActivityInterpreter> getSocialActivityInterpreterInstances() {
+		return _portlet.getSocialActivityInterpreterInstances();
 	}
 
 	/**
@@ -1441,6 +1433,24 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	*/
 	public boolean getSystem() {
 		return _portlet.getSystem();
+	}
+
+	/**
+	* Returns the name of the template handler class of the portlet.
+	*
+	* @return the name of the template handler class of the portlet
+	*/
+	public java.lang.String getTemplateHandlerClass() {
+		return _portlet.getTemplateHandlerClass();
+	}
+
+	/**
+	* Returns the template handler instance of the portlet.
+	*
+	* @return the template handler instance of the portlet
+	*/
+	public com.liferay.portal.kernel.template.TemplateHandler getTemplateHandlerInstance() {
+		return _portlet.getTemplateHandlerInstance();
 	}
 
 	/**
@@ -2472,18 +2482,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
-	* Sets the name of the portlet display template handler class of the
-	* portlet.
-	*
-	* @param portletDisplayTemplateHandlerClass the name of display template
-	handler class of the portlet
-	*/
-	public void setPortletDisplayTemplateHandlerClass(
-		java.lang.String portletDisplayTemplateHandlerClass) {
-		_portlet.setPortletDisplayTemplateHandlerClass(portletDisplayTemplateHandlerClass);
-	}
-
-	/**
 	* Sets the filters of the portlet.
 	*
 	* @param portletFilters the filters of the portlet
@@ -2758,14 +2756,15 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
-	* Sets the name of the social activity interpreter class of the portlet.
+	* Sets the names of the classes that represent social activity interpreters
+	* associated with the portlet.
 	*
-	* @param socialActivityInterpreterClass the name of the activity
-	interpreter class of the portlet
+	* @param socialActivityInterpreterClasses the names of the classes that
+	represent social activity interpreters associated with the portlet
 	*/
-	public void setSocialActivityInterpreterClass(
-		java.lang.String socialActivityInterpreterClass) {
-		_portlet.setSocialActivityInterpreterClass(socialActivityInterpreterClass);
+	public void setSocialActivityInterpreterClasses(
+		java.util.List<java.lang.String> socialActivityInterpreterClasses) {
+		_portlet.setSocialActivityInterpreterClasses(socialActivityInterpreterClasses);
 	}
 
 	/**
@@ -2841,6 +2840,16 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	*/
 	public void setSystem(boolean system) {
 		_portlet.setSystem(system);
+	}
+
+	/**
+	* Sets the name of the template handler class of the portlet.
+	*
+	* @param templateHandlerClass the name of template handler class of the
+	portlet
+	*/
+	public void setTemplateHandlerClass(java.lang.String templateHandlerClass) {
+		_portlet.setTemplateHandlerClass(templateHandlerClass);
 	}
 
 	/**
@@ -2973,7 +2982,7 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public Portlet getWrappedPortlet() {
 		return _portlet;

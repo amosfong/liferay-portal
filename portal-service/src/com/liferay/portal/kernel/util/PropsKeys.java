@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -115,6 +115,8 @@ public interface PropsKeys {
 
 	public static final String ASSET_PUBLISHER_DISPLAY_TEMPLATES_HELP = "asset.publisher.display.templates.help";
 
+	public static final String ASSET_PUBLISHER_DYNAMIC_SUBSCRIPTION_LIMIT = "asset.publisher.dynamic.subscription.limit";
+
 	public static final String ASSET_PUBLISHER_EMAIL_ASSET_ENTRY_ADDED_BODY = "asset.publisher.email.asset.entry.added.body";
 
 	public static final String ASSET_PUBLISHER_EMAIL_ASSET_ENTRY_ADDED_ENABLED = "asset.publisher.email.asset.entry.added.enabled";
@@ -124,6 +126,8 @@ public interface PropsKeys {
 	public static final String ASSET_PUBLISHER_EMAIL_FROM_ADDRESS = "asset.publisher.email.from.address";
 
 	public static final String ASSET_PUBLISHER_EMAIL_FROM_NAME = "asset.publisher.email.from.name";
+
+	public static final String ASSET_PUBLISHER_SEARCH_WITH_INDEX = "asset.publisher.search.with.index";
 
 	public static final String ASSET_RENDERER_ENABLED = "asset.renderer.enabled.";
 
@@ -293,6 +297,8 @@ public interface PropsKeys {
 
 	public static final String BOOKMARKS_EMAIL_FROM_NAME = "bookmarks.email.from.name";
 
+	public static final String BREADCRUMB_DISPLAY_STYLE_DEFAULT = "breadcrumb.display.style.default";
+
 	public static final String BREADCRUMB_DISPLAY_STYLE_OPTIONS = "breadcrumb.display.style.options";
 
 	public static final String BREADCRUMB_SHOW_GUEST_GROUP = "breadcrumb.show.guest.group";
@@ -302,6 +308,8 @@ public interface PropsKeys {
 	public static final String BROWSER_CACHE_DISABLED = "browser.cache.disabled";
 
 	public static final String BROWSER_CACHE_SIGNED_IN_DISABLED = "browser.cache.signed.in.disabled";
+
+	public static final String BROWSER_COMPATIBILITY_IE_VERSIONS = "browser.compatibility.ie.versions";
 
 	public static final String BROWSER_LAUNCHER_URL = "browser.launcher.url";
 
@@ -755,17 +763,11 @@ public interface PropsKeys {
 
 	public static final String DOCKBAR_SHOW_SITE_CONTENT_ICON = "dockbar.show.site.content.icon";
 
-	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_FREEMARKER = "dynamic.data.lists.error.template.freemarker";
-
-	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_VELOCITY = "dynamic.data.lists.error.template.velocity";
-
-	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE_XSL = "dynamic.data.lists.error.template.xsl";
+	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE = "dynamic.data.lists.error.template";
 
 	public static final String DYNAMIC_DATA_LISTS_RECORD_SET_FORCE_AUTOGENERATE_KEY = "dynamic.data.lists.record.set.force.autogenerate.key";
 
 	public static final String DYNAMIC_DATA_LISTS_STORAGE_TYPE = "dynamic.data.lists.storage.type";
-
-	public static final String DYNAMIC_DATA_LISTS_TEMPLATE_LANGUAGE_PARSER = "dynamic.data.lists.template.language.parser";
 
 	public static final String DYNAMIC_DATA_LISTS_TRANSFORMER_LISTENER = "dynamic.data.lists.transformer.listener";
 
@@ -961,6 +963,20 @@ public interface PropsKeys {
 
 	public static final String INDEX_WITH_THREAD = "index.with.thread";
 
+	public static final String INTRABAND_WELDER_SOCKET_BUFFER_SIZE = "intraband.welder.socket.buffer.size";
+
+	public static final String INTRABAND_WELDER_SOCKET_KEEP_ALIVE = "intraband.welder.socket.keep.alive";
+
+	public static final String INTRABAND_WELDER_SOCKET_REUSE_ADDRESS = "intraband.welder.socket.reuse.address";
+
+	public static final String INTRABAND_WELDER_SOCKET_SERVER_START_PORT = "intraband.welder.socket.server.start.port";
+
+	public static final String INTRABAND_WELDER_SOCKET_SO_LINGER = "intraband.welder.socket.so.linger";
+
+	public static final String INTRABAND_WELDER_SOCKET_SO_TIMEOUT = "intraband.welder.socket.so.timeout";
+
+	public static final String INTRABAND_WELDER_SOCKET_TCP_NO_DELAY = "intraband.welder.socket.tcp.no.delay";
+
 	public static final String INVITATION_EMAIL_MAX_RECIPIENTS = "invitation.email.max.recipients";
 
 	public static final String INVITATION_EMAIL_MESSAGE_BODY = "invitation.email.message.body";
@@ -1097,11 +1113,7 @@ public interface PropsKeys {
 
 	public static final String JOURNAL_EMAIL_FROM_NAME = "journal.email.from.name";
 
-	public static final String JOURNAL_ERROR_TEMPLATE_FREEMARKER = "journal.error.template.freemarker";
-
-	public static final String JOURNAL_ERROR_TEMPLATE_VELOCITY = "journal.error.template.velocity";
-
-	public static final String JOURNAL_ERROR_TEMPLATE_XSL = "journal.error.template.xsl";
+	public static final String JOURNAL_ERROR_TEMPLATE = "journal.error.template";
 
 	public static final String JOURNAL_FEED_FORCE_AUTOGENERATE_ID = "journal.feed.force.autogenerate.id";
 
@@ -1120,8 +1132,6 @@ public interface PropsKeys {
 	public static final String JOURNAL_TEMPLATE_FREEMARKER_RESTRICTED_VARIABLES = "journal.template.freemarker.restricted.variables";
 
 	public static final String JOURNAL_TEMPLATE_LANGUAGE_CONTENT = "journal.template.language.content";
-
-	public static final String JOURNAL_TEMPLATE_LANGUAGE_PARSER = "journal.template.language.parser";
 
 	public static final String JOURNAL_TEMPLATE_VELOCITY_RESTRICTED_VARIABLES = "journal.template.velocity.restricted.variables";
 
@@ -1491,6 +1501,16 @@ public interface PropsKeys {
 
 	public static final String MAIL_SESSION_MAIL_TRANSPORT_PROTOCOL = "mail.session.mail.transport.protocol";
 
+	public static final String MEMBERSHIP_POLICY_AUTO_VERIFY = "membership.policy.auto.verify";
+
+	public static final String MEMBERSHIP_POLICY_ORGANIZATIONS = "membership.policy.organizations";
+
+	public static final String MEMBERSHIP_POLICY_ROLES = "membership.policy.roles";
+
+	public static final String MEMBERSHIP_POLICY_SITES = "membership.policy.sites";
+
+	public static final String MEMBERSHIP_POLICY_USER_GROUPS = "membership.policy.user.groups";
+
 	public static final String MEMORY_CLUSTER_SCHEDULER_LOCK_CACHE_ENABLED = "memory.cluster.scheduler.lock.cache.enabled";
 
 	public static final String MESSAGE_BOARDS_ALLOW_ANONYMOUS_POSTING = "message.boards.anonymous.posting.enabled";
@@ -1585,7 +1605,7 @@ public interface PropsKeys {
 
 	public static final String MODULE_FRAMEWORK_INITIAL_BUNDLES = "module.framework.initial.bundles";
 
-	public static final String MODULE_FRAMEWORK_LIB_DIR = "module.framework.lib.dir";
+	public static final String MODULE_FRAMEWORK_PORTAL_DIR = "module.framework.portal.dir";
 
 	public static final String MODULE_FRAMEWORK_PROPERTIES = "module.framework.properties.";
 
@@ -1795,6 +1815,8 @@ public interface PropsKeys {
 
 	public static final String PASSWORDS_ENCRYPTION_ALGORITHM = "passwords.encryption.algorithm";
 
+	public static final String PASSWORDS_ENCRYPTION_ALGORITHM_LEGACY = "passwords.encryption.algorithm.legacy";
+
 	public static final String PASSWORDS_PASSWORDPOLICYTOOLKIT_CHARSET_LOWERCASE = "passwords.passwordpolicytoolkit.charset.lowercase";
 
 	public static final String PASSWORDS_PASSWORDPOLICYTOOLKIT_CHARSET_NUMBERS = "passwords.passwordpolicytoolkit.charset.numbers";
@@ -1905,6 +1927,8 @@ public interface PropsKeys {
 
 	public static final String PORTLET_EVENT_DISTRIBUTION = "portlet.event.distribution";
 
+	public static final String PORTLET_FILTERS_SYSTEM = "portlet.filters.system";
+
 	public static final String PORTLET_PUBLIC_RENDER_PARAMETER_DISTRIBUTION = "portlet.public.render.parameter.distribution";
 
 	public static final String PORTLET_RESOURCE_ID_BANNED_PATHS_REGEXP = "portlet.resource.id.banned.paths.regexp";
@@ -1928,6 +1952,8 @@ public interface PropsKeys {
 	public static final String RATINGS_MAX_SCORE = "ratings.max.score";
 
 	public static final String RATINGS_MIN_SCORE = "ratings.min.score";
+
+	public static final String RECENT_CONTENT_MAX_DISPLAY_ITEMS = "recent.content.max.display.items";
 
 	public static final String REDIRECT_URL_DOMAINS_ALLOWED = "redirect.url.domains.allowed";
 
@@ -2199,6 +2225,10 @@ public interface PropsKeys {
 
 	public static final String SOCIAL_ACTIVITY_PARTICIPATION_LIMIT_VALUES = "social.activity.participation.limit.values";
 
+	public static final String SOCIAL_ACTIVITY_SETS_ENABLED = "social.activity.sets.enabled";
+
+	public static final String SOCIAL_ACTIVITY_SETS_SELECTOR = "social.activity.sets.selector";
+
 	public static final String SOCIAL_BOOKMARK_JSP = "social.bookmark.jsp";
 
 	public static final String SOCIAL_BOOKMARK_POST_URL = "social.bookmark.post.url";
@@ -2315,6 +2345,8 @@ public interface PropsKeys {
 
 	public static final String TRASH_ENTRIES_MAX_AGE = "trash.entries.max.age";
 
+	public static final String TRASH_ENTRY_CHECK_INTERVAL = "trash.entry.check.interval";
+
 	public static final String TRASH_SEARCH_LIMIT = "trash.search.limit";
 
 	public static final String UPGRADE_DATABASE_TRANSACTIONS_DISABLED = "upgrade.database.transactions.disabled";
@@ -2381,7 +2413,7 @@ public interface PropsKeys {
 
 	public static final String USERS_LIST_VIEWS = "users.list.views";
 
-	public static final String USERS_MEMBERSHIP_POLICY = "users.membership.policy";
+	public static final String USERS_PROFILE_FRIENDLY_URL = "users.profile.friendly.url";
 
 	public static final String USERS_REMINDER_QUERIES_CUSTOM_QUESTION_ENABLED = "users.reminder.queries.custom.question.enabled";
 

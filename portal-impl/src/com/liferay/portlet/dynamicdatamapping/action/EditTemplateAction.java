@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,6 +36,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
+import com.liferay.portlet.dynamicdatamapping.RequiredTemplateException;
 import com.liferay.portlet.dynamicdatamapping.TemplateNameException;
 import com.liferay.portlet.dynamicdatamapping.TemplateScriptException;
 import com.liferay.portlet.dynamicdatamapping.TemplateSmallImageNameException;
@@ -111,12 +112,22 @@ public class EditTemplateAction extends PortletAction {
 
 				setForward(actionRequest, "portlet.dynamic_data_mapping.error");
 			}
-			else if (e instanceof TemplateNameException ||
+			else if (e instanceof RequiredTemplateException ||
+					 e instanceof TemplateNameException ||
 					 e instanceof TemplateScriptException ||
 					 e instanceof TemplateSmallImageNameException ||
 					 e instanceof TemplateSmallImageSizeException) {
 
 				SessionErrors.add(actionRequest, e.getClass(), e);
+
+				if (e instanceof RequiredTemplateException) {
+					String redirect = PortalUtil.escapeRedirect(
+						ParamUtil.getString(actionRequest, "redirect"));
+
+					if (Validator.isNotNull(redirect)) {
+						actionResponse.sendRedirect(redirect);
+					}
+				}
 			}
 			else {
 				throw e;
@@ -185,14 +196,10 @@ public class EditTemplateAction extends PortletAction {
 		long classPK = ParamUtil.getLong(actionRequest, "classPK");
 		String availableFields = ParamUtil.getString(
 			actionRequest, "availableFields");
-		String saveCallback = ParamUtil.getString(
-			actionRequest, "saveCallback");
 
 		PortletURLImpl portletURL = new PortletURLImpl(
 			actionRequest, portletConfig.getPortletName(),
 			themeDisplay.getPlid(), PortletRequest.RENDER_PHASE);
-
-		portletURL.setWindowState(actionRequest.getWindowState());
 
 		portletURL.setParameter(Constants.CMD, Constants.UPDATE, false);
 		portletURL.setParameter(
@@ -207,7 +214,7 @@ public class EditTemplateAction extends PortletAction {
 		portletURL.setParameter("classPK", String.valueOf(classPK), false);
 		portletURL.setParameter("type", template.getType(), false);
 		portletURL.setParameter("availableFields", availableFields, false);
-		portletURL.setParameter("saveCallback", saveCallback, false);
+		portletURL.setWindowState(actionRequest.getWindowState());
 
 		return portletURL.toString();
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.util.AggregateClassLoader;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemProperties;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
+import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -84,8 +84,7 @@ public class RubyExecutor extends BaseScriptingExecutor {
 
 		rubyInstanceConfig.setJitThreshold(
 			PropsValues.SCRIPTING_JRUBY_COMPILE_THRESHOLD);
-		rubyInstanceConfig.setLoader(
-			PACLClassLoaderUtil.getPortalClassLoader());
+		rubyInstanceConfig.setLoader(ClassLoaderUtil.getPortalClassLoader());
 
 		_basePath = PortalUtil.getPortalLibDir();
 
@@ -138,10 +137,10 @@ public class RubyExecutor extends BaseScriptingExecutor {
 				"Constrained execution not supported for Ruby");
 		}
 
-		try {
-			LocalContextProvider localContextProvider =
-				_scriptingContainer.getProvider();
+		LocalContextProvider localContextProvider =
+			_scriptingContainer.getProvider();
 
+		try {
 			RubyInstanceConfig rubyInstanceConfig =
 				localContextProvider.getRubyInstanceConfig();
 
@@ -150,8 +149,7 @@ public class RubyExecutor extends BaseScriptingExecutor {
 			if ((classLoaders != null) && (classLoaders.length > 0)) {
 				ClassLoader aggregateClassLoader =
 					AggregateClassLoader.getAggregateClassLoader(
-						PACLClassLoaderUtil.getPortalClassLoader(),
-						classLoaders);
+						ClassLoaderUtil.getPortalClassLoader(), classLoaders);
 
 				rubyInstanceConfig.setLoader(aggregateClassLoader);
 			}
@@ -196,6 +194,9 @@ public class RubyExecutor extends BaseScriptingExecutor {
 		}
 		catch (FileNotFoundException fnfe) {
 			throw new ScriptingException(fnfe);
+		}
+		finally {
+			localContextProvider.terminate();
 		}
 	}
 

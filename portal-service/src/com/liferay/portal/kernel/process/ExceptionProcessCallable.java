@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,8 +17,8 @@ package com.liferay.portal.kernel.process;
 /**
  * @author Shuyang Zhou
  */
-public class ExceptionProcessCallable implements
-	ProcessCallable<ProcessException> {
+public class ExceptionProcessCallable
+	implements ProcessCallable<ProcessException> {
 
 	public ExceptionProcessCallable(ProcessException processException) {
 		_processException = processException;
@@ -27,6 +27,8 @@ public class ExceptionProcessCallable implements
 	public ProcessException call() {
 		return _processException;
 	}
+
+	private static final long serialVersionUID = 1L;
 
 	private final ProcessException _processException;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -46,9 +46,10 @@ public class LiferaySeleniumHelper {
 
 		String confirmation = liferaySelenium.getConfirmation();
 
-		BaseTestCase.assertTrue(
-			confirmation.matches(
-				"^" + StringUtil.replace(pattern, "?", "[\\\\s\\\\S]") + "$"));
+		if (!pattern.equals(confirmation)) {
+			BaseTestCase.fail(
+				"Pattern " + pattern + " does not match " + confirmation);
+		}
 	}
 
 	public static void assertElementNotPresent(
@@ -110,8 +111,15 @@ public class LiferaySeleniumHelper {
 	public static void assertNotSelectedLabel(
 		LiferaySelenium liferaySelenium, String selectLocator, String pattern) {
 
-		BaseTestCase.assertNotEquals(
-			pattern, liferaySelenium.getSelectedLabel(selectLocator));
+		liferaySelenium.assertElementPresent(selectLocator);
+
+		if (liferaySelenium.isSelectedLabel(selectLocator, pattern)) {
+			String text = liferaySelenium.getSelectedLabel(selectLocator);
+
+			BaseTestCase.fail(
+				"Pattern " + pattern + " matches " + text + " at " +
+					selectLocator);
+		}
 	}
 
 	public static void assertNotText(
@@ -166,8 +174,15 @@ public class LiferaySeleniumHelper {
 	public static void assertSelectedLabel(
 		LiferaySelenium liferaySelenium, String selectLocator, String pattern) {
 
-		BaseTestCase.assertEquals(
-			pattern, liferaySelenium.getSelectedLabel(selectLocator));
+		liferaySelenium.assertElementPresent(selectLocator);
+
+		if (liferaySelenium.isNotSelectedLabel(selectLocator, pattern)) {
+			String text = liferaySelenium.getSelectedLabel(selectLocator);
+
+			BaseTestCase.fail(
+				"Pattern " + pattern + " does not match " + text + " at " +
+					selectLocator);
+		}
 	}
 
 	public static void assertText(
@@ -187,13 +202,17 @@ public class LiferaySeleniumHelper {
 	public static void assertTextNotPresent(
 		LiferaySelenium liferaySelenium, String pattern) {
 
-		BaseTestCase.assertFalse(liferaySelenium.isTextPresent(pattern));
+		if (liferaySelenium.isTextPresent(pattern)) {
+			BaseTestCase.fail(pattern + " is present");
+		}
 	}
 
 	public static void assertTextPresent(
 		LiferaySelenium liferaySelenium, String pattern) {
 
-		BaseTestCase.assertTrue(liferaySelenium.isTextPresent(pattern));
+		if (liferaySelenium.isTextNotPresent(pattern)) {
+			BaseTestCase.fail(pattern + " is not present");
+		}
 	}
 
 	public static void assertValue(
@@ -232,6 +251,14 @@ public class LiferaySeleniumHelper {
 		return StringUtil.valueOf(GetterUtil.getInteger(value) + 1);
 	}
 
+	public static boolean isConfirmation(
+		LiferaySelenium liferaySelenium, String pattern) {
+
+		String confirmation = liferaySelenium.getConfirmation();
+
+		return pattern.equals(confirmation);
+	}
+
 	public static boolean isElementNotPresent(
 		LiferaySelenium liferaySelenium, String locator) {
 
@@ -268,6 +295,12 @@ public class LiferaySeleniumHelper {
 		return !liferaySelenium.isVisible(locator);
 	}
 
+	public static boolean isTextNotPresent(
+		LiferaySelenium liferaySelenium, String pattern) {
+
+		return !liferaySelenium.isTextPresent(pattern);
+	}
+
 	public static void pause(String waitTime) throws Exception {
 		Thread.sleep(GetterUtil.getInteger(waitTime));
 	}
@@ -276,6 +309,8 @@ public class LiferaySeleniumHelper {
 		LiferaySelenium liferaySelenium, String locator, String value) {
 
 		liferaySelenium.selectFrame(locator);
+
+		value = value.replace("\\", "\\\\");
 
 		liferaySelenium.runScript("document.body.innerHTML = '" + value + "'");
 
@@ -354,12 +389,12 @@ public class LiferaySeleniumHelper {
 
 		for (int second = 0;; second++) {
 			if (second >= TestPropsValues.TIMEOUT_EXPLICIT_WAIT) {
-				BaseTestCase.fail("Timeout");
+				liferaySelenium.assertNotSelectedLabel(selectLocator, pattern);
 			}
 
 			try {
-				if (!pattern.equals(
-						liferaySelenium.getSelectedLabel(selectLocator))) {
+				if (liferaySelenium.isNotSelectedLabel(
+						selectLocator, pattern)) {
 
 					break;
 				}
@@ -468,13 +503,11 @@ public class LiferaySeleniumHelper {
 
 		for (int second = 0;; second++) {
 			if (second >= TestPropsValues.TIMEOUT_EXPLICIT_WAIT) {
-				BaseTestCase.fail("Timeout");
+				liferaySelenium.assertSelectedLabel(selectLocator, pattern);
 			}
 
 			try {
-				if (pattern.equals(
-						liferaySelenium.getSelectedLabel(selectLocator))) {
-
+				if (liferaySelenium.isSelectedLabel(selectLocator, pattern)) {
 					break;
 				}
 			}
@@ -516,12 +549,11 @@ public class LiferaySeleniumHelper {
 
 		for (int second = 0;; second++) {
 			if (second >= TestPropsValues.TIMEOUT_EXPLICIT_WAIT) {
-				BaseTestCase.fail(
-					"Timeout: unable to find the text \"" + value + "\"");
+				liferaySelenium.assertTextNotPresent(value);
 			}
 
 			try {
-				if (!liferaySelenium.isTextPresent(value)) {
+				if (liferaySelenium.isTextNotPresent(value)) {
 					break;
 				}
 			}
@@ -540,8 +572,7 @@ public class LiferaySeleniumHelper {
 
 		for (int second = 0;; second++) {
 			if (second >= TestPropsValues.TIMEOUT_EXPLICIT_WAIT) {
-				BaseTestCase.fail(
-					"Timeout: unable to find the text \"" + value + "\"");
+				liferaySelenium.assertTextPresent(value);
 			}
 
 			try {

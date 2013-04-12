@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,10 +21,13 @@ import com.liferay.portal.kernel.parsers.bbcode.BBCodeTranslatorUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.model.ContainerModel;
+import com.liferay.portal.model.Repository;
 import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBCategoryConstants;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
@@ -34,6 +37,7 @@ import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +46,38 @@ import java.util.List;
 public class MBMessageImpl extends MBMessageBaseImpl {
 
 	public MBMessageImpl() {
+	}
+
+	public Folder addAttachmentsFolder()
+		throws PortalException, SystemException {
+
+		if (_attachmentsFolderId !=
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+
+			return PortletFileRepositoryUtil.getPortletFolder(
+				_attachmentsFolderId);
+		}
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setAddGroupPermissions(true);
+		serviceContext.setAddGuestPermissions(true);
+
+		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
+			getGroupId(), PortletKeys.MESSAGE_BOARDS, serviceContext);
+
+		MBThread thread = getThread();
+
+		Folder threadFolder = thread.addAttachmentsFolder();
+
+		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
+			getUserId(), repository.getRepositoryId(),
+			threadFolder.getFolderId(), String.valueOf(getMessageId()),
+			serviceContext);
+
+		_attachmentsFolderId = folder.getFolderId();
+
+		return folder;
 	}
 
 	public String[] getAssetTagNames() throws SystemException {
@@ -58,23 +94,42 @@ public class MBMessageImpl extends MBMessageBaseImpl {
 	public List<FileEntry> getAttachmentsFileEntries(int start, int end)
 		throws PortalException, SystemException {
 
-		return PortletFileRepositoryUtil.getPortletFileEntries(
-			getGroupId(), getAttachmentsFolderId(),
-			WorkflowConstants.STATUS_APPROVED, start, end, null);
+		List<FileEntry> fileEntries = new ArrayList<FileEntry>();
+
+		long attachmentsFolderId = getAttachmentsFolderId();
+
+		if (attachmentsFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			fileEntries = PortletFileRepositoryUtil.getPortletFileEntries(
+				getGroupId(), attachmentsFolderId,
+				WorkflowConstants.STATUS_APPROVED, start, end, null);
+		}
+
+		return fileEntries;
 	}
 
 	public int getAttachmentsFileEntriesCount()
 		throws PortalException, SystemException {
 
-		return PortletFileRepositoryUtil.getPortletFileEntriesCount(
-			getGroupId(), getAttachmentsFolderId(),
-			WorkflowConstants.STATUS_APPROVED);
+		int attachmentsFileEntriesCount = 0;
+
+		long attachmentsFolderId = getAttachmentsFolderId();
+
+		if (attachmentsFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			attachmentsFileEntriesCount =
+				PortletFileRepositoryUtil.getPortletFileEntriesCount(
+					getGroupId(), attachmentsFolderId,
+					WorkflowConstants.STATUS_APPROVED);
+		}
+
+		return attachmentsFileEntriesCount;
 	}
 
 	public long getAttachmentsFolderId()
 		throws PortalException, SystemException {
 
-		if (_attachmentsFolderId > 0) {
+		if (_attachmentsFolderId !=
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+
 			return _attachmentsFolderId;
 		}
 
@@ -83,14 +138,29 @@ public class MBMessageImpl extends MBMessageBaseImpl {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
-		long repositoryId = PortletFileRepositoryUtil.getPortletRepositoryId(
-			getGroupId(), PortletKeys.MESSAGE_BOARDS, serviceContext);
+		Repository repository =
+			PortletFileRepositoryUtil.fetchPortletRepository(
+				getGroupId(), PortletKeys.MESSAGE_BOARDS);
 
-		Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-			getUserId(), repositoryId, getThreadAttachmentsFolderId(),
-			String.valueOf(getMessageId()), serviceContext);
+		long threadAttachmetsFolderId = getThreadAttachmentsFolderId();
 
-		_attachmentsFolderId = folder.getFolderId();
+		if ((repository == null) ||
+			(threadAttachmetsFolderId ==
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
+
+			return DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+		}
+
+		try {
+			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
+				getUserId(), repository.getRepositoryId(),
+				threadAttachmetsFolderId, String.valueOf(getMessageId()),
+				serviceContext);
+
+			_attachmentsFolderId = folder.getFolderId();
+		}
+		catch (Exception e) {
+		}
 
 		return _attachmentsFolderId;
 	}
@@ -122,17 +192,34 @@ public class MBMessageImpl extends MBMessageBaseImpl {
 	public List<FileEntry> getDeletedAttachmentsFileEntries(int start, int end)
 		throws PortalException, SystemException {
 
-		return PortletFileRepositoryUtil.getPortletFileEntries(
-			getGroupId(), getAttachmentsFolderId(),
-			WorkflowConstants.STATUS_IN_TRASH, start, end, null);
+		List<FileEntry> fileEntries = new ArrayList<FileEntry>();
+
+		long attachmentsFolderId = getAttachmentsFolderId();
+
+		if (attachmentsFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			fileEntries = PortletFileRepositoryUtil.getPortletFileEntries(
+				getGroupId(), attachmentsFolderId,
+				WorkflowConstants.STATUS_IN_TRASH, start, end, null);
+		}
+
+		return fileEntries;
 	}
 
 	public int getDeletedAttachmentsFileEntriesCount()
 		throws PortalException, SystemException {
 
-		return PortletFileRepositoryUtil.getPortletFileEntriesCount(
-			getGroupId(), getAttachmentsFolderId(),
-			WorkflowConstants.STATUS_IN_TRASH);
+		int deletedAttachmentsFileEntriesCount = 0;
+
+		long attachmentsFolderId = getAttachmentsFolderId();
+
+		if (attachmentsFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			deletedAttachmentsFileEntriesCount =
+				PortletFileRepositoryUtil.getPortletFileEntriesCount(
+					getGroupId(), attachmentsFolderId,
+					WorkflowConstants.STATUS_IN_TRASH);
+		}
+
+		return deletedAttachmentsFileEntriesCount;
 	}
 
 	public MBThread getThread() throws PortalException, SystemException {
@@ -143,6 +230,18 @@ public class MBMessageImpl extends MBMessageBaseImpl {
 		throws PortalException, SystemException {
 
 		return getThread().getAttachmentsFolderId();
+	}
+
+	public ContainerModel getTrashContainer()
+		throws PortalException, SystemException {
+
+		MBThread thread = getThread();
+
+		if (thread.isInTrash()) {
+			return thread;
+		}
+
+		return thread.getTrashContainer();
 	}
 
 	public String getWorkflowClassName() {

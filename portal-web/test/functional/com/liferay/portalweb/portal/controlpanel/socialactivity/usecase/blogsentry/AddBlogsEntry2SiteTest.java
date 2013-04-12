@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,7 +25,6 @@ public class AddBlogsEntry2SiteTest extends BaseTestCase {
 		selenium.selectWindow("null");
 		selenium.selectFrame("relative=top");
 		selenium.open("/web/site-name/");
-		selenium.waitForVisible("link=Blogs Test Page");
 		selenium.clickAt("link=Blogs Test Page",
 			RuntimeVariables.replace("Blogs Test Page"));
 		selenium.waitForPageToLoad("30000");
@@ -42,18 +41,16 @@ public class AddBlogsEntry2SiteTest extends BaseTestCase {
 		selenium.clickAt("//input[@value='Publish']",
 			RuntimeVariables.replace("Publish"));
 		selenium.waitForPageToLoad("30000");
-		selenium.waitForText("//div[@class='portlet-msg-success']",
-			"Your request completed successfully.");
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
 		assertEquals(RuntimeVariables.replace("Blogs Entry2 Title"),
-			selenium.getText("xPath=(//div[@class='entry-title'])[1]/h2/a"));
+			selenium.getText("xPath=(//div[@class='entry-title']/h2/a)[1]"));
 		assertEquals(RuntimeVariables.replace("Blogs Entry2 Content"),
-			selenium.getText("xPath=(//div[@class='entry-body'])[1]/p"));
+			selenium.getText("xPath=(//div[@class='entry-body']/div/p)[1]"));
 		assertEquals(RuntimeVariables.replace("Blogs Entry1 Title"),
-			selenium.getText("xPath=(//div[@class='entry-title'])[2]/h2/a"));
+			selenium.getText("xPath=(//div[@class='entry-title']/h2/a)[2]"));
 		assertEquals(RuntimeVariables.replace("Blogs Entry1 Content"),
-			selenium.getText("xPath=(//div[@class='entry-body'])[2]/p"));
+			selenium.getText("xPath=(//div[@class='entry-body']/div/p)[2]"));
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,8 +14,10 @@
 
 package com.liferay.portlet.trash.action;
 
+import com.liferay.portal.TrashPermissionException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.trash.TrashHandler;
@@ -23,7 +25,6 @@ import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceContext;
@@ -31,9 +32,7 @@ import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.trash.TrashEntryConstants;
 import com.liferay.portlet.trash.model.TrashEntry;
-import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
 import com.liferay.portlet.trash.service.TrashEntryServiceUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 
@@ -47,6 +46,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -106,7 +106,22 @@ public class EditEntryAction extends PortletAction {
 			sendRedirect(actionRequest, actionResponse);
 		}
 		catch (Exception e) {
-			SessionErrors.add(actionRequest, e.getClass());
+			if (e instanceof TrashPermissionException) {
+				TrashPermissionException tpe = (TrashPermissionException)e;
+
+				SessionErrors.add(actionRequest, tpe.getClass(), tpe);
+			}
+			else {
+				SessionErrors.add(actionRequest, e.getClass());
+			}
+
+			WindowState windowState = actionRequest.getWindowState();
+
+			if (windowState.equals(LiferayWindowState.EXCLUSIVE) ||
+				windowState.equals(LiferayWindowState.POP_UP)) {
+
+				sendRedirect(actionRequest, actionResponse);
+			}
 		}
 	}
 
@@ -175,10 +190,7 @@ public class EditEntryAction extends PortletAction {
 		long trashEntryId = ParamUtil.getLong(actionRequest, "trashEntryId");
 
 		if (trashEntryId > 0) {
-			TrashEntry entry = TrashEntryLocalServiceUtil.getTrashEntry(
-				trashEntryId);
-
-			deleteEntry(entry.getClassName(), entry.getClassPK());
+			TrashEntryServiceUtil.deleteEntry(trashEntryId);
 
 			return;
 		}
@@ -188,10 +200,7 @@ public class EditEntryAction extends PortletAction {
 
 		if (deleteEntryIds.length > 0) {
 			for (int i = 0; i < deleteEntryIds.length; i++) {
-				TrashEntry entry = TrashEntryLocalServiceUtil.getTrashEntry(
-					deleteEntryIds[i]);
-
-				deleteEntry(entry.getClassName(), entry.getClassPK());
+				TrashEntryServiceUtil.deleteEntry(deleteEntryIds[i]);
 			}
 
 			return;
@@ -201,17 +210,8 @@ public class EditEntryAction extends PortletAction {
 		long classPK = ParamUtil.getLong(actionRequest, "classPK");
 
 		if (Validator.isNotNull(className) && (classPK > 0)) {
-			deleteEntry(className, classPK);
+			TrashEntryServiceUtil.deleteEntry(className, classPK);
 		}
-	}
-
-	protected void deleteEntry(String className, long classPK)
-		throws Exception {
-
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			className);
-
-		trashHandler.deleteTrashEntry(classPK);
 	}
 
 	protected void emptyTrash(ActionRequest actionRequest) throws Exception {
@@ -244,19 +244,11 @@ public class EditEntryAction extends PortletAction {
 		String className = ParamUtil.getString(actionRequest, "className");
 		long classPK = ParamUtil.getLong(actionRequest, "classPK");
 
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			className);
-
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			className, actionRequest);
 
-		if (trashHandler.isInTrash(classPK)) {
-			trashHandler.moveTrashEntry(
-				classPK, containerModelId, serviceContext);
-		}
-		else {
-			trashHandler.moveEntry(classPK, containerModelId, serviceContext);
-		}
+		TrashEntryServiceUtil.moveEntry(
+			className, classPK, containerModelId, serviceContext);
 
 		return getEntryOVPs(className, classPK);
 	}
@@ -267,40 +259,28 @@ public class EditEntryAction extends PortletAction {
 
 		long trashEntryId = ParamUtil.getLong(actionRequest, "trashEntryId");
 
-		List<ObjectValuePair<String, Long>> entryOVPs =
-			new ArrayList<ObjectValuePair<String, Long>>();
-
 		if (trashEntryId > 0) {
-			entryOVPs = restoreEntry(trashEntryId);
+			TrashEntry entry = TrashEntryServiceUtil.restoreEntry(trashEntryId);
+
+			return getEntryOVPs(entry.getClassName(), entry.getClassPK());
 		}
 		else {
 			long[] restoreEntryIds = StringUtil.split(
 				ParamUtil.getString(actionRequest, "restoreTrashEntryIds"), 0L);
 
+			List<ObjectValuePair<String, Long>> entryOVPs =
+				new ArrayList<ObjectValuePair<String, Long>>();
+
 			for (int i = 0; i < restoreEntryIds.length; i++) {
-				entryOVPs.addAll(restoreEntry(restoreEntryIds[i]));
+				TrashEntry entry = TrashEntryServiceUtil.restoreEntry(
+					trashEntryId);
+
+				entryOVPs.addAll(
+					getEntryOVPs(entry.getClassName(), entry.getClassPK()));
 			}
+
+			return entryOVPs;
 		}
-
-		return entryOVPs;
-	}
-
-	protected List<ObjectValuePair<String, Long>> restoreEntry(
-			long trashEntryId)
-		throws Exception {
-
-		TrashEntry entry = TrashEntryLocalServiceUtil.getTrashEntry(
-			trashEntryId);
-
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			entry.getClassName());
-
-		trashHandler.checkDuplicateTrashEntry(
-			entry, TrashEntryConstants.DEFAULT_CONTAINER_ID, StringPool.BLANK);
-
-		trashHandler.restoreTrashEntry(entry.getClassPK());
-
-		return getEntryOVPs(entry.getClassName(), entry.getClassPK());
 	}
 
 	protected List<ObjectValuePair<String, Long>> restoreOverride(
@@ -309,18 +289,11 @@ public class EditEntryAction extends PortletAction {
 
 		long trashEntryId = ParamUtil.getLong(actionRequest, "trashEntryId");
 
-		TrashEntry entry = TrashEntryLocalServiceUtil.getTrashEntry(
-			trashEntryId);
-
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			entry.getClassName());
-
 		long duplicateEntryId = ParamUtil.getLong(
 			actionRequest, "duplicateEntryId");
 
-		trashHandler.deleteTrashEntries(new long[] {duplicateEntryId});
-
-		trashHandler.restoreTrashEntry(entry.getClassPK());
+		TrashEntry entry = TrashEntryServiceUtil.restoreEntry(
+			trashEntryId, duplicateEntryId, null);
 
 		return getEntryOVPs(entry.getClassName(), entry.getClassPK());
 	}
@@ -334,12 +307,6 @@ public class EditEntryAction extends PortletAction {
 
 		long trashEntryId = ParamUtil.getLong(actionRequest, "trashEntryId");
 
-		TrashEntry entry = TrashEntryLocalServiceUtil.getTrashEntry(
-			trashEntryId);
-
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			entry.getClassName());
-
 		String newName = ParamUtil.getString(actionRequest, "newName");
 
 		if (Validator.isNull(newName)) {
@@ -348,9 +315,8 @@ public class EditEntryAction extends PortletAction {
 			newName = TrashUtil.getNewName(themeDisplay, oldName);
 		}
 
-		trashHandler.updateTitle(entry.getClassPK(), newName);
-
-		trashHandler.restoreTrashEntry(entry.getClassPK());
+		TrashEntry entry = TrashEntryServiceUtil.restoreEntry(
+			trashEntryId, 0, newName);
 
 		return getEntryOVPs(entry.getClassName(), entry.getClassPK());
 	}

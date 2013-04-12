@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -66,11 +66,24 @@ public class JournalFolderServiceWrapper implements JournalFolderService,
 		_journalFolderService.deleteFolder(folderId);
 	}
 
+	public void deleteFolder(long folderId, boolean includeTrashedEntries)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_journalFolderService.deleteFolder(folderId, includeTrashedEntries);
+	}
+
 	public com.liferay.portlet.journal.model.JournalFolder getFolder(
 		long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _journalFolderService.getFolder(folderId);
+	}
+
+	public java.util.List<java.lang.Long> getFolderIds(long groupId,
+		long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolderService.getFolderIds(groupId, folderId);
 	}
 
 	public java.util.List<com.liferay.portlet.journal.model.JournalFolder> getFolders(
@@ -86,10 +99,23 @@ public class JournalFolderServiceWrapper implements JournalFolderService,
 	}
 
 	public java.util.List<com.liferay.portlet.journal.model.JournalFolder> getFolders(
+		long groupId, long parentFolderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolderService.getFolders(groupId, parentFolderId, status);
+	}
+
+	public java.util.List<com.liferay.portlet.journal.model.JournalFolder> getFolders(
 		long groupId, long parentFolderId, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalFolderService.getFolders(groupId, parentFolderId, start,
 			end);
+	}
+
+	public java.util.List<com.liferay.portlet.journal.model.JournalFolder> getFolders(
+		long groupId, long parentFolderId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolderService.getFolders(groupId, parentFolderId,
+			status, start, end);
 	}
 
 	public java.util.List<java.lang.Object> getFoldersAndArticles(
@@ -145,6 +171,27 @@ public class JournalFolderServiceWrapper implements JournalFolderService,
 			serviceContext);
 	}
 
+	public com.liferay.portlet.journal.model.JournalFolder moveFolderFromTrash(
+		long folderId, long parentFolderId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolderService.moveFolderFromTrash(folderId,
+			parentFolderId, serviceContext);
+	}
+
+	public void moveFolderToTrash(long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_journalFolderService.moveFolderToTrash(folderId);
+	}
+
+	public void restoreFolderFromTrash(long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_journalFolderService.restoreFolderFromTrash(folderId);
+	}
+
 	public com.liferay.portlet.journal.model.JournalFolder updateFolder(
 		long folderId, long parentFolderId, java.lang.String name,
 		java.lang.String description, boolean mergeWithParentFolder,
@@ -156,14 +203,14 @@ public class JournalFolderServiceWrapper implements JournalFolderService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public JournalFolderService getWrappedJournalFolderService() {
 		return _journalFolderService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedJournalFolderService(
 		JournalFolderService journalFolderService) {

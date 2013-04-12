@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -26,6 +26,8 @@ import java.util.Map;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Alexander Chow
@@ -77,6 +79,12 @@ public class LocalizationUtil {
 	}
 
 	public static Map<Locale, String> getLocalizationMap(
+		HttpServletRequest request, String parameter) {
+
+		return getLocalization().getLocalizationMap(request, parameter);
+	}
+
+	public static Map<Locale, String> getLocalizationMap(
 		PortletPreferences preferences, String parameter) {
 
 		return getLocalization().getLocalizationMap(preferences, parameter);
@@ -90,6 +98,12 @@ public class LocalizationUtil {
 
 	public static Map<Locale, String> getLocalizationMap(String xml) {
 		return getLocalization().getLocalizationMap(xml);
+	}
+
+	public static Map<Locale, String> getLocalizationMap(
+		String xml, boolean useDefault) {
+
+		return getLocalization().getLocalizationMap(xml, useDefault);
 	}
 
 	public static Map<Locale, String> getLocalizationMap(
@@ -115,7 +129,7 @@ public class LocalizationUtil {
 	}
 
 	/**
-	 * @deprecated Use <code>getLocalizationMap</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #getLocalizationMap}
 	 */
 	public static Map<Locale, String> getLocalizedParameter(
 		PortletRequest portletRequest, String parameter) {

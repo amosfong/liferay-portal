@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -216,7 +216,7 @@ else if (((folderId != rootFolderId) && (parentFolderId == 0)) || ((folderId == 
 						%>
 
 						<liferay-ui:app-view-navigation-entry
-							cssClassName="folder file-entry-type"
+							cssClass="folder file-entry-type"
 							dataView="<%= dataView %>"
 							entryTitle='<%= LanguageUtil.get(pageContext, "basic-document") %>'
 							iconImage="copy"
@@ -247,7 +247,7 @@ else if (((folderId != rootFolderId) && (parentFolderId == 0)) || ((folderId == 
 						%>
 
 						<liferay-ui:app-view-navigation-entry
-							cssClassName="folder file-entry-type"
+							cssClass="folder file-entry-type"
 							dataView="<%= dataView %>"
 							entryTitle="<%= HtmlUtil.escape(fileEntryType.getName()) %>"
 							iconImage="copy"

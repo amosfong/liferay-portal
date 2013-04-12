@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -113,6 +113,21 @@ public class BookmarksFolderServiceSoap {
 			com.liferay.portlet.bookmarks.model.BookmarksFolder returnValue = BookmarksFolderServiceUtil.getFolder(folderId);
 
 			return com.liferay.portlet.bookmarks.model.BookmarksFolderSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static java.lang.Long[] getFolderIds(long groupId, long folderId)
+		throws RemoteException {
+		try {
+			java.util.List<java.lang.Long> returnValue = BookmarksFolderServiceUtil.getFolderIds(groupId,
+					folderId);
+
+			return returnValue.toArray(new java.lang.Long[returnValue.size()]);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -250,6 +265,21 @@ public class BookmarksFolderServiceSoap {
 		try {
 			BookmarksFolderServiceUtil.getSubfolderIds(ListUtil.toList(
 					folderIds), groupId, folderId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static java.lang.Long[] getSubfolderIds(long groupId, long folderId,
+		boolean recurse) throws RemoteException {
+		try {
+			java.util.List<java.lang.Long> returnValue = BookmarksFolderServiceUtil.getSubfolderIds(groupId,
+					folderId, recurse);
+
+			return returnValue.toArray(new java.lang.Long[returnValue.size()]);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

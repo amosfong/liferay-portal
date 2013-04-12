@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -427,10 +427,6 @@ public class GroupFinderImpl
 			params = _emptyLinkedHashMap;
 		}
 
-		Long userId = (Long)params.get("usersGroups");
-
-		boolean doUnion = Validator.isNotNull(userId);
-
 		LinkedHashMap<String, Object> params1 = params;
 
 		LinkedHashMap<String, Object> params2 = null;
@@ -438,6 +434,10 @@ public class GroupFinderImpl
 		LinkedHashMap<String, Object> params3 = null;
 
 		LinkedHashMap<String, Object> params4 = null;
+
+		Long userId = (Long)params.get("usersGroups");
+
+		boolean doUnion = Validator.isNotNull(userId);
 
 		if (doUnion) {
 			params2 = new LinkedHashMap<String, Object>(params1);
@@ -745,11 +745,6 @@ public class GroupFinderImpl
 			params = _emptyLinkedHashMap;
 		}
 
-		Long userId = (Long)params.get("usersGroups");
-		boolean inherit = GetterUtil.getBoolean(params.get("inherit"), true);
-
-		boolean doUnion = Validator.isNotNull(userId) && inherit;
-
 		LinkedHashMap<String, Object> params1 = params;
 
 		LinkedHashMap<String, Object> params2 = null;
@@ -757,6 +752,11 @@ public class GroupFinderImpl
 		LinkedHashMap<String, Object> params3 = null;
 
 		LinkedHashMap<String, Object> params4 = null;
+
+		Long userId = (Long)params.get("usersGroups");
+		boolean inherit = GetterUtil.getBoolean(params.get("inherit"), true);
+
+		boolean doUnion = Validator.isNotNull(userId) && inherit;
 
 		if (doUnion) {
 			params2 = new LinkedHashMap<String, Object>(params1);
@@ -1032,11 +1032,6 @@ public class GroupFinderImpl
 			params = _emptyLinkedHashMap;
 		}
 
-		Long userId = (Long)params.get("usersGroups");
-		boolean inherit = GetterUtil.getBoolean(params.get("inherit"), true);
-
-		boolean doUnion = Validator.isNotNull(userId) && inherit;
-
 		LinkedHashMap<String, Object> params1 = params;
 
 		LinkedHashMap<String, Object> params2 = null;
@@ -1044,6 +1039,11 @@ public class GroupFinderImpl
 		LinkedHashMap<String, Object> params3 = null;
 
 		LinkedHashMap<String, Object> params4 = null;
+
+		Long userId = (Long)params.get("usersGroups");
+		boolean inherit = GetterUtil.getBoolean(params.get("inherit"), true);
+
+		boolean doUnion = Validator.isNotNull(userId) && inherit;
 
 		if (doUnion) {
 			params2 = new LinkedHashMap<String, Object>(params1);
@@ -1335,7 +1335,24 @@ public class GroupFinderImpl
 		for (Map.Entry<String, Object> entry : params.entrySet()) {
 			String key = entry.getKey();
 
-			if (key.equals("groupsTree")) {
+			if (key.equals("excludedGroupIds")) {
+				List<Long> excludedGroupIds = (List<Long>)entry.getValue();
+
+				if (!excludedGroupIds.isEmpty()) {
+					sb.append(StringPool.OPEN_PARENTHESIS);
+
+					for (int i = 0; i < excludedGroupIds.size(); i++) {
+						sb.append("(Group_.groupId != ?)");
+
+						if ((i + 1) < excludedGroupIds.size()) {
+							sb.append(" AND ");
+						}
+					}
+
+					sb.append(") AND ");
+				}
+			}
+			else if (key.equals("groupsTree")) {
 				List<Group> groupsTree = (List<Group>)entry.getValue();
 
 				if (!groupsTree.isEmpty()) {
@@ -1454,6 +1471,15 @@ public class GroupFinderImpl
 				Boolean value = (Boolean)entry.getValue();
 
 				qPos.add(value);
+			}
+			else if (key.equals("excludedGroupIds")) {
+				List<Long> excludedGroupIds = (List<Long>)entry.getValue();
+
+				if (!excludedGroupIds.isEmpty()) {
+					for (long excludedGroupId : excludedGroupIds) {
+						qPos.add(excludedGroupId);
+					}
+				}
 			}
 			else if (key.equals("groupsTree")) {
 				List<Group> groupsTree = (List<Group>)entry.getValue();
@@ -1589,7 +1615,7 @@ public class GroupFinderImpl
 	private String _getCacheKey(
 		String sql, LinkedHashMap<String, Object> params) {
 
-		StringBundler sb = new StringBundler(params.size() + 1);
+		StringBundler sb = new StringBundler();
 
 		sb.append(sql);
 
@@ -1607,6 +1633,21 @@ public class GroupFinderImpl
 				}
 				else {
 					key = "rolePermissions_6";
+				}
+			}
+			else {
+				Object value = entry.getValue();
+
+				if (value instanceof List<?>) {
+					List<Object> values = (List<Object>)value;
+
+					if (!values.isEmpty()) {
+						for (int i = 0; i < values.size(); i++) {
+							sb.append(key);
+							sb.append(StringPool.DASH);
+							sb.append(i);
+						}
+					}
 				}
 			}
 

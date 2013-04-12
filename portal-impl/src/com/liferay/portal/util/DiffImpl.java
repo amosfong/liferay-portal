@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -335,8 +335,8 @@ public class DiffImpl implements com.liferay.portal.kernel.util.Diff {
 			}
 		}
 
-		// After the for loop above, some lines might remained unchecked.
-		// They are considered as deletions or additions.
+		// After the for loop above, some lines might remained unchecked. They
+		// are considered as deletions or additions.
 
 		for (; i <= difference.getDeletedEnd(); i++) {
 			_highlightLines(
@@ -450,8 +450,8 @@ public class DiffImpl implements com.liferay.portal.kernel.util.Diff {
 		int deletedChars = 0;
 		int addedChars = 0;
 
-		// The following while loop will calculate how many characters of
-		// the source line need to be changed to be equals to the target line.
+		// The following while loop will calculate how many characters of the
+		// source line need to be changed to be equals to the target line.
 
 		if (!aligned) {
 			for (Difference difference : differences) {

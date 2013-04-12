@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,14 +18,14 @@
 
 <%
 String cssClass = "staging-icon-menu " + GetterUtil.getString((String) request.getAttribute("liferay-ui:staging:cssClass"));
-boolean extended = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:staging:extended"));
-long groupId = GetterUtil.getLong((String) request.getAttribute("liferay-ui:staging:groupId"));
-String icon = GetterUtil.getString((String) request.getAttribute("liferay-ui:staging:icon"));
-long layoutSetBranchId = GetterUtil.getLong((String) request.getAttribute("liferay-ui:staging:layoutSetBranchId"));
-String message = GetterUtil.getString((String) request.getAttribute("liferay-ui:staging:message"));
-boolean privateLayout = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:staging:privateLayout"));
-long selPlid = GetterUtil.getLong((String) request.getAttribute("liferay-ui:staging:selPlid"));
-boolean showManageBranches = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:staging:showManageBranches"));
+boolean extended = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:staging:extended"));
+long groupId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:staging:groupId"));
+String icon = GetterUtil.getString((String)request.getAttribute("liferay-ui:staging:icon"));
+long layoutSetBranchId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:staging:layoutSetBranchId"));
+String message = GetterUtil.getString((String)request.getAttribute("liferay-ui:staging:message"));
+boolean privateLayout = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:staging:privateLayout"));
+long selPlid = GetterUtil.getLong((String)request.getAttribute("liferay-ui:staging:selPlid"));
+boolean showManageBranches = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:staging:showManageBranches"));
 
 if (Validator.isNotNull(icon)) {
 	icon = themeDisplay.getPathThemeImages() + icon;

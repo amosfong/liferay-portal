@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,6 +36,29 @@ public class FolderProxyBean
 		super(classLoader);
 
 		_folder = folder;
+	}
+
+	@Override
+	public Object clone() {
+		FolderProxyBean folderProxyBean = newFolderProxyBean(_folder);
+
+		folderProxyBean.setCompanyId(getCompanyId());
+		folderProxyBean.setCreateDate(getCreateDate());
+		folderProxyBean.setGroupId(getGroupId());
+		folderProxyBean.setModifiedDate(getModifiedDate());
+		folderProxyBean.setPrimaryKeyObj(getPrimaryKeyObj());
+		folderProxyBean.setUserId(getUserId());
+		folderProxyBean.setUserName(getUserName());
+
+		try {
+			folderProxyBean.setUserUuid(getUserUuid());
+		}
+		catch (SystemException se) {
+		}
+
+		folderProxyBean.setUuid(getUuid());
+
+		return folderProxyBean;
 	}
 
 	public boolean containsPermission(
@@ -232,6 +255,10 @@ public class FolderProxyBean
 
 	public void setUserUuid(String userUuid) {
 		_folder.setUserUuid(userUuid);
+	}
+
+	public void setUuid(String uuid) {
+		_folder.setUuid(uuid);
 	}
 
 	public Folder toEscapedModel() {

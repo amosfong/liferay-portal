@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,19 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchLayoutPrototypeException;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.model.LayoutPrototype;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
@@ -109,6 +115,14 @@ public class LayoutPrototypePersistenceTest {
 
 		newLayoutPrototype.setCompanyId(ServiceTestUtil.nextLong());
 
+		newLayoutPrototype.setUserId(ServiceTestUtil.nextLong());
+
+		newLayoutPrototype.setUserName(ServiceTestUtil.randomString());
+
+		newLayoutPrototype.setCreateDate(ServiceTestUtil.nextDate());
+
+		newLayoutPrototype.setModifiedDate(ServiceTestUtil.nextDate());
+
 		newLayoutPrototype.setName(ServiceTestUtil.randomString());
 
 		newLayoutPrototype.setDescription(ServiceTestUtil.randomString());
@@ -127,6 +141,16 @@ public class LayoutPrototypePersistenceTest {
 			newLayoutPrototype.getLayoutPrototypeId());
 		Assert.assertEquals(existingLayoutPrototype.getCompanyId(),
 			newLayoutPrototype.getCompanyId());
+		Assert.assertEquals(existingLayoutPrototype.getUserId(),
+			newLayoutPrototype.getUserId());
+		Assert.assertEquals(existingLayoutPrototype.getUserName(),
+			newLayoutPrototype.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingLayoutPrototype.getCreateDate()),
+			Time.getShortTimestamp(newLayoutPrototype.getCreateDate()));
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingLayoutPrototype.getModifiedDate()),
+			Time.getShortTimestamp(newLayoutPrototype.getModifiedDate()));
 		Assert.assertEquals(existingLayoutPrototype.getName(),
 			newLayoutPrototype.getName());
 		Assert.assertEquals(existingLayoutPrototype.getDescription(),
@@ -161,6 +185,24 @@ public class LayoutPrototypePersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("LayoutPrototype", "uuid",
+			true, "layoutPrototypeId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true, "name",
+			true, "description", true, "settings", true, "active", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		LayoutPrototype newLayoutPrototype = addLayoutPrototype();
 
@@ -176,6 +218,26 @@ public class LayoutPrototypePersistenceTest {
 		LayoutPrototype missingLayoutPrototype = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingLayoutPrototype);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new LayoutPrototypeActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					LayoutPrototype layoutPrototype = (LayoutPrototype)object;
+
+					Assert.assertNotNull(layoutPrototype);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -260,6 +322,14 @@ public class LayoutPrototypePersistenceTest {
 		layoutPrototype.setUuid(ServiceTestUtil.randomString());
 
 		layoutPrototype.setCompanyId(ServiceTestUtil.nextLong());
+
+		layoutPrototype.setUserId(ServiceTestUtil.nextLong());
+
+		layoutPrototype.setUserName(ServiceTestUtil.randomString());
+
+		layoutPrototype.setCreateDate(ServiceTestUtil.nextDate());
+
+		layoutPrototype.setModifiedDate(ServiceTestUtil.nextDate());
 
 		layoutPrototype.setName(ServiceTestUtil.randomString());
 

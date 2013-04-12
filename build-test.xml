@@ -326,7 +326,7 @@
 	</target>
 
 	<target name="build-test-ant-scripts">
-		<property name="build-test-ant-scripts.version" value="8" />
+		<property name="build-test-ant-scripts.version" value="3" />
 
 		<if>
 			<available file="portal-web/test-ant-scripts/version" />
@@ -425,6 +425,11 @@
 		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="control-panel-categories" />
 			<param name="test.ant.script.suite" value="ControlPanelCategoriesTestSuite" />
+		</antcall>
+
+		<antcall target="build-test-ant-script">
+			<param name="test.ant.script.command" value="control-panel-custom-fields" />
+			<param name="test.ant.script.suite" value="ControlPanelCustomFieldsTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
@@ -1083,6 +1088,11 @@
 		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="permissions-web-content" />
 			<param name="test.ant.script.suite" value="PermissionsWebContentTestSuite" />
+		</antcall>
+
+		<antcall target="build-test-ant-script">
+			<param name="test.ant.script.command" value="permissions-web-content-display" />
+			<param name="test.ant.script.suite" value="PermissionsWebContentDisplayTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
@@ -1886,7 +1896,7 @@
 
 		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="properties-blogs-entry-increment-view-counter" />
-			<param name="test.ant.script.properties" value="asset.entry.increment.view.counter.enabled=false" />
+			<param name="test.ant.script.properties" value="buffered.increment.enabled[AssetEntry]=false" />
 			<param name="test.ant.script.suite" value="PropertiesBlogsEntryIncrementViewCounterTestSuite" />
 		</antcall>
 
@@ -2012,12 +2022,6 @@
 		<antcall target="build-test-ant-script">
 			<param name="test.ant.script.command" value="smoke-test" />
 			<param name="test.ant.script.suite" value="SmokeTestSuite" />
-		</antcall>
-
-		<antcall target="build-test-ant-script">
-			<param name="test.ant.script.command" value="social-office-home-announcements" />
-			<param name="test.ant.script.social.office" value="true" />
-			<param name="test.ant.script.suite" value="SocialOfficeHomeAnnouncementsTestSuite" />
 		</antcall>
 
 		<antcall target="build-test-ant-script">
@@ -2236,6 +2240,83 @@
 		</antcall>
 
 		<echo file="portal-web/test-ant-scripts/version">${build-test-ant-scripts.version}</echo>
+	</target>
+
+	<target name="check-config">
+		<if>
+			<not>
+				<isset property="app-server" />
+			</not>
+			<then>
+				<property name="app-server" value="tomcat" />
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<or>
+					<equals arg1="${app-server}" arg2="glassfish" />
+					<equals arg1="${app-server}" arg2="jboss" />
+					<equals arg1="${app-server}" arg2="jonas" />
+					<equals arg1="${app-server}" arg2="resin" />
+					<equals arg1="${app-server}" arg2="tomcat" />
+					<equals arg1="${app-server}" arg2="weblogic" />
+					<equals arg1="${app-server}" arg2="websphere-7.0" />
+					<equals arg1="${app-server}" arg2="websphere-8.0" />
+				</or>
+			</not>
+			<then>
+				<fail>Please set "app-server" to one of the following:${line.separator}glassfish, jboss, jonas, resin, tomcat, weblogic, websphere-7.0, websphere-8.0</fail>
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<isset property="browser" />
+			</not>
+			<then>
+				<property name="browser" value="firefox" />
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<or>
+					<equals arg1="${browser}" arg2="firefox" />
+					<equals arg1="${browser}" arg2="googlechrome" />
+					<equals arg1="${browser}" arg2="ie" />
+				</or>
+			</not>
+			<then>
+				<fail>Please set "browser" to one of the following:${line.separator}firefox, googlechrome, ie</fail>
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<isset property="database" />
+			</not>
+			<then>
+				<property name="database" value="mysql" />
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<or>
+					<equals arg1="${database}" arg2="db2" />
+					<equals arg1="${database}" arg2="mysql" />
+					<equals arg1="${database}" arg2="postgresql-8.4" />
+					<equals arg1="${database}" arg2="postgresql-9.0" />
+					<equals arg1="${database}" arg2="sql-server-2005" />
+					<equals arg1="${database}" arg2="sql-server-2005" />
+					<equals arg1="${database}" arg2="sybase" />
+				</or>
+			</not>
+			<then>
+				<fail>Please set "database" to one of the following:${line.separator}db2, mysql, postgresql-8.4, postgresql-9.0, sql-server-2005, sql-server-2005, sybase</fail>
+			</then>
+		</if>
 	</target>
 
 	<target name="clean-up-bundles">
@@ -2535,6 +2616,36 @@
 		</exec>
 
 		<delete file="execute-remote-command.bat" />
+	</target>
+
+	<target name="generate-test-properties">
+		<xmlproperty
+			file="portal-web/test-config/database.xml"
+			keeproot="true"
+		/>
+
+		<echoproperties destfile="${basedir}/test.run.properties">
+			<propertyset>
+				<propertyref prefix="database.${database}" />
+			</propertyset>
+		</echoproperties>
+
+		<replaceregexp
+			file="${basedir}/test.run.properties"
+			flags="g"
+			match="database\.${database}"
+			replace="database"
+		/>
+
+		<property file="${basedir}/test.run.properties" />
+
+		<loadfile property="test.properties.expanded" srcfile="${basedir}/test.run.properties">
+			<filterchain>
+				<expandproperties />
+			</filterchain>
+		</loadfile>
+
+		<echo file="${basedir}/test.run.properties">${test.properties.expanded}</echo>
 	</target>
 
 	<target name="install-vm-java">
@@ -4156,6 +4267,16 @@ file.
 			</then>
 		</if>
 
+		<if>
+			<or>
+				<equals arg1="${test.browser}" arg2="iehta" />
+				<equals arg1="${test.browser}" arg2="iexplore" />
+			</or>
+			<then>
+				<antcall target="start-ie-driver" />
+			</then>
+		</if>
+
 		<parallel>
 			<exec dir="${simple.server.bin.dir}" executable="${simple.server.start.executable}" resolveexecutable="true">
 				<arg line="${simple.server.start.executable.arg.line}" />
@@ -4205,6 +4326,16 @@ file.
 				<antcall target="stop-chrome-driver" />
 			</then>
 		</if>
+
+		<if>
+			<or>
+				<equals arg1="${test.browser}" arg2="iehta" />
+				<equals arg1="${test.browser}" arg2="iexplore" />
+			</or>
+			<then>
+				<antcall target="stop-ie-driver" />
+			</then>
+		</if>
 	</target>
 
 	<target name="start-chrome-driver">
@@ -4230,6 +4361,28 @@ which can be downloaded from this website: http://code.google.com/p/chromedriver
 		</if>
 	</target>
 
+	<target name="start-ie-driver">
+		<if>
+			<not>
+				<isset property="ie.driver.zip" />
+			</not>
+			<then>
+				<fail>
+.
+
+Please set "ie.driver.zip" in test.properties to point to "IEDriverServer_x64_2.31.0.zip" or "IEDriverServer_Win32_2.31.0.zip" which can be downloaded from this website: https://code.google.com/p/selenium/wiki/InternetExplorerDriver
+				</fail>
+			</then>
+			<else>
+				<exec executable="taskkill.exe">
+					<arg line="/F /IM IEDriverServer.exe" />
+				</exec>
+
+				<unzip src="${ie.driver.zip}" dest="tools/selenium" />
+			</else>
+		</if>
+	</target>
+
 	<target name="start-selenium">
 		<!--<java
 			jar="lib/development/selenium-server.jar"
@@ -4249,6 +4402,12 @@ which can be downloaded from this website: http://code.google.com/p/chromedriver
 	<target name="stop-chrome-driver">
 		<exec executable="taskkill.exe">
 			<arg line="/F /IM chromedriver.exe" />
+		</exec>
+	</target>
+
+	<target name="stop-ie-driver">
+		<exec executable="taskkill.exe">
+			<arg line="/F /IM IEDriverServer.exe" />
 		</exec>
 	</target>
 
@@ -4291,12 +4450,14 @@ which can be downloaded from this website: http://code.google.com/p/chromedriver
 	</target>
 
 	<target name="test-integration">
+		<ant dir="osgi/modules" target="test-integration" inheritAll="false" />
 		<ant dir="portal-service" target="test-integration" inheritAll="false" />
 		<ant dir="portal-impl" target="test-integration" inheritAll="false" />
 		<ant dir="util-java" target="test-integration" inheritAll="false" />
 	</target>
 
 	<target name="test-unit">
+		<ant dir="osgi/modules" target="test-unit" inheritAll="false" />
 		<ant dir="portal-service" target="test-unit" inheritAll="false" />
 		<ant dir="portal-impl" target="test-unit" inheritAll="false" />
 		<ant dir="util-java" target="test-unit" inheritAll="false" />

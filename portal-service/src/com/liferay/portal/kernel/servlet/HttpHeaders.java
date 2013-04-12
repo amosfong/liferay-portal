@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -96,7 +96,7 @@ public interface HttpHeaders {
 	public static final String CACHE_CONTROL_PUBLIC_VALUE = "public";
 
 	/**
-	 * @deprecated Use <code>CONNECTION_CLOSE_VALUE</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #CONNECTION_CLOSE_VALUE}
 	 */
 	public static final String CLOSE = CONNECTION_CLOSE_VALUE;
 
@@ -107,7 +107,7 @@ public interface HttpHeaders {
 	public static final String PRAGMA_PUBLIC_VALUE = "public";
 
 	/**
-	 * @deprecated Use <code>CACHE_CONTROL_PUBLIC_VALUE</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #CACHE_CONTROL_PUBLIC_VALUE}
 	 */
 	public static final String PUBLIC = CACHE_CONTROL_PUBLIC_VALUE;
 

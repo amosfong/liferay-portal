@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,14 +15,14 @@
 package com.liferay.portal.spring.util;
 
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.spring.util.FactoryBean;
 import com.liferay.portal.kernel.spring.util.SpringFactory;
 import com.liferay.portal.kernel.spring.util.SpringFactoryException;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.security.lang.PortalSecurityManagerThreadLocal;
-import com.liferay.portal.security.pacl.PACLClassLoaderUtil;
+import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,7 @@ import java.util.Set;
 /**
  * @author Brian Wing Shun Chan
  */
+@DoPrivileged
 public class SpringFactoryImpl implements SpringFactory {
 
 	public Object newBean(String className) throws SpringFactoryException {
@@ -73,43 +74,34 @@ public class SpringFactoryImpl implements SpringFactory {
 			throw new SpringFactoryException("Undefined class " + className);
 		}
 
-		boolean enabled = PortalSecurityManagerThreadLocal.isEnabled();
+		Object bean = InstanceFactory.newInstance(
+			ClassLoaderUtil.getPortalClassLoader(), className);
 
-		try {
-			PortalSecurityManagerThreadLocal.setEnabled(false);
+		if (bean instanceof FactoryBean) {
+			FactoryBean<Object> factoryBean = (FactoryBean<Object>)bean;
 
-			Object bean = InstanceFactory.newInstance(
-				PACLClassLoaderUtil.getPortalClassLoader(), className);
+			bean = factoryBean.create();
+		}
 
-			if (bean instanceof FactoryBean) {
-				FactoryBean<Object> factoryBean = (FactoryBean<Object>)bean;
-
-				bean = factoryBean.create();
-			}
-
-			if (properties == null) {
-				return bean;
-			}
-
-			for (Map.Entry<String, Object> entry : properties.entrySet()) {
-				String name = entry.getKey();
-
-				if (!allowedProperties.contains(name)) {
-					throw new SpringFactoryException(
-						"Undefined property " + name + " for class " +
-							className);
-				}
-
-				Object value = entry.getValue();
-
-				BeanPropertiesUtil.setProperty(bean, name, value);
-			}
-
+		if (properties == null) {
 			return bean;
 		}
-		finally {
-			PortalSecurityManagerThreadLocal.setEnabled(enabled);
+
+		for (Map.Entry<String, Object> entry : properties.entrySet()) {
+			String name = entry.getKey();
+
+			if (!allowedProperties.contains(name)) {
+				throw new SpringFactoryException(
+					"Undefined property " + name + " for class " +
+						className);
+			}
+
+			Object value = entry.getValue();
+
+			BeanPropertiesUtil.setProperty(bean, name, value);
 		}
+
+		return bean;
 	}
 
 	private Map<String, Set<String>> _beanDefinitions;

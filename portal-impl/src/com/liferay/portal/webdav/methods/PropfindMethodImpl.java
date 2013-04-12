@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -43,11 +43,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class PropfindMethodImpl extends BasePropMethodImpl implements Method {
 
-	public int process(WebDAVRequest webDavRequest) throws WebDAVException {
+	public int process(WebDAVRequest webDAVRequest) throws WebDAVException {
 		try {
-			Set<QName> props = getProps(webDavRequest);
+			Set<QName> props = getProps(webDAVRequest);
 
-			return writeResponseXML(webDavRequest, props);
+			return writeResponseXML(webDAVRequest, props);
 		}
 		catch (InvalidRequestException ire) {
 			return HttpServletResponse.SC_BAD_REQUEST;
@@ -74,13 +74,13 @@ public class PropfindMethodImpl extends BasePropMethodImpl implements Method {
 		return props;
 	}
 
-	protected Set<QName> getProps(WebDAVRequest webDavRequest)
+	protected Set<QName> getProps(WebDAVRequest webDAVRequest)
 		throws InvalidRequestException {
 
 		try {
 			Set<QName> props = new HashSet<QName>();
 
-			HttpServletRequest request = webDavRequest.getHttpServletRequest();
+			HttpServletRequest request = webDAVRequest.getHttpServletRequest();
 
 			String xml = new String(
 				FileUtil.getBytes(request.getInputStream()));

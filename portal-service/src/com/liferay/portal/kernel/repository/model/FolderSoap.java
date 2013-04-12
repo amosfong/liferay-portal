@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.repository.model;
 
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -196,18 +197,18 @@ public class FolderSoap implements Serializable {
 		_uuid = uuid;
 	}
 
-	private String _uuid;
+	private long _companyId;
+	private Date _createDate;
+	private String _description;
 	private long _folderId;
 	private long _groupId;
-	private long _companyId;
+	private Date _lastPostDate;
+	private Date _modifiedDate;
+	private String _name;
+	private long _parentFolderId;
+	private long _repositoryId;
 	private long _userId;
 	private String _userName;
-	private Date _createDate;
-	private Date _modifiedDate;
-	private long _repositoryId;
-	private long _parentFolderId;
-	private String _name;
-	private String _description;
-	private Date _lastPostDate;
+	private String _uuid;
 
 }

@@ -600,7 +600,7 @@
 		</action>
 
 		<action path="/dynamic_data_list_display/view_record_set" type="com.liferay.portlet.dynamicdatalists.action.EditRecordSetAction">
-			<forward name="portlet.dynamic_data_lists.edit_record_set" path="portlet.dynamic_data_lists.view_record_set" />
+			<forward name="portlet.dynamic_data_lists.edit_record_set" path="portlet.dynamic_data_list_display.view" />
 			<forward name="portlet.dynamic_data_lists.error" path="portlet.dynamic_data_lists.error" />
 		</action>
 
@@ -675,6 +675,8 @@
 		</action>
 
 		<action path="/dynamic_data_mapping/select_structure" forward="portlet.dynamic_data_mapping.select_structure" />
+
+		<action path="/dynamic_data_mapping/select_template" forward="portlet.dynamic_data_mapping.select_template" />
 
 		<action path="/dynamic_data_mapping/view" forward="portlet.dynamic_data_mapping.view" />
 
@@ -1078,6 +1080,7 @@
 
 		<action path="/login/facebook_connect_oauth" type="com.liferay.portlet.login.action.FacebookConnectAction">
 			<forward name="portlet.login.login" path="portlet.login.login" />
+			<forward name="portlet.login.update_account" path="portlet.login.update_account" />
 		</action>
 
 		<action path="/login/forgot_password" type="com.liferay.portlet.login.action.ForgotPasswordAction">
@@ -1096,6 +1099,8 @@
 			<forward name="portlet.login.open_id" path="portlet.login.open_id" />
 			<forward name="portlet.login.login" path="portlet.login.login" />
 		</action>
+
+		<action path="/login/update_account" forward="portlet.login.update_account" />
 
 		<!-- Maps -->
 
@@ -1405,6 +1410,8 @@
 		<action path="/my_workflow_instances/view_content" forward="portlet.asset_publisher.view_content" />
 
 		<!-- My Workflow Tasks -->
+
+		<action path="/my_workflow_tasks/add_asset_redirect" forward="portlet.asset_publisher.add_asset_redirect" />
 
 		<action path="/my_workflow_tasks/edit_workflow_task" type="com.liferay.portlet.workflowtasks.action.EditWorkflowTaskAction">
 			<forward name="portlet.workflow_tasks.edit_workflow_task" path="portlet.workflow_tasks.edit_workflow_task" />
@@ -1864,6 +1871,7 @@
 		<!-- Social Activity -->
 
 		<action path="/social_activity/view" type="com.liferay.portlet.socialactivity.action.ViewAction">
+			<forward name="portlet.social_activity.error" path="portlet.social_activity.error" />
 			<forward name="portlet.social_activity.view" path="portlet.social_activity.view" />
 		</action>
 
@@ -2344,6 +2352,12 @@
 			<forward name="portlet.wiki.view_node" path="portlet.wiki.view_orphan_pages" />
 		</action>
 
+		<action path="/wiki_admin/view_page_activities" type="com.liferay.portlet.wiki.action.ViewPageAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+			<forward name="portlet.wiki.view_categorized_pages" path="portlet.wiki.view_categorized_pages" />
+			<forward name="portlet.wiki.view_page" path="portlet.wiki.view_page_activities" />
+		</action>
+
 		<action path="/wiki_admin/view_page_attachments" type="com.liferay.portlet.wiki.action.ViewPageAction">
 			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
 			<forward name="portlet.wiki.view_page" path="portlet.wiki.view_page_attachments" />
@@ -2462,6 +2476,12 @@
 		<action path="/wiki_display/view_page" type="com.liferay.portlet.wiki.action.ViewPageAction">
 			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
 			<forward name="portlet.wiki.view_page" path="portlet.wiki_display.view" />
+		</action>
+
+		<action path="/wiki_display/view_page_activities" type="com.liferay.portlet.wiki.action.ViewPageAction">
+			<forward name="portlet.wiki.error" path="portlet.wiki.error" />
+			<forward name="portlet.wiki.view_categorized_pages" path="portlet.wiki.view_categorized_pages" />
+			<forward name="portlet.wiki.view_page" path="portlet.wiki.view_page_activities" />
 		</action>
 
 		<action path="/wiki_display/view_page_attachments" type="com.liferay.portlet.wiki.action.ViewPageAction">

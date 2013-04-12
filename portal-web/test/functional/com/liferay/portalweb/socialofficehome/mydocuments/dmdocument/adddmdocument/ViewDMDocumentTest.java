@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -43,6 +43,12 @@ public class ViewDMDocumentTest extends BaseTestCase {
 		selenium.clickAt("//a[contains(@class,'document-link')]/span[@class='entry-title']",
 			RuntimeVariables.replace("DM Document Title"));
 		selenium.waitForPageToLoad("30000");
+		assertEquals(RuntimeVariables.replace("My Documents"),
+			selenium.getText(
+				"//ul[contains(@class,'breadcrumbs')]/li[1]/span/a"));
+		assertEquals(RuntimeVariables.replace("DM Document Title"),
+			selenium.getText(
+				"//ul[contains(@class,'breadcrumbs')]/li[2]/span/a"));
 		assertEquals(RuntimeVariables.replace("\u00ab Back"),
 			selenium.getText("//span[@class='header-back-to']/a"));
 		assertEquals(RuntimeVariables.replace("Download"),

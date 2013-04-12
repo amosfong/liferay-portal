@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,7 @@
 package com.liferay.portlet.journal.search;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
@@ -24,8 +25,18 @@ import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
+import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.util.DDMIndexerUtil;
+import com.liferay.portlet.dynamicdatamapping.util.DDMStructureTestUtil;
+import com.liferay.portlet.dynamicdatamapping.util.DDMTemplateTestUtil;
 import com.liferay.portlet.journal.asset.JournalArticleAssetRenderer;
 import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.journal.model.JournalFolder;
+import com.liferay.portlet.journal.model.JournalFolderConstants;
+import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.util.JournalTestUtil;
 
 import org.junit.Assert;
@@ -49,13 +60,61 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 	}
 
 	@Override
+	protected BaseModel<?> addBaseModelWithDDMStructure(
+			BaseModel<?> parentBaseModel, String keywords,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		JournalFolder folder = (JournalFolder)parentBaseModel;
+
+		String xsd = DDMStructureTestUtil.getSampleStructureXSD("name");
+
+		_ddmStructure = DDMStructureTestUtil.addStructure(
+			serviceContext.getScopeGroupId(), JournalArticle.class.getName(),
+			xsd);
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			serviceContext.getScopeGroupId(), _ddmStructure.getStructureId());
+
+		String content = DDMStructureTestUtil.getSampleStructuredContent(
+			"name", getSearchKeywords());
+
+		return JournalTestUtil.addArticleWithXMLContent(
+			folder.getFolderId(), content, _ddmStructure.getStructureKey(),
+			ddmTemplate.getTemplateKey(), serviceContext);
+	}
+
+	@Override
 	protected BaseModel<?> addBaseModelWithWorkflow(
 			BaseModel<?> parentBaseModel, boolean approved, String keywords,
 			ServiceContext serviceContext)
 		throws Exception {
 
+		JournalFolder folder = (JournalFolder)parentBaseModel;
+
 		return JournalTestUtil.addArticleWithWorkflow(
-			serviceContext.getScopeGroupId(), keywords, keywords, approved);
+			folder.getFolderId(), keywords, approved, serviceContext);
+	}
+
+	@Override
+	protected void expireBaseModelVersions(
+			BaseModel<?> baseModel, boolean expireAllVersions,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		JournalArticle article = (JournalArticle)baseModel;
+
+		if (expireAllVersions) {
+			JournalArticleLocalServiceUtil.expireArticle(
+				article.getUserId(), article.getGroupId(),
+				article.getArticleId(), article.getUrlTitle(), serviceContext);
+		}
+		else {
+			JournalArticleLocalServiceUtil.expireArticle(
+				article.getUserId(), article.getGroupId(),
+				article.getArticleId(), article.getVersion(),
+				article.getUrlTitle(), serviceContext);
+		}
 	}
 
 	@Override
@@ -70,16 +129,55 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 	}
 
 	@Override
+	protected String getDDMStructureFieldName() {
+		return DDMIndexerUtil.encodeName(
+			_ddmStructure.getStructureId(), "name", LocaleUtil.getDefault());
+	}
+
+	@Override
 	protected BaseModel<?> getParentBaseModel(
 			Group group, ServiceContext serviceContext)
 		throws Exception {
 
-		return JournalTestUtil.addFolder(group.getGroupId(), "Test Folder");
+		return JournalTestUtil.addFolder(
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, "Test Folder",
+			serviceContext);
 	}
 
 	@Override
 	protected String getSearchKeywords() {
 		return "Title";
 	}
+
+	@Override
+	protected boolean isExpirableAllVersions() {
+		return PropsValues.JOURNAL_ARTICLE_EXPIRE_ALL_VERSIONS;
+	}
+
+	@Override
+	protected BaseModel<?> updateBaseModel(
+			BaseModel<?> baseModel, String keywords,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		JournalArticle article = (JournalArticle)baseModel;
+
+		return JournalTestUtil.updateArticle(
+			article, keywords, article.getContent(), serviceContext);
+	}
+
+	@Override
+	protected void updateDDMStructure(ServiceContext serviceContext)
+		throws Exception {
+
+		String xsd = DDMStructureTestUtil.getSampleStructureXSD("title");
+
+		DDMStructureLocalServiceUtil.updateStructure(
+			_ddmStructure.getStructureId(),
+			_ddmStructure.getParentStructureId(), _ddmStructure.getNameMap(),
+			_ddmStructure.getDescriptionMap(), xsd, serviceContext);
+	}
+
+	private DDMStructure _ddmStructure;
 
 }

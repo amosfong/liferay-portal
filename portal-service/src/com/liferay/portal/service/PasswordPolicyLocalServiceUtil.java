@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -255,7 +255,11 @@ public class PasswordPolicyLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated
+	* @deprecated As of 6.2.0, replaced by {@link #addPasswordPolicy(long,
+	boolean, String, String, boolean, boolean, long, boolean,
+	boolean, int, int, int, int, int, int, String, boolean, int,
+	boolean, long, long, int, boolean, int, long, long, long,
+	ServiceContext)}
 	*/
 	public static com.liferay.portal.model.PasswordPolicy addPasswordPolicy(
 		long userId, boolean defaultPolicy, java.lang.String name,
@@ -286,7 +290,8 @@ public class PasswordPolicyLocalServiceUtil {
 		java.lang.String regex, boolean history, int historyCount,
 		boolean expireable, long maxAge, long warningTime, int graceLimit,
 		boolean lockout, int maxFailure, long lockoutDuration,
-		long resetFailureCount, long resetTicketMaxAge)
+		long resetFailureCount, long resetTicketMaxAge,
+		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
@@ -295,13 +300,27 @@ public class PasswordPolicyLocalServiceUtil {
 			allowDictionaryWords, minAlphanumeric, minLength, minLowerCase,
 			minNumbers, minSymbols, minUpperCase, regex, history, historyCount,
 			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
-			lockoutDuration, resetFailureCount, resetTicketMaxAge);
+			lockoutDuration, resetFailureCount, resetTicketMaxAge,
+			serviceContext);
 	}
 
 	public static void checkDefaultPasswordPolicy(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().checkDefaultPasswordPolicy(companyId);
+	}
+
+	public static com.liferay.portal.model.PasswordPolicy fetchPasswordPolicy(
+		long companyId, java.lang.String name)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchPasswordPolicy(companyId, name);
+	}
+
+	public static com.liferay.portal.model.PasswordPolicy fetchPasswordPolicyByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchPasswordPolicyByUuidAndCompanyId(uuid, companyId);
 	}
 
 	public static com.liferay.portal.model.PasswordPolicy getDefaultPasswordPolicy(
@@ -312,7 +331,7 @@ public class PasswordPolicyLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated
+	* @deprecated As of 6.1.0
 	*/
 	public static com.liferay.portal.model.PasswordPolicy getPasswordPolicy(
 		long companyId, long organizationId, long locationId)
@@ -349,7 +368,11 @@ public class PasswordPolicyLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated
+	* @deprecated As of 6.2.0, replaced by {@link #updatePasswordPolicy(long,
+	String, String, boolean, boolean, long, boolean, boolean,
+	int, int, int, int, int, int, String, boolean, int, boolean,
+	long, long, int, boolean, int, long, long, long,
+	ServiceContext)}
 	*/
 	public static com.liferay.portal.model.PasswordPolicy updatePasswordPolicy(
 		long passwordPolicyId, java.lang.String name,
@@ -380,7 +403,8 @@ public class PasswordPolicyLocalServiceUtil {
 		java.lang.String regex, boolean history, int historyCount,
 		boolean expireable, long maxAge, long warningTime, int graceLimit,
 		boolean lockout, int maxFailure, long lockoutDuration,
-		long resetFailureCount, long resetTicketMaxAge)
+		long resetFailureCount, long resetTicketMaxAge,
+		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
@@ -389,7 +413,8 @@ public class PasswordPolicyLocalServiceUtil {
 			allowDictionaryWords, minAlphanumeric, minLength, minLowerCase,
 			minNumbers, minSymbols, minUpperCase, regex, history, historyCount,
 			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
-			lockoutDuration, resetFailureCount, resetTicketMaxAge);
+			lockoutDuration, resetFailureCount, resetTicketMaxAge,
+			serviceContext);
 	}
 
 	public static PasswordPolicyLocalService getService() {
@@ -404,7 +429,7 @@ public class PasswordPolicyLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(PasswordPolicyLocalService service) {
 	}

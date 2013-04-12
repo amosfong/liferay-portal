@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portlet.wiki.lar;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lar.BasePortletDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
@@ -27,9 +28,7 @@ import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
@@ -66,7 +65,10 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 	public static void exportNode(
 			PortletDataContext portletDataContext, Element nodesElement,
-			Element pagesElement, WikiNode node)
+			Element pagesElement, Element dlFileEntryTypesElement,
+			Element dlFoldersElement, Element dlFileEntriesElement,
+			Element dlFileRanksElement, Element dlRepositoriesElement,
+			Element dlRepositoryEntriesElement, WikiNode node)
 		throws Exception {
 
 		if (portletDataContext.isWithinDateRange(node.getModifiedDate())) {
@@ -79,17 +81,6 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 					nodeElement, path, node, NAMESPACE);
 			}
 		}
-
-		Element dlFileEntryTypesElement = pagesElement.addElement(
-			"dl-file-entry-types");
-		Element dlFoldersElement = pagesElement.addElement("dl-folders");
-		Element dlFileEntriesElement = pagesElement.addElement(
-			"dl-file-entries");
-		Element dlFileRanksElement = pagesElement.addElement("dl-file-ranks");
-		Element dlRepositoriesElement = pagesElement.addElement(
-			"dl-repositories");
-		Element dlRepositoryEntriesElement = pagesElement.addElement(
-			"dl-repository-entries");
 
 		List<WikiPage> pages = WikiPageUtil.findByN_S(
 			node.getNodeId(), WorkflowConstants.STATUS_APPROVED,
@@ -385,7 +376,11 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 						binPath, fileEntry.getContentStream());
 				}
 
-				page.setAttachmentsFolderId(page.getAttachmentsFolderId());
+				long folderId = page.getAttachmentsFolderId();
+
+				if (folderId != 0) {
+					page.setAttachmentsFolderId(folderId);
+				}
 			}
 
 			portletDataContext.addClassedModel(
@@ -420,7 +415,9 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(portletDataContext.getPortletPath(PortletKeys.WIKI));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.WIKI));
 		sb.append("/nodes/");
 		sb.append(node.getNodeId());
 		sb.append(".xml");
@@ -433,7 +430,9 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append(portletDataContext.getPortletPath(PortletKeys.WIKI));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.WIKI));
 		sb.append("/bin/");
 		sb.append(page.getPageId());
 		sb.append(StringPool.SLASH);
@@ -449,7 +448,9 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append(portletDataContext.getPortletPath(PortletKeys.WIKI));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.WIKI));
 		sb.append("/page/");
 		sb.append(page.getUuid());
 		sb.append(StringPool.SLASH);
@@ -464,7 +465,9 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(portletDataContext.getPortletPath(PortletKeys.WIKI));
+		sb.append(
+			ExportImportPathUtil.getPortletPath(
+				portletDataContext, PortletKeys.WIKI));
 		sb.append("/pages/");
 		sb.append(page.getPageId());
 		sb.append(".xml");
@@ -499,7 +502,7 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 		portletDataContext.addPermissions(
 			"com.liferay.portlet.wiki", portletDataContext.getScopeGroupId());
 
-		Element rootElement = addExportRootElement();
+		Element rootElement = addExportDataRootElement(portletDataContext);
 
 		rootElement.addAttribute(
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
@@ -507,14 +510,29 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 		Element nodesElement = rootElement.addElement("nodes");
 		Element pagesElement = rootElement.addElement("pages");
 
+		Element dlFileEntryTypesElement = pagesElement.addElement(
+			"dl-file-entry-types");
+		Element dlFoldersElement = pagesElement.addElement("dl-folders");
+		Element dlFileEntriesElement = pagesElement.addElement(
+			"dl-file-entries");
+		Element dlFileRanksElement = pagesElement.addElement("dl-file-ranks");
+		Element dlRepositoriesElement = pagesElement.addElement(
+			"dl-repositories");
+		Element dlRepositoryEntriesElement = pagesElement.addElement(
+			"dl-repository-entries");
+
 		List<WikiNode> nodes = WikiNodeUtil.findByGroupId(
 			portletDataContext.getScopeGroupId());
 
 		for (WikiNode node : nodes) {
-			exportNode(portletDataContext, nodesElement, pagesElement, node);
+			exportNode(
+				portletDataContext, nodesElement, pagesElement,
+				dlFileEntryTypesElement, dlFoldersElement, dlFileEntriesElement,
+				dlFileRanksElement, dlRepositoriesElement,
+				dlRepositoryEntriesElement, node);
 		}
 
-		return rootElement.formattedString();
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -527,9 +545,7 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 			"com.liferay.portlet.wiki", portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		Document document = SAXReaderUtil.read(data);
-
-		Element rootElement = document.getRootElement();
+		Element rootElement = portletDataContext.getImportDataRootElement();
 
 		Element nodesElement = rootElement.element("nodes");
 

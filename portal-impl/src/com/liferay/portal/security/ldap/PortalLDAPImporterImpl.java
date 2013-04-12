@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.ldap.LDAPUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -90,6 +91,7 @@ import javax.naming.ldap.LdapContext;
  * @author Wesley Gong
  * @author Hugo Huijser
  */
+@DoPrivileged
 public class PortalLDAPImporterImpl implements PortalLDAPImporter {
 
 	public void importFromLDAP() throws Exception {
@@ -1048,10 +1050,6 @@ public class PortalLDAPImporterImpl implements PortalLDAPImporter {
 	protected void populateExpandoAttributes(
 		ExpandoBridge expandoBridge, Map<String, String[]> expandoAttributes) {
 
-		if (expandoAttributes.isEmpty()) {
-			return;
-		}
-
 		Map<String, Serializable> serializedExpandoAttributes =
 			new HashMap<String, Serializable>();
 
@@ -1215,7 +1213,9 @@ public class PortalLDAPImporterImpl implements PortalLDAPImporter {
 
 		Calendar birthdayCal = CalendarFactoryUtil.getCalendar();
 
-		birthdayCal.setTime(user.getContact().getBirthday());
+		Contact ldapContact = ldapUser.getContact();
+
+		birthdayCal.setTime(ldapContact.getBirthday());
 
 		int birthdayMonth = birthdayCal.get(Calendar.MONTH);
 		int birthdayDay = birthdayCal.get(Calendar.DAY_OF_MONTH);
@@ -1243,7 +1243,7 @@ public class PortalLDAPImporterImpl implements PortalLDAPImporter {
 			}
 		}
 
-		updateLDAPUser(ldapUser.getUser(), ldapUser.getContact(), user);
+		updateLDAPUser(ldapUser.getUser(), ldapContact, user);
 
 		user = UserLocalServiceUtil.updateUser(
 			user.getUserId(), password, StringPool.BLANK, StringPool.BLANK,

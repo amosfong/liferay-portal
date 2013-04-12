@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -185,12 +185,12 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 	}
 
 	/**
-	* Returns the repository with the UUID in the group.
+	* Returns the repository matching the UUID and group.
 	*
-	* @param uuid the UUID of repository
-	* @param groupId the group id of the repository
-	* @return the repository
-	* @throws PortalException if a repository with the UUID in the group could not be found
+	* @param uuid the repository's UUID
+	* @param groupId the primary key of the group
+	* @return the matching repository
+	* @throws PortalException if a matching repository could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portal.model.Repository getRepositoryByUuidAndGroupId(
@@ -261,9 +261,10 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 		_repositoryLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
-	public long addRepository(long userId, long groupId, long classNameId,
-		long parentFolderId, java.lang.String name,
-		java.lang.String description, java.lang.String portletId,
+	public com.liferay.portal.model.Repository addRepository(long userId,
+		long groupId, long classNameId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String portletId,
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties,
 		boolean hidden, com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -274,12 +275,14 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 	}
 
 	/**
-	* @deprecated {@link #addRepository(long, long, long, long, String, String,
-	String, UnicodeProperties, boolean, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addRepository(long, long,
+	long, long, String, String, String, UnicodeProperties,
+	boolean, ServiceContext)}
 	*/
-	public long addRepository(long userId, long groupId, long classNameId,
-		long parentFolderId, java.lang.String name,
-		java.lang.String description, java.lang.String portletId,
+	public com.liferay.portal.model.Repository addRepository(long userId,
+		long groupId, long classNameId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String portletId,
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -327,6 +330,20 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 			fileEntryId, fileVersionId);
 	}
 
+	public com.liferay.portal.model.Repository getRepository(long groupId,
+		java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _repositoryLocalService.getRepository(groupId, portletId);
+	}
+
+	public com.liferay.portal.model.Repository getRepository(long groupId,
+		java.lang.String name, java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _repositoryLocalService.getRepository(groupId, name, portletId);
+	}
+
 	public com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -357,14 +374,14 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public RepositoryLocalService getWrappedRepositoryLocalService() {
 		return _repositoryLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedRepositoryLocalService(
 		RepositoryLocalService repositoryLocalService) {

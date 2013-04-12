@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -79,33 +79,48 @@ String keywords = ParamUtil.getString(request, "keywords");
 	>
 
 		<%
-		Indexer indexer = IndexerRegistryUtil.getIndexer(MBMessage.class);
-
-		SearchContext searchContext = SearchContextFactory.getInstance(request);
-
-		searchContext.setAttribute("paginationType", "more");
-		searchContext.setCategoryIds(categoryIdsArray);
-		searchContext.setEnd(searchContainer.getEnd());
-		searchContext.setIncludeAttachments(true);
-		searchContext.setKeywords(keywords);
-
-		QueryConfig queryConfig = new QueryConfig();
-
-		queryConfig.setHighlightEnabled(true);
-
-		searchContext.setQueryConfig(queryConfig);
-
-		searchContext.setStart(searchContainer.getStart());
-
-		Hits hits = indexer.search(searchContext);
-
-		PortletURL hitURL = renderResponse.createRenderURL();
+		Hits hits = null;
 		%>
 
-		<liferay-ui:search-container-results
-			results="<%= SearchResultUtil.getSearchResults(hits, locale, hitURL) %>"
-			total="<%= hits.getLength() %>"
-		/>
+		<liferay-ui:search-container-results>
+
+			<%
+			Indexer indexer = IndexerRegistryUtil.getIndexer(MBMessage.class);
+
+			SearchContext searchContext = SearchContextFactory.getInstance(request);
+
+			searchContext.setAttribute("paginationType", "more");
+			searchContext.setCategoryIds(categoryIdsArray);
+			searchContext.setEnd(searchContainer.getEnd());
+			searchContext.setIncludeAttachments(true);
+			searchContext.setKeywords(keywords);
+
+			QueryConfig queryConfig = new QueryConfig();
+
+			queryConfig.setHighlightEnabled(true);
+
+			searchContext.setQueryConfig(queryConfig);
+
+			searchContext.setStart(searchContainer.getStart());
+
+			hits = indexer.search(searchContext);
+
+			total = hits.getLength();
+
+			if (searchContainer.recalculateCur(total)) {
+				searchContext.setStart(searchContainer.getStart());
+				searchContext.setEnd(searchContainer.getEnd());
+
+				hits = indexer.search(searchContext);
+			}
+
+			PortletURL hitURL = renderResponse.createRenderURL();
+
+			pageContext.setAttribute("results", SearchResultUtil.getSearchResults(hits, locale, hitURL));
+			pageContext.setAttribute("total", total);
+			%>
+
+		</liferay-ui:search-container-results>
 
 		<liferay-ui:search-container-row
 			className="com.liferay.portal.kernel.search.SearchResult"
@@ -130,7 +145,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 				containerType='<%= LanguageUtil.get(locale, "category") %>'
 				cssClass='<%= MathUtil.isEven(index) ? "search alt" : "search" %>'
 				description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
-				fileEntries="<%= searchResult.getFileEntries() %>"
+				fileEntryTuples="<%= searchResult.getFileEntryTuples() %>"
 				queryTerms="<%= hits.getQueryTerms() %>"
 				title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : HtmlUtil.escape(message.getSubject()) %>"
 				url="<%= rowURL %>"

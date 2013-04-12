@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -45,6 +45,29 @@ public class LiferayFileVersion extends LiferayModel implements FileVersion {
 
 		_dlFileVersion = dlFileVersion;
 		_escapedModel = escapedModel;
+	}
+
+	@Override
+	public Object clone() {
+		LiferayFileVersion liferayFileVersion = new LiferayFileVersion(
+			_dlFileVersion, _escapedModel);
+
+		liferayFileVersion.setCompanyId(getCompanyId());
+		liferayFileVersion.setCreateDate(getCreateDate());
+		liferayFileVersion.setGroupId(getGroupId());
+		liferayFileVersion.setPrimaryKey(getPrimaryKey());
+		liferayFileVersion.setUserId(getUserId());
+		liferayFileVersion.setUserName(getUserName());
+
+		try {
+			liferayFileVersion.setUserUuid(getUserUuid());
+		}
+		catch (Exception e) {
+		}
+
+		liferayFileVersion.setUuid(getUuid());
+
+		return liferayFileVersion;
 	}
 
 	public Map<String, Serializable> getAttributes() {
@@ -273,6 +296,10 @@ public class LiferayFileVersion extends LiferayModel implements FileVersion {
 
 	public void setUserUuid(String userUuid) {
 		_dlFileVersion.setUserUuid(userUuid);
+	}
+
+	public void setUuid(String uuid) {
+		_dlFileVersion.setUuid(uuid);
 	}
 
 	public FileVersion toEscapedModel() {

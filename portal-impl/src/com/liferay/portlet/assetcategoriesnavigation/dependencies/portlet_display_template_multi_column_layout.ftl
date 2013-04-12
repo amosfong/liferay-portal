@@ -3,7 +3,7 @@
 <#if entries?has_content>
 	<@aui.layout>
 		<#list entries as entry>
-			<@aui.column columnWith="25">
+			<@aui.column columnWidth=25>
 				<div class="results-header">
 					<h3>
 						${entry.getName()}
@@ -18,7 +18,9 @@
 	</@aui.layout>
 </#if>
 
-<#macro displayCategories categories>
+<#macro displayCategories
+	categories
+>
 	<#if categories?has_content>
 		<ul class="categories">
 			<#list categories as category>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -188,12 +188,12 @@ public class DDLRecordSetLocalServiceWrapper implements DDLRecordSetLocalService
 	}
 
 	/**
-	* Returns the d d l record set with the UUID in the group.
+	* Returns the d d l record set matching the UUID and group.
 	*
-	* @param uuid the UUID of d d l record set
-	* @param groupId the group id of the d d l record set
-	* @return the d d l record set
-	* @throws PortalException if a d d l record set with the UUID in the group could not be found
+	* @param uuid the d d l record set's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d l record set
+	* @throws PortalException if a matching d d l record set could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	public com.liferay.portlet.dynamicdatalists.model.DDLRecordSet getDDLRecordSetByUuidAndGroupId(
@@ -421,14 +421,14 @@ public class DDLRecordSetLocalServiceWrapper implements DDLRecordSetLocalService
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public DDLRecordSetLocalService getWrappedDDLRecordSetLocalService() {
 		return _ddlRecordSetLocalService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedDDLRecordSetLocalService(
 		DDLRecordSetLocalService ddlRecordSetLocalService) {

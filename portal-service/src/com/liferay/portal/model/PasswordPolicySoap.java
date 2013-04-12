@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -31,6 +31,7 @@ public class PasswordPolicySoap implements Serializable {
 	public static PasswordPolicySoap toSoapModel(PasswordPolicy model) {
 		PasswordPolicySoap soapModel = new PasswordPolicySoap();
 
+		soapModel.setUuid(model.getUuid());
 		soapModel.setPasswordPolicyId(model.getPasswordPolicyId());
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
@@ -114,6 +115,14 @@ public class PasswordPolicySoap implements Serializable {
 
 	public void setPrimaryKey(long pk) {
 		setPasswordPolicyId(pk);
+	}
+
+	public String getUuid() {
+		return _uuid;
+	}
+
+	public void setUuid(String uuid) {
+		_uuid = uuid;
 	}
 
 	public long getPasswordPolicyId() {
@@ -416,6 +425,7 @@ public class PasswordPolicySoap implements Serializable {
 		_resetTicketMaxAge = resetTicketMaxAge;
 	}
 
+	private String _uuid;
 	private long _passwordPolicyId;
 	private long _companyId;
 	private long _userId;

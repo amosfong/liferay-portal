@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -58,19 +58,19 @@ if (assetEntryId > 0) {
 
 					LiferayPortletURL assetPublisherURL = new PortletURLImpl(request, PortletKeys.ASSET_PUBLISHER, plid, PortletRequest.RENDER_PHASE);
 
-					assetPublisherURL.setWindowState(WindowState.MAXIMIZED);
-
 					assetPublisherURL.setParameter("struts_action", "/asset_publisher/view_content");
 					assetPublisherURL.setParameter("assetEntryId", String.valueOf(assetLinkEntry.getEntryId()));
 					assetPublisherURL.setParameter("type", assetRendererFactory.getType());
 
 					if (Validator.isNotNull(assetRenderer.getUrlTitle())) {
-						if (assetRenderer.getGroupId() != scopeGroupId) {
+						if (assetRenderer.getGroupId() != themeDisplay.getSiteGroupId()) {
 							assetPublisherURL.setParameter("groupId", String.valueOf(assetRenderer.getGroupId()));
 						}
 
 						assetPublisherURL.setParameter("urlTitle", assetRenderer.getUrlTitle());
 					}
+
+					assetPublisherURL.setWindowState(WindowState.MAXIMIZED);
 
 					String viewFullContentURLString = assetPublisherURL.toString();
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,8 +18,9 @@ import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.GroupedModel;
-import com.liferay.portal.model.StagedModel;
+import com.liferay.portal.model.ContainerModel;
+import com.liferay.portal.model.StagedGroupedModel;
+import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -42,7 +43,7 @@ import java.util.Date;
  * @generated
  */
 public interface JournalFolderModel extends BaseModel<JournalFolder>,
-	GroupedModel, StagedModel {
+	ContainerModel, StagedGroupedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -236,6 +237,181 @@ public interface JournalFolderModel extends BaseModel<JournalFolder>,
 	 */
 	public void setDescription(String description);
 
+	/**
+	 * Returns the status of this journal folder.
+	 *
+	 * @return the status of this journal folder
+	 */
+	public int getStatus();
+
+	/**
+	 * Sets the status of this journal folder.
+	 *
+	 * @param status the status of this journal folder
+	 */
+	public void setStatus(int status);
+
+	/**
+	 * Returns the status by user ID of this journal folder.
+	 *
+	 * @return the status by user ID of this journal folder
+	 */
+	public long getStatusByUserId();
+
+	/**
+	 * Sets the status by user ID of this journal folder.
+	 *
+	 * @param statusByUserId the status by user ID of this journal folder
+	 */
+	public void setStatusByUserId(long statusByUserId);
+
+	/**
+	 * Returns the status by user uuid of this journal folder.
+	 *
+	 * @return the status by user uuid of this journal folder
+	 * @throws SystemException if a system exception occurred
+	 */
+	public String getStatusByUserUuid() throws SystemException;
+
+	/**
+	 * Sets the status by user uuid of this journal folder.
+	 *
+	 * @param statusByUserUuid the status by user uuid of this journal folder
+	 */
+	public void setStatusByUserUuid(String statusByUserUuid);
+
+	/**
+	 * Returns the status by user name of this journal folder.
+	 *
+	 * @return the status by user name of this journal folder
+	 */
+	@AutoEscape
+	public String getStatusByUserName();
+
+	/**
+	 * Sets the status by user name of this journal folder.
+	 *
+	 * @param statusByUserName the status by user name of this journal folder
+	 */
+	public void setStatusByUserName(String statusByUserName);
+
+	/**
+	 * Returns the status date of this journal folder.
+	 *
+	 * @return the status date of this journal folder
+	 */
+	public Date getStatusDate();
+
+	/**
+	 * Sets the status date of this journal folder.
+	 *
+	 * @param statusDate the status date of this journal folder
+	 */
+	public void setStatusDate(Date statusDate);
+
+	/**
+	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
+	 */
+	public boolean getApproved();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is approved.
+	 *
+	 * @return <code>true</code> if this journal folder is approved; <code>false</code> otherwise
+	 */
+	public boolean isApproved();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is denied.
+	 *
+	 * @return <code>true</code> if this journal folder is denied; <code>false</code> otherwise
+	 */
+	public boolean isDenied();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is a draft.
+	 *
+	 * @return <code>true</code> if this journal folder is a draft; <code>false</code> otherwise
+	 */
+	public boolean isDraft();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is expired.
+	 *
+	 * @return <code>true</code> if this journal folder is expired; <code>false</code> otherwise
+	 */
+	public boolean isExpired();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is inactive.
+	 *
+	 * @return <code>true</code> if this journal folder is inactive; <code>false</code> otherwise
+	 */
+	public boolean isInactive();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is incomplete.
+	 *
+	 * @return <code>true</code> if this journal folder is incomplete; <code>false</code> otherwise
+	 */
+	public boolean isIncomplete();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is in the Recycle Bin.
+	 *
+	 * @return <code>true</code> if this journal folder is in the Recycle Bin; <code>false</code> otherwise
+	 */
+	public boolean isInTrash();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is pending.
+	 *
+	 * @return <code>true</code> if this journal folder is pending; <code>false</code> otherwise
+	 */
+	public boolean isPending();
+
+	/**
+	 * Returns <code>true</code> if this journal folder is scheduled.
+	 *
+	 * @return <code>true</code> if this journal folder is scheduled; <code>false</code> otherwise
+	 */
+	public boolean isScheduled();
+
+	/**
+	 * Returns the container model ID of this journal folder.
+	 *
+	 * @return the container model ID of this journal folder
+	 */
+	public long getContainerModelId();
+
+	/**
+	 * Sets the container model ID of this journal folder.
+	 *
+	 * @param container model ID of this journal folder
+	 */
+	public void setContainerModelId(long containerModelId);
+
+	/**
+	 * Returns the container name of this journal folder.
+	 *
+	 * @return the container name of this journal folder
+	 */
+	public String getContainerModelName();
+
+	/**
+	 * Returns the parent container model ID of this journal folder.
+	 *
+	 * @return the parent container model ID of this journal folder
+	 */
+	public long getParentContainerModelId();
+
+	/**
+	 * Sets the parent container model ID of this journal folder.
+	 *
+	 * @param parent container model ID of this journal folder
+	 */
+	public void setParentContainerModelId(long parentContainerModelId);
+
 	public boolean isNew();
 
 	public void setNew(boolean n);
@@ -251,6 +427,10 @@ public interface JournalFolderModel extends BaseModel<JournalFolder>,
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

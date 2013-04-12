@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -224,7 +224,7 @@ public class MBMailingListLocalServiceImpl
 		mailingListRequest.setAllowAnonymous(mailingList.getAllowAnonymous());
 
 		SchedulerEngineHelperUtil.schedule(
-			trigger, StorageType.MEMORY_CLUSTERED, null,
+			trigger, StorageType.PERSISTED, null,
 			DestinationNames.MESSAGE_BOARDS_MAILING_LIST, mailingListRequest,
 			0);
 	}
@@ -234,8 +234,7 @@ public class MBMailingListLocalServiceImpl
 
 		String groupName = getSchedulerGroupName(mailingList);
 
-		SchedulerEngineHelperUtil.unschedule(
-			groupName, StorageType.MEMORY_CLUSTERED);
+		SchedulerEngineHelperUtil.unschedule(groupName, StorageType.PERSISTED);
 	}
 
 	protected void validate(

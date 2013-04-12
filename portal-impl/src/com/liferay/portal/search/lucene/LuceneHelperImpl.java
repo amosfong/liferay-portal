@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.cluster.ClusterEvent;
 import com.liferay.portal.kernel.cluster.ClusterEventListener;
 import com.liferay.portal.kernel.cluster.ClusterEventType;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
-import com.liferay.portal.kernel.cluster.ClusterLinkUtil;
+import com.liferay.portal.kernel.cluster.ClusterLink;
 import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
@@ -207,8 +207,6 @@ public class LuceneHelperImpl implements LuceneHelper {
 		try {
 			QueryParser queryParser = new QueryParser(
 				getVersion(), field, analyzer);
-
-			queryParser.setAllowLeadingWildcard(true);
 
 			Query query = null;
 
@@ -675,7 +673,7 @@ public class LuceneHelperImpl implements LuceneHelper {
 				if (isLoadIndexFromClusterEnabled()) {
 					boolean clusterForwardMessage = GetterUtil.getBoolean(
 						MessageValuesThreadLocal.getValue(
-							ClusterLinkUtil.CLUSTER_FORWARD_MESSAGE));
+							ClusterLink.CLUSTER_FORWARD_MESSAGE));
 
 					if (clusterForwardMessage) {
 						if (_log.isInfoEnabled()) {

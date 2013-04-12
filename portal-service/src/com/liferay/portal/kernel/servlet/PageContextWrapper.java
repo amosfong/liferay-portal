@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -93,7 +93,7 @@ public class PageContextWrapper extends PageContext {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	@Override
 	public javax.servlet.jsp.el.ExpressionEvaluator getExpressionEvaluator() {
@@ -136,7 +136,7 @@ public class PageContextWrapper extends PageContext {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.1.0
 	 */
 	@Override
 	public javax.servlet.jsp.el.VariableResolver getVariableResolver() {
@@ -177,14 +177,14 @@ public class PageContextWrapper extends PageContext {
 
 	@Override
 	public void initialize(
-			Servlet servlet, ServletRequest request, ServletResponse response,
-			String errorPageURL, boolean needsSession, int bufferSize,
-			boolean autoFlush)
+			Servlet servlet, ServletRequest servletRequest,
+			ServletResponse servletResponse, String errorPageURL,
+			boolean needsSession, int bufferSize, boolean autoFlush)
 		throws IllegalArgumentException, IllegalStateException, IOException {
 
 		_pageContext.initialize(
-			servlet, request, response, errorPageURL, needsSession, bufferSize,
-			autoFlush);
+			servlet, servletRequest, servletResponse, errorPageURL,
+			needsSession, bufferSize, autoFlush);
 	}
 
 	@Override

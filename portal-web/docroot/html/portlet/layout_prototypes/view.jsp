@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -60,11 +60,23 @@ portletURL.setParameter("struts_action", "/layout_prototypes/view");
 			</liferay-portlet:renderURL>
 
 			<liferay-ui:search-container-column-text
-				href="<%= rowURL %>"
 				name="name"
 				orderable="<%= true %>"
-				value="<%= layoutPrototype.getName(locale) %>"
-			/>
+			>
+
+				<aui:a href="<%= rowURL.toString() %>"><%= layoutPrototype.getName(locale) %></aui:a>
+
+				<%
+				int mergeFailCount = SitesUtil.getMergeFailCount(layoutPrototype);
+				%>
+
+				<c:if test="<%= mergeFailCount > PropsValues.LAYOUT_PROTOTYPE_MERGE_FAIL_THRESHOLD %>">
+					<liferay-ui:icon
+						image="../messages/alert"
+						message='<%= LanguageUtil.format(pageContext, "the-propagation-of-changes-from-the-x-has-been-disabled-temporarily-after-x-errors", new Object[] {mergeFailCount, "page-template"}) %>'
+					/>
+				</c:if>
+			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-text
 				href="<%= rowURL %>"

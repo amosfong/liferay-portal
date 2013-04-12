@@ -1,17 +1,61 @@
-<#assign contact = dataFactory.addContact("", "")>
-<#assign user = dataFactory.addUser(true, "")>
+<#-- Default user -->
 
-${sampleSQLBuilder.insertUser(contact, null, null, null, user)}
+<@insertUser
+	_user = dataFactory.defaultUser
+/>
 
-<#assign contact = dataFactory.addContact("Test", "Test")>
-<#assign user = dataFactory.addUser(false, "test")>
+<#-- Guest user -->
 
-<#assign userGroup = dataFactory.addGroup(counter.get(), dataFactory.userClassNameId, user.userId, stringUtil.valueOf(user.userId), "/" + user.screenName, false)>
+<#assign user = dataFactory.guestUser>
 
-${sampleSQLBuilder.insertGroup(userGroup, [], [])}
+<@insertGroup
+	_group = dataFactory.newGroup(user)
+	_publicPageCount = 0
+/>
 
 <#assign groupIds = [dataFactory.guestGroup.groupId]>
-<#assign organizationIds = []>
 <#assign roleIds = [dataFactory.administratorRole.roleId]>
 
-${sampleSQLBuilder.insertUser(contact, groupIds, organizationIds, roleIds, user)}
+<@insertUser
+	_groupIds = groupIds
+	_roleIds = roleIds
+	_user = user
+/>
+
+<#-- Sample user -->
+
+<#assign user = dataFactory.sampleUser>
+
+<#assign sampleUserId = user.userId>
+
+<#assign userGroup = dataFactory.newGroup(user)>
+
+<#assign layout = dataFactory.newLayout(userGroup.groupId, "home", "", "33,")>
+
+<@insertLayout
+	_layout = layout
+/>
+
+<@insertGroup
+	_group = userGroup
+	_publicPageCount = 1
+/>
+
+<#assign groupIds = 1..maxGroupCount>
+<#assign roleIds = [dataFactory.administratorRole.roleId, dataFactory.powerUserRole.roleId, dataFactory.userRole.roleId]>
+
+<@insertUser
+	_groupIds = groupIds
+	_roleIds = roleIds
+	_user = user
+/>
+
+<#list groupIds as groupId>
+	<#assign blogsStatsUser = dataFactory.newBlogsStatsUser(groupId)>
+
+	insert into BlogsStatsUser values (${blogsStatsUser.statsUserId}, ${blogsStatsUser.groupId}, ${blogsStatsUser.companyId}, ${blogsStatsUser.userId}, ${blogsStatsUser.entryCount}, '${dataFactory.getDateString(blogsStatsUser.lastPostDate)}', ${blogsStatsUser.ratingsTotalEntries}, ${blogsStatsUser.ratingsTotalScore}, ${blogsStatsUser.ratingsAverageScore});
+
+	<#assign mbStatsUser = dataFactory.newMBStatsUser(groupId)>
+
+	insert into MBStatsUser values (${mbStatsUser.statsUserId}, ${mbStatsUser.groupId}, ${mbStatsUser.userId}, ${mbStatsUser.messageCount}, '${dataFactory.getDateString(mbStatsUser.lastPostDate)}');
+</#list>

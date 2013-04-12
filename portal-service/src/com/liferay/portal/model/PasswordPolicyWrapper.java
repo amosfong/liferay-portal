@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -44,6 +44,7 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("passwordPolicyId", getPasswordPolicyId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
@@ -82,6 +83,12 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	}
 
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long passwordPolicyId = (Long)attributes.get("passwordPolicyId");
 
 		if (passwordPolicyId != null) {
@@ -298,6 +305,24 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	*/
 	public void setPrimaryKey(long primaryKey) {
 		_passwordPolicy.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	* Returns the uuid of this password policy.
+	*
+	* @return the uuid of this password policy
+	*/
+	public java.lang.String getUuid() {
+		return _passwordPolicy.getUuid();
+	}
+
+	/**
+	* Sets the uuid of this password policy.
+	*
+	* @param uuid the uuid of this password policy
+	*/
+	public void setUuid(java.lang.String uuid) {
+		_passwordPolicy.setUuid(uuid);
 	}
 
 	/**
@@ -1028,6 +1053,16 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_passwordPolicy.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_passwordPolicy.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_passwordPolicy.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -1073,7 +1108,7 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public PasswordPolicy getWrappedPasswordPolicy() {
 		return _passwordPolicy;

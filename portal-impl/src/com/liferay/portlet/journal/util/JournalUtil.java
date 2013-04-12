@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.templateparser.Transformer;
+import com.liferay.portal.kernel.template.TemplateContextType;
 import com.liferay.portal.kernel.templateparser.TransformerListener;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
@@ -57,6 +57,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.templateparser.Transformer;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -255,7 +256,7 @@ public class JournalUtil {
 		JournalFolder folder = article.getFolder();
 
 		if (folder.getFolderId() !=
-			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
 			addPortletBreadcrumbEntries(folder, request, renderResponse);
 		}
@@ -287,9 +288,8 @@ public class JournalUtil {
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
 		if (strutsAction.equals("/journal/select_folder")) {
-			portletURL.setWindowState(LiferayWindowState.POP_UP);
-
 			portletURL.setParameter("struts_action", "/journal/select_folder");
+			portletURL.setWindowState(LiferayWindowState.POP_UP);
 
 			PortalUtil.addPortletBreadcrumbEntry(
 				request, themeDisplay.translate("home"), portletURL.toString());
@@ -331,7 +331,7 @@ public class JournalUtil {
 				"folderId", String.valueOf(folder.getFolderId()));
 
 			if (folder.getFolderId() !=
-				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+					JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
 				JournalFolder unescapedFolder = folder.toUnescapedModel();
 
@@ -980,20 +980,22 @@ public class JournalUtil {
 	}
 
 	public static String getTemplateScript(
-			long groupId, String templateId, Map<String, String> tokens,
+			long groupId, String ddmTemplateKey, Map<String, String> tokens,
 			String languageId)
 		throws PortalException, SystemException {
 
-		return getTemplateScript(groupId, templateId, tokens, languageId, true);
+		return getTemplateScript(
+			groupId, ddmTemplateKey, tokens, languageId, true);
 	}
 
 	public static String getTemplateScript(
-			long groupId, String templateId, Map<String, String> tokens,
+			long groupId, String ddmTemplateKey, Map<String, String> tokens,
 			String languageId, boolean transform)
 		throws PortalException, SystemException {
 
 		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
-			groupId, PortalUtil.getClassNameId(DDMStructure.class), templateId);
+			groupId, PortalUtil.getClassNameId(DDMStructure.class),
+			ddmTemplateKey);
 
 		return getTemplateScript(ddmTemplate, tokens, languageId, transform);
 	}
@@ -1194,7 +1196,7 @@ public class JournalUtil {
 	}
 
 	public static void removeRecentDDMStructure(
-		PortletRequest portletRequest, String structureId) {
+		PortletRequest portletRequest, String ddmStructureKey) {
 
 		Stack<DDMStructure> stack = getRecentDDMStructures(portletRequest);
 
@@ -1203,7 +1205,7 @@ public class JournalUtil {
 		while (itr.hasNext()) {
 			DDMStructure ddmStructure = itr.next();
 
-			if (structureId.equals(ddmStructure.getStructureKey())) {
+			if (ddmStructureKey.equals(ddmStructure.getStructureKey())) {
 				itr.remove();
 
 				break;
@@ -1212,7 +1214,7 @@ public class JournalUtil {
 	}
 
 	public static void removeRecentDDMTemplate(
-		PortletRequest portletRequest, String templateId) {
+		PortletRequest portletRequest, String ddmTemplateKey) {
 
 		Stack<DDMTemplate> stack = getRecentDDMTemplates(portletRequest);
 
@@ -1221,7 +1223,7 @@ public class JournalUtil {
 		while (itr.hasNext()) {
 			DDMTemplate ddmTemplate = itr.next();
 
-			if (templateId.equals(ddmTemplate.getTemplateKey())) {
+			if (ddmTemplateKey.equals(ddmTemplate.getTemplateKey())) {
 				itr.remove();
 
 				break;
@@ -1708,6 +1710,8 @@ public class JournalUtil {
 	private static Log _log = LogFactoryUtil.getLog(JournalUtil.class);
 
 	private static Map<String, String> _customTokens;
-	private static Transformer _transformer = new JournalTransformer();
+	private static Transformer _transformer = new Transformer(
+		PropsKeys.JOURNAL_TRANSFORMER_LISTENER,
+		PropsKeys.JOURNAL_ERROR_TEMPLATE, TemplateContextType.RESTRICTED);
 
 }

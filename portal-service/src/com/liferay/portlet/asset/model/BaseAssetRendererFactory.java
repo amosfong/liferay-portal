@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,13 +18,20 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.util.DDMIndexerUtil;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -68,10 +75,17 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		return PortalUtil.getClassNameId(_className);
 	}
 
+	public Map<String, Map<String, String>> getClassTypeFieldNames(
+			long classTypeId, Locale locale)
+		throws Exception {
+
+		return Collections.emptyMap();
+	}
+
 	public Map<Long, String> getClassTypes(long[] groupId, Locale locale)
 		throws Exception {
 
-		return null;
+		return Collections.emptyMap();
 	}
 
 	public String getIconPath(PortletRequest portletRequest) {
@@ -96,6 +110,15 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		throws PortalException, SystemException {
 
 		return null;
+	}
+
+	public boolean hasClassTypeFieldNames(long classTypeId, Locale locale)
+		throws Exception {
+
+		Map<String, Map<String, String>> classTypeFieldNames =
+			getClassTypeFieldNames(classTypeId, locale);
+
+		return !classTypeFieldNames.isEmpty();
 	}
 
 	public boolean hasPermission(
@@ -129,6 +152,36 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		throws PortalException, SystemException {
 
 		return PortalUtil.getControlPanelPlid(themeDisplay.getCompanyId());
+	}
+
+	protected Map<String, Map<String, String>> getDDMStructureFieldNames(
+			DDMStructure ddmStructure, Locale locale)
+		throws Exception {
+
+		Map<String, Map<String, String>> ddmStructureFieldNames =
+			new HashMap<String, Map<String, String>>();
+
+		Map<String, Map<String, String>> fieldsMap = ddmStructure.getFieldsMap(
+			LocaleUtil.toLanguageId(locale));
+
+		for (Map<String, String> fieldMap : fieldsMap.values()) {
+			String indexType = fieldMap.get("indexType");
+			boolean privateField = GetterUtil.getBoolean(
+				fieldMap.get("private"));
+
+			if (Validator.isNull(indexType) || privateField) {
+				continue;
+			}
+
+			String name = fieldMap.get("name");
+
+			String encodeFieldName = DDMIndexerUtil.encodeName(
+				ddmStructure.getStructureId(), name, locale);
+
+			ddmStructureFieldNames.put(encodeFieldName, fieldMap);
+		}
+
+		return ddmStructureFieldNames;
 	}
 
 	protected String getIconPath(ThemeDisplay themeDisplay) {

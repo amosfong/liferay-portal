@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.io;
 
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
+import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
@@ -31,9 +32,11 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.testng.Assert;
@@ -42,6 +45,18 @@ import org.testng.Assert;
  * @author Shuyang Zhou
  */
 public class DeserializerTest {
+
+	@ClassRule
+	public static CodeCoverageAssertor codeCoverageAssertor =
+		new CodeCoverageAssertor() {
+
+			@Override
+			public void appendAssertClasses(List<Class<?>> assertClasses) {
+				assertClasses.add(AnnotatedObjectInputStream.class);
+				assertClasses.add(AnnotatedObjectOutputStream.class);
+			}
+
+		};
 
 	@Before
 	public void setUp() {

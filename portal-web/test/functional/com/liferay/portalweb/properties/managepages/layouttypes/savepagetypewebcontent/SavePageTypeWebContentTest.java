@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -52,6 +52,7 @@ public class SavePageTypeWebContentTest extends BaseTestCase {
 				String articleID = selenium.getText(
 						"//tr[contains(.,'WC WebContent Title')]/td[2]");
 				RuntimeVariables.setValue("articleID", articleID);
+				selenium.waitForVisible("//button[@title='Icon View']");
 				selenium.clickAt("//button[@title='Icon View']",
 					RuntimeVariables.replace("Icon View"));
 				selenium.waitForVisible("//div[@class='entry-thumbnail']/img");
@@ -125,7 +126,8 @@ public class SavePageTypeWebContentTest extends BaseTestCase {
 					RuntimeVariables.replace("Manage Pages Test Page"));
 				selenium.waitForPageToLoad("30000");
 				assertEquals(RuntimeVariables.replace("WC WebContent Content"),
-					selenium.getText("//p"));
+					selenium.getText(
+						"//tr[contains(.,'WC WebContent Content')]/td[1]"));
 
 			case 100:
 				label = -1;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,8 @@ package com.liferay.portlet;
 import com.liferay.portal.ccpp.PortalProfileFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
+import com.liferay.portal.kernel.portlet.LiferayPortletContext;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletSession;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -39,6 +41,7 @@ import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.PublicRenderParameter;
 import com.liferay.portal.model.User;
+import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.servlet.NamespaceServletRequest;
 import com.liferay.portal.servlet.SharedSessionServletRequest;
@@ -48,6 +51,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.portletconfiguration.util.PublicRenderParameterConfiguration;
 
 import java.security.Principal;
+import java.security.PrivilegedAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,6 +84,7 @@ import javax.servlet.http.HttpSession;
  * @author Brian Wing Shun Chan
  * @author Brian Myunghun Kim
  * @author Sergey Ponomarev
+ * @author Raymond Augé
  */
 public abstract class PortletRequestImpl implements LiferayPortletRequest {
 
@@ -115,9 +120,10 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	public void defineObjects(
 		PortletConfig portletConfig, PortletResponse portletResponse) {
 
-		PortletConfigImpl portletConfigImpl = (PortletConfigImpl)portletConfig;
+		LiferayPortletConfig liferayPortletConfig =
+			(LiferayPortletConfig)portletConfig;
 
-		setAttribute(WebKeys.PORTLET_ID, portletConfigImpl.getPortletId());
+		setAttribute(WebKeys.PORTLET_ID, liferayPortletConfig.getPortletId());
 		setAttribute(JavaConstants.JAVAX_PORTLET_CONFIG, portletConfig);
 		setAttribute(JavaConstants.JAVAX_PORTLET_REQUEST, this);
 		setAttribute(JavaConstants.JAVAX_PORTLET_RESPONSE, portletResponse);
@@ -172,10 +178,11 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	}
 
 	public String getContextPath() {
-		PortletContextImpl portletContextImpl =
-			(PortletContextImpl)_portletContext;
+		LiferayPortletContext liferayPortletContext =
+			(LiferayPortletContext)_portletContext;
 
-		ServletContext servletContext = portletContextImpl.getServletContext();
+		ServletContext servletContext =
+			liferayPortletContext.getServletContext();
 
 		String servletContextName = servletContext.getServletContextName();
 
@@ -323,8 +330,7 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	}
 
 	public PortletPreferences getPreferences() {
-		return new PortletPreferencesWrapper(
-			getPreferencesImpl(), getLifecycle());
+		return DoPrivilegedUtil.wrap(new PortletPreferencesPrivilegedAction());
 	}
 
 	public PortletPreferencesImpl getPreferencesImpl() {
@@ -869,5 +875,15 @@ public abstract class PortletRequestImpl implements LiferayPortletRequest {
 	private Principal _userPrincipal;
 	private boolean _wapTheme;
 	private WindowState _windowState;
+
+	private class PortletPreferencesPrivilegedAction
+		implements PrivilegedAction<PortletPreferences> {
+
+		public PortletPreferences run() {
+			return new PortletPreferencesWrapper(
+				getPreferencesImpl(), getLifecycle());
+		}
+
+	}
 
 }

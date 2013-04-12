@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,6 +40,30 @@ public class LiferayFolder extends LiferayModel implements Folder {
 	public LiferayFolder(DLFolder dlFolder, boolean escapedModel) {
 		_dlFolder = dlFolder;
 		_escapedModel = escapedModel;
+	}
+
+	@Override
+	public Object clone() {
+		LiferayFolder liferayFolder = new LiferayFolder(
+			_dlFolder, _escapedModel);
+
+		liferayFolder.setCompanyId(getCompanyId());
+		liferayFolder.setCreateDate(getCreateDate());
+		liferayFolder.setGroupId(getGroupId());
+		liferayFolder.setModifiedDate(getModifiedDate());
+		liferayFolder.setPrimaryKey(getPrimaryKey());
+		liferayFolder.setUserId(getUserId());
+		liferayFolder.setUserName(getUserName());
+
+		try {
+			liferayFolder.setUserUuid(getUserUuid());
+		}
+		catch (SystemException se) {
+		}
+
+		liferayFolder.setUuid(getUuid());
+
+		return liferayFolder;
 	}
 
 	public boolean containsPermission(
@@ -282,6 +306,10 @@ public class LiferayFolder extends LiferayModel implements Folder {
 
 	public void setUserUuid(String userUuid) {
 		_dlFolder.setUserUuid(userUuid);
+	}
+
+	public void setUuid(String uuid) {
+		_dlFolder.setUuid(uuid);
 	}
 
 	public Folder toEscapedModel() {

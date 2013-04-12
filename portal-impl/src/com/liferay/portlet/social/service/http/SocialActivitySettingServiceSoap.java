@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -64,6 +64,21 @@ import java.rmi.RemoteException;
  * @generated
  */
 public class SocialActivitySettingServiceSoap {
+	public static com.liferay.portlet.social.model.SocialActivitySettingSoap[] getActivitySettings(
+		long groupId) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.social.model.SocialActivitySetting> returnValue =
+				SocialActivitySettingServiceUtil.getActivitySettings(groupId);
+
+			return com.liferay.portlet.social.model.SocialActivitySettingSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static java.lang.String getJSONActivityDefinitions(long groupId,
 		java.lang.String className) throws RemoteException {
 		try {

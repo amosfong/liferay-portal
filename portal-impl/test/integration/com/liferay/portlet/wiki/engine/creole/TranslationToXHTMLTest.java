@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -99,6 +99,12 @@ public class TranslationToXHTMLTest {
 	@Test
 	public void testParseCorrectlyNoClosedThirdHeadingBlock() {
 		Assert.assertEquals("<h3>Level 3</h3>", translate("heading-7.creole"));
+	}
+
+	@Test
+	public void testParseCorrectlyNoWikiBlockInline() {
+		Assert.assertEquals(
+			"<p><pre> Inline </pre></p>", translate("nowikiblock-10.creole"));
 	}
 
 	@Test
@@ -467,6 +473,21 @@ public class TranslationToXHTMLTest {
 						"<td>C9</td><td>C10</td><td>C11</td><td>C12</td>" +
 							"</tr></table>",
 			translate("table-2.creole"));
+	}
+
+	@Test
+	public void testParseTableOfContents() {
+		Assert.assertEquals(
+			"<h2> Level 1  </h2><h2> Level 2 </h2>",
+			translate("tableofcontents-1.creole"));
+	}
+
+	@Test
+	public void testParseTableOfContentsWithTitle() {
+		Assert.assertEquals(
+			"<h2> Level 1 (largest) </h2><p><strong>L1 text</strong> </p>" +
+				"<h2> Level 2 </h2><h3> Level 3 </h3>",
+			translate("tableofcontents-2.creole"));
 	}
 
 	@Test

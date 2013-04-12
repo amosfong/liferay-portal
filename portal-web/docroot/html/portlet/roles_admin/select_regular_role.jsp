@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,21 +17,23 @@
 <%@ include file="/html/portlet/roles_admin/init.jsp" %>
 
 <%
-String callback = ParamUtil.getString(request, "callback", "selectRole");
+String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
+String eventName = ParamUtil.getString(request, "eventName", "selectRegularRole");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/roles_admin/select_regular_role");
-portletURL.setParameter("callback", callback);
 
 if (selUser != null) {
 	portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
 }
+
+portletURL.setParameter("eventName", eventName);
 %>
 
-<aui:form action="<%= portletURL.toString() %>" method="post" name="fm">
+<aui:form action="<%= portletURL.toString() %>" method="post" name="selectRegularRoleFm">
 	<liferay-ui:header
 		title="roles"
 	/>
@@ -78,30 +80,25 @@ if (selUser != null) {
 			<liferay-util:param name="className" value="<%= RolesAdminUtil.getCssClassName(role) %>" />
 			<liferay-util:param name="classHoverName" value="<%= RolesAdminUtil.getCssClassName(role) %>" />
 
-			<%
-			String rowHREF = null;
-
-			if (MembershipPolicyUtil.isMembershipAllowed(role, selUser)) {
-				StringBundler sb = new StringBundler(8);
-
-				sb.append("javascript:opener.");
-				sb.append(renderResponse.getNamespace());
-				sb.append(callback);
-				sb.append("('");
-				sb.append(role.getRoleId());
-				sb.append("', '");
-				sb.append(UnicodeFormatter.toString(role.getTitle(locale)));
-				sb.append("', 'roles'); window.close();");
-
-				rowHREF = sb.toString();
-			}
-			%>
-
 			<liferay-ui:search-container-column-text
-				href="<%= rowHREF %>"
 				name="title"
 				value="<%= HtmlUtil.escape(role.getTitle(locale)) %>"
 			/>
+
+			<liferay-ui:search-container-column-text>
+				<c:if test="<%= Validator.isNull(p_u_i_d)|| RoleMembershipPolicyUtil.isRoleAllowed((selUser != null) ? selUser.getUserId() : 0, role.getRoleId()) %>">
+
+					<%
+					Map<String, Object> data = new HashMap<String, Object>();
+
+					data.put("roleid", role.getRoleId());
+					data.put("roletitle", HtmlUtil.escapeAttribute(role.getTitle(locale)));
+					data.put("searchcontainername", "roles");
+					%>
+
+					<aui:button cssClass="selector-button" data="<%= data %>" value="choose" />
+				</c:if>
+			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
 		<liferay-ui:search-iterator />
@@ -109,5 +106,21 @@ if (selUser != null) {
 </aui:form>
 
 <aui:script>
-	Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
+	Liferay.Util.focusFormField(document.<portlet:namespace />selectRegularRoleFm.<portlet:namespace />name);
+</aui:script>
+
+<aui:script use="aui-base">
+	var Util = Liferay.Util;
+
+	A.one('#<portlet:namespace />selectRegularRoleFm').delegate(
+		'click',
+		function(event) {
+			var result = Util.getAttributes(event.currentTarget, 'data-');
+
+			Util.getOpener().Liferay.fire('<portlet:namespace /><%= eventName %>', result);
+
+			Util.getWindow().close();
+		},
+		'.selector-button input'
+	);
 </aui:script>

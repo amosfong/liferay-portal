@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,13 +16,19 @@ package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchOrganizationException;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.impl.OrganizationModelImpl;
@@ -108,7 +114,17 @@ public class OrganizationPersistenceTest {
 
 		Organization newOrganization = _persistence.create(pk);
 
+		newOrganization.setUuid(ServiceTestUtil.randomString());
+
 		newOrganization.setCompanyId(ServiceTestUtil.nextLong());
+
+		newOrganization.setUserId(ServiceTestUtil.nextLong());
+
+		newOrganization.setUserName(ServiceTestUtil.randomString());
+
+		newOrganization.setCreateDate(ServiceTestUtil.nextDate());
+
+		newOrganization.setModifiedDate(ServiceTestUtil.nextDate());
 
 		newOrganization.setParentOrganizationId(ServiceTestUtil.nextLong());
 
@@ -132,10 +148,22 @@ public class OrganizationPersistenceTest {
 
 		Organization existingOrganization = _persistence.findByPrimaryKey(newOrganization.getPrimaryKey());
 
+		Assert.assertEquals(existingOrganization.getUuid(),
+			newOrganization.getUuid());
 		Assert.assertEquals(existingOrganization.getOrganizationId(),
 			newOrganization.getOrganizationId());
 		Assert.assertEquals(existingOrganization.getCompanyId(),
 			newOrganization.getCompanyId());
+		Assert.assertEquals(existingOrganization.getUserId(),
+			newOrganization.getUserId());
+		Assert.assertEquals(existingOrganization.getUserName(),
+			newOrganization.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingOrganization.getCreateDate()),
+			Time.getShortTimestamp(newOrganization.getCreateDate()));
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingOrganization.getModifiedDate()),
+			Time.getShortTimestamp(newOrganization.getModifiedDate()));
 		Assert.assertEquals(existingOrganization.getParentOrganizationId(),
 			newOrganization.getParentOrganizationId());
 		Assert.assertEquals(existingOrganization.getTreePath(),
@@ -180,6 +208,26 @@ public class OrganizationPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("Organization_", "uuid",
+			true, "organizationId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true,
+			"parentOrganizationId", true, "treePath", true, "name", true,
+			"type", true, "recursable", true, "regionId", true, "countryId",
+			true, "statusId", true, "comments", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		Organization newOrganization = addOrganization();
 
@@ -195,6 +243,26 @@ public class OrganizationPersistenceTest {
 		Organization missingOrganization = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingOrganization);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new OrganizationActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					Organization organization = (Organization)object;
+
+					Assert.assertNotNull(organization);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -295,7 +363,17 @@ public class OrganizationPersistenceTest {
 
 		Organization organization = _persistence.create(pk);
 
+		organization.setUuid(ServiceTestUtil.randomString());
+
 		organization.setCompanyId(ServiceTestUtil.nextLong());
+
+		organization.setUserId(ServiceTestUtil.nextLong());
+
+		organization.setUserName(ServiceTestUtil.randomString());
+
+		organization.setCreateDate(ServiceTestUtil.nextDate());
+
+		organization.setModifiedDate(ServiceTestUtil.nextDate());
 
 		organization.setParentOrganizationId(ServiceTestUtil.nextLong());
 

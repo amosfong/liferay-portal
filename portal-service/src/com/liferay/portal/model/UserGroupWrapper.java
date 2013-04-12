@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,7 @@
 
 package com.liferay.portal.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +43,13 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("userGroupId", getUserGroupId());
 		attributes.put("companyId", getCompanyId());
+		attributes.put("userId", getUserId());
+		attributes.put("userName", getUserName());
+		attributes.put("createDate", getCreateDate());
+		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("parentUserGroupId", getParentUserGroupId());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
@@ -53,6 +59,12 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long userGroupId = (Long)attributes.get("userGroupId");
 
 		if (userGroupId != null) {
@@ -63,6 +75,30 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 
 		if (companyId != null) {
 			setCompanyId(companyId);
+		}
+
+		Long userId = (Long)attributes.get("userId");
+
+		if (userId != null) {
+			setUserId(userId);
+		}
+
+		String userName = (String)attributes.get("userName");
+
+		if (userName != null) {
+			setUserName(userName);
+		}
+
+		Date createDate = (Date)attributes.get("createDate");
+
+		if (createDate != null) {
+			setCreateDate(createDate);
+		}
+
+		Date modifiedDate = (Date)attributes.get("modifiedDate");
+
+		if (modifiedDate != null) {
+			setModifiedDate(modifiedDate);
 		}
 
 		Long parentUserGroupId = (Long)attributes.get("parentUserGroupId");
@@ -109,6 +145,24 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	/**
+	* Returns the uuid of this user group.
+	*
+	* @return the uuid of this user group
+	*/
+	public java.lang.String getUuid() {
+		return _userGroup.getUuid();
+	}
+
+	/**
+	* Sets the uuid of this user group.
+	*
+	* @param uuid the uuid of this user group
+	*/
+	public void setUuid(java.lang.String uuid) {
+		_userGroup.setUuid(uuid);
+	}
+
+	/**
 	* Returns the user group ID of this user group.
 	*
 	* @return the user group ID of this user group
@@ -142,6 +196,98 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	*/
 	public void setCompanyId(long companyId) {
 		_userGroup.setCompanyId(companyId);
+	}
+
+	/**
+	* Returns the user ID of this user group.
+	*
+	* @return the user ID of this user group
+	*/
+	public long getUserId() {
+		return _userGroup.getUserId();
+	}
+
+	/**
+	* Sets the user ID of this user group.
+	*
+	* @param userId the user ID of this user group
+	*/
+	public void setUserId(long userId) {
+		_userGroup.setUserId(userId);
+	}
+
+	/**
+	* Returns the user uuid of this user group.
+	*
+	* @return the user uuid of this user group
+	* @throws SystemException if a system exception occurred
+	*/
+	public java.lang.String getUserUuid()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userGroup.getUserUuid();
+	}
+
+	/**
+	* Sets the user uuid of this user group.
+	*
+	* @param userUuid the user uuid of this user group
+	*/
+	public void setUserUuid(java.lang.String userUuid) {
+		_userGroup.setUserUuid(userUuid);
+	}
+
+	/**
+	* Returns the user name of this user group.
+	*
+	* @return the user name of this user group
+	*/
+	public java.lang.String getUserName() {
+		return _userGroup.getUserName();
+	}
+
+	/**
+	* Sets the user name of this user group.
+	*
+	* @param userName the user name of this user group
+	*/
+	public void setUserName(java.lang.String userName) {
+		_userGroup.setUserName(userName);
+	}
+
+	/**
+	* Returns the create date of this user group.
+	*
+	* @return the create date of this user group
+	*/
+	public java.util.Date getCreateDate() {
+		return _userGroup.getCreateDate();
+	}
+
+	/**
+	* Sets the create date of this user group.
+	*
+	* @param createDate the create date of this user group
+	*/
+	public void setCreateDate(java.util.Date createDate) {
+		_userGroup.setCreateDate(createDate);
+	}
+
+	/**
+	* Returns the modified date of this user group.
+	*
+	* @return the modified date of this user group
+	*/
+	public java.util.Date getModifiedDate() {
+		return _userGroup.getModifiedDate();
+	}
+
+	/**
+	* Sets the modified date of this user group.
+	*
+	* @param modifiedDate the modified date of this user group
+	*/
+	public void setModifiedDate(java.util.Date modifiedDate) {
+		_userGroup.setModifiedDate(modifiedDate);
 	}
 
 	/**
@@ -258,6 +404,16 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_userGroup.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_userGroup.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_userGroup.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -333,7 +489,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public UserGroup getWrappedUserGroup() {
 		return _userGroup;

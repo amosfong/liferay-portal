@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,15 +14,15 @@
 
 package com.liferay.portal.freemarker;
 
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateContextType;
 import com.liferay.portal.kernel.template.TemplateException;
-import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.template.PACLTemplateWrapper;
+import com.liferay.portal.template.BaseTemplateManager;
 import com.liferay.portal.template.RestrictedTemplate;
 import com.liferay.portal.template.TemplateContextHelper;
 import com.liferay.portal.util.PropsValues;
@@ -39,7 +39,8 @@ import java.util.Map;
  * @author Mika Koivisto
  * @author Tina Tina
  */
-public class FreeMarkerManager implements TemplateManager {
+@DoPrivileged
+public class FreeMarkerManager extends BaseTemplateManager {
 
 	public void destroy() {
 		if (_configuration == null) {
@@ -63,44 +64,6 @@ public class FreeMarkerManager implements TemplateManager {
 
 	public String getName() {
 		return TemplateConstants.LANG_TYPE_FTL;
-	}
-
-	public Template getTemplate(
-		TemplateResource templateResource,
-		TemplateContextType templateContextType) {
-
-		return getTemplate(templateResource, null, templateContextType);
-	}
-
-	public Template getTemplate(
-		TemplateResource templateResource,
-		TemplateResource errorTemplateResource,
-		TemplateContextType templateContextType) {
-
-		Template template = null;
-
-		Map<String, Object> context = _templateContextHelper.getHelperUtilities(
-			templateContextType);
-
-		if (templateContextType.equals(TemplateContextType.EMPTY)) {
-			template = new FreeMarkerTemplate(
-				templateResource, errorTemplateResource, null, _configuration,
-				_templateContextHelper);
-		}
-		else if (templateContextType.equals(TemplateContextType.RESTRICTED)) {
-			template = new RestrictedTemplate(
-				new FreeMarkerTemplate(
-					templateResource, errorTemplateResource, context,
-					_configuration, _templateContextHelper),
-				_templateContextHelper.getRestrictedVariables());
-		}
-		else if (templateContextType.equals(TemplateContextType.STANDARD)) {
-			template = new FreeMarkerTemplate(
-				templateResource, errorTemplateResource, context,
-				_configuration, _templateContextHelper);
-		}
-
-		return PACLTemplateWrapper.getTemplate(template);
 	}
 
 	public void init() throws TemplateException {
@@ -147,6 +110,41 @@ public class FreeMarkerManager implements TemplateManager {
 		TemplateContextHelper templateContextHelper) {
 
 		_templateContextHelper = templateContextHelper;
+	}
+
+	@Override
+	protected Template doGetTemplate(
+		TemplateResource templateResource,
+		TemplateResource errorTemplateResource,
+		TemplateContextType templateContextType,
+		Map<String, Object> helperUtilities) {
+
+		Template template = null;
+
+		if (templateContextType.equals(TemplateContextType.EMPTY)) {
+			template = new FreeMarkerTemplate(
+				templateResource, errorTemplateResource, null, _configuration,
+				_templateContextHelper);
+		}
+		else if (templateContextType.equals(TemplateContextType.RESTRICTED)) {
+			template = new RestrictedTemplate(
+				new FreeMarkerTemplate(
+					templateResource, errorTemplateResource, helperUtilities,
+					_configuration, _templateContextHelper),
+				_templateContextHelper.getRestrictedVariables());
+		}
+		else if (templateContextType.equals(TemplateContextType.STANDARD)) {
+			template = new FreeMarkerTemplate(
+				templateResource, errorTemplateResource, helperUtilities,
+				_configuration, _templateContextHelper);
+		}
+
+		return template;
+	}
+
+	@Override
+	protected TemplateContextHelper getTemplateContextHelper() {
+		return _templateContextHelper;
 	}
 
 	private Configuration _configuration;

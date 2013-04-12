@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -178,12 +178,12 @@ public interface CalEventLocalService extends BaseLocalService,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Returns the cal event with the UUID in the group.
+	* Returns the cal event matching the UUID and group.
 	*
-	* @param uuid the UUID of cal event
-	* @param groupId the group id of the cal event
-	* @return the cal event
-	* @throws PortalException if a cal event with the UUID in the group could not be found
+	* @param uuid the cal event's UUID
+	* @param groupId the primary key of the group
+	* @return the matching cal event
+	* @throws PortalException if a matching cal event could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -257,9 +257,10 @@ public interface CalEventLocalService extends BaseLocalService,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #addEvent(long, String, String, String, int, int, int,
-	int, int, int, int, boolean, boolean, String, boolean,
-	TZSRecurrence, int, int, int, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addEvent(long, String,
+	String, String, int, int, int, int, int, int, int, boolean,
+	boolean, String, boolean, TZSRecurrence, int, int, int,
+	ServiceContext)}
 	*/
 	public com.liferay.portlet.calendar.model.CalEvent addEvent(long userId,
 		java.lang.String title, java.lang.String description,
@@ -429,9 +430,10 @@ public interface CalEventLocalService extends BaseLocalService,
 			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* @deprecated {@link #updateEvent(long, long, String, String, String, int,
-	int, int, int, int, int, int, boolean, boolean, String,
-	boolean, TZSRecurrence, int, int, int, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #updateEvent(long, long,
+	String, String, String, int, int, int, int, int, int, int,
+	boolean, boolean, String, boolean, TZSRecurrence, int, int,
+	int, ServiceContext)}
 	*/
 	public com.liferay.portlet.calendar.model.CalEvent updateEvent(
 		long userId, long eventId, java.lang.String title,

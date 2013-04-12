@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -185,6 +185,23 @@ public class PermissionCheckerBagImpl implements PermissionCheckerBag {
 		return value.booleanValue();
 	}
 
+	public boolean isOrganizationOwner(
+			PermissionChecker permissionChecker, Organization organization)
+		throws Exception {
+
+		Boolean value = _organizationOwners.get(
+			organization.getOrganizationId());
+
+		if (value == null) {
+			value = Boolean.valueOf(
+				isOrganizationOwnerImpl(permissionChecker, organization));
+
+			_organizationOwners.put(organization.getOrganizationId(), value);
+		}
+
+		return value.booleanValue();
+	}
+
 	protected boolean isGroupAdminImpl(
 			PermissionChecker permissionChecker, Group group)
 		throws PortalException, SystemException {
@@ -353,10 +370,34 @@ public class PermissionCheckerBagImpl implements PermissionCheckerBag {
 		return false;
 	}
 
+	protected boolean isOrganizationOwnerImpl(
+			PermissionChecker permissionChecker, Organization organization)
+		throws PortalException, SystemException {
+
+		while (organization != null) {
+			Group organizationGroup = organization.getGroup();
+
+			long organizationGroupId = organizationGroup.getGroupId();
+
+			if (UserGroupRoleLocalServiceUtil.hasUserGroupRole(
+					_userId, organizationGroupId,
+					RoleConstants.ORGANIZATION_OWNER, true)) {
+
+				return true;
+			}
+
+			organization = organization.getParentOrganization();
+		}
+
+		return false;
+	}
+
 	private Map<Long, Boolean> _groupAdmins = new HashMap<Long, Boolean>();
 	private Map<Long, Boolean> _groupOwners = new HashMap<Long, Boolean>();
 	private List<Group> _groups;
 	private Map<Long, Boolean> _organizationAdmins =
+		new HashMap<Long, Boolean>();
+	private Map<Long, Boolean> _organizationOwners =
 		new HashMap<Long, Boolean>();
 	private long[] _roleIds;
 	private List<Role> _roles;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -372,8 +372,8 @@ public class DLFolderServiceHttp {
 		}
 	}
 
-	public static long[] getFolderIds(HttpPrincipal httpPrincipal,
-		long groupId, long folderId)
+	public static java.util.List<java.lang.Long> getFolderIds(
+		HttpPrincipal httpPrincipal, long groupId, long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
@@ -400,7 +400,7 @@ public class DLFolderServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (long[])returnObj;
+			return (java.util.List<java.lang.Long>)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -1135,7 +1135,7 @@ public class DLFolderServiceHttp {
 	}
 
 	public static void unlockFolder(HttpPrincipal httpPrincipal, long groupId,
-		long folderId, java.lang.String lockUuid)
+		long parentFolderId, java.lang.String name, java.lang.String lockUuid)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
@@ -1143,7 +1143,7 @@ public class DLFolderServiceHttp {
 					"unlockFolder", _unlockFolderParameterTypes30);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, groupId,
-					folderId, lockUuid);
+					parentFolderId, name, lockUuid);
 
 			try {
 				TunnelUtil.invoke(httpPrincipal, methodHandler);
@@ -1167,16 +1167,16 @@ public class DLFolderServiceHttp {
 		}
 	}
 
-	public static void unlockFolder(HttpPrincipal httpPrincipal, long groupId,
-		long parentFolderId, java.lang.String name, java.lang.String lockUuid)
+	public static void unlockFolder(HttpPrincipal httpPrincipal, long folderId,
+		java.lang.String lockUuid)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		try {
 			MethodKey methodKey = new MethodKey(DLFolderServiceUtil.class,
 					"unlockFolder", _unlockFolderParameterTypes31);
 
-			MethodHandler methodHandler = new MethodHandler(methodKey, groupId,
-					parentFolderId, name, lockUuid);
+			MethodHandler methodHandler = new MethodHandler(methodKey,
+					folderId, lockUuid);
 
 			try {
 				TunnelUtil.invoke(httpPrincipal, methodHandler);
@@ -1383,11 +1383,11 @@ public class DLFolderServiceHttp {
 			java.lang.String.class, long.class, long.class
 		};
 	private static final Class<?>[] _unlockFolderParameterTypes30 = new Class[] {
-			long.class, long.class, java.lang.String.class
-		};
-	private static final Class<?>[] _unlockFolderParameterTypes31 = new Class[] {
 			long.class, long.class, java.lang.String.class,
 			java.lang.String.class
+		};
+	private static final Class<?>[] _unlockFolderParameterTypes31 = new Class[] {
+			long.class, java.lang.String.class
 		};
 	private static final Class<?>[] _updateFolderParameterTypes32 = new Class[] {
 			long.class, java.lang.String.class, java.lang.String.class,

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -137,7 +137,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 							<%= delta %>
 						</c:when>
 						<c:otherwise>
-							<aui:select changesContext="<%= true %>" id='<%= id + "_itemsPerPage" %>' inlineLabel="left" name="itemsPerPage" onchange='<%= namespace + deltaParam + "updateDelta(this);" %>'>
+							<aui:select changesContext="<%= true %>" id='<%= id + "_itemsPerPage" %>' inlineLabel="left" label="items-per-page" name="<%= deltaParam %>" onchange='<%= namespace + deltaParam + "updateDelta(this);" %>'>
 
 								<%
 								for (int curDelta : PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES) {

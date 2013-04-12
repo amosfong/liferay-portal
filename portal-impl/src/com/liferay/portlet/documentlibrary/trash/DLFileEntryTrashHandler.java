@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -31,8 +32,8 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
+import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
@@ -53,8 +54,6 @@ import javax.portlet.PortletRequest;
  */
 public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
-	public static final String CLASS_NAME = DLFileEntry.class.getName();
-
 	@Override
 	public void checkDuplicateTrashEntry(
 			TrashEntry trashEntry, long containerModelId, String newName)
@@ -67,6 +66,10 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 		}
 
 		String originalTitle = trashEntry.getTypeSettingsProperty("title");
+
+		if (Validator.isNotNull(newName)) {
+			originalTitle = newName;
+		}
 
 		DLFileEntry duplicateDLFileEntry =
 			DLFileEntryLocalServiceUtil.fetchFileEntry(
@@ -83,21 +86,14 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 		}
 	}
 
-	public void deleteTrashEntries(long[] classPKs, boolean checkPermission)
+	public void deleteTrashEntry(long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			if (checkPermission) {
-				DLAppServiceUtil.deleteFileEntry(classPK);
-			}
-			else {
-				DLAppLocalServiceUtil.deleteFileEntry(classPK);
-			}
-		}
+		DLAppLocalServiceUtil.deleteFileEntry(classPK);
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return DLFileEntry.class.getName();
 	}
 
 	@Override
@@ -137,6 +133,20 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
+	public ContainerModel getTrashContainer(long classPK)
+		throws PortalException, SystemException {
+
+		try {
+			DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+
+			return dlFileEntry.getTrashContainer();
+		}
+		catch (InvalidRepositoryException ire) {
+			return null;
+		}
+	}
+
+	@Override
 	public boolean hasTrashPermission(
 			PermissionChecker permissionChecker, long groupId, long classPK,
 			String trashActionId)
@@ -159,11 +169,7 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
 			DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
-			if (dlFileEntry.isInTrashContainer() || dlFileVersion.isInTrash()) {
-				return true;
-			}
-
-			return false;
+			return dlFileVersion.isInTrash();
 		}
 		catch (InvalidRepositoryException ire) {
 			return false;
@@ -174,9 +180,14 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 	public boolean isInTrashContainer(long classPK)
 		throws PortalException, SystemException {
 
-		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+		try {
+			DLFileEntry dlFileEntry = getDLFileEntry(classPK);
 
-		return dlFileEntry.isInTrashContainer();
+			return dlFileEntry.isInTrashContainer();
+		}
+		catch (InvalidRepositoryException ire) {
+			return false;
+		}
 	}
 
 	@Override
@@ -195,42 +206,45 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
 	@Override
 	public void moveEntry(
-			long classPK, long containerModelId, ServiceContext serviceContext)
+			long userId, long classPK, long containerModelId,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		DLAppServiceUtil.moveFileEntry(
-			classPK, containerModelId, serviceContext);
+		DLAppLocalServiceUtil.moveFileEntry(
+			userId, classPK, containerModelId, serviceContext);
 	}
 
 	@Override
 	public void moveTrashEntry(
-			long classPK, long containerModelId, ServiceContext serviceContext)
+			long userId, long classPK, long containerModelId,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		DLAppServiceUtil.moveFileEntryFromTrash(
-			classPK, containerModelId, serviceContext);
+		Repository repository = getRepository(classPK);
+
+		DLAppHelperLocalServiceUtil.moveFileEntryFromTrash(
+			userId, repository.getFileEntry(classPK), containerModelId,
+			serviceContext);
 	}
 
-	public void restoreTrashEntries(long[] classPKs)
+	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException, SystemException {
 
-		for (long classPK : classPKs) {
-			DLFileEntry dlFileEntry = getDLFileEntry(classPK);
+		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
 
-			if ((dlFileEntry.getClassNameId() > 0) &&
-				(dlFileEntry.getClassPK() > 0)) {
+		if ((dlFileEntry.getClassNameId() > 0) &&
+			(dlFileEntry.getClassPK() > 0)) {
 
-				TrashHandler trashHandler =
-					TrashHandlerRegistryUtil.getTrashHandler(
-						dlFileEntry.getClassName());
+			TrashHandler trashHandler =
+				TrashHandlerRegistryUtil.getTrashHandler(
+					dlFileEntry.getClassName());
 
-				trashHandler.restoreRelatedTrashEntry(getClassName(), classPK);
+			trashHandler.restoreRelatedTrashEntry(getClassName(), classPK);
 
-				continue;
-			}
-
-			DLAppServiceUtil.restoreFileEntryFromTrash(classPK);
+			return;
 		}
+
+		DLAppLocalServiceUtil.restoreFileEntryFromTrash(userId, classPK);
 	}
 
 	@Override
@@ -290,7 +304,9 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
 		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
 
-		if (dlFileEntry.isInHiddenFolder()) {
+		if (dlFileEntry.isInHiddenFolder() &&
+			actionId.equals(ActionKeys.VIEW)) {
+
 			return false;
 		}
 

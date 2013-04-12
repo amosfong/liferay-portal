@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,14 +36,12 @@ import java.util.Map;
  */
 public class WikiPageWorkflowHandler extends BaseWorkflowHandler {
 
-	public static final String CLASS_NAME = WikiPage.class.getName();
-
 	public String getClassName() {
-		return CLASS_NAME;
+		return WikiPage.class.getName();
 	}
 
 	public String getType(Locale locale) {
-		return ResourceActionsUtil.getModelResource(locale, CLASS_NAME);
+		return ResourceActionsUtil.getModelResource(locale, getClassName());
 	}
 
 	public WikiPage updateStatus(

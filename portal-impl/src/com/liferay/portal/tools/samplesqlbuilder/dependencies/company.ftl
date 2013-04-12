@@ -1,8 +1,13 @@
-<#setting number_format = "0">
+<#assign company = dataFactory.company>
 
-insert into Company (companyId, accountId, webId, mx, active_) values (${companyId}, ${dataFactory.company.accountId}, 'liferay.com', 'liferay.com', TRUE);
+insert into Company values (${company.companyId}, ${company.accountId}, '${company.webId}', '${company.key}', '${company.mx}', '${company.homeURL}', ${company.logoId}, ${company.system?string}, ${company.maxUsers}, ${company.active?string});
 
-${writerCompanyCSV.write(companyId + "\n")}
+<#assign account = dataFactory.account>
 
-insert into Account_ (accountId, companyId, userId, userName, createDate, modifiedDate, parentAccountId, name, legalName, legalId, legalType, sicCode, tickerSymbol, industry, type_, size_) values (${dataFactory.company.accountId}, ${companyId}, ${defaultUserId}, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 'Liferay', 'Liferay, Inc.', '', '', '', '', '', '', '');
-insert into VirtualHost values (${counter.get()}, ${companyId}, 0, 'localhost');
+insert into Account_ values (${account.accountId}, ${account.companyId}, ${account.userId}, '${account.userName}', '${dataFactory.getDateString(account.createDate)}', '${dataFactory.getDateString(account.modifiedDate)}', '${account.parentAccountId}', '${account.name}', '${account.legalName}', '${account.legalId}', '${account.legalType}', '${account.sicCode}', '${account.tickerSymbol}', '${account.industry}', '${account.type}', '${account.size}');
+
+<#assign virtualHost = dataFactory.virtualHost>
+
+insert into VirtualHost values (${virtualHost.virtualHostId}, ${virtualHost.companyId}, ${virtualHost.layoutSetId}, '${virtualHost.hostname}');
+
+${writerCompanyCSV.write(company.companyId + "\n")}

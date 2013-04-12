@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.BaseRepository;
+import com.liferay.portal.kernel.repository.InvalidRepositoryIdException;
 import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.RepositoryException;
 import com.liferay.portal.kernel.repository.cmis.CMISRepositoryHandler;
@@ -55,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 
-	public long addRepository(
+	public Repository addRepository(
 			long userId, long groupId, long classNameId, long parentFolderId,
 			String name, String description, String portletId,
 			UnicodeProperties typeSettingsProperties, boolean hidden,
@@ -101,14 +102,15 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 			}
 		}
 
-		return repositoryId;
+		return repository;
 	}
 
 	/**
-	 * @deprecated {@link #addRepository(long, long, long, long, String, String,
-	 *             String, UnicodeProperties, boolean, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #addRepository(long, long,
+	 *             long, long, String, String, String, UnicodeProperties,
+	 *             boolean, ServiceContext)}
 	 */
-	public long addRepository(
+	public Repository addRepository(
 			long userId, long groupId, long classNameId, long parentFolderId,
 			String name, String description, String portletId,
 			UnicodeProperties typeSettingsProperties,
@@ -202,9 +204,10 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 			localRepositoryImpl = new LiferayLocalRepository(
 				repositoryLocalService, repositoryService,
 				dlAppHelperLocalService, dlFileEntryLocalService,
-				dlFileEntryService, dlFileVersionLocalService,
-				dlFileVersionService, dlFolderLocalService, dlFolderService,
-				resourceLocalService, repositoryId);
+				dlFileEntryService, dlFileEntryTypeLocalService,
+				dlFileVersionLocalService, dlFileVersionService,
+				dlFolderLocalService, dlFolderService, resourceLocalService,
+				repositoryId);
 		}
 		else {
 			BaseRepository baseRepository = createRepositoryImpl(
@@ -237,9 +240,9 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		localRepositoryImpl = new LiferayLocalRepository(
 			repositoryLocalService, repositoryService, dlAppHelperLocalService,
 			dlFileEntryLocalService, dlFileEntryService,
-			dlFileVersionLocalService, dlFileVersionService,
-			dlFolderLocalService, dlFolderService, resourceLocalService,
-			folderId, fileEntryId, fileVersionId);
+			dlFileEntryTypeLocalService, dlFileVersionLocalService,
+			dlFileVersionService, dlFolderLocalService, dlFolderService,
+			resourceLocalService, folderId, fileEntryId, fileVersionId);
 
 		if (localRepositoryImpl.getRepositoryId() == 0) {
 			localRepositoryImpl = null;
@@ -261,6 +264,18 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		return localRepositoryImpl;
 	}
 
+	public Repository getRepository(long groupId, String portletId)
+		throws PortalException, SystemException {
+
+		return getRepository(groupId, portletId, portletId);
+	}
+
+	public Repository getRepository(long groupId, String name, String portletId)
+		throws PortalException, SystemException {
+
+		return repositoryPersistence.findByG_N_P(groupId, name, portletId);
+	}
+
 	public com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
 			long repositoryId)
 		throws PortalException, SystemException {
@@ -280,9 +295,10 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 			repositoryImpl = new LiferayRepository(
 				repositoryLocalService, repositoryService,
 				dlAppHelperLocalService, dlFileEntryLocalService,
-				dlFileEntryService, dlFileVersionLocalService,
-				dlFileVersionService, dlFolderLocalService, dlFolderService,
-				resourceLocalService, repositoryId);
+				dlFileEntryService, dlFileEntryTypeLocalService,
+				dlFileVersionLocalService, dlFileVersionService,
+				dlFolderLocalService, dlFolderService, resourceLocalService,
+				repositoryId);
 		}
 		else {
 			repositoryImpl = createRepositoryImpl(repositoryId, classNameId);
@@ -312,9 +328,9 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		repositoryImpl = new LiferayRepository(
 			repositoryLocalService, repositoryService, dlAppHelperLocalService,
 			dlFileEntryLocalService, dlFileEntryService,
-			dlFileVersionLocalService, dlFileVersionService,
-			dlFolderLocalService, dlFolderService, resourceLocalService,
-			folderId, fileEntryId, fileVersionId);
+			dlFileEntryTypeLocalService, dlFileVersionLocalService,
+			dlFileVersionService, dlFolderLocalService, dlFolderService,
+			resourceLocalService, folderId, fileEntryId, fileVersionId);
 
 		if (repositoryImpl.getRepositoryId() == 0) {
 			repositoryImpl = null;
@@ -495,7 +511,7 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		}
 
 		if (repositoryEntryId == 0) {
-			throw new RepositoryException(
+			throw new InvalidRepositoryIdException(
 				"Missing a valid ID for folder, file entry or file version");
 		}
 

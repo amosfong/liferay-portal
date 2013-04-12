@@ -1,0 +1,198 @@
+<html>
+<head>
+<title>PGMessageboards</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">PGMessageboards</td></tr>
+</thead>
+<tbody>
+<tr>
+	<td>PAGE_NAME</td>
+	<td></td>
+	<td>PGMessageboards</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD_CATEGORY</td>
+	<td>//input[@value='Add Category']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>POST_NEW_THREAD</td>
+	<td>//input[@value='Post New Thread']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SUCCESS_MESSAGE</td>
+	<td>//div[@class='portlet-msg-success']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RECYCLE_BIN_SUCCESS_MESSAGE</td>
+	<td>//div[@class='portlet-msg-success taglib-trash-undo']</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--CATEGORY_TABLE-->
+<tr>
+	<td>CATEGORY_TABLE_CATEGORY</td>
+	<td>//div[contains(@id,'mbCategoriesSearchContainer')]/table/tbody/tr/td[1]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_TABLE_CATEGORIES</td>
+	<td>//div[contains(@id,'mbCategoriesSearchContainer')]/table/tbody/tr/td[2]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_TABLE_THREADS</td>
+	<td>//div[contains(@id,'mbCategoriesSearchContainer')]/table/tbody/tr/td[3]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_TABLE_POSTS</td>
+	<td>//div[contains(@id,'mbCategoriesSearchContainer')]/table/tbody/tr/td[4]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_TABLE_ACTIONS</td>
+	<td>//div[contains(@id,'mbCategoriesSearchContainer')]/table/tbody/tr/td/span[@title='Actions']/ul/li/strong/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--CATEGORY_ACTION-->
+<tr>
+	<td>CATEGORY_ACTIONS_EDIT</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_MOVE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Move')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_PERMISSIONS</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Permissions')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_RSS</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'RSS')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_SUBSCRIBE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_UNSUBSCRIBE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Unsubscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORY_ACTIONS_RECYCLE_BIN</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Move to the Recycle Bin')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--THREAD_TABLE-->
+<tr>
+	<td>THREAD_TABLE_THREAD</td>
+	<td>//div[contains(@id,'mbThreadsSearchContainer')]/table/tbody/tr/td[1]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_TABLE_STARTED_BY</td>
+	<td>//div[contains(@id,'mbThreadsSearchContainer')]/table/tbody/tr/td[3]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_TABLE_POSTS</td>
+	<td>//div[contains(@id,'mbThreadsSearchContainer')]/table/tbody/tr/td[4]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_TABLE_LAST_POST</td>
+	<td>//div[contains(@id,'mbThreadsSearchContainer')]/table/tbody/tr/td[6]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_TABLE_ACTIONS</td>
+	<td>//div[contains(@id,'mbThreadsSearchContainer')]/table/tbody/tr/td/span[@title='Actions']/ul/li/strong/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--THREAD_ACTION-->
+<tr>
+	<td>THREAD_ACTIONS_EDIT</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_PERMISSIONS</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Permissions')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_RSS</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'RSS')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_SUBSCRIBE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Subscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_UNSUBSCRIBE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Unsubscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_UNSUBSCRIBE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Unsubscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_MOVE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Move')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_MOVE</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Move')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_RECYCLE_BIN</td>
+	<td>//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Move to the Recycle Bin')]</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

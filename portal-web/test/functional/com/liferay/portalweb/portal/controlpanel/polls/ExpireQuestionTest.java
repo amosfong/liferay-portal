@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -98,12 +98,12 @@ public class ExpireQuestionTest extends BaseTestCase {
 				assertFalse(selenium.isChecked(
 						"//input[@id='_25_neverExpireCheckbox']"));
 				selenium.waitForVisible(
-					"//select[@id='_25_expirationDateMonth']");
-				selenium.select("//select[@id='_25_expirationDateYear']",
+					"//select[@id='_25_expirationdatemonth']");
+				selenium.select("//select[@id='_25_expirationdateyear']",
 					RuntimeVariables.replace("2008"));
-				selenium.select("//select[@id='_25_expirationDateMonth']",
+				selenium.select("//select[@id='_25_expirationdatemonth']",
 					RuntimeVariables.replace("January"));
-				selenium.select("//select[@id='_25_expirationDateDay']",
+				selenium.select("//select[@id='_25_expirationdateday']",
 					RuntimeVariables.replace("1"));
 				selenium.select("//select[@name='_25_expirationDateHour']",
 					RuntimeVariables.replace("12"));

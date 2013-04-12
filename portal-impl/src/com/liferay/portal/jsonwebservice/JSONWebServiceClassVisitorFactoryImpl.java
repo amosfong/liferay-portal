@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portal.jsonwebservice;
 
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceClassVisitor;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceClassVisitorFactory;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 /**
  * @author Raymond Augé
  */
+@DoPrivileged
 public class JSONWebServiceClassVisitorFactoryImpl
 	implements JSONWebServiceClassVisitorFactory {
 

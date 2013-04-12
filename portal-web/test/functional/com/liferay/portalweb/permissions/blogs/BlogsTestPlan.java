@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,7 @@
 package com.liferay.portalweb.permissions.blogs;
 
 import com.liferay.portalweb.permissions.blogs.blogsentry.BlogsEntryTestPlan;
+import com.liferay.portalweb.permissions.blogs.portlet.PortletTestPlan;
 import com.liferay.portalweb.portal.BaseTestSuite;
 
 import junit.framework.Test;
@@ -29,6 +30,7 @@ public class BlogsTestPlan extends BaseTestSuite {
 		TestSuite testSuite = new TestSuite();
 
 		testSuite.addTest(BlogsEntryTestPlan.suite());
+		testSuite.addTest(PortletTestPlan.suite());
 
 		return testSuite;
 	}

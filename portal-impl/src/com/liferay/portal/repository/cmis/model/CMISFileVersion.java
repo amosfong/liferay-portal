@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -62,6 +62,26 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 		_uuid = uuid;
 		_fileVersionId = fileVersionId;
 		_document = document;
+	}
+
+	@Override
+	public Object clone() {
+		CMISFileVersion cmisFileVersion = new CMISFileVersion(
+			_cmisRepository, _uuid, _fileVersionId, _document);
+
+		cmisFileVersion.setCompanyId(getCompanyId());
+		setFileVersionId(getFileVersionId());
+		cmisFileVersion.setGroupId(getGroupId());
+
+		try {
+			cmisFileVersion.setParentFolder(getParentFolder());
+		}
+		catch (Exception e) {
+		}
+
+		cmisFileVersion.setPrimaryKey(getPrimaryKey());
+
+		return cmisFileVersion;
 	}
 
 	public Map<String, Serializable> getAttributes() {
@@ -324,6 +344,9 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 	}
 
 	public void setUserUuid(String userUuid) {
+	}
+
+	public void setUuid(String uuid) {
 	}
 
 	public FileVersion toEscapedModel() {

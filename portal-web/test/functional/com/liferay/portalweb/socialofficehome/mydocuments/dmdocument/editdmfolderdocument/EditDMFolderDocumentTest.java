@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -60,6 +60,15 @@ public class EditDMFolderDocumentTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace(
 				"Your request completed successfully."),
 			selenium.getText("//div[@class='portlet-msg-success']"));
+		assertEquals(RuntimeVariables.replace("My Documents"),
+			selenium.getText(
+				"//ul[contains(@class,'breadcrumbs')]/li[1]/span/a"));
+		assertEquals(RuntimeVariables.replace("DM Folder Name"),
+			selenium.getText(
+				"//ul[contains(@class,'breadcrumbs')]/li[2]/span/a"));
+		assertEquals(RuntimeVariables.replace("DM Folder Document Title Edit"),
+			selenium.getText(
+				"//ul[contains(@class,'breadcrumbs')]/li[3]/span/a"));
 		assertEquals(RuntimeVariables.replace("DM Folder Document Title Edit"),
 			selenium.getText("//span[@class='document-title']"));
 		assertTrue(selenium.isVisible("//span[@class='document-thumbnail']/img"));

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -57,9 +57,9 @@ DDMTemplate template = (DDMTemplate)row.getObject();
 	ddmResourceActionId = ActionKeys.ADD_TEMPLATE;
 
 	if (portletName.equals(PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
-		PortletDisplayTemplateHandler portletDisplayTemplateHandler = PortletDisplayTemplateHandlerRegistryUtil.getPortletDisplayTemplateHandler(template.getClassNameId());
+		TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(template.getClassNameId());
 
-		ddmResource = portletDisplayTemplateHandler.getResourceName();
+		ddmResource = templateHandler.getResourceName();
 		ddmResourceActionId = ActionKeys.ADD_PORTLET_DISPLAY_TEMPLATE;
 	}
 	%>

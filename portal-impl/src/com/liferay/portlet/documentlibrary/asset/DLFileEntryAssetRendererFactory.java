@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,10 +34,12 @@ import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryTypePermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLPermission;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +56,6 @@ import javax.portlet.PortletURL;
  * @author Sergio González
  */
 public class DLFileEntryAssetRendererFactory extends BaseAssetRendererFactory {
-
-	public static final String CLASS_NAME = DLFileEntry.class.getName();
 
 	public static final String TYPE = "document";
 
@@ -80,7 +80,28 @@ public class DLFileEntryAssetRendererFactory extends BaseAssetRendererFactory {
 	}
 
 	public String getClassName() {
-		return CLASS_NAME;
+		return DLFileEntry.class.getName();
+	}
+
+	@Override
+	public Map<String, Map<String, String>> getClassTypeFieldNames(
+			long classTypeId, Locale locale)
+		throws Exception {
+
+		Map<String, Map<String, String>> classTypeFieldNames =
+			new HashMap<String, Map<String, String>>();
+
+		DLFileEntryType dlFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getDLFileEntryType(classTypeId);
+
+		List<DDMStructure> ddmStructures = dlFileEntryType.getDDMStructures();
+
+		for (DDMStructure ddmStructure : ddmStructures) {
+			classTypeFieldNames.putAll(
+				getDDMStructureFieldNames(ddmStructure, locale));
+		}
+
+		return classTypeFieldNames;
 	}
 
 	@Override
@@ -153,7 +174,7 @@ public class DLFileEntryAssetRendererFactory extends BaseAssetRendererFactory {
 			"folderId",
 			String.valueOf(
 				AssetPublisherUtil.getRecentFolderId(
-					liferayPortletRequest, CLASS_NAME)));
+					liferayPortletRequest, getClassName())));
 
 		return portletURL;
 	}

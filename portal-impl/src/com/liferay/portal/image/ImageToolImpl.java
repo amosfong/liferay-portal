@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.model.Image;
@@ -66,6 +67,7 @@ import org.im4java.core.IMOperation;
  * @author Alexander Chow
  * @author Shuyang Zhou
  */
+@DoPrivileged
 public class ImageToolImpl implements ImageTool {
 
 	public static ImageTool getInstance() {
@@ -376,7 +378,7 @@ public class ImageToolImpl implements ImageTool {
 
 	public boolean isNullOrDefaultSpacer(byte[] bytes) {
 		if ((bytes == null) || (bytes.length == 0) ||
-			(Arrays.equals(bytes, getDefaultSpacer().getTextObj()))) {
+			Arrays.equals(bytes, getDefaultSpacer().getTextObj())) {
 
 			return true;
 		}

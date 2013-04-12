@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,13 +15,20 @@
 package com.liferay.portlet.messageboards.service.persistence;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
@@ -108,6 +115,20 @@ public class MBDiscussionPersistenceTest {
 
 		MBDiscussion newMBDiscussion = _persistence.create(pk);
 
+		newMBDiscussion.setUuid(ServiceTestUtil.randomString());
+
+		newMBDiscussion.setGroupId(ServiceTestUtil.nextLong());
+
+		newMBDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+
+		newMBDiscussion.setUserId(ServiceTestUtil.nextLong());
+
+		newMBDiscussion.setUserName(ServiceTestUtil.randomString());
+
+		newMBDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+
+		newMBDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
+
 		newMBDiscussion.setClassNameId(ServiceTestUtil.nextLong());
 
 		newMBDiscussion.setClassPK(ServiceTestUtil.nextLong());
@@ -118,8 +139,24 @@ public class MBDiscussionPersistenceTest {
 
 		MBDiscussion existingMBDiscussion = _persistence.findByPrimaryKey(newMBDiscussion.getPrimaryKey());
 
+		Assert.assertEquals(existingMBDiscussion.getUuid(),
+			newMBDiscussion.getUuid());
 		Assert.assertEquals(existingMBDiscussion.getDiscussionId(),
 			newMBDiscussion.getDiscussionId());
+		Assert.assertEquals(existingMBDiscussion.getGroupId(),
+			newMBDiscussion.getGroupId());
+		Assert.assertEquals(existingMBDiscussion.getCompanyId(),
+			newMBDiscussion.getCompanyId());
+		Assert.assertEquals(existingMBDiscussion.getUserId(),
+			newMBDiscussion.getUserId());
+		Assert.assertEquals(existingMBDiscussion.getUserName(),
+			newMBDiscussion.getUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBDiscussion.getCreateDate()),
+			Time.getShortTimestamp(newMBDiscussion.getCreateDate()));
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBDiscussion.getModifiedDate()),
+			Time.getShortTimestamp(newMBDiscussion.getModifiedDate()));
 		Assert.assertEquals(existingMBDiscussion.getClassNameId(),
 			newMBDiscussion.getClassNameId());
 		Assert.assertEquals(existingMBDiscussion.getClassPK(),
@@ -152,6 +189,25 @@ public class MBDiscussionPersistenceTest {
 	}
 
 	@Test
+	public void testFindAll() throws Exception {
+		try {
+			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				getOrderByComparator());
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	protected OrderByComparator getOrderByComparator() {
+		return OrderByComparatorFactoryUtil.create("MBDiscussion", "uuid",
+			true, "discussionId", true, "groupId", true, "companyId", true,
+			"userId", true, "userName", true, "createDate", true,
+			"modifiedDate", true, "classNameId", true, "classPK", true,
+			"threadId", true);
+	}
+
+	@Test
 	public void testFetchByPrimaryKeyExisting() throws Exception {
 		MBDiscussion newMBDiscussion = addMBDiscussion();
 
@@ -167,6 +223,26 @@ public class MBDiscussionPersistenceTest {
 		MBDiscussion missingMBDiscussion = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingMBDiscussion);
+	}
+
+	@Test
+	public void testActionableDynamicQuery() throws Exception {
+		final IntegerWrapper count = new IntegerWrapper();
+
+		ActionableDynamicQuery actionableDynamicQuery = new MBDiscussionActionableDynamicQuery() {
+				@Override
+				protected void performAction(Object object) {
+					MBDiscussion mbDiscussion = (MBDiscussion)object;
+
+					Assert.assertNotNull(mbDiscussion);
+
+					count.increment();
+				}
+			};
+
+		actionableDynamicQuery.performActions();
+
+		Assert.assertEquals(count.getValue(), _persistence.countAll());
 	}
 
 	@Test
@@ -255,6 +331,12 @@ public class MBDiscussionPersistenceTest {
 
 		MBDiscussionModelImpl existingMBDiscussionModelImpl = (MBDiscussionModelImpl)_persistence.findByPrimaryKey(newMBDiscussion.getPrimaryKey());
 
+		Assert.assertTrue(Validator.equals(
+				existingMBDiscussionModelImpl.getUuid(),
+				existingMBDiscussionModelImpl.getOriginalUuid()));
+		Assert.assertEquals(existingMBDiscussionModelImpl.getGroupId(),
+			existingMBDiscussionModelImpl.getOriginalGroupId());
+
 		Assert.assertEquals(existingMBDiscussionModelImpl.getThreadId(),
 			existingMBDiscussionModelImpl.getOriginalThreadId());
 
@@ -268,6 +350,20 @@ public class MBDiscussionPersistenceTest {
 		long pk = ServiceTestUtil.nextLong();
 
 		MBDiscussion mbDiscussion = _persistence.create(pk);
+
+		mbDiscussion.setUuid(ServiceTestUtil.randomString());
+
+		mbDiscussion.setGroupId(ServiceTestUtil.nextLong());
+
+		mbDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+
+		mbDiscussion.setUserId(ServiceTestUtil.nextLong());
+
+		mbDiscussion.setUserName(ServiceTestUtil.randomString());
+
+		mbDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+
+		mbDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
 
 		mbDiscussion.setClassNameId(ServiceTestUtil.nextLong());
 

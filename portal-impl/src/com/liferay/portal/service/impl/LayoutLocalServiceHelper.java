@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +15,6 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.LayoutFriendlyURLException;
-import com.liferay.portal.LayoutHiddenException;
 import com.liferay.portal.LayoutNameException;
 import com.liferay.portal.LayoutParentLayoutIdException;
 import com.liferay.portal.LayoutTypeException;
@@ -38,6 +37,7 @@ import com.liferay.portal.service.persistence.LayoutPersistence;
 import com.liferay.portal.service.persistence.LayoutSetPersistence;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.LayoutPriorityComparator;
+import com.liferay.portlet.sites.util.SitesUtil;
 
 import java.util.List;
 
@@ -316,6 +316,14 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 					LayoutParentLayoutIdException.NOT_PARENTABLE);
 			}
 
+			// Layout cannot become a child of a layout that is not sortable
+			// because it is linked to a layout set prototype
+
+			if (!SitesUtil.isLayoutSortable(parentLayout)) {
+				throw new LayoutParentLayoutIdException(
+					LayoutParentLayoutIdException.NOT_SORTABLE);
+			}
+
 			// Layout cannot become descendant of itself
 
 			if (PortalUtil.isLayoutDescendant(layout, parentLayoutId)) {
@@ -343,10 +351,6 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 					try {
 						validateFirstLayout(secondLayout.getType());
 					}
-					catch (LayoutHiddenException lhe) {
-						throw new LayoutParentLayoutIdException(
-							LayoutParentLayoutIdException.FIRST_LAYOUT_HIDDEN);
-					}
 					catch (LayoutTypeException lte) {
 						throw new LayoutParentLayoutIdException(
 							LayoutParentLayoutIdException.FIRST_LAYOUT_TYPE);
@@ -358,6 +362,7 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 
 	@BeanReference(type = LayoutPersistence.class)
 	protected LayoutPersistence layoutPersistence;
+
 	@BeanReference(type = LayoutSetPersistence.class)
 	protected LayoutSetPersistence layoutSetPersistence;
 

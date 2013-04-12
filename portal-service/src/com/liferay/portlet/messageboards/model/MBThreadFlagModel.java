@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,9 +14,11 @@
 
 package com.liferay.portlet.messageboards.model;
 
+import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -38,7 +40,8 @@ import java.util.Date;
  * @see com.liferay.portlet.messageboards.model.impl.MBThreadFlagModelImpl
  * @generated
  */
-public interface MBThreadFlagModel extends BaseModel<MBThreadFlag> {
+public interface MBThreadFlagModel extends BaseModel<MBThreadFlag>,
+	StagedGroupedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -60,6 +63,21 @@ public interface MBThreadFlagModel extends BaseModel<MBThreadFlag> {
 	public void setPrimaryKey(long primaryKey);
 
 	/**
+	 * Returns the uuid of this message boards thread flag.
+	 *
+	 * @return the uuid of this message boards thread flag
+	 */
+	@AutoEscape
+	public String getUuid();
+
+	/**
+	 * Sets the uuid of this message boards thread flag.
+	 *
+	 * @param uuid the uuid of this message boards thread flag
+	 */
+	public void setUuid(String uuid);
+
+	/**
 	 * Returns the thread flag ID of this message boards thread flag.
 	 *
 	 * @return the thread flag ID of this message boards thread flag
@@ -72,6 +90,34 @@ public interface MBThreadFlagModel extends BaseModel<MBThreadFlag> {
 	 * @param threadFlagId the thread flag ID of this message boards thread flag
 	 */
 	public void setThreadFlagId(long threadFlagId);
+
+	/**
+	 * Returns the group ID of this message boards thread flag.
+	 *
+	 * @return the group ID of this message boards thread flag
+	 */
+	public long getGroupId();
+
+	/**
+	 * Sets the group ID of this message boards thread flag.
+	 *
+	 * @param groupId the group ID of this message boards thread flag
+	 */
+	public void setGroupId(long groupId);
+
+	/**
+	 * Returns the company ID of this message boards thread flag.
+	 *
+	 * @return the company ID of this message boards thread flag
+	 */
+	public long getCompanyId();
+
+	/**
+	 * Sets the company ID of this message boards thread flag.
+	 *
+	 * @param companyId the company ID of this message boards thread flag
+	 */
+	public void setCompanyId(long companyId);
 
 	/**
 	 * Returns the user ID of this message boards thread flag.
@@ -101,6 +147,35 @@ public interface MBThreadFlagModel extends BaseModel<MBThreadFlag> {
 	 * @param userUuid the user uuid of this message boards thread flag
 	 */
 	public void setUserUuid(String userUuid);
+
+	/**
+	 * Returns the user name of this message boards thread flag.
+	 *
+	 * @return the user name of this message boards thread flag
+	 */
+	@AutoEscape
+	public String getUserName();
+
+	/**
+	 * Sets the user name of this message boards thread flag.
+	 *
+	 * @param userName the user name of this message boards thread flag
+	 */
+	public void setUserName(String userName);
+
+	/**
+	 * Returns the create date of this message boards thread flag.
+	 *
+	 * @return the create date of this message boards thread flag
+	 */
+	public Date getCreateDate();
+
+	/**
+	 * Sets the create date of this message boards thread flag.
+	 *
+	 * @param createDate the create date of this message boards thread flag
+	 */
+	public void setCreateDate(Date createDate);
 
 	/**
 	 * Returns the modified date of this message boards thread flag.
@@ -145,6 +220,10 @@ public interface MBThreadFlagModel extends BaseModel<MBThreadFlag> {
 	public void setPrimaryKeyObj(Serializable primaryKeyObj);
 
 	public ExpandoBridge getExpandoBridge();
+
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel);
+
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge);
 
 	public void setExpandoBridgeAttributes(ServiceContext serviceContext);
 

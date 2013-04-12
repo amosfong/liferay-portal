@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.MessageStatus;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.staging.LayoutStagingUtil;
 import com.liferay.portal.kernel.staging.Staging;
 import com.liferay.portal.kernel.staging.StagingConstants;
@@ -118,6 +119,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Wesley Gong
  * @author Zsolt Balogh
  */
+@DoPrivileged
 public class StagingImpl implements Staging {
 
 	public String buildRemoteURL(
@@ -247,10 +249,12 @@ public class StagingImpl implements Staging {
 			url, user.getEmailAddress(), user.getPassword(),
 			user.getPasswordEncrypted());
 
-		// Ping remote host and verify that the group exists
+		// Ping remote host and verify that the group exists in the same company
+		// as the remote user
 
 		try {
-			GroupServiceHttp.getGroup(httpPrincipal, remoteGroupId);
+			GroupServiceHttp.checkRemoteStagingGroup(
+				httpPrincipal, remoteGroupId);
 		}
 		catch (NoSuchGroupException nsge) {
 			RemoteExportException ree = new RemoteExportException(
@@ -1529,7 +1533,7 @@ public class StagingImpl implements Staging {
 		}
 		else {
 			locale = LocaleUtil.getDefault();
-			timeZone = TimeZoneUtil.getDefault();
+			timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
 		}
 
 		Calendar cal = CalendarFactoryUtil.getCalendar(timeZone, locale);
@@ -2277,10 +2281,12 @@ public class StagingImpl implements Staging {
 			url, user.getEmailAddress(), user.getPassword(),
 			user.getPasswordEncrypted());
 
-		// Ping remote host and verify that the group exists
+		// Ping remote host and verify that the group exists in the same company
+		// as the remote user
 
 		try {
-			GroupServiceHttp.getGroup(httpPrincipal, remoteGroupId);
+			GroupServiceHttp.checkRemoteStagingGroup(
+				httpPrincipal, remoteGroupId);
 		}
 		catch (NoSuchGroupException nsge) {
 			RemoteExportException ree = new RemoteExportException(

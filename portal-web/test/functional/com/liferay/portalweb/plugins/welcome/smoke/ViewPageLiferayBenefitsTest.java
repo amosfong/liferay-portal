@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -60,18 +60,22 @@ public class ViewPageLiferayBenefitsTest extends BaseTestCase {
 			selenium.getText("//ul[@id='contentNav']/li[5]/a"));
 		assertTrue(selenium.isVisible("//a[@id='marketplace']"));
 		assertTrue(selenium.isVisible(
-				"//div[@id='getting-started']/div/span[@class='footer-logo']"));
+				"//div[@id='social-office']/div/span[@class='footer-logo']"));
 		assertEquals(RuntimeVariables.replace("Want Easy Social Collaboration?"),
-			selenium.getText("//div[@id='getting-started']/div/div/h3"));
+			selenium.getText("//div[@id='social-office']/div/div/h3"));
 		assertEquals(RuntimeVariables.replace("Get Social Office \u25ba"),
+			selenium.getText("//div[@id='social-office']/div/div/a"));
+		assertTrue(selenium.isVisible(
+				"//div[@id='getting-started']/div/span[@class='footer-logo']"));
+		assertEquals(RuntimeVariables.replace("Need Help Getting Started?"),
+			selenium.getText("//div[@id='getting-started']/div/div/h3"));
+		assertEquals(RuntimeVariables.replace("Click here \u25ba"),
 			selenium.getText("//div[@id='getting-started']/div/div/a"));
 		assertTrue(selenium.isVisible(
 				"//div[@id='ide']/div/span[@class='footer-logo']"));
-		assertTrue(selenium.isVisible("//div[@id='ide']/div/div/h3"));
-		assertTrue(selenium.isVisible("//div[@id='ide']/div/div/a"));
-		assertTrue(selenium.isVisible(
-				"//div[@id='social-office']/div/span[@class='footer-logo']"));
-		assertTrue(selenium.isVisible("//div[@id='social-office']/div/div/h3"));
-		assertTrue(selenium.isVisible("//div[@id='social-office']/div/div/a"));
+		assertEquals(RuntimeVariables.replace("Develop Faster."),
+			selenium.getText("//div[@id='ide']/div/div/h3"));
+		assertEquals(RuntimeVariables.replace("Click here \u25ba"),
+			selenium.getText("//div[@id='ide']/div/div/a"));
 	}
 }

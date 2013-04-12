@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -195,26 +195,29 @@ if (Validator.isNotNull(historyKey)) {
 
 	<%
 	String errorSection = (String)request.getAttribute("errorSection");
+
+	curSection = Validator.isNotNull(errorSection) ? namespace + errorSection : curSection;
 	%>
 
-	<c:if test="<%= Validator.isNotNull(errorSection) %>">
-		<portlet:namespace />formNavigator._revealSection('#<%= namespace + errorSection %>', '');
-	</c:if>
+	<portlet:namespace />formNavigator._revealSection('#<%= curSection %>', '');
 </aui:script>
 
 <aui:script use="aui-base">
-	var portlet = A.one('#<portlet:namespace />sectionsContainer');
+	var sectionsContainer = A.one('#<portlet:namespace />sectionsContainer');
 
-	portlet.delegate(
-		'click',
-		function(event) {
-			A.fire(
-				'formNavigator:trackChanges',
-				event.currentTarget
-			);
-		},
-		'.modify-link'
-	);
+	var modifyLinks = sectionsContainer.all('.modify-link');
+
+	if (modifyLinks) {
+		modifyLinks.on(
+			'click',
+			function(event) {
+				A.fire(
+					'formNavigator:trackChanges',
+					event.currentTarget
+				);
+			}
+		);
+	}
 </aui:script>
 
 <%!

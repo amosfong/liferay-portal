@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,7 +17,7 @@ package com.liferay.portlet.documentlibrary.service.impl;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Lock;
@@ -35,7 +35,6 @@ import com.liferay.portlet.documentlibrary.service.base.DLFileEntryServiceBaseIm
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
-import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 
 import java.io.File;
@@ -101,7 +100,8 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #checkInFileEntry(long, String, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long,
+	 *             String, ServiceContext)}
 	 */
 	public void checkInFileEntry(long fileEntryId, String lockUuid)
 		throws PortalException, SystemException {
@@ -126,7 +126,8 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #checkOutFileEntry(long, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
+	 *             ServiceContext)}
 	 */
 	public DLFileEntry checkOutFileEntry(long fileEntryId)
 		throws PortalException, SystemException {
@@ -144,8 +145,8 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #checkOutFileEntry(long, String, long,
-	 *             ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
+	 *             String, long, ServiceContext)}
 	 */
 	public DLFileEntry checkOutFileEntry(
 			long fileEntryId, String owner, long expirationTime)
@@ -432,21 +433,20 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 			OrderByComparator obc)
 		throws PortalException, SystemException {
 
-		long[] folderIds = dlFolderService.getFolderIds(groupId, rootFolderId);
+		List<Long> folderIds = dlFolderService.getFolderIds(
+			groupId, rootFolderId);
 
-		folderIds = DLAppUtil.filterFolderIds(
-			getPermissionChecker(), groupId, folderIds);
-
-		if (folderIds.length == 0) {
+		if (folderIds.size() == 0) {
 			return Collections.emptyList();
 		}
 		else if (userId <= 0) {
 			return dlFileEntryPersistence.filterFindByG_F(
-				groupId, folderIds, start, end, obc);
+				groupId, ArrayUtil.toLongArray(folderIds), start, end, obc);
 		}
 		else {
 			return dlFileEntryPersistence.filterFindByG_U_F(
-				groupId, userId, folderIds, start, end, obc);
+				groupId, userId, ArrayUtil.toLongArray(folderIds), start, end,
+				obc);
 		}
 	}
 
@@ -455,39 +455,37 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 			int status, int start, int end, OrderByComparator obc)
 		throws PortalException, SystemException {
 
-		long[] folderIds = dlFolderService.getFolderIds(groupId, rootFolderId);
+		List<Long> folderIds = dlFolderService.getFolderIds(
+			groupId, rootFolderId);
 
-		folderIds = DLAppUtil.filterFolderIds(
-			getPermissionChecker(), groupId, folderIds);
-
-		if (folderIds.length == 0) {
+		if (folderIds.size() == 0) {
 			return Collections.emptyList();
 		}
-
-		List<Long> folderIdsList = ListUtil.toList(folderIds);
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
 
 		return dlFileEntryFinder.findByG_U_F_M(
-			groupId, userId, folderIdsList, mimeTypes, queryDefinition);
+			groupId, userId, folderIds, mimeTypes, queryDefinition);
 	}
 
 	public int getGroupFileEntriesCount(
 			long groupId, long userId, long rootFolderId)
 		throws PortalException, SystemException {
 
-		long[] folderIds = dlFolderService.getFolderIds(groupId, rootFolderId);
+		List<Long> folderIds = dlFolderService.getFolderIds(
+			groupId, rootFolderId);
 
-		if (folderIds.length == 0) {
+		if (folderIds.size() == 0) {
 			return 0;
 		}
 		else if (userId <= 0) {
-			return dlFileEntryPersistence.filterCountByG_F(groupId, folderIds);
+			return dlFileEntryPersistence.filterCountByG_F(
+				groupId, ArrayUtil.toLongArray(folderIds));
 		}
 		else {
 			return dlFileEntryPersistence.filterCountByG_U_F(
-				groupId, userId, folderIds);
+				groupId, userId, ArrayUtil.toLongArray(folderIds));
 		}
 	}
 
@@ -496,17 +494,15 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 			int status)
 		throws PortalException, SystemException {
 
-		long[] folderIds = dlFolderService.getFolderIds(groupId, rootFolderId);
+		List<Long> folderIds = dlFolderService.getFolderIds(
+			groupId, rootFolderId);
 
-		if (folderIds.length == 0) {
+		if (folderIds.size() == 0) {
 			return 0;
 		}
 
-		List<Long> folderIdsList = ListUtil.toList(folderIds);
-
 		return dlFileEntryFinder.countByG_U_F_M(
-			groupId, userId, folderIdsList, mimeTypes,
-			new QueryDefinition(status));
+			groupId, userId, folderIds, mimeTypes, new QueryDefinition(status));
 	}
 
 	public boolean hasFileEntryLock(long fileEntryId)

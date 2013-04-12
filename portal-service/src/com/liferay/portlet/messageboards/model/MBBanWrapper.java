@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -45,6 +45,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	public Map<String, Object> getModelAttributes() {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
+		attributes.put("uuid", getUuid());
 		attributes.put("banId", getBanId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("companyId", getCompanyId());
@@ -58,6 +59,12 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	public void setModelAttributes(Map<String, Object> attributes) {
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
+		}
+
 		Long banId = (Long)attributes.get("banId");
 
 		if (banId != null) {
@@ -123,6 +130,24 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	*/
 	public void setPrimaryKey(long primaryKey) {
 		_mbBan.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	* Returns the uuid of this message boards ban.
+	*
+	* @return the uuid of this message boards ban
+	*/
+	public java.lang.String getUuid() {
+		return _mbBan.getUuid();
+	}
+
+	/**
+	* Sets the uuid of this message boards ban.
+	*
+	* @param uuid the uuid of this message boards ban
+	*/
+	public void setUuid(java.lang.String uuid) {
+		_mbBan.setUuid(uuid);
 	}
 
 	/**
@@ -342,6 +367,16 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	public void setExpandoBridgeAttributes(
+		com.liferay.portal.model.BaseModel<?> baseModel) {
+		_mbBan.setExpandoBridgeAttributes(baseModel);
+	}
+
+	public void setExpandoBridgeAttributes(
+		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+		_mbBan.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	public void setExpandoBridgeAttributes(
 		com.liferay.portal.service.ServiceContext serviceContext) {
 		_mbBan.setExpandoBridgeAttributes(serviceContext);
 	}
@@ -387,7 +422,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedModel}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
 	public MBBan getWrappedMBBan() {
 		return _mbBan;

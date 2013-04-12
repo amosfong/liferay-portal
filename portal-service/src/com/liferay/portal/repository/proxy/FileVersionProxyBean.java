@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -38,6 +38,30 @@ public class FileVersionProxyBean
 		super(classLoader);
 
 		_fileVersion = fileVersion;
+	}
+
+	@Override
+	public Object clone() {
+		FileVersionProxyBean fileVersionProxyBean = newFileVersionProxyBean(
+			_fileVersion);
+
+		fileVersionProxyBean.setCompanyId(getCompanyId());
+		fileVersionProxyBean.setCreateDate(getCreateDate());
+		fileVersionProxyBean.setGroupId(getGroupId());
+		fileVersionProxyBean.setModifiedDate(getModifiedDate());
+		fileVersionProxyBean.setPrimaryKeyObj(getPrimaryKeyObj());
+		fileVersionProxyBean.setUserId(getUserId());
+		fileVersionProxyBean.setUserName(getUserName());
+
+		try {
+			fileVersionProxyBean.setUserUuid(getUserUuid());
+		}
+		catch (SystemException se) {
+		}
+
+		fileVersionProxyBean.setUuid(getUuid());
+
+		return fileVersionProxyBean;
 	}
 
 	public Map<String, Serializable> getAttributes() {
@@ -245,6 +269,10 @@ public class FileVersionProxyBean
 
 	public void setUserUuid(String userUuid) {
 		_fileVersion.setUserUuid(userUuid);
+	}
+
+	public void setUuid(String uuid) {
+		_fileVersion.setUuid(uuid);
 	}
 
 	public FileVersion toEscapedModel() {

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -35,19 +35,18 @@ if (Validator.isNull(formAction)) {
 		liferayPortletURL = new PortletURLImpl(request, PortletKeys.LANGUAGE, plid, PortletRequest.ACTION_PHASE);
 	}
 
-	liferayPortletURL.setWindowState(WindowState.NORMAL);
-	liferayPortletURL.setPortletMode(PortletMode.VIEW);
 	liferayPortletURL.setAnchor(false);
-
 	liferayPortletURL.setParameter("struts_action", "/language/view");
 	liferayPortletURL.setParameter("redirect", currentURL);
+	liferayPortletURL.setPortletMode(PortletMode.VIEW);
+	liferayPortletURL.setWindowState(WindowState.NORMAL);
 
 	formAction = liferayPortletURL.toString();
 }
 
 String name = (String)request.getAttribute("liferay-ui:language:name");
 Locale[] locales = (Locale[])request.getAttribute("liferay-ui:language:locales");
-boolean displayCurrentLocale = GetterUtil.getBoolean((String) request.getAttribute("liferay-ui:language:displayCurrentLocale"), true);
+boolean displayCurrentLocale = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:language:displayCurrentLocale"), true);
 int displayStyle = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:language:displayStyle"));
 
 Map langCounts = new HashMap();

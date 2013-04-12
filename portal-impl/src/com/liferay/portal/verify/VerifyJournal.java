@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,9 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -35,6 +38,7 @@ import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalContentSearchLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
+import com.liferay.portlet.journal.service.persistence.JournalArticleActionableDynamicQuery;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -186,7 +190,7 @@ public class VerifyJournal extends VerifyProcess {
 
 		if (!checkNewLine) {
 			if (_log.isInfoEnabled()) {
-				_log.debug("Do not fix oracle new line");
+				_log.info("Do not fix oracle new line");
 			}
 
 			return;
@@ -200,77 +204,85 @@ public class VerifyJournal extends VerifyProcess {
 	}
 
 	protected void verifyPermissionsAndAssets() throws Exception {
+		ActionableDynamicQuery actionableDynamicQuery =
+			new JournalArticleActionableDynamicQuery() {
 
-		// Articles
+			@Override
+			protected void performAction(Object object)
+				throws PortalException, SystemException {
 
-		List<JournalArticle> articles =
-			JournalArticleLocalServiceUtil.getArticles();
+				JournalArticle article = (JournalArticle)object;
 
-		for (JournalArticle article : articles) {
-			long groupId = article.getGroupId();
-			String articleId = article.getArticleId();
-			double version = article.getVersion();
-			String structureId = article.getStructureId();
+				long groupId = article.getGroupId();
+				String articleId = article.getArticleId();
+				double version = article.getVersion();
+				String structureId = article.getStructureId();
 
-			if (article.getResourcePrimKey() <= 0) {
-				article =
-					JournalArticleLocalServiceUtil.checkArticleResourcePrimKey(
-						groupId, articleId, version);
-			}
+				if (article.getResourcePrimKey() <= 0) {
+					article =
+						JournalArticleLocalServiceUtil.
+							checkArticleResourcePrimKey(
+								groupId, articleId, version);
+				}
 
-			ResourceLocalServiceUtil.addResources(
-				article.getCompanyId(), 0, 0, JournalArticle.class.getName(),
-				article.getResourcePrimKey(), false, false, false);
-
-			try {
-				AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
+				ResourceLocalServiceUtil.addResources(
+					article.getCompanyId(), 0, 0,
 					JournalArticle.class.getName(),
-					article.getResourcePrimKey());
+					article.getResourcePrimKey(), false, false, false);
 
-				if ((article.getStatus() == WorkflowConstants.STATUS_DRAFT) &&
-					(article.getVersion() ==
-						JournalArticleConstants.VERSION_DEFAULT)) {
-
-					AssetEntryLocalServiceUtil.updateEntry(
-						assetEntry.getClassName(), assetEntry.getClassPK(),
-						null, assetEntry.isVisible());
-				}
-			}
-			catch (NoSuchEntryException nsee) {
 				try {
-					JournalArticleLocalServiceUtil.updateAsset(
-						article.getUserId(), article, null, null, null);
-				}
-				catch (Exception e) {
-					if (_log.isWarnEnabled()) {
-						_log.warn(
-							"Unable to update asset for article " +
-								article.getId() + ": " + e.getMessage());
+					AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
+						JournalArticle.class.getName(),
+						article.getResourcePrimKey());
+
+					if ((article.getStatus() ==
+							WorkflowConstants.STATUS_DRAFT) &&
+						(article.getVersion() ==
+							JournalArticleConstants.VERSION_DEFAULT)) {
+
+						AssetEntryLocalServiceUtil.updateEntry(
+							assetEntry.getClassName(), assetEntry.getClassPK(),
+							null, assetEntry.isVisible());
 					}
 				}
+				catch (NoSuchEntryException nsee) {
+					try {
+						JournalArticleLocalServiceUtil.updateAsset(
+							article.getUserId(), article, null, null, null);
+					}
+					catch (Exception e) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(
+								"Unable to update asset for article " +
+									article.getId() + ": " + e.getMessage());
+						}
+					}
+				}
+
+				String content = GetterUtil.getString(article.getContent());
+
+				String newContent = HtmlUtil.replaceMsWordCharacters(content);
+
+				if (Validator.isNotNull(structureId)) {
+					/*JournalStructure structure =
+						JournalStructureLocalServiceUtil.getStructure(
+							groupId, structureId);
+
+					newContent = JournalUtil.removeOldContent(
+						newContent, structure.getXsd());*/
+				}
+
+				if (!content.equals(newContent)) {
+					JournalArticleLocalServiceUtil.updateContent(
+						groupId, articleId, version, newContent);
+				}
+
+				JournalArticleLocalServiceUtil.checkStructure(
+					groupId, articleId, version);
 			}
+		};
 
-			String content = GetterUtil.getString(article.getContent());
-
-			String newContent = HtmlUtil.replaceMsWordCharacters(content);
-
-			if (Validator.isNotNull(structureId)) {
-				/*JournalStructure structure =
-					JournalStructureLocalServiceUtil.getStructure(
-						groupId, structureId);
-
-				newContent = JournalUtil.removeOldContent(
-					newContent, structure.getXsd());*/
-			}
-
-			if (!content.equals(newContent)) {
-				JournalArticleLocalServiceUtil.updateContent(
-					groupId, articleId, version, newContent);
-			}
-
-			JournalArticleLocalServiceUtil.checkStructure(
-				groupId, articleId, version);
-		}
+		actionableDynamicQuery.performActions();
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Permissions and assets verified for articles");

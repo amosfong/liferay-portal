@@ -74,13 +74,14 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		<java
 			classname="org.antlr.Tool"
 			classpathref="antlr.classpath"
+			dir="src/com/liferay/portal/parsers/creole/grammar"
 			fork="true"
 			maxmemory="1024m"
 			newenvironment="true"
 		>
 			<arg value="-o" />
-			<arg path="src/com/liferay/portal/parsers/creole/parser" />
-			<arg path="src/com/liferay/portal/parsers/creole/grammar/Creole10.g" />
+			<arg value="../parser" />
+			<arg value="Creole10.g" />
 		</java>
 
 		<replace file="src/com/liferay/portal/parsers/creole/parser/Creole10Lexer.java">
@@ -384,10 +385,6 @@ public class Creole10Parser]]></replacevalue>
 
 	<target name="build-selenium-new-test-case">
 		<ant dir="../portal-web" target="build-selenium-new-test-case" />
-	</target>
-
-	<target name="build-selenium-new-test-plan">
-		<ant dir="../portal-web" target="build-selenium-new-test-plan" />
 	</target>
 
 	<target name="build-selenium-new-test-suite">
@@ -1306,6 +1303,35 @@ public class Creole10Parser]]></replacevalue>
 		<ant dir="../util-java" target="jar" inheritAll="false" />
 		<ant dir="../util-taglib" target="jar" inheritAll="false" />
 
+		<copy todir="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/core">
+			<fileset dir="${project.dir}/osgi/lib/${module.framework.implementation}/core" includes="*.jar" />
+		</copy>
+
+		<fileset dir="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/core" id="osgi.core.jars">
+			<include name="*.jar" />
+		</fileset>
+
+		<pathconvert property="osgi.core.jars.list" pathsep="," refid="osgi.core.jars">
+			<flattenmapper />
+		</pathconvert>
+
+		<echo file="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/core/jars.txt">${osgi.core.jars.list}</echo>
+
+		<copy todir="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/portal">
+			<fileset dir="${project.dir}/osgi/lib/common/portal" includes="*.jar" />
+			<fileset dir="${project.dir}/osgi/lib/${module.framework.implementation}/portal" includes="*.jar" />
+		</copy>
+
+		<fileset dir="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/portal" id="osgi.portal.jars">
+			<include name="*.jar" />
+		</fileset>
+
+		<pathconvert property="osgi.portal.jars.list" pathsep="," refid="osgi.portal.jars">
+			<flattenmapper />
+		</pathconvert>
+
+		<echo file="${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi/portal/jars.txt">${osgi.portal.jars.list}</echo>
+
 		<if>
 			<not>
 				<and>
@@ -1365,6 +1391,206 @@ public class Creole10Parser]]></replacevalue>
 		>
 			<jvmarg value="-Xmx128m" />
 		</java>
+	</target>
+
+	<target name="update-from-plugins-test-pacl-portlet">
+
+		<!-- Copy Java files -->
+
+		<copy overwrite="true" todir="test/integration/com/liferay/portal/security/pacl/test">
+			<fileset
+				dir="${lp.plugins.dir}/portlets/test-pacl-portlet/docroot/WEB-INF/src/com/liferay/testpacl"
+				includes="hook/**,messaging/**"
+			/>
+			<filterchain>
+				<tokenfilter>
+					<replacestring from="com.liferay.testpacl" to="com.liferay.portal.security.pacl.test" />
+				</tokenfilter>
+			</filterchain>
+		</copy>
+
+		<!-- Update TestPACLMessageListener.java -->
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/messaging/TestPACLMessageListener.java">
+			<replacetoken><![CDATA[import com.liferay.portal.security.pacl.test.util.TestPACLUtil;]]></replacetoken>
+			<replacevalue><![CDATA[import com.liferay.portal.model.User;
+import com.liferay.portal.service.PortalServiceUtil;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.util.TestPropsValues;
+
+import java.util.HashMap;]]></replacevalue>
+		</replace>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/messaging/TestPACLMessageListener.java">
+			<replacetoken><![CDATA[protected Map<String, Boolean> getResults(Message message) {]]></replacetoken>
+			<replacevalue><![CDATA[protected Map<String, Object> getResults(Message message) throws Exception {
+		Map<String, Object> results = new HashMap<String, Object>();
+
+		try {
+			int buildNumber = PortalServiceUtil.getBuildNumber();
+
+			results.put("PortalServiceUtil#getBuildNumber", buildNumber);
+		}
+		catch (SecurityException se) {
+		}
+
+		try {
+			User user = UserLocalServiceUtil.getUser(
+				TestPropsValues.getUserId());
+
+			results.put("UserLocalServiceUtil#getUser", user);
+		}
+		catch (SecurityException se) {
+		}
+
+		return results;
+	}]]></replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="s"
+			file="test/integration/com/liferay/portal/security/pacl/test/messaging/TestPACLMessageListener.java"
+			match="long userId = (.*)"
+			replace="${line.separator}}"
+		/>
+
+		<!-- Copy WEB-INF files -->
+
+		<copy overwrite="true" todir="test/integration/com/liferay/portal/security/pacl/test/dependencies">
+			<fileset
+				dir="${lp.plugins.dir}/portlets/test-pacl-portlet/docroot"
+				includes="WEB-INF/liferay-hook.xml,WEB-INF/liferay-plugin-package.properties"
+			/>
+			<filterchain>
+				<tokenfilter>
+					<replacestring from="com.liferay.testpacl" to="com.liferay.portal.security.pacl.test" />
+				</tokenfilter>
+			</filterchain>
+		</copy>
+
+		<!-- Update liferay-plugin-package.properties -->
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>Test Portal Access Control List</replacetoken>
+			<replacevalue>A Test</replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="g"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties"
+			match="(portal-dependency-jars|portal-dependency-tlds|required-deployment-contexts)=(\\\n[^\\\n]+)*\n\n"
+			replace=""
+		/>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-enabled=true</replacetoken>
+			<replacevalue>security-manager-enabled=true
+
+security-manager-awt-operations=\
+    accessEventQueue</replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="g"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties"
+			match="security-manager-files-(delete|execute|write)=(\\\n[^\\\n]+)*(?=\n\n)"
+			replace="security-manager-files-\1="
+		/>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-files-delete=</replacetoken>
+			<replacevalue>security-manager-files-delete=\
+    ${liferay.home}${/}pacl-test${/}-</replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="g"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties"
+			match="security-manager-files-read=(\\\n[^\\\n]+)*(\\\n\s*\\)(?=\n[ ]{4}/bin/bash)"
+			replace="security-manager-files-read=\2"
+		/>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-files-read=</replacetoken>
+			<replacevalue>security-manager-files-read=\
+    ${liferay.home}${/}pacl-test${/},\
+    ${liferay.home}${/}pacl-test${/}-,</replacevalue>
+		</replace>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-files-write=</replacetoken>
+			<replacevalue>security-manager-files-write=\
+    ${liferay.home}${/}pacl-test${/},\
+    ${liferay.home}${/}pacl-test${/}-</replacevalue>
+		</replace>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-get-bean-property[portal]=</replacetoken>
+			<replacevalue>security-manager-get-bean-property=</replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="g"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties"
+			match="(security-manager-get-bean-property=)([\s\S]*?)(,\\\n[ ]{4})(?=com.liferay.portal.util.PortalUtil)"
+			replace="\1\2\3com.liferay.portal.kernel.util.InfrastructureUtil\3"
+		/>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-hook-custom-jsp-dir-enabled=false</replacetoken>
+			<replacevalue>security-manager-get-bean-property[portal]=\
+    com.liferay.portal.kernel.xml.SAXReader
+
+security-manager-get-bean-property[flash-portlet]=\
+    com.liferay.portal.kernel.bean.PortletBeanLocatorUtil#liferayDataSource
+
+security-manager-hook-custom-jsp-dir-enabled=false</replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="g"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties"
+			match="(security-manager-services\[portal\]=)([\s\S]*?)(,\\\n[ ]{4})(?=com.liferay.portal.service.ResourceLocalService)"
+			replace="\1\2\3com.liferay.portal.service.PortletPreferencesLocalService#getStrictPreferences\3com.liferay.portal.service.UserLocalService#getDefaultUser\3"
+		/>
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/liferay-plugin-package.properties">
+			<replacetoken>security-manager-sockets-accept=\</replacetoken>
+			<replacevalue>security-manager-set-bean-property[flash-portlet]=\
+    com.liferay.portal.kernel.bean.PortletBeanLocatorUtil
+
+security-manager-sockets-accept=\</replacevalue>
+		</replace>
+
+		<!-- Copy WEB-INF/classes files -->
+
+		<copy overwrite="true" todir="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/classes">
+			<fileset
+				dir="${lp.plugins.dir}/portlets/test-pacl-portlet/docroot/WEB-INF/src"
+				includes="portal.properties,content/**,META-INF/base-spring.xml,META-INF/hibernate-spring.xml,META-INF/infrastructure-spring.xml,META-INF/messaging-spring.xml"
+			/>
+			<filterchain>
+				<tokenfilter>
+					<replacestring from="com.liferay.testpacl" to="com.liferay.portal.security.pacl.test" />
+				</tokenfilter>
+			</filterchain>
+		</copy>
+
+		<!-- Update hibernate-spring.xml -->
+
+		<replace file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/classes/META-INF/hibernate-spring.xml">
+			<replacetoken><![CDATA[<bean id="liferayHibernateSessionFactory" class="com.liferay.portal.kernel.spring.util.SpringFactoryUtil" factory-method="newBean">]]></replacetoken>
+			<replacevalue><![CDATA[<bean id="liferayHibernateSessionFactory" class="com.liferay.portal.spring.hibernate.PortalHibernateConfiguration">
+		<property name="dataSource" ref="liferayDataSource" />
+	</bean>]]></replacevalue>
+		</replace>
+
+		<replaceregexp
+			flags="s"
+			file="test/integration/com/liferay/portal/security/pacl/test/dependencies/WEB-INF/classes/META-INF/hibernate-spring.xml"
+			match="&lt;/bean(.*)&lt;bean id=&quot;liferaySessionFactory"
+			replace="&lt;/bean>${line.separator}&#x9;&lt;bean id=&quot;liferaySessionFactory"
+		/>
 	</target>
 
 	<target name="upgrade-db">

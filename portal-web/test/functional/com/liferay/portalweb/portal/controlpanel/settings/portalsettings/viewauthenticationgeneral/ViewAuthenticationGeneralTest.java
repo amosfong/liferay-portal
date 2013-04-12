@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -119,8 +119,8 @@ public class ViewAuthenticationGeneralTest extends BaseTestCase {
 				"Mail Host Names"));
 		assertTrue(selenium.isPartialText(
 				"//a[@id='_130_emailNotificationsLink']", "Email Notifications"));
-		assertTrue(selenium.isPartialText("//a[@id='_130_recycleBinLink']",
-				"Recycle Bin"));
+		assertTrue(selenium.isPartialText(
+				"//a[@id='_130_contentSharingLink']", "Content Sharing"));
 		assertEquals(RuntimeVariables.replace("Identification"),
 			selenium.getText(
 				"//div[@class='menu-group']/h3[contains(.,'Identification')]"));

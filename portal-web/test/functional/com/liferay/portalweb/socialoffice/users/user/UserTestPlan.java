@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portalweb.socialoffice.users.user;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.socialoffice.users.user.addsouser.AddSOUserTests;
+import com.liferay.portalweb.socialoffice.users.user.assignsorolesousersoconfiguration.AssignSORoleSOUserSOConfigurationTests;
 import com.liferay.portalweb.socialoffice.users.user.configuredefaultrolesouser.ConfigureDefaultRoleSOUserTests;
 import com.liferay.portalweb.socialoffice.users.user.editsouserpassword.EditSOUserPasswordTests;
 import com.liferay.portalweb.socialoffice.users.user.removeregularrolessouser.RemoveRegularRolesSOUserTests;
@@ -36,6 +37,7 @@ public class UserTestPlan extends BaseTestSuite {
 		TestSuite testSuite = new TestSuite();
 
 		testSuite.addTest(AddSOUserTests.suite());
+		testSuite.addTest(AssignSORoleSOUserSOConfigurationTests.suite());
 		testSuite.addTest(ConfigureDefaultRoleSOUserTests.suite());
 		testSuite.addTest(EditSOUserPasswordTests.suite());
 		testSuite.addTest(RemoveRegularRolesSOUserTests.suite());

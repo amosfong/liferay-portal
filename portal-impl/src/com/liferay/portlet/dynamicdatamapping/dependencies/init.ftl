@@ -6,7 +6,11 @@
 
 <#-- CSS class -->
 
-<#assign cssClass = escapeAttribute(fieldStructure.fieldCssClass!"")>
+<#assign cssClass = "">
+
+<#if fieldStructure.width??>
+	<#assign cssClass = "aui-w" + fieldStructure.width>
+</#if>
 
 <#-- Repeatable -->
 
@@ -33,11 +37,9 @@
 
 <#assign namespace = namespace!"">
 
-<#if namespace == "">
-	<#assign namespace = portletNamespace>
-</#if>
+<#assign namespacedFieldName = "${namespace}${fieldName}${fieldNamespace}">
 
-<#assign namespacedFieldName = "${fieldName}${fieldNamespace}">
+<#assign namespacedParentName = "${namespace}${parentName}">
 
 <#-- Data -->
 

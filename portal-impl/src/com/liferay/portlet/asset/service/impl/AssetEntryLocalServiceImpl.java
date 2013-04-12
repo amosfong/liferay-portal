@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.ScopeFacet;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InstancePool;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -56,6 +57,7 @@ import com.liferay.portlet.bookmarks.model.BookmarksEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.messageboards.model.MBMessage;
+import com.liferay.portlet.social.model.SocialActivityConstants;
 import com.liferay.portlet.wiki.model.WikiPage;
 
 import java.util.ArrayList;
@@ -120,6 +122,12 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 	public AssetEntry fetchEntry(long entryId) throws SystemException {
 		return assetEntryPersistence.fetchByPrimaryKey(entryId);
+	}
+
+	public AssetEntry fetchEntry(long groupId, String classUuid)
+		throws SystemException {
+
+		return assetEntryPersistence.fetchByG_CU(groupId, classUuid);
 	}
 
 	public AssetEntry fetchEntry(String className, long classPK)
@@ -313,6 +321,26 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		return assetEntryFinder.findEntries(entryQuery);
 	}
 
+	public AssetEntry incrementViewCounter(
+			long userId, String className, long classPK)
+		throws PortalException, SystemException {
+
+		User user = userPersistence.findByPrimaryKey(userId);
+
+		assetEntryLocalService.incrementViewCounter(
+			user.getUserId(), className, classPK, 1);
+
+		AssetEntry assetEntry = getEntry(className, classPK);
+
+		if (!user.isDefaultUser()) {
+			socialActivityLocalService.addActivity(
+				user.getUserId(), assetEntry.getGroupId(), className, classPK,
+				SocialActivityConstants.TYPE_VIEW, StringPool.BLANK, 0);
+		}
+
+		return assetEntry;
+	}
+
 	@BufferedIncrement(
 		configuration = "AssetEntry", incrementClass = NumberIncrement.class)
 	public AssetEntry incrementViewCounter(
@@ -350,8 +378,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #search(long, long[], long, String, String, int, int,
-	 *             int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #search(long, long[], long,
+	 *             String, String, int, int, int)}
 	 */
 	public Hits search(
 			long companyId, long[] groupIds, long userId, String className,
@@ -411,8 +439,9 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #search(long, long[], long, String, String, String,
-	 *             String, String, String, int, boolean, int, int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #search(long, long[], long,
+	 *             String, String, String, String, String, String, int, boolean,
+	 *             int, int)}
 	 */
 	public Hits search(
 			long companyId, long[] groupIds, long userId, String className,
@@ -483,8 +512,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #search(long, long[], long, String, String, int, int,
-	 *             int)}
+	 * @deprecated As of 6.2.0, replaced by {@link #search(long, long[], long,
+	 *             String, String, int, int, int)}
 	 */
 	public Hits search(
 			long companyId, long[] groupIds, String className, String keywords,
@@ -749,9 +778,10 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateEntry(long, long, String, long, String, long,
-	 *             long[], String[], boolean, Date, Date, Date, String, String,
-	 *             String, String, String, String, int, int, Integer, boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, long,
+	 *             String, long, String, long, long[], String[], boolean, Date,
+	 *             Date, Date, String, String, String, String, String, String,
+	 *             int, int, Integer, boolean)}
 	 */
 	public AssetEntry updateEntry(
 			long userId, long groupId, String className, long classPK,
@@ -771,10 +801,10 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateEntry(long, long, Date, Date, String, long,
-	 *             String, long, long[], String[], boolean, Date, Date, Date,
-	 *             String, String, String, String, String, String, int, int,
-	 *             Integer, boolean)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, long,
+	 *             Date, Date, String, long, String, long, long[], String[],
+	 *             boolean, Date, Date, Date, String, String, String, String,
+	 *             String, String, int, int, Integer, boolean)}
 	 */
 	public AssetEntry updateEntry(
 			long userId, long groupId, String className, long classPK,

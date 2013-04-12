@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@
 <%
 String backLabel = (String)request.getAttribute("liferay-ui:header:backLabel");
 String backURL = (String)request.getAttribute("liferay-ui:header:backURL");
-String cssClass = (String)request.getAttribute("liferay-ui:header:cssClass");
+String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:header:cssClass"));
 boolean escapeXml = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:header:escapeXml"));
 boolean localizeTitle = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:header:localizeTitle"));
 boolean showBackURL = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:header:showBackURL"));

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -79,7 +79,7 @@ public class OutputStreamWriter extends Writer {
 		throws IOException {
 
 		ByteBuffer byteBuffer = _charsetEncoder.encode(
-			CharBuffer.wrap(string, offset, length));
+			CharBuffer.wrap(string, offset, offset + length));
 
 		_outputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
 	}

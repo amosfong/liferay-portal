@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -118,6 +118,10 @@ public class WikiPageServiceWrapper implements WikiPageService,
 		_wikiPageService.deletePage(nodeId, title);
 	}
 
+	/**
+	* @deprecated As of 6.2.0 replaced by {@link #discardDraft(long, String,
+	double)}
+	*/
 	public void deletePage(long nodeId, java.lang.String title, double version)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -151,6 +155,12 @@ public class WikiPageServiceWrapper implements WikiPageService,
 		_wikiPageService.deleteTrashPageAttachments(nodeId, title);
 	}
 
+	public void discardDraft(long nodeId, java.lang.String title, double version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_wikiPageService.discardDraft(nodeId, title, version);
+	}
+
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getChildren(
 		long groupId, long nodeId, boolean head, java.lang.String parentTitle)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -172,6 +182,10 @@ public class WikiPageServiceWrapper implements WikiPageService,
 		return _wikiPageService.getNodePages(nodeId, max);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getNodePagesRSS(long, int,
+	String, double, String, String, String, String)}
+	*/
 	public java.lang.String getNodePagesRSS(long nodeId, int max,
 		java.lang.String type, double version, java.lang.String displayStyle,
 		java.lang.String feedURL, java.lang.String entryURL)
@@ -179,6 +193,16 @@ public class WikiPageServiceWrapper implements WikiPageService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPageService.getNodePagesRSS(nodeId, max, type, version,
 			displayStyle, feedURL, entryURL);
+	}
+
+	public java.lang.String getNodePagesRSS(long nodeId, int max,
+		java.lang.String type, double version, java.lang.String displayStyle,
+		java.lang.String feedURL, java.lang.String entryURL,
+		java.lang.String attachmentURLPrefix)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPageService.getNodePagesRSS(nodeId, max, type, version,
+			displayStyle, feedURL, entryURL, attachmentURLPrefix);
 	}
 
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getOrphans(
@@ -245,6 +269,11 @@ public class WikiPageServiceWrapper implements WikiPageService,
 		return _wikiPageService.getPagesCount(groupId, userId, nodeId, status);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getPagesRSS(long, long,
+	String, int, String, double, String, String, String, String,
+	java.util.Locale)}
+	*/
 	public java.lang.String getPagesRSS(long companyId, long nodeId,
 		java.lang.String title, int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
@@ -253,6 +282,18 @@ public class WikiPageServiceWrapper implements WikiPageService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPageService.getPagesRSS(companyId, nodeId, title, max,
 			type, version, displayStyle, feedURL, entryURL, locale);
+	}
+
+	public java.lang.String getPagesRSS(long companyId, long nodeId,
+		java.lang.String title, int max, java.lang.String type, double version,
+		java.lang.String displayStyle, java.lang.String feedURL,
+		java.lang.String entryURL, java.lang.String attachmentURLPrefix,
+		java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPageService.getPagesRSS(companyId, nodeId, title, max,
+			type, version, displayStyle, feedURL, entryURL,
+			attachmentURLPrefix, locale);
 	}
 
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getRecentChanges(
@@ -352,14 +393,14 @@ public class WikiPageServiceWrapper implements WikiPageService,
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #getWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
 	public WikiPageService getWrappedWikiPageService() {
 		return _wikiPageService;
 	}
 
 	/**
-	 * @deprecated Renamed to {@link #setWrappedService}
+	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
 	public void setWrappedWikiPageService(WikiPageService wikiPageService) {
 		_wikiPageService = wikiPageService;

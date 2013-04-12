@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -153,11 +153,7 @@ private PortletURL _getViewFullContentURL(HttpServletRequest request, ThemeDispl
 		scopeGroupId = themeDisplay.getScopeGroupId();
 	}
 
-	long plid = LayoutServiceUtil.getDefaultPlid(groupId, scopeGroupId, false, portletId);
-
-	if (plid == 0) {
-		plid = LayoutServiceUtil.getDefaultPlid(groupId, scopeGroupId, true, portletId);
-	}
+	long plid = LayoutServiceUtil.getDefaultPlid(groupId, scopeGroupId, portletId);
 
 	if (plid == 0) {
 		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
@@ -169,8 +165,8 @@ private PortletURL _getViewFullContentURL(HttpServletRequest request, ThemeDispl
 
 	PortletURL portletURL = PortletURLFactoryUtil.create(request, portletId, plid, PortletRequest.RENDER_PHASE);
 
-	portletURL.setWindowState(WindowState.MAXIMIZED);
 	portletURL.setPortletMode(PortletMode.VIEW);
+	portletURL.setWindowState(WindowState.MAXIMIZED);
 
 	return portletURL;
 }

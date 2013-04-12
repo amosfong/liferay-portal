@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,19 +14,48 @@
 
 package com.liferay.portal.servlet;
 
+import com.liferay.portal.kernel.util.TransientValue;
+
 import java.io.Serializable;
 
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionEvent;
 
 /**
  * @author Alexander Chow
  */
-public class PortalSessionActivationListener implements
-	HttpSessionActivationListener, Serializable {
+public class PortalSessionActivationListener
+	implements HttpSessionActivationListener, Serializable {
 
 	public static PortalSessionActivationListener getInstance() {
 		return _instance;
+	}
+
+	public static PortalSessionActivationListener getInstance(
+		HttpSession session) {
+
+		TransientValue<PortalSessionActivationListener> transientValue =
+			(TransientValue<PortalSessionActivationListener>)
+				session.getAttribute(
+					PortalSessionActivationListener.class.getName());
+
+		PortalSessionActivationListener portalSessionActivationListener = null;
+
+		if (transientValue != null) {
+			portalSessionActivationListener = transientValue.getValue();
+		}
+
+		return portalSessionActivationListener;
+	}
+
+	public static void setInstance(HttpSession session) {
+		TransientValue<PortalSessionActivationListener> transientValue =
+			new TransientValue<PortalSessionActivationListener>(
+				PortalSessionActivationListener.getInstance());
+
+		session.setAttribute(
+			PortalSessionActivationListener.class.getName(), transientValue);
 	}
 
 	public void sessionDidActivate(HttpSessionEvent httpSessionEvent) {

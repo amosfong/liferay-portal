@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -175,7 +175,7 @@ int secondReminder = BeanParamUtil.getInteger(event, request, "secondReminder", 
 			for (int i = 0; i < CalEventConstants.TYPES.length; i++) {
 			%>
 
-				<aui:option label="<%= CalEventConstants.TYPES[i] %>" />
+				<aui:option value="<%= HtmlUtil.escapeAttribute(CalEventConstants.TYPES[i]) %>"><%= HtmlUtil.escape(CalEventConstants.TYPES[i]) %></aui:option>
 
 			<%
 			}
@@ -275,12 +275,12 @@ int secondReminder = BeanParamUtil.getInteger(event, request, "secondReminder", 
 
 				<aui:field-wrapper cssClass="reminders" label="">
 					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_NONE %>" label="do-not-send-a-reminder" name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_NONE %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_EMAIL %>" label='<%= LanguageUtil.get(pageContext, "email-address") + " (" + user.getEmailAddress() + ")" %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_EMAIL %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_SMS %>" label='<%= LanguageUtil.get(pageContext, "sms") + (Validator.isNotNull(contact.getSmsSn()) ? " (" + contact.getSmsSn() + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_SMS %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_AIM %>" label='<%= LanguageUtil.get(pageContext, "aim") + (Validator.isNotNull(contact.getAimSn()) ? " (" + contact.getAimSn() + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_AIM %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_ICQ %>" label='<%= LanguageUtil.get(pageContext, "icq") + (Validator.isNotNull(contact.getIcqSn()) ? " (" + contact.getIcqSn() + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_ICQ %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_MSN %>" label='<%= LanguageUtil.get(pageContext, "windows-live-messenger") + (Validator.isNotNull(contact.getMsnSn()) ? " (" + contact.getMsnSn() + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_MSN %>" />
-					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_YM %>" label='<%= LanguageUtil.get(pageContext, "yim") + (Validator.isNotNull(contact.getYmSn()) ? " (" + contact.getYmSn() + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_YM %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_EMAIL %>" label='<%= LanguageUtil.get(pageContext, "email-address") + " (" + HtmlUtil.escape(user.getEmailAddress()) + ")" %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_EMAIL %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_SMS %>" label='<%= LanguageUtil.get(pageContext, "sms") + (Validator.isNotNull(contact.getSmsSn()) ? " (" + HtmlUtil.escape(contact.getSmsSn()) + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_SMS %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_AIM %>" label='<%= LanguageUtil.get(pageContext, "aim") + (Validator.isNotNull(contact.getAimSn()) ? " (" + HtmlUtil.escape(contact.getAimSn()) + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_AIM %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_ICQ %>" label='<%= LanguageUtil.get(pageContext, "icq") + (Validator.isNotNull(contact.getIcqSn()) ? " (" + HtmlUtil.escape(contact.getIcqSn()) + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_ICQ %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_MSN %>" label='<%= LanguageUtil.get(pageContext, "windows-live-messenger") + (Validator.isNotNull(contact.getMsnSn()) ? " (" + HtmlUtil.escape(contact.getMsnSn()) + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_MSN %>" />
+					<aui:input checked="<%= remindBy == CalEventConstants.REMIND_BY_YM %>" label='<%= LanguageUtil.get(pageContext, "yim") + (Validator.isNotNull(contact.getYmSn()) ? " (" + HtmlUtil.escape(contact.getYmSn()) + ")" : "") %>' name="remindBy" type="radio" value="<%= CalEventConstants.REMIND_BY_YM %>" />
 				</aui:field-wrapper>
 			</aui:fieldset>
 		</liferay-ui:panel>
@@ -319,8 +319,13 @@ int secondReminder = BeanParamUtil.getInteger(event, request, "secondReminder", 
 	var allDayCheckbox = A.one('#<portlet:namespace />allDayCheckbox');
 
 	var durationHour = A.one('#<portlet:namespace />durationHour');
+	var durationMinute = A.one('#<portlet:namespace />durationMinute');
 
 	var timeZoneSensitiveCheckbox = A.one('#<portlet:namespace />timeZoneSensitiveCheckbox');
+
+	var startDateHour = document.<portlet:namespace />fm.<portlet:namespace />startDateHour;
+	var startDateMinute = document.<portlet:namespace />fm.<portlet:namespace />startDateMinute;
+	var startDateAmPm = document.<portlet:namespace />fm.<portlet:namespace />startDateAmPm;
 
 	allDayCheckbox.on(
 		'change',
@@ -332,15 +337,32 @@ int secondReminder = BeanParamUtil.getInteger(event, request, "secondReminder", 
 			}
 
 			if (allDayChecked) {
+				durationHour.val('24');
+				durationMinute.val('0');
+
+				durationHour.attr('disabled', true);
+				durationMinute.attr('disabled', true);
+
 				timeZoneSensitiveCheckbox.attr('checked', false);
 				timeZoneSensitiveCheckbox.attr('disabled', true);
+
+				startDateHour.disabled = true;
+				startDateMinute.disabled = true;
+				startDateAmPm.disabled = true;
 			}
 			else {
+				durationHour.attr('disabled', false);
+				durationMinute.attr('disabled', false);
+
 				timeZoneSensitiveCheckbox.attr('disabled', false);
 
 				if (timeZoneSensitiveCheckbox.previous().val() === 'true') {
 					timeZoneSensitiveCheckbox.attr('checked', true);
 				}
+
+				startDateHour.disabled = false;
+				startDateMinute.disabled = false;
+				startDateAmPm.disabled = false;
 			}
 		}
 	);

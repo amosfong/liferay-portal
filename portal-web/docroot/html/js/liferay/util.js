@@ -722,32 +722,49 @@
 
 		_defaultSubmitFormFn: function(event) {
 			var form = event.form;
-			var action = event.action;
-			var singleSubmit = event.singleSubmit;
 
-			var inputs = form.all('input[type=button], input[type=reset], input[type=submit]');
+			var hasErrors = false;
 
-			Util.disableFormButtons(inputs, form);
+			var liferayForm = Liferay.Form.get(form.attr('id'));
 
-			if (singleSubmit === false) {
-				Util._submitLocked = A.later(
-					1000,
-					Util,
-					Util.enableFormButtons,
-					[inputs, form]
-				);
-			}
-			else {
-				Util._submitLocked = true;
+			if (liferayForm) {
+				var validator = liferayForm.formValidator;
+
+				if (A.instanceOf(validator, A.FormValidator)) {
+					validator.validate();
+
+					hasErrors = validator.hasErrors();
+				}
 			}
 
-			if (action !== null) {
-				form.attr('action', action);
+			if (!hasErrors) {
+				var action = event.action;
+				var singleSubmit = event.singleSubmit;
+
+				var inputs = form.all('input[type=button], input[type=reset], input[type=submit]');
+
+				Util.disableFormButtons(inputs, form);
+
+				if (singleSubmit === false) {
+					Util._submitLocked = A.later(
+						1000,
+						Util,
+						Util.enableFormButtons,
+						[inputs, form]
+					);
+				}
+				else {
+					Util._submitLocked = true;
+				}
+
+				if (action !== null) {
+					form.attr('action', action);
+				}
+
+				form.submit();
+
+				form.attr('target', '');
 			}
-
-			form.submit();
-
-			form.attr('target', '');
 		},
 
 		_escapeHTML: function(preventDoubleEscape, entities, entitiesValues, match) {
@@ -1280,6 +1297,7 @@
 
 			var defaultValues = {
 				availableFields: 'Liferay.FormBuilder.AVAILABLE_FIELDS.DDM_STRUCTURE',
+				eventName: 'selectStructure',
 				structureName: 'structures'
 			};
 
@@ -1291,18 +1309,21 @@
 
 			ddmURL.setDoAsGroupId(config.doAsGroupId || themeDisplay.getScopeGroupId());
 
-			ddmURL.setParameter('chooseCallback', config.chooseCallback);
 			ddmURL.setParameter('classNameId', config.classNameId);
 			ddmURL.setParameter('classPK', config.classPK);
 			ddmURL.setParameter('ddmResource', config.ddmResource);
 			ddmURL.setParameter('ddmResourceActionId', config.ddmResourceActionId);
+			ddmURL.setParameter('eventName', config.eventName);
 			ddmURL.setParameter('groupId', config.groupId);
 
 			if ('refererPortletName' in config) {
 				ddmURL.setParameter('refererPortletName', config.refererPortletName);
 			}
 
-			ddmURL.setParameter('saveCallback', config.saveCallback);
+			if ('refererWebDAVToken' in config) {
+				ddmURL.setParameter('refererWebDAVToken', config.refererWebDAVToken);
+			}
+
 			ddmURL.setParameter('scopeAvailableFields', config.availableFields);
 			ddmURL.setParameter('scopeStorageType', config.storageType);
 			ddmURL.setParameter('scopeStructureName', config.structureName);
@@ -1350,7 +1371,9 @@
 				dialogConfig.align = Util.Window.ALIGN_CENTER;
 			}
 
-			Util.openWindow(config, callback);
+			Util.openWindow(config);
+
+			Liferay.on(config.eventName, callback);
 		},
 		['liferay-portlet-url']
 	);
@@ -1633,11 +1656,15 @@
 		Util,
 		'selectEntity',
 		function(config, callback) {
-			this.openWindow(config);
+			var dialog = Util.getWindow(config.id);
 
-			var eventName = config.eventName || config.id;
+			if (!dialog) {
+				var eventName = config.eventName || config.id;
 
-			Liferay.on(eventName, callback);
+				Liferay.on(eventName, callback);
+			}
+
+			Util.openWindow(config);
 		},
 		['aui-base']
 	);
@@ -1928,7 +1955,7 @@
 				);
 			}
 		},
-		['aui-base']
+		['aui-base', 'aui-form-validator', 'liferay-form']
 	);
 
 	Liferay.publish(

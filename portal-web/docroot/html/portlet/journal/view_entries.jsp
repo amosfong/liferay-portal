@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -90,7 +90,14 @@ boolean showAddArticleButton = JournalPermission.contains(permissionChecker, sco
 			if (!displayTerms.getStructureId().equals("0")) {
 				structureId = displayTerms.getStructureId();
 
-				DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(scopeGroupId, PortalUtil.getClassNameId(JournalArticle.class), displayTerms.getStructureId());
+				DDMStructure ddmStructure = null;
+
+				try {
+					ddmStructure = DDMStructureLocalServiceUtil.getStructure(scopeGroupId, PortalUtil.getClassNameId(JournalArticle.class), displayTerms.getStructureId());
+				}
+				catch (NoSuchStructureException nsse) {
+					ddmStructure = DDMStructureLocalServiceUtil.getStructure(themeDisplay.getCompanyGroupId(), PortalUtil.getClassNameId(JournalArticle.class), displayTerms.getStructureId());
+				}
 
 				ddmStructureName = ddmStructure.getName(locale);
 			}
@@ -178,11 +185,17 @@ int total = 0;
 %>
 
 <c:choose>
-	<c:when test='<%= displayTerms.getNavigation().equals("mine") %>'>
+	<c:when test='<%= displayTerms.getNavigation().equals("mine") || displayTerms.isNavigationRecent() %>'>
 
 		<%
-		results = JournalArticleServiceUtil.getArticlesByUserId(scopeGroupId, themeDisplay.getUserId(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, entryStart, entryEnd, searchContainer.getOrderByComparator());
-		total = JournalArticleServiceUtil.getArticlesCountByUserId(scopeGroupId, themeDisplay.getUserId(), JournalArticleConstants.CLASSNAME_ID_DEFAULT);
+		long userId = 0;
+
+		if (displayTerms.getNavigation().equals("mine")) {
+			userId = themeDisplay.getUserId();
+		}
+
+		results = JournalArticleServiceUtil.getGroupArticles(scopeGroupId, userId, folderId, searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator());
+		total = JournalArticleServiceUtil.getGroupArticlesCount(scopeGroupId, userId, folderId);
 
 		searchContainer.setResults(results);
 		searchContainer.setTotal(total);
@@ -200,7 +213,7 @@ int total = 0;
 		%>
 
 	</c:when>
-	<c:when test="<%= Validator.isNotNull(displayTerms.getTemplateId()) || displayTerms.isNavigationRecent() %>">
+	<c:when test="<%= Validator.isNotNull(displayTerms.getTemplateId()) %>">
 
 		<%
 		results = JournalArticleServiceUtil.search(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatusCode(), searchTerms.getReviewDate(), searchContainer.getStart(), searchContainer.getEnd(), searchContainer.getOrderByComparator());

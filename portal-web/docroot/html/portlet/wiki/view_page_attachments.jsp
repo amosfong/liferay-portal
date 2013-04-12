@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -76,7 +76,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "att
 			<liferay-ui:trash-empty
 				confirmMessage="are-you-sure-you-want-to-remove-the-attachments-for-this-page"
 				emptyMessage="remove-the-attachments-for-this-page"
-				infoMessage="attachments-that-have-been-removed-for-more-than-x-days-will-be-automatically-deleted"
+				infoMessage="attachments-that-have-been-removed-for-more-than-x-will-be-automatically-deleted"
 				portletURL="<%= emptyTrashURL.toString() %>"
 				totalEntries="<%= wikiPage.getDeletedAttachmentsFileEntriesCount() %>"
 			/>
@@ -107,7 +107,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "att
 			</c:if>
 
 			<div>
-				<input type="button" value="<liferay-ui:message key="add-attachments" />" onClick="location.href = '<portlet:renderURL><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>';" />
+				<input onClick="location.href = '<portlet:renderURL><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>';" type="button" value="<liferay-ui:message key="add-attachments" />" />
 			</div>
 		</c:otherwise>
 	</c:choose>

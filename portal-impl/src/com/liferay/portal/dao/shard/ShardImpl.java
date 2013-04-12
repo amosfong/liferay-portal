@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portal.dao.shard;
 
 import com.liferay.portal.dao.shard.advice.ShardAdvice;
 import com.liferay.portal.kernel.dao.shard.Shard;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -24,6 +25,7 @@ import javax.sql.DataSource;
 /**
  * @author Alexander Chow
  */
+@DoPrivileged
 public class ShardImpl implements Shard {
 
 	public String[] getAvailableShardNames() {

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -41,8 +41,8 @@ String selResourceName = modelResourceName;
 if (Validator.isNull(modelResource)) {
 	PortletURL portletURL = new PortletURLImpl(request, portletResource, plid, PortletRequest.ACTION_PHASE);
 
-	portletURL.setWindowState(WindowState.NORMAL);
 	portletURL.setPortletMode(PortletMode.VIEW);
+	portletURL.setWindowState(WindowState.NORMAL);
 
 	redirect = portletURL.toString();
 
@@ -132,12 +132,10 @@ long controlPanelPlid = PortalUtil.getControlPanelPlid(company.getCompanyId());
 
 PortletURLImpl definePermissionsURL = new PortletURLImpl(request, PortletKeys.ROLES_ADMIN, controlPanelPlid, PortletRequest.RENDER_PHASE);
 
-definePermissionsURL.setPortletMode(PortletMode.VIEW);
-
-definePermissionsURL.setRefererPlid(plid);
-
 definePermissionsURL.setParameter("struts_action", "/roles_admin/edit_role_permissions");
 definePermissionsURL.setParameter(Constants.CMD, Constants.VIEW);
+definePermissionsURL.setPortletMode(PortletMode.VIEW);
+definePermissionsURL.setRefererPlid(plid);
 %>
 
 <div class="edit-permissions">
@@ -169,7 +167,7 @@ definePermissionsURL.setParameter(Constants.CMD, Constants.VIEW);
 			Group modelResourceGroup = GroupLocalServiceUtil.getGroup(modelResourceGroupId);
 
 			if (modelResourceGroup.isLayoutPrototype() || modelResourceGroup.isLayoutSetPrototype() || modelResourceGroup.isUserGroup()) {
-				actions = new ArrayList(actions);
+				actions = new ArrayList<String>(actions);
 
 				actions.remove(ActionKeys.ADD_LAYOUT_BRANCH);
 				actions.remove(ActionKeys.ADD_LAYOUT_SET_BRANCH);
@@ -182,6 +180,24 @@ definePermissionsURL.setParameter(Constants.CMD, Constants.VIEW);
 				actions.remove(ActionKeys.PUBLISH_TO_REMOTE);
 				actions.remove(ActionKeys.VIEW_MEMBERS);
 				actions.remove(ActionKeys.VIEW_STAGING);
+			}
+		}
+		else if (modelResource.equals(Role.class.getName())) {
+			long modelResourceRoleId = GetterUtil.getLong(resourcePrimKey);
+
+			Role modelResourceRole = RoleLocalServiceUtil.getRole(modelResourceRoleId);
+
+			String name = modelResourceRole.getName();
+
+			if (name.equals(RoleConstants.GUEST) || name.equals(RoleConstants.USER)) {
+				actions = new ArrayList<String>(actions);
+
+				actions.remove(ActionKeys.ASSIGN_MEMBERS);
+				actions.remove(ActionKeys.DEFINE_PERMISSIONS);
+				actions.remove(ActionKeys.DELETE);
+				actions.remove(ActionKeys.PERMISSIONS);
+				actions.remove(ActionKeys.UPDATE);
+				actions.remove(ActionKeys.VIEW);
 			}
 		}
 
@@ -274,7 +290,7 @@ definePermissionsURL.setParameter(Constants.CMD, Constants.VIEW);
 					if (resourceLayout.isPrivateLayout()) {
 						Group resourceLayoutGroup = resourceLayout.getGroup();
 
-						if (!resourceLayoutGroup.isLayoutSetPrototype()) {
+						if (!resourceLayoutGroup.isLayoutPrototype() && !resourceLayoutGroup.isLayoutSetPrototype()) {
 							itr.remove();
 						}
 					}

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,11 +18,16 @@
 
 <%
 String toolbarItem = ParamUtil.getString(request, "toolbarItem", "view-all");
+
+long classPK = ParamUtil.getLong(request, "classPK");
+String eventName = ParamUtil.getString(request, "eventName", "selectStructure");
 %>
 
 <div class="lfr-portlet-toolbar">
 	<portlet:renderURL var="viewStructureURL">
 		<portlet:param name="struts_action" value="/dynamic_data_mapping/select_structure" />
+		<portlet:param name="classPK" value="<%= String.valueOf(classPK) %>" />
+		<portlet:param name="eventName" value="<%= eventName %>" />
 	</portlet:renderURL>
 
 	<span class="lfr-toolbar-button view-button <%= toolbarItem.equals("view-all") ? "current" : StringPool.BLANK %>">

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -55,6 +56,7 @@ import java.util.List;
  * @author Eudaldo Alonso
  * @author Alexander Chow
  */
+@DoPrivileged
 public class PortletFileRepositoryImpl implements PortletFileRepository {
 
 	public void addPortletFileEntries(
@@ -106,7 +108,7 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
-		long repositoryId = getPortletRepositoryId(
+		Repository repository = addPortletRepository(
 			groupId, portletId, serviceContext);
 
 		serviceContext.setAttribute("className", className);
@@ -118,8 +120,9 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 			DLAppHelperThreadLocal.setEnabled(false);
 
 			return DLAppLocalServiceUtil.addFileEntry(
-				userId, repositoryId, folderId, fileName, mimeType, fileName,
-				StringPool.BLANK, StringPool.BLANK, file, serviceContext);
+				userId, repository.getRepositoryId(), folderId, fileName,
+				mimeType, fileName, StringPool.BLANK, StringPool.BLANK, file,
+				serviceContext);
 		}
 		finally {
 			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
@@ -150,7 +153,7 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
-		long repositoryId = getPortletRepositoryId(
+		Repository repository = addPortletRepository(
 			groupId, portletId, serviceContext);
 
 		serviceContext.setAttribute("className", className);
@@ -162,8 +165,68 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 			DLAppHelperThreadLocal.setEnabled(false);
 
 			return DLAppLocalServiceUtil.addFileEntry(
-				userId, repositoryId, folderId, fileName, mimeType, fileName,
-				StringPool.BLANK, StringPool.BLANK, bytes, serviceContext);
+				userId, repository.getRepositoryId(), folderId, fileName,
+				mimeType, fileName, StringPool.BLANK, StringPool.BLANK, bytes,
+				serviceContext);
+		}
+		finally {
+			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
+		}
+	}
+
+	public Folder addPortletFolder(
+			long userId, long repositoryId, long parentFolderId,
+			String folderName, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		boolean dlAppHelperEnabled = DLAppHelperThreadLocal.isEnabled();
+
+		try {
+			DLAppHelperThreadLocal.setEnabled(false);
+
+			return DLAppLocalServiceUtil.getFolder(
+				repositoryId, parentFolderId, folderName);
+		}
+		catch (NoSuchFolderException nsfe) {
+			return DLAppLocalServiceUtil.addFolder(
+				userId, repositoryId, parentFolderId, folderName,
+				StringPool.BLANK, serviceContext);
+		}
+		finally {
+			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
+		}
+	}
+
+	public Repository addPortletRepository(
+			long groupId, String portletId, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		Repository repository = RepositoryLocalServiceUtil.fetchRepository(
+			groupId, portletId);
+
+		if (repository != null) {
+			return repository;
+		}
+
+		Group group = GroupLocalServiceUtil.getGroup(groupId);
+
+		User user = UserLocalServiceUtil.getDefaultUser(group.getCompanyId());
+
+		long classNameId = PortalUtil.getClassNameId(
+			LiferayRepository.class.getName());
+
+		UnicodeProperties typeSettingsProperties = new UnicodeProperties();
+
+		boolean dlAppHelperEnabled = DLAppHelperThreadLocal.isEnabled();
+
+		try {
+			DLAppHelperThreadLocal.setEnabled(false);
+
+			return RepositoryLocalServiceUtil.addRepository(
+				user.getUserId(), groupId, classNameId,
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, portletId,
+				StringPool.BLANK, portletId, typeSettingsProperties, true,
+				serviceContext);
 		}
 		finally {
 			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
@@ -247,6 +310,12 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		}
 	}
 
+	public Repository fetchPortletRepository(long groupId, String portletId)
+		throws SystemException {
+
+		return RepositoryLocalServiceUtil.fetchRepository(groupId, portletId);
+	}
+
 	public List<FileEntry> getPortletFileEntries(long groupId, long folderId)
 		throws SystemException {
 
@@ -308,49 +377,17 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 	}
 
 	public Folder getPortletFolder(
-			long userId, long repositoryId, long parentFolderId,
-			String folderName, ServiceContext serviceContext)
+			long repositoryId, long parentFolderId, String folderName)
 		throws PortalException, SystemException {
 
-		Folder folder = null;
-
-		try {
-			folder = DLAppLocalServiceUtil.getFolder(
-				repositoryId, parentFolderId, folderName);
-		}
-		catch (NoSuchFolderException nsfe) {
-			folder = DLAppLocalServiceUtil.addFolder(
-				userId, repositoryId, parentFolderId, folderName,
-				StringPool.BLANK, serviceContext);
-		}
-
-		return folder;
+		return DLAppLocalServiceUtil.getFolder(
+			repositoryId, parentFolderId, folderName);
 	}
 
-	public long getPortletRepositoryId(
-			long groupId, String portletId, ServiceContext serviceContext)
+	public Repository getPortletRepository(long groupId, String portletId)
 		throws PortalException, SystemException {
 
-		Repository repository = RepositoryLocalServiceUtil.fetchRepository(
-			groupId, portletId);
-
-		if (repository != null) {
-			return repository.getRepositoryId();
-		}
-
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-		User user = UserLocalServiceUtil.getDefaultUser(group.getCompanyId());
-
-		long classNameId = PortalUtil.getClassNameId(
-			LiferayRepository.class.getName());
-		UnicodeProperties typeSettingsProperties = new UnicodeProperties(true);
-
-		return RepositoryLocalServiceUtil.addRepository(
-			user.getUserId(), groupId, classNameId,
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, portletId,
-			StringPool.BLANK, portletId, typeSettingsProperties, true,
-			serviceContext);
+		return RepositoryLocalServiceUtil.getRepository(groupId, portletId);
 	}
 
 	public void movePortletFileEntryToTrash(long userId, long fileEntryId)

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.DigesterUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -67,6 +68,7 @@ import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.service.WebsiteLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.Portal;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -183,6 +185,13 @@ public class UserImpl extends UserBaseImpl {
 			return StringPool.BLANK;
 		}
 
+		String profileFriendlyURL = getProfileFriendlyURL();
+
+		if (Validator.isNotNull(profileFriendlyURL)) {
+			return portalURL.concat(PortalUtil.getPathContext()).concat(
+				profileFriendlyURL);
+		}
+
 		Group group = getGroup();
 
 		int publicLayoutsPageCount = group.getPublicLayoutsPageCount();
@@ -252,7 +261,7 @@ public class UserImpl extends UserBaseImpl {
 		return group.getGroupId();
 	}
 
-	public long[] getGroupIds() throws PortalException, SystemException {
+	public long[] getGroupIds() throws SystemException {
 		List<Group> groups = getGroups();
 
 		long[] groupIds = new long[groups.size()];
@@ -266,7 +275,7 @@ public class UserImpl extends UserBaseImpl {
 		return groupIds;
 	}
 
-	public List<Group> getGroups() throws PortalException, SystemException {
+	public List<Group> getGroups() throws SystemException {
 		return GroupLocalServiceUtil.getUserGroups(getUserId());
 	}
 
@@ -640,6 +649,19 @@ public class UserImpl extends UserBaseImpl {
 		_timeZone = TimeZoneUtil.getTimeZone(timeZoneId);
 
 		super.setTimeZoneId(timeZoneId);
+	}
+
+	protected String getProfileFriendlyURL() {
+		if (Validator.isNull(PropsValues.USERS_PROFILE_FRIENDLY_URL)) {
+			return null;
+		}
+
+		return StringUtil.replace(
+			PropsValues.USERS_PROFILE_FRIENDLY_URL,
+			new String[] {"${liferay:screenName}", "${liferay:userId}"},
+			new String[] {
+				HtmlUtil.escapeURL(getScreenName()), String.valueOf(getUserId())
+			});
 	}
 
 	private Locale _locale;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -97,9 +97,12 @@ public class ValidHtmlFilter extends BasePortalFilter {
 			contentType.startsWith(ContentTypes.TEXT_HTML)) {
 
 			content = getContent(request, content);
-		}
 
-		ServletResponseUtil.write(response, content);
+			ServletResponseUtil.write(response, content);
+		}
+		else {
+			ServletResponseUtil.write(response, bufferCacheServletResponse);
+		}
 	}
 
 	private static final String _CLOSE_BODY = "</body>";

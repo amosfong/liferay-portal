@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -46,9 +46,13 @@ public class ConfigurePortletDisplayStyleFullContentTest extends BaseTestCase {
 		selenium.selectFrame(
 			"//iframe[contains(@id,'configurationIframeDialog')]");
 		selenium.waitForElementPresent(
-			"//script[contains(@src,'/html/js/editor/ckeditor/plugins/restore/plugin.js')]");
-		selenium.waitForVisible("link=Display Settings");
-		selenium.clickAt("link=Display Settings",
+			"//script[contains(@src,'/liferay/navigation_interaction.js')]");
+		selenium.waitForVisible(
+			"//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]");
+		assertEquals(RuntimeVariables.replace("Display Settings"),
+			selenium.getText(
+				"//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]"));
+		selenium.clickAt("//ul[@class='aui-tabview-list']/li/span/a[contains(.,'Display Settings')]",
 			RuntimeVariables.replace("Display Settings"));
 		selenium.waitForVisible("//select[@id='_86_displayStyle']");
 		selenium.select("//select[@id='_86_displayStyle']",

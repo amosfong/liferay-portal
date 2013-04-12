@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,11 @@ import java.util.List;
  * @author Shuyang Zhou
  */
 public interface ClusterLink {
+
+	public static final String CLUSTER_FORWARD_MESSAGE =
+		"CLUSTER_FORWARD_MESSAGE";
+
+	public static final int MAX_CHANNEL_COUNT = Priority.values().length;
 
 	public List<Address> getLocalTransportAddresses();
 

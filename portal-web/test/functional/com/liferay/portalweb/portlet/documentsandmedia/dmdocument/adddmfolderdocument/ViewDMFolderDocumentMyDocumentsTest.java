@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -40,18 +40,31 @@ public class ViewDMFolderDocumentMyDocumentsTest extends BaseTestCase {
 		assertEquals(RuntimeVariables.replace("DM Folder Document Title"),
 			selenium.getText(
 				"//a[contains(@class,'entry-link')]/span[@class='entry-title']"));
+		Thread.sleep(1000);
+		selenium.waitForVisible("//button[@title='List View']");
 		selenium.clickAt("//button[@title='List View']",
 			RuntimeVariables.replace("List View"));
-		selenium.waitForText("//tr[3]/td[2]/span/a/span",
+		Thread.sleep(1000);
+		selenium.waitForVisible(
+			"//button[contains(@class,'aui-state-active') and @title='List View']");
+		assertTrue(selenium.isVisible(
+				"//button[contains(@class,'aui-state-active') and @title='List View']"));
+		selenium.waitForText("//tr[3]/td[2]/div/span/a/span",
 			"DM Folder Document Title");
 		assertEquals(RuntimeVariables.replace("DM Folder Document Title"),
-			selenium.getText("//tr[3]/td[2]/span/a/span"));
+			selenium.getText("//tr[3]/td[2]/div/span/a/span"));
 		assertEquals(RuntimeVariables.replace("0k"),
 			selenium.getText("//tr[3]/td[3]"));
 		assertEquals(RuntimeVariables.replace("0"),
 			selenium.getText("//tr[3]/td[4]"));
+		selenium.waitForVisible("//button[@title='Icon View']");
 		selenium.clickAt("//button[@title='Icon View']",
 			RuntimeVariables.replace("Icon View"));
+		Thread.sleep(1000);
+		selenium.waitForVisible(
+			"//button[contains(@class,'aui-state-active') and @title='Icon View']");
+		assertTrue(selenium.isVisible(
+				"//button[contains(@class,'aui-state-active') and @title='Icon View']"));
 		selenium.waitForText("//a[contains(@class,'entry-link')]/span[@class='entry-title']",
 			"DM Folder Document Title");
 		assertEquals(RuntimeVariables.replace("DM Folder Document Title"),

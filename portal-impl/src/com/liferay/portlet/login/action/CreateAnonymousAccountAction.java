@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -100,11 +100,10 @@ public class CreateAnonymousAccountAction extends PortletAction {
 			actionRequest, PortletKeys.LOGIN, themeDisplay.getPlid(),
 			PortletRequest.RENDER_PHASE);
 
-		portletURL.setWindowState(LiferayWindowState.POP_UP);
-
 		portletURL.setParameter("struts_action", "/login/login_redirect");
 		portletURL.setParameter("emailAddress", emailAddress);
 		portletURL.setParameter("anonymousUser", Boolean.TRUE.toString());
+		portletURL.setWindowState(LiferayWindowState.POP_UP);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 

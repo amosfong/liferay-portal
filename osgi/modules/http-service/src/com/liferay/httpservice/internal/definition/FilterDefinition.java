@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,8 +14,10 @@
 
 package com.liferay.httpservice.internal.definition;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 
@@ -24,51 +26,49 @@ import javax.servlet.Filter;
  */
 public class FilterDefinition {
 
-	public FilterDefinition() {
-	}
-
-	public FilterDefinition(
-		String name, Filter filter, Dictionary<String, String> initParams) {
-
-		_name = name;
-		_filter = filter;
-		_initParams = initParams;
+	public void addURLPattern(String urlPattern) {
+		_urlPatterns.add(urlPattern);
 	}
 
 	public Filter getFilter() {
 		return _filter;
 	}
 
-	public Dictionary<String, String> getInitParams() {
-		return _initParams;
+	public Map<String, String> getInitParameters() {
+		return _initParameters;
 	}
 
 	public String getName() {
 		return _name;
 	}
 
+	public List<String> getURLPatterns() {
+		return _urlPatterns;
+	}
+
 	public void setFilter(Filter filter) {
 		_filter = filter;
 	}
 
-	public void setInitParam(String key, String value) {
-		if (_initParams == null) {
-			_initParams = new Hashtable<String, String>();
-		}
-
-		_initParams.put(key, value);
+	public void setInitParameter(String key, String value) {
+		_initParameters.put(key, value);
 	}
 
-	public void setInitParams(Dictionary<String, String> initParams) {
-		_initParams = initParams;
+	public void setInitParameters(Map<String, String> initParameters) {
+		_initParameters = initParameters;
 	}
 
 	public void setName(String name) {
 		_name = name;
 	}
 
+	public void setURLPatterns(List<String> urlPatterns) {
+		_urlPatterns = urlPatterns;
+	}
+
 	private Filter _filter;
-	private Dictionary<String, String> _initParams;
+	private Map<String, String> _initParameters = new HashMap<String, String>();
 	private String _name;
+	private List<String> _urlPatterns = new ArrayList<String>();
 
 }

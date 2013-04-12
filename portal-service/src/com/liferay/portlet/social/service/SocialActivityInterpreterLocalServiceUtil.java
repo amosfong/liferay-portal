@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -75,6 +75,26 @@ public class SocialActivityInterpreterLocalServiceUtil {
 		getService().deleteActivityInterpreter(activityInterpreter);
 	}
 
+	public static java.util.Map<java.lang.String, java.util.List<com.liferay.portlet.social.model.SocialActivityInterpreter>> getActivityInterpreters() {
+		return getService().getActivityInterpreters();
+	}
+
+	public static long getActivitySetId(long activityId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActivitySetId(activityId);
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #interpret(String,
+	SocialActivity, ServiceContext)}
+	*/
+	public static com.liferay.portlet.social.model.SocialActivityFeedEntry interpret(
+		com.liferay.portlet.social.model.SocialActivity activity,
+		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
+		return getService().interpret(activity, themeDisplay);
+	}
+
 	/**
 	* Creates a human readable activity feed entry for the activity using an
 	* available compatible activity interpreter.
@@ -86,22 +106,22 @@ public class SocialActivityInterpreterLocalServiceUtil {
 	* </p>
 	*
 	* @param activity the activity to be translated to human readable form
-	* @param themeDisplay the theme display needed by interpreters to create
-	links and get localized text fragments
 	* @return the activity feed that is a human readable form of the activity
 	record or <code>null</code> if a compatible interpreter is not
 	found
 	*/
 	public static com.liferay.portlet.social.model.SocialActivityFeedEntry interpret(
+		java.lang.String selector,
 		com.liferay.portlet.social.model.SocialActivity activity,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
-		return getService().interpret(activity, themeDisplay);
+		com.liferay.portal.service.ServiceContext serviceContext) {
+		return getService().interpret(selector, activity, serviceContext);
 	}
 
 	public static com.liferay.portlet.social.model.SocialActivityFeedEntry interpret(
+		java.lang.String selector,
 		com.liferay.portlet.social.model.SocialActivitySet activitySet,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
-		return getService().interpret(activitySet, themeDisplay);
+		com.liferay.portal.service.ServiceContext serviceContext) {
+		return getService().interpret(selector, activitySet, serviceContext);
 	}
 
 	public static SocialActivityInterpreterLocalService getService() {
@@ -116,7 +136,7 @@ public class SocialActivityInterpreterLocalServiceUtil {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated As of 6.2.0
 	 */
 	public void setService(SocialActivityInterpreterLocalService service) {
 	}

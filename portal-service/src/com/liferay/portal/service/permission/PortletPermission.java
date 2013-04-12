@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -116,10 +116,6 @@ public interface PortletPermission {
 		throws PortalException, SystemException;
 
 	public boolean contains(
-		PermissionChecker permissionChecker, long groupId, long plid,
-		Collection<Portlet> portlets, String actionId);
-
-	public boolean contains(
 			PermissionChecker permissionChecker, long groupId, long plid,
 			Portlet portlet, String actionId, boolean strict)
 		throws PortalException, SystemException;
@@ -159,6 +155,21 @@ public interface PortletPermission {
 	public boolean hasAccessPermission(
 			PermissionChecker permissionChecker, long scopeGroupId,
 			Layout layout, Portlet portlet, PortletMode portletMode)
+		throws PortalException, SystemException;
+
+	public boolean hasControlPanelAccessPermission(
+			PermissionChecker permissionChecker, long scopeGroupId,
+			Collection<Portlet> portlets)
+		throws PortalException, SystemException;
+
+	public boolean hasControlPanelAccessPermission(
+			PermissionChecker permissionChecker, long scopeGroupId,
+			Portlet portlet)
+		throws PortalException, SystemException;
+
+	public boolean hasControlPanelAccessPermission(
+			PermissionChecker permissionChecker, long scopeGroupId,
+			String portletId)
 		throws PortalException, SystemException;
 
 	public boolean hasLayoutManagerPermission(

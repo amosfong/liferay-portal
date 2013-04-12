@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -56,7 +56,7 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 		headerNames.add(StringPool.BLANK);
 
 		orderableHeaders.put("id", "id");
-		orderableHeaders.put("name", "title");
+		orderableHeaders.put("title", "title");
 		//orderableHeaders.put("version", "version");
 		orderableHeaders.put("modified-date", "modified-date");
 		orderableHeaders.put("display-date", "display-date");

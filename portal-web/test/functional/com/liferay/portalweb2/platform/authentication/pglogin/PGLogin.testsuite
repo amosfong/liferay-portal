@@ -1,0 +1,4 @@
+<definition>
+	<execute test-case="PGLoginAcceptance" />
+	<execute test-case="PGLoginRegression" />
+</definition>

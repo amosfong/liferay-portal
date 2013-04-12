@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -25,9 +25,11 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.BaseAssetRenderer;
 import com.liferay.portlet.bookmarks.model.BookmarksFolder;
+import com.liferay.portlet.bookmarks.service.BookmarksEntryServiceUtil;
 import com.liferay.portlet.bookmarks.service.BookmarksFolderServiceUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 
+import java.util.Date;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -49,16 +51,17 @@ public class BookmarksFolderAssetRenderer
 		_folder = folder;
 	}
 
-	public String getAssetRendererFactoryClassName() {
-		return BookmarksFolderAssetRendererFactory.CLASS_NAME;
-	}
-
 	public String getClassName() {
 		return BookmarksFolder.class.getName();
 	}
 
 	public long getClassPK() {
 		return _folder.getFolderId();
+	}
+
+	@Override
+	public Date getDisplayDate() {
+		return _folder.getModifiedDate();
 	}
 
 	public long getGroupId() {
@@ -90,6 +93,27 @@ public class BookmarksFolderAssetRenderer
 
 	public String getSummary(Locale locale) {
 		return HtmlUtil.stripHtml(_folder.getDescription());
+	}
+
+	@Override
+	public String getThumbnailPath(PortletRequest portletRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		int entriesCount = BookmarksEntryServiceUtil.getEntriesCount(
+			_folder.getGroupId(), _folder.getFolderId());
+		int foldersCount = BookmarksFolderServiceUtil.getFoldersCount(
+			_folder.getGroupId(), _folder.getFolderId());
+
+		if ((entriesCount > 0) || (foldersCount > 0)) {
+			return themeDisplay.getPathThemeImages() +
+				"/file_system/large/folder_full_bookmark.png";
+		}
+
+		return themeDisplay.getPathThemeImages() +
+			"/file_system/large/folder_empty.png";
 	}
 
 	public String getTitle(Locale locale) {

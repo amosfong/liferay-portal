@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +15,8 @@
 package com.liferay.portalweb.socialofficesite.calendar;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
-import com.liferay.portalweb.socialofficesite.calendar.event.EventTestPlan;
+import com.liferay.portalweb.socialofficesite.calendar.calendarevent.CalendarEventTestPlan;
+import com.liferay.portalweb.socialofficesite.calendar.calendarlar.CalendarLARTestPlan;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -28,7 +29,8 @@ public class CalendarTestPlan extends BaseTestSuite {
 	public static Test suite() {
 		TestSuite testSuite = new TestSuite();
 
-		testSuite.addTest(EventTestPlan.suite());
+		testSuite.addTest(CalendarEventTestPlan.suite());
+		testSuite.addTest(CalendarLARTestPlan.suite());
 
 		return testSuite;
 	}

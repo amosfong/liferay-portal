@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.Date;
+
 /**
  * The cache model class for representing UserGroup in entity cache.
  *
@@ -35,12 +37,22 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 	Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(13);
+		StringBundler sb = new StringBundler(23);
 
-		sb.append("{userGroupId=");
+		sb.append("{uuid=");
+		sb.append(uuid);
+		sb.append(", userGroupId=");
 		sb.append(userGroupId);
 		sb.append(", companyId=");
 		sb.append(companyId);
+		sb.append(", userId=");
+		sb.append(userId);
+		sb.append(", userName=");
+		sb.append(userName);
+		sb.append(", createDate=");
+		sb.append(createDate);
+		sb.append(", modifiedDate=");
+		sb.append(modifiedDate);
 		sb.append(", parentUserGroupId=");
 		sb.append(parentUserGroupId);
 		sb.append(", name=");
@@ -57,8 +69,38 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 	public UserGroup toEntityModel() {
 		UserGroupImpl userGroupImpl = new UserGroupImpl();
 
+		if (uuid == null) {
+			userGroupImpl.setUuid(StringPool.BLANK);
+		}
+		else {
+			userGroupImpl.setUuid(uuid);
+		}
+
 		userGroupImpl.setUserGroupId(userGroupId);
 		userGroupImpl.setCompanyId(companyId);
+		userGroupImpl.setUserId(userId);
+
+		if (userName == null) {
+			userGroupImpl.setUserName(StringPool.BLANK);
+		}
+		else {
+			userGroupImpl.setUserName(userName);
+		}
+
+		if (createDate == Long.MIN_VALUE) {
+			userGroupImpl.setCreateDate(null);
+		}
+		else {
+			userGroupImpl.setCreateDate(new Date(createDate));
+		}
+
+		if (modifiedDate == Long.MIN_VALUE) {
+			userGroupImpl.setModifiedDate(null);
+		}
+		else {
+			userGroupImpl.setModifiedDate(new Date(modifiedDate));
+		}
+
 		userGroupImpl.setParentUserGroupId(parentUserGroupId);
 
 		if (name == null) {
@@ -83,8 +125,13 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 	}
 
 	public void readExternal(ObjectInput objectInput) throws IOException {
+		uuid = objectInput.readUTF();
 		userGroupId = objectInput.readLong();
 		companyId = objectInput.readLong();
+		userId = objectInput.readLong();
+		userName = objectInput.readUTF();
+		createDate = objectInput.readLong();
+		modifiedDate = objectInput.readLong();
 		parentUserGroupId = objectInput.readLong();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
@@ -93,8 +140,26 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 
 	public void writeExternal(ObjectOutput objectOutput)
 		throws IOException {
+		if (uuid == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(uuid);
+		}
+
 		objectOutput.writeLong(userGroupId);
 		objectOutput.writeLong(companyId);
+		objectOutput.writeLong(userId);
+
+		if (userName == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(userName);
+		}
+
+		objectOutput.writeLong(createDate);
+		objectOutput.writeLong(modifiedDate);
 		objectOutput.writeLong(parentUserGroupId);
 
 		if (name == null) {
@@ -114,8 +179,13 @@ public class UserGroupCacheModel implements CacheModel<UserGroup>,
 		objectOutput.writeBoolean(addedByLDAPImport);
 	}
 
+	public String uuid;
 	public long userGroupId;
 	public long companyId;
+	public long userId;
+	public String userName;
+	public long createDate;
+	public long modifiedDate;
 	public long parentUserGroupId;
 	public String name;
 	public String description;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@ package com.liferay.portal.security.pacl.checker;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.permission.PortalHookPermission;
+import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.security.Permission;
 
@@ -26,6 +27,7 @@ import java.util.TreeSet;
 
 /**
  * @author Brian Wing Shun Chan
+ * @author Raymond Augé
  */
 public class PortalHookChecker extends BaseChecker {
 
@@ -39,7 +41,72 @@ public class PortalHookChecker extends BaseChecker {
 		initStrutsActionPaths();
 	}
 
-	public void checkPermission(Permission permission) {
+	@Override
+	public AuthorizationProperty generateAuthorizationProperty(
+		Object... arguments) {
+
+		if ((arguments == null) || (arguments.length != 1) ||
+			!(arguments[0] instanceof Permission)) {
+
+			return null;
+		}
+
+		PortalHookPermission portalHookPermission =
+			(PortalHookPermission)arguments[0];
+
+		String name = portalHookPermission.getName();
+		Object subject = portalHookPermission.getSubject();
+
+		String key = null;
+		String value = null;
+
+		if (name.equals(PORTAL_HOOK_PERMISSION_CUSTOM_JSP_DIR)) {
+			key = "security-manager-hook-custom-jsp-dir-enabled";
+			value = "true";
+		}
+		else if (name.equals(PORTAL_HOOK_PERMISSION_INDEXER)) {
+			key = "security-manager-hook-indexers";
+			value = (String)subject;
+		}
+		else if (name.equals(
+					PORTAL_HOOK_PERMISSION_LANGUAGE_PROPERTIES_LOCALE)) {
+
+			key = "security-manager-hook-language-properties-locales";
+
+			Locale locale = (Locale)subject;
+
+			value = LocaleUtil.toLanguageId(locale);
+		}
+		else if (name.equals(PORTAL_HOOK_PERMISSION_PORTAL_PROPERTIES_KEY)) {
+			key = "security-manager-hook-portal-properties-keys";
+			value = (String)subject;
+		}
+		else if (name.equals(PORTAL_HOOK_PERMISSION_SERVICE)) {
+			key = "security-manager-hook-services";
+			value = (String)subject;
+		}
+		else if (name.equals(PORTAL_HOOK_PERMISSION_SERVLET_FILTERS)) {
+			key = "security-manager-hook-servlet-filters-enabled";
+			value = "true";
+		}
+		else if (name.equals(PORTAL_HOOK_PERMISSION_STRUTS_ACTION_PATH)) {
+			key = "security-manager-hook-struts-action-paths";
+			value = (String)subject;
+		}
+		else {
+			return null;
+		}
+
+		AuthorizationProperty authorizationProperty =
+			new AuthorizationProperty();
+
+		authorizationProperty.setKey(key);
+		authorizationProperty.setValue(value);
+
+		return authorizationProperty;
+	}
+
+	public boolean implies(Permission permission) {
 		PortalHookPermission portalHookPermission =
 			(PortalHookPermission)permission;
 
@@ -48,15 +115,19 @@ public class PortalHookChecker extends BaseChecker {
 
 		if (name.equals(PORTAL_HOOK_PERMISSION_CUSTOM_JSP_DIR)) {
 			if (!_customJspDir) {
-				throwSecurityException(_log, "Attempted to set custom jsp dir");
+				logSecurityException(_log, "Attempted to set custom jsp dir");
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_HOOK_PERMISSION_INDEXER)) {
 			String indexerClassName = (String)subject;
 
 			if (!_indexers.contains(indexerClassName)) {
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to add indexer " + indexerClassName);
+
+				return false;
 			}
 		}
 		else if (name.equals(
@@ -69,41 +140,53 @@ public class PortalHookChecker extends BaseChecker {
 				!_languagePropertiesLanguageIds.contains(
 					locale.getLanguage() + "_" + locale.getCountry())) {
 
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to override locale " + locale);
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_HOOK_PERMISSION_PORTAL_PROPERTIES_KEY)) {
 			String key = (String)subject;
 
 			if (!_portalPropertiesKeys.contains(key)) {
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to set portal property " + key);
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_HOOK_PERMISSION_SERVICE)) {
 			String serviceType = (String)subject;
 
 			if (!_services.contains(serviceType)) {
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to override service " + serviceType);
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_HOOK_PERMISSION_SERVLET_FILTERS)) {
 			if (!_servletFilters) {
-				throwSecurityException(
+				logSecurityException(
 					_log, "Attempted to override serlvet filters");
+
+				return false;
 			}
 		}
 		else if (name.equals(PORTAL_HOOK_PERMISSION_STRUTS_ACTION_PATH)) {
 			String strutsActionPath = (String)subject;
 
 			if (!_strutsActionPaths.contains(strutsActionPath)) {
-				throwSecurityException(
+				logSecurityException(
 					_log,
 					"Attempted to use struts action path " + strutsActionPath);
+
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	protected void initCustomJspDir() {

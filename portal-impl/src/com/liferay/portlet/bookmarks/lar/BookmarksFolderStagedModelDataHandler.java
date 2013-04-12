@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -15,8 +15,8 @@
 package com.liferay.portlet.bookmarks.lar;
 
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelPathUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
@@ -41,30 +41,26 @@ public class BookmarksFolderStagedModelDataHandler
 
 	@Override
 	protected void doExportStagedModel(
-			PortletDataContext portletDataContext, Element[] elements,
-			BookmarksFolder folder)
+			PortletDataContext portletDataContext, BookmarksFolder folder)
 		throws Exception {
-
-		Element foldersElement = elements[0];
 
 		if (folder.getParentFolderId() !=
 				BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
-			exportStagedModel(
-				portletDataContext, foldersElement, folder.getParentFolder());
+			exportStagedModel(portletDataContext, folder.getParentFolder());
 		}
 
-		Element folderElement = foldersElement.addElement("folder");
+		Element folderElement =
+			portletDataContext.getExportDataStagedModelElement(folder);
 
 		portletDataContext.addClassedModel(
-			folderElement, StagedModelPathUtil.getPath(folder), folder,
+			folderElement, ExportImportPathUtil.getModelPath(folder), folder,
 			BookmarksPortletDataHandler.NAMESPACE);
 	}
 
 	@Override
 	protected void doImportStagedModel(
-			PortletDataContext portletDataContext, Element element, String path,
-			BookmarksFolder folder)
+			PortletDataContext portletDataContext, BookmarksFolder folder)
 		throws Exception {
 
 		long userId = portletDataContext.getUserId(folder.getUserUuid());
@@ -80,7 +76,7 @@ public class BookmarksFolderStagedModelDataHandler
 				BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID) &&
 			(parentFolderId == folder.getParentFolderId())) {
 
-			String parentFolderPath = StagedModelPathUtil.getPath(
+			String parentFolderPath = ExportImportPathUtil.getModelPath(
 				portletDataContext, BookmarksFolder.class.getName(),
 				parentFolderId);
 
@@ -88,8 +84,7 @@ public class BookmarksFolderStagedModelDataHandler
 				(BookmarksFolder)portletDataContext.getZipEntryAsObject(
 					parentFolderPath);
 
-			importStagedModel(
-				portletDataContext, element, parentFolderPath, parentFolder);
+			importStagedModel(portletDataContext, parentFolder);
 
 			parentFolderId = MapUtil.getLong(
 				folderIds, folder.getParentFolderId(),
@@ -97,7 +92,7 @@ public class BookmarksFolderStagedModelDataHandler
 		}
 
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
-			path, folder, BookmarksPortletDataHandler.NAMESPACE);
+			folder, BookmarksPortletDataHandler.NAMESPACE);
 
 		BookmarksFolder importedFolder = null;
 

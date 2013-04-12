@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portal.webserver;
 
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
 import com.liferay.portlet.journalcontent.util.JournalContentUtil;
 
@@ -23,6 +24,7 @@ import com.liferay.portlet.journalcontent.util.JournalContentUtil;
  * @author Brian Wing Shun Chan
  * @since  6.1, replaced com.liferay.portal.servlet.ImageServletTokenImpl
  */
+@DoPrivileged
 public class WebServerServletTokenImpl implements WebServerServletToken {
 
 	public void afterPropertiesSet() {

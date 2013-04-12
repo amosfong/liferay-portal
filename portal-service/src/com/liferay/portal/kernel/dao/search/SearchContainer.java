@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -46,7 +46,7 @@ public class SearchContainer<R> {
 	public static final String DEFAULT_CUR_PARAM = "cur";
 
 	/**
-	 * @deprecated Use <code>DEFAULT_CUR</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #DEFAULT_CUR}.
 	 */
 	public static final int DEFAULT_CUR_VALUE = DEFAULT_CUR;
 
@@ -58,7 +58,7 @@ public class SearchContainer<R> {
 	public static final String DEFAULT_DELTA_PARAM = "delta";
 
 	/**
-	 * @deprecated LPS-6312
+	 * @deprecated As of 6.2.0, see LPS-6312
 	 */
 	public static final int DEFAULT_MAX_PAGES = 25;
 
@@ -173,7 +173,7 @@ public class SearchContainer<R> {
 	}
 
 	/**
-	 * @deprecated Use <code>getCur</code>.
+	 * @deprecated As of 6.2.0, replaced by {@link #getCur}
 	 */
 	public int getCurValue() {
 		return getCur();
@@ -253,7 +253,7 @@ public class SearchContainer<R> {
 	}
 
 	/**
-	 * @deprecated LPS-6312
+	 * @deprecated As of 6.2.0, see LPS-6312
 	 */
 	public int getMaxPages() {
 		return _maxPages;
@@ -331,6 +331,24 @@ public class SearchContainer<R> {
 		return _hover;
 	}
 
+	public boolean isRecalculateCur(int total) {
+		if (((_cur - 1) * _delta) >= total) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean recalculateCur(int total) {
+		if (isRecalculateCur(total)) {
+			setTotal(total);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public void setClassName(String className) {
 		_className = className;
 	}
@@ -380,7 +398,7 @@ public class SearchContainer<R> {
 	}
 
 	/**
-	 * @deprecated LPS-6312
+	 * @deprecated As of 6.2.0, see LPS-6312
 	 */
 	public void setMaxPages(int maxPages) {
 		_maxPages = maxPages;
@@ -429,10 +447,7 @@ public class SearchContainer<R> {
 	public void setTotal(int total) {
 		_total = total;
 
-		if (((_cur - 1) * _delta) >= _total) {
-			_cur = DEFAULT_CUR;
-		}
-
+		_calculateCur();
 		_calculateStartAndEnd();
 	}
 
@@ -446,6 +461,23 @@ public class SearchContainer<R> {
 		for (String headerName : headerNames) {
 			_normalizedHeaderNames.add(
 				FriendlyURLNormalizerUtil.normalize(headerName));
+		}
+	}
+
+	private void _calculateCur() {
+		if (_total == 0) {
+			_cur = DEFAULT_CUR;
+
+			return;
+		}
+
+		if (isRecalculateCur(_total)) {
+			if ((_total % _delta) == 0) {
+				_cur = (_total / _delta);
+			}
+			else {
+				_cur = (_total / _delta) + 1;
+			}
 		}
 	}
 
@@ -475,7 +507,7 @@ public class SearchContainer<R> {
 	private PortletURL _iteratorURL;
 
 	/**
-	 * @deprecated LPS-6312
+	 * @deprecated As of 6.2.0, see LPS-6312
 	 */
 	private int _maxPages = DEFAULT_MAX_PAGES;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -24,10 +24,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class OptionsMethodImpl implements Method {
 
-	public int process(WebDAVRequest webDavRequest) {
-		HttpServletResponse response = webDavRequest.getHttpServletResponse();
+	public int process(WebDAVRequest webDAVRequest) {
+		HttpServletResponse response = webDAVRequest.getHttpServletResponse();
 
-		if (webDavRequest.getWebDAVStorage().isSupportsClassTwo()) {
+		if (webDAVRequest.getWebDAVStorage().isSupportsClassTwo()) {
 			response.addHeader("DAV", "1,2");
 		}
 		else {

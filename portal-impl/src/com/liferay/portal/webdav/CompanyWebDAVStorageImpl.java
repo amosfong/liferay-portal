@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -33,17 +33,17 @@ import java.util.List;
  */
 public class CompanyWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
-	public Resource getResource(WebDAVRequest webDavRequest) {
-		String path = getRootPath() + webDavRequest.getPath();
+	public Resource getResource(WebDAVRequest webDAVRequest) {
+		String path = getRootPath() + webDAVRequest.getPath();
 
 		return new BaseResourceImpl(path, StringPool.BLANK, StringPool.BLANK);
 	}
 
-	public List<Resource> getResources(WebDAVRequest webDavRequest)
+	public List<Resource> getResources(WebDAVRequest webDAVRequest)
 		throws WebDAVException {
 
 		try {
-			long userId = webDavRequest.getUserId();
+			long userId = webDAVRequest.getUserId();
 
 			return getResources(userId);
 		}

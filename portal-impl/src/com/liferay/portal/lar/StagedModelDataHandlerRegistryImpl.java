@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portal.lar;
 
 import com.liferay.portal.kernel.lar.StagedModelDataHandler;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistry;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.Map;
  * @see    com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil
  * @since  6.2
  */
+@DoPrivileged
 public class StagedModelDataHandlerRegistryImpl
 	implements StagedModelDataHandlerRegistry {
 

@@ -3,7 +3,7 @@
 <#if entries?has_content>
 	<@aui.layout>
 		<#list entries as entry>
-		    <@aui.column columnWith="25">
+		    <@aui.column columnWidth=25>
 				<div class="results-header">
 					<h3>
 						<#assign layoutURL = portalUtil.getLayoutURL(entry, themeDisplay)>
@@ -20,7 +20,9 @@
 	</@aui.layout>
 </#if>
 
-<#macro displayPages pages>
+<#macro displayPages
+	pages
+>
 	<#if pages?has_content>
 		<ul class="child-pages">
 			<#list pages as page>

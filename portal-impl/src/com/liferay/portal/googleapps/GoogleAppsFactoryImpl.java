@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.googleapps.GGroupManager;
 import com.liferay.portal.kernel.googleapps.GNicknameManager;
 import com.liferay.portal.kernel.googleapps.GUserManager;
 import com.liferay.portal.kernel.googleapps.GoogleAppsFactory;
+import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Brian Wing Shun Chan
  */
+@DoPrivileged
 public class GoogleAppsFactoryImpl implements GoogleAppsFactory {
 
 	public GEmailSettingsManager getGEmailSettingsManager(long companyId) {

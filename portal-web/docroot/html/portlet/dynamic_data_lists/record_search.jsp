@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,8 @@
 
 <%
 DDLRecordSet recordSet = (DDLRecordSet)request.getAttribute(WebKeys.DYNAMIC_DATA_LISTS_RECORD_SET);
+
+DDMStructure ddmStructure = recordSet.getDDMStructure();
 
 SearchContainer searchContainer = (SearchContainer)request.getAttribute("liferay-ui:search:searchContainer");
 
@@ -42,7 +44,7 @@ long formDDMTemplateId = ParamUtil.getLong(request, "formDDMTemplateId");
 
 <c:if test="<%= showAddRecordButton %>">
 	<div class="add-record-button-row">
-		<aui:button onClick='<%= renderResponse.getNamespace() + "addRecord();" %>' value="add-record" />
+		<aui:button onClick='<%= renderResponse.getNamespace() + "addRecord();" %>' value='<%= LanguageUtil.format(pageContext, "add-x", ddmStructure.getName(locale)) %>' />
 	</div>
 
 	<aui:script>

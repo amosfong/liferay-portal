@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -157,7 +157,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 		}
 		else {
 			locale = LocaleUtil.getDefault();
-			timeZone = TimeZoneUtil.getDefault();
+			timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
 		}
 
 		Calendar startDate = CalendarFactoryUtil.getCalendar(timeZone, locale);
@@ -260,9 +260,10 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #addEvent(long, String, String, String, int, int, int,
-	 *             int, int, int, int, boolean, boolean, String, boolean,
-	 *             TZSRecurrence, int, int, int, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #addEvent(long, String,
+	 *             String, String, int, int, int, int, int, int, int, boolean,
+	 *             boolean, String, boolean, TZSRecurrence, int, int, int,
+	 *             ServiceContext)}
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public CalEvent addEvent(
@@ -526,29 +527,31 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 
 			// Time zone sensitive
 
-			List<CalEvent> events1 = calEventFinder.findByG_SD_T(
-				groupId, CalendarUtil.getGTDate(cal),
-				CalendarUtil.getLTDate(cal), true, types);
+			List<CalEvent> timeZoneSensitiveEvents =
+				calEventFinder.findByG_SD_T(
+					groupId, CalendarUtil.getGTDate(cal),
+					CalendarUtil.getLTDate(cal), true, types);
 
 			// Time zone insensitive
 
 			Calendar tzICal = CalendarFactoryUtil.getCalendar(
-				TimeZoneUtil.getDefault());
+				TimeZoneUtil.getTimeZone(StringPool.UTC));
 
 			tzICal.set(
 				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
 				cal.get(Calendar.DATE));
 
-			List<CalEvent> events2 = calEventFinder.findByG_SD_T(
-				groupId, CalendarUtil.getGTDate(tzICal),
-				CalendarUtil.getLTDate(tzICal), false, types);
+			List<CalEvent> timeZoneInsensitiveEvents =
+				calEventFinder.findByG_SD_T(
+					groupId, CalendarUtil.getGTDate(tzICal),
+					CalendarUtil.getLTDate(tzICal), false, types);
 
 			// Create new list
 
 			events = new ArrayList<CalEvent>();
 
-			events.addAll(events1);
-			events.addAll(events2);
+			events.addAll(timeZoneSensitiveEvents);
+			events.addAll(timeZoneInsensitiveEvents);
 
 			// Add repeating events
 
@@ -778,7 +781,7 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 		}
 		else {
 			locale = LocaleUtil.getDefault();
-			timeZone = TimeZoneUtil.getDefault();
+			timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
 		}
 
 		Calendar startDate = CalendarFactoryUtil.getCalendar(timeZone, locale);
@@ -851,9 +854,10 @@ public class CalEventLocalServiceImpl extends CalEventLocalServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated {@link #updateEvent(long, long, String, String, String, int,
-	 *             int, int, int, int, int, int, boolean, boolean, String,
-	 *             boolean, TZSRecurrence, int, int, int, ServiceContext)}
+	 * @deprecated As of 6.2.0, replaced by {@link #updateEvent(long, long,
+	 *             String, String, String, int, int, int, int, int, int, int,
+	 *             boolean, boolean, String, boolean, TZSRecurrence, int, int,
+	 *             int, ServiceContext)}
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public CalEvent updateEvent(

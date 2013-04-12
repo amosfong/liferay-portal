@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -285,11 +285,11 @@ serverURL.setParameter("tabs3", tabs3);
 
 					// Property
 
-					row.addText(StringUtil.shorten(property, 80));
+					row.addText(HtmlUtil.escape(StringUtil.shorten(property, 80)));
 
 					// Value
 
-					row.addText(StringUtil.shorten(value, 80));
+					row.addText(HtmlUtil.escape(StringUtil.shorten(value, 80)));
 
 					// Add result row
 
@@ -717,27 +717,27 @@ serverURL.setParameter("tabs3", tabs3);
 				</aui:button-row>
 			</c:when>
 			<c:when test='<%= tabs2.equals("shutdown") %>'>
-				<aui:fieldset>
-					<aui:input label="number-of-minutes" name="minutes" size="3" type="text" />
-
-					<aui:input cssClass="lfr-textarea-container" label="custom-message" name='<%= "message" + GetterUtil.getString(ShutdownUtil.getMessage()) %>' type="textarea" />
-				</aui:fieldset>
+				<liferay-ui:error key="shutdownMinutes" message="please-enter-the-number-of-minutes" />
 
 				<aui:button-row>
+
+					<%
+					String taglibShutdown = renderResponse.getNamespace() + "saveServer('shutdown');";
+					%>
+
 					<c:choose>
 						<c:when test="<%= ShutdownUtil.isInProcess() %>">
-
-							<%
-							String taglibCancelShutdown = "document." + renderResponse.getNamespace() + "fm." + renderResponse.getNamespace() + "minutes.value = 0;" + renderResponse.getNamespace() + "saveServer('shutdown');";
-							%>
-
-							<aui:button onClick="<%= taglibCancelShutdown %>" value="cancel-shutdown" />
+							<aui:button onClick="<%= taglibShutdown %>" value="cancel-shutdown" />
 						</c:when>
 						<c:otherwise>
+							<aui:fieldset>
+								<aui:input label="number-of-minutes" name="minutes" size="3" type="text">
+									<aui:validator name="min">0</aui:validator>
+									<aui:validator name="required" />
+								</aui:input>
 
-							<%
-							String taglibShutdown = renderResponse.getNamespace() + "saveServer('shutdown');";
-							%>
+								<aui:input cssClass="lfr-textarea-container" label="custom-message" name='<%= "message" + GetterUtil.getString(ShutdownUtil.getMessage()) %>' type="textarea" />
+							</aui:fieldset>
 
 							<aui:button onClick="<%= taglibShutdown %>" value="shutdown" />
 						</c:otherwise>
@@ -814,7 +814,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="run-the-garbage-collector-to-free-up-memory" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('gc');" />
+								<input onClick="<portlet:namespace />saveServer('gc');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -822,7 +822,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="clear-content-cached-by-this-vm" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('cacheSingle');" />
+								<input onClick="<portlet:namespace />saveServer('cacheSingle');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -830,7 +830,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="clear-content-cached-across-the-cluster" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('cacheMulti');" />
+								<input onClick="<portlet:namespace />saveServer('cacheMulti');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -838,7 +838,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="clear-the-database-cache" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('cacheDb');" />
+								<input onClick="<portlet:namespace />saveServer('cacheDb');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -846,7 +846,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="clear-the-direct-servlet-cache" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('cacheServlet');" />
+								<input onClick="<portlet:namespace />saveServer('cacheServlet');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -854,7 +854,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="reindex-all-search-indexes" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('reindex');" />
+								<input onClick="<portlet:namespace />saveServer('reindex');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -862,7 +862,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="reindex-all-spell-check-indexes" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('reindexDictionaries');" />
+								<input onClick="<portlet:namespace />saveServer('reindexDictionaries');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -870,7 +870,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="reset-preview-and-thumbnail-files-for-documents-and-media-portlet" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('dlPreviews');" />
+								<input onClick="<portlet:namespace />saveServer('dlPreviews');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -878,7 +878,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="generate-thread-dump" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('threadDump');" />
+								<input onClick="<portlet:namespace />saveServer('threadDump');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -886,7 +886,15 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="verify-database-tables-of-all-plugins" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('verifyPluginTables');" />
+								<input onClick="<portlet:namespace />saveServer('verifyPluginTables');" type="button" value="<liferay-ui:message key="execute" />" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<liferay-ui:message key="verify-membership-policies" />
+							</td>
+							<td>
+								<input onClick="<portlet:namespace />saveServer('verifyMembershipPolicies');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						<tr>
@@ -894,7 +902,7 @@ serverURL.setParameter("tabs3", tabs3);
 								<liferay-ui:message key="clean-up-permissions" /> <liferay-ui:icon-help message="clean-up-permissions-help" />
 							</td>
 							<td>
-								<input type="button" value="<liferay-ui:message key="execute" />" onClick="<portlet:namespace />saveServer('cleanUpPermissions');" />
+								<input onClick="<portlet:namespace />saveServer('cleanUpPermissions');" type="button" value="<liferay-ui:message key="execute" />" />
 							</td>
 						</tr>
 						</table>

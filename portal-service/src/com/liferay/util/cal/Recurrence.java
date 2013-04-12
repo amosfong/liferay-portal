@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -56,7 +56,8 @@ import java.util.Date;
 
 /**
  * @author     Jonathan Lennox
- * @deprecated Moved to {@link com.liferay.portal.kernel.cal.Recurrence}
+ * @deprecated As of 6.2.0, moved to {@link
+ *             com.liferay.portal.kernel.cal.Recurrence}
  */
 public class Recurrence implements Serializable {
 
@@ -838,9 +839,9 @@ public class Recurrence implements Serializable {
 			return false;
 		}
 
-		if (!matchesByDay(candidate) ||!matchesByMonthDay(candidate)
-			||!matchesByYearDay(candidate) ||!matchesByWeekNo(candidate)
-			||!matchesByMonth(candidate)) {
+		if (!matchesByDay(candidate) || !matchesByMonthDay(candidate) ||
+			!matchesByYearDay(candidate) || !matchesByWeekNo(candidate) ||
+			!matchesByMonth(candidate)) {
 
 			// Doesn't match a by* rule
 

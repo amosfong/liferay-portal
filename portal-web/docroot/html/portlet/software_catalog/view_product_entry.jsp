@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -232,9 +232,9 @@ List productScreenshots = SCProductScreenshotLocalServiceUtil.getProductScreensh
 <c:if test="<%= SCProductEntryPermission.contains(permissionChecker, productEntryId, ActionKeys.UPDATE) %>">
 	<br />
 
-	<input type="button" value="<liferay-ui:message key="edit-product" />" onClick="location.href = '<%= editProductEntryURL.toString() %>';" />
+	<input onClick="location.href = '<%= editProductEntryURL.toString() %>';" type="button" value="<liferay-ui:message key="edit-product" />" />
 
-	<input type="button" value="<liferay-ui:message key="add-product-version" />" onClick="location.href = '<%= addProductVersionURL.toString() %>';" />
+	<input onClick="location.href = '<%= addProductVersionURL.toString() %>';" type="button" value="<liferay-ui:message key="add-product-version" />" />
 
 	<br /><br />
 </c:if>

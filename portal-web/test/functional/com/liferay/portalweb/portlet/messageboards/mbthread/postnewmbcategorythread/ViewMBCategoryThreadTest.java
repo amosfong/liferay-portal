@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -36,6 +36,9 @@ public class ViewMBCategoryThreadTest extends BaseTestCase {
 			selenium.getText("//td[3]/a"));
 		assertEquals(RuntimeVariables.replace("1"),
 			selenium.getText("//td[4]/a"));
+		assertEquals(RuntimeVariables.replace("Actions"),
+			selenium.getText(
+				"//td[5]/span[@title='Actions']/ul/li/strong/a/span"));
 		selenium.clickAt("//td[1]/a/strong",
 			RuntimeVariables.replace("MB Category Name"));
 		selenium.waitForPageToLoad("30000");
@@ -50,7 +53,8 @@ public class ViewMBCategoryThreadTest extends BaseTestCase {
 		assertTrue(selenium.isVisible("//td[5]/a"));
 		assertTrue(selenium.isPartialText("//td[6]/a", "By: Joe Bloggs"));
 		assertEquals(RuntimeVariables.replace("Actions"),
-			selenium.getText("//td[7]/span/ul/li/strong/a/span"));
+			selenium.getText(
+				"//td[7]/span[@title='Actions']/ul/li/strong/a/span"));
 		selenium.clickAt("//td[1]/a",
 			RuntimeVariables.replace("MB Category Thread Message Subject"));
 		selenium.waitForPageToLoad("30000");

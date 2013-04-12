@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -89,11 +89,15 @@ public interface LiferaySelenium extends Selenium {
 
 	public void goBackAndWait();
 
+	public boolean isConfirmation(String pattern);
+
 	public boolean isElementNotPresent(String locator);
 
 	public boolean isNotChecked(String locator);
 
 	public boolean isNotPartialText(String locator, String value);
+
+	public boolean isNotSelectedLabel(String selectLocator, String pattern);
 
 	public boolean isNotText(String locator, String value);
 
@@ -103,7 +107,11 @@ public interface LiferaySelenium extends Selenium {
 
 	public boolean isPartialText(String locator, String value);
 
+	public boolean isSelectedLabel(String selectLocator, String pattern);
+
 	public boolean isText(String locator, String value);
+
+	public boolean isTextNotPresent(String pattern);
 
 	public boolean isValue(String locator, String value);
 
@@ -112,6 +120,8 @@ public interface LiferaySelenium extends Selenium {
 	public void keyPressAndWait(String locator, String keySequence);
 
 	public void keyUpAndWait(String locator, String keySequence);
+
+	public void makeVisible(String locator);
 
 	public void paste(String locator);
 

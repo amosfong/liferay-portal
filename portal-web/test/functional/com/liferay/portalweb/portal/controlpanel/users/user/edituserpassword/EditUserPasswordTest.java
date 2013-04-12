@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -69,8 +69,9 @@ public class EditUserPasswordTest extends BaseTestCase {
 					RuntimeVariables.replace("Search"));
 				selenium.waitForPageToLoad("30000");
 				assertEquals(RuntimeVariables.replace("userfn"),
-					selenium.getText("//td/a"));
-				selenium.clickAt("//td/a", RuntimeVariables.replace("userfn"));
+					selenium.getText("//tr[contains(.,'userfn')]/td[2]/a"));
+				selenium.clickAt("//tr[contains(.,'userfn')]/td[2]/a",
+					RuntimeVariables.replace("userfn"));
 				selenium.waitForPageToLoad("30000");
 				assertTrue(selenium.isPartialText(
 						"//a[@id='_125_passwordLink']", "Password"));

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -42,9 +42,11 @@ public class DeleteSubcategoryActionsTest extends BaseTestCase {
 		selenium.waitForVisible("//div[@class='aui-tree-hitarea']");
 		selenium.clickAt("//div[@class='aui-tree-hitarea']",
 			RuntimeVariables.replace("Drop Down Arrow"));
-		selenium.waitForVisible("//li/ul/li/div/div[4]");
+		selenium.waitForVisible(
+			"//div[@class='vocabulary-categories']/div/ul/li/ul/li/div/div[3][contains(.,'Subcategory Name')]");
 		assertEquals(RuntimeVariables.replace("Subcategory Name"),
-			selenium.getText("//li/ul/li/div/div[4]"));
+			selenium.getText(
+				"//div[@class='vocabulary-categories']/div/ul/li/ul/li/div/div[3][contains(.,'Subcategory Name')]"));
 		selenium.waitForVisible(
 			"xPath=(//div[@class='aui-tree-node-checkbox-container'])[2]");
 		assertTrue(selenium.isElementNotPresent(
@@ -64,15 +66,17 @@ public class DeleteSubcategoryActionsTest extends BaseTestCase {
 				"//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a"));
 		selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li[contains(.,'Delete')]/a",
 			RuntimeVariables.replace("Delete"));
-		assertTrue(selenium.getConfirmation()
-						   .matches("^Are you sure you want to delete the selected categories[\\s\\S]$"));
+		selenium.waitForConfirmation(
+			"Are you sure you want to delete the selected categories?");
 		selenium.waitForVisible(
 			"//div[@class='lfr-message-response portlet-msg-success']");
 		assertEquals(RuntimeVariables.replace(
 				"Your request processed successfully."),
 			selenium.getText(
 				"//div[@class='lfr-message-response portlet-msg-success']"));
-		selenium.waitForElementNotPresent("//li/ul/li/div/div[4]");
-		assertTrue(selenium.isElementNotPresent("//li/ul/li/div/div[4]"));
+		selenium.waitForElementNotPresent(
+			"//div[@class='vocabulary-categories']/div/ul/li/ul/li/div/div[3][contains(.,'Subcategory Name')]");
+		assertTrue(selenium.isElementNotPresent(
+				"//div[@class='vocabulary-categories']/div/ul/li/ul/li/div/div[3][contains(.,'Subcategory Name')]"));
 	}
 }

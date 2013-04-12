@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portalweb.socialofficehome.activities;
 
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.socialofficehome.activities.activitiesblockedsouser.ActivitiesBlockedSOUserTestPlan;
+import com.liferay.portalweb.socialofficehome.activities.dashboardactivity.DashboardActivityTestPlan;
 import com.liferay.portalweb.socialofficehome.activities.mbentryactivity.MBEntryActivityTestPlan;
 
 import junit.framework.Test;
@@ -30,6 +31,7 @@ public class ActivitiesTestPlan extends BaseTestSuite {
 		TestSuite testSuite = new TestSuite();
 
 		testSuite.addTest(ActivitiesBlockedSOUserTestPlan.suite());
+		testSuite.addTest(DashboardActivityTestPlan.suite());
 		testSuite.addTest(MBEntryActivityTestPlan.suite());
 
 		return testSuite;

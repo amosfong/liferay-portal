@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,8 +17,8 @@ package com.liferay.portlet.messageboards.trash;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
+import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portlet.messageboards.asset.MBMessageAssetRendererFactory;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
@@ -30,11 +30,20 @@ import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
  */
 public class MBMessageTrashHandler extends BaseTrashHandler {
 
-	public void deleteTrashEntries(long[] classPKs, boolean checkPermission) {
+	public void deleteTrashEntry(long classPK) {
 	}
 
 	public String getClassName() {
-		return MBMessageAssetRendererFactory.CLASS_NAME;
+		return MBMessage.class.getName();
+	}
+
+	@Override
+	public ContainerModel getTrashContainer(long classPK)
+		throws PortalException, SystemException {
+
+		MBMessage message = MBMessageLocalServiceUtil.getMBMessage(classPK);
+
+		return message.getTrashContainer();
 	}
 
 	@Override
@@ -47,12 +56,7 @@ public class MBMessageTrashHandler extends BaseTrashHandler {
 
 		MBMessage message = MBMessageLocalServiceUtil.getMBMessage(classPK);
 
-		if (message.isInTrash() || message.isInTrashThread()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return message.isInTrash();
 	}
 
 	@Override
@@ -64,7 +68,7 @@ public class MBMessageTrashHandler extends BaseTrashHandler {
 		return message.isInTrashThread();
 	}
 
-	public void restoreTrashEntries(long[] classPKs) {
+	public void restoreTrashEntry(long userId, long classPK) {
 	}
 
 	@Override

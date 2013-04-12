@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -248,6 +248,15 @@ public interface PermissionChecker extends Cloneable {
 	public boolean isOrganizationAdmin(long organizationId);
 
 	/**
+	 * Returns <code>true</code> if the user is an owner of the organization.
+	 *
+	 * @param  organizationId the primary key of the organization
+	 * @return <code>true</code> if the user is an owner of the organization;
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isOrganizationOwner(long organizationId);
+
+	/**
 	 * Returns <code>true</code> if the user is signed in.
 	 *
 	 * @return <code>true</code> if the user is signed in; <code>false</code>
@@ -256,12 +265,12 @@ public interface PermissionChecker extends Cloneable {
 	public boolean isSignedIn();
 
 	/**
-	 * @deprecated Does nothing
+	 * @deprecated As of 6.2.0, does nothing
 	 */
 	public void resetValues();
 
 	/**
-	 * @deprecated Does nothing
+	 * @deprecated As of 6.2.0, does nothing
 	 */
 	public void setValues(PortletRequest portletRequest);
 

@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -32,10 +32,9 @@ List<Group> mySites = user.getMySites(true, max);
 		<%
 		PortletURL portletURL = new PortletURLImpl(request, PortletKeys.SITE_REDIRECTOR, plid, PortletRequest.ACTION_PHASE);
 
-		portletURL.setWindowState(WindowState.NORMAL);
-		portletURL.setPortletMode(PortletMode.VIEW);
-
 		portletURL.setParameter("struts_action", "/my_sites/view");
+		portletURL.setPortletMode(PortletMode.VIEW);
+		portletURL.setWindowState(WindowState.NORMAL);
 
 		for (Group mySite : mySites) {
 			String escapedSiteName = HtmlUtil.escape(mySite.getName());
@@ -157,7 +156,7 @@ List<Group> mySites = user.getMySites(true, max);
 											if (showPublicSiteStaging) {
 												StringBundler sb = new StringBundler(5);
 
-												sb.append(siteName);
+												sb.append(HtmlUtil.escape(siteName));
 												sb.append(StringPool.SPACE);
 												sb.append(StringPool.OPEN_PARENTHESIS);
 												sb.append(LanguageUtil.get(pageContext, "staging"));
@@ -251,13 +250,12 @@ List<Group> mySites = user.getMySites(true, max);
 						if (mySite.isSite() && GroupPermissionUtil.contains(permissionChecker, mySite.getGroupId(), ActionKeys.ADD_LAYOUT)) {
 							PortletURL addPageURL = new PortletURLImpl(request, PortletKeys.SITE_REDIRECTOR, plid, PortletRequest.ACTION_PHASE);
 
-							addPageURL.setWindowState(WindowState.NORMAL);
-							addPageURL.setPortletMode(PortletMode.VIEW);
-
 							addPageURL.setParameter("struts_action", "/my_sites/edit_layouts");
 							addPageURL.setParameter("redirect", currentURL);
 							addPageURL.setParameter("groupId", String.valueOf(mySite.getGroupId()));
 							addPageURL.setParameter("privateLayout", Boolean.FALSE.toString());
+							addPageURL.setPortletMode(PortletMode.VIEW);
+							addPageURL.setWindowState(WindowState.NORMAL);
 
 							publicAddPageHREF = addPageURL.toString();
 
@@ -268,13 +266,12 @@ List<Group> mySites = user.getMySites(true, max);
 						else if (mySite.isUser()) {
 							PortletURL publicAddPageURL = new PortletURLImpl(request, PortletKeys.MY_ACCOUNT, plid, PortletRequest.RENDER_PHASE);
 
-							publicAddPageURL.setWindowState(WindowState.MAXIMIZED);
-							publicAddPageURL.setPortletMode(PortletMode.VIEW);
-
 							publicAddPageURL.setParameter("struts_action", "/my_account/edit_layouts");
 							publicAddPageURL.setParameter("tabs1", "public-pages");
 							publicAddPageURL.setParameter("redirect", currentURL);
 							publicAddPageURL.setParameter("groupId", String.valueOf(mySite.getGroupId()));
+							publicAddPageURL.setPortletMode(PortletMode.VIEW);
+							publicAddPageURL.setWindowState(WindowState.MAXIMIZED);
 
 							publicAddPageHREF = publicAddPageURL.toString();
 
@@ -282,13 +279,12 @@ List<Group> mySites = user.getMySites(true, max);
 
 							PortletURL privateAddPageURL = new PortletURLImpl(request, PortletKeys.MY_ACCOUNT, plid, PortletRequest.RENDER_PHASE);
 
-							privateAddPageURL.setWindowState(WindowState.MAXIMIZED);
-							privateAddPageURL.setPortletMode(PortletMode.VIEW);
-
 							privateAddPageURL.setParameter("struts_action", "/my_account/edit_layouts");
 							privateAddPageURL.setParameter("tabs1", "private-pages");
 							privateAddPageURL.setParameter("redirect", currentURL);
 							privateAddPageURL.setParameter("groupId", String.valueOf(mySite.getGroupId()));
+							privateAddPageURL.setPortletMode(PortletMode.VIEW);
+							privateAddPageURL.setWindowState(WindowState.MAXIMIZED);
 
 							privateAddPageHREF = privateAddPageURL.toString();
 						}

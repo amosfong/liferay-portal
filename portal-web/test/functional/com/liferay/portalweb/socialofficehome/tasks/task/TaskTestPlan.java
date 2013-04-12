@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -32,6 +32,7 @@ import com.liferay.portalweb.socialofficehome.tasks.task.edittaskstaskassignedto
 import com.liferay.portalweb.socialofficehome.tasks.task.filtertasksfilterbyplace.FilterTasksFilterByPlaceTests;
 import com.liferay.portalweb.socialofficehome.tasks.task.filtertasksfilterbytags.FilterTasksFilterByTagsTests;
 import com.liferay.portalweb.socialofficehome.tasks.task.resolvetaskstaskassignedtome.ResolveTasksTaskAssignedToMeTests;
+import com.liferay.portalweb.socialofficehome.tasks.task.sousresolvetaskstaskassignedtoconnection.SOUs_ResolveTasksTaskAssignedToConnectionTests;
 import com.liferay.portalweb.socialofficehome.tasks.task.viewtasksassignedtomelink.ViewTasksAssignedToMeLinkTests;
 import com.liferay.portalweb.socialofficehome.tasks.task.viewtasksihavecreatedlink.ViewTasksIHaveCreatedLinkTests;
 
@@ -63,6 +64,8 @@ public class TaskTestPlan extends BaseTestSuite {
 		testSuite.addTest(FilterTasksFilterByPlaceTests.suite());
 		testSuite.addTest(FilterTasksFilterByTagsTests.suite());
 		testSuite.addTest(ResolveTasksTaskAssignedToMeTests.suite());
+		testSuite.addTest(
+			SOUs_ResolveTasksTaskAssignedToConnectionTests.suite());
 		testSuite.addTest(ViewTasksAssignedToMeLinkTests.suite());
 		testSuite.addTest(ViewTasksIHaveCreatedLinkTests.suite());
 

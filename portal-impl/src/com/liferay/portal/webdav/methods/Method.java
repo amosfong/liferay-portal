@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -61,12 +61,12 @@ public interface Method {
 	 * code has already been set. Otherwise, the status code needs to be set by
 	 * the caller.
 	 *
-	 * @param  webDavRequest the WebDAV request
+	 * @param  webDAVRequest the WebDAV request
 	 * @return -1 or a supported HTTP status code. If it is -1, then the status
 	 *         code has already been set. Otherwise, the status code needs to be
 	 *         set by the caller.
 	 * @throws WebDAVException if a WebDAV exception occurred
 	 */
-	public int process(WebDAVRequest webDavRequest) throws WebDAVException;
+	public int process(WebDAVRequest webDAVRequest) throws WebDAVException;
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.messageboards.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.messageboards.CategoryNameException;
 import com.liferay.portlet.messageboards.NoSuchMailingListException;
 import com.liferay.portlet.messageboards.model.MBCategory;
@@ -93,6 +93,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		category.setName(name);
 		category.setDescription(description);
 		category.setDisplayStyle(displayStyle);
+		category.setExpandoBridgeAttributes(serviceContext);
 
 		mbCategoryPersistence.update(category);
 
@@ -119,12 +120,6 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 			inReadInterval, outEmailAddress, outCustom, outServerName,
 			outServerPort, outUseSSL, outUserName, outPassword, allowAnonymous,
 			mailingListActive, serviceContext);
-
-		// Expando
-
-		ExpandoBridge expandoBridge = category.getExpandoBridge();
-
-		expandoBridge.setAttributes(serviceContext);
 
 		return category;
 	}
@@ -449,14 +444,21 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 			long groupId, long userId, int start, int end)
 		throws SystemException {
 
+		QueryDefinition queryDefinition = new QueryDefinition(
+			WorkflowConstants.STATUS_ANY, start, end, null);
+
 		return mbCategoryFinder.findByS_G_U_P(
-			groupId, userId, null, start, end);
+			groupId, userId, null, queryDefinition);
 	}
 
 	public int getSubscribedCategoriesCount(long groupId, long userId)
 		throws SystemException {
 
-		return mbCategoryFinder.countByS_G_U_P(groupId, userId, null);
+		QueryDefinition queryDefinition = new QueryDefinition(
+			WorkflowConstants.STATUS_ANY);
+
+		return mbCategoryFinder.countByS_G_U_P(
+			groupId, userId, null, queryDefinition);
 	}
 
 	public void moveCategoriesToTrash(long groupId, long userId)
@@ -608,6 +610,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 			updateChildCategoriesDisplayStyle(category, displayStyle);
 		}
 
+		category.setExpandoBridgeAttributes(serviceContext);
+
 		mbCategoryPersistence.update(category);
 
 		// Mailing list
@@ -632,12 +636,6 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 				outServerPort, outUseSSL, outUserName, outPassword,
 				allowAnonymous, mailingListActive, serviceContext);
 		}
-
-		// Expando
-
-		ExpandoBridge expandoBridge = category.getExpandoBridge();
-
-		expandoBridge.setAttributes(serviceContext);
 
 		return category;
 	}

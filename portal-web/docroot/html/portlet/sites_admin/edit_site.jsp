@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -97,9 +97,9 @@ if ((contentSharingWithChildrenEnabledEnabled == 0) && ArrayUtil.contains(advanc
 	advancedSections = ArrayUtil.remove(advancedSections, "content-sharing");
 }
 
-int trashEnabled = PrefsPropsUtil.getInteger(company.getCompanyId(), PropsKeys.TRASH_ENABLED);
+boolean trashEnabled = PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.TRASH_ENABLED);
 
-if ((trashEnabled == 0) && ArrayUtil.contains(advancedSections, "recycle-bin")) {
+if (!trashEnabled && ArrayUtil.contains(advancedSections, "recycle-bin")) {
 	advancedSections = ArrayUtil.remove(advancedSections, "recycle-bin");
 }
 
@@ -128,9 +128,10 @@ else if (layoutSetPrototype != null) {
 
 <liferay-ui:header
 	backURL="<%= backURL %>"
+	escapeXml="<%= false %>"
 	localizeTitle="<%= localizeTitle %>"
 	showBackURL="<%= showBackURL %>"
-	title="<%= title %>"
+	title="<%= HtmlUtil.escape(title) %>"
 />
 
 <portlet:actionURL var="editSiteURL">

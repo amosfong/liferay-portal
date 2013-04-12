@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.PasswordPolicy;
 import com.liferay.portal.model.PasswordTracker;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.pwd.PwdEncryptor;
+import com.liferay.portal.security.pwd.PasswordEncryptorUtil;
 import com.liferay.portal.service.base.PasswordTrackerLocalServiceBaseImpl;
 
 import java.util.Date;
@@ -44,7 +44,7 @@ public class PasswordTrackerLocalServiceImpl
 		String currentPwd = user.getPassword();
 
 		if (user.isPasswordEncrypted()) {
-			String newEncPwd = PwdEncryptor.encrypt(
+			String newEncPwd = PasswordEncryptorUtil.encrypt(
 				newClearTextPwd, user.getPassword());
 
 			if (currentPwd.equals(newEncPwd)) {
@@ -87,7 +87,8 @@ public class PasswordTrackerLocalServiceImpl
 			}
 
 			String oldEncPwd = passwordTracker.getPassword();
-			String newEncPwd = PwdEncryptor.encrypt(newClearTextPwd, oldEncPwd);
+			String newEncPwd = PasswordEncryptorUtil.encrypt(
+				newClearTextPwd, oldEncPwd);
 
 			if (oldEncPwd.equals(newEncPwd)) {
 				return false;

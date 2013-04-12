@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,7 +17,7 @@ package com.liferay.portalweb.portal.controlpanel.webcontent;
 import com.liferay.portalweb.portal.BaseTestSuite;
 import com.liferay.portalweb.portal.controlpanel.webcontent.wcfolder.WCFolderTestPlan;
 import com.liferay.portalweb.portal.controlpanel.webcontent.wcstructure.WCStructureTestPlan;
-import com.liferay.portalweb.portal.controlpanel.webcontent.wctemplate.WCTemplateTestPlan;
+import com.liferay.portalweb.portal.controlpanel.webcontent.wctemplatestructure.WCTemplateStructureTestPlan;
 import com.liferay.portalweb.portal.controlpanel.webcontent.wcwebcontent.WCWebContentTestPlan;
 
 import junit.framework.Test;
@@ -33,7 +33,7 @@ public class WebContentTestPlan extends BaseTestSuite {
 
 		testSuite.addTest(WCFolderTestPlan.suite());
 		testSuite.addTest(WCStructureTestPlan.suite());
-		testSuite.addTest(WCTemplateTestPlan.suite());
+		testSuite.addTest(WCTemplateStructureTestPlan.suite());
 		testSuite.addTest(WCWebContentTestPlan.suite());
 
 		return testSuite;

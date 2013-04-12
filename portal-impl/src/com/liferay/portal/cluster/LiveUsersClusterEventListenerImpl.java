@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,7 +17,7 @@ package com.liferay.portal.cluster;
 import com.liferay.portal.kernel.cluster.ClusterEvent;
 import com.liferay.portal.kernel.cluster.ClusterEventListener;
 import com.liferay.portal.kernel.cluster.ClusterEventType;
-import com.liferay.portal.kernel.cluster.ClusterLinkUtil;
+import com.liferay.portal.kernel.cluster.ClusterLink;
 import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -52,7 +52,7 @@ public class LiveUsersClusterEventListenerImpl implements ClusterEventListener {
 	private void _processDepartEvent(ClusterNode clusterNode) {
 		Message message = new Message();
 
-		message.put(ClusterLinkUtil.CLUSTER_FORWARD_MESSAGE, true);
+		message.put(ClusterLink.CLUSTER_FORWARD_MESSAGE, true);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -67,7 +67,7 @@ public class LiveUsersClusterEventListenerImpl implements ClusterEventListener {
 	private void _processJoinEvent(ClusterNode clusterNode) {
 		Message message = new Message();
 
-		message.put(ClusterLinkUtil.CLUSTER_FORWARD_MESSAGE, true);
+		message.put(ClusterLink.CLUSTER_FORWARD_MESSAGE, true);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 

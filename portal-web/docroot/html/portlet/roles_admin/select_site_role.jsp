@@ -1,6 +1,6 @@
 <%--
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -17,19 +17,21 @@
 <%@ include file="/html/portlet/roles_admin/init.jsp" %>
 
 <%
+String p_u_i_d = ParamUtil.getString(request, "p_u_i_d");
 int step = ParamUtil.getInteger(request, "step");
-String callback = ParamUtil.getString(request, "callback", "selectRole");
+String eventName = ParamUtil.getString(request, "eventName", "selectSiteRole");
 
 User selUser = PortalUtil.getSelectedUser(request);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/roles_admin/select_site_role");
-portletURL.setParameter("callback", callback);
 
 if (selUser != null) {
 	portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
 }
+
+portletURL.setParameter("eventName", eventName);
 
 long uniqueGroupId = 0;
 
@@ -50,7 +52,7 @@ if (step == 1) {
 }
 %>
 
-<aui:form action="<%= portletURL.toString() %>" method="post" name="fm">
+<aui:form action="<%= portletURL.toString() %>" method="post" name="selectSiteRoleFm">
 	<c:choose>
 		<c:when test="<%= step == 1 %>">
 			<aui:input name="groupId" type="hidden" />
@@ -90,45 +92,48 @@ if (step == 1) {
 					rowIdProperty="friendlyURL"
 				>
 
-					<%
-					StringBundler sb = new StringBundler(5);
-
-					sb.append("javascript:");
-					sb.append(renderResponse.getNamespace());
-					sb.append("selectGroup('");
-					sb.append(group.getGroupId());
-					sb.append("');");
-
-					String rowHREF = sb.toString();
-					%>
-
 					<liferay-ui:search-container-column-text
-						href="<%= rowHREF %>"
 						name="name"
 						value="<%= HtmlUtil.escape(group.getDescriptiveName(locale)) %>"
 					/>
 
 					<liferay-ui:search-container-column-text
-						href="<%= rowHREF %>"
 						name="type"
 						value="<%= LanguageUtil.get(pageContext, group.getTypeLabel()) %>"
 					/>
+
+					<liferay-ui:search-container-column-text>
+
+						<%
+						Map<String, Object> data = new HashMap<String, Object>();
+
+						data.put("groupid", group.getGroupId());
+						%>
+
+						<aui:button cssClass="group-selector-button" data="<%= data %>" value="choose" />
+					</liferay-ui:search-container-column-text>
 				</liferay-ui:search-container-row>
 
 				<liferay-ui:search-iterator />
 			</liferay-ui:search-container>
 
-			<aui:script>
-				function <portlet:namespace />selectGroup(groupId) {
-					document.<portlet:namespace />fm.<portlet:namespace />groupId.value = groupId;
+			<aui:script use="aui-base">
+				A.one('#<portlet:namespace />selectSiteRoleFm').delegate(
+					'click',
+					function(event) {
+						var groupId = event.currentTarget.attr('data-groupid');
 
-					<%
-					portletURL.setParameter("resetCur", Boolean.TRUE.toString());
-					portletURL.setParameter("step", "2");
-					%>
+						document.<portlet:namespace />selectSiteRoleFm.<portlet:namespace />groupId.value = groupId;
 
-					submitForm(document.<portlet:namespace />fm, "<%= portletURL.toString() %>");
-				}
+						<%
+						portletURL.setParameter("resetCur", Boolean.TRUE.toString());
+						portletURL.setParameter("step", "2");
+						%>
+
+						submitForm(document.<portlet:namespace />selectSiteRoleFm, "<%= portletURL.toString() %>");
+					},
+					'.group-selector-button input'
+				);
 			</aui:script>
 		</c:when>
 
@@ -206,43 +211,50 @@ if (step == 1) {
 					<liferay-util:param name="className" value="<%= RolesAdminUtil.getCssClassName(role) %>" />
 					<liferay-util:param name="classHoverName" value="<%= RolesAdminUtil.getCssClassName(role) %>" />
 
-					<%
-					String rowHREF = null;
-
-					if (MembershipPolicyUtil.isMembershipAllowed(group, role, selUser)) {
-						StringBundler sb = new StringBundler(14);
-
-						sb.append("javascript:opener.");
-						sb.append(renderResponse.getNamespace());
-						sb.append(callback);
-						sb.append("('");
-						sb.append(role.getRoleId());
-						sb.append("', '");
-						sb.append(UnicodeFormatter.toString(role.getTitle(locale)));
-						sb.append("', '");
-						sb.append("siteRoles");
-						sb.append("', '");
-						sb.append(UnicodeFormatter.toString(group.getDescriptiveName(locale)));
-						sb.append("', '");
-						sb.append(group.getGroupId());
-						sb.append("'); window.close();");
-
-						rowHREF = sb.toString();
-					}
-					%>
-
 					<liferay-ui:search-container-column-text
-						href="<%= rowHREF %>"
 						name="title"
 						value="<%= HtmlUtil.escape(role.getTitle(locale)) %>"
 					/>
+
+					<liferay-ui:search-container-column-text>
+						<c:if test="<%= Validator.isNull(p_u_i_d) || SiteMembershipPolicyUtil.isRoleAllowed((selUser != null) ? selUser.getUserId() : 0, group.getGroupId(), role.getRoleId()) %>">
+
+							<%
+							Map<String, Object> data = new HashMap<String, Object>();
+
+							data.put("groupid", group.getGroupId());
+							data.put("groupname", HtmlUtil.escapeAttribute(group.getDescriptiveName(locale)));
+							data.put("roleid", role.getRoleId());
+							data.put("roletitle", HtmlUtil.escapeAttribute(role.getTitle(locale)));
+							data.put("searchcontainername", "siteRoles");
+							%>
+
+							<aui:button cssClass="selector-button" data="<%= data %>" value="choose" />
+						</c:if>
+					</liferay-ui:search-container-column-text>
 				</liferay-ui:search-container-row>
 
 				<liferay-ui:search-iterator />
 			</liferay-ui:search-container>
 
 			<aui:script>
-				Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
+				Liferay.Util.focusFormField(document.<portlet:namespace />selectSiteRoleFm.<portlet:namespace />name);
+			</aui:script>
+
+			<aui:script use="aui-base">
+				var Util = Liferay.Util;
+
+				A.one('#<portlet:namespace />selectSiteRoleFm').delegate(
+					'click',
+					function(event) {
+						var result = Util.getAttributes(event.currentTarget, 'data-');
+
+						Util.getOpener().Liferay.fire('<portlet:namespace /><%= eventName %>', result);
+
+						Util.getWindow().close();
+					},
+					'.selector-button input'
+				);
 			</aui:script>
 		</c:when>
 	</c:choose>

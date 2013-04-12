@@ -323,7 +323,7 @@
 			<finder-column name="primary" />
 		</finder>
 	</entity>
-	<entity name="Group" local-service="true" remote-service="true">
+	<entity name="Group" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -419,7 +419,9 @@
 
 		<!-- References -->
 
+		<reference package-path="com.liferay.portlet.asset" entity="AssetCategory" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetTag" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetVocabulary" />
 		<reference package-path="com.liferay.portlet.blogs" entity="BlogsEntry" />
 		<reference package-path="com.liferay.portlet.blogs" entity="BlogsStatsUser" />
@@ -635,6 +637,10 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -862,6 +868,8 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
 		<column name="createDate" type="Date" />
 		<column name="modifiedDate" type="Date" />
 
@@ -989,7 +997,7 @@
 
 		<reference package-path="com.liferay.mail" entity="Mail" />
 	</entity>
-	<entity name="Organization" local-service="true" remote-service="true">
+	<entity name="Organization" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -998,6 +1006,10 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -1041,7 +1053,9 @@
 
 		<!-- References -->
 
+		<reference package-path="com.liferay.portlet.asset" entity="AssetCategory" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetTag" />
 		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
 	</entity>
 	<entity name="OrgGroupRole" local-service="false" remote-service="false">
@@ -1099,7 +1113,7 @@
 			<finder-column name="organizationId" />
 		</finder>
 	</entity>
-	<entity name="PasswordPolicy" local-service="true" remote-service="true">
+	<entity name="PasswordPolicy" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -1523,6 +1537,7 @@
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
 		<reference package-path="com.liferay.portlet.documentlibrary" entity="DLAppHelper" />
 		<reference package-path="com.liferay.portlet.documentlibrary" entity="DLFileEntry" />
+		<reference package-path="com.liferay.portlet.documentlibrary" entity="DLFileEntryType" />
 		<reference package-path="com.liferay.portlet.documentlibrary" entity="DLFileVersion" />
 		<reference package-path="com.liferay.portlet.documentlibrary" entity="DLFolder" />
 		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
@@ -1536,6 +1551,14 @@
 		<!-- Group instance -->
 
 		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -1721,7 +1744,7 @@
 			<finder-column name="roleId" />
 		</finder>
 	</entity>
-	<entity name="Role" local-service="true" remote-service="true">
+	<entity name="Role" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -1730,6 +1753,10 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -1759,6 +1786,9 @@
 		</finder>
 		<finder name="Name" return-type="Collection">
 			<finder-column name="name" />
+		</finder>
+		<finder name="Type" return-type="Collection">
+			<finder-column name="type" />
 		</finder>
 		<finder name="Subtype" return-type="Collection">
 			<finder-column name="subtype" />
@@ -2084,7 +2114,7 @@
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialRequest" />
 	</entity>
-	<entity name="UserGroup" local-service="true" remote-service="true">
+	<entity name="UserGroup" uuid="true" local-service="true" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -2093,6 +2123,10 @@
 		<!-- Audit fields -->
 
 		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
 
 		<!-- Other fields -->
 
@@ -2525,6 +2559,7 @@
 		<exception>ExpiredLock</exception>
 		<exception>GroupFriendlyURL</exception>
 		<exception>GroupName</exception>
+		<exception>GroupParent</exception>
 		<exception>ImageType</exception>
 		<exception>InvalidLock</exception>
 		<exception>InvalidRepository</exception>

@@ -19,6 +19,12 @@
 <%
 String layoutTemplateId = GetterUtil.getString(typeSettingsProperties.getProperty("layoutTemplateId"));
 
+if (Validator.isNull(layoutTemplateId)) {
+	layoutTemplateId = PropsValues.DEFAULT_LAYOUT_TEMPLATE_ID;
+}
+
+String layoutTemplateIdPrefix = StringPool.BLANK;
+
 List<LayoutTemplate> layoutTemplates = LayoutTemplateLocalServiceUtil.getLayoutTemplates();
 %>
 
@@ -26,4 +32,4 @@ List<LayoutTemplate> layoutTemplates = LayoutTemplateLocalServiceUtil.getLayoutT
 
 <h5><%= LanguageUtil.get(pageContext, "layout-template") %></h5>
 
-<%@ include file="/html/portlet/layouts_admin/layout/layout_templates.jspf" %>
+<%@ include file="/html/portlet/layouts_admin/layout/layout_templates_list.jspf" %>

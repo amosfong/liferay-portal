@@ -22,7 +22,7 @@
 		<%
 		String signedInAs = HtmlUtil.escape(user.getFullName());
 
-		if (themeDisplay.isShowMyAccountIcon() && PortalPermissionUtil.contains(permissionChecker, ActionKeys.VIEW_CONTROL_PANEL)) {
+		if (themeDisplay.isShowMyAccountIcon() && Validator.isNotNull(themeDisplay.getURLMyAccount())) {
 			signedInAs = "<a href=\"" + HtmlUtil.escape(themeDisplay.getURLMyAccount().toString()) + "\">" + signedInAs + "</a>";
 		}
 		%>
@@ -117,7 +117,7 @@
 				}
 				%>
 
-				<aui:input label="<%= loginLabel %>" name="login" showRequiredLabel="<%= false %>" type="text" value="<%= login %>">
+				<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" label="<%= loginLabel %>" name="login" showRequiredLabel="<%= false %>" type="text" value="<%= login %>">
 					<aui:validator name="required" />
 				</aui:input>
 
@@ -138,12 +138,6 @@
 		</aui:form>
 
 		<liferay-util:include page="/html/portlet/login/navigation.jsp" />
-
-		<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-			<aui:script>
-				Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />login);
-			</aui:script>
-		</c:if>
 
 		<aui:script use="aui-base">
 			var password = A.one('#<portlet:namespace />password');

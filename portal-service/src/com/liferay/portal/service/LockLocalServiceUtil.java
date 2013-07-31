@@ -163,9 +163,38 @@ public class LockLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.Lock fetchLock(long lockId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchLock(lockId);
+	}
+
+	/**
+	* Returns the lock with the matching UUID and company.
+	*
+	* @param uuid the lock's UUID
+	* @param companyId the primary key of the company
+	* @return the matching lock, or <code>null</code> if a matching lock could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Lock fetchLockByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchLockByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -187,6 +216,22 @@ public class LockLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the lock with the matching UUID and company.
+	*
+	* @param uuid the lock's UUID
+	* @param companyId the primary key of the company
+	* @return the matching lock
+	* @throws PortalException if a matching lock could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Lock getLockByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getLockByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -268,13 +313,6 @@ public class LockLocalServiceUtil {
 		return getService().getLock(className, key);
 	}
 
-	public static com.liferay.portal.model.Lock getLockByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return getService().getLockByUuidAndCompanyId(uuid, companyId);
-	}
-
 	public static boolean hasLock(long userId, java.lang.String className,
 		long key) throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().hasLock(userId, className, key);
@@ -318,12 +356,33 @@ public class LockLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.model.Lock lock(
+		java.lang.String className, java.lang.String key, java.lang.String owner)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().lock(className, key, owner);
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #lock(String, String,
+	String)}
+	*/
+	public static com.liferay.portal.model.Lock lock(
 		java.lang.String className, java.lang.String key,
 		java.lang.String owner, boolean retrieveFromCache)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().lock(className, key, owner, retrieveFromCache);
 	}
 
+	public static com.liferay.portal.model.Lock lock(
+		java.lang.String className, java.lang.String key,
+		java.lang.String expectedOwner, java.lang.String updatedOwner)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().lock(className, key, expectedOwner, updatedOwner);
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #lock(String, String, String,
+	String)}
+	*/
 	public static com.liferay.portal.model.Lock lock(
 		java.lang.String className, java.lang.String key,
 		java.lang.String expectedOwner, java.lang.String updatedOwner,
@@ -351,10 +410,20 @@ public class LockLocalServiceUtil {
 		getService().unlock(className, key);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #unlock(String, String,
+	String)}
+	*/
 	public static void unlock(java.lang.String className, java.lang.String key,
 		java.lang.String owner, boolean retrieveFromCache)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getService().unlock(className, key, owner, retrieveFromCache);
+	}
+
+	public static void unlock(java.lang.String className, java.lang.String key,
+		java.lang.String owner)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getService().unlock(className, key, owner);
 	}
 
 	public static LockLocalService getService() {

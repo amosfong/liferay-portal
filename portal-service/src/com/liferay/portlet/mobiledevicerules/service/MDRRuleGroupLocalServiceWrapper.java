@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link MDRRuleGroupLocalService}.
  *
- * @author    Edward C. Han
- * @see       MDRRuleGroupLocalService
+ * @author Edward C. Han
+ * @see MDRRuleGroupLocalService
  * @generated
  */
 public class MDRRuleGroupLocalServiceWrapper implements MDRRuleGroupLocalService,
@@ -166,11 +166,60 @@ public class MDRRuleGroupLocalServiceWrapper implements MDRRuleGroupLocalService
 		return _mdrRuleGroupLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mdrRuleGroupLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup fetchMDRRuleGroup(
 		long ruleGroupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _mdrRuleGroupLocalService.fetchMDRRuleGroup(ruleGroupId);
+	}
+
+	/**
+	* Returns the m d r rule group with the matching UUID and company.
+	*
+	* @param uuid the m d r rule group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching m d r rule group, or <code>null</code> if a matching m d r rule group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup fetchMDRRuleGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mdrRuleGroupLocalService.fetchMDRRuleGroupByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the m d r rule group matching the UUID and group.
+	*
+	* @param uuid the m d r rule group's UUID
+	* @param groupId the primary key of the group
+	* @return the matching m d r rule group, or <code>null</code> if a matching m d r rule group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup fetchMDRRuleGroupByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mdrRuleGroupLocalService.fetchMDRRuleGroupByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class MDRRuleGroupLocalServiceWrapper implements MDRRuleGroupLocalService
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mdrRuleGroupLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the m d r rule group with the matching UUID and company.
+	*
+	* @param uuid the m d r rule group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching m d r rule group
+	* @throws PortalException if a matching m d r rule group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup getMDRRuleGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mdrRuleGroupLocalService.getMDRRuleGroupByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

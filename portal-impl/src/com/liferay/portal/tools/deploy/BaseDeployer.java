@@ -355,8 +355,6 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			FileUtil.copyFile(
 				jarFullName, srcFile + "/WEB-INF/lib/" + jarName, false);
 		}
-
-		FileUtil.delete(srcFile + "/WEB-INF/lib/util-jsf.jar");
 	}
 
 	public void copyPortalDependencies(File srcFile) throws Exception {
@@ -1666,20 +1664,53 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		String wsadminContent = FileUtil.read(
 			DeployUtil.getResourcePath("wsadmin.py"));
 
+		String adminAppListOptions =
+			PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_LIST_OPTIONS;
+
+		if (Validator.isNotNull(adminAppListOptions)) {
+			adminAppListOptions =
+				StringPool.APOSTROPHE + adminAppListOptions +
+					StringPool.APOSTROPHE;
+		}
+
+		wsadminContent = StringUtil.replace(
+			wsadminContent,
+			new String[] {
+				"${auto.deploy.websphere.wsadmin.app.manager.install.options}",
+				"${auto.deploy.websphere.wsadmin.app.manager.list.options}",
+				"${auto.deploy.websphere.wsadmin.app.manager.query}",
+				"${auto.deploy.websphere.wsadmin.app.manager.update.options}"
+			},
+			new String[] {
+				PropsValues.
+					AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_INSTALL_OPTIONS,
+				adminAppListOptions,
+				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY,
+				PropsValues.
+					AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_UPDATE_OPTIONS
+			});
+
 		String pluginServletContextName = deployDir.substring(
 			0, deployDir.length() - 4);
+
+		String pluginApplicationName = pluginServletContextName;
+
+		if (Validator.isNotNull(
+				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_NAME_SUFFIX)) {
+
+			pluginApplicationName +=
+				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_NAME_SUFFIX;
+		}
 
 		wsadminContent = StringUtil.replace(
 			wsadminContent,
 			new String[] {
 				"${auto.deploy.dest.dir}",
-				"${auto.deploy.websphere.wsadmin.app.manager.query}",
+				"${auto.deploy.websphere.wsadmin.app.name}",
 				"${plugin.servlet.context.name}"
 			},
 			new String[] {
-				destDir,
-				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY,
-				pluginServletContextName
+				destDir, pluginApplicationName, pluginServletContextName
 			});
 
 		String wsadminFileName = FileUtil.createTempFileName("py");
@@ -1688,23 +1719,40 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		String webSphereHome = System.getenv("WAS_HOME");
 
-		String wsadminBatchFileName = null;
+		List<String> commands = new ArrayList<String>();
 
 		if (OSDetector.isWindows()) {
-			wsadminBatchFileName = webSphereHome + "\\bin\\wsadmin.bat";
+			commands.add(webSphereHome + "\\bin\\wsadmin.bat");
 		}
 		else {
-			wsadminBatchFileName = webSphereHome + "/bin/wsadmin.sh";
+			commands.add(webSphereHome + "/bin/wsadmin.sh");
 		}
+
+		if (Validator.isNotNull(
+				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_PROPERTIES_FILE)) {
+
+			commands.add("-p");
+			commands.add(
+				PropsValues.AUTO_DEPLOY_WEBSPHERE_WSADMIN_PROPERTIES_FILE);
+		}
+
+		commands.add("-f");
+		commands.add(wsadminFileName);
 
 		if (_log.isInfoEnabled()) {
-			_log.info(
-				"Installing plugin by executing " + wsadminBatchFileName +
-					" -f " + wsadminFileName);
+			StringBundler sb = new StringBundler(commands.size() + 1);
+
+			sb.append("Installing plugin by executing");
+
+			for (String command : commands) {
+				sb.append(StringPool.SPACE);
+				sb.append(command);
+			}
+
+			_log.info(sb.toString());
 		}
 
-		ProcessBuilder processBuilder = new ProcessBuilder(
-			wsadminBatchFileName, "-f", wsadminFileName);
+		ProcessBuilder processBuilder = new ProcessBuilder(commands);
 
 		processBuilder.redirectErrorStream(true);
 
@@ -1766,8 +1814,8 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 	}
 
 	/**
-	 * @see {@link PluginPackageUtil#_readPluginPackageServletContext(
-	 *      javax.servlet.ServletContext)}
+	 * @see PluginPackageUtil#_readPluginPackageServletContext(
+	 *      javax.servlet.ServletContext)
 	 */
 	@Override
 	public PluginPackage readPluginPackage(File file) {

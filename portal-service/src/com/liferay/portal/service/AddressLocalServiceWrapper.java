@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link AddressLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       AddressLocalService
+ * @author Brian Wing Shun Chan
+ * @see AddressLocalService
  * @generated
  */
 public class AddressLocalServiceWrapper implements AddressLocalService,
@@ -161,10 +161,42 @@ public class AddressLocalServiceWrapper implements AddressLocalService,
 		return _addressLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _addressLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portal.model.Address fetchAddress(long addressId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _addressLocalService.fetchAddress(addressId);
+	}
+
+	/**
+	* Returns the address with the matching UUID and company.
+	*
+	* @param uuid the address's UUID
+	* @param companyId the primary key of the company
+	* @return the matching address, or <code>null</code> if a matching address could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.Address fetchAddressByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _addressLocalService.fetchAddressByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -188,6 +220,23 @@ public class AddressLocalServiceWrapper implements AddressLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _addressLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the address with the matching UUID and company.
+	*
+	* @param uuid the address's UUID
+	* @param companyId the primary key of the company
+	* @return the matching address
+	* @throws PortalException if a matching address could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.Address getAddressByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _addressLocalService.getAddressByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -292,14 +341,6 @@ public class AddressLocalServiceWrapper implements AddressLocalService,
 		long classPK)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_addressLocalService.deleteAddresses(companyId, className, classPK);
-	}
-
-	@Override
-	public com.liferay.portal.model.Address fetchAddressByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _addressLocalService.fetchAddressByUuidAndCompanyId(uuid,
-			companyId);
 	}
 
 	@Override

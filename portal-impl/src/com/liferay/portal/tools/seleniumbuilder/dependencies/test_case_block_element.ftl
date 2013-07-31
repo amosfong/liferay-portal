@@ -9,17 +9,17 @@
 
 			<#assign lineNumber = element.attributeValue("line-number")>
 
-			selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
+			selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 			<#include "action_element.ftl">
 
 			<#assign lineNumber = element.attributeValue("line-number")>
 
-			selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+			selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
 		<#elseif element.attributeValue("macro")??>
 			<#assign lineNumber = element.attributeValue("line-number")>
 
-			selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
+			selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 			<#assign macroElement = element>
 
@@ -27,31 +27,21 @@
 
 			<#assign lineNumber = element.attributeValue("line-number")>
 
-			selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+			selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
 		</#if>
 	<#elseif name == "var">
-		<#assign varName = element.attributeValue("name")>
+		<#assign varElement = element>
 
-		<#if element.attributeValue("value")??>
-			<#assign varValue = element.attributeValue("value")>
-		<#elseif element.getText()??>
-			<#assign varValue = element.getText()>
-		</#if>
+		<#assign context = "commandScopeVariables">
 
-		<#if varValue?contains("${") && varValue?contains("}")>
-			<#assign varValue = varValue?replace("${", "\" + commandScopeVariables.get(\"")>
-
-			<#assign varValue = varValue?replace("}", "\") + \"")>
-		</#if>
+		<#include "var_element.ftl">
 
 		<#assign lineNumber = element.attributeValue("line-number")>
 
-		selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
-
-		commandScopeVariables.put("${varName}", "${varValue}");
+		selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 		<#assign lineNumber = element.attributeValue("line-number")>
 
-		selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+		selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
 	</#if>
 </#list>

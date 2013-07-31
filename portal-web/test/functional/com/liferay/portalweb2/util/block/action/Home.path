@@ -19,8 +19,33 @@
 	<td></td>
 </tr>
 <tr>
-	<td>HOME_URL</td>
+	<td>API_AXIS_URL</td>
+	<td>/api/axis</td>
+	<td></td>
+</tr>
+<tr>
+	<td>API_JSON_URL</td>
+	<td>/api/jsonws/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GUEST_URL</td>
 	<td>/web/guest/home/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GUEST_PRIVATE_URL</td>
+	<td>/group/guest/home/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GUEST_PRIVATE_STAGING_URL</td>
+	<td>/group/guest-staging/home/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GUEST_STAGING_URL</td>
+	<td>/web/guest-staging/home/</td>
 	<td></td>
 </tr>
 <tr>
@@ -29,18 +54,43 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SITE_URL_PRIVATE</td>
-	<td>/group/site-name/</td>
+	<td>ORGANIZATION_PRIVATE_URL</td>
+	<td>/group/organization-name/</td>
 	<td></td>
 </tr>
 <tr>
-	<td>SITE_URL_PUBLIC</td>
+	<td>ORGANIZATION_PRIVATE_STAGING_URL</td>
+	<td>/group/organization-name-staging/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ORGANIZATION_STAGING_URL</td>
+	<td>/web/organization-name-staging/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_URL</td>
 	<td>/web/site-name/</td>
 	<td></td>
 </tr>
 <tr>
+	<td>SITE_PRIVATE_URL</td>
+	<td>/group/site-name/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_PRIVATE_STAGING_URL</td>
+	<td>/group/site-name-staging/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_STAGING_URL</td>
+	<td>/web/site-name-staging/</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SITE_NAME</td>
-	<td>//h1[@class='site-title']/span</td>
+	<td>//h1[@class='site-title']/a/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -50,28 +100,38 @@
 </tr>
 <!--PAGE-->
 <tr>
+	<td>PAGE</td>
+	<td>//li[contains(@class,'add-page')]/a[contains(.,'${key_pageName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_1</td>
 	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_1_CHILD_PAGE_1</td>
-	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[@class='child-menu']/li/a</td>
+	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[contains(@class,'child-menu')]/li/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_1_CHILD_PAGE_2</td>
-	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[@class='child-menu']/li/a</td>
+	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[contains(@class,'child-menu')]/li/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_1_CHILD_PAGE_3</td>
-	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[@class='child-menu']/li/a</td>
+	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[1]/ul[contains(@class,'child-menu')]/li/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGE_2</td>
 	<td>xpath=(//li[contains(@class,'lfr-nav-deletable')])[2]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_2_STAGING</td>
+	<td>//nav[@id='navigation']/ul/li[2]/a/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -119,6 +179,11 @@
 <tr>
 	<td>NEW_PAGE_FIELD</td>
 	<td>//input[@type='text']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NEW_PAGE_SAVE</td>
+	<td>//button[contains(@id,'Save')]</td>
 	<td></td>
 </tr>
 <tr>

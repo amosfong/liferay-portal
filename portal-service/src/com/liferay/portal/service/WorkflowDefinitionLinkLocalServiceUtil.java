@@ -167,6 +167,21 @@ public class WorkflowDefinitionLinkLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.WorkflowDefinitionLink fetchWorkflowDefinitionLink(
 		long workflowDefinitionLinkId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -274,6 +289,34 @@ public class WorkflowDefinitionLinkLocalServiceUtil {
 		getService()
 			.deleteWorkflowDefinitionLink(companyId, groupId, className,
 			classPK, typePK);
+	}
+
+	public static com.liferay.portal.model.WorkflowDefinitionLink fetchDefaultWorkflowDefinitionLink(
+		long companyId, java.lang.String className, long classPK, long typePK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchDefaultWorkflowDefinitionLink(companyId, className,
+			classPK, typePK);
+	}
+
+	public static com.liferay.portal.model.WorkflowDefinitionLink fetchWorkflowDefinitionLink(
+		long companyId, long groupId, java.lang.String className, long classPK,
+		long typePK)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchWorkflowDefinitionLink(companyId, groupId, className,
+			classPK, typePK);
+	}
+
+	public static com.liferay.portal.model.WorkflowDefinitionLink fetchWorkflowDefinitionLink(
+		long companyId, long groupId, java.lang.String className, long classPK,
+		long typePK, boolean strict)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchWorkflowDefinitionLink(companyId, groupId, className,
+			classPK, typePK, strict);
 	}
 
 	public static com.liferay.portal.model.WorkflowDefinitionLink getDefaultWorkflowDefinitionLink(

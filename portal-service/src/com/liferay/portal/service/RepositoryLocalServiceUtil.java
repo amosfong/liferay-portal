@@ -165,10 +165,53 @@ public class RepositoryLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.Repository fetchRepository(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchRepository(repositoryId);
+	}
+
+	/**
+	* Returns the repository with the matching UUID and company.
+	*
+	* @param uuid the repository's UUID
+	* @param companyId the primary key of the company
+	* @return the matching repository, or <code>null</code> if a matching repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Repository fetchRepositoryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchRepositoryByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the repository matching the UUID and group.
+	*
+	* @param uuid the repository's UUID
+	* @param groupId the primary key of the group
+	* @return the matching repository, or <code>null</code> if a matching repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Repository fetchRepositoryByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchRepositoryByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +234,22 @@ public class RepositoryLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the repository with the matching UUID and company.
+	*
+	* @param uuid the repository's UUID
+	* @param companyId the primary key of the company
+	* @return the matching repository
+	* @throws PortalException if a matching repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.Repository getRepositoryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getRepositoryByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

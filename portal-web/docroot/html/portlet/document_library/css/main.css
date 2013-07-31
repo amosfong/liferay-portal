@@ -46,6 +46,7 @@
 		padding: 0.5em 0.75em;
 		padding-right: 30px;
 		position: relative;
+		word-wrap: break-word;
 
 		.keywords {
 			float: none;
@@ -238,6 +239,7 @@
 	}
 
 	.lfr-header-row-content {
+		padding-left: 0;
 		padding-top: 0;
 
 		.edit-toolbar {
@@ -294,14 +296,6 @@
 
 	.taglib-workflow-status {
 		margin-bottom: 5px;
-	}
-
-	.workflow-status-draft, .workflow-status-draft a {
-		color: blue;
-	}
-
-	.workflow-status-pending, .workflow-status-pending a {
-		color: orange;
 	}
 
 	.document-library-breadcrumb  ul {
@@ -397,9 +391,34 @@
 		}
 	}
 
+	.app-view-entry-taglib.entry-display-style {
+		&.display-icon, &.display-descriptive {
+			.entry-thumbnail .taglib-workflow-status {
+				left: 6px;
+				margin: 0;
+				padding: 0;
+				position: absolute;
+				top: 4px;
+
+				.workflow-status {
+					margin: 0;
+					padding: 0;
+				}
+			}
+		}
+	}
+
 	.app-view-entry-taglib.entry-display-style.display-icon {
+		.entry-thumbnail .taglib-workflow-status {
+			left: 6px;
+		}
+
 		.entry-title {
+			@include ellipsis;
+
+			overflow: hidden;
 			position: relative;
+			white-space: nowrap;
 		}
 
 		.entry-title-text {
@@ -424,6 +443,12 @@
 			background-image: url(@theme_image_path@/messages/alert.png);
 		}
 	}
+
+	.app-view-entry-taglib.entry-display-style.display-descriptive {
+		.entry-thumbnail .taglib-workflow-status {
+			left: 5px;
+		}
+	}
 }
 
 .portlet-document-library, .portlet-document-library-display, .portlet-trash {
@@ -441,6 +466,8 @@
 
 		.document-title {
 			margin: 0 0 10px;
+			overflow: hidden;
+			text-overflow: ellipsis;
 			text-shadow: 1px 1px #FFF;
 		}
 
@@ -570,6 +597,10 @@
 		.document-container {
 			background-color: #EEF4FF;
 		}
+	}
+
+	.upload-multiple-file-permissions {
+		overflow: auto;
 	}
 }
 

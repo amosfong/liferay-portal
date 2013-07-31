@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link PortletPreferences}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PortletPreferences
+ * @author Brian Wing Shun Chan
+ * @see PortletPreferences
  * @generated
  */
 public class PortletPreferencesWrapper implements PortletPreferences,
@@ -338,6 +340,26 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_portletPreferences.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PortletPreferencesWrapper)) {
+			return false;
+		}
+
+		PortletPreferencesWrapper portletPreferencesWrapper = (PortletPreferencesWrapper)obj;
+
+		if (Validator.equals(_portletPreferences,
+					portletPreferencesWrapper._portletPreferences)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

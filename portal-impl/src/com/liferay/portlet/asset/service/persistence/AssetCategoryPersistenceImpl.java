@@ -11902,7 +11902,10 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 		if (force || (countOrphanTreeNodes(groupId) > 0)) {
 			rebuildTree(groupId, 0, 1);
 
-			CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+			if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+				CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+			}
+
 			EntityCacheUtil.clearCache(AssetCategoryImpl.class.getName());
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -12008,7 +12011,10 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 				expandTreeRightCategoryId.expand(groupId, lastRightCategoryId);
 			}
 
-			CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+			if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+				CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+			}
+
 			EntityCacheUtil.clearCache(AssetCategoryImpl.class.getName());
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
 			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -12151,7 +12157,10 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 		shrinkTreeLeftCategoryId.shrink(groupId, rightCategoryId, delta);
 		shrinkTreeRightCategoryId.shrink(groupId, rightCategoryId, delta);
 
-		CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(AssetCategoryImpl.class.getName());
+		}
+
 		EntityCacheUtil.clearCache(AssetCategoryImpl.class.getName());
 		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
 		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -12226,7 +12235,7 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 	protected class ContainsAssetEntry {
 		protected ContainsAssetEntry() {
 			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT COUNT(*) AS COUNT_VALUE FROM AssetEntries_AssetCategories WHERE categoryId = ? AND entryId = ?",
+					"SELECT 1 FROM AssetEntries_AssetCategories WHERE categoryId = ? AND entryId = ?",
 					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
 					RowMapper.COUNT);
 		}
@@ -12236,15 +12245,11 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 						new Long(categoryId), new Long(entryId)
 					});
 
-			if (results.size() > 0) {
-				Integer count = results.get(0);
-
-				if (count.intValue() > 0) {
-					return true;
-				}
+			if (results.isEmpty()) {
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
 		private MappingSqlQuery<Integer> _mappingSqlQuery;

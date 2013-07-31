@@ -14,9 +14,11 @@
 
 package com.liferay.portlet.wiki.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
-import com.liferay.portal.kernel.lar.ExportImportUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -29,7 +31,6 @@ import com.liferay.portlet.wiki.NoSuchPageException;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.model.WikiPage;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
-import com.liferay.portlet.wiki.service.persistence.WikiPageUtil;
 
 import java.io.InputStream;
 
@@ -43,6 +44,20 @@ public class WikiPageStagedModelDataHandler
 	extends BaseStagedModelDataHandler<WikiPage> {
 
 	public static final String[] CLASS_NAMES = {WikiPage.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		WikiPage wikiPage =
+			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
+				uuid, groupId);
+
+		if (wikiPage != null) {
+			WikiPageLocalServiceUtil.deletePage(wikiPage);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -59,10 +74,10 @@ public class WikiPageStagedModelDataHandler
 		StagedModelDataHandlerUtil.exportStagedModel(
 			portletDataContext, page.getNode());
 
-		String content = ExportImportUtil.replaceExportContentReferences(
+		String content = ExportImportHelperUtil.replaceExportContentReferences(
 			portletDataContext, page, pageElement, page.getContent(),
 			portletDataContext.getBooleanParameter(
-				WikiPortletDataHandler.NAMESPACE, "embedded-assets"));
+				WikiPortletDataHandler.NAMESPACE, "referenced-content"));
 
 		page.setContent(content);
 
@@ -74,12 +89,6 @@ public class WikiPageStagedModelDataHandler
 				portletDataContext.addReferenceElement(
 					page, pageElement, fileEntry, FileEntry.class,
 					PortletDataContext.REFERENCE_TYPE_WEAK, false);
-			}
-
-			long folderId = page.getAttachmentsFolderId();
-
-			if (folderId != 0) {
-				page.setAttachmentsFolderId(folderId);
 			}
 		}
 
@@ -106,10 +115,10 @@ public class WikiPageStagedModelDataHandler
 		Element pageElement =
 			portletDataContext.getImportDataStagedModelElement(page);
 
-		String content = ExportImportUtil.replaceImportContentReferences(
+		String content = ExportImportHelperUtil.replaceImportContentReferences(
 			portletDataContext, pageElement, page.getContent(),
 			portletDataContext.getBooleanParameter(
-				WikiPortletDataHandler.NAMESPACE, "embedded-assets"));
+				WikiPortletDataHandler.NAMESPACE, "referenced-content"));
 
 		page.setContent(content);
 
@@ -125,8 +134,9 @@ public class WikiPageStagedModelDataHandler
 
 		WikiPage importedPage = null;
 
-		WikiPage existingPage = WikiPageUtil.fetchByUUID_G(
-			page.getUuid(), portletDataContext.getScopeGroupId());
+		WikiPage existingPage =
+			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
+				page.getUuid(), portletDataContext.getScopeGroupId());
 
 		if (existingPage == null) {
 			try {

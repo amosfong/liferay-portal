@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.login.action;
 
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.facebook.FacebookConnectUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
@@ -65,24 +64,25 @@ public class FacebookConnectAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		if (!FacebookConnectUtil.isEnabled(themeDisplay.getCompanyId())) {
-			return mapping.findForward("portlet.login.login");
+			return actionMapping.findForward("portlet.login.login");
 		}
 
-		return mapping.findForward("portlet.login.facebook_login");
+		return actionMapping.findForward("portlet.login.facebook_login");
 	}
 
 	@Override
 	public ActionForward strutsExecute(
-			ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response)
+			ActionMapping actionMapping, ActionForm actionForm,
+			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
@@ -116,7 +116,8 @@ public class FacebookConnectAction extends PortletAction {
 			}
 		}
 		else {
-			return mapping.findForward(ActionConstants.COMMON_REFERER_JSP);
+			return actionMapping.findForward(
+				ActionConstants.COMMON_REFERER_JSP);
 		}
 
 		response.sendRedirect(redirect);
@@ -237,32 +238,28 @@ public class FacebookConnectAction extends PortletAction {
 		long facebookId = jsonObject.getLong("id");
 
 		if (facebookId > 0) {
-			try {
-				user = UserLocalServiceUtil.getUserByFacebookId(
-					companyId, facebookId);
+			user = UserLocalServiceUtil.fetchUserByFacebookId(
+				companyId, facebookId);
 
-				if (user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE) {
-					session.setAttribute(
-						WebKeys.FACEBOOK_USER_ID, String.valueOf(facebookId));
-				}
-			}
-			catch (NoSuchUserException nsue) {
+			if ((user != null) &&
+				(user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE)) {
+
+				session.setAttribute(
+					WebKeys.FACEBOOK_USER_ID, String.valueOf(facebookId));
 			}
 		}
 
 		String emailAddress = jsonObject.getString("email");
 
 		if ((user == null) && Validator.isNotNull(emailAddress)) {
-			try {
-				user = UserLocalServiceUtil.getUserByEmailAddress(
-					companyId, emailAddress);
+			user = UserLocalServiceUtil.fetchUserByEmailAddress(
+				companyId, emailAddress);
 
-				if (user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE) {
-					session.setAttribute(
-						WebKeys.FACEBOOK_USER_EMAIL_ADDRESS, emailAddress);
-				}
-			}
-			catch (NoSuchUserException nsue) {
+			if ((user != null) &&
+				(user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE)) {
+
+				session.setAttribute(
+					WebKeys.FACEBOOK_USER_EMAIL_ADDRESS, emailAddress);
 			}
 		}
 

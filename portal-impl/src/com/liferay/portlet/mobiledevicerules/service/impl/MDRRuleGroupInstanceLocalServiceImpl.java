@@ -17,7 +17,9 @@ package com.liferay.portlet.mobiledevicerules.service.impl;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -100,7 +102,8 @@ public class MDRRuleGroupInstanceLocalServiceImpl
 			mdrRuleGroupInstancePersistence.findByGroupId(groupId);
 
 		for (MDRRuleGroupInstance ruleGroupInstance : ruleGroupInstances) {
-			deleteRuleGroupInstance(ruleGroupInstance);
+			mdrRuleGroupInstanceLocalService.deleteRuleGroupInstance(
+				ruleGroupInstance);
 		}
 	}
 
@@ -112,10 +115,14 @@ public class MDRRuleGroupInstanceLocalServiceImpl
 			mdrRuleGroupInstancePersistence.fetchByPrimaryKey(
 				ruleGroupInstanceId);
 
-		deleteRuleGroupInstance(ruleGroupInstance);
+		mdrRuleGroupInstanceLocalService.deleteRuleGroupInstance(
+			ruleGroupInstance);
 	}
 
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public void deleteRuleGroupInstance(MDRRuleGroupInstance ruleGroupInstance)
 		throws SystemException {
 
@@ -137,7 +144,8 @@ public class MDRRuleGroupInstanceLocalServiceImpl
 			mdrRuleGroupInstancePersistence.findByRuleGroupId(ruleGroupId);
 
 		for (MDRRuleGroupInstance ruleGroupInstance : ruleGroupInstances) {
-			deleteRuleGroupInstance(ruleGroupInstance);
+			mdrRuleGroupInstanceLocalService.deleteRuleGroupInstance(
+				ruleGroupInstance);
 		}
 	}
 

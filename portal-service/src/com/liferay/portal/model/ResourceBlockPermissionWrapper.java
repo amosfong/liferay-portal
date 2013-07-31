@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ResourceBlockPermission}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ResourceBlockPermission
+ * @author Brian Wing Shun Chan
+ * @see ResourceBlockPermission
  * @generated
  */
 public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
@@ -287,6 +289,26 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_resourceBlockPermission.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ResourceBlockPermissionWrapper)) {
+			return false;
+		}
+
+		ResourceBlockPermissionWrapper resourceBlockPermissionWrapper = (ResourceBlockPermissionWrapper)obj;
+
+		if (Validator.equals(_resourceBlockPermission,
+					resourceBlockPermissionWrapper._resourceBlockPermission)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

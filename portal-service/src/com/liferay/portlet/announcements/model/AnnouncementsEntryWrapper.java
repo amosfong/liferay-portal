@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.announcements.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link AnnouncementsEntry}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       AnnouncementsEntry
+ * @author Brian Wing Shun Chan
+ * @see AnnouncementsEntry
  * @generated
  */
 public class AnnouncementsEntryWrapper implements AnnouncementsEntry,
@@ -692,6 +694,31 @@ public class AnnouncementsEntryWrapper implements AnnouncementsEntry,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _announcementsEntry.getGroupId();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof AnnouncementsEntryWrapper)) {
+			return false;
+		}
+
+		AnnouncementsEntryWrapper announcementsEntryWrapper = (AnnouncementsEntryWrapper)obj;
+
+		if (Validator.equals(_announcementsEntry,
+					announcementsEntryWrapper._announcementsEntry)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _announcementsEntry.getStagedModelType();
 	}
 
 	/**

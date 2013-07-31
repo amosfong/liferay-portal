@@ -22,7 +22,7 @@
 	@include box-shadow(2px 4px 7px rgba(0, 0, 0, 0.5));
 }
 
-.lfr-add-panel {
+.lfr-add-panel, .lfr-device-preview-panel, .lfr-edit-layout-panel {
 	@include box-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
 
@@ -36,6 +36,40 @@
 
 .lfr-preview-file-image-current-column {
 	@include box-shadow(inset 0 0 5px rgba(0, 0, 0, 0.8));
+}
+
+.lfr-device-preview {
+	.lfr-device-size-status-content {
+		@include border-radius(3px);
+		@include box-shadow(0 0 1px #FFF);
+		@include opacity(0.9);
+	}
+
+	.lfr-device {
+		&:after, &:before {
+			@include box-shadow(#111 0 1px 0);
+		}
+
+		&:after {
+			@include border-radius(15px);
+		}
+
+		&.rotated {
+			&:after, &:before {
+				@include box-shadow(#111 -1px 1px 0);
+			}
+		}
+
+		&.smartphone, &.tablet {
+			@include border-radius(25px);
+		}
+
+		&.tablet {
+			&:before {
+				@include border-radius(5px);
+			}
+		}
+	}
 }
 
 .dockbar .menu-button-active .menu-button {
@@ -52,10 +86,6 @@
 	.tree-node-selected, .tree-node-over, .category-item {
 		@include border-radius(5px);
 	}
-}
-
-.portlet-journal .lfr-table .journal-metadata {
-	@include box-shadow(inset 1px 1px 8px #CCC);
 }
 
 .lfr-translation-manager-translation.lfr-translation-manager-translation-editing {
@@ -84,7 +114,7 @@
 	@include border-radius(10px);
 }
 
-body > .lfr-menu-list ul, .active-area-proxy, .entry-display-style .entry-thumbnail, .lfr-api-results, .lfr-translation-manager, .lfr-translation-manager-translation, .lfr-upload-container .cancel-button .modify-pages .delete-tab, .portlet-image-gallery-display .image-thumbnail img, .portlet-journal .lfr-table .journal-metadata, .portlet-search .search-facet .facet-value, .rule-group-instance-container .rule-group-instance, .select-documents, .select-files, .taglib-ratings.stars:hover, .taglib-ratings.stars:hover .liferay-rating-vote, .tags-search-combobox .field-input-text {
+body > .lfr-menu-list ul, .active-area-proxy, .entry-display-style .entry-thumbnail, .lfr-api-results, .lfr-translation-manager, .lfr-translation-manager-translation, .lfr-upload-container .cancel-button .modify-pages .delete-tab, .portlet-image-gallery-display .image-thumbnail img, .portlet-search .search-facet .facet-value, .rule-group-instance-container .rule-group-instance, .select-documents, .select-files, .taglib-ratings.stars:hover, .taglib-ratings.stars:hover .liferay-rating-vote, .tags-search-combobox .field-input-text {
 	@include border-radius(4px);
 }
 
@@ -96,7 +126,7 @@ body > .lfr-menu-list ul, .active-area-proxy, .entry-display-style .entry-thumbn
 	@include border-radius(6px);
 }
 
-.portlet-journal .display-page-item-container .display-page-item, .portlet-journal .display-page-item-container .display-page-item .display-page-item-remove {
+.portlet-journal .display-page-item-container .display-page-item, .portlet-journal .display-page-item-container .display-page-item .display-page-item-remove, .taglib-categorization-filter .asset-entry {
 	@include border-radius(14px);
 }
 
@@ -111,6 +141,12 @@ body > .lfr-menu-list ul, .active-area-proxy, .entry-display-style .entry-thumbn
 }
 
 .lfr-add-panel {
+	.add-content-button {
+		.lfr-actions {
+			@include border-radius(2px);
+		}
+	}
+
 	.lfr-panel-content .app-view-entry-taglib {
 		&.display-list, &.display-descriptive {
 			&:hover, &.hover, &.over {
@@ -269,7 +305,7 @@ body:first-of-type {
 		}
 	}
 
-	.portlet-dynamic-data-list-display, .portlet-journal-content, .portlet-polls-display {
+	.portlet-content {
 		&:hover {
 			.lfr-icon-actions {
 				@extend %portlet-action-bar-fx-hover;
@@ -295,6 +331,12 @@ body:first-of-type {
 .portlet-boundary.yui3-dd-dragging {
 	@include transform(scale(0.8));
 	@include transition(transform 0.3s ease);
+}
+
+.portlet-document-library .entry-thumbnail .label, .portlet-document-library-display .workflow-status .label, .portlet-journal .entry-thumbnail .label {
+	@include border-bottom-left-radius(0);
+	@include border-top-left-radius(0);
+	@include border-top-right-radius(0);
 }
 
 @include keyframes(lfr-drop-active) {

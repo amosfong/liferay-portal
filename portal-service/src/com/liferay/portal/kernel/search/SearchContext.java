@@ -116,6 +116,10 @@ public class SearchContext implements Serializable {
 		return _keywords;
 	}
 
+	public String getLanguageId() {
+		return LocaleUtil.toLanguageId(_locale);
+	}
+
 	public Layout getLayout() {
 		return _layout;
 	}
@@ -144,8 +148,8 @@ public class SearchContext implements Serializable {
 		return _queryConfig;
 	}
 
-	public float getScoringThreshold() {
-		return _scoringThreshold;
+	public float getScoresThreshold() {
+		return _scoresThreshold;
 	}
 
 	public String getSearchEngineId() {
@@ -331,8 +335,8 @@ public class SearchContext implements Serializable {
 		_scopeStrict = scopeStrict;
 	}
 
-	public void setScoringThreshold(float scoringThreshold) {
-		_scoringThreshold = scoringThreshold;
+	public void setScoresThreshold(float scoresThreshold) {
+		_scoresThreshold = scoresThreshold;
 	}
 
 	public void setSearchEngineId(String searchEngineId) {
@@ -384,7 +388,7 @@ public class SearchContext implements Serializable {
 	private String[] _portletIds;
 	private QueryConfig _queryConfig;
 	private boolean _scopeStrict = true;
-	private float _scoringThreshold;
+	private float _scoresThreshold;
 	private String _searchEngineId;
 	private Sort[] _sorts;
 	private int _start = QueryUtil.ALL_POS;

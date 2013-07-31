@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/dynamic_data_mapping/custom_fields.jspf" %>
 
 <%
-String[] availableLanguageIds = LocalizationUtil.getAvailableLocales(script);
+String[] availableLanguageIds = LocalizationUtil.getAvailableLanguageIds(script);
 
 Locale[] availableLocales = new Locale[availableLanguageIds.length];
 
@@ -25,7 +25,7 @@ for (int i = 0; i < availableLanguageIds.length; i++) {
 	availableLocales[i] = LocaleUtil.fromLanguageId(availableLanguageIds[i]);
 }
 
-String defaultLanguageId = LocalizationUtil.getDefaultLocale(script);
+String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(script);
 %>
 
 <div class="separator"><!-- --></div>
@@ -95,7 +95,7 @@ for (int i = 0; i < availableLocales.length; i++) {
 
 JSONObject localesMapJSONObject = JSONFactoryUtil.createJSONObject();
 
-for (Locale availableLocale : LanguageUtil.getAvailableLocales()) {
+for (Locale availableLocale : LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId())) {
 	localesMapJSONObject.put(LocaleUtil.toLanguageId(availableLocale), availableLocale.getDisplayName(locale));
 }
 %>
@@ -214,7 +214,7 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales()) {
 						if (Lang.isArray(responseData)) {
 							formBuilder.set('fields', responseData);
 						}
-						else if(Lang.isObject(responseData)) {
+						else if (Lang.isObject(responseData)) {
 							displayMessage(MESSAGE_FAILURE, responseData.exception);
 						}
 
@@ -283,7 +283,11 @@ for (Locale availableLocale : LanguageUtil.getAvailableLocales()) {
 		}
 	).render();
 
-	Liferay.Util.getWindow().after('widthChange', setEditorSize);
+	var dialog = Liferay.Util.getWindow();
+
+	if (dialog) {
+		dialog.after('widthChange', setEditorSize);
+	}
 
 	Liferay.after(
 		'showTab',

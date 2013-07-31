@@ -45,8 +45,9 @@ public class DeleteThreadAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -114,10 +115,7 @@ public class DeleteThreadAction extends PortletAction {
 				liferayPortletConfig.getPortletId() +
 					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA, data);
 
-			SessionMessages.add(
-				actionRequest,
-				liferayPortletConfig.getPortletId() +
-					SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
+			hideDefaultSuccessMessage(liferayPortletConfig, actionRequest);
 		}
 	}
 

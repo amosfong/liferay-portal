@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.bookmarks.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link BookmarksFolder}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       BookmarksFolder
+ * @author Brian Wing Shun Chan
+ * @see BookmarksFolder
  * @generated
  */
 public class BookmarksFolderWrapper implements BookmarksFolder,
@@ -806,6 +808,13 @@ public class BookmarksFolderWrapper implements BookmarksFolder,
 	}
 
 	@Override
+	public java.util.List<java.lang.Long> getAncestorFolderIds()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _bookmarksFolder.getAncestorFolderIds();
+	}
+
+	@Override
 	public java.util.List<com.liferay.portlet.bookmarks.model.BookmarksFolder> getAncestors()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -832,6 +841,31 @@ public class BookmarksFolderWrapper implements BookmarksFolder,
 	@Override
 	public boolean isRoot() {
 		return _bookmarksFolder.isRoot();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof BookmarksFolderWrapper)) {
+			return false;
+		}
+
+		BookmarksFolderWrapper bookmarksFolderWrapper = (BookmarksFolderWrapper)obj;
+
+		if (Validator.equals(_bookmarksFolder,
+					bookmarksFolderWrapper._bookmarksFolder)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _bookmarksFolder.getStagedModelType();
 	}
 
 	/**

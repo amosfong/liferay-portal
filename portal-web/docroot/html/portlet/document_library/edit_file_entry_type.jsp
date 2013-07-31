@@ -153,6 +153,7 @@ String scopeAvailableFields = ParamUtil.getString(request, "scopeAvailableFields
 	function <portlet:namespace />openDDMStructureSelector() {
 		Liferay.Util.openDDMPortlet(
 			{
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletKeys.DYNAMIC_DATA_MAPPING, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 				classPK: '<%= ddmStructureId %>',
 				dialog: {
 					destroyOnHide: true
@@ -165,7 +166,7 @@ String scopeAvailableFields = ParamUtil.getString(request, "scopeAvailableFields
 				struts_action: '/dynamic_data_mapping/select_structure',
 				title: '<%= UnicodeLanguageUtil.get(pageContext, "metadata-sets") %>'
 			},
-			function(event){
+			function(event) {
 				var A = AUI();
 
 				var searchContainer = Liferay.SearchContainer.get('<portlet:namespace />ddmStructuresSearchContainer');

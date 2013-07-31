@@ -38,22 +38,22 @@ public class PanelTag extends IncludeTag {
 			_id = PwdGenerator.getPassword(PwdGenerator.KEY3, 4);
 		}
 
-		BaseBodyTagSupport baseBodyTagSupport =
-			(BaseBodyTagSupport)findAncestorWithClass(
-				this, BaseBodyTagSupport.class);
+		if (Validator.isNull(_parentId)) {
+			BaseBodyTagSupport baseBodyTagSupport =
+				(BaseBodyTagSupport)findAncestorWithClass(
+					this, BaseBodyTagSupport.class);
 
-		String parentId = StringPool.BLANK;
+			if (baseBodyTagSupport instanceof PanelContainerTag) {
+				PanelContainerTag panelContainerTag =
+					(PanelContainerTag)baseBodyTagSupport;
 
-		if (baseBodyTagSupport instanceof PanelContainerTag) {
-			PanelContainerTag panelContainerTag =
-				(PanelContainerTag)baseBodyTagSupport;
-
-			parentId = panelContainerTag.getId();
+				_parentId = panelContainerTag.getId();
+			}
 		}
 
 		request.setAttribute("liferay-ui:panel:helpMessage", _helpMessage);
 		request.setAttribute("liferay-ui:panel:id", _id);
-		request.setAttribute("liferay-ui:panel:parentId", parentId);
+		request.setAttribute("liferay-ui:panel:parentId", _parentId);
 		request.setAttribute("liferay-ui:panel:title", _title);
 		request.setAttribute(
 			"liferay-ui:panel:collapsible", String.valueOf(_collapsible));
@@ -62,6 +62,7 @@ public class PanelTag extends IncludeTag {
 			"liferay-ui:panel:persistState", String.valueOf(_persistState));
 		request.setAttribute("liferay-ui:panel:extended", _extended);
 		request.setAttribute("liferay-ui:panel:cssClass", _cssClass);
+		request.setAttribute("liferay-ui:panel:state", _state);
 
 		super.doStartTag();
 
@@ -96,12 +97,20 @@ public class PanelTag extends IncludeTag {
 		_id = id;
 	}
 
+	public void setParentId(String parentId) {
+		_parentId = parentId;
+	}
+
 	public void setPersistState(boolean persistState) {
 		_persistState = persistState;
 	}
 
 	public void setStartPage(String startPage) {
 		_startPage = startPage;
+	}
+
+	public void setState(String state) {
+		_state = state;
 	}
 
 	public void setTitle(String title) {
@@ -117,8 +126,10 @@ public class PanelTag extends IncludeTag {
 		_extended = null;
 		_helpMessage = null;
 		_id = null;
+		_parentId = StringPool.BLANK;
 		_persistState = true;
 		_startPage = null;
+		_state = null;
 		_title = null;
 	}
 
@@ -153,8 +164,10 @@ public class PanelTag extends IncludeTag {
 	private Boolean _extended;
 	private String _helpMessage;
 	private String _id;
+	private String _parentId = StringPool.BLANK;
 	private boolean _persistState = true;
 	private String _startPage;
+	private String _state;
 	private String _title;
 
 }

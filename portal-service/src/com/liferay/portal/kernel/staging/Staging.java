@@ -16,6 +16,9 @@ package com.liferay.portal.kernel.staging;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.lar.MissingReference;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.xml.Element;
@@ -26,8 +29,11 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 
+import java.io.Serializable;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.portlet.PortletRequest;
@@ -112,6 +118,13 @@ public interface Staging {
 			ServiceContext serviceContext)
 		throws Exception;
 
+	public JSONArray getErrorMessagesJSONArray(
+		Locale locale, Map<String, MissingReference> missingReferences,
+		Map<String, Serializable> contextMap);
+
+	public JSONObject getExceptionMessagesJSONObject(
+		Locale locale, Exception e, Map<String, Serializable> contextMap);
+
 	public Group getLiveGroup(long groupId)
 		throws PortalException, SystemException;
 
@@ -137,10 +150,16 @@ public interface Staging {
 
 	public String getSchedulerGroupName(String destinationName, long groupId);
 
+	public String getStagedPortletId(String portletId);
+
 	public Map<String, String[]> getStagingParameters();
 
 	public Map<String, String[]> getStagingParameters(
 		PortletRequest PortletRequest);
+
+	public JSONArray getWarningMessagesJSONArray(
+		Locale locale, Map<String, MissingReference> missingReferences,
+		Map<String, Serializable> contextMap);
 
 	public WorkflowTask getWorkflowTask(
 			long userId, LayoutRevision layoutRevision)
@@ -150,6 +169,8 @@ public interface Staging {
 		throws PortalException, SystemException;
 
 	public boolean isIncomplete(Layout layout, long layoutSetBranchId);
+
+	public void lockGroup(long userId, long groupId) throws Exception;
 
 	public void publishLayout(
 			long userId, long plid, long liveGroupId, boolean includeChildren)
@@ -213,6 +234,8 @@ public interface Staging {
 	public void setRecentLayoutSetBranchId(
 			User user, long layoutSetId, long layoutSetBranchId)
 		throws SystemException;
+
+	public void unlockGroup(long groupId) throws SystemException;
 
 	public void unscheduleCopyFromLive(PortletRequest PortletRequest)
 		throws Exception;

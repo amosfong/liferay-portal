@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.softwarecatalog.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link SCProductScreenshot}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       SCProductScreenshot
+ * @author Brian Wing Shun Chan
+ * @see SCProductScreenshot
  * @generated
  */
 public class SCProductScreenshotWrapper implements SCProductScreenshot,
@@ -367,6 +368,26 @@ public class SCProductScreenshotWrapper implements SCProductScreenshot,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_scProductScreenshot.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof SCProductScreenshotWrapper)) {
+			return false;
+		}
+
+		SCProductScreenshotWrapper scProductScreenshotWrapper = (SCProductScreenshotWrapper)obj;
+
+		if (Validator.equals(_scProductScreenshot,
+					scProductScreenshotWrapper._scProductScreenshot)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

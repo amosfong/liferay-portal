@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.asset.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link AssetCategoryProperty}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       AssetCategoryProperty
+ * @author Brian Wing Shun Chan
+ * @see AssetCategoryProperty
  * @generated
  */
 public class AssetCategoryPropertyWrapper implements AssetCategoryProperty,
@@ -445,6 +446,26 @@ public class AssetCategoryPropertyWrapper implements AssetCategoryProperty,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_assetCategoryProperty.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof AssetCategoryPropertyWrapper)) {
+			return false;
+		}
+
+		AssetCategoryPropertyWrapper assetCategoryPropertyWrapper = (AssetCategoryPropertyWrapper)obj;
+
+		if (Validator.equals(_assetCategoryProperty,
+					assetCategoryPropertyWrapper._assetCategoryProperty)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

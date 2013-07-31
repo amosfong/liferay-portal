@@ -24,13 +24,13 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.PortletConfigFactoryUtil;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +51,7 @@ import javax.servlet.ServletContext;
 /**
  * @author Brian Wing Shun Chan
  * @author Julio Camarero
+ * @author Raymond Augé
  */
 public class DefaultConfigurationAction
 	implements ConfigurationAction, ResourceServingConfigurationAction {
@@ -94,13 +95,13 @@ public class DefaultConfigurationAction
 		String portletResource = ParamUtil.getString(
 			actionRequest, "portletResource");
 
-		PortletPermissionUtil.check(
-			themeDisplay.getPermissionChecker(), themeDisplay.getLayout(),
-			portletResource, ActionKeys.CONFIGURATION);
+		Layout layout = PortletConfigurationLayoutUtil.getLayout(themeDisplay);
 
-		PortletPreferences portletPreferences =
-			PortletPreferencesFactoryUtil.getPortletSetup(
-				actionRequest, portletResource);
+		PortletPermissionUtil.check(
+			themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroupId(),
+			layout, portletResource, ActionKeys.CONFIGURATION);
+
+		PortletPreferences portletPreferences = actionRequest.getPreferences();
 
 		for (Map.Entry<String, String> entry : properties.entrySet()) {
 			String name = entry.getKey();

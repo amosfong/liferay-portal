@@ -17,8 +17,7 @@ package com.liferay.portlet.journal.model.impl;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.templateparser.TransformerListener;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -29,6 +28,8 @@ import com.liferay.portal.model.Image;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.webserver.WebServerServletTokenUtil;
+import com.liferay.portlet.journal.NoSuchFolderException;
+import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleResource;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
@@ -92,8 +93,8 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	@Override
-	public String[] getAvailableLocales() {
-		Set<String> availableLocales = new TreeSet<String>();
+	public String[] getAvailableLanguageIds() {
+		Set<String> availableLanguageIds = new TreeSet<String>();
 
 		// Title
 
@@ -104,7 +105,7 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			String value = entry.getValue();
 
 			if (Validator.isNotNull(value)) {
-				availableLocales.add(locale.toString());
+				availableLanguageIds.add(locale.toString());
 			}
 		}
 
@@ -117,20 +118,29 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			String value = entry.getValue();
 
 			if (Validator.isNotNull(value)) {
-				availableLocales.add(locale.toString());
+				availableLanguageIds.add(locale.toString());
 			}
 		}
 
 		// Content
 
-		String[] availableLocalesArray = LocalizationUtil.getAvailableLocales(
-			getContent());
+		String[] availableLanguageIdsArray =
+			LocalizationUtil.getAvailableLanguageIds(getContent());
 
-		for (String availableLocale : availableLocalesArray) {
-			availableLocales.add(availableLocale);
+		for (String availableLanguageId : availableLanguageIdsArray) {
+			availableLanguageIds.add(availableLanguageId);
 		}
 
-		return availableLocales.toArray(new String[availableLocales.size()]);
+		return availableLanguageIds.toArray(
+			new String[availableLanguageIds.size()]);
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
+	 */
+	@Override
+	public String[] getAvailableLocales() {
+		return getAvailableLanguageIds();
 	}
 
 	@Override
@@ -146,35 +156,23 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 			return StringPool.BLANK;
 		}
 
-		String defaultLanguageId = LocalizationUtil.getDefaultLocale(xml);
+		String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(xml);
 
 		if (isTemplateDriven() && Validator.isNull(defaultLanguageId)) {
 			defaultLanguageId = LocaleUtil.toLanguageId(
-				LocaleUtil.getDefault());
+				LocaleUtil.getSiteDefault());
 		}
 
 		return defaultLanguageId;
 	}
 
 	@Override
-	public JournalFolder getFolder() {
-		JournalFolder folder = null;
-
-		if (getFolderId() > 0) {
-			try {
-				folder = JournalFolderLocalServiceUtil.getFolder(getFolderId());
-			}
-			catch (Exception e) {
-				folder = new JournalFolderImpl();
-
-				_log.error(e);
-			}
-		}
-		else {
-			folder = new JournalFolderImpl();
+	public JournalFolder getFolder() throws PortalException, SystemException {
+		if (getFolderId() <= 0) {
+			return new JournalFolderImpl();
 		}
 
-		return folder;
+		return JournalFolderLocalServiceUtil.getFolder(getFolderId());
 	}
 
 	@Override
@@ -187,6 +185,11 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		}
 
 		return _smallImageType;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return new StagedModelType(JournalArticle.class);
 	}
 
 	@Override
@@ -207,8 +210,17 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	@Override
-	public JournalFolder getTrashContainer() {
-		JournalFolder folder = getFolder();
+	public JournalFolder getTrashContainer()
+		throws PortalException, SystemException {
+
+		JournalFolder folder = null;
+
+		try {
+			folder = getFolder();
+		}
+		catch (NoSuchFolderException nsfe) {
+			return null;
+		}
 
 		if (folder.isInTrash()) {
 			return folder;
@@ -218,7 +230,9 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws PortalException, SystemException {
+
 		if (getTrashContainer() != null) {
 			return true;
 		}
@@ -238,7 +252,8 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	/**
-	 * @throws LocaleException
+	 * @param  defaultImportLocale the default imported locale
+	 * @throws LocaleException if a locale exception occurred
 	 */
 	@Override
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
@@ -249,8 +264,6 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	public void setSmallImageType(String smallImageType) {
 		_smallImageType = smallImageType;
 	}
-
-	private static Log _log = LogFactoryUtil.getLog(JournalArticleImpl.class);
 
 	private String _smallImageType;
 

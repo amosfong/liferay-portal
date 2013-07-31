@@ -44,15 +44,11 @@ page import="com.liferay.portlet.dynamicdatalists.util.DDLUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.NoSuchStructureException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.model.DDMStructure" %><%@
+page import="com.liferay.portlet.dynamicdatamapping.model.DDMTemplate" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.storage.FieldConstants" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.storage.Fields" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.util.DDMXSDUtil" %>
-
-<%
-Format dateFormatDate = FastDateFormatFactoryUtil.getDate(locale, timeZone);
-Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZone);
-%>
 
 <%@ include file="/html/portlet/dynamic_data_lists/init-ext.jsp" %>

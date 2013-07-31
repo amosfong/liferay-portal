@@ -44,9 +44,9 @@ import java.rmi.RemoteException;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PortalServiceHttp
- * @see       com.liferay.portal.service.PortalServiceUtil
+ * @author Brian Wing Shun Chan
+ * @see PortalServiceHttp
+ * @see com.liferay.portal.service.PortalServiceUtil
  * @generated
  */
 public class PortalServiceSoap {
@@ -141,18 +141,6 @@ public class PortalServiceSoap {
 		throws RemoteException {
 		try {
 			PortalServiceUtil.testAutoSyncHibernateSessionStateOnTxCreation();
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	public static void testCounterIncrement_Rollback()
-		throws RemoteException {
-		try {
-			PortalServiceUtil.testCounterIncrement_Rollback();
 		}
 		catch (Exception e) {
 			_log.error(e, e);

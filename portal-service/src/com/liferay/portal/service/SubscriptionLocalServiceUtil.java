@@ -167,6 +167,21 @@ public class SubscriptionLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.Subscription fetchSubscription(
 		long subscriptionId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -422,6 +437,7 @@ public class SubscriptionLocalServiceUtil {
 	* @param userId the primary key of the user
 	* @param start the lower bound of the range of results
 	* @param end the upper bound of the range of results (not inclusive)
+	* @param orderByComparator the comparator to order the subscriptions
 	* @return the range of subscriptions of the user
 	* @throws SystemException if a system exception occurred
 	*/

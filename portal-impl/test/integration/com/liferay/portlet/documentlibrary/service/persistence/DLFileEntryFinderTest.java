@@ -38,6 +38,7 @@ import com.liferay.portal.util.TestPropsValues;
 import com.liferay.portal.util.UserTestUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
@@ -48,11 +49,10 @@ import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.testng.Assert;
 
 /**
  * @author Zsolt Berentey
@@ -96,13 +96,14 @@ public class DLFileEntryFinderTest {
 		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
 			user.getUserId(), _group.getGroupId(), _folder.getFolderId(),
 			"FE1.txt", ContentTypes.TEXT_PLAIN, "FE1.txt", null,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
 			WorkflowConstants.ACTION_PUBLISH);
 
 		LiferayFileEntry liferayFileEntry = (LiferayFileEntry)fileEntry;
 
 		DLFileEntry dlFileEntry = liferayFileEntry.getDLFileEntry();
 
-		dlFileEntry.setExtraSettings("Extra Settings");
+		dlFileEntry.setExtraSettings("hello=world");
 		dlFileEntry.setSmallImageId(_SMALL_IMAGE_ID);
 
 		dlFileEntry = DLFileEntryLocalServiceUtil.updateDLFileEntry(
@@ -130,7 +131,7 @@ public class DLFileEntryFinderTest {
 
 		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
-		dlFileVersion.setExtraSettings("Extra Settings");
+		dlFileVersion.setExtraSettings("hello=world");
 
 		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion);
 
@@ -239,6 +240,8 @@ public class DLFileEntryFinderTest {
 		_dlFileVersion.setFileEntryId(ServiceTestUtil.randomLong());
 
 		DLFileVersionLocalServiceUtil.updateDLFileVersion(_dlFileVersion);
+
+		LastSessionRecorderUtil.syncLastSessionState();
 
 		List<DLFileEntry> dlFileEntries =
 			DLFileEntryFinderUtil.findByMisversioned();

@@ -49,12 +49,15 @@ import java.util.Map;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    ${author}
- * @see       ${entity.name}ServiceHttp
+ * @author ${author}
+ * @see ${entity.name}ServiceHttp
 <#if entity.hasColumns()>
- * @see       ${packagePath}.model.${entity.name}Soap
+ * @see ${packagePath}.model.${entity.name}Soap
 </#if>
- * @see       ${packagePath}.service.${entity.name}ServiceUtil
+ * @see ${packagePath}.service.${entity.name}ServiceUtil
+<#if classDeprecated>
+ * @deprecated ${classDeprecatedComment}
+</#if>
  * @generated
  */
 public class ${entity.name}ServiceSoap {
@@ -97,14 +100,16 @@ public class ${entity.name}ServiceSoap {
 					java.lang.Short[]
 				<#elseif returnTypeGenericsName == "java.util.List<java.lang.String>">
 					java.lang.String[]
-				<#elseif returnTypeGenericsName == "java.util.List<com.liferay.portal.kernel.repository.model.FileEntry>">
-					com.liferay.portal.kernel.repository.model.FileEntrySoap[]
-				<#elseif returnTypeGenericsName == "java.util.List<com.liferay.portal.kernel.repository.model.Folder>">
-					com.liferay.portal.kernel.repository.model.FolderSoap[]
+				<#elseif returnTypeGenericsName == "java.util.List<" + extendedModelName + ">">
+					${soapModelName}[]
+				<#elseif stringUtil.startsWith(returnTypeGenericsName, "java.util.List<com.liferay.portal.kernel.repository.model.")>
+					${serviceBuilder.getListActualTypeArguments(method.getReturns())}Soap[]
 				<#elseif entity.hasColumns() && (extendedModelName == serviceBuilder.getListActualTypeArguments(method.getReturns()))>
 					${soapModelName}[]
-				<#else>
+				<#elseif !entity.hasColumns()>
 					${serviceBuilder.getListActualTypeArguments(method.getReturns())}[]
+				<#else>
+					${serviceBuilder.getListActualTypeArguments(method.getReturns())}Soap[]
 				</#if>
 			<#else>
 				${returnTypeGenericsName}
@@ -147,7 +152,7 @@ public class ${entity.name}ServiceSoap {
 
 			) throws RemoteException {
 				try {
-		            ${localizationMapVariables}
+					${localizationMapVariables}
 
 					<#if returnValueName != "void">
 						${returnTypeGenericsName} returnValue =
@@ -224,14 +229,16 @@ public class ${entity.name}ServiceSoap {
 								return returnValue.toArray(new java.lang.Short[returnValue.size()]);
 							<#elseif returnTypeGenericsName == "java.util.List<java.lang.String>">
 								return returnValue.toArray(new java.lang.String[returnValue.size()]);
-							<#elseif returnTypeGenericsName == "java.util.List<com.liferay.portal.kernel.repository.model.FileEntry>">
-								return com.liferay.portal.kernel.repository.model.FileEntrySoap.toSoapModels(returnValue);
-							<#elseif returnTypeGenericsName == "java.util.List<com.liferay.portal.kernel.repository.model.Folder>">
-								return com.liferay.portal.kernel.repository.model.FolderSoap.toSoapModels(returnValue);
+							<#elseif returnTypeGenericsName == "java.util.List<" + extendedModelName + ">">
+								return ${extendedModelName}Soap.toSoapModels(returnValue);
+							<#elseif stringUtil.startsWith(returnTypeGenericsName, "java.util.List<com.liferay.portal.kernel.repository.model.")>
+								return ${serviceBuilder.getListActualTypeArguments(method.getReturns())}Soap.toSoapModels(returnValue);
 							<#elseif entity.hasColumns() && (extendedModelName == serviceBuilder.getListActualTypeArguments(method.getReturns()))>
 								return ${soapModelName}.toSoapModels(returnValue);
-							<#else>
+							<#elseif !entity.hasColumns()>
 								return returnValue.toArray(new ${serviceBuilder.getListActualTypeArguments(method.getReturns())}[returnValue.size()]);
+							<#else>
+								return ${serviceBuilder.getListActualTypeArguments(method.getReturns())}Soap.toSoapModels(returnValue);
 							</#if>
 						<#else>
 							return returnValue;

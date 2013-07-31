@@ -17,6 +17,8 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.RequiredLayoutSetPrototypeException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -25,6 +27,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.ServiceContext;
@@ -98,18 +101,26 @@ public class LayoutSetPrototypeLocalServiceImpl
 			LayoutSetPrototype.class.getName(),
 			layoutSetPrototype.getLayoutSetPrototypeId(),
 			GroupConstants.DEFAULT_LIVE_GROUP_ID,
-			layoutSetPrototype.getName(LocaleUtil.getDefault()), null, 0,
-			friendlyURL, false, true, serviceContext);
+			layoutSetPrototype.getName(LocaleUtil.getDefault()), null, 0, true,
+			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, friendlyURL, false,
+			true, serviceContext);
 
-		layoutLocalService.addLayout(
-			userId, group.getGroupId(), true,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "home", null, null,
-			LayoutConstants.TYPE_PORTLET, false, "/home", serviceContext);
+		if (GetterUtil.getBoolean(
+				serviceContext.getAttribute("addDefaultLayout"), true)) {
+
+			layoutLocalService.addLayout(
+				userId, group.getGroupId(), true,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "home", null, null,
+				LayoutConstants.TYPE_PORTLET, false, "/home", serviceContext);
+		}
 
 		return layoutSetPrototype;
 	}
 
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public LayoutSetPrototype deleteLayoutSetPrototype(
 			LayoutSetPrototype layoutSetPrototype)
 		throws PortalException, SystemException {
@@ -173,15 +184,6 @@ public class LayoutSetPrototypeLocalServiceImpl
 		}
 	}
 
-	@Override
-	public LayoutSetPrototype fetchLayoutSetPrototypeByUuidAndCompanyId(
-			String uuid, long companyId)
-		throws SystemException {
-
-		return layoutSetPrototypePersistence.fetchByUuid_C_First(
-			uuid, companyId, null);
-	}
-
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link
 	 *             #getLayoutSetPrototypeByUuidAndCompanyId(String, long)}
@@ -200,6 +202,13 @@ public class LayoutSetPrototypeLocalServiceImpl
 
 		return layoutSetPrototypePersistence.findByUuid_C_First(
 			uuid, companyId, null);
+	}
+
+	@Override
+	public List<LayoutSetPrototype> getLayoutSetPrototypes(long companyId)
+		throws SystemException {
+
+		return layoutSetPrototypePersistence.findByCompanyId(companyId);
 	}
 
 	@Override

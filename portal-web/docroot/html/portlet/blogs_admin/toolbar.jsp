@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/blogs_admin/init.jsp" %>
 
 <%
-String toolbarItem = ParamUtil.getString(request, "toolbarItem", "view-all");
+String toolbarItem = ParamUtil.getString(request, "toolbarItem");
 %>
 
 <aui:nav-bar>
@@ -25,8 +25,6 @@ String toolbarItem = ParamUtil.getString(request, "toolbarItem", "view-all");
 		<portlet:renderURL var="viewEntriesURL">
 			<portlet:param name="struts_action" value="/blogs_admin/view" />
 		</portlet:renderURL>
-
-		<aui:nav-item href="<%= viewEntriesURL %>" label="view-all" selected='<%= toolbarItem.equals("view-all") %>' />
 
 		<c:if test="<%= BlogsPermission.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_ENTRY) %>">
 			<portlet:renderURL var="addEntryURL">
@@ -38,4 +36,16 @@ String toolbarItem = ParamUtil.getString(request, "toolbarItem", "view-all");
 			<aui:nav-item href="<%= addEntryURL %>" iconClass="icon-plus" label="add" selected='<%= toolbarItem.equals("add") %>' />
 		</c:if>
 	</aui:nav>
+
+	<c:if test="<%= showBlogEntriesSearch %>">
+		<div class="navbar-search pull-right">
+			<div class="form-search">
+				<div class="input-append">
+					<input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" class="search-query span9" id="<portlet:namespace/>keywords1" name="<portlet:namespace/>keywords" placeholder="<liferay-ui:message key="keywords" />" type="text" />
+
+					<aui:button primary="<%= false %>" type="submit" value="search" />
+				</div>
+			</div>
+		</div>
+	</c:if>
 </aui:nav-bar>

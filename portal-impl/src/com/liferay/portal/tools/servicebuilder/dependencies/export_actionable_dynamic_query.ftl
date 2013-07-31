@@ -4,15 +4,20 @@ import ${packagePath}.model.${entity.name};
 import ${packagePath}.service.${entity.name}LocalServiceUtil;
 
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
-import com.liferay.portal.kernel.dao.orm.BaseActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.lar.StagedModelDataHandler;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
+import com.liferay.portal.util.PortalUtil;
 
 /**
  * @author ${author}
@@ -23,6 +28,8 @@ public class ${entity.name}ExportActionableDynamicQuery extends ${entity.name}Ac
 	public ${entity.name}ExportActionableDynamicQuery(PortletDataContext portletDataContext) throws SystemException {
 		_portletDataContext = portletDataContext;
 
+		setCompanyId(_portletDataContext.getCompanyId());
+
 		<#if entity.isStagedGroupedModel()>
 			setGroupId(_portletDataContext.getScopeGroupId());
 		</#if>
@@ -30,24 +37,51 @@ public class ${entity.name}ExportActionableDynamicQuery extends ${entity.name}Ac
 
 	@Override
 	public long performCount() throws PortalException, SystemException {
-		long count = super.performCount();
-
 		ManifestSummary manifestSummary = _portletDataContext.getManifestSummary();
 
-		manifestSummary.addModelCount(getManifestSummaryKey(), count);
+		StagedModelType stagedModelType = getStagedModelType();
 
-		return count;
+		long modelAdditionCount = super.performCount();
+
+		manifestSummary.addModelAdditionCount(stagedModelType.toString(), modelAdditionCount);
+
+		long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(_portletDataContext, stagedModelType);
+
+		manifestSummary.addModelDeletionCount(stagedModelType.toString(), modelDeletionCount);
+
+		return modelAdditionCount;
 	}
 
 	@Override
 	protected void addCriteria(DynamicQuery dynamicQuery) {
 		_portletDataContext.addDateRangeCriteria(dynamicQuery, "modifiedDate");
+
+		<#if entity.isTypedModel()>
+			if (getStagedModelType().getReferrerClassNameId() >= 0) {
+				Property classNameIdProperty = PropertyFactoryUtil.forName("classNameId");
+
+				dynamicQuery.add(classNameIdProperty.eq(getStagedModelType().getReferrerClassNameId()));
+			}
+		</#if>
+
+		<#if entity.isWorkflowEnabled()>
+			StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(${entity.name}.class.getName());
+
+			Property workflowStatusProperty = PropertyFactoryUtil.forName("status");
+
+			dynamicQuery.add(workflowStatusProperty.in(stagedModelDataHandler.getExportableStatuses()));
+		</#if>
 	}
 
-	protected String getManifestSummaryKey() {
-		StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(${entity.name}.class.getName());
+	<#if entity.isResourcedModel()>
+		@Override
+		protected Projection getCountProjection() {
+			return ProjectionFactoryUtil.countDistinct("resourcePrimKey");
+		}
+	</#if>
 
-		return stagedModelDataHandler.getManifestSummaryKey(null);
+	protected StagedModelType getStagedModelType() {
+		return new StagedModelType(PortalUtil.getClassNameId(${entity.name}.class.getName()));
 	}
 
 	@Override

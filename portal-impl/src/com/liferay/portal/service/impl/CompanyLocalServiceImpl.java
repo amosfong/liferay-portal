@@ -20,8 +20,8 @@ import com.liferay.portal.CompanyVirtualHostException;
 import com.liferay.portal.CompanyWebIdException;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.NoSuchShardException;
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.NoSuchVirtualHostException;
+import com.liferay.portal.RequiredCompanyException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -51,10 +51,12 @@ import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.Contact;
 import com.liferay.portal.model.ContactConstants;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.VirtualHost;
+import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.base.CompanyLocalServiceBaseImpl;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalInstances;
@@ -283,18 +285,16 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		// Default user
 
-		User defaultUser = null;
+		User defaultUser = userPersistence.fetchByC_DU(companyId, true);
 
-		try {
-			defaultUser = userLocalService.getDefaultUser(companyId);
-
+		if (defaultUser != null) {
 			if (!defaultUser.isAgreedToTermsOfUse()) {
 				defaultUser.setAgreedToTermsOfUse(true);
 
 				userPersistence.update(defaultUser);
 			}
 		}
-		catch (NoSuchUserException nsue) {
+		else {
 			long userId = counterLocalService.increment();
 
 			defaultUser = userPersistence.create(userId);
@@ -433,6 +433,29 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			}
 
 			companyPersistence.update(company);
+		}
+	}
+
+	@Override
+	public Company deleteCompany(long companyId)
+		throws PortalException, SystemException {
+
+		if (companyId == PortalInstances.getDefaultCompanyId()) {
+			throw new RequiredCompanyException();
+		}
+
+		Long currentCompanyId = CompanyThreadLocal.getCompanyId();
+		boolean deleteInProcess = CompanyThreadLocal.isDeleteInProcess();
+
+		try {
+			CompanyThreadLocal.setCompanyId(companyId);
+			CompanyThreadLocal.setDeleteInProcess(true);
+
+			return doDeleteCompany(companyId);
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(currentCompanyId);
+			CompanyThreadLocal.setDeleteInProcess(deleteInProcess);
 		}
 	}
 
@@ -1013,20 +1036,35 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	public void updatePreferences(long companyId, UnicodeProperties properties)
 		throws PortalException, SystemException {
 
-		PortletPreferences preferences = PrefsPropsUtil.getPreferences(
+		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences(
 			companyId);
 
 		try {
-			String newLocales = properties.getProperty(PropsKeys.LOCALES);
+			String newLanguageIds = properties.getProperty(PropsKeys.LOCALES);
 
-			if (newLocales != null) {
-				String oldLocales = preferences.getValue(
+			if (newLanguageIds != null) {
+				String oldLanguageIds = portletPreferences.getValue(
 					PropsKeys.LOCALES, StringPool.BLANK);
 
-				if (!Validator.equals(oldLocales, newLocales)) {
-					validateLocales(newLocales);
+				if (!Validator.equals(oldLanguageIds, newLanguageIds)) {
+					validateLanguageIds(newLanguageIds);
 
 					LanguageUtil.resetAvailableLocales(companyId);
+
+					// Invalidate cache of all layout set prototypes that belong
+					// to this company. See LPS-36403.
+
+					Date now = new Date();
+
+					for (LayoutSetPrototype layoutSetPrototype :
+							layoutSetPrototypeLocalService.
+								getLayoutSetPrototypes(companyId)) {
+
+						layoutSetPrototype.setModifiedDate(now);
+
+						layoutSetPrototypeLocalService.updateLayoutSetPrototype(
+							layoutSetPrototype);
+					}
 				}
 			}
 
@@ -1043,22 +1081,23 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				String propsUtilValue = PropsUtil.get(key);
 
 				if (!value.equals(propsUtilValue)) {
-					preferences.setValue(key, value);
+					portletPreferences.setValue(key, value);
 				}
 				else {
-					String preferencesValue = preferences.getValue(key, null);
+					String portletPreferencesValue =
+						portletPreferences.getValue(key, null);
 
-					if (preferencesValue != null) {
+					if (portletPreferencesValue != null) {
 						resetKeys.add(key);
 					}
 				}
 			}
 
 			for (String key : resetKeys) {
-				preferences.reset(key);
+				portletPreferences.reset(key);
 			}
 
-			preferences.store();
+			portletPreferences.store();
 		}
 		catch (LocaleException le) {
 			throw le;
@@ -1142,6 +1181,18 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			company = companyPersistence.update(company);
 		}
+
+		return company;
+	}
+
+	protected Company doDeleteCompany(long companyId)
+		throws PortalException, SystemException {
+
+		Company company = companyPersistence.findByPrimaryKey(companyId);
+
+		company.setActive(false);
+
+		companyPersistence.update(company);
 
 		return company;
 	}
@@ -1265,11 +1316,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 	}
 
-	protected void validateLocales(String locales) throws PortalException {
-		String[] localesArray = StringUtil.split(locales, StringPool.COMMA);
+	protected void validateLanguageIds(String languageIds)
+		throws PortalException {
 
-		for (String locale : localesArray) {
-			if (!ArrayUtil.contains(PropsValues.LOCALES, locale)) {
+		for (String languageId :
+				StringUtil.split(languageIds, StringPool.COMMA)) {
+
+			if (!ArrayUtil.contains(PropsValues.LOCALES, languageId)) {
 				throw new LocaleException();
 			}
 		}

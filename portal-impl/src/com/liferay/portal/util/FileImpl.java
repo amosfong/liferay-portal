@@ -27,6 +27,8 @@ import com.liferay.portal.kernel.process.ProcessExecutor;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.Digester;
+import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.FileComparator;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -58,6 +60,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
+import org.apache.commons.compress.archivers.zip.UnsupportedZipFeatureException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.pdfbox.exceptions.CryptographyException;
@@ -182,7 +185,7 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 	public File createTempFile(byte[] bytes) throws IOException {
 		File file = createTempFile(StringPool.BLANK);
 
-		write(file, bytes);
+		write(file, bytes, false);
 
 		return file;
 	}
@@ -355,10 +358,13 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 			Throwable throwable = ExceptionUtils.getRootCause(e);
 
 			if ((throwable instanceof CryptographyException) ||
-				(throwable instanceof EncryptedDocumentException)) {
+				(throwable instanceof EncryptedDocumentException) ||
+				(throwable instanceof UnsupportedZipFeatureException)) {
 
 				if (_log.isWarnEnabled()) {
-					_log.warn("Unable to extract text from an encrypted file");
+					_log.warn(
+						"Unable to extract text from an encrypted file " +
+							fileName);
 				}
 			}
 			else {
@@ -494,6 +500,20 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		}
 		else {
 			return StringPool.BLANK;
+		}
+	}
+
+	@Override
+	public String getMD5Checksum(File file) throws IOException {
+		FileInputStream fileInputStream = null;
+
+		try {
+			fileInputStream = new FileInputStream(file);
+
+			return DigesterUtil.digestHex(Digester.MD5, fileInputStream);
+		}
+		finally {
+			StreamUtil.cleanUp(fileInputStream);
 		}
 	}
 
@@ -837,16 +857,31 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 
 	@Override
 	public void write(File file, byte[] bytes) throws IOException {
-		write(file, bytes, 0, bytes.length);
+		write(file, bytes, 0, bytes.length, false);
+	}
+
+	@Override
+	public void write(File file, byte[] bytes, boolean append)
+		throws IOException {
+
+		write(file, bytes, 0, bytes.length, append);
 	}
 
 	@Override
 	public void write(File file, byte[] bytes, int offset, int length)
 		throws IOException {
 
+		write(file, bytes, offset, bytes.length, false);
+	}
+
+	@Override
+	public void write(
+			File file, byte[] bytes, int offset, int length, boolean append)
+		throws IOException {
+
 		mkdirsParentFile(file);
 
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		FileOutputStream fileOutputStream = new FileOutputStream(file, append);
 
 		fileOutputStream.write(bytes, offset, length);
 

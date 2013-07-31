@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.InstancePool;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
@@ -29,6 +30,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.service.ServiceContext;
@@ -189,10 +191,13 @@ public class WikiNodeLocalServiceImpl extends WikiNodeLocalServiceBaseImpl {
 
 		WikiNode node = wikiNodePersistence.findByPrimaryKey(nodeId);
 
-		deleteNode(node);
+		wikiNodeLocalService.deleteNode(node);
 	}
 
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public void deleteNode(WikiNode node)
 		throws PortalException, SystemException {
 
@@ -254,7 +259,7 @@ public class WikiNodeLocalServiceImpl extends WikiNodeLocalServiceBaseImpl {
 		List<WikiNode> nodes = wikiNodePersistence.findByGroupId(groupId);
 
 		for (WikiNode node : nodes) {
-			deleteNode(node);
+			wikiNodeLocalService.deleteNode(node);
 		}
 
 		PortletFileRepositoryUtil.deletePortletRepository(
@@ -262,10 +267,17 @@ public class WikiNodeLocalServiceImpl extends WikiNodeLocalServiceBaseImpl {
 	}
 
 	@Override
-	public WikiNode fetchWikiNode(long groupId, String name)
+	public WikiNode fetchNode(long groupId, String name)
 		throws SystemException {
 
 		return wikiNodePersistence.fetchByG_N(groupId, name);
+	}
+
+	@Override
+	public WikiNode fetchNodeByUuidAndGroupId(String uuid, long groupId)
+		throws SystemException {
+
+		return wikiNodePersistence.fetchByUUID_G(uuid, groupId);
 	}
 
 	@Override

@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link CompanyService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       CompanyService
+ * @author Brian Wing Shun Chan
+ * @see CompanyService
  * @generated
  */
 public class CompanyServiceWrapper implements CompanyService,
@@ -72,6 +72,13 @@ public class CompanyServiceWrapper implements CompanyService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _companyService.addCompany(webId, virtualHost, mx, shardName,
 			system, maxUsers, active);
+	}
+
+	@Override
+	public com.liferay.portal.model.Company deleteCompany(long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _companyService.deleteCompany(companyId);
 	}
 
 	/**

@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.shopping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ShoppingItem}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ShoppingItem
+ * @author Brian Wing Shun Chan
+ * @see ShoppingItem
  * @generated
  */
 public class ShoppingItemWrapper implements ShoppingItem,
@@ -1233,6 +1234,25 @@ public class ShoppingItemWrapper implements ShoppingItem,
 	public void setFieldsQuantitiesArray(
 		java.lang.String[] fieldsQuantitiesArray) {
 		_shoppingItem.setFieldsQuantitiesArray(fieldsQuantitiesArray);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ShoppingItemWrapper)) {
+			return false;
+		}
+
+		ShoppingItemWrapper shoppingItemWrapper = (ShoppingItemWrapper)obj;
+
+		if (Validator.equals(_shoppingItem, shoppingItemWrapper._shoppingItem)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

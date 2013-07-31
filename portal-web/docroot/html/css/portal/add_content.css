@@ -10,6 +10,16 @@
 	width: 330px;
 	z-index: 450;
 
+	.add-content-menu .lfr-add-page-toolbar {
+		bottom: 0;
+		margin-left: -10px;
+		padding: 10px;
+		position: fixed;
+		width: 330px;
+	}
+}
+
+.lfr-add-dialog, .lfr-add-panel {
 	.add-content-menu {
 		.btn-toolbar {
 			.control-group-inline {
@@ -22,6 +32,23 @@
 
 			.control-group-inline, .btn-group {
 				margin-right: 5px;
+			}
+		}
+
+		.template-selector {
+			margin-top: 1.5em;
+
+			legend {
+				border-bottom: solid 1px #009ec3;
+				color: #0DB5E7;
+				font-size: 1em;
+				line-height: 1.5em;
+			}
+
+			.lfr-page-layouts {
+				.layout-template-entry {
+					margin-left: 10px;
+				}
 			}
 		}
 
@@ -43,8 +70,13 @@
 		}
 
 		.lfr-content-item {
-			cursor: move;
 			position: relative;
+
+			.drag-content-item {
+				cursor: move;
+				display: inline-block;
+				width: 100%;
+			}
 
 			&:hover .add-content-item {
 				display: inline;
@@ -59,16 +91,46 @@
 				top: 0;
 			}
 
-			&.lfr-portlet-used {
-				cursor: default;
+			.lfr-portlet-used {
+				&.drag-content-item {
+					color: #BBB;
+					cursor: default;
+				}
 
-				.add-content-item {
+				&.add-content-item {
 					display: none;
 				}
 			}
 
 			&.lfr-archived-setup {
 				padding-left: 30px;
+			}
+		}
+
+		.lfr-page-template {
+			cursor: pointer;
+			margin-bottom: 20px;
+
+			.lfr-page-template-title {
+				label {
+					font-weight: bold;
+					margin-bottom: 5px;
+					padding: 2px;
+				}
+
+				&.toggler-header-collapsed {
+					.lfr-page-template-description {
+						height: 1.6em;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						width: 300px;
+					}
+				}
+			}
+
+			.lfr-page-template-options {
+				padding: 10px;
 			}
 		}
 
@@ -167,6 +229,10 @@
 	background-color: #FFF;
 
 	.add-content-menu {
+		.lfr-add-page-toolbar {
+			background-color: #FFF;
+		}
+
 		.lfr-content-item {
 			color: #3EA9DB;
 
@@ -177,6 +243,22 @@
 
 			&.lfr-portlet-used {
 				color: #BBB;
+			}
+		}
+
+		.lfr-page-template {
+			.toggler-header {
+				&.active {
+					&.lfr-page-template-title label{
+						background-color: #0DB5E7;
+						color: #FFFFFF;
+						padding: 2px;
+					}
+				}
+			}
+
+			&:hover {
+				background-color: #F0F0F0;
 			}
 		}
 

@@ -21,19 +21,15 @@ String tabs2 = ParamUtil.getString(request, "tabs2", "email-from");
 
 String redirect = ParamUtil.getString(request, "redirect");
 
-String portletResource = ParamUtil.getString(request, "portletResource");
+String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", JournalUtil.getEmailFromName(portletPreferences, company.getCompanyId()));
+String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", JournalUtil.getEmailFromAddress(portletPreferences, company.getCompanyId()));
 
-PortletPreferences portletSetup = PortletPreferencesFactoryUtil.getPortletSetup(request, portletResource);
-
-String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", JournalUtil.getEmailFromName(portletSetup, company.getCompanyId()));
-String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", JournalUtil.getEmailFromAddress(portletSetup, company.getCompanyId()));
-
-boolean emailArticleAddedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleAddedEnabled--", JournalUtil.getEmailArticleAddedEnabled(portletSetup));
-boolean emailArticleApprovalDeniedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalDeniedEnabled--", JournalUtil.getEmailArticleApprovalDeniedEnabled(portletSetup));
-boolean emailArticleApprovalGrantedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalGrantedEnabled--", JournalUtil.getEmailArticleApprovalGrantedEnabled(portletSetup));
-boolean emailArticleApprovalRequestedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalRequestedEnabled--", JournalUtil.getEmailArticleApprovalRequestedEnabled(portletSetup));
-boolean emailArticleReviewEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleReviewEnabled--", JournalUtil.getEmailArticleReviewEnabled(portletSetup));
-boolean emailArticleUpdatedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleUpdatedEnabled--", JournalUtil.getEmailArticleUpdatedEnabled(portletSetup));
+boolean emailArticleAddedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleAddedEnabled--", JournalUtil.getEmailArticleAddedEnabled(portletPreferences));
+boolean emailArticleApprovalDeniedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalDeniedEnabled--", JournalUtil.getEmailArticleApprovalDeniedEnabled(portletPreferences));
+boolean emailArticleApprovalGrantedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalGrantedEnabled--", JournalUtil.getEmailArticleApprovalGrantedEnabled(portletPreferences));
+boolean emailArticleApprovalRequestedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleApprovalRequestedEnabled--", JournalUtil.getEmailArticleApprovalRequestedEnabled(portletPreferences));
+boolean emailArticleReviewEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleReviewEnabled--", JournalUtil.getEmailArticleReviewEnabled(portletPreferences));
+boolean emailArticleUpdatedEnabled = ParamUtil.getBoolean(request, "preferences--emailArticleUpdatedEnabled--", JournalUtil.getEmailArticleUpdatedEnabled(portletPreferences));
 
 String emailParam = StringPool.BLANK;
 String defaultEmailSubject = StringPool.BLANK;
@@ -41,40 +37,40 @@ String defaultEmailBody = StringPool.BLANK;
 
 if (tabs2.equals("web-content-added-email")) {
 	emailParam = "emailArticleAdded";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_ADDED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_ADDED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_ADDED_BODY);
 }
 else if (tabs2.equals("web-content-approval-denied-email")) {
 	emailParam = "emailArticleApprovalDenied";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_DENIED_BODY);
 }
 else if (tabs2.equals("web-content-approval-granted-email")) {
 	emailParam = "emailArticleApprovalGranted";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_GRANTED_BODY);
 }
 else if (tabs2.equals("web-content-approval-requested-email")) {
 	emailParam = "emailArticleApprovalRequested";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_APPROVAL_REQUESTED_BODY);
 }
 else if (tabs2.equals("web-content-review-email")) {
 	emailParam = "emailArticleReview";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_REVIEW_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_REVIEW_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_REVIEW_BODY);
 }
 else if (tabs2.equals("web-content-updated-email")) {
 	emailParam = "emailArticleUpdated";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.JOURNAL_EMAIL_ARTICLE_UPDATED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_UPDATED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.JOURNAL_EMAIL_ARTICLE_UPDATED_BODY);
 }
 
 String emailSubjectParam = emailParam + "Subject";
 String emailBodyParam = emailParam + "Body";
 
-String emailSubject = PrefsParamUtil.getString(preferences, request, emailSubjectParam, defaultEmailSubject);
-String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam, defaultEmailBody);
+String emailSubject = PrefsParamUtil.getString(portletPreferences, request, emailSubjectParam, defaultEmailSubject);
+String emailBody = PrefsParamUtil.getString(portletPreferences, request, emailBodyParam, defaultEmailBody);
 %>
 
 <liferay-portlet:renderURL portletConfiguration="true" var="portletURL">

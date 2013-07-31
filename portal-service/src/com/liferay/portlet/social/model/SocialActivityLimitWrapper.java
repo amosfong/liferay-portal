@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.social.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link SocialActivityLimit}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       SocialActivityLimit
+ * @author Brian Wing Shun Chan
+ * @see SocialActivityLimit
  * @generated
  */
 public class SocialActivityLimitWrapper implements SocialActivityLimit,
@@ -474,6 +475,26 @@ public class SocialActivityLimitWrapper implements SocialActivityLimit,
 	@Override
 	public void setCount(int limitPeriod, int count) {
 		_socialActivityLimit.setCount(limitPeriod, count);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof SocialActivityLimitWrapper)) {
+			return false;
+		}
+
+		SocialActivityLimitWrapper socialActivityLimitWrapper = (SocialActivityLimitWrapper)obj;
+
+		if (Validator.equals(_socialActivityLimit,
+					socialActivityLimitWrapper._socialActivityLimit)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -8,6 +8,7 @@ import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -29,6 +30,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import ${packagePath}.service.${entity.name}${sessionTypeName}Service;
+
 <#if entity.hasColumns()>
 	<#if entity.hasCompoundPK()>
 		import ${packagePath}.service.persistence.${entity.name}PK;
@@ -46,14 +49,6 @@ import javax.sql.DataSource;
 </#if>
 
 <#list referenceList as tempEntity>
-	<#if tempEntity.hasLocalService()>
-		import ${tempEntity.packagePath}.service.${tempEntity.name}LocalService;
-	</#if>
-
-	<#if tempEntity.hasRemoteService()>
-		import ${tempEntity.packagePath}.service.${tempEntity.name}Service;
-	</#if>
-
 	<#if tempEntity.hasColumns() && (entity.name == "Counter" || tempEntity.name != "Counter")>
 		import ${tempEntity.packagePath}.service.persistence.${tempEntity.name}Persistence;
 		import ${tempEntity.packagePath}.service.persistence.${tempEntity.name}Util;
@@ -76,6 +71,9 @@ import javax.sql.DataSource;
  * @author ${author}
  * @see ${packagePath}.service.impl.${entity.name}LocalServiceImpl
  * @see ${packagePath}.service.${entity.name}LocalServiceUtil
+<#if classDeprecated>
+ * @deprecated ${classDeprecatedComment}
+</#if>
  * @generated
  */
 	public abstract class ${entity.name}LocalServiceBaseImpl extends BaseLocalServiceImpl implements ${entity.name}LocalService, IdentifiableBean {
@@ -96,6 +94,9 @@ import javax.sql.DataSource;
  * @author ${author}
  * @see ${packagePath}.service.impl.${entity.name}ServiceImpl
  * @see ${packagePath}.service.${entity.name}ServiceUtil
+<#if classDeprecated>
+ * @deprecated ${classDeprecatedComment}
+</#if>
  * @generated
  */
 	public abstract class ${entity.name}ServiceBaseImpl extends BaseServiceImpl implements ${entity.name}Service, IdentifiableBean {
@@ -257,12 +258,89 @@ import javax.sql.DataSource;
 			return ${entity.varName}Persistence.countWithDynamicQuery(dynamicQuery);
 		}
 
+		/**
+		 * Returns the number of rows that match the dynamic query.
+		 *
+		 * @param dynamicQuery the dynamic query
+		 * @param projection the projection to apply to the query
+		 * @return the number of rows that match the dynamic query
+		 * @throws SystemException if a system exception occurred
+		 */
+		@Override
+		public long dynamicQueryCount(DynamicQuery dynamicQuery, Projection projection) throws SystemException {
+			return ${entity.varName}Persistence.countWithDynamicQuery(dynamicQuery, projection);
+		}
+
 		<#assign serviceBaseExceptions = serviceBuilder.getServiceBaseExceptions(methods, "fetch" + entity.name, [entity.PKClassName], ["SystemException"])>
 
 		@Override
 		public ${entity.name} fetch${entity.name}(${entity.PKClassName} ${entity.PKVarName}) throws ${stringUtil.merge(serviceBaseExceptions)} {
 			return ${entity.varName}Persistence.fetchByPrimaryKey(${entity.PKVarName});
 		}
+
+		<#if entity.hasUuid() && entity.hasColumn("companyId")>
+			/**
+			 * Returns the ${entity.humanName} with the matching UUID and company.
+			 *
+			 * @param uuid the ${entity.humanName}'s UUID
+			 * @param  companyId the primary key of the company
+			 * @return the matching ${entity.humanName}, or <code>null</code> if a matching ${entity.humanName} could not be found
+			<#list serviceBaseExceptions as exception>
+			<#if exception == "SystemException">
+			 * @throws SystemException if a system exception occurred
+			<#else>
+			 * @throws ${exception}
+			</#if>
+			</#list>
+			 */
+			@Override
+			public ${entity.name} fetch${entity.name}ByUuidAndCompanyId(String uuid, long companyId) throws ${stringUtil.merge(serviceBaseExceptions)} {
+				return ${entity.varName}Persistence.fetchByUuid_C_First(uuid, companyId, null);
+			}
+		</#if>
+
+		<#if entity.hasUuid() && entity.hasColumn("groupId") && (entity.name != "Group")>
+			<#if entity.name == "Layout">
+				/**
+				 * Returns the ${entity.humanName} matching the UUID, group, and privacy.
+				 *
+				 * @param uuid the ${entity.humanName}'s UUID
+				 * @param groupId the primary key of the group
+				 * @param privateLayout whether the ${entity.humanName} is private to the group
+				 * @return the matching ${entity.humanName}, or <code>null</code> if a matching ${entity.humanName} could not be found
+				<#list serviceBaseExceptions as exception>
+				<#if exception == "SystemException">
+		 		 * @throws SystemException if a system exception occurred
+				<#else>
+				 * @throws ${exception}
+				</#if>
+				</#list>
+				 */
+				@Override
+				public ${entity.name} fetch${entity.name}ByUuidAndGroupId(String uuid, long groupId, boolean privateLayout) throws ${stringUtil.merge(serviceBaseExceptions)} {
+					return ${entity.varName}Persistence.fetchByUUID_G_P(uuid, groupId, privateLayout);
+				}
+			<#else>
+				/**
+				 * Returns the ${entity.humanName} matching the UUID and group.
+				 *
+				 * @param uuid the ${entity.humanName}'s UUID
+				 * @param groupId the primary key of the group
+				 * @return the matching ${entity.humanName}, or <code>null</code> if a matching ${entity.humanName} could not be found
+				<#list serviceBaseExceptions as exception>
+				<#if exception == "SystemException">
+				 * @throws SystemException if a system exception occurred
+				<#else>
+				 * @throws ${exception}
+				</#if>
+				</#list>
+				 */
+				@Override
+				public ${entity.name} fetch${entity.name}ByUuidAndGroupId(String uuid, long groupId) throws ${stringUtil.merge(serviceBaseExceptions)} {
+					return ${entity.varName}Persistence.fetchByUUID_G(uuid, groupId);
+				}
+			</#if>
+		</#if>
 
 		<#assign serviceBaseExceptions = serviceBuilder.getServiceBaseExceptions(methods, "get" + entity.name, [entity.PKClassName], ["PortalException", "SystemException"])>
 
@@ -291,7 +369,30 @@ import javax.sql.DataSource;
 			return ${entity.varName}Persistence.findByPrimaryKey(primaryKeyObj);
 		}
 
-		<#if entity.hasUuid() && entity.hasColumn("groupId")>
+		<#if entity.hasUuid() && entity.hasColumn("companyId")>
+			/**
+			 * Returns the ${entity.humanName} with the matching UUID and company.
+			 *
+			 * @param uuid the ${entity.humanName}'s UUID
+			 * @param  companyId the primary key of the company
+			 * @return the matching ${entity.humanName}
+			<#list serviceBaseExceptions as exception>
+			<#if exception == "PortalException">
+			 * @throws PortalException if a matching ${entity.humanName} could not be found
+			<#elseif exception == "SystemException">
+			 * @throws SystemException if a system exception occurred
+			<#else>
+			 * @throws ${exception}
+			</#if>
+			</#list>
+			 */
+			@Override
+			public ${entity.name} get${entity.name}ByUuidAndCompanyId(String uuid, long companyId) throws ${stringUtil.merge(serviceBaseExceptions)} {
+				return ${entity.varName}Persistence.findByUuid_C_First(uuid, companyId, null);
+			}
+		</#if>
+
+		<#if entity.hasUuid() && entity.hasColumn("groupId") && (entity.name != "Group")>
 			<#if entity.name == "Layout">
 				/**
 				 * Returns the ${entity.humanName} matching the UUID, group, and privacy.
@@ -678,7 +779,12 @@ import javax.sql.DataSource;
 			 *
 			 * @return the ${tempEntity.humanName} local service
 			 */
-			public ${tempEntity.name}LocalService get${tempEntity.name}LocalService() {
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			public ${tempEntity.packagePath}.service.${tempEntity.name}LocalService get${tempEntity.name}LocalService() {
 				return ${tempEntity.varName}LocalService;
 			}
 
@@ -687,7 +793,12 @@ import javax.sql.DataSource;
 			 *
 			 * @param ${tempEntity.varName}LocalService the ${tempEntity.humanName} local service
 			 */
-			public void set${tempEntity.name}LocalService(${tempEntity.name}LocalService ${tempEntity.varName}LocalService) {
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			public void set${tempEntity.name}LocalService(${tempEntity.packagePath}.service.${tempEntity.name}LocalService ${tempEntity.varName}LocalService) {
 				this.${tempEntity.varName}LocalService = ${tempEntity.varName}LocalService;
 			}
 		</#if>
@@ -698,7 +809,12 @@ import javax.sql.DataSource;
 			 *
 			 * @return the ${tempEntity.humanName} remote service
 			 */
-			public ${tempEntity.name}Service get${tempEntity.name}Service() {
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			public ${tempEntity.packagePath}.service.${tempEntity.name}Service get${tempEntity.name}Service() {
 				return ${tempEntity.varName}Service;
 			}
 
@@ -707,7 +823,12 @@ import javax.sql.DataSource;
 			 *
 			 * @param ${tempEntity.varName}Service the ${tempEntity.humanName} remote service
 			 */
-			public void set${tempEntity.name}Service(${tempEntity.name}Service ${tempEntity.varName}Service) {
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			public void set${tempEntity.name}Service(${tempEntity.packagePath}.service.${tempEntity.name}Service ${tempEntity.varName}Service) {
 				this.${tempEntity.varName}Service = ${tempEntity.varName}Service;
 			}
 		</#if>
@@ -858,13 +979,23 @@ import javax.sql.DataSource;
 
 	<#list referenceList as tempEntity>
 		<#if tempEntity.hasLocalService()>
-			@BeanReference(type = ${tempEntity.name}LocalService.class)
-			protected ${tempEntity.name}LocalService ${tempEntity.varName}LocalService;
+			@BeanReference(type = ${tempEntity.packagePath}.service.${tempEntity.name}LocalService.class)
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			protected ${tempEntity.packagePath}.service.${tempEntity.name}LocalService ${tempEntity.varName}LocalService;
 		</#if>
 
 		<#if tempEntity.hasRemoteService()>
-			@BeanReference(type = ${tempEntity.name}Service.class)
-			protected ${tempEntity.name}Service ${tempEntity.varName}Service;
+			@BeanReference(type = ${tempEntity.packagePath}.service.${tempEntity.name}Service.class)
+
+			<#if !classDeprecated && tempEntity.isDeprecated()>
+				@SuppressWarnings("deprecation")
+			</#if>
+
+			protected ${tempEntity.packagePath}.service.${tempEntity.name}Service ${tempEntity.varName}Service;
 		</#if>
 
 		<#if tempEntity.hasColumns() && (entity.name == "Counter" || tempEntity.name != "Counter")>

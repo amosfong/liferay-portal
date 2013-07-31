@@ -27,6 +27,23 @@ BookmarksEntry entry = (BookmarksEntry)request.getAttribute(WebKeys.BOOKMARKS_EN
 long entryId = BeanParamUtil.getLong(entry, request, "entryId");
 
 long folderId = BeanParamUtil.getLong(entry, request, "folderId");
+
+if (entry != null) {
+	BookmarksUtil.addPortletBreadcrumbEntries(entry, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
+	}
+}
+else {
+	BookmarksUtil.addPortletBreadcrumbEntries(folderId, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-bookmark"), currentURL);
+	}
+}
+
+boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 %>
 
 <c:if test="<%= Validator.isNull(referringPortletResource) %>">
@@ -45,11 +62,13 @@ long folderId = BeanParamUtil.getLong(entry, request, "folderId");
 	<aui:input name="entryId" type="hidden" value="<%= entryId %>" />
 	<aui:input name="folderId" type="hidden" value="<%= folderId %>" />
 
-	<liferay-ui:header
-		backURL="<%= backURL %>"
-		localizeTitle="<%= (entry == null) %>"
-		title='<%= (entry == null) ? "new-bookmark" : entry.getName() %>'
-	/>
+	<c:if test="<%= showHeader %>">
+		<liferay-ui:header
+			backURL="<%= backURL %>"
+			localizeTitle="<%= (entry == null) %>"
+			title='<%= (entry == null) ? "add-bookmark" : LanguageUtil.format(pageContext, "edit-x", entry.getName()) %>'
+		/>
+	</c:if>
 
 	<liferay-ui:error exception="<%= EntryURLException.class %>" message="please-enter-a-valid-url" />
 	<liferay-ui:error exception="<%= NoSuchFolderException.class %>" message="please-enter-a-valid-folder" />
@@ -84,6 +103,36 @@ long folderId = BeanParamUtil.getLong(entry, request, "folderId");
 
 					<aui:button name="selectFolderButton" value="select" />
 
+					<aui:script use="aui-base">
+						A.one('#<portlet:namespace />selectFolderButton').on(
+							'click',
+							function(event) {
+								Liferay.Util.selectEntity(
+									{
+										dialog: {
+											constrain: true,
+											modal: true,
+											width: 680
+										},
+										id: '<portlet:namespace />selectFolder',
+										title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "folder") %>',
+										uri: '<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>'
+									},
+									function(event) {
+										var folderData = {
+											idString: 'folderId',
+											idValue: event.folderid,
+											nameString: 'folderName',
+											nameValue: event.name
+										};
+
+										Liferay.Util.selectFolder(folderData, '<liferay-portlet:renderURL portletName="<%= portletResource %>"><portlet:param name="struts_action" value="/bookmarks/view" /></liferay-portlet:renderURL>', '<portlet:namespace />');
+									}
+								);
+							}
+						);
+					</aui:script>
+
 					<%
 					String taglibRemoveFolder = "Liferay.Util.removeFolderSelection('folderId', 'folderName', '" + renderResponse.getNamespace() + "');";
 					%>
@@ -92,7 +141,7 @@ long folderId = BeanParamUtil.getLong(entry, request, "folderId");
 			</aui:field-wrapper>
 		</c:if>
 
-		<aui:input name="name" />
+		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" name="name" />
 
 		<aui:input name="url" />
 
@@ -141,54 +190,7 @@ long folderId = BeanParamUtil.getLong(entry, request, "folderId");
 <aui:script>
 	function <portlet:namespace />saveEntry() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>";
+
 		submitForm(document.<portlet:namespace />fm);
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
-	</c:if>
 </aui:script>
-
-<aui:script use="aui-base">
-	A.one('#<portlet:namespace />selectFolderButton').on(
-		'click',
-		function(event) {
-			Liferay.Util.selectEntity(
-				{
-					dialog: {
-						constrain: true,
-						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
-						width: 680
-					},
-					id: '<portlet:namespace />selectFolder',
-					title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "folder") %>',
-					uri: '<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/bookmarks/select_folder" /></liferay-portlet:renderURL>'
-				},
-				function(event){
-					var folderData = {
-						idString: 'folderId',
-						idValue: event.folderid,
-						nameString: 'folderName',
-						nameValue: event.name
-					};
-
-					Liferay.Util.selectFolder(folderData, '<liferay-portlet:renderURL portletName="<%= portletResource %>"><portlet:param name="struts_action" value="/bookmarks/view" /></liferay-portlet:renderURL>', '<portlet:namespace />');
-				}
-			);
-		}
-	);
-</aui:script>
-
-<%
-if (entry != null) {
-	BookmarksUtil.addPortletBreadcrumbEntries(entry, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
-}
-else {
-	BookmarksUtil.addPortletBreadcrumbEntries(folderId, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-entry"), currentURL);
-}
-%>

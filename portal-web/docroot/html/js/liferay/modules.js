@@ -113,16 +113,40 @@ window.YUI_config = {
 						'event-touch'
 					]
 				},
+				'liferay-dockbar-add-application': {
+					path: 'dockbar_add_application.js',
+					requires: [
+						'aui-io-request',
+						'event-mouseenter',
+						'liferay-dockbar',
+						'liferay-dockbar-add-base',
+						'liferay-dockbar-add-application-search',
+						'liferay-portlet-base'
+					]
+				},
+				'liferay-dockbar-add-application-search': {
+					path: 'dockbar_add_application_search.js',
+					requires: [
+						'aui-base',
+						'liferay-dockbar',
+						'liferay-dockbar-add-search'
+					]
+				},
+				'liferay-dockbar-add-base': {
+					path: 'dockbar_add_base.js',
+					requires: [
+						'aui-base',
+						'liferay-dockbar',
+						'liferay-layout'
+					]
+				},
 				'liferay-dockbar-add-content': {
 					path: 'dockbar_add_content.js',
 					requires: [
 						'aui-io-request',
-						'aui-tooltip-deprecated',
-						'autocomplete-base',
 						'event-mouseenter',
 						'liferay-dockbar',
 						'liferay-dockbar-add-content-content-preview',
-						'liferay-dockbar-add-content-drag-drop',
 						'liferay-dockbar-add-content-search',
 						'liferay-portlet-base'
 					]
@@ -132,12 +156,11 @@ window.YUI_config = {
 					requires: [
 						'aui-debounce',
 						'aui-io-request',
-						'aui-tooltip-deprecated',
 						'event-mouseenter'
 					]
 				},
-				'liferay-dockbar-add-content-drag-drop': {
-					path: 'dockbar_add_content_drag_drop.js',
+				'liferay-dockbar-portlet-dd': {
+					path: 'dockbar_portlet_dd.js',
 					requires: [
 						'aui-base',
 						'dd',
@@ -152,9 +175,48 @@ window.YUI_config = {
 					path: 'dockbar_add_content_search.js',
 					requires: [
 						'aui-base',
+						'liferay-dockbar',
+						'liferay-dockbar-add-search'
+					]
+				},
+				'liferay-dockbar-add-page': {
+					path: 'dockbar_add_page.js',
+					requires: [
+						'aui-parse-content',
+						'aui-toggler-delegate',
+						'liferay-dockbar',
+						'liferay-dockbar-add-base',
+						'liferay-dockbar-add-page-search',
+						'liferay-portlet-base',
+						'liferay-toggler-key-filter'
+					]
+				},
+				'liferay-dockbar-add-page-search': {
+					path: 'dockbar_add_page_search.js',
+					requires: [
+						'aui-base',
+						'liferay-dockbar',
+						'liferay-dockbar-add-search'
+					]
+				},
+				'liferay-dockbar-add-search': {
+					path: 'dockbar_add_search.js',
+					requires: [
+						'aui-base',
 						'autocomplete-base',
 						'autocomplete-filters',
 						'liferay-dockbar'
+					]
+				},
+				'liferay-dockbar-device-preview': {
+					path: 'dockbar_device_preview.js',
+					requires: [
+						'aui-dialog-iframe-deprecated',
+						'aui-event-input',
+						'aui-modal',
+						'liferay-portlet-base',
+						'liferay-util-window',
+						'liferay-widget-size-animation-plugin'
 					]
 				},
 				'liferay-dockbar-underlay': {
@@ -184,7 +246,7 @@ window.YUI_config = {
 						test: function(A) {
 							return !('placeholder' in document.createElement('input'));
 						},
-						trigger: 'liferay-form',
+						trigger: 'liferay-form'
 					},
 					path: 'form_placeholders.js',
 					requires: [
@@ -270,6 +332,15 @@ window.YUI_config = {
 					requires: [
 						'aui-sortable-layout',
 						'dd'
+					]
+				},
+				'liferay-layout-customization-settings': {
+					path: 'layout_customization_settings.js',
+					requires: [
+						'aui-base',
+						'aui-io-request',
+						'aui-overlay-mask-deprecated',
+						'liferay-portlet-base'
 					]
 				},
 				'liferay-layout-freeform': {
@@ -373,7 +444,8 @@ window.YUI_config = {
 				'liferay-notice': {
 					path: 'notice.js',
 					requires: [
-						'aui-base'
+						'aui-base',
+						'transition'
 					]
 				},
 				'liferay-node': {
@@ -410,7 +482,8 @@ window.YUI_config = {
 					requires: [
 						'aui-base',
 						'aui-overlay-mask-deprecated',
-						'aui-toolbar'
+						'aui-toolbar',
+						'liferay-widget-zindex'
 					]
 				},
 				'liferay-progress': {
@@ -485,6 +558,12 @@ window.YUI_config = {
 						'aui-io-request'
 					]
 				},
+				'liferay-toggler-key-filter': {
+					path: 'toggler_key_filter.js',
+					requires: [
+						'aui-event-base'
+					]
+				},
 				'liferay-token-list': {
 					path: 'token_list.js',
 					requires: [
@@ -524,14 +603,31 @@ window.YUI_config = {
 				'liferay-util-window': {
 					path: 'util_window.js',
 					requires: [
+						'aui-modal',
 						'aui-dialog-iframe-deprecated',
-						'aui-modal'
+						'event-resize',
+						'liferay-widget-zindex'
+					]
+				},
+				'liferay-widget-size-animation-plugin': {
+					path: 'widget_size_animation_plugin.js',
+					requires: [
+						'anim-easing',
+						'plugin',
+						'widget'
 					]
 				},
 				'liferay-xml-formatter': {
 					path: 'xml_formatter.js',
 					requires: [
 						'aui-base'
+					]
+				},
+				'liferay-widget-zindex': {
+					path: 'widget_zindex.js',
+					requires: [
+						'aui-modal',
+						'plugin'
 					]
 				}
 			},

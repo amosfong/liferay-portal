@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DDMStorageLink}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMStorageLink
+ * @author Brian Wing Shun Chan
+ * @see DDMStorageLink
  * @generated
  */
 public class DDMStorageLinkWrapper implements DDMStorageLink,
@@ -342,6 +343,26 @@ public class DDMStorageLinkWrapper implements DDMStorageLink,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStorageLink.getStructure();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMStorageLinkWrapper)) {
+			return false;
+		}
+
+		DDMStorageLinkWrapper ddmStorageLinkWrapper = (DDMStorageLinkWrapper)obj;
+
+		if (Validator.equals(_ddmStorageLink,
+					ddmStorageLinkWrapper._ddmStorageLink)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -25,6 +25,10 @@
 			<bean class="com.liferay.portal.audit.AuditMessageFactoryImpl" />
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistry" class="com.liferay.portal.backgroundtask.BackgroundTaskStatusRegistryImpl" />
+	<bean id="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil" class="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil">
+		<property name="backgroundTaskStatusRegistry" ref="com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistry" />
+	</bean>
 	<bean id="com.liferay.portal.kernel.bean.BeanPropertiesUtil" class="com.liferay.portal.kernel.bean.BeanPropertiesUtil">
 		<property name="beanProperties">
 			<bean class="com.liferay.portal.bean.BeanPropertiesImpl" />
@@ -34,10 +38,6 @@
 		<property name="constantsBeanFactory">
 			<bean class="com.liferay.portal.bean.ConstantsBeanFactoryImpl" />
 		</property>
-	</bean>
-	<bean id="com.liferay.portal.kernel.bean.Renderer" class="com.liferay.portal.bean.RendererImpl" />
-	<bean id="com.liferay.portal.kernel.bean.RendererUtil" class="com.liferay.portal.kernel.bean.RendererUtil">
-		<property name="renderer" ref="com.liferay.portal.kernel.bean.Renderer" />
 	</bean>
 	<bean id="com.liferay.portal.kernel.cache.MultiVMPool" class="com.liferay.portal.cache.MultiVMPoolImpl">
 		<property name="portalCacheManager" ref="com.liferay.portal.kernel.cache.MultiVMPortalCacheManager" />
@@ -215,9 +215,9 @@
 			<bean class="com.liferay.portal.language.UnicodeLanguageImpl" />
 		</property>
 	</bean>
-	<bean id="com.liferay.portal.kernel.lar.ExportImport" class="com.liferay.portal.lar.ExportImportImpl" />
-	<bean id="com.liferay.portal.kernel.lar.ExportImportUtil" class="com.liferay.portal.kernel.lar.ExportImportUtil">
-		<property name="exportImport" ref="com.liferay.portal.kernel.lar.ExportImport" />
+	<bean id="com.liferay.portal.kernel.lar.ExportImportHelper" class="com.liferay.portal.lar.ExportImportHelperImpl" />
+	<bean id="com.liferay.portal.kernel.lar.ExportImportHelperUtil" class="com.liferay.portal.kernel.lar.ExportImportHelperUtil">
+		<property name="exportImportHelper" ref="com.liferay.portal.kernel.lar.ExportImportHelper" />
 	</bean>
 	<bean id="com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistry" class="com.liferay.portal.lar.StagedModelDataHandlerRegistryImpl" />
 	<bean id="com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil" class="com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil">
@@ -250,6 +250,11 @@
 			<bean class="com.liferay.portal.microsofttranslator.MicrosoftTranslatorFactoryImpl" />
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.kernel.notifications.UserNotificationManagerUtil" class="com.liferay.portal.kernel.notifications.UserNotificationManagerUtil">
+		<property name="userNotificationManager">
+			<bean class="com.liferay.portal.notifications.UserNotificationManagerImpl" />
+		</property>
+	</bean>
 	<bean id="com.liferay.portal.kernel.oauth.OAuthFactoryUtil" class="com.liferay.portal.kernel.oauth.OAuthFactoryUtil">
 		<property name="OAuthFactory">
 			<bean class="com.liferay.portal.oauth.OAuthFactoryImpl" />
@@ -269,9 +274,6 @@
 		<property name="cometHandlerPool">
 			<bean class="com.liferay.portal.kernel.poller.comet.CometHandlerPool" />
 		</property>
-	</bean>
-	<bean id="com.liferay.portal.kernel.portlet.PortletSecurityUtil" class="com.liferay.portal.kernel.portlet.PortletSecurityUtil">
-		<property name="portletSecurity" ref="com.liferay.portlet.PortletSecurity" />
 	</bean>
 	<bean id="com.liferay.portal.kernel.portlet.PortletContainerUtil" class="com.liferay.portal.kernel.portlet.PortletContainerUtil">
 		<property name="portletContainer" ref="com.liferay.portlet.RestrictPortletContainerWrapper" />
@@ -337,7 +339,8 @@
 				<entry key="com.liferay.portal.security.ac.AccessControlAdvice" value="accessControlAdvisor,nextMethodInterceptor" />
 				<entry key="com.liferay.portal.security.ac.AccessControlAdvisorImpl" value="" />
 				<entry key="com.liferay.portal.security.pacl.PACLAdvice" value="nextMethodInterceptor" />
-				<entry key="com.liferay.portal.spring.aop.ServiceBeanAutoProxyCreator" value="methodInterceptor" />
+				<entry key="com.liferay.portal.spring.aop.ServiceBeanAutoProxyCreator" value="beanMatcher,methodInterceptor" />
+				<entry key="com.liferay.portal.spring.aop.ServiceBeanMatcher" value="" />
 				<entry key="com.liferay.portal.spring.bean.BeanReferenceAnnotationBeanPostProcessor" value="" />
 				<entry key="com.liferay.portal.spring.context.PortletBeanFactoryCleaner" value="" />
 				<entry key="com.liferay.portal.spring.context.PortletBeanFactoryPostProcessor" value="" />
@@ -345,6 +348,7 @@
 				<entry key="com.liferay.portal.spring.transaction.AnnotationTransactionAttributeSource" value="" />
 				<entry key="com.liferay.portal.spring.transaction.TransactionInterceptor" value="platformTransactionManager,transactionAttributeSource" />
 				<entry key="com.liferay.portal.spring.transaction.TransactionInterceptorFactoryBean" value="platformTransactionManager,transactionAttributeSource" />
+				<entry key="com.liferay.portal.systemevent.SystemEventAdvice" value="nextMethodInterceptor" />
 			</map>
 		</property>
 	</bean>
@@ -623,6 +627,11 @@
 			<bean class="com.liferay.portal.security.auth.DefaultAuthenticatedUserUUIDStoreImpl" />
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.security.auth.AuthTokenWhitelistUtil" class="com.liferay.portal.security.auth.AuthTokenWhitelistUtil">
+		<property name="authTokenWhitelist">
+			<bean class="com.liferay.portal.security.auth.AuthTokenWhitelistImpl" />
+		</property>
+	</bean>
 	<bean id="com.liferay.portal.security.auth.AuthTokenUtil" class="com.liferay.portal.security.auth.AuthTokenUtil">
 		<property name="authToken">
 			<bean class="com.liferay.portal.security.auth.AuthTokenImpl" />
@@ -844,10 +853,8 @@
 	</bean>
 	<bean id="com.liferay.portlet.DefaultControlPanelEntryFactory" class="com.liferay.portlet.DefaultControlPanelEntryFactory" />
 	<bean id="com.liferay.portlet.PortletContainerImpl" class="com.liferay.portlet.PortletContainerImpl" />
-	<bean id="com.liferay.portlet.PortletSecurity" class="com.liferay.portlet.PortletSecurityImpl" />
 	<bean id="com.liferay.portlet.SecurityPortletContainerWrapper" class="com.liferay.portlet.SecurityPortletContainerWrapper" factory-method="createSecurityPortletContainerWrapper">
 		<constructor-arg name="portletContainer" ref="com.liferay.portal.resiliency.mpi.portlet.PortalResiliencyPortletContainerWrapper" />
-		<constructor-arg name="portletSecurity" ref="com.liferay.portlet.PortletSecurity" />
 	</bean>
 	<bean id="com.liferay.portlet.RestrictPortletContainerWrapper" class="com.liferay.portlet.RestrictPortletContainerWrapper" factory-method="createRestrictPortletContainerWrapper">
 		<constructor-arg name="portletContainer" ref="com.liferay.portlet.SecurityPortletContainerWrapper" />
@@ -911,9 +918,6 @@
 				</entry>
 				<entry key="document-library">
 					<bean class="com.liferay.portlet.dynamicdatamapping.storage.DocumentLibraryFieldRenderer" />
-				</entry>
-				<entry key="file-upload">
-					<bean class="com.liferay.portlet.dynamicdatamapping.storage.FileUploadFieldRenderer" />
 				</entry>
 				<entry key="link-to-page">
 					<bean class="com.liferay.portlet.dynamicdatamapping.storage.LinkToPageFieldRenderer" />
@@ -1035,6 +1039,16 @@
 	<bean id="com.liferay.portlet.sites.util.Sites" class="com.liferay.portlet.sites.util.SitesImpl" />
 	<bean id="com.liferay.portlet.sites.util.SitesUtil" class="com.liferay.portlet.sites.util.SitesUtil">
 		<property name="sites" ref="com.liferay.portlet.sites.util.Sites" />
+	</bean>
+	<bean id="com.liferay.portlet.social.service.permission.SocialActivityPermissionUtil" class="com.liferay.portlet.social.service.permission.SocialActivityPermissionUtil">
+		<property name="socialActivityPermission">
+			<bean class="com.liferay.portlet.social.service.permission.SocialActivityPermissionImpl" />
+		</property>
+	</bean>
+	<bean id="com.liferay.portlet.social.service.permission.SocialRequestPermissionUtil" class="com.liferay.portlet.social.service.permission.SocialRequestPermissionUtil">
+		<property name="socialRequestPermission">
+			<bean class="com.liferay.portlet.social.service.permission.SocialRequestPermissionImpl" />
+		</property>
 	</bean>
 	<bean id="com.liferay.portlet.social.util.SocialConfiguration" class="com.liferay.portlet.social.util.SocialConfigurationImpl" />
 	<bean id="com.liferay.portlet.social.util.SocialConfigurationUtil" class="com.liferay.portlet.social.util.SocialConfigurationUtil">

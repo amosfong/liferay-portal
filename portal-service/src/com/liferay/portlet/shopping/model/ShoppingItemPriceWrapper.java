@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.shopping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ShoppingItemPrice}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ShoppingItemPrice
+ * @author Brian Wing Shun Chan
+ * @see ShoppingItemPrice
  * @generated
  */
 public class ShoppingItemPriceWrapper implements ShoppingItemPrice,
@@ -469,6 +470,26 @@ public class ShoppingItemPriceWrapper implements ShoppingItemPrice,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_shoppingItemPrice.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ShoppingItemPriceWrapper)) {
+			return false;
+		}
+
+		ShoppingItemPriceWrapper shoppingItemPriceWrapper = (ShoppingItemPriceWrapper)obj;
+
+		if (Validator.equals(_shoppingItemPrice,
+					shoppingItemPriceWrapper._shoppingItemPrice)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

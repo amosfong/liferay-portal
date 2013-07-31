@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link PluginSetting}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PluginSetting
+ * @author Brian Wing Shun Chan
+ * @see PluginSetting
  * @generated
  */
 public class PluginSettingWrapper implements PluginSetting,
@@ -397,6 +399,25 @@ public class PluginSettingWrapper implements PluginSetting,
 	@Override
 	public void setRolesArray(java.lang.String[] rolesArray) {
 		_pluginSetting.setRolesArray(rolesArray);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PluginSettingWrapper)) {
+			return false;
+		}
+
+		PluginSettingWrapper pluginSettingWrapper = (PluginSettingWrapper)obj;
+
+		if (Validator.equals(_pluginSetting, pluginSettingWrapper._pluginSetting)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

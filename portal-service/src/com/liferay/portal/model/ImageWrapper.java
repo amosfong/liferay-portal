@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Image}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Image
+ * @author Brian Wing Shun Chan
+ * @see Image
  * @generated
  */
 public class ImageWrapper implements Image, ModelWrapper<Image> {
@@ -347,6 +349,25 @@ public class ImageWrapper implements Image, ModelWrapper<Image> {
 	@Override
 	public void setTextObj(byte[] textObj) {
 		_image.setTextObj(textObj);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ImageWrapper)) {
+			return false;
+		}
+
+		ImageWrapper imageWrapper = (ImageWrapper)obj;
+
+		if (Validator.equals(_image, imageWrapper._image)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

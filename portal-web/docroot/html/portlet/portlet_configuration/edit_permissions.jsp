@@ -402,23 +402,24 @@ definePermissionsURL.setRefererPlid(plid);
 						buffer.append(FriendlyURLNormalizerUtil.normalize(role.getName()));
 
 						if (Validator.isNotNull(preselectedMsg)) {
-							buffer.append("_PRESELECTED_");
+							buffer.append(ActionUtil.PRESELECTED);
 						}
 						else {
-							buffer.append("_ACTION_");
+							buffer.append(ActionUtil.ACTION);
 						}
 
 						buffer.append(action);
 						buffer.append("\" ");
 
 						buffer.append("name=\"");
+						buffer.append(renderResponse.getNamespace());
 						buffer.append(role.getRoleId());
 
 						if (Validator.isNotNull(preselectedMsg)) {
-							buffer.append("_PRESELECTED_");
+							buffer.append(ActionUtil.PRESELECTED);
 						}
 						else {
-							buffer.append("_ACTION_");
+							buffer.append(ActionUtil.ACTION);
 						}
 
 						buffer.append(action);

@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.bookmarks.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -25,7 +27,6 @@ import com.liferay.portlet.bookmarks.model.BookmarksEntry;
 import com.liferay.portlet.bookmarks.model.BookmarksFolder;
 import com.liferay.portlet.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.portlet.bookmarks.service.BookmarksEntryLocalServiceUtil;
-import com.liferay.portlet.bookmarks.service.persistence.BookmarksEntryUtil;
 
 import java.util.Map;
 
@@ -37,6 +38,20 @@ public class BookmarksEntryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<BookmarksEntry> {
 
 	public static final String[] CLASS_NAMES = {BookmarksEntry.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		BookmarksEntry entry =
+			BookmarksEntryLocalServiceUtil.fetchBookmarksEntryByUuidAndGroupId(
+				uuid, groupId);
+
+		if (entry != null) {
+			BookmarksEntryLocalServiceUtil.deleteEntry(entry);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -102,8 +117,10 @@ public class BookmarksEntryStagedModelDataHandler
 		BookmarksEntry importedEntry = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			BookmarksEntry existingEntry = BookmarksEntryUtil.fetchByUUID_G(
-				entry.getUuid(), portletDataContext.getScopeGroupId());
+			BookmarksEntry existingEntry =
+				BookmarksEntryLocalServiceUtil.
+					fetchBookmarksEntryByUuidAndGroupId(
+						entry.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingEntry == null) {
 				serviceContext.setUuid(entry.getUuid());

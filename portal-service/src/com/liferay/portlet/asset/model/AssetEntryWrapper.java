@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.asset.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link AssetEntry}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       AssetEntry
+ * @author Brian Wing Shun Chan
+ * @see AssetEntry
  * @generated
  */
 public class AssetEntryWrapper implements AssetEntry, ModelWrapper<AssetEntry> {
@@ -1330,6 +1331,25 @@ public class AssetEntryWrapper implements AssetEntry, ModelWrapper<AssetEntry> {
 	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _assetEntry.getTags();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof AssetEntryWrapper)) {
+			return false;
+		}
+
+		AssetEntryWrapper assetEntryWrapper = (AssetEntryWrapper)obj;
+
+		if (Validator.equals(_assetEntry, assetEntryWrapper._assetEntry)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

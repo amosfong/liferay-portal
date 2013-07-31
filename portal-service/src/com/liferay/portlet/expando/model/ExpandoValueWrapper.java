@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.expando.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ExpandoValue}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ExpandoValue
+ * @author Brian Wing Shun Chan
+ * @see ExpandoValue
  * @generated
  */
 public class ExpandoValueWrapper implements ExpandoValue,
@@ -757,6 +758,25 @@ public class ExpandoValueWrapper implements ExpandoValue,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_expandoValue.setStringMap(dataMap, defaultLocale);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ExpandoValueWrapper)) {
+			return false;
+		}
+
+		ExpandoValueWrapper expandoValueWrapper = (ExpandoValueWrapper)obj;
+
+		if (Validator.equals(_expandoValue, expandoValueWrapper._expandoValue)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

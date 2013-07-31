@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.mobiledevicerules.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link MDRAction}.
  * </p>
  *
- * @author    Edward C. Han
- * @see       MDRAction
+ * @author Edward C. Han
+ * @see MDRAction
  * @generated
  */
 public class MDRActionWrapper implements MDRAction, ModelWrapper<MDRAction> {
@@ -880,6 +882,30 @@ public class MDRActionWrapper implements MDRAction, ModelWrapper<MDRAction> {
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties) {
 		_mdrAction.setTypeSettingsProperties(typeSettingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof MDRActionWrapper)) {
+			return false;
+		}
+
+		MDRActionWrapper mdrActionWrapper = (MDRActionWrapper)obj;
+
+		if (Validator.equals(_mdrAction, mdrActionWrapper._mdrAction)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _mdrAction.getStagedModelType();
 	}
 
 	/**

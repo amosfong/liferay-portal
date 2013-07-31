@@ -139,7 +139,25 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 						</c:choose>
 					</c:when>
 
-					<c:when test="<%= (socialActivity.getType() == WikiActivityKeys.ADD_PAGE) || (socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE) %>">
+					<c:when test="<%= socialActivity.getType() == SocialActivityConstants.TYPE_ADD_COMMENT %>">
+
+						<%
+						WikiPage socialActivityWikiPage = WikiPageLocalServiceUtil.getPage(node.getNodeId(), wikiPage.getTitle());
+						%>
+
+						<portlet:renderURL var="viewPageURL">
+							<portlet:param name="struts_action" value="/wiki/view" />
+							<portlet:param name="nodeName" value="<%= node.getName() %>" />
+							<portlet:param name="title" value="<%= socialActivityWikiPage.getTitle() %>" />
+						</portlet:renderURL>
+
+						<liferay-ui:icon
+							label="<%= true %>"
+							message='<%= LanguageUtil.format(pageContext, "x-added-a-comment", new Object[] {socialActivityUser.getFullName(), viewPageURL + "#wikiCommentsPanel"}) %>'
+						/>
+					</c:when>
+
+					<c:when test="<%= (socialActivity.getType() == SocialActivityConstants.TYPE_MOVE_TO_TRASH) || (socialActivity.getType() == SocialActivityConstants.TYPE_RESTORE_FROM_TRASH) || (socialActivity.getType() == WikiActivityKeys.ADD_PAGE) || (socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE) %>">
 
 						<%
 						double version = extraDataJSONObject.getDouble("version");
@@ -155,6 +173,24 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 						</portlet:renderURL>
 
 						<c:choose>
+							<c:when test="<%= socialActivity.getType() == SocialActivityConstants.TYPE_MOVE_TO_TRASH %>">
+								<liferay-ui:icon
+									image="trash"
+									label="<%= true %>"
+									message='<%= LanguageUtil.format(pageContext, "activity-wiki-page-move-to-trash", new Object[] {StringPool.BLANK, socialActivityUser.getFullName(), socialActivityWikiPage.getTitle()}) %>'
+								/>
+							</c:when>
+							<c:when test="<%= socialActivity.getType() == SocialActivityConstants.TYPE_RESTORE_FROM_TRASH %>">
+								<liferay-util:buffer var="pageTitleLink">
+									<aui:a href="<%= viewPageURL.toString() %>"><%= socialActivityWikiPage.getTitle() %></aui:a>
+								</liferay-util:buffer>
+
+								<liferay-ui:icon
+									image="undo"
+									label="<%= true %>"
+									message='<%= LanguageUtil.format(pageContext, "activity-wiki-page-restore-from-trash", new Object[] {StringPool.BLANK, socialActivityUser.getFullName(), pageTitleLink}) %>'
+								/>
+							</c:when>
 							<c:when test="<%= socialActivity.getType() == WikiActivityKeys.ADD_PAGE %>">
 								<liferay-util:buffer var="pageTitleLink">
 									<aui:a href="<%= viewPageURL.toString() %>"><%= socialActivityWikiPage.getTitle() %></aui:a>
@@ -165,7 +201,7 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 									label="<%= true %>"
 									message='<%= LanguageUtil.format(pageContext, "x-added-the-page-x", new Object[] {socialActivityUser.getFullName(), pageTitleLink}) %>'
 								/>
-							</c:when >
+							</c:when>
 							<c:when test="<%= socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE %>">
 								<liferay-util:buffer var="pageTitleLink">
 									<aui:a href="<%= viewPageURL.toString() %>">
@@ -184,7 +220,7 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 								/>
 
 								<c:if test="<%= socialActivityWikiPage.getStatus() != WorkflowConstants.STATUS_APPROVED %>">
-									<span class="activity-status"><liferay-ui:message key="<%= WorkflowConstants.toLabel(socialActivityWikiPage.getStatus()) %>" /></span>
+									<span class="activity-status"><liferay-ui:message key="<%= WorkflowConstants.getStatusLabel(socialActivityWikiPage.getStatus()) %>" /></span>
 								</c:if>
 
 								<c:if test="<%= Validator.isNotNull(socialActivityWikiPage.getSummary()) %>">
@@ -196,11 +232,10 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 				</c:choose>
 			</liferay-ui:search-container-column-text>
 
-			<liferay-ui:search-container-column-text
+			<liferay-ui:search-container-column-date
 				name="date"
-			>
-				<liferay-ui:message arguments="<%= LanguageUtil.getTimeDescription(pageContext, System.currentTimeMillis() - socialActivity.getCreateDate(), true) %>" key="x-ago" />
-			</liferay-ui:search-container-column-text>
+				value="<%= new Date(socialActivity.getCreateDate()) %>"
+			/>
 
 			<c:choose>
 				<c:when test="<%= ((socialActivity.getType() == SocialActivityConstants.TYPE_ADD_ATTACHMENT) || (socialActivity.getType() == SocialActivityConstants.TYPE_MOVE_ATTACHMENT_TO_TRASH) || (socialActivity.getType() == SocialActivityConstants.TYPE_RESTORE_ATTACHMENT_FROM_TRASH)) && (fileEntry != null) %>">
@@ -209,7 +244,7 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 						path="/html/portlet/wiki/page_activity_attachment_action.jsp"
 					/>
 				</c:when>
-				<c:when test="<%= (socialActivity.getType() == WikiActivityKeys.ADD_PAGE) || (socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE) %>">
+				<c:when test="<%= (socialActivity.getType() == SocialActivityConstants.TYPE_RESTORE_FROM_TRASH) || (socialActivity.getType() == WikiActivityKeys.ADD_PAGE) || (socialActivity.getType() == WikiActivityKeys.UPDATE_PAGE) %>">
 					<liferay-ui:search-container-column-jsp
 						align="right"
 						path="/html/portlet/wiki/page_activity_page_action.jsp"

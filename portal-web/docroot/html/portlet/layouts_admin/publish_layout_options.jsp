@@ -28,11 +28,9 @@ Layout curLayout = (Layout)row.getObject();
 	String taglibHref = "javascript:Liferay.LayoutExporter.details({toggle: '#" + renderResponse.getNamespace() + "_detail_" + curLayout.getPlid() + "_toggle img', detail: '#_detail_" + curLayout.getPlid() + "'});";
 	%>
 
-	<em class='<%= curLayout.getAncestors().isEmpty() ? "hide" : StringPool.BLANK %>' id="<portlet:namespace /><%= curLayout.getPlid() %>includeAncestor"><liferay-ui:message key="include-ancestor-pages-if-necessary" /></em>
-
 	<em class="hide" id="<portlet:namespace /><%= curLayout.getPlid() %>deleteLivePage"><liferay-ui:message key="delete-live-page" /></em>
 
-	<em class='<%= curLayout.getChildren().isEmpty() ? "hide" : StringPool.BLANK %>' id="<portlet:namespace /><%= curLayout.getPlid() %>includeChildren"><liferay-ui:message key="include-all-descendent-pages" /></em>
+	<em class="hide" id="<portlet:namespace /><%= curLayout.getPlid() %>includeChildren"><liferay-ui:message key="include-all-descendent-pages" /></em>
 
 	<liferay-ui:icon cssClass="nobr" id='<%= "_detail_" + curLayout.getPlid() + "_toggle" %>' image="../arrows/01_plus" label="<%= true %>" message="change" target="_self" toolTip="options" url="<%= taglibHref %>" />
 </div>
@@ -43,35 +41,20 @@ Layout curLayout = (Layout)row.getObject();
 	<aui:input checked="<%= true %>" label="publish" name='<%= "delete_" + curLayout.getPlid() %>' type="radio" value="<%= false %>" />
 
 	<div id="<portlet:namespace />publishChangesOptions_<%= curLayout.getPlid() %>" style="margin-left: 2em;">
-		<c:if test="<%= !curLayout.getAncestors().isEmpty() %>">
-			<aui:input checked="<%= true %>" disabled="<%= true %>" label="include-ancestor-pages-if-necessary" name='<%= "includeAncestors_" + curLayout.getPlid() %>' type="checkbox" value="1" />
-		</c:if>
-
 		<c:if test="<%= !curLayout.getChildren().isEmpty() %>">
-			<aui:input checked="<%= true %>" label="include-all-descendent-pages" name='<%= "includeChildren_" + curLayout.getPlid() %>' type="checkbox" value="1" />
+			<aui:input checked="<%= false %>" label="include-all-descendent-pages" name='<%= "includeChildren_" + curLayout.getPlid() %>' type="checkbox" value="<%= false %>" />
 		</c:if>
 	</div>
 </div>
 
 <aui:script use="aui-base">
-	var ancestorsMsg = A.one('#<portlet:namespace /><%= curLayout.getPlid() %>includeAncestor');
 	var childrenMsg = A.one('#<portlet:namespace /><%= curLayout.getPlid() %>includeChildren');
 	var deleteMsg = A.one('#<portlet:namespace /><%= curLayout.getPlid() %>deleteLivePage');
 	var publishOptions = A.one('#<portlet:namespace />publishChangesOptions_<%= curLayout.getPlid() %>');
 
-	var ancestorsCheckbox = A.one('#<portlet:namespace />includeAncestors_<%= curLayout.getPlid() %>Checkbox');
 	var childrenCheckbox = A.one('#<portlet:namespace />includeChildren_<%= curLayout.getPlid() %>Checkbox');
 
 	var radioButtons = A.all('#_detail_<%= curLayout.getPlid() %> input[type=radio]');
-
-	<c:if test="<%= !curLayout.getAncestors().isEmpty() %>">
-		ancestorsCheckbox.on(
-			'change',
-			function(event) {
-				ancestorsMsg.toggle();
-			}
-		);
-	</c:if>
 
 	<c:if test="<%= !curLayout.getChildren().isEmpty() %>">
 		childrenCheckbox.on(
@@ -89,13 +72,8 @@ Layout curLayout = (Layout)row.getObject();
 
 			if (event.currentTarget.get('value') == 'true') {
 				childrenMsg.hide();
-				ancestorsMsg.hide();
 			}
 			else {
-				if (ancestorsCheckbox && ancestorsCheckbox.get('checked')) {
-					ancestorsMsg.show();
-				}
-
 				if (childrenCheckbox && childrenCheckbox.get('checked')) {
 					childrenMsg.show();
 				}

@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.social.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link SocialActivityAchievement}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       SocialActivityAchievement
+ * @author Brian Wing Shun Chan
+ * @see SocialActivityAchievement
  * @generated
  */
 public class SocialActivityAchievementWrapper
@@ -402,6 +403,26 @@ public class SocialActivityAchievementWrapper
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_socialActivityAchievement.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof SocialActivityAchievementWrapper)) {
+			return false;
+		}
+
+		SocialActivityAchievementWrapper socialActivityAchievementWrapper = (SocialActivityAchievementWrapper)obj;
+
+		if (Validator.equals(_socialActivityAchievement,
+					socialActivityAchievementWrapper._socialActivityAchievement)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

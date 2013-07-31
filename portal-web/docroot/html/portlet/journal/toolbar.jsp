@@ -25,25 +25,27 @@ String strutsAction = ParamUtil.getString(request, "struts_action");
 		<aui:nav-item cssClass="hide" dropdown="<%= true %>" id="actionsButtonContainer" label="actions">
 
 			<%
-			String taglibOnClick = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + (TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE) + "'});";
+			String taglibURL = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.EXPIRE + "'});";
 			%>
 
-			<aui:nav-item href="<%= taglibOnClick %>" iconClass="icon-trash" label="delete" />
+			<aui:nav-item href="<%= taglibURL %>" label="expire" />
 
 			<%
-			taglibOnClick = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.EXPIRE + "'});";
+			taglibURL = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.MOVE + "'});";
 			%>
 
-			<aui:nav-item href="<%= taglibOnClick %>" label="expire" />
+			<aui:nav-item href="<%= taglibURL %>" label="move" />
 
 			<%
-			taglibOnClick = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.MOVE + "'});";
+			taglibURL = "javascript:" + renderResponse.getNamespace() + "deleteEntries();";
 			%>
 
-			<aui:nav-item href="<%= taglibOnClick %>" label="move" />
+			<aui:nav-item href="<%= taglibURL %>" iconClass='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "icon-trash" : "icon-remove" %>' label='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "move-to-the-recycle-bin" : "delete" %>' />
 		</aui:nav-item>
 
 		<liferay-util:include page="/html/portlet/journal/add_button.jsp" />
+
+		<liferay-util:include page="/html/portlet/journal/sort_button.jsp" />
 
 		<c:if test="<%= !user.isDefaultUser() %>">
 			<aui:nav-item dropdown="<%= true %>" label="manage">
@@ -99,9 +101,21 @@ String strutsAction = ParamUtil.getString(request, "struts_action");
 	Portlet portlet = PortletLocalServiceUtil.getPortletById(portletDisplay.getId());
 	%>
 
+	function <portlet:namespace />deleteEntries() {
+		if (<%= TrashUtil.isTrashEnabled(scopeGroupId) %> || confirm(' <%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
+			Liferay.fire(
+				'<%= renderResponse.getNamespace() %>editEntry',
+				{
+					action: '<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>'
+				}
+			);
+		}
+	}
+
 	function <portlet:namespace />openStructuresView() {
 		Liferay.Util.openDDMPortlet(
 			{
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletKeys.DYNAMIC_DATA_MAPPING, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 				dialog: {
 					destroyOnHide: true
 				},
@@ -117,10 +131,10 @@ String strutsAction = ParamUtil.getString(request, "struts_action");
 	function <portlet:namespace />openTemplatesView() {
 		Liferay.Util.openDDMPortlet(
 			{
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletKeys.DYNAMIC_DATA_MAPPING, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 				classNameId: '<%= PortalUtil.getClassNameId(DDMStructure.class) %>',
-				classPK: -1,
 				dialog: {
-					width: 820
+					destroyOnHide: true
 				},
 				groupId: <%= scopeGroupId %>,
 				refererPortletName: '<%= PortletKeys.JOURNAL %>',

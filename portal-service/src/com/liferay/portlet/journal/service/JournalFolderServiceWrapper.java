@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link JournalFolderService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalFolderService
+ * @author Brian Wing Shun Chan
+ * @see JournalFolderService
  * @generated
  */
 public class JournalFolderServiceWrapper implements JournalFolderService,
@@ -163,6 +163,13 @@ public class JournalFolderServiceWrapper implements JournalFolderService,
 	public int getFoldersCount(long groupId, long parentFolderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalFolderService.getFoldersCount(groupId, parentFolderId);
+	}
+
+	@Override
+	public int getFoldersCount(long groupId, long parentFolderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolderService.getFoldersCount(groupId, parentFolderId,
+			status);
 	}
 
 	@Override

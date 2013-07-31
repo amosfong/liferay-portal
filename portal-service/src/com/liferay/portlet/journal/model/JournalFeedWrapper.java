@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link JournalFeed}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalFeed
+ * @author Brian Wing Shun Chan
+ * @see JournalFeed
  * @generated
  */
 public class JournalFeedWrapper implements JournalFeed,
@@ -824,6 +826,30 @@ public class JournalFeedWrapper implements JournalFeed,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_journalFeed.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof JournalFeedWrapper)) {
+			return false;
+		}
+
+		JournalFeedWrapper journalFeedWrapper = (JournalFeedWrapper)obj;
+
+		if (Validator.equals(_journalFeed, journalFeedWrapper._journalFeed)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _journalFeed.getStagedModelType();
 	}
 
 	/**

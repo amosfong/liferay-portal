@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link WebDAVPropsLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       WebDAVPropsLocalService
+ * @author Brian Wing Shun Chan
+ * @see WebDAVPropsLocalService
  * @generated
  */
 public class WebDAVPropsLocalServiceWrapper implements WebDAVPropsLocalService,
@@ -162,6 +162,23 @@ public class WebDAVPropsLocalServiceWrapper implements WebDAVPropsLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _webDAVPropsLocalService.dynamicQueryCount(dynamicQuery);
+	}
+
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _webDAVPropsLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
 	}
 
 	@Override

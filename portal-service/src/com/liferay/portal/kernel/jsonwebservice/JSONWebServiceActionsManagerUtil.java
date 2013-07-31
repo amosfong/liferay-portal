@@ -65,15 +65,15 @@ public class JSONWebServiceActionsManagerUtil {
 			contextPath);
 	}
 
+	public static int getJSONWebServiceActionsCount(String contextPath) {
+		return getJSONWebServiceActionsManager().getJSONWebServiceActionsCount(
+			contextPath);
+	}
+
 	public static JSONWebServiceActionsManager
 		getJSONWebServiceActionsManager() {
 
 		return _jsonWebServiceActionsManager;
-	}
-
-	public static int getJSONWebServiceActionsCount(String contextPath) {
-		return getJSONWebServiceActionsManager().getJSONWebServiceActionsCount(
-			contextPath);
 	}
 
 	public static void registerJSONWebServiceAction(
@@ -82,6 +82,19 @@ public class JSONWebServiceActionsManagerUtil {
 
 		getJSONWebServiceActionsManager().registerJSONWebServiceAction(
 			contextPath, actionClass, actionMethod, path, method);
+	}
+
+	public static void registerJSONWebServiceAction(
+		String contextPath, Object actionObject, Class<?> actionClass,
+		Method actionMethod, String path, String method) {
+
+		getJSONWebServiceActionsManager().registerJSONWebServiceAction(
+			contextPath, actionObject, actionClass, actionMethod, path, method);
+	}
+
+	public static int unregisterJSONWebServiceActions(Object actionObject) {
+		return getJSONWebServiceActionsManager().
+			unregisterJSONWebServiceActions(actionObject);
 	}
 
 	public static int unregisterJSONWebServiceActions(String contextPath) {

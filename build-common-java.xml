@@ -157,7 +157,7 @@
 			breakiterator="yes"
 			classpathref="project.classpath"
 			destdir="${doc.dir}/${ant.project.name}/javadocs"
-			maxmemory="768m"
+			maxmemory="2048m"
 			packagenames="*.*"
 			sourcepath="src"
 			stylesheetfile="${project.dir}/tools/javadoc.css"

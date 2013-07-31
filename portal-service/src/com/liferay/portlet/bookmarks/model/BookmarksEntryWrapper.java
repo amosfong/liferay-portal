@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.bookmarks.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link BookmarksEntry}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       BookmarksEntry
+ * @author Brian Wing Shun Chan
+ * @see BookmarksEntry
  * @generated
  */
 public class BookmarksEntryWrapper implements BookmarksEntry,
@@ -837,18 +839,49 @@ public class BookmarksEntryWrapper implements BookmarksEntry,
 	}
 
 	@Override
-	public com.liferay.portlet.bookmarks.model.BookmarksFolder getFolder() {
+	public com.liferay.portlet.bookmarks.model.BookmarksFolder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _bookmarksEntry.getFolder();
 	}
 
 	@Override
-	public com.liferay.portlet.bookmarks.model.BookmarksFolder getTrashContainer() {
+	public com.liferay.portlet.bookmarks.model.BookmarksFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _bookmarksEntry.getTrashContainer();
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _bookmarksEntry.isInTrashContainer();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof BookmarksEntryWrapper)) {
+			return false;
+		}
+
+		BookmarksEntryWrapper bookmarksEntryWrapper = (BookmarksEntryWrapper)obj;
+
+		if (Validator.equals(_bookmarksEntry,
+					bookmarksEntryWrapper._bookmarksEntry)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _bookmarksEntry.getStagedModelType();
 	}
 
 	/**

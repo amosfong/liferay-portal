@@ -30,10 +30,6 @@ long userGroupId = BeanParamUtil.getLong(userGroup, request, "userGroupId");
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="userGroupId" type="hidden" value="<%= userGroupId %>" />
 
-	<liferay-util:include page="/html/portlet/user_groups_admin/toolbar.jsp">
-		<liferay-util:param name="toolbarItem" value='<%= (userGroup == null) ? "add" : "view" %>' />
-	</liferay-util:include>
-
 	<liferay-ui:header
 		backURL="<%= backURL %>"
 		localizeTitle="<%= (userGroup == null) %>"
@@ -47,13 +43,7 @@ long userGroupId = BeanParamUtil.getLong(userGroup, request, "userGroupId");
 	<aui:model-context bean="<%= userGroup %>" model="<%= UserGroup.class %>" />
 
 	<aui:fieldset>
-		<c:if test="<%= userGroup != null %>">
-			<aui:field-wrapper label="old-name">
-				<%= HtmlUtil.escape(userGroup.getName()) %>
-			</aui:field-wrapper>
-		</c:if>
-
-		<aui:input label='<%= (userGroup != null) ? "new-name" : "name" %>' name="name" />
+		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" label='<%= (userGroup != null) ? "new-name" : "name" %>' name="name" />
 
 		<aui:input name="description" />
 
@@ -284,12 +274,9 @@ long userGroupId = BeanParamUtil.getLong(userGroup, request, "userGroupId");
 
 	function <portlet:namespace />saveUserGroup() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (userGroup == null) ? Constants.ADD : Constants.UPDATE %>";
+
 		submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/users_admin/edit_user_group" /></portlet:actionURL>");
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
-	</c:if>
 
 	Liferay.Util.toggleSelectBox('<portlet:namespace />publicLayoutSetPrototypeId', <portlet:namespace />isVisible, '<portlet:namespace />publicLayoutSetPrototypeIdOptions');
 	Liferay.Util.toggleSelectBox('<portlet:namespace />privateLayoutSetPrototypeId', <portlet:namespace />isVisible, '<portlet:namespace />privateLayoutSetPrototypeIdOptions');

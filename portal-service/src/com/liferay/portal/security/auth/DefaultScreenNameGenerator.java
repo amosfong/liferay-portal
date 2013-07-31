@@ -14,9 +14,6 @@
 
 package com.liferay.portal.security.auth;
 
-import com.liferay.portal.NoSuchGroupException;
-import com.liferay.portal.NoSuchUserException;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,46 +78,39 @@ public class DefaultScreenNameGenerator implements ScreenNameGenerator {
 			}
 		}
 
-		try {
-			UserLocalServiceUtil.getUserByScreenName(companyId, screenName);
+		if (UserLocalServiceUtil.fetchUserByScreenName(
+				companyId, screenName) != null) {
+
+			return getUnusedScreenName(companyId, screenName);
 		}
-		catch (NoSuchUserException nsue) {
-			try {
-				GroupLocalServiceUtil.getFriendlyURLGroup(
-					companyId, StringPool.SLASH + screenName);
-			}
-			catch (NoSuchGroupException nsge) {
-				return screenName;
-			}
+
+		if (GroupLocalServiceUtil.fetchFriendlyURLGroup(
+				companyId, StringPool.SLASH + screenName) == null) {
+
+			return screenName;
 		}
 
 		return getUnusedScreenName(companyId, screenName);
 	}
 
 	protected String getUnusedScreenName(long companyId, String screenName)
-		throws PortalException, SystemException {
+		throws SystemException {
 
 		for (int i = 1;; i++) {
 			String tempScreenName = screenName + StringPool.PERIOD + i;
 
-			try {
-				UserLocalServiceUtil.getUserByScreenName(
-					companyId, tempScreenName);
-			}
-			catch (NoSuchUserException nsue) {
-				try {
-					GroupLocalServiceUtil.getFriendlyURLGroup(
-						companyId, StringPool.SLASH + tempScreenName);
-				}
-				catch (NoSuchGroupException nsge) {
-					screenName = tempScreenName;
+			if (UserLocalServiceUtil.fetchUserByScreenName(
+					companyId, tempScreenName) != null) {
 
-					break;
-				}
+				continue;
+			}
+
+			if (GroupLocalServiceUtil.fetchFriendlyURLGroup(
+					companyId, StringPool.SLASH + tempScreenName) == null) {
+
+				return tempScreenName;
 			}
 		}
-
-		return screenName;
 	}
 
 	private static final String[] _ADMIN_RESERVED_SCREEN_NAMES =

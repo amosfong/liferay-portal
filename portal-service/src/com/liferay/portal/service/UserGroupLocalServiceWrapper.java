@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link UserGroupLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       UserGroupLocalService
+ * @author Brian Wing Shun Chan
+ * @see UserGroupLocalService
  * @generated
  */
 public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
@@ -164,10 +164,42 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 		return _userGroupLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portal.model.UserGroup fetchUserGroup(long userGroupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _userGroupLocalService.fetchUserGroup(userGroupId);
+	}
+
+	/**
+	* Returns the user group with the matching UUID and company.
+	*
+	* @param uuid the user group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user group, or <code>null</code> if a matching user group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.UserGroup fetchUserGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupLocalService.fetchUserGroupByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -191,6 +223,24 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _userGroupLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the user group with the matching UUID and company.
+	*
+	* @param uuid the user group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user group
+	* @throws PortalException if a matching user group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.UserGroup getUserGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupLocalService.getUserGroupByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -841,14 +891,6 @@ public class UserGroupLocalServiceWrapper implements UserGroupLocalService,
 		java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _userGroupLocalService.fetchUserGroup(companyId, name);
-	}
-
-	@Override
-	public com.liferay.portal.model.UserGroup fetchUserGroupByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _userGroupLocalService.fetchUserGroupByUuidAndCompanyId(uuid,
-			companyId);
 	}
 
 	/**

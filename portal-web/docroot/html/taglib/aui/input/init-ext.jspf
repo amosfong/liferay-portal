@@ -21,6 +21,7 @@ if (!useNamespace) {
 
 String baseType = GetterUtil.getString((String)request.getAttribute("aui:input:baseType"));
 String forLabel = namespace + GetterUtil.getString((String)request.getAttribute("aui:input:forLabel"));
+boolean wrappedField = GetterUtil.getBoolean(String.valueOf(request.getAttribute("aui:input:wrappedField")));
 
 if (Validator.isNull(label) && changesContext) {
 	StringBundler sb = new StringBundler(5);
@@ -60,12 +61,14 @@ if (choiceField && Validator.isNull(inlineLabel)) {
 
 String addOnCss = StringPool.BLANK;
 
-if (Validator.isNotNull(prefix)) {
-	addOnCss = addOnCss.concat("input-prepend ");
-}
+if (helpTextCssClass.equals("add-on")) {
+	if (Validator.isNotNull(prefix)) {
+		addOnCss = addOnCss.concat("input-prepend ");
+	}
 
-if (Validator.isNotNull(suffix)) {
-	addOnCss = addOnCss.concat("input-append");
+	if (Validator.isNotNull(suffix)) {
+		addOnCss = addOnCss.concat("input-append");
+	}
 }
 
 String controlGroupCss = "control-group";

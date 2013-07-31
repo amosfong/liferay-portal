@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link PortletItem}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PortletItem
+ * @author Brian Wing Shun Chan
+ * @see PortletItem
  * @generated
  */
 public class PortletItemWrapper implements PortletItem,
@@ -483,6 +485,25 @@ public class PortletItemWrapper implements PortletItem,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_portletItem.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PortletItemWrapper)) {
+			return false;
+		}
+
+		PortletItemWrapper portletItemWrapper = (PortletItemWrapper)obj;
+
+		if (Validator.equals(_portletItem, portletItemWrapper._portletItem)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

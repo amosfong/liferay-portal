@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link UserLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       UserLocalService
+ * @author Brian Wing Shun Chan
+ * @see UserLocalService
  * @generated
  */
 public class UserLocalServiceWrapper implements UserLocalService,
@@ -163,10 +163,41 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		return _userLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portal.model.User fetchUser(long userId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _userLocalService.fetchUser(userId);
+	}
+
+	/**
+	* Returns the user with the matching UUID and company.
+	*
+	* @param uuid the user's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user, or <code>null</code> if a matching user could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.User fetchUserByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userLocalService.fetchUserByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -190,6 +221,23 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _userLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the user with the matching UUID and company.
+	*
+	* @param uuid the user's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user
+	* @throws PortalException if a matching user could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.User getUserByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _userLocalService.getUserByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -1662,6 +1710,22 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	}
 
 	/**
+	* Returns the user with the Facebook ID.
+	*
+	* @param companyId the primary key of the user's company
+	* @param facebookId the user's Facebook ID
+	* @return the user with the Facebook ID, or <code>null</code> if a user
+	with the Facebook ID could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.User fetchUserByFacebookId(long companyId,
+		long facebookId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userLocalService.fetchUserByFacebookId(companyId, facebookId);
+	}
+
+	/**
 	* Returns the user with the primary key.
 	*
 	* @param userId the primary key of the user
@@ -1673,6 +1737,22 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	public com.liferay.portal.model.User fetchUserById(long userId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _userLocalService.fetchUserById(userId);
+	}
+
+	/**
+	* Returns the user with the OpenID.
+	*
+	* @param companyId the primary key of the user's company
+	* @param openId the user's OpenID
+	* @return the user with the OpenID, or <code>null</code> if a user with the
+	OpenID could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.User fetchUserByOpenId(long companyId,
+		java.lang.String openId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userLocalService.fetchUserByOpenId(companyId, openId);
 	}
 
 	/**
@@ -2254,23 +2334,6 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _userLocalService.getUserByUuid(uuid);
-	}
-
-	/**
-	* Returns the user with the UUID.
-	*
-	* @param uuid the user's UUID
-	* @param companyId the primary key of the user's company
-	* @return the user with the UUID
-	* @throws PortalException if a user with the UUID could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	@Override
-	public com.liferay.portal.model.User getUserByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _userLocalService.getUserByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

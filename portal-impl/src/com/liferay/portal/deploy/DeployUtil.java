@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.spring.context.PortalContextLoaderListener;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -73,6 +74,8 @@ public class DeployUtil {
 			destDir = getAutoDeployServerDestDir();
 		}
 
+		FileUtil.mkdirs(destDir);
+
 		return destDir;
 	}
 
@@ -86,11 +89,12 @@ public class DeployUtil {
 
 			String name = "auto.deploy." + serverId + ".dest.dir";
 
-			PortletPreferences preferences = PrefsPropsUtil.getPreferences();
+			PortletPreferences portletPreferences =
+				PrefsPropsUtil.getPreferences();
 
 			String value = PropsUtil.get(name, new Filter("5"));
 
-			destDir = preferences.getValue(name, value);
+			destDir = portletPreferences.getValue(name, value);
 		}
 		else if (serverId.equals(ServerDetector.TOMCAT_ID)) {
 			destDir = PrefsPropsUtil.getString(
@@ -239,7 +243,8 @@ public class DeployUtil {
 
 	private static boolean _isPortalContext(String context) {
 		if (Validator.isNull(context) || context.equals(StringPool.SLASH) ||
-			context.equals(PropsValues.PORTAL_CTX)) {
+			context.equals(
+				PortalContextLoaderListener.getPortalServletContextPath())) {
 
 			return true;
 		}

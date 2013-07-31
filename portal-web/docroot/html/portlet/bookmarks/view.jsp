@@ -21,11 +21,15 @@ String topLink = ParamUtil.getString(request, "topLink", "home");
 
 BookmarksFolder folder = (BookmarksFolder)request.getAttribute(WebKeys.BOOKMARKS_FOLDER);
 
-long defaultFolderId = GetterUtil.getLong(preferences.getValue("rootFolderId", StringPool.BLANK), BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+long folderId = BeanParamUtil.getLong(folder, request, "folderId", rootFolderId);
 
-long folderId = BeanParamUtil.getLong(folder, request, "folderId", defaultFolderId);
+boolean defaultFolderView = false;
 
-if ((folder == null) && (defaultFolderId != BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
+if ((folder == null) && (folderId != BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
+	defaultFolderView = true;
+}
+
+if (defaultFolderView) {
 	try {
 		folder = BookmarksFolderServiceUtil.getFolder(folderId);
 	}
@@ -55,6 +59,10 @@ request.setAttribute("view.jsp-folderId", String.valueOf(folderId));
 request.setAttribute("view.jsp-viewFolder", Boolean.TRUE.toString());
 
 request.setAttribute("view.jsp-useAssetEntryQuery", String.valueOf(useAssetEntryQuery));
+
+if (folder != null) {
+	BookmarksUtil.addPortletBreadcrumbEntries(folder, request, renderResponse);
+}
 %>
 
 <portlet:actionURL var="undoTrashURL">
@@ -198,13 +206,9 @@ request.setAttribute("view.jsp-useAssetEntryQuery", String.valueOf(useAssetEntry
 		</aui:row>
 
 		<%
-		if (folder != null) {
-			BookmarksUtil.addPortletBreadcrumbEntries(folder, request, renderResponse);
-
-			if (portletName.equals(PortletKeys.BOOKMARKS)) {
-				PortalUtil.setPageSubtitle(folder.getName(), request);
-				PortalUtil.setPageDescription(folder.getDescription(), request);
-			}
+		if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.BOOKMARKS)) {
+			PortalUtil.setPageSubtitle(folder.getName(), request);
+			PortalUtil.setPageDescription(folder.getDescription(), request);
 		}
 		%>
 
@@ -264,7 +268,9 @@ request.setAttribute("view.jsp-useAssetEntryQuery", String.valueOf(useAssetEntry
 		</aui:row>
 
 		<%
-		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, topLink), currentURL);
+		if (!layout.isTypeControlPanel()) {
+			PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, topLink), currentURL);
+		}
 
 		PortalUtil.setPageSubtitle(LanguageUtil.get(pageContext, StringUtil.replace(topLink, StringPool.UNDERLINE, StringPool.DASH)), request);
 		%>

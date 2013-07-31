@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DLFileRankLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileRankLocalService
+ * @author Brian Wing Shun Chan
+ * @see DLFileRankLocalService
  * @generated
  */
 public class DLFileRankLocalServiceWrapper implements DLFileRankLocalService,
@@ -166,6 +166,23 @@ public class DLFileRankLocalServiceWrapper implements DLFileRankLocalService,
 		return _dlFileRankLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileRankLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileRank fetchDLFileRank(
 		long fileRankId)
@@ -195,24 +212,6 @@ public class DLFileRankLocalServiceWrapper implements DLFileRankLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileRankLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	/**
-	* Returns the document library file rank matching the UUID and group.
-	*
-	* @param uuid the document library file rank's UUID
-	* @param groupId the primary key of the group
-	* @return the matching document library file rank
-	* @throws PortalException if a matching document library file rank could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFileRank getDLFileRankByUuidAndGroupId(
-		java.lang.String uuid, long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _dlFileRankLocalService.getDLFileRankByUuidAndGroupId(uuid,
-			groupId);
 	}
 
 	/**
@@ -284,8 +283,7 @@ public class DLFileRankLocalServiceWrapper implements DLFileRankLocalService,
 	public com.liferay.portlet.documentlibrary.model.DLFileRank addFileRank(
 		long groupId, long companyId, long userId, long fileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileRankLocalService.addFileRank(groupId, companyId, userId,
 			fileEntryId, serviceContext);
 	}
@@ -359,8 +357,7 @@ public class DLFileRankLocalServiceWrapper implements DLFileRankLocalService,
 	public com.liferay.portlet.documentlibrary.model.DLFileRank updateFileRank(
 		long groupId, long companyId, long userId, long fileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileRankLocalService.updateFileRank(groupId, companyId,
 			userId, fileEntryId, serviceContext);
 	}

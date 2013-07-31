@@ -15,7 +15,6 @@
 package com.liferay.portal.staging;
 
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
-import com.liferay.portal.kernel.staging.StagingConstants;
 import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -26,6 +25,8 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
+import com.liferay.portal.test.Sync;
+import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
 import com.liferay.portal.test.TransactionalExecutionTestListener;
 import com.liferay.portal.util.GroupTestUtil;
 import com.liferay.portal.util.LayoutTestUtil;
@@ -52,9 +53,11 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(listeners = {
 	MainServletExecutionTestListener.class,
+	SynchronousDestinationExecutionTestListener.class,
 	TransactionalExecutionTestListener.class
 })
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
+@Sync
 @Transactional
 public class StagingImplTest {
 
@@ -119,28 +122,35 @@ public class StagingImplTest {
 		Map<String, String[]> parameters = StagingUtil.getStagingParameters();
 
 		parameters.put(
-			PortletDataHandlerKeys.PORTLET_DATA_ALL,
-			new String[] {String.valueOf(false)});
-
+			PortletDataHandlerKeys.CATEGORIES,
+			new String[] {String.valueOf(stageCategories)});
+		parameters.put(
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION + "_" +
+				PortletKeys.JOURNAL,
+			new String[] {String.valueOf(stageJournal)});
+		parameters.put(
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION_ALL,
+			new String[] {Boolean.FALSE.toString()});
 		parameters.put(
 			PortletDataHandlerKeys.PORTLET_DATA + "_" + PortletKeys.JOURNAL,
 			new String[] {String.valueOf(stageJournal)});
+		parameters.put(
+			PortletDataHandlerKeys.PORTLET_DATA_ALL,
+			new String[] {Boolean.FALSE.toString()});
+		parameters.put(
+			PortletDataHandlerKeys.PORTLET_SETUP + "_" + PortletKeys.JOURNAL,
+			new String[] {String.valueOf(stageJournal)});
 
-		parameters.put(PortletDataHandlerKeys.CATEGORIES, new String[] {
-			String.valueOf(stageCategories)});
+		serviceContext.setAttribute(
+			StagingUtil.getStagedPortletId(PortletDataHandlerKeys.CATEGORIES),
+			stageCategories);
+		serviceContext.setAttribute(
+			StagingUtil.getStagedPortletId(PortletKeys.JOURNAL), stageJournal);
 
 		for (String parameterName : parameters.keySet()) {
 			serviceContext.setAttribute(
 				parameterName, parameters.get(parameterName)[0]);
 		}
-
-		serviceContext.setAttribute(
-			StagingConstants.STAGED_PORTLET + PortletKeys.JOURNAL,
-			stageJournal);
-
-		serviceContext.setAttribute(
-			StagingConstants.STAGED_PORTLET + PortletDataHandlerKeys.CATEGORIES,
-				stageCategories);
 
 		// Enable staging
 
@@ -153,8 +163,8 @@ public class StagingImplTest {
 		Assert.assertNotNull(stagingGroup);
 
 		Assert.assertEquals(
-			LayoutLocalServiceUtil.getLayoutsCount(stagingGroup, false),
-			initialPagesCount);
+			initialPagesCount,
+			LayoutLocalServiceUtil.getLayoutsCount(stagingGroup, false));
 
 		// Update content in staging
 

@@ -146,6 +146,8 @@ portletURL.setParameter("fileShortcutId", String.valueOf(fileShortcutId));
 </portlet:renderURL>
 
 <aui:script use="aui-base,escape">
+	var selectToFileEntryButton = A.one('#<portlet:namespace />selectToFileEntryButton');
+
 	A.one('#<portlet:namespace />selectGroupButton').on(
 		'click',
 		function(event) {
@@ -154,7 +156,6 @@ portletURL.setParameter("fileShortcutId", String.valueOf(fileShortcutId));
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: '<portlet:namespace />selectGroup',
@@ -175,18 +176,13 @@ portletURL.setParameter("fileShortcutId", String.valueOf(fileShortcutId));
 
 					nameEl.innerHTML = A.Escape.html(event.groupname) + "&nbsp;";
 
-					var button = A.one('#<portlet:namespace />selectToFileEntryButton');
-
-					if (button) {
-						button.set('disabled', false);
-						button.ancestor('.button').removeClass('button-disabled');
-					}
+					Liferay.Util.toggleDisabled(selectToFileEntryButton, false);
 				}
 			);
 		}
 	);
 
-	A.one('#<portlet:namespace />selectToFileEntryButton').on(
+	selectToFileEntryButton.on(
 		'click',
 		function(event) {
 			Liferay.Util.selectEntity(
@@ -194,7 +190,6 @@ portletURL.setParameter("fileShortcutId", String.valueOf(fileShortcutId));
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: <portlet:namespace />createSelectFileEntryId(),
@@ -223,6 +218,7 @@ portletURL.setParameter("fileShortcutId", String.valueOf(fileShortcutId));
 
 	function <portlet:namespace />saveFileShortcut() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (fileShortcut == null) ? Constants.ADD : Constants.UPDATE %>";
+
 		submitForm(document.<portlet:namespace />fm);
 	}
 

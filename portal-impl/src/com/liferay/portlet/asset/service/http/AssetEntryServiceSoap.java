@@ -55,10 +55,10 @@ import java.rmi.RemoteException;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       AssetEntryServiceHttp
- * @see       com.liferay.portlet.asset.model.AssetEntrySoap
- * @see       com.liferay.portlet.asset.service.AssetEntryServiceUtil
+ * @author Brian Wing Shun Chan
+ * @see AssetEntryServiceHttp
+ * @see com.liferay.portlet.asset.model.AssetEntrySoap
+ * @see com.liferay.portlet.asset.service.AssetEntryServiceUtil
  * @generated
  */
 public class AssetEntryServiceSoap {
@@ -211,7 +211,7 @@ public class AssetEntryServiceSoap {
 
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, Date,
-	Date. String, long, String, long, long[], String[], boolean,
+	Date, String, long, String, long, long[], String[], boolean,
 	Date, Date, Date, String, String, String, String, String,
 	String, int, int, Integer, boolean)}
 	*/

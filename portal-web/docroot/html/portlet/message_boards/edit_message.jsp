@@ -74,12 +74,37 @@ if (Validator.isNull(redirect)) {
 
 	redirect = viewMessageURL.toString();
 }
+
+if (curParentMessage != null) {
+
+	MBUtil.addPortletBreadcrumbEntries(curParentMessage, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "reply"), currentURL);
+	}
+}
+else if (message != null) {
+	MBUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
+	}
+}
+else {
+	MBUtil.addPortletBreadcrumbEntries(categoryId, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-message"), currentURL);
+	}
+}
 %>
+
+<liferay-util:include page="/html/portlet/message_boards/top_links.jsp" />
 
 <liferay-ui:header
 	backURL="<%= redirect %>"
 	localizeTitle="<%= (message == null) %>"
-	title='<%= (message == null) ? "new-message" : message.getSubject() %>'
+	title='<%= (curParentMessage != null) ? LanguageUtil.format(pageContext, "reply-to-x", curParentMessage.getSubject()) : (message == null) ? "add-message" : LanguageUtil.format(pageContext, "edit-x", message.getSubject()) %>'
 />
 
 <c:if test="<%= preview %>">
@@ -179,7 +204,7 @@ if (Validator.isNull(redirect)) {
 			<aui:workflow-status status="<%= message.getStatus() %>" />
 		</c:if>
 
-		<aui:input name="subject" value="<%= subject %>" />
+		<aui:input autoFocus="<%= (windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook()) %>" name="subject" value="<%= subject %>" />
 
 		<aui:field-wrapper label="body">
 			<c:choose>
@@ -233,7 +258,7 @@ if (Validator.isNull(redirect)) {
 		</c:if>
 
 		<c:if test="<%= (message == null) && themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
-			<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (MBUtil.getEmailMessageAddedEnabled(preferences) || MBUtil.getEmailMessageUpdatedEnabled(preferences)) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
+			<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (MBUtil.getEmailMessageAddedEnabled(portletPreferences) || MBUtil.getEmailMessageUpdatedEnabled(portletPreferences)) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
 		</c:if>
 
 		<c:if test="<%= (priorities.length > 0) && MBCategoryPermission.contains(permissionChecker, scopeGroupId, categoryId, ActionKeys.UPDATE_THREAD_PRIORITY) %>">
@@ -554,10 +579,6 @@ if (Validator.isNull(redirect)) {
 			);
 		</c:otherwise>
 	</c:choose>
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook() %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />subject);
-	</c:if>
 </aui:script>
 
 <c:if test="<%= TrashUtil.isTrashEnabled(scopeGroupId) %>">
@@ -584,21 +605,3 @@ if (Validator.isNull(redirect)) {
 
 	</aui:script>
 </c:if>
-
-<%
-if (curParentMessage != null) {
-	MBUtil.addPortletBreadcrumbEntries(curParentMessage, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "reply"), currentURL);
-}
-else if (message != null) {
-	MBUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
-}
-else {
-	MBUtil.addPortletBreadcrumbEntries(categoryId, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-message"), currentURL);
-}
-%>

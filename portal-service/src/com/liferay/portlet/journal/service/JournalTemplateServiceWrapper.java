@@ -19,8 +19,10 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link JournalTemplateService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalTemplateService
+ * @author Brian Wing Shun Chan
+ * @see JournalTemplateService
+ * @deprecated As of 6.2.0, since Web Content Administration now uses the
+Dynamic Data Mapping framework to handle templates
  * @generated
  */
 public class JournalTemplateServiceWrapper implements JournalTemplateService,
@@ -104,7 +106,8 @@ public class JournalTemplateServiceWrapper implements JournalTemplateService,
 	@Override
 	public java.util.List<com.liferay.portlet.journal.model.JournalTemplate> getStructureTemplates(
 		long groupId, java.lang.String structureId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _journalTemplateService.getStructureTemplates(groupId,
 			structureId);
 	}

@@ -299,7 +299,7 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 
 		if (trashActionId.equals(TrashActionKeys.MOVE)) {
 			return MBCategoryPermission.contains(
-				permissionChecker, groupId, classPK, ActionKeys.ADD_FOLDER);
+				permissionChecker, groupId, classPK, ActionKeys.ADD_CATEGORY);
 		}
 
 		return super.hasTrashPermission(
@@ -339,6 +339,13 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 		throws PortalException, SystemException {
 
 		MBCategory category = MBCategoryLocalServiceUtil.getCategory(classPK);
+
+		if ((category.getParentCategoryId() > 0) &&
+			(MBCategoryLocalServiceUtil.fetchMBCategory(
+				category.getParentCategoryId()) == null)) {
+
+			return false;
+		}
 
 		return !category.isInTrashContainer();
 	}

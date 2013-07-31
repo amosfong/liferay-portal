@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link ExpandoRowLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       ExpandoRowLocalService
+ * @author Brian Wing Shun Chan
+ * @see ExpandoRowLocalService
  * @generated
  */
 public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
@@ -166,6 +166,23 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 		return _expandoRowLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _expandoRowLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoRow fetchExpandoRow(
 		long rowId) throws com.liferay.portal.kernel.exception.SystemException {
@@ -305,6 +322,12 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 			com.liferay.portal.kernel.exception.SystemException {
 		_expandoRowLocalService.deleteRow(companyId, className, tableName,
 			classPK);
+	}
+
+	@Override
+	public void deleteRows(long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		_expandoRowLocalService.deleteRows(classPK);
 	}
 
 	@Override

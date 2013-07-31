@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ResourceAction}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ResourceAction
+ * @author Brian Wing Shun Chan
+ * @see ResourceAction
  * @generated
  */
 public class ResourceActionWrapper implements ResourceAction,
@@ -283,6 +285,26 @@ public class ResourceActionWrapper implements ResourceAction,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_resourceAction.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ResourceActionWrapper)) {
+			return false;
+		}
+
+		ResourceActionWrapper resourceActionWrapper = (ResourceActionWrapper)obj;
+
+		if (Validator.equals(_resourceAction,
+					resourceActionWrapper._resourceAction)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -14,13 +14,11 @@
 
 package com.liferay.portlet.journal.util;
 
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -28,9 +26,9 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.test.EnvironmentExecutionTestListener;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.TransactionalExecutionTestListener;
+import com.liferay.portal.util.CompanyTestUtil;
 import com.liferay.portal.util.GroupTestUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.TestPropsValues;
 import com.liferay.portlet.dynamicdatamapping.StructureNameException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -42,8 +40,6 @@ import com.liferay.portlet.journal.model.JournalFolder;
 
 import java.util.Locale;
 import java.util.Map;
-
-import javax.portlet.PortletPreferences;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -124,13 +120,14 @@ public class JournalTestUtilTest {
 	public void testAddDDMStructureWithLocale() throws Exception {
 		Assert.assertNotNull(
 			DDMStructureTestUtil.addStructure(
-				JournalArticle.class.getName(), LocaleUtil.getDefault()));
+				JournalArticle.class.getName(), LocaleUtil.getSiteDefault()));
 	}
 
 	@Test
 	public void testAddDDMStructureWithNonexistingLocale() throws Exception {
 		try {
-			resetCompanyLanguages("en_US");
+			CompanyTestUtil.resetCompanyLocales(
+				PortalUtil.getDefaultCompanyId(), "en_US");
 
 			DDMStructureTestUtil.addStructure(
 				JournalArticle.class.getName(), Locale.CANADA);
@@ -151,7 +148,7 @@ public class JournalTestUtilTest {
 	public void testAddDDMStructureWithXSDAndLocale() throws Exception {
 		Assert.assertNotNull(
 			DDMStructureTestUtil.addStructure(
-				JournalArticle.class.getName(), LocaleUtil.getDefault()));
+				JournalArticle.class.getName(), LocaleUtil.getSiteDefault()));
 	}
 
 	@Test
@@ -229,7 +226,7 @@ public class JournalTestUtilTest {
 	public void testCreateLocalizedContent() {
 		Assert.assertNotNull(
 			JournalTestUtil.createLocalizedContent(
-				"This is localized content.", LocaleUtil.getDefault()));
+				"This is localized content.", LocaleUtil.getSiteDefault()));
 	}
 
 	@Test
@@ -262,7 +259,7 @@ public class JournalTestUtilTest {
 			_group.getGroupId(), "Test Article", "This is a test article.");
 
 		String localizedContent = JournalTestUtil.createLocalizedContent(
-			"This is an updated test article.", LocaleUtil.getDefault());
+			"This is an updated test article.", LocaleUtil.getSiteDefault());
 
 		Assert.assertNotNull(
 			JournalTestUtil.updateArticle(
@@ -279,19 +276,6 @@ public class JournalTestUtilTest {
 			"company_id", String.valueOf(TestPropsValues.getCompanyId()));
 
 		return tokens;
-	}
-
-	protected void resetCompanyLanguages(String newLocales) throws Exception {
-		long companyId = PortalUtil.getDefaultCompanyId();
-
-		PortletPreferences preferences = PrefsPropsUtil.getPreferences(
-			companyId);
-
-		LanguageUtil.resetAvailableLocales(companyId);
-
-		preferences.setValue(PropsKeys.LOCALES, newLocales);
-
-		preferences.store();
 	}
 
 	private Group _group;

@@ -63,7 +63,7 @@ Group parentGroup = themeDisplay.getSiteGroup();
 			<span>
 				<span id="<portlet:namespace />displayPageNameInput"><%= layoutBreadcrumb %></span>
 
-				<span class="display-page-item-remove icon icon-close" id="<portlet:namespace />displayPageItemRemove" tabindex="0"></span>
+				<span class="display-page-item-remove icon icon-remove" id="<portlet:namespace />displayPageItemRemove" tabindex="0"></span>
 			</span>
 		</span>
 	</div>
@@ -116,7 +116,7 @@ Group parentGroup = themeDisplay.getSiteGroup();
 
 			<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" var="treeUrlPublicPages">
 				<portlet:param name="struts_action" value="/journal/select_display_page" />
-				<portlet:param name="cmd" value="<%= ActionKeys.VIEW_TREE %>" />
+				<portlet:param name="<%= Constants.CMD %>" value="<%= ActionKeys.VIEW_TREE %>" />
 				<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getSiteGroupId()) %>" />
 
 				<c:if test="<%= selLayout != null && !selLayout.isPrivateLayout() %>">
@@ -220,7 +220,7 @@ Group parentGroup = themeDisplay.getSiteGroup();
 										},
 										{
 											on: {
-												click: function () {
+												click: function() {
 													dialog.hide();
 												}
 											},
@@ -237,8 +237,7 @@ Group parentGroup = themeDisplay.getSiteGroup();
 
 					var dialogButtons = dialog.buttons;
 
-					okButton = dialogButtons.item(0);
-					cancelButton = dialogButtons.item(1);
+					okButton = dialog.getToolbar('footer').item(0);
 
 					var tabs = [];
 
@@ -311,7 +310,7 @@ Group parentGroup = themeDisplay.getSiteGroup();
 			var isPublicPagesTabSelected = function() {
 				var result = <%= parentGroup.getPublicLayoutsPageCount() > 0 %>;
 
-				if (tabView.get('items').length >= 2) {
+				if (tabView.size() >= 2) {
 					var index = tabView.getTabIndex(tabView.get('activeTab'));
 
 					result = (index == 0);
@@ -433,6 +432,8 @@ Group parentGroup = themeDisplay.getSiteGroup();
 
 			var onSelectDisplayPage = function(event) {
 				<c:if test="<%= (parentGroup.getPrivateLayoutsPageCount() > 0) || (parentGroup.getPublicLayoutsPageCount() > 0) %>">
+					event.domEvent.preventDefault();
+
 					getDialog().show();
 				</c:if>
 			};

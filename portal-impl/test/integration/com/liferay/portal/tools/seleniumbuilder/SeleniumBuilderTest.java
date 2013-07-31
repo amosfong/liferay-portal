@@ -1341,7 +1341,7 @@ public class SeleniumBuilderTest {
 	public void testMacroVarElement1004_1() throws Exception {
 		test(
 			"MacroVarElement1004_1.macro",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (name) attribute in " + _DIR_NAME +
 				"/MacroVarElement1004_1.macro:2");
 	}
 
@@ -1349,7 +1349,7 @@ public class SeleniumBuilderTest {
 	public void testMacroVarElement1004_2() throws Exception {
 		test(
 			"MacroVarElement1004_2.macro",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (value) attribute in " + _DIR_NAME +
 				"/MacroVarElement1004_2.macro:2");
 	}
 
@@ -1357,7 +1357,7 @@ public class SeleniumBuilderTest {
 	public void testMacroVarElement1004_3() throws Exception {
 		test(
 			"MacroVarElement1004_3.macro",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (name) attribute in " + _DIR_NAME +
 				"/MacroVarElement1004_3.macro:2");
 	}
 
@@ -1386,11 +1386,35 @@ public class SeleniumBuilderTest {
 	}
 
 	@Test
+	public void testMacroVarElement1006_3() throws Exception {
+		test(
+			"MacroVarElement1006_3.macro",
+			"Error 1006: Invalid value attribute value in " + _DIR_NAME +
+				"/MacroVarElement1006_3.macro:2");
+	}
+
+	@Test
+	public void testMacroVarElement1006_4() throws Exception {
+		test(
+			"MacroVarElement1006_4.macro",
+			"Error 1006: Invalid value attribute value in " + _DIR_NAME +
+				"/MacroVarElement1006_4.macro:2");
+	}
+
+	@Test
 	public void testMacroVarElement1007() throws Exception {
 		test(
 			"MacroVarElement1007.macro",
 			"Error 1007: Poorly formed XML in " + _DIR_NAME +
 				"/MacroVarElement1007.macro");
+	}
+
+	@Test
+	public void testMacroVarElement1013() throws Exception {
+		test(
+			"MacroVarElement1013.macro",
+			"Error 1013: Invalid method methodname at " + _DIR_NAME +
+				"/MacroVarElement1013.macro:2");
 	}
 
 	@Test
@@ -1791,7 +1815,7 @@ public class SeleniumBuilderTest {
 	public void testTestCaseVarElement1004_1() throws Exception {
 		test(
 			"TestCaseVarElement1004_1.testcase",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (name) attribute in " + _DIR_NAME +
 				"/TestCaseVarElement1004_1.testcase:2");
 	}
 
@@ -1799,7 +1823,7 @@ public class SeleniumBuilderTest {
 	public void testTestCaseVarElement1004_2() throws Exception {
 		test(
 			"TestCaseVarElement1004_2.testcase",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (value) attribute in " + _DIR_NAME +
 				"/TestCaseVarElement1004_2.testcase:2");
 	}
 
@@ -1807,7 +1831,7 @@ public class SeleniumBuilderTest {
 	public void testTestCaseVarElement1004_3() throws Exception {
 		test(
 			"TestCaseVarElement1004_3.testcase",
-			"Error 1004: Missing (name|value) attribute in " + _DIR_NAME +
+			"Error 1004: Missing (name) attribute in " + _DIR_NAME +
 				"/TestCaseVarElement1004_3.testcase:2");
 	}
 
@@ -1820,19 +1844,11 @@ public class SeleniumBuilderTest {
 	}
 
 	@Test
-	public void testTestCaseVarElement1006_1() throws Exception {
+	public void testTestCaseVarElement1006() throws Exception {
 		test(
-			"TestCaseVarElement1006_1.testcase",
+			"TestCaseVarElement1006.testcase",
 			"Error 1006: Invalid name attribute value in " + _DIR_NAME +
-				"/TestCaseVarElement1006_1.testcase:2");
-	}
-
-	@Test
-	public void testTestCaseVarElement1006_2() throws Exception {
-		test(
-			"TestCaseVarElement1006_2.testcase",
-			"Error 1006: Invalid value attribute value in " + _DIR_NAME +
-				"/TestCaseVarElement1006_2.testcase:2");
+				"/TestCaseVarElement1006.testcase:2");
 	}
 
 	@Test

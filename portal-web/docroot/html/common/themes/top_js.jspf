@@ -148,7 +148,7 @@
 					return "<%= themeDisplay.getCompanyGroupId() %>";
 				},
 				getDefaultLanguageId: function() {
-					return "<%= LocaleUtil.toLanguageId(LocaleUtil.getDefault()) %>";
+					return "<%= LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale()) %>";
 				},
 				getDoAsUserIdEncoded: function() {
 					return "<%= UnicodeFormatter.toString(themeDisplay.getDoAsUserId()) %>";
@@ -260,7 +260,7 @@
 		%>
 
 		Liferay.AUI = {
-			getAvailableLangPath: function () {
+			getAvailableLangPath: function() {
 				return '<%= PortalUtil.getStaticResourceURL(request, "available_languages.jsp", javaScriptLastModified) %>';
 			},
 			getCombine: function() {
@@ -285,7 +285,7 @@
 			getJavaScriptRootPath: function() {
 				return '<%= javaScriptRootPath %>';
 			},
-			getLangPath: function () {
+			getLangPath: function() {
 				return '<%= PortalUtil.getStaticResourceURL(request, "aui_lang.jsp", javaScriptLastModified) %>';
 			}
 		};
@@ -341,14 +341,14 @@
 		<c:if test="<%= (layoutTypePortlet != null) %>">
 
 			<%
-			List<Portlet> allPortlets = layoutTypePortlet.getAllPortlets();
+			List<Portlet> allPortlets = layoutTypePortlet.getAllPortlets(false);
 
 			Iterator<Portlet> itr = allPortlets.iterator();
 
 			while (itr.hasNext()) {
 				Portlet portlet = itr.next();
 
-				if (portlet.isUndeployedPortlet()) {
+				if (!portlet.isActive() || !portlet.isReady() || portlet.isUndeployedPortlet()) {
 					itr.remove();
 				}
 			}

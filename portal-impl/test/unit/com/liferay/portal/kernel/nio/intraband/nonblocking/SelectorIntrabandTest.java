@@ -38,9 +38,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.Pipe;
 import java.nio.channels.Pipe.SinkChannel;
 import java.nio.channels.Pipe.SourceChannel;
-import java.nio.channels.Pipe;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -1326,9 +1326,7 @@ public class SelectorIntrabandTest {
 	private static final long _DEFAULT_TIMEOUT = Time.SECOND;
 
 	private byte[] _data = _DATA_STRING.getBytes(Charset.defaultCharset());
-
 	private SelectorIntraband _selectorIntraband;
-
 	private byte _type = 1;
 
 	private static class MockDuplexSelectableChannel

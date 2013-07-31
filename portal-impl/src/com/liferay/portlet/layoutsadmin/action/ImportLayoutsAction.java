@@ -20,55 +20,43 @@ import com.liferay.portal.LARTypeException;
 import com.liferay.portal.LayoutImportException;
 import com.liferay.portal.LayoutPrototypeException;
 import com.liferay.portal.LocaleException;
-import com.liferay.portal.MissingReferenceException;
 import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.lar.ExportImportHelper;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.MissingReference;
+import com.liferay.portal.kernel.lar.MissingReferences;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.servlet.ServletResponseConstants;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StreamUtil;
-import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.LayoutServiceUtil;
+import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.documentlibrary.DuplicateFileException;
-import com.liferay.portlet.documentlibrary.FileExtensionException;
-import com.liferay.portlet.documentlibrary.FileNameException;
 import com.liferay.portlet.documentlibrary.FileSizeException;
-import com.liferay.portlet.documentlibrary.action.EditFileEntryAction;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.layoutsadmin.util.ExportImportUtil;
 import com.liferay.portlet.sites.action.ActionUtil;
 
 import java.io.File;
 import java.io.InputStream;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -92,27 +80,36 @@ import org.apache.struts.action.ActionMapping;
  * @author Alexander Chow
  * @author Raymond Augé
  */
-public class ImportLayoutsAction extends EditFileEntryAction {
+public class ImportLayoutsAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		try {
 			if (cmd.equals(Constants.ADD_TEMP)) {
-				addTempFileEntry(actionRequest, actionResponse);
+				addTempFileEntry(
+					actionRequest, actionResponse,
+					ExportImportHelper.TEMP_FOLDER_NAME);
 
-				validateImportLayoutsFile(actionRequest, actionResponse);
+				validateFile(
+					actionRequest, actionResponse,
+					ExportImportHelper.TEMP_FOLDER_NAME);
 			}
 			else if (cmd.equals(Constants.DELETE_TEMP)) {
-				deleteTempFileEntry(actionRequest, actionResponse);
+				deleteTempFileEntry(
+					actionRequest, actionResponse,
+					ExportImportHelper.TEMP_FOLDER_NAME);
 			}
 			else if (cmd.equals(Constants.IMPORT)) {
-				importLayouts(actionRequest, actionResponse);
+				importData(
+					actionRequest, actionResponse,
+					ExportImportHelper.TEMP_FOLDER_NAME);
 
 				String redirect = ParamUtil.getString(
 					actionRequest, "redirect");
@@ -125,7 +122,8 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 				cmd.equals(Constants.DELETE_TEMP)) {
 
 				handleUploadException(
-					portletConfig, actionRequest, actionResponse, cmd, e);
+					portletConfig, actionRequest, actionResponse,
+					ExportImportHelper.TEMP_FOLDER_NAME, e);
 			}
 			else {
 				if ((e instanceof LARFileException) ||
@@ -151,8 +149,9 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		try {
@@ -164,34 +163,45 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 				SessionErrors.add(renderRequest, e.getClass());
 
-				return mapping.findForward("portlet.layouts_admin.error");
+				return actionMapping.findForward("portlet.layouts_admin.error");
 			}
 			else {
 				throw e;
 			}
 		}
 
-		return mapping.findForward(
+		return actionMapping.findForward(
 			getForward(renderRequest, "portlet.layouts_admin.import_layouts"));
 	}
 
 	@Override
 	public void serveResource(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ResourceRequest resourceRequest,
+			ResourceResponse resourceResponse)
 		throws Exception {
+
+		String cmd = ParamUtil.getString(resourceRequest, Constants.CMD);
 
 		PortletContext portletContext = portletConfig.getPortletContext();
 
-		PortletRequestDispatcher portletRequestDispatcher =
-			portletContext.getRequestDispatcher(
+		PortletRequestDispatcher portletRequestDispatcher = null;
+
+		if (cmd.equals(Constants.IMPORT)) {
+			portletRequestDispatcher = portletContext.getRequestDispatcher(
+				"/html/portlet/layouts_admin/import_layouts_processes.jsp");
+		}
+		else {
+			portletRequestDispatcher = portletContext.getRequestDispatcher(
 				"/html/portlet/layouts_admin/import_layouts_resources.jsp");
+		}
 
 		portletRequestDispatcher.include(resourceRequest, resourceResponse);
 	}
 
 	protected void addTempFileEntry(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionRequest actionRequest, ActionResponse actionResponse,
+			String folderName)
 		throws Exception {
 
 		UploadPortletRequest uploadPortletRequest =
@@ -199,10 +209,9 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 		checkExceededSizeLimit(uploadPortletRequest);
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		deleteTempFileEntry(themeDisplay.getScopeGroupId());
+		deleteTempFileEntry(groupId, folderName);
 
 		InputStream inputStream = null;
 
@@ -214,8 +223,7 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 			String contentType = uploadPortletRequest.getContentType("file");
 
 			LayoutServiceUtil.addTempFileEntry(
-				themeDisplay.getScopeGroupId(), sourceFileName,
-				ExportImportUtil.TEMP_FOLDER_NAME, inputStream, contentType);
+				groupId, sourceFileName, folderName, inputStream, contentType);
 		}
 		catch (Exception e) {
 			UploadException uploadException =
@@ -258,9 +266,9 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		}
 	}
 
-	@Override
 	protected void deleteTempFileEntry(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionRequest actionRequest, ActionResponse actionResponse,
+			String folderName)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -272,8 +280,7 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 			String fileName = ParamUtil.getString(actionRequest, "fileName");
 
 			LayoutServiceUtil.deleteTempFileEntry(
-				themeDisplay.getScopeGroupId(), fileName,
-				ExportImportUtil.TEMP_FOLDER_NAME);
+				themeDisplay.getScopeGroupId(), fileName, folderName);
 
 			jsonObject.put("deleted", Boolean.TRUE);
 		}
@@ -288,22 +295,21 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		writeJSON(actionRequest, actionResponse, jsonObject);
 	}
 
-	protected void deleteTempFileEntry(long groupId)
+	protected void deleteTempFileEntry(long groupId, String folderName)
 		throws PortalException, SystemException {
 
 		String[] tempFileEntryNames = LayoutServiceUtil.getTempFileEntryNames(
-			groupId, ExportImportUtil.TEMP_FOLDER_NAME);
+			groupId, folderName);
 
 		for (String tempFileEntryName : tempFileEntryNames) {
 			LayoutServiceUtil.deleteTempFileEntry(
-				groupId, tempFileEntryName, ExportImportUtil.TEMP_FOLDER_NAME);
+				groupId, tempFileEntryName, folderName);
 		}
 	}
 
-	@Override
 	protected void handleUploadException(
 			PortletConfig portletConfig, ActionRequest actionRequest,
-			ActionResponse actionResponse, String cmd, Exception e)
+			ActionResponse actionResponse, String folderName, Exception e)
 		throws Exception {
 
 		HttpServletResponse response = PortalUtil.getHttpServletResponse(
@@ -312,233 +318,23 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		response.setContentType(ContentTypes.TEXT_HTML);
 		response.setStatus(HttpServletResponse.SC_OK);
 
-		String errorMessage = StringPool.BLANK;
-		JSONArray errorMessageJSONArray = null;
-		int errorType = 0;
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		if (e instanceof DuplicateFileException ||
-			e instanceof FileExtensionException ||
-			e instanceof FileNameException ||
-			e instanceof FileSizeException ||
-			e instanceof LARFileException ||
-			e instanceof LARFileSizeException ||
-			e instanceof LARTypeException ||
-			e instanceof LayoutPrototypeException ||
-			e instanceof LocaleException ||
-			e instanceof MissingReferenceException) {
+		deleteTempFileEntry(themeDisplay.getScopeGroupId(), folderName);
 
-			if (e instanceof DuplicateFileException) {
-				errorMessage = themeDisplay.translate(
-					"please-enter-a-unique-document-name");
-				errorType =
-					ServletResponseConstants.SC_DUPLICATE_FILE_EXCEPTION;
-			}
-			else if (e instanceof FileExtensionException) {
-				errorMessage = themeDisplay.translate(
-					"document-names-must-end-with-one-of-the-following-" +
-						"extensions",
-					StringUtil.merge(
-						getAllowedFileExtensions(
-							portletConfig, actionRequest, actionResponse)));
-				errorType =
-					ServletResponseConstants.SC_FILE_EXTENSION_EXCEPTION;
-			}
-			else if (e instanceof FileNameException) {
-				errorMessage = themeDisplay.translate(
-					"please-enter-a-file-with-a-valid-file-name");
-				errorType = ServletResponseConstants.SC_FILE_NAME_EXCEPTION;
-			}
-			else if (e instanceof FileSizeException ||
-					 e instanceof LARFileSizeException) {
-
-				long fileMaxSize = PrefsPropsUtil.getLong(
-					PropsKeys.DL_FILE_MAX_SIZE);
-
-				if (fileMaxSize == 0) {
-					fileMaxSize = PrefsPropsUtil.getLong(
-						PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE);
-				}
-
-				fileMaxSize /= 1024;
-
-				errorMessage = themeDisplay.translate(
-					"please-enter-a-file-with-a-valid-file-size-no-larger-" +
-						"than-x",
-					fileMaxSize);
-				errorType = ServletResponseConstants.SC_FILE_SIZE_EXCEPTION;
-			}
-			else if (e instanceof LARTypeException) {
-				LARTypeException lte = (LARTypeException)e;
-
-				errorMessage = themeDisplay.translate(
-					"please-import-a-lar-file-of-the-correct-type-x-is-not-" +
-						"valid",
-					lte.getMessage());
-				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-			}
-			else if (e instanceof LARFileException) {
-				errorMessage = themeDisplay.translate(
-					"please-specify-a-lar-file-to-import");
-				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-			}
-			else if (e instanceof LayoutPrototypeException) {
-				LayoutPrototypeException lpe = (LayoutPrototypeException)e;
-
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("the-lar-file-could-not-be-imported-because-it-");
-				sb.append("requires-page-templates-or-site-templates-that-");
-				sb.append("could-not-be-found.-please-import-the-following-");
-				sb.append("templates-manually");
-
-				errorMessage = themeDisplay.translate(sb.toString());
-
-				errorMessageJSONArray = JSONFactoryUtil.createJSONArray();
-
-				List<Tuple> missingLayoutPrototypes =
-					lpe.getMissingLayoutPrototypes();
-
-				for (Tuple missingLayoutPrototype : missingLayoutPrototypes) {
-					JSONObject errorMessageJSONObject =
-						JSONFactoryUtil.createJSONObject();
-
-					String layoutPrototypeUuid =
-						(String)missingLayoutPrototype.getObject(1);
-
-					errorMessageJSONObject.put("info", layoutPrototypeUuid);
-
-					String layoutPrototypeName =
-						(String)missingLayoutPrototype.getObject(2);
-
-					errorMessageJSONObject.put("name", layoutPrototypeName);
-
-					String layoutPrototypeClassName =
-						(String)missingLayoutPrototype.getObject(0);
-
-					errorMessageJSONObject.put(
-						"type",
-						ResourceActionsUtil.getModelResource(
-							themeDisplay.getLocale(),
-							layoutPrototypeClassName));
-
-					errorMessageJSONArray.put(errorMessageJSONObject);
-				}
-
-				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-			}
-			else if (e instanceof LocaleException) {
-				LocaleException le = (LocaleException)e;
-
-				errorMessage = themeDisplay.translate(
-					"the-available-languages-in-the-lar-file-x-do-not-match-" +
-						"the-portal's-available-languages-x",
-					new String[] {
-						StringUtil.merge(
-							le.getSourceAvailableLocales(),
-							StringPool.COMMA_AND_SPACE),
-						StringUtil.merge(
-							le.getTargetAvailableLocales(),
-							StringPool.COMMA_AND_SPACE)
-					});
-				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-			}
-			else if (e instanceof MissingReferenceException) {
-				MissingReferenceException mre = (MissingReferenceException)e;
-
-				errorMessage = themeDisplay.translate(
-					"there-are-missing-references-that-could-not-be-found-" +
-						"in-the-current-site.-please-import-another-lar-file-" +
-							"containing-the-following-elements");
-
-				errorMessageJSONArray = JSONFactoryUtil.createJSONArray();
-
-				Map<String, MissingReference> missingReferences =
-					mre.getMissingReferences();
-
-				for (String missingReferenceDisplayName :
-						missingReferences.keySet()) {
-
-					MissingReference missingReference = missingReferences.get(
-						missingReferenceDisplayName);
-
-					JSONObject errorMessageJSONObject =
-						JSONFactoryUtil.createJSONObject();
-
-					Map<String, String> referrers =
-						missingReference.getReferrers();
-
-					if (referrers.size() == 1) {
-						Set<Map.Entry<String, String>> referrerDisplayNames =
-							referrers.entrySet();
-
-						Iterator<Map.Entry<String, String>> iterator =
-							referrerDisplayNames.iterator();
-
-						Map.Entry<String, String> entry = iterator.next();
-
-						String referrerDisplayName = entry.getKey();
-						String referrerClasName = entry.getValue();
-
-						errorMessageJSONObject.put(
-							"info",
-							themeDisplay.translate(
-								"referenced-by-a-x-x",
-								new String[] {
-									ResourceActionsUtil.getModelResource(
-										themeDisplay.getLocale(),
-										referrerClasName), referrerDisplayName
-								}
-							));
-					}
-					else {
-						errorMessageJSONObject.put(
-							"info",
-							themeDisplay.translate(
-								"referenced-by-x-elements", referrers.size()));
-					}
-
-					errorMessageJSONObject.put(
-						"name", missingReferenceDisplayName);
-					errorMessageJSONObject.put(
-						"type",
-						ResourceActionsUtil.getModelResource(
-							themeDisplay.getLocale(),
-							missingReference.getClassName()));
-
-					errorMessageJSONArray.put(errorMessageJSONObject);
-				}
-
-				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-			}
-		}
-		else {
-			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-		}
-
-		deleteTempFileEntry(themeDisplay.getScopeGroupId());
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		jsonObject.put("message", errorMessage);
-
-		if ((errorMessageJSONArray != null) &&
-			(errorMessageJSONArray.length() > 0)) {
-
-			jsonObject.put("messageListItems", errorMessageJSONArray);
-		}
-
-		jsonObject.put("status", errorType);
+		JSONObject jsonObject = StagingUtil.getExceptionMessagesJSONObject(
+			themeDisplay.getLocale(), e, null);
 
 		writeJSON(actionRequest, actionResponse, jsonObject);
 
-		ServletResponseUtil.write(response, String.valueOf(errorType));
+		ServletResponseUtil.write(
+			response, String.valueOf(jsonObject.getInt("status")));
 	}
 
-	protected void importLayouts(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+	protected void importData(
+			ActionRequest actionRequest, ActionResponse actionResponse,
+			String folderName)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -546,8 +342,8 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		FileEntry fileEntry = ExportImportUtil.getTempFileEntry(
-			groupId, themeDisplay.getUserId());
+		FileEntry fileEntry = ExportImportHelperUtil.getTempFileEntry(
+			groupId, themeDisplay.getUserId(), folderName);
 
 		File file = DLFileEntryLocalServiceUtil.getFile(
 			themeDisplay.getUserId(), fileEntry.getFileEntryId(),
@@ -562,9 +358,6 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		File newFile = null;
 
 		try {
-			boolean privateLayout = ParamUtil.getBoolean(
-				actionRequest, "privateLayout");
-
 			String newFileName = StringUtil.replace(
 				file.getPath(), file.getName(), fileEntry.getTitle());
 
@@ -578,17 +371,21 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 				FileUtil.copyFile(file, newFile);
 			}
 
-			LayoutServiceUtil.importLayouts(
-				groupId, privateLayout, actionRequest.getParameterMap(),
-				newFile);
+			importData(actionRequest, newFile);
 
-			deleteTempFileEntry(groupId);
+			deleteTempFileEntry(groupId, folderName);
 
 			addSuccessMessage(actionRequest, actionResponse);
 		}
 		finally {
 			if (successfulRename) {
-				newFile.renameTo(file);
+				successfulRename = newFile.renameTo(file);
+
+				if (!successfulRename) {
+					FileUtil.copyFile(newFile, file);
+
+					FileUtil.delete(newFile);
+				}
 			}
 			else {
 				FileUtil.delete(newFile);
@@ -596,8 +393,21 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		}
 	}
 
-	protected void validateImportLayoutsFile(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+	protected void importData(ActionRequest actionRequest, File file)
+		throws Exception {
+
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+		boolean privateLayout = ParamUtil.getBoolean(
+			actionRequest, "privateLayout");
+
+		LayoutServiceUtil.importLayoutsInBackground(
+			file.getName(), groupId, privateLayout,
+			actionRequest.getParameterMap(), file);
+	}
+
+	protected void validateFile(
+			ActionRequest actionRequest, ActionResponse actionResponse,
+			String folderName)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -605,8 +415,8 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		FileEntry fileEntry = ExportImportUtil.getTempFileEntry(
-			groupId, themeDisplay.getUserId());
+		FileEntry fileEntry = ExportImportHelperUtil.getTempFileEntry(
+			groupId, themeDisplay.getUserId(), folderName);
 
 		File file = DLFileEntryLocalServiceUtil.getFile(
 			themeDisplay.getUserId(), fileEntry.getFileEntryId(),
@@ -621,9 +431,6 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		File newFile = null;
 
 		try {
-			boolean privateLayout = ParamUtil.getBoolean(
-				actionRequest, "privateLayout");
-
 			String newFileName = StringUtil.replace(
 				file.getPath(), file.getName(), fileEntry.getTitle());
 
@@ -637,18 +444,55 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 				FileUtil.copyFile(file, newFile);
 			}
 
-			LayoutServiceUtil.validateImportLayoutsFile(
-				groupId, privateLayout, actionRequest.getParameterMap(),
-				newFile);
+			MissingReferences missingReferences = validateFile(
+				actionRequest, newFile);
+
+			Map<String, MissingReference> weakMissingReferences =
+				missingReferences.getWeakMissingReferences();
+
+			if (weakMissingReferences.isEmpty()) {
+				return;
+			}
+
+			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+			if ((weakMissingReferences != null) &&
+				(weakMissingReferences.size() > 0)) {
+
+				jsonObject.put(
+					"warningMessages",
+					StagingUtil.getWarningMessagesJSONArray(
+						themeDisplay.getLocale(), weakMissingReferences, null));
+			}
+
+			writeJSON(actionRequest, actionResponse, jsonObject);
 		}
 		finally {
 			if (successfulRename) {
-				newFile.renameTo(file);
+				successfulRename = newFile.renameTo(file);
+
+				if (!successfulRename) {
+					FileUtil.copyFile(newFile, file);
+
+					FileUtil.delete(newFile);
+				}
 			}
 			else {
 				FileUtil.delete(newFile);
 			}
 		}
+	}
+
+	protected MissingReferences validateFile(
+			ActionRequest actionRequest, File file)
+		throws Exception {
+
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+		boolean privateLayout = ParamUtil.getBoolean(
+			actionRequest, "privateLayout");
+
+		return LayoutServiceUtil.validateImportLayoutsFile(
+			groupId, privateLayout, actionRequest.getParameterMap(), file);
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(ImportLayoutsAction.class);

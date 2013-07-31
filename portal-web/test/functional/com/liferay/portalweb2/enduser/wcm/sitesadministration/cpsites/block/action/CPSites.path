@@ -29,13 +29,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CONFIRMATION</td>
-	<td></td>
+	<td>INFO_MESSAGE</td>
+	<td>//div[@class='alert alert-info']</td>
 	<td></td>
 </tr>
 <tr>
-	<td>INFO_MESSAGE</td>
-	<td>//div[@class='alert alert-info']</td>
+	<td>CONFIRMATION</td>
+	<td></td>
 	<td></td>
 </tr>
 <tr>
@@ -46,17 +46,17 @@
 <!--ADD-->
 <tr>
 	<td>ADD_BLANK_SITE</td>
-	<td>//ul[@class='dropdown-menu']/li/a[contains(.,'Blank Site')]</td>
+	<td>//ul[contains(@class,'dropdown-menu')]/li/a[contains(.,'Blank Site')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ADD_COMMUNITY_SITE</td>
-	<td>//ul[@class='dropdown-menu']/li/a[contains(.,'Community Site')]</td>
+	<td>//ul[contains(@class,'dropdown-menu')]/li/a[contains(.,'Community Site')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ADD_INTRANET_SITE</td>
-	<td>//ul[@class='dropdown-menu']/li/a[contains(.,'Intranet Site')]</td>
+	<td>//ul[contains(@class,'dropdown-menu')]/li/a[contains(.,'Intranet Site')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -140,6 +140,11 @@
 <tr>
 	<td>SITE_TABLE_ACTIONS</td>
 	<td>//table[@data-searchcontainerid='_134_groupsSearchContainer']//tr/td/div/a[@title='Actions']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_TABLE_SUBSITE</td>
+	<td>//div[@class='subsites-count']</td>
 	<td></td>
 </tr>
 <tr>

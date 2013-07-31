@@ -89,10 +89,6 @@ long parentCategoryId = BeanParamUtil.getLong(category, request, "parentCategory
 		nameEl.href = "";
 		nameEl.innerHTML = "";
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
-	</c:if>
 </aui:script>
 
 <%
@@ -112,14 +108,13 @@ if (category != null) {
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: '<portlet:namespace />selectCategory',
 					title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "category") %>',
 					uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/message_boards/select_category" /><portlet:param name="mbCategoryId" value="<%= String.valueOf((category == null) ? MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID : category.getParentCategoryId()) %>" /></portlet:renderURL>'
 				},
-				function(event){
+				function(event) {
 					document.<portlet:namespace />fm.<portlet:namespace />parentCategoryId.value = event.categoryid;
 
 					var nameEl = document.getElementById("<portlet:namespace />parentCategoryName");

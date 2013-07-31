@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.lock.LockListenerRegistryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
-import com.liferay.portal.kernel.portlet.PortletSecurityUtil;
 import com.liferay.portal.kernel.sanitizer.Sanitizer;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
 import com.liferay.portal.kernel.search.Indexer;
@@ -99,6 +98,7 @@ import com.liferay.portal.security.auth.AuthFailure;
 import com.liferay.portal.security.auth.AuthPipeline;
 import com.liferay.portal.security.auth.AuthToken;
 import com.liferay.portal.security.auth.AuthTokenUtil;
+import com.liferay.portal.security.auth.AuthTokenWhitelistUtil;
 import com.liferay.portal.security.auth.AuthTokenWrapper;
 import com.liferay.portal.security.auth.AuthVerifier;
 import com.liferay.portal.security.auth.AuthVerifierConfiguration;
@@ -118,6 +118,7 @@ import com.liferay.portal.security.auth.ScreenNameGenerator;
 import com.liferay.portal.security.auth.ScreenNameGeneratorFactory;
 import com.liferay.portal.security.auth.ScreenNameValidator;
 import com.liferay.portal.security.auth.ScreenNameValidatorFactory;
+import com.liferay.portal.security.lang.DoPrivilegedBean;
 import com.liferay.portal.security.ldap.AttributesTransformer;
 import com.liferay.portal.security.ldap.AttributesTransformerFactory;
 import com.liferay.portal.security.membershippolicy.OrganizationMembershipPolicy;
@@ -140,6 +141,7 @@ import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.servlet.filters.autologin.AutoLoginFilter;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
 import com.liferay.portal.spring.aop.ServiceBeanAopCacheManagerUtil;
+import com.liferay.portal.spring.aop.ServiceBeanAopProxy;
 import com.liferay.portal.struts.AuthPublicPathRegistry;
 import com.liferay.portal.struts.StrutsActionRegistryUtil;
 import com.liferay.portal.upgrade.UpgradeProcessUtil;
@@ -202,10 +204,12 @@ public class HookHotDeployListener
 		"auth.forward.by.last.path", "auth.public.paths",
 		"auth.verifier.pipeline", "auto.deploy.listeners",
 		"application.startup.events", "auth.failure", "auth.max.failures",
-		"auth.token.impl", "auth.pipeline.post", "auth.pipeline.pre",
-		"auto.login.hooks", "captcha.check.portal.create_account",
-		"captcha.engine.impl", "company.default.locale",
-		"company.default.time.zone", "company.settings.form.authentication",
+		"auth.token.ignore.actions", "auth.token.ignore.contexts",
+		"auth.token.ignore.portlets", "auth.token.impl", "auth.pipeline.post",
+		"auth.pipeline.pre", "auto.login.hooks",
+		"captcha.check.portal.create_account", "captcha.engine.impl",
+		"company.default.locale", "company.default.time.zone",
+		"company.settings.form.authentication",
 		"company.settings.form.configuration",
 		"company.settings.form.identification",
 		"company.settings.form.miscellaneous",
@@ -254,12 +258,13 @@ public class HookHotDeployListener
 		"session.phishing.protected.attributes", "session.store.password",
 		"sites.form.add.advanced", "sites.form.add.main", "sites.form.add.seo",
 		"sites.form.update.advanced", "sites.form.update.main",
-		"sites.form.update.seo", "social.bookmark.*", "terms.of.use.required",
-		"theme.css.fast.load", "theme.images.fast.load",
-		"theme.jsp.override.enabled", "theme.loader.new.theme.id.on.import",
-		"theme.portlet.decorate.default", "theme.portlet.sharing.default",
-		"theme.shortcut.icon", "time.zones", "upgrade.processes",
-		"user.notification.event.confirmation.enabled",
+		"sites.form.update.seo", "social.activity.sets.bundling.enabled",
+		"social.activity.sets.enabled", "social.activity.sets.selector",
+		"social.bookmark.*", "terms.of.use.required", "theme.css.fast.load",
+		"theme.images.fast.load", "theme.jsp.override.enabled",
+		"theme.loader.new.theme.id.on.import", "theme.portlet.decorate.default",
+		"theme.portlet.sharing.default", "theme.shortcut.icon", "time.zones",
+		"upgrade.processes", "user.notification.event.confirmation.enabled",
 		"users.email.address.generator", "users.email.address.validator",
 		"users.email.address.required", "users.form.add.identification",
 		"users.form.add.main", "users.form.add.miscellaneous",
@@ -411,7 +416,18 @@ public class HookHotDeployListener
 		}
 
 		if (portalProperties.containsKey(PropsKeys.CAPTCHA_ENGINE_IMPL)) {
-			CaptchaImpl captchaImpl = (CaptchaImpl)CaptchaUtil.getCaptcha();
+			CaptchaImpl captchaImpl = null;
+
+			Captcha captcha = CaptchaUtil.getCaptcha();
+
+			if (captcha instanceof DoPrivilegedBean) {
+				DoPrivilegedBean doPrivilegedBean = (DoPrivilegedBean)captcha;
+
+				captchaImpl = (CaptchaImpl)doPrivilegedBean.getActualBean();
+			}
+			else {
+				captchaImpl = (CaptchaImpl)captcha;
+			}
 
 			captchaImpl.setCaptcha(null);
 		}
@@ -603,7 +619,8 @@ public class HookHotDeployListener
 
 			Object serviceProxy = PortalBeanLocatorUtil.locate(serviceType);
 
-			AdvisedSupport advisedSupport = getAdvisedSupport(serviceProxy);
+			AdvisedSupport advisedSupport =
+				ServiceBeanAopProxy.getAdvisedSupport(serviceProxy);
 
 			Object previousService = serviceBag.getCustomService();
 
@@ -892,22 +909,6 @@ public class HookHotDeployListener
 		if (_log.isInfoEnabled()) {
 			_log.info("Hook for " + servletContextName + " was unregistered");
 		}
-	}
-
-	protected AdvisedSupport getAdvisedSupport(Object serviceProxy)
-		throws Exception {
-
-		InvocationHandler invocationHandler = ProxyUtil.getInvocationHandler(
-			serviceProxy);
-
-		Class<?> invocationHandlerClass = invocationHandler.getClass();
-
-		Field advisedSupportField = invocationHandlerClass.getDeclaredField(
-			"_advisedSupport");
-
-		advisedSupportField.setAccessible(true);
-
-		return (AdvisedSupport)advisedSupportField.get(invocationHandler);
 	}
 
 	protected void getCustomJsps(
@@ -1210,16 +1211,16 @@ public class HookHotDeployListener
 			Element rootElement)
 		throws Exception {
 
+		String customJspDir = rootElement.elementText("custom-jsp-dir");
+
+		if (Validator.isNull(customJspDir)) {
+			return;
+		}
+
 		if (!checkPermission(
 				PACLConstants.PORTAL_HOOK_PERMISSION_CUSTOM_JSP_DIR,
 				portletClassLoader, null, "Rejecting custom JSP directory")) {
 
-			return;
-		}
-
-		String customJspDir = rootElement.elementText("custom-jsp-dir");
-
-		if (Validator.isNull(customJspDir)) {
 			return;
 		}
 
@@ -1718,7 +1719,19 @@ public class HookHotDeployListener
 			Captcha captcha = (Captcha)newInstance(
 				portletClassLoader, Captcha.class, captchaClassName);
 
-			CaptchaImpl captchaImpl = (CaptchaImpl)CaptchaUtil.getCaptcha();
+			CaptchaImpl captchaImpl = null;
+
+			Captcha currentCaptcha = CaptchaUtil.getCaptcha();
+
+			if (currentCaptcha instanceof DoPrivilegedBean) {
+				DoPrivilegedBean doPrivilegedBean =
+					(DoPrivilegedBean)currentCaptcha;
+
+				captchaImpl = (CaptchaImpl)doPrivilegedBean.getActualBean();
+			}
+			else {
+				captchaImpl = (CaptchaImpl)currentCaptcha;
+			}
 
 			captchaImpl.setCaptcha(captcha);
 		}
@@ -2110,7 +2123,8 @@ public class HookHotDeployListener
 			Constructor<?> serviceImplConstructor, Object serviceProxy)
 		throws Exception {
 
-		AdvisedSupport advisedSupport = getAdvisedSupport(serviceProxy);
+		AdvisedSupport advisedSupport = ServiceBeanAopProxy.getAdvisedSupport(
+			serviceProxy);
 
 		TargetSource targetSource = advisedSupport.getTargetSource();
 
@@ -2191,13 +2205,6 @@ public class HookHotDeployListener
 			ClassLoader portletClassLoader, Element parentElement)
 		throws Exception {
 
-		if (!checkPermission(
-				PACLConstants.PORTAL_HOOK_PERMISSION_SERVLET_FILTERS,
-				portletClassLoader, null, "Rejecting servlet filters")) {
-
-			return;
-		}
-
 		ServletFiltersContainer servletFiltersContainer =
 			_servletFiltersContainerMap.get(servletContextName);
 
@@ -2210,6 +2217,14 @@ public class HookHotDeployListener
 
 		List<Element> servletFilterElements = parentElement.elements(
 			"servlet-filter");
+
+		if (!servletFilterElements.isEmpty() &&
+			!checkPermission(
+				PACLConstants.PORTAL_HOOK_PERMISSION_SERVLET_FILTERS,
+				portletClassLoader, null, "Rejecting servlet filters")) {
+
+			return;
+		}
 
 		for (Element servletFilterElement : servletFilterElements) {
 			String servletFilterName = servletFilterElement.elementText(
@@ -2468,18 +2483,30 @@ public class HookHotDeployListener
 			LanguageUtil.init();
 		}
 
+		if (containsKey(portalProperties, AUTH_TOKEN_IGNORE_ACTIONS)) {
+			AuthTokenWhitelistUtil.resetPortletCSRFWhitelistActions();
+		}
+
+		if (containsKey(portalProperties, AUTH_TOKEN_IGNORE_CONTEXTS)) {
+			AuthTokenWhitelistUtil.resetContextCSRFWhitelist();
+		}
+
+		if (containsKey(portalProperties, AUTH_TOKEN_IGNORE_PORTLETS)) {
+			AuthTokenWhitelistUtil.resetPortletCSRFWhitelist();
+		}
+
 		if (containsKey(
 				portalProperties,
 				PORTLET_ADD_DEFAULT_RESOURCE_CHECK_WHITELIST)) {
 
-			PortletSecurityUtil.resetWhitelist();
+			AuthTokenWhitelistUtil.resetPortletInvocationWhitelist();
 		}
 
 		if (containsKey(
 				portalProperties,
 				PORTLET_ADD_DEFAULT_RESOURCE_CHECK_WHITELIST_ACTIONS)) {
 
-			PortletSecurityUtil.resetWhitelistActions();
+			AuthTokenWhitelistUtil.resetPortletInvocationWhitelistActions();
 		}
 
 		CacheUtil.clearCache();
@@ -2645,7 +2672,8 @@ public class HookHotDeployListener
 		"my.sites.show.user.private.sites.with.no.layouts",
 		"my.sites.show.user.public.sites.with.no.layouts",
 		"portlet.add.default.resource.check.enabled", "rss.feeds.enabled",
-		"session.store.password", "terms.of.use.required",
+		"session.store.password", "social.activity.sets.bundling.enabled",
+		"social.activity.sets.enabled", "terms.of.use.required",
 		"theme.css.fast.load", "theme.images.fast.load",
 		"theme.jsp.override.enabled", "theme.loader.new.theme.id.on.import",
 		"theme.portlet.decorate.default", "theme.portlet.sharing.default",
@@ -2662,8 +2690,10 @@ public class HookHotDeployListener
 	};
 
 	private static final String[] _PROPS_VALUES_MERGE_STRING_ARRAY = {
-		"admin.default.group.names", "admin.default.role.names",
-		"admin.default.user.group.names", "asset.publisher.display.styles",
+		"auth.token.ignore.actions", "auth.token.ignore.contexts",
+		"auth.token.ignore.portlets", "admin.default.group.names",
+		"admin.default.role.names", "admin.default.user.group.names",
+		"asset.publisher.display.styles",
 		"company.settings.form.authentication",
 		"company.settings.form.configuration",
 		"company.settings.form.identification",
@@ -2704,7 +2734,8 @@ public class HookHotDeployListener
 		"default.wap.theme.id", "passwords.passwordpolicytoolkit.generator",
 		"passwords.passwordpolicytoolkit.static",
 		"phone.number.format.international.regexp",
-		"phone.number.format.usa.regexp", "theme.shortcut.icon"
+		"phone.number.format.usa.regexp", "social.activity.sets.selector",
+		"theme.shortcut.icon"
 	};
 
 	private static Log _log = LogFactoryUtil.getLog(

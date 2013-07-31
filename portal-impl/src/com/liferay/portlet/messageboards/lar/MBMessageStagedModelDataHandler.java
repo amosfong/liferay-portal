@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.messageboards.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -25,7 +27,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StreamUtil;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
@@ -35,7 +36,6 @@ import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBMessageUtil;
 
 import java.io.InputStream;
 
@@ -53,6 +53,20 @@ public class MBMessageStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {MBMessage.class.getName()};
 
 	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		MBMessage message =
+			MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
+				uuid, groupId);
+
+		if (message != null) {
+			MBMessageLocalServiceUtil.deleteMessage(message);
+		}
+	}
+
+	@Override
 	public String[] getClassNames() {
 		return CLASS_NAMES;
 	}
@@ -67,9 +81,8 @@ public class MBMessageStagedModelDataHandler
 			PortletDataContext portletDataContext, MBMessage message)
 		throws Exception {
 
-		if ((message.getStatus() != WorkflowConstants.STATUS_APPROVED) ||
-			(message.getCategoryId() ==
-				MBCategoryConstants.DISCUSSION_CATEGORY_ID)) {
+		if (message.getCategoryId() ==
+				MBCategoryConstants.DISCUSSION_CATEGORY_ID) {
 
 			return;
 		}
@@ -163,11 +176,6 @@ public class MBMessageStagedModelDataHandler
 				portletDataContext.createServiceContext(
 					message, MBPortletDataHandler.NAMESPACE);
 
-			if (message.getStatus() != WorkflowConstants.STATUS_APPROVED) {
-				serviceContext.setWorkflowAction(
-					WorkflowConstants.ACTION_SAVE_DRAFT);
-			}
-
 			if ((parentCategoryId !=
 					MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) &&
 				(parentCategoryId !=
@@ -193,8 +201,10 @@ public class MBMessageStagedModelDataHandler
 			MBMessage importedMessage = null;
 
 			if (portletDataContext.isDataStrategyMirror()) {
-				MBMessage existingMessage = MBMessageUtil.fetchByUUID_G(
-					message.getUuid(), portletDataContext.getScopeGroupId());
+				MBMessage existingMessage =
+					MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
+						message.getUuid(),
+						portletDataContext.getScopeGroupId());
 
 				if (existingMessage == null) {
 					serviceContext.setUuid(message.getUuid());

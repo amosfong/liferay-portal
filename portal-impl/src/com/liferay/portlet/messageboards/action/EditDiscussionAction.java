@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.messageboards.action;
 
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -56,8 +55,9 @@ public class EditDiscussionAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -113,8 +113,9 @@ public class EditDiscussionAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		try {
@@ -126,14 +127,15 @@ public class EditDiscussionAction extends PortletAction {
 
 				SessionErrors.add(renderRequest, e.getClass());
 
-				return mapping.findForward("portlet.message_boards.error");
+				return actionMapping.findForward(
+					"portlet.message_boards.error");
 			}
 			else {
 				throw e;
 			}
 		}
 
-		return mapping.findForward(
+		return actionMapping.findForward(
 			getForward(
 				renderRequest, "portlet.message_boards.edit_discussion"));
 	}
@@ -224,15 +226,12 @@ public class EditDiscussionAction extends PortletAction {
 				String emailAddress = ParamUtil.getString(
 					actionRequest, "emailAddress");
 
-				try {
-					user = UserLocalServiceUtil.getUserByEmailAddress(
-						themeDisplay.getCompanyId(), emailAddress);
-				}
-				catch (NoSuchUserException nsue) {
-					return null;
-				}
+				user = UserLocalServiceUtil.fetchUserByEmailAddress(
+					themeDisplay.getCompanyId(), emailAddress);
 
-				if (user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE) {
+				if ((user == null) ||
+					(user.getStatus() != WorkflowConstants.STATUS_INCOMPLETE)) {
+
 					return null;
 				}
 			}

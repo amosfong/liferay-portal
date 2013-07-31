@@ -14,14 +14,13 @@
 
 package com.liferay.portlet.messageboards.service.base;
 
-import com.liferay.counter.service.CounterLocalService;
-
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.Indexable;
@@ -29,30 +28,14 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
-import com.liferay.portal.service.GroupLocalService;
-import com.liferay.portal.service.GroupService;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistry;
-import com.liferay.portal.service.ResourceLocalService;
-import com.liferay.portal.service.UserLocalService;
-import com.liferay.portal.service.UserService;
 import com.liferay.portal.service.persistence.GroupFinder;
 import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 
 import com.liferay.portlet.messageboards.model.MBStatsUser;
-import com.liferay.portlet.messageboards.service.MBBanLocalService;
-import com.liferay.portlet.messageboards.service.MBBanService;
-import com.liferay.portlet.messageboards.service.MBCategoryLocalService;
-import com.liferay.portlet.messageboards.service.MBCategoryService;
-import com.liferay.portlet.messageboards.service.MBDiscussionLocalService;
-import com.liferay.portlet.messageboards.service.MBMailingListLocalService;
-import com.liferay.portlet.messageboards.service.MBMessageLocalService;
-import com.liferay.portlet.messageboards.service.MBMessageService;
 import com.liferay.portlet.messageboards.service.MBStatsUserLocalService;
-import com.liferay.portlet.messageboards.service.MBThreadFlagLocalService;
-import com.liferay.portlet.messageboards.service.MBThreadLocalService;
-import com.liferay.portlet.messageboards.service.MBThreadService;
 import com.liferay.portlet.messageboards.service.persistence.MBBanPersistence;
 import com.liferay.portlet.messageboards.service.persistence.MBCategoryFinder;
 import com.liferay.portlet.messageboards.service.persistence.MBCategoryPersistence;
@@ -226,6 +209,21 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 		return mbStatsUserPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
+	/**
+	 * Returns the number of rows that match the dynamic query.
+	 *
+	 * @param dynamicQuery the dynamic query
+	 * @param projection the projection to apply to the query
+	 * @return the number of rows that match the dynamic query
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection) throws SystemException {
+		return mbStatsUserPersistence.countWithDynamicQuery(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public MBStatsUser fetchMBStatsUser(long statsUserId)
 		throws SystemException {
@@ -300,7 +298,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards ban local service
 	 */
-	public MBBanLocalService getMBBanLocalService() {
+	public com.liferay.portlet.messageboards.service.MBBanLocalService getMBBanLocalService() {
 		return mbBanLocalService;
 	}
 
@@ -309,7 +307,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param mbBanLocalService the message boards ban local service
 	 */
-	public void setMBBanLocalService(MBBanLocalService mbBanLocalService) {
+	public void setMBBanLocalService(
+		com.liferay.portlet.messageboards.service.MBBanLocalService mbBanLocalService) {
 		this.mbBanLocalService = mbBanLocalService;
 	}
 
@@ -318,7 +317,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards ban remote service
 	 */
-	public MBBanService getMBBanService() {
+	public com.liferay.portlet.messageboards.service.MBBanService getMBBanService() {
 		return mbBanService;
 	}
 
@@ -327,7 +326,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param mbBanService the message boards ban remote service
 	 */
-	public void setMBBanService(MBBanService mbBanService) {
+	public void setMBBanService(
+		com.liferay.portlet.messageboards.service.MBBanService mbBanService) {
 		this.mbBanService = mbBanService;
 	}
 
@@ -354,7 +354,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards category local service
 	 */
-	public MBCategoryLocalService getMBCategoryLocalService() {
+	public com.liferay.portlet.messageboards.service.MBCategoryLocalService getMBCategoryLocalService() {
 		return mbCategoryLocalService;
 	}
 
@@ -364,7 +364,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbCategoryLocalService the message boards category local service
 	 */
 	public void setMBCategoryLocalService(
-		MBCategoryLocalService mbCategoryLocalService) {
+		com.liferay.portlet.messageboards.service.MBCategoryLocalService mbCategoryLocalService) {
 		this.mbCategoryLocalService = mbCategoryLocalService;
 	}
 
@@ -373,7 +373,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards category remote service
 	 */
-	public MBCategoryService getMBCategoryService() {
+	public com.liferay.portlet.messageboards.service.MBCategoryService getMBCategoryService() {
 		return mbCategoryService;
 	}
 
@@ -382,7 +382,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param mbCategoryService the message boards category remote service
 	 */
-	public void setMBCategoryService(MBCategoryService mbCategoryService) {
+	public void setMBCategoryService(
+		com.liferay.portlet.messageboards.service.MBCategoryService mbCategoryService) {
 		this.mbCategoryService = mbCategoryService;
 	}
 
@@ -428,7 +429,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards discussion local service
 	 */
-	public MBDiscussionLocalService getMBDiscussionLocalService() {
+	public com.liferay.portlet.messageboards.service.MBDiscussionLocalService getMBDiscussionLocalService() {
 		return mbDiscussionLocalService;
 	}
 
@@ -438,7 +439,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbDiscussionLocalService the message boards discussion local service
 	 */
 	public void setMBDiscussionLocalService(
-		MBDiscussionLocalService mbDiscussionLocalService) {
+		com.liferay.portlet.messageboards.service.MBDiscussionLocalService mbDiscussionLocalService) {
 		this.mbDiscussionLocalService = mbDiscussionLocalService;
 	}
 
@@ -466,7 +467,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards mailing list local service
 	 */
-	public MBMailingListLocalService getMBMailingListLocalService() {
+	public com.liferay.portlet.messageboards.service.MBMailingListLocalService getMBMailingListLocalService() {
 		return mbMailingListLocalService;
 	}
 
@@ -476,7 +477,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbMailingListLocalService the message boards mailing list local service
 	 */
 	public void setMBMailingListLocalService(
-		MBMailingListLocalService mbMailingListLocalService) {
+		com.liferay.portlet.messageboards.service.MBMailingListLocalService mbMailingListLocalService) {
 		this.mbMailingListLocalService = mbMailingListLocalService;
 	}
 
@@ -504,7 +505,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message-boards message local service
 	 */
-	public MBMessageLocalService getMBMessageLocalService() {
+	public com.liferay.portlet.messageboards.service.MBMessageLocalService getMBMessageLocalService() {
 		return mbMessageLocalService;
 	}
 
@@ -514,7 +515,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbMessageLocalService the message-boards message local service
 	 */
 	public void setMBMessageLocalService(
-		MBMessageLocalService mbMessageLocalService) {
+		com.liferay.portlet.messageboards.service.MBMessageLocalService mbMessageLocalService) {
 		this.mbMessageLocalService = mbMessageLocalService;
 	}
 
@@ -523,7 +524,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message-boards message remote service
 	 */
-	public MBMessageService getMBMessageService() {
+	public com.liferay.portlet.messageboards.service.MBMessageService getMBMessageService() {
 		return mbMessageService;
 	}
 
@@ -532,7 +533,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param mbMessageService the message-boards message remote service
 	 */
-	public void setMBMessageService(MBMessageService mbMessageService) {
+	public void setMBMessageService(
+		com.liferay.portlet.messageboards.service.MBMessageService mbMessageService) {
 		this.mbMessageService = mbMessageService;
 	}
 
@@ -578,7 +580,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards stats user local service
 	 */
-	public MBStatsUserLocalService getMBStatsUserLocalService() {
+	public com.liferay.portlet.messageboards.service.MBStatsUserLocalService getMBStatsUserLocalService() {
 		return mbStatsUserLocalService;
 	}
 
@@ -588,7 +590,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbStatsUserLocalService the message boards stats user local service
 	 */
 	public void setMBStatsUserLocalService(
-		MBStatsUserLocalService mbStatsUserLocalService) {
+		com.liferay.portlet.messageboards.service.MBStatsUserLocalService mbStatsUserLocalService) {
 		this.mbStatsUserLocalService = mbStatsUserLocalService;
 	}
 
@@ -616,7 +618,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards thread local service
 	 */
-	public MBThreadLocalService getMBThreadLocalService() {
+	public com.liferay.portlet.messageboards.service.MBThreadLocalService getMBThreadLocalService() {
 		return mbThreadLocalService;
 	}
 
@@ -626,7 +628,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbThreadLocalService the message boards thread local service
 	 */
 	public void setMBThreadLocalService(
-		MBThreadLocalService mbThreadLocalService) {
+		com.liferay.portlet.messageboards.service.MBThreadLocalService mbThreadLocalService) {
 		this.mbThreadLocalService = mbThreadLocalService;
 	}
 
@@ -635,7 +637,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards thread remote service
 	 */
-	public MBThreadService getMBThreadService() {
+	public com.liferay.portlet.messageboards.service.MBThreadService getMBThreadService() {
 		return mbThreadService;
 	}
 
@@ -644,7 +646,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param mbThreadService the message boards thread remote service
 	 */
-	public void setMBThreadService(MBThreadService mbThreadService) {
+	public void setMBThreadService(
+		com.liferay.portlet.messageboards.service.MBThreadService mbThreadService) {
 		this.mbThreadService = mbThreadService;
 	}
 
@@ -689,7 +692,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the message boards thread flag local service
 	 */
-	public MBThreadFlagLocalService getMBThreadFlagLocalService() {
+	public com.liferay.portlet.messageboards.service.MBThreadFlagLocalService getMBThreadFlagLocalService() {
 		return mbThreadFlagLocalService;
 	}
 
@@ -699,7 +702,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param mbThreadFlagLocalService the message boards thread flag local service
 	 */
 	public void setMBThreadFlagLocalService(
-		MBThreadFlagLocalService mbThreadFlagLocalService) {
+		com.liferay.portlet.messageboards.service.MBThreadFlagLocalService mbThreadFlagLocalService) {
 		this.mbThreadFlagLocalService = mbThreadFlagLocalService;
 	}
 
@@ -727,7 +730,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the counter local service
 	 */
-	public CounterLocalService getCounterLocalService() {
+	public com.liferay.counter.service.CounterLocalService getCounterLocalService() {
 		return counterLocalService;
 	}
 
@@ -736,7 +739,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param counterLocalService the counter local service
 	 */
-	public void setCounterLocalService(CounterLocalService counterLocalService) {
+	public void setCounterLocalService(
+		com.liferay.counter.service.CounterLocalService counterLocalService) {
 		this.counterLocalService = counterLocalService;
 	}
 
@@ -745,7 +749,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the group local service
 	 */
-	public GroupLocalService getGroupLocalService() {
+	public com.liferay.portal.service.GroupLocalService getGroupLocalService() {
 		return groupLocalService;
 	}
 
@@ -754,7 +758,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param groupLocalService the group local service
 	 */
-	public void setGroupLocalService(GroupLocalService groupLocalService) {
+	public void setGroupLocalService(
+		com.liferay.portal.service.GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
 	}
 
@@ -763,7 +768,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the group remote service
 	 */
-	public GroupService getGroupService() {
+	public com.liferay.portal.service.GroupService getGroupService() {
 		return groupService;
 	}
 
@@ -772,7 +777,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param groupService the group remote service
 	 */
-	public void setGroupService(GroupService groupService) {
+	public void setGroupService(
+		com.liferay.portal.service.GroupService groupService) {
 		this.groupService = groupService;
 	}
 
@@ -817,7 +823,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the resource local service
 	 */
-	public ResourceLocalService getResourceLocalService() {
+	public com.liferay.portal.service.ResourceLocalService getResourceLocalService() {
 		return resourceLocalService;
 	}
 
@@ -827,7 +833,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 * @param resourceLocalService the resource local service
 	 */
 	public void setResourceLocalService(
-		ResourceLocalService resourceLocalService) {
+		com.liferay.portal.service.ResourceLocalService resourceLocalService) {
 		this.resourceLocalService = resourceLocalService;
 	}
 
@@ -836,7 +842,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the user local service
 	 */
-	public UserLocalService getUserLocalService() {
+	public com.liferay.portal.service.UserLocalService getUserLocalService() {
 		return userLocalService;
 	}
 
@@ -845,7 +851,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param userLocalService the user local service
 	 */
-	public void setUserLocalService(UserLocalService userLocalService) {
+	public void setUserLocalService(
+		com.liferay.portal.service.UserLocalService userLocalService) {
 		this.userLocalService = userLocalService;
 	}
 
@@ -854,7 +861,7 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @return the user remote service
 	 */
-	public UserService getUserService() {
+	public com.liferay.portal.service.UserService getUserService() {
 		return userService;
 	}
 
@@ -863,7 +870,8 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 	 *
 	 * @param userService the user remote service
 	 */
-	public void setUserService(UserService userService) {
+	public void setUserService(
+		com.liferay.portal.service.UserService userService) {
 		this.userService = userService;
 	}
 
@@ -960,68 +968,68 @@ public abstract class MBStatsUserLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = MBBanLocalService.class)
-	protected MBBanLocalService mbBanLocalService;
-	@BeanReference(type = MBBanService.class)
-	protected MBBanService mbBanService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBBanLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBBanLocalService mbBanLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBBanService.class)
+	protected com.liferay.portlet.messageboards.service.MBBanService mbBanService;
 	@BeanReference(type = MBBanPersistence.class)
 	protected MBBanPersistence mbBanPersistence;
-	@BeanReference(type = MBCategoryLocalService.class)
-	protected MBCategoryLocalService mbCategoryLocalService;
-	@BeanReference(type = MBCategoryService.class)
-	protected MBCategoryService mbCategoryService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBCategoryLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBCategoryLocalService mbCategoryLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBCategoryService.class)
+	protected com.liferay.portlet.messageboards.service.MBCategoryService mbCategoryService;
 	@BeanReference(type = MBCategoryPersistence.class)
 	protected MBCategoryPersistence mbCategoryPersistence;
 	@BeanReference(type = MBCategoryFinder.class)
 	protected MBCategoryFinder mbCategoryFinder;
-	@BeanReference(type = MBDiscussionLocalService.class)
-	protected MBDiscussionLocalService mbDiscussionLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBDiscussionLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBDiscussionLocalService mbDiscussionLocalService;
 	@BeanReference(type = MBDiscussionPersistence.class)
 	protected MBDiscussionPersistence mbDiscussionPersistence;
-	@BeanReference(type = MBMailingListLocalService.class)
-	protected MBMailingListLocalService mbMailingListLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBMailingListLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBMailingListLocalService mbMailingListLocalService;
 	@BeanReference(type = MBMailingListPersistence.class)
 	protected MBMailingListPersistence mbMailingListPersistence;
-	@BeanReference(type = MBMessageLocalService.class)
-	protected MBMessageLocalService mbMessageLocalService;
-	@BeanReference(type = MBMessageService.class)
-	protected MBMessageService mbMessageService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBMessageLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBMessageLocalService mbMessageLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBMessageService.class)
+	protected com.liferay.portlet.messageboards.service.MBMessageService mbMessageService;
 	@BeanReference(type = MBMessagePersistence.class)
 	protected MBMessagePersistence mbMessagePersistence;
 	@BeanReference(type = MBMessageFinder.class)
 	protected MBMessageFinder mbMessageFinder;
-	@BeanReference(type = MBStatsUserLocalService.class)
-	protected MBStatsUserLocalService mbStatsUserLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBStatsUserLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBStatsUserLocalService mbStatsUserLocalService;
 	@BeanReference(type = MBStatsUserPersistence.class)
 	protected MBStatsUserPersistence mbStatsUserPersistence;
-	@BeanReference(type = MBThreadLocalService.class)
-	protected MBThreadLocalService mbThreadLocalService;
-	@BeanReference(type = MBThreadService.class)
-	protected MBThreadService mbThreadService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBThreadLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBThreadLocalService mbThreadLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBThreadService.class)
+	protected com.liferay.portlet.messageboards.service.MBThreadService mbThreadService;
 	@BeanReference(type = MBThreadPersistence.class)
 	protected MBThreadPersistence mbThreadPersistence;
 	@BeanReference(type = MBThreadFinder.class)
 	protected MBThreadFinder mbThreadFinder;
-	@BeanReference(type = MBThreadFlagLocalService.class)
-	protected MBThreadFlagLocalService mbThreadFlagLocalService;
+	@BeanReference(type = com.liferay.portlet.messageboards.service.MBThreadFlagLocalService.class)
+	protected com.liferay.portlet.messageboards.service.MBThreadFlagLocalService mbThreadFlagLocalService;
 	@BeanReference(type = MBThreadFlagPersistence.class)
 	protected MBThreadFlagPersistence mbThreadFlagPersistence;
-	@BeanReference(type = CounterLocalService.class)
-	protected CounterLocalService counterLocalService;
-	@BeanReference(type = GroupLocalService.class)
-	protected GroupLocalService groupLocalService;
-	@BeanReference(type = GroupService.class)
-	protected GroupService groupService;
+	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
+	protected com.liferay.counter.service.CounterLocalService counterLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
+	protected com.liferay.portal.service.GroupLocalService groupLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupService.class)
+	protected com.liferay.portal.service.GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	@BeanReference(type = GroupFinder.class)
 	protected GroupFinder groupFinder;
-	@BeanReference(type = ResourceLocalService.class)
-	protected ResourceLocalService resourceLocalService;
-	@BeanReference(type = UserLocalService.class)
-	protected UserLocalService userLocalService;
-	@BeanReference(type = UserService.class)
-	protected UserService userService;
+	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
+	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
+	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
+	protected com.liferay.portal.service.UserLocalService userLocalService;
+	@BeanReference(type = com.liferay.portal.service.UserService.class)
+	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)

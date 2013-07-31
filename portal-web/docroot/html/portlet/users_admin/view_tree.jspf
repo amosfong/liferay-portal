@@ -17,14 +17,6 @@
 <%
 String keywords = ParamUtil.getString(request, "keywords");
 
-long organizationId = ParamUtil.getLong(request, "organizationId", OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID);
-
-Organization organization = null;
-
-if (organizationId != 0) {
-	organization = OrganizationServiceUtil.getOrganization(organizationId);
-}
-
 if (organization != null) {
 	Group organizationGroup = organization.getGroup();
 
@@ -50,6 +42,10 @@ boolean showList = true;
 if (filterManageableOrganizations && organizations.isEmpty()) {
 	showList = false;
 }
+
+if (organization != null) {
+	UsersAdminUtil.addPortletBreadcrumbEntries(organization, request, renderResponse);
+}
 %>
 
 <c:if test="<%= portletName.equals(PortletKeys.USERS_ADMIN) && usersListView.equals(UserConstants.LIST_VIEW_TREE) %>">
@@ -59,7 +55,7 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 		<aui:nav-bar-search cssClass="pull-right">
 			<div class="form-search">
 				<div class="input-append">
-					<input class="search-query span9" name="keywords" type="text" />
+					<input class="search-query span9" name="<portlet:namespace />keywords" type="text" />
 
 					<button class="btn" onClick='<%= "javascript:" + renderResponse.getNamespace() + "search();" %>' type="submit">
 						<liferay-ui:message key="search" />
@@ -68,6 +64,10 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 			</div>
 		</aui:nav-bar-search>
 	</aui:nav-bar>
+
+	<div id="breadcrumb">
+		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+	</div>
 </c:if>
 
 <c:choose>
@@ -77,36 +77,36 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 		int organizationsCount = OrganizationLocalServiceUtil.searchCount(company.getCompanyId(), _getParentOrganizationId(request, organization, filterManageableOrganizations), null, null, null, null, organizationParams);
 		%>
 
-		<aui:row>
-			<c:if test="<%= (organization != null) && (organization.getOrganizationId() != OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID) %>">
+		<c:if test="<%= (organization != null) %>">
 
-				<%
-				long parentOrganizationId = OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID;
-				String parentOrganizationName = LanguageUtil.get(pageContext, "users-and-organizations-home");
+			<%
+			long parentOrganizationId = OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID;
+			String parentOrganizationName = LanguageUtil.get(pageContext, "users-and-organizations-home");
 
-				if (!organization.isRoot()) {
-					Organization parentOrganization = organization.getParentOrganization();
+			if (!organization.isRoot()) {
+				Organization parentOrganization = organization.getParentOrganization();
 
-					if (OrganizationPermissionUtil.contains(permissionChecker, parentOrganization, ActionKeys.VIEW)) {
-						parentOrganizationId = parentOrganization.getOrganizationId();
-						parentOrganizationName = parentOrganization.getName();
-					}
+				if (OrganizationPermissionUtil.contains(permissionChecker, parentOrganization, ActionKeys.VIEW)) {
+					parentOrganizationId = parentOrganization.getOrganizationId();
+					parentOrganizationName = parentOrganization.getName();
 				}
-				%>
+			}
+			%>
 
-				<portlet:renderURL var="headerBackURL">
-					<portlet:param name="struts_action" value="/organization/view" />
-					<portlet:param name="organizationId" value="<%= String.valueOf(parentOrganizationId) %>" />
-				</portlet:renderURL>
+			<portlet:renderURL var="headerBackURL">
+				<portlet:param name="struts_action" value="/organization/view" />
+				<portlet:param name="organizationId" value="<%= String.valueOf(parentOrganizationId) %>" />
+			</portlet:renderURL>
 
-				<liferay-ui:header
-					backLabel="<%= parentOrganizationName %>"
-					backURL="<%= headerBackURL.toString() %>"
-					localizeTitle="<%= false %>"
-					title="<%= organization.getName() %>"
-				/>
-			</c:if>
+			<liferay-ui:header
+				backLabel="<%= parentOrganizationName %>"
+				backURL="<%= headerBackURL.toString() %>"
+				localizeTitle="<%= false %>"
+				title="<%= organization.getName() %>"
+			/>
+		</c:if>
 
+		<aui:row>
 			<aui:col cssClass="lfr-asset-column lfr-asset-column-details" width="<%= (organization != null) ? 75 : 100 %>">
 				<liferay-ui:panel-container extended="<%= false %>" id="usersAdminOrganizationPanelContainer" persistState="<%= true %>">
 					<c:if test="<%= organization != null %>">
@@ -207,20 +207,6 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 						showOrganizations = true;
 					}
 
-					if (organization != null) {
-						inactiveUsersCount = UserLocalServiceUtil.getOrganizationUsersCount(organizationId, WorkflowConstants.STATUS_INACTIVE);
-						usersCount = UserLocalServiceUtil.getOrganizationUsersCount(organizationId, WorkflowConstants.STATUS_APPROVED);
-					}
-					else {
-						LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
-
-						userParams.put("noOrganizations", Boolean.TRUE);
-						userParams.put("usersOrgsCount", 0);
-
-						inactiveUsersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), null, WorkflowConstants.STATUS_INACTIVE, userParams);
-						usersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED, userParams);
-					}
-
 					if ((status == WorkflowConstants.STATUS_APPROVED) && (usersCount == 0) && (inactiveUsersCount > 0)) {
 						status = WorkflowConstants.STATUS_INACTIVE;
 					}
@@ -275,17 +261,18 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 							</c:if>
 
 							<%
-							SearchContainer organizationSearch = new OrganizationSearch(renderRequest, "cur1", currentURLObj);
+							SearchContainer searchContainer = new OrganizationSearch(renderRequest, "cur1", currentURLObj);
 
-							organizationSearch.setRowChecker(new RowChecker(renderResponse));
+							searchContainer.setRowChecker(new RowChecker(renderResponse));
 							%>
 
 							<liferay-ui:search-container
-								searchContainer="<%= organizationSearch %>"
+								searchContainer="<%= searchContainer %>"
+								var="organizationSearchContainer"
 							>
 
 								<%
-								OrganizationSearchTerms searchTerms = (OrganizationSearchTerms)searchContainer.getSearchTerms();
+								OrganizationSearchTerms searchTerms = (OrganizationSearchTerms)organizationSearchContainer.getSearchTerms();
 
 								long parentOrganizationId = _getParentOrganizationId(request, organization, filterManageableOrganizations);
 
@@ -346,7 +333,7 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 									</c:choose>
 
 									<c:if test="<%= !results.isEmpty() %>">
-										<aui:button cssClass="delete-organizations" onClick='<%= renderResponse.getNamespace() + "deleteOrganizations();" %>' value="delete" />
+										<aui:button cssClass="delete-organizations" disabled="<%= true %>" name="delete" onClick='<%= renderResponse.getNamespace() + "deleteOrganizations();" %>' value="delete" />
 									</c:if>
 								</liferay-ui:search-container-results>
 
@@ -465,10 +452,6 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 					<liferay-util:include page="/html/portlet/users_admin/organization_action.jsp" />
 				</aui:col>
 
-				<%
-				UsersAdminUtil.addPortletBreadcrumbEntries(organization, request, renderResponse);
-				%>
-
 			</c:if>
 		</aui:row>
 	</c:when>
@@ -478,6 +461,10 @@ if (filterManageableOrganizations && organizations.isEmpty()) {
 		</div>
 	</c:otherwise>
 </c:choose>
+
+<aui:script>
+	Liferay.Util.toggleSearchContainerButton('#<portlet:namespace />delete', '#<portlet:namespace /><%= searchContainerReference.getId("organizationSearchContainer") %>SearchContainer', document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+</aui:script>
 
 <%!
 private long _getParentOrganizationId(HttpServletRequest request, Organization organization, boolean filterManageableOrganizations) {

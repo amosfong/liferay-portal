@@ -25,12 +25,10 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.asset.NoSuchEntryException;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
@@ -47,6 +45,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.portlet.PortletPreferences;
 
@@ -97,7 +96,20 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
-	protected void updateURLTitle(String urlTitle) throws Exception {
+	protected void updateURLTitle(
+			long groupId, String articleId, String urlTitle)
+		throws Exception {
+
+		String normalizedURLTitle = FriendlyURLNormalizerUtil.normalize(
+			urlTitle, _friendlyURLPattern);
+
+		if (urlTitle.equals(normalizedURLTitle)) {
+			return;
+		}
+
+		normalizedURLTitle = JournalArticleLocalServiceUtil.getUniqueUrlTitle(
+			groupId, articleId, normalizedURLTitle);
+
 		Connection con = null;
 		PreparedStatement ps = null;
 
@@ -107,7 +119,7 @@ public class VerifyJournal extends VerifyProcess {
 			ps = con.prepareStatement(
 				"update JournalArticle set urlTitle = ? where urlTitle = ?");
 
-			ps.setString(1, FriendlyURLNormalizerUtil.normalize(urlTitle));
+			ps.setString(1, normalizedURLTitle);
 			ps.setString(2, urlTitle);
 
 			ps.executeUpdate();
@@ -253,22 +265,11 @@ public class VerifyJournal extends VerifyProcess {
 					JournalArticle.class.getName(),
 					article.getResourcePrimKey(), false, false, false);
 
-				try {
-					AssetEntry assetEntry = AssetEntryLocalServiceUtil.getEntry(
-						JournalArticle.class.getName(),
-						article.getResourcePrimKey());
+				AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
+					JournalArticle.class.getName(),
+					article.getResourcePrimKey());
 
-					if ((article.getStatus() ==
-							WorkflowConstants.STATUS_DRAFT) &&
-						(article.getVersion() ==
-							JournalArticleConstants.VERSION_DEFAULT)) {
-
-						AssetEntryLocalServiceUtil.updateEntry(
-							assetEntry.getClassName(), assetEntry.getClassPK(),
-							null, assetEntry.isVisible());
-					}
-				}
-				catch (NoSuchEntryException nsee) {
+				if (assetEntry == null) {
 					try {
 						JournalArticleLocalServiceUtil.updateAsset(
 							article.getUserId(), article, null, null, null);
@@ -280,6 +281,15 @@ public class VerifyJournal extends VerifyProcess {
 									article.getId() + ": " + e.getMessage());
 						}
 					}
+				}
+				else if ((article.getStatus() ==
+							WorkflowConstants.STATUS_DRAFT) &&
+						 (article.getVersion() ==
+							JournalArticleConstants.VERSION_DEFAULT)) {
+
+					AssetEntryLocalServiceUtil.updateEntry(
+						assetEntry.getClassName(), assetEntry.getClassPK(),
+						null, assetEntry.isVisible());
 				}
 
 				String content = GetterUtil.getString(article.getContent());
@@ -348,21 +358,18 @@ public class VerifyJournal extends VerifyProcess {
 		try {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
-			StringBundler sb = new StringBundler();
-
-			sb.append("select distinct urlTitle from JournalArticle where ");
-			sb.append("urlTitle like '%\u00a3%' or urlTitle like '%\u2018%' ");
-			sb.append("or urlTitle like '%\u2019%' or urlTitle like ");
-			sb.append("'%\u201c%' or urlTitle like '%\u201d%'");
-
-			ps = con.prepareStatement(sb.toString());
+			ps = con.prepareStatement(
+				"select distinct groupId, articleId, urlTitle from " +
+					"JournalArticle");
 
 			rs = ps.executeQuery();
 
 			while (rs.next()) {
+				long groupId = rs.getLong("groupId");
+				String articleId = rs.getString("articleId");
 				String urlTitle = rs.getString("urlTitle");
 
-				updateURLTitle(urlTitle);
+				updateURLTitle(groupId, articleId, urlTitle);
 			}
 		}
 		finally {
@@ -371,5 +378,7 @@ public class VerifyJournal extends VerifyProcess {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(VerifyJournal.class);
+
+	private static Pattern _friendlyURLPattern = Pattern.compile("[^a-z0-9_-]");
 
 }

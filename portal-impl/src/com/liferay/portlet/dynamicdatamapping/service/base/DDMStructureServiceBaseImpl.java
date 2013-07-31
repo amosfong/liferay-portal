@@ -14,36 +14,22 @@
 
 package com.liferay.portlet.dynamicdatamapping.service.base;
 
-import com.liferay.counter.service.CounterLocalService;
-
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.BaseServiceImpl;
-import com.liferay.portal.service.GroupLocalService;
-import com.liferay.portal.service.GroupService;
-import com.liferay.portal.service.ResourceLocalService;
-import com.liferay.portal.service.UserLocalService;
-import com.liferay.portal.service.UserService;
 import com.liferay.portal.service.persistence.GroupFinder;
 import com.liferay.portal.service.persistence.GroupPersistence;
+import com.liferay.portal.service.persistence.SystemEventPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 
-import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalService;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureService;
-import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalService;
-import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMContentPersistence;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStorageLinkPersistence;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureFinder;
@@ -79,7 +65,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m content local service
 	 */
-	public DDMContentLocalService getDDMContentLocalService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService getDDMContentLocalService() {
 		return ddmContentLocalService;
 	}
 
@@ -89,7 +75,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param ddmContentLocalService the d d m content local service
 	 */
 	public void setDDMContentLocalService(
-		DDMContentLocalService ddmContentLocalService) {
+		com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService ddmContentLocalService) {
 		this.ddmContentLocalService = ddmContentLocalService;
 	}
 
@@ -117,7 +103,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m storage link local service
 	 */
-	public DDMStorageLinkLocalService getDDMStorageLinkLocalService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalService getDDMStorageLinkLocalService() {
 		return ddmStorageLinkLocalService;
 	}
 
@@ -127,7 +113,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param ddmStorageLinkLocalService the d d m storage link local service
 	 */
 	public void setDDMStorageLinkLocalService(
-		DDMStorageLinkLocalService ddmStorageLinkLocalService) {
+		com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalService ddmStorageLinkLocalService) {
 		this.ddmStorageLinkLocalService = ddmStorageLinkLocalService;
 	}
 
@@ -155,7 +141,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m structure local service
 	 */
-	public DDMStructureLocalService getDDMStructureLocalService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService getDDMStructureLocalService() {
 		return ddmStructureLocalService;
 	}
 
@@ -165,7 +151,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param ddmStructureLocalService the d d m structure local service
 	 */
 	public void setDDMStructureLocalService(
-		DDMStructureLocalService ddmStructureLocalService) {
+		com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService ddmStructureLocalService) {
 		this.ddmStructureLocalService = ddmStructureLocalService;
 	}
 
@@ -174,7 +160,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m structure remote service
 	 */
-	public DDMStructureService getDDMStructureService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMStructureService getDDMStructureService() {
 		return ddmStructureService;
 	}
 
@@ -183,7 +169,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param ddmStructureService the d d m structure remote service
 	 */
-	public void setDDMStructureService(DDMStructureService ddmStructureService) {
+	public void setDDMStructureService(
+		com.liferay.portlet.dynamicdatamapping.service.DDMStructureService ddmStructureService) {
 		this.ddmStructureService = ddmStructureService;
 	}
 
@@ -229,7 +216,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m structure link local service
 	 */
-	public DDMStructureLinkLocalService getDDMStructureLinkLocalService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService getDDMStructureLinkLocalService() {
 		return ddmStructureLinkLocalService;
 	}
 
@@ -239,7 +226,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param ddmStructureLinkLocalService the d d m structure link local service
 	 */
 	public void setDDMStructureLinkLocalService(
-		DDMStructureLinkLocalService ddmStructureLinkLocalService) {
+		com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService ddmStructureLinkLocalService) {
 		this.ddmStructureLinkLocalService = ddmStructureLinkLocalService;
 	}
 
@@ -267,7 +254,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m template local service
 	 */
-	public DDMTemplateLocalService getDDMTemplateLocalService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalService getDDMTemplateLocalService() {
 		return ddmTemplateLocalService;
 	}
 
@@ -277,7 +264,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param ddmTemplateLocalService the d d m template local service
 	 */
 	public void setDDMTemplateLocalService(
-		DDMTemplateLocalService ddmTemplateLocalService) {
+		com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalService ddmTemplateLocalService) {
 		this.ddmTemplateLocalService = ddmTemplateLocalService;
 	}
 
@@ -286,7 +273,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the d d m template remote service
 	 */
-	public DDMTemplateService getDDMTemplateService() {
+	public com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService getDDMTemplateService() {
 		return ddmTemplateService;
 	}
 
@@ -295,7 +282,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param ddmTemplateService the d d m template remote service
 	 */
-	public void setDDMTemplateService(DDMTemplateService ddmTemplateService) {
+	public void setDDMTemplateService(
+		com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService ddmTemplateService) {
 		this.ddmTemplateService = ddmTemplateService;
 	}
 
@@ -341,7 +329,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the counter local service
 	 */
-	public CounterLocalService getCounterLocalService() {
+	public com.liferay.counter.service.CounterLocalService getCounterLocalService() {
 		return counterLocalService;
 	}
 
@@ -350,7 +338,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param counterLocalService the counter local service
 	 */
-	public void setCounterLocalService(CounterLocalService counterLocalService) {
+	public void setCounterLocalService(
+		com.liferay.counter.service.CounterLocalService counterLocalService) {
 		this.counterLocalService = counterLocalService;
 	}
 
@@ -359,7 +348,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the group local service
 	 */
-	public GroupLocalService getGroupLocalService() {
+	public com.liferay.portal.service.GroupLocalService getGroupLocalService() {
 		return groupLocalService;
 	}
 
@@ -368,7 +357,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param groupLocalService the group local service
 	 */
-	public void setGroupLocalService(GroupLocalService groupLocalService) {
+	public void setGroupLocalService(
+		com.liferay.portal.service.GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
 	}
 
@@ -377,7 +367,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the group remote service
 	 */
-	public GroupService getGroupService() {
+	public com.liferay.portal.service.GroupService getGroupService() {
 		return groupService;
 	}
 
@@ -386,7 +376,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param groupService the group remote service
 	 */
-	public void setGroupService(GroupService groupService) {
+	public void setGroupService(
+		com.liferay.portal.service.GroupService groupService) {
 		this.groupService = groupService;
 	}
 
@@ -431,7 +422,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the resource local service
 	 */
-	public ResourceLocalService getResourceLocalService() {
+	public com.liferay.portal.service.ResourceLocalService getResourceLocalService() {
 		return resourceLocalService;
 	}
 
@@ -441,8 +432,46 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param resourceLocalService the resource local service
 	 */
 	public void setResourceLocalService(
-		ResourceLocalService resourceLocalService) {
+		com.liferay.portal.service.ResourceLocalService resourceLocalService) {
 		this.resourceLocalService = resourceLocalService;
+	}
+
+	/**
+	 * Returns the system event local service.
+	 *
+	 * @return the system event local service
+	 */
+	public com.liferay.portal.service.SystemEventLocalService getSystemEventLocalService() {
+		return systemEventLocalService;
+	}
+
+	/**
+	 * Sets the system event local service.
+	 *
+	 * @param systemEventLocalService the system event local service
+	 */
+	public void setSystemEventLocalService(
+		com.liferay.portal.service.SystemEventLocalService systemEventLocalService) {
+		this.systemEventLocalService = systemEventLocalService;
+	}
+
+	/**
+	 * Returns the system event persistence.
+	 *
+	 * @return the system event persistence
+	 */
+	public SystemEventPersistence getSystemEventPersistence() {
+		return systemEventPersistence;
+	}
+
+	/**
+	 * Sets the system event persistence.
+	 *
+	 * @param systemEventPersistence the system event persistence
+	 */
+	public void setSystemEventPersistence(
+		SystemEventPersistence systemEventPersistence) {
+		this.systemEventPersistence = systemEventPersistence;
 	}
 
 	/**
@@ -450,7 +479,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the user local service
 	 */
-	public UserLocalService getUserLocalService() {
+	public com.liferay.portal.service.UserLocalService getUserLocalService() {
 		return userLocalService;
 	}
 
@@ -459,7 +488,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param userLocalService the user local service
 	 */
-	public void setUserLocalService(UserLocalService userLocalService) {
+	public void setUserLocalService(
+		com.liferay.portal.service.UserLocalService userLocalService) {
 		this.userLocalService = userLocalService;
 	}
 
@@ -468,7 +498,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the user remote service
 	 */
-	public UserService getUserService() {
+	public com.liferay.portal.service.UserService getUserService() {
 		return userService;
 	}
 
@@ -477,7 +507,8 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param userService the user remote service
 	 */
-	public void setUserService(UserService userService) {
+	public void setUserService(
+		com.liferay.portal.service.UserService userService) {
 		this.userService = userService;
 	}
 
@@ -522,7 +553,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the document library file entry type local service
 	 */
-	public DLFileEntryTypeLocalService getDLFileEntryTypeLocalService() {
+	public com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService getDLFileEntryTypeLocalService() {
 		return dlFileEntryTypeLocalService;
 	}
 
@@ -532,7 +563,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param dlFileEntryTypeLocalService the document library file entry type local service
 	 */
 	public void setDLFileEntryTypeLocalService(
-		DLFileEntryTypeLocalService dlFileEntryTypeLocalService) {
+		com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService dlFileEntryTypeLocalService) {
 		this.dlFileEntryTypeLocalService = dlFileEntryTypeLocalService;
 	}
 
@@ -541,7 +572,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the document library file entry type remote service
 	 */
-	public DLFileEntryTypeService getDLFileEntryTypeService() {
+	public com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService getDLFileEntryTypeService() {
 		return dlFileEntryTypeService;
 	}
 
@@ -551,7 +582,7 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 	 * @param dlFileEntryTypeService the document library file entry type remote service
 	 */
 	public void setDLFileEntryTypeService(
-		DLFileEntryTypeService dlFileEntryTypeService) {
+		com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService dlFileEntryTypeService) {
 		this.dlFileEntryTypeService = dlFileEntryTypeService;
 	}
 
@@ -646,58 +677,62 @@ public abstract class DDMStructureServiceBaseImpl extends BaseServiceImpl
 		}
 	}
 
-	@BeanReference(type = DDMContentLocalService.class)
-	protected DDMContentLocalService ddmContentLocalService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService ddmContentLocalService;
 	@BeanReference(type = DDMContentPersistence.class)
 	protected DDMContentPersistence ddmContentPersistence;
-	@BeanReference(type = DDMStorageLinkLocalService.class)
-	protected DDMStorageLinkLocalService ddmStorageLinkLocalService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalService ddmStorageLinkLocalService;
 	@BeanReference(type = DDMStorageLinkPersistence.class)
 	protected DDMStorageLinkPersistence ddmStorageLinkPersistence;
-	@BeanReference(type = DDMStructureLocalService.class)
-	protected DDMStructureLocalService ddmStructureLocalService;
-	@BeanReference(type = DDMStructureService.class)
-	protected DDMStructureService ddmStructureService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService ddmStructureLocalService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMStructureService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMStructureService ddmStructureService;
 	@BeanReference(type = DDMStructurePersistence.class)
 	protected DDMStructurePersistence ddmStructurePersistence;
 	@BeanReference(type = DDMStructureFinder.class)
 	protected DDMStructureFinder ddmStructureFinder;
-	@BeanReference(type = DDMStructureLinkLocalService.class)
-	protected DDMStructureLinkLocalService ddmStructureLinkLocalService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService ddmStructureLinkLocalService;
 	@BeanReference(type = DDMStructureLinkPersistence.class)
 	protected DDMStructureLinkPersistence ddmStructureLinkPersistence;
-	@BeanReference(type = DDMTemplateLocalService.class)
-	protected DDMTemplateLocalService ddmTemplateLocalService;
-	@BeanReference(type = DDMTemplateService.class)
-	protected DDMTemplateService ddmTemplateService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalService ddmTemplateLocalService;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService ddmTemplateService;
 	@BeanReference(type = DDMTemplatePersistence.class)
 	protected DDMTemplatePersistence ddmTemplatePersistence;
 	@BeanReference(type = DDMTemplateFinder.class)
 	protected DDMTemplateFinder ddmTemplateFinder;
-	@BeanReference(type = CounterLocalService.class)
-	protected CounterLocalService counterLocalService;
-	@BeanReference(type = GroupLocalService.class)
-	protected GroupLocalService groupLocalService;
-	@BeanReference(type = GroupService.class)
-	protected GroupService groupService;
+	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
+	protected com.liferay.counter.service.CounterLocalService counterLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
+	protected com.liferay.portal.service.GroupLocalService groupLocalService;
+	@BeanReference(type = com.liferay.portal.service.GroupService.class)
+	protected com.liferay.portal.service.GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	@BeanReference(type = GroupFinder.class)
 	protected GroupFinder groupFinder;
-	@BeanReference(type = ResourceLocalService.class)
-	protected ResourceLocalService resourceLocalService;
-	@BeanReference(type = UserLocalService.class)
-	protected UserLocalService userLocalService;
-	@BeanReference(type = UserService.class)
-	protected UserService userService;
+	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
+	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
+	@BeanReference(type = com.liferay.portal.service.SystemEventLocalService.class)
+	protected com.liferay.portal.service.SystemEventLocalService systemEventLocalService;
+	@BeanReference(type = SystemEventPersistence.class)
+	protected SystemEventPersistence systemEventPersistence;
+	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
+	protected com.liferay.portal.service.UserLocalService userLocalService;
+	@BeanReference(type = com.liferay.portal.service.UserService.class)
+	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
-	@BeanReference(type = DLFileEntryTypeLocalService.class)
-	protected DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
-	@BeanReference(type = DLFileEntryTypeService.class)
-	protected DLFileEntryTypeService dlFileEntryTypeService;
+	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService.class)
+	protected com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
+	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService.class)
+	protected com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService dlFileEntryTypeService;
 	@BeanReference(type = DLFileEntryTypePersistence.class)
 	protected DLFileEntryTypePersistence dlFileEntryTypePersistence;
 	@BeanReference(type = DLFileEntryTypeFinder.class)

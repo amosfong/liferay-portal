@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link VirtualHost}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       VirtualHost
+ * @author Brian Wing Shun Chan
+ * @see VirtualHost
  * @generated
  */
 public class VirtualHostWrapper implements VirtualHost,
@@ -283,6 +285,25 @@ public class VirtualHostWrapper implements VirtualHost,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_virtualHost.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof VirtualHostWrapper)) {
+			return false;
+		}
+
+		VirtualHostWrapper virtualHostWrapper = (VirtualHostWrapper)obj;
+
+		if (Validator.equals(_virtualHost, virtualHostWrapper._virtualHost)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

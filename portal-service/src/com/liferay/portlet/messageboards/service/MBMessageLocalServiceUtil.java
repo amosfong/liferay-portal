@@ -165,10 +165,53 @@ public class MBMessageLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.messageboards.model.MBMessage fetchMBMessage(
 		long messageId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchMBMessage(messageId);
+	}
+
+	/**
+	* Returns the message-boards message with the matching UUID and company.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBMessage fetchMBMessageByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchMBMessageByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the message-boards message matching the UUID and group.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBMessage fetchMBMessageByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchMBMessageByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +234,22 @@ public class MBMessageLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the message-boards message with the matching UUID and company.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message-boards message
+	* @throws PortalException if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.messageboards.model.MBMessage getMBMessageByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getMBMessageByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

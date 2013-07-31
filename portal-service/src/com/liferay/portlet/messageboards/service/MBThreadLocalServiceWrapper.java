@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link MBThreadLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       MBThreadLocalService
+ * @author Brian Wing Shun Chan
+ * @see MBThreadLocalService
  * @generated
  */
 public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
@@ -166,11 +166,58 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 		return _mbThreadLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.messageboards.model.MBThread fetchMBThread(
 		long threadId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _mbThreadLocalService.fetchMBThread(threadId);
+	}
+
+	/**
+	* Returns the message boards thread with the matching UUID and company.
+	*
+	* @param uuid the message boards thread's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBThread fetchMBThreadByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadLocalService.fetchMBThreadByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the message boards thread matching the UUID and group.
+	*
+	* @param uuid the message boards thread's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBThread fetchMBThreadByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadLocalService.fetchMBThreadByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -195,6 +242,24 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mbThreadLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the message boards thread with the matching UUID and company.
+	*
+	* @param uuid the message boards thread's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards thread
+	* @throws PortalException if a matching message boards thread could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBThread getMBThreadByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbThreadLocalService.getMBThreadByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -583,10 +648,10 @@ public class MBThreadLocalServiceWrapper implements MBThreadLocalService,
 
 	@Override
 	public com.liferay.portlet.messageboards.model.MBThread moveThreadToTrash(
-		long userId, long entryId)
+		long userId, long threadId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		return _mbThreadLocalService.moveThreadToTrash(userId, entryId);
+		return _mbThreadLocalService.moveThreadToTrash(userId, threadId);
 	}
 
 	@Override

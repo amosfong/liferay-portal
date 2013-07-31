@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ResourcePermission}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ResourcePermission
+ * @author Brian Wing Shun Chan
+ * @see ResourcePermission
  * @generated
  */
 public class ResourcePermissionWrapper implements ResourcePermission,
@@ -397,6 +399,26 @@ public class ResourcePermissionWrapper implements ResourcePermission,
 	@Override
 	public boolean hasActionId(java.lang.String actionId) {
 		return _resourcePermission.hasActionId(actionId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ResourcePermissionWrapper)) {
+			return false;
+		}
+
+		ResourcePermissionWrapper resourcePermissionWrapper = (ResourcePermissionWrapper)obj;
+
+		if (Validator.equals(_resourcePermission,
+					resourcePermissionWrapper._resourcePermission)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

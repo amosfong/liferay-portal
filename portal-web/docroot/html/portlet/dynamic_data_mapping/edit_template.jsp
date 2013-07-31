@@ -18,6 +18,7 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
+boolean showBackURL = ParamUtil.getBoolean(request, "showBackURL", true);
 
 String portletResource = ParamUtil.getString(request, "portletResource");
 
@@ -122,7 +123,8 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	<liferay-ui:header
 		backURL="<%= ddmDisplay.getEditTemplateBackURL(liferayPortletRequest, liferayPortletResponse, classNameId, classPK, portletResource) %>"
 		localizeTitle="<%= false %>"
-		title="<%= title %>"
+		showBackURL="<%= showBackURL %>"
+		title="<%= HtmlUtil.escape(title) %>"
 	/>
 
 	<aui:model-context bean="<%= template %>" model="<%= DDMTemplate.class %>" />
@@ -131,22 +133,20 @@ if (Validator.isNotNull(structureAvailableFields)) {
 		<aui:input name="name" />
 
 		<liferay-ui:panel-container cssClass="lfr-structure-entry-details-container" extended="<%= false %>" id="templateDetailsPanelContainer" persistState="<%= true %>">
-			<liferay-ui:panel collapsible="<%= true %>" extended="<%= false %>" id="templateDetailsSectionPanel" persistState="<%= true %>" title="details">
+			<liferay-ui:panel collapsible="<%= true %>" defaultState="closed" extended="<%= false %>" id="templateDetailsSectionPanel" persistState="<%= true %>" title="details">
 				<c:if test="<%= ddmDisplay.isShowStructureSelector() %>">
 					<aui:field-wrapper helpMessage="structure-help" label="structure">
-						<c:choose>
-							<c:when test="<%= classPK < 0 %>">
-								<liferay-ui:icon
-									image="add"
-									label="<%= true %>"
-									message="select"
-									url='<%= "javascript:" + renderResponse.getNamespace() + "openDDMStructureSelector();" %>'
-								/>
-							</c:when>
-							<c:otherwise>
-								<%= (structure == null) ? "" : structure.getName(locale) %>
-							</c:otherwise>
-						</c:choose>
+						<c:if test="<%= structure != null %>">
+							<%= HtmlUtil.escape(structure.getName(locale)) %>
+						</c:if>
+						<c:if test="<%= ((template == null) || (template.getClassPK() == 0)) %>">
+							<liferay-ui:icon
+								image="add"
+								label="<%= true %>"
+								message="select"
+								url='<%= "javascript:" + renderResponse.getNamespace() + "openDDMStructureSelector();" %>'
+							/>
+						</c:if>
 					</aui:field-wrapper>
 				</c:if>
 
@@ -255,13 +255,15 @@ if (Validator.isNotNull(structureAvailableFields)) {
 					var A = AUI();
 
 					A.one('#<portlet:namespace />mode').on(
-						'valueChange',
+						'change',
 						function(event) {
-							<portlet:namespace />toggleMode(event.newVal);
+							var currentTarget = event.currentTarget;
+
+							<portlet:namespace />toggleMode(currentTarget.get('value'));
 						}
 					);
 				},
-				['event-valuechange']
+				['aui-base']
 			);
 
 			Liferay.on(
@@ -355,7 +357,7 @@ if (Validator.isNotNull(structureAvailableFields)) {
 
 							if (expanded) {
 								types.each(
-									function (item, index, collection) {
+									function(item, index, collection) {
 										if (item.get('checked')) {
 											values.item(index).set('disabled', false);
 										}
@@ -375,24 +377,21 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	</c:otherwise>
 </c:choose>
 
-<c:if test="<%= ddmDisplay.isShowStructureSelector() && (classPK < 0) %>">
+<c:if test="<%= ddmDisplay.isShowStructureSelector() && ((template == null) || (template.getClassPK() == 0)) %>">
 	<aui:script>
 		function <portlet:namespace />openDDMStructureSelector() {
 			Liferay.Util.openDDMPortlet(
 				{
+					basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletKeys.DYNAMIC_DATA_MAPPING, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 					classNameId: '<%= PortalUtil.getClassNameId(DDMStructure.class) %>',
 					classPK: 0,
-					dialog: {
-						modal: true,
-						width: 820
-					},
 					eventName: '<portlet:namespace />selectStructure',
 					groupId: <%= groupId %>,
 					refererPortletName: '<%= PortletKeys.JOURNAL %>',
 					struts_action: '/dynamic_data_mapping/select_structure',
 					title: '<%= UnicodeLanguageUtil.get(pageContext, "structures") %>'
 				},
-				function(event){
+				function(event) {
 					if (confirm('<%= UnicodeLanguageUtil.get(pageContext, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm.<portlet:namespace />classPK.value != event.ddmstructureid)) {
 						document.<portlet:namespace />fm.<portlet:namespace />classPK.value = event.ddmstructureid;
 

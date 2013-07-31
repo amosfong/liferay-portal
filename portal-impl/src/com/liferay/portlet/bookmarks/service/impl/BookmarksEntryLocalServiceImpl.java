@@ -48,6 +48,7 @@ import com.liferay.portlet.bookmarks.util.comparator.EntryModifiedDateComparator
 import com.liferay.portlet.social.model.SocialActivityConstants;
 import com.liferay.portlet.trash.model.TrashEntry;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -172,8 +173,7 @@ public class BookmarksEntryLocalServiceImpl
 
 		// Expando
 
-		expandoValueLocalService.deleteValues(
-			BookmarksEntry.class.getName(), entry.getEntryId());
+		expandoRowLocalService.deleteRows(entry.getEntryId());
 
 		// Subscriptions
 
@@ -494,6 +494,10 @@ public class BookmarksEntryLocalServiceImpl
 
 		bookmarksEntryPersistence.update(entry);
 
+		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
+
+		extraDataJSONObject.put("title", entry.getName());
+
 		if (status == WorkflowConstants.STATUS_APPROVED) {
 
 			// Asset
@@ -510,7 +514,7 @@ public class BookmarksEntryLocalServiceImpl
 				userId, entry.getGroupId(), BookmarksEntry.class.getName(),
 				entry.getEntryId(),
 				SocialActivityConstants.TYPE_RESTORE_FROM_TRASH,
-				StringPool.BLANK, 0);
+				extraDataJSONObject.toString(), 0);
 		}
 		else if (status == WorkflowConstants.STATUS_IN_TRASH) {
 
@@ -527,7 +531,7 @@ public class BookmarksEntryLocalServiceImpl
 			socialActivityLocalService.addActivity(
 				userId, entry.getGroupId(), BookmarksEntry.class.getName(),
 				entry.getEntryId(), SocialActivityConstants.TYPE_MOVE_TO_TRASH,
-				StringPool.BLANK, 0);
+				extraDataJSONObject.toString(), 0);
 		}
 
 		// Trash
@@ -657,20 +661,21 @@ public class BookmarksEntryLocalServiceImpl
 
 		BookmarksFolder folder = entry.getFolder();
 
-		if (folder.getFolderId() !=
-				BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+		List<Long> folderIds = new ArrayList<Long>();
 
+		if (folder != null) {
+			folderIds.add(folder.getFolderId());
+
+			folderIds.addAll(folder.getAncestorFolderIds());
+		}
+
+		for (long curFolderId : folderIds) {
 			subscriptionSender.addPersistedSubscribers(
-				BookmarksFolder.class.getName(), folder.getFolderId());
-
-			for (BookmarksFolder ancestor : folder.getAncestors()) {
-				subscriptionSender.addPersistedSubscribers(
-					BookmarksFolder.class.getName(), ancestor.getFolderId());
-			}
+				BookmarksFolder.class.getName(), curFolderId);
 		}
 
 		subscriptionSender.addPersistedSubscribers(
-			BookmarksFolder.class.getName(), folder.getGroupId());
+			BookmarksFolder.class.getName(), entry.getGroupId());
 
 		subscriptionSender.flushNotificationsAsync();
 	}

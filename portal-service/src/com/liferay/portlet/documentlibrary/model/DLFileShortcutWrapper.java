@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DLFileShortcut}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileShortcut
+ * @author Brian Wing Shun Chan
+ * @see DLFileShortcut
  * @generated
  */
 public class DLFileShortcutWrapper implements DLFileShortcut,
@@ -766,7 +768,9 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public com.liferay.portal.kernel.repository.model.Folder getFolder() {
+	public com.liferay.portal.kernel.repository.model.Folder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileShortcut.getFolder();
 	}
 
@@ -776,7 +780,9 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer() {
+	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileShortcut.getTrashContainer();
 	}
 
@@ -786,8 +792,35 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileShortcut.isInTrashContainer();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DLFileShortcutWrapper)) {
+			return false;
+		}
+
+		DLFileShortcutWrapper dlFileShortcutWrapper = (DLFileShortcutWrapper)obj;
+
+		if (Validator.equals(_dlFileShortcut,
+					dlFileShortcutWrapper._dlFileShortcut)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _dlFileShortcut.getStagedModelType();
 	}
 
 	/**

@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.servlet.ServletResponseConstants;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.upload.UploadException;
@@ -38,9 +37,6 @@ import com.liferay.portal.struts.ActionConstants;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.documentlibrary.DuplicateFileException;
-import com.liferay.portlet.documentlibrary.FileExtensionException;
-import com.liferay.portlet.documentlibrary.FileNameException;
 import com.liferay.portlet.documentlibrary.FileSizeException;
 import com.liferay.portlet.documentlibrary.action.EditFileEntryAction;
 import com.liferay.portlet.wiki.NoSuchNodeException;
@@ -62,8 +58,6 @@ import javax.portlet.PortletConfig;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -75,8 +69,9 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -99,7 +94,8 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 				addAttachment(actionRequest);
 			}
 			else if (cmd.equals(Constants.ADD_MULTIPLE)) {
-				addMultipleFileEntries(actionRequest, actionResponse);
+				addMultipleFileEntries(
+					portletConfig, actionRequest, actionResponse);
 			}
 			else if (cmd.equals(Constants.ADD_TEMP)) {
 				addTempAttachment(actionRequest);
@@ -143,38 +139,18 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 
 				setForward(actionRequest, "portlet.wiki.error");
 			}
-			else if (e instanceof DuplicateFileException ||
-					 e instanceof FileNameException) {
-
-				SessionErrors.add(actionRequest, e.getClass());
-
-				HttpServletResponse response =
-					PortalUtil.getHttpServletResponse(actionResponse);
-
-				if (e instanceof DuplicateFileException) {
-					response.setStatus(
-						ServletResponseConstants.SC_DUPLICATE_FILE_EXCEPTION);
-				}
-				else {
-					response.setStatus(
-						ServletResponseConstants.SC_FILE_NAME_EXCEPTION);
-				}
-			}
-			else if (e instanceof FileExtensionException ||
-					 e instanceof FileSizeException) {
-
-				SessionErrors.add(actionRequest, e.getClass());
-			}
 			else {
-				throw e;
+				handleUploadException(
+					portletConfig, actionRequest, actionResponse, cmd, e);
 			}
 		}
 	}
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		try {
@@ -188,14 +164,14 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 
 				SessionErrors.add(renderRequest, e.getClass());
 
-				return mapping.findForward("portlet.wiki.error");
+				return actionMapping.findForward("portlet.wiki.error");
 			}
 			else {
 				throw e;
 			}
 		}
 
-		return mapping.findForward(
+		return actionMapping.findForward(
 			getForward(renderRequest, "portlet.wiki.edit_page_attachment"));
 	}
 
@@ -260,9 +236,9 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 
 	@Override
 	protected void addMultipleFileEntries(
-			ActionRequest actionRequest, ActionResponse actionResponse,
-			String selectedFileName, List<String> validFileNames,
-			List<KeyValuePair> invalidFileNameKVPs)
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse, String selectedFileName,
+			List<String> validFileNames, List<KeyValuePair> invalidFileNameKVPs)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -288,7 +264,7 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 		}
 		catch (Exception e) {
 			String errorMessage = getAddMultipleFileEntriesErrorMessage(
-				themeDisplay, e);
+				portletConfig, actionRequest, actionResponse, e);
 
 			KeyValuePair invalidFileNameKVP = new KeyValuePair(
 				selectedFileName, errorMessage);
@@ -358,10 +334,7 @@ public class EditPageAttachmentsAction extends EditFileEntryAction {
 				liferayPortletConfig.getPortletId() +
 					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA, data);
 
-			SessionMessages.add(
-				actionRequest,
-				liferayPortletConfig.getPortletId() +
-					SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
+			hideDefaultSuccessMessage(liferayPortletConfig, actionRequest);
 		}
 	}
 

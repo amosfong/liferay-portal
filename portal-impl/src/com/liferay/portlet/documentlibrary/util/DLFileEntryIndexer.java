@@ -412,6 +412,8 @@ public class DLFileEntryIndexer extends BaseIndexer {
 			document.addKeyword(
 				"fileEntryTypeId", dlFileEntry.getFileEntryTypeId());
 			document.addKeyword("path", dlFileEntry.getTitle());
+			document.addKeyword("readCount", dlFileEntry.getReadCount());
+			document.addKeyword("size", dlFileEntry.getSize());
 
 			ExpandoBridge expandoBridge =
 				ExpandoBridgeFactoryUtil.getExpandoBridge(

@@ -92,7 +92,7 @@ import org.junit.Test;
 public class ClusterSchedulerEngineTest {
 
 	@BeforeClass
-	public static void setUp() throws Exception {
+	public static void setUpClass() throws Exception {
 		PortalUtil portalUtil = new PortalUtil();
 
 		portalUtil.setPortal(new PortalImpl());
@@ -1392,10 +1392,7 @@ public class ClusterSchedulerEngineTest {
 		}
 
 		@Override
-		public Lock lock(
-			String className, String key, String owner,
-			boolean retrieveFromCache) {
-
+		public Lock lock(String className, String key, String owner) {
 			if (_lock == null) {
 				Lock lock = new LockImpl();
 
@@ -1411,7 +1408,7 @@ public class ClusterSchedulerEngineTest {
 		@Override
 		public Lock lock(
 			String className, String key, String expectedOwner,
-			String updatedOwner, boolean retrieveFromCache) {
+			String updatedOwner) {
 
 			Lock lock = new LockImpl();
 
@@ -1424,10 +1421,7 @@ public class ClusterSchedulerEngineTest {
 		}
 
 		@Override
-		public void unlock(
-			String className, String key, String owner,
-			boolean retrieveFromCache) {
-
+		public void unlock(String className, String key, String owner) {
 			_lock = null;
 		}
 

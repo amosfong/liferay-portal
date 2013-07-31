@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DDMStructureLink}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMStructureLink
+ * @author Brian Wing Shun Chan
+ * @see DDMStructureLink
  * @generated
  */
 public class DDMStructureLinkWrapper implements DDMStructureLink,
@@ -308,6 +309,26 @@ public class DDMStructureLinkWrapper implements DDMStructureLink,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStructureLink.getStructure();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMStructureLinkWrapper)) {
+			return false;
+		}
+
+		DDMStructureLinkWrapper ddmStructureLinkWrapper = (DDMStructureLinkWrapper)obj;
+
+		if (Validator.equals(_ddmStructureLink,
+					ddmStructureLinkWrapper._ddmStructureLink)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

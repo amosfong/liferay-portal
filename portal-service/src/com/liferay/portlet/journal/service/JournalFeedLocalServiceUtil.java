@@ -165,9 +165,52 @@ public class JournalFeedLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.journal.model.JournalFeed fetchJournalFeed(
 		long id) throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchJournalFeed(id);
+	}
+
+	/**
+	* Returns the journal feed with the matching UUID and company.
+	*
+	* @param uuid the journal feed's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal feed, or <code>null</code> if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalFeed fetchJournalFeedByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchJournalFeedByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the journal feed matching the UUID and group.
+	*
+	* @param uuid the journal feed's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal feed, or <code>null</code> if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalFeed fetchJournalFeedByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchJournalFeedByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -190,6 +233,22 @@ public class JournalFeedLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the journal feed with the matching UUID and company.
+	*
+	* @param uuid the journal feed's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal feed
+	* @throws PortalException if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalFeed getJournalFeedByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getJournalFeedByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -337,6 +396,12 @@ public class JournalFeedLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteFeed(groupId, feedId);
+	}
+
+	public static com.liferay.portlet.journal.model.JournalFeed fetchFeed(
+		long groupId, java.lang.String feedId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchFeed(groupId, feedId);
 	}
 
 	public static com.liferay.portlet.journal.model.JournalFeed getFeed(

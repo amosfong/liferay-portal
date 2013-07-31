@@ -32,9 +32,9 @@ import java.io.RandomAccessFile;
 import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.Pipe;
 import java.nio.channels.Pipe.SinkChannel;
 import java.nio.channels.Pipe.SourceChannel;
-import java.nio.channels.Pipe;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 
@@ -633,9 +633,7 @@ public class ExecutorIntrabandTest {
 	private static final long _DEFAULT_TIMEOUT = Time.SECOND;
 
 	private byte[] _data = _DATA_STRING.getBytes(Charset.defaultCharset());
-
 	private ExecutorIntraband _executorIntraband;
-
 	private byte _type = 1;
 
 }

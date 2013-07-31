@@ -72,7 +72,7 @@ AUI.add(
 
 		var LIFECYCLE_RENDER = 0;
 
-		var LIFECYCLE_PROCESS = 1;
+		var LIFECYCLE_ACTION = 1;
 
 		var MESSAGE_TYPE_ALERT = 'alert';
 
@@ -90,6 +90,8 @@ AUI.add(
 
 		var SELECTOR_CATEGORY_ITEM = '.category-item';
 
+		var SELECTOR_CATEGORY_MESSAGES_EDIT = '#categoryMessagesEdit';
+
 		var SELECTOR_CATEGORY_NAME_INPUT = '.category-name input';
 
 		var SELECTOR_FLOATING_TRIGGER = '.lfr-floating-trigger';
@@ -98,9 +100,11 @@ AUI.add(
 
 		var SELECTOR_UPDATE_VOCABULARY_FORM = 'form.update-vocabulary-form';
 
-		var SELECTOR_VOCABULARY_MESSAGES = '#vocabulary-messages';
+		var SELECTOR_VOCABULARY_MESSAGES = '#vocabularyMessages';
 
-		var SELECTOR_VOCABULARY_CATEGORY_MESSAGES = '#vocabulary-category-messages';
+		var SELECTOR_VOCABULARY_MESSAGES_EDIT = '#vocabularyMessagesEdit';
+
+		var SELECTOR_VOCABULARY_CATEGORY_MESSAGES = '#vocabularyCategoryMessages';
 
 		var SELECTOR_VOCABULARY_NAME_INPUT = '.vocabulary-name input';
 
@@ -169,11 +173,11 @@ AUI.add(
 				'<span class="category-path" title="{path}">{path}</span>' +
 			'</label>';
 
-		var TPL_MESSAGES_CATEGORY = '<div class="hide lfr-message-response" id="vocabulary-category-messages" />';
+		var TPL_MESSAGES_CATEGORY = '<div class="hide lfr-message-response" id="vocabularyCategoryMessages" />';
 
-		var TPL_MESSAGES_PORTLET = '<div class="hide lfr-message-response" id="porlet-messages" />';
+		var TPL_MESSAGES_PORTLET = '<div class="hide lfr-message-response" id="porletMessages" />';
 
-		var TPL_MESSAGES_VOCABULARY = '<div class="hide lfr-message-response" id="vocabulary-messages" />';
+		var TPL_MESSAGES_VOCABULARY = '<div class="hide lfr-message-response" id="vocabularyMessages" />';
 
 		var TPL_SEARCH_QUERY = '%{0}%';
 
@@ -248,9 +252,7 @@ AUI.add(
 
 						instance._categoryViewContainer.on(EVENT_CLICK, instance._onCategoryViewContainerClick, instance);
 
-						var portletMessageContainer = instance._portletMessageContainer;
-
-						instance._hideMessageTask = A.debounce('hide', 7000, portletMessageContainer);
+						instance._hideMessageTask = A.debounce(instance._hideMessage, 7000);
 
 						vocabularyList.on(EVENT_CLICK, instance._onVocabularyListClick, instance);
 
@@ -735,11 +737,13 @@ AUI.add(
 
 						var url;
 
+						var config = instance._originalConfig;
+
 						if (lifecycle == LIFECYCLE_RENDER) {
-							url = Liferay.PortletURL.createRenderURL();
+							url = Liferay.PortletURL.createURL(config.baseRenderURL);
 						}
-						else if (lifecycle == LIFECYCLE_PROCESS) {
-							url = Liferay.PortletURL.createActionURL();
+						else if (lifecycle == LIFECYCLE_ACTION) {
+							url = Liferay.PortletURL.createURL(config.baseActionURL);
 						}
 						else {
 							throw 'Internal error. Unimplemented lifecycle.';
@@ -869,12 +873,12 @@ AUI.add(
 							Liferay.Service(
 								'/assetvocabulary/delete-vocabularies',
 								{
+									vocabularyIds: vocabularyIds,
 									serviceContext: JSON.stringify(
 										{
 											failOnPortalException: false
 										}
-									),
-									vocabularyIds: vocabularyIds
+									)
 								},
 								A.bind('_processVocabularyDeletion', instance)
 							);
@@ -1472,12 +1476,12 @@ AUI.add(
 						Liferay.Service(
 							{
 								'$display = /assetvocabulary/get-group-vocabularies-display': {
-									addDefaultVocabulary: true,
-									end: end,
 									groupId: parentGroupId,
 									name: query,
-									obc: null,
 									start: start,
+									end: end,
+									addDefaultVocabulary: true,
+									obc: null,
 									'vocabularies.$categoriesCount = /assetcategory/get-vocabulary-root-categories-count': {
 										groupId: parentGroupId,
 										'@vocabularyId': '$display.vocabularies.vocabularyId'
@@ -1580,6 +1584,14 @@ AUI.add(
 						var instance = this;
 
 						instance._processAutoFieldsTriggers(event, instance._resetInputLocalized);
+					},
+
+					_hideMessage: function(container) {
+						var instance = this;
+
+						container = container || instance._portletMessageContainer;
+
+						container.hide();
 					},
 
 					_hideSection: function(node) {
@@ -1834,7 +1846,7 @@ AUI.add(
 					_onCategoryAddFailure: function(response) {
 						var instance = this;
 
-						instance._sendMessage(MESSAGE_TYPE_ERROR, Liferay.Language.get('your-request-failed-to-complete'));
+						instance._sendMessage(MESSAGE_TYPE_ERROR, Liferay.Language.get('your-request-failed-to-complete'), SELECTOR_CATEGORY_MESSAGES_EDIT);
 					},
 
 					_onCategoryAddSuccess: function(response, action) {
@@ -1849,7 +1861,7 @@ AUI.add(
 								vocabulary.categoriesCount++;
 							}
 
-							instance._sendMessage(MESSAGE_TYPE_SUCCESS, Liferay.Language.get('your-request-processed-successfully'));
+							instance._sendMessage(MESSAGE_TYPE_SUCCESS, Liferay.Language.get('your-request-processed-successfully'), SELECTOR_CATEGORY_MESSAGES_EDIT);
 
 							instance._selectVocabulary(instance._selectedVocabularyId);
 
@@ -1889,7 +1901,7 @@ AUI.add(
 								errorKey = Liferay.Language.get('your-request-failed-to-complete');
 							}
 
-							instance._sendMessage(MESSAGE_TYPE_ERROR, errorKey);
+							instance._sendMessage(MESSAGE_TYPE_ERROR, errorKey, SELECTOR_CATEGORY_MESSAGES_EDIT);
 						}
 					},
 
@@ -2154,7 +2166,7 @@ AUI.add(
 					_onVocabularyAddFailure: function(response) {
 						var instance = this;
 
-						instance._sendMessage(MESSAGE_TYPE_ERROR, Liferay.Language.get('your-request-failed-to-complete'));
+						instance._sendMessage(MESSAGE_TYPE_ERROR, Liferay.Language.get('your-request-failed-to-complete'), SELECTOR_VOCABULARY_MESSAGES_EDIT);
 					},
 
 					_onVocabularyAddSuccess: function(response) {
@@ -2165,7 +2177,7 @@ AUI.add(
 						var exception = response.exception;
 
 						if (!response.exception) {
-							instance._sendMessage(MESSAGE_TYPE_SUCCESS, Liferay.Language.get('your-request-processed-successfully'));
+							instance._sendMessage(MESSAGE_TYPE_SUCCESS, Liferay.Language.get('your-request-processed-successfully'), SELECTOR_VOCABULARY_MESSAGES_EDIT);
 
 							instance._displayList(
 								function() {
@@ -2202,7 +2214,7 @@ AUI.add(
 								errorKey = Liferay.Language.get('your-request-failed-to-complete');
 							}
 
-							instance._sendMessage(MESSAGE_TYPE_ERROR, errorKey);
+							instance._sendMessage(MESSAGE_TYPE_ERROR, errorKey, SELECTOR_VOCABULARY_MESSAGES_EDIT);
 						}
 					},
 
@@ -2481,10 +2493,10 @@ AUI.add(
 						return vocabulary;
 					},
 
-					_sendMessage: function(type, message) {
+					_sendMessage: function(type, message, container) {
 						var instance = this;
 
-						var output = instance._portletMessageContainer;
+						var output = A.one(container || instance._portletMessageContainer);
 						var typeClass = 'alert alert-' + type;
 
 						output.removeClass(CSS_MESSAGE_ERROR).removeClass(CSS_MESSAGE_SUCCESS);
@@ -2493,7 +2505,7 @@ AUI.add(
 
 						output.show();
 
-						instance._hideMessageTask();
+						instance._hideMessageTask(output);
 					},
 
 					_showCateroryMessage: function(message, className) {
@@ -2575,7 +2587,7 @@ AUI.add(
 							instance._currentPanelEditIOHandle.detach();
 						}
 
-						categoryPanelEdit.set(STR_TITLE, Liferay.Language.get('edit-category'));
+						categoryPanelEdit.titleNode.html(Liferay.Language.get('edit-category'));
 
 						var categoryEditURL = instance._createURL(CATEGORY, ACTION_EDIT, LIFECYCLE_RENDER);
 
@@ -2721,7 +2733,7 @@ AUI.add(
 							instance._currentPanelEditIOHandle.detach();
 						}
 
-						vocabularyPanelEdit.set(STR_TITLE, Liferay.Language.get('edit-vocabulary'));
+						vocabularyPanelEdit.titleNode.html(Liferay.Language.get('edit-vocabulary'));
 
 						var vocabularyEditURL = instance._createURL(TYPE_VOCABULARY, ACTION_EDIT, LIFECYCLE_RENDER);
 
@@ -2795,7 +2807,7 @@ AUI.add(
 					_updateCategory: function(categoryId, parentCategoryId, vocabularyId) {
 						var instance = this;
 
-						var moveURL = instance._createURL(CATEGORY, ACTION_MOVE, LIFECYCLE_PROCESS);
+						var moveURL = instance._createURL(CATEGORY, ACTION_MOVE, LIFECYCLE_ACTION);
 
 						var prefix = instance._prefixedPortletId;
 

@@ -22,8 +22,6 @@ String tabs2 = (String)request.getAttribute("edit_site_assignments.jsp-tabs2");
 
 int cur = (Integer)request.getAttribute("edit_site_assignments.jsp-cur");
 
-String redirect = ParamUtil.getString(request, "redirect");
-
 Group group = (Group)request.getAttribute("edit_site_assignments.jsp-group");
 
 PortletURL portletURL = (PortletURL)request.getAttribute("edit_site_assignments.jsp-portletURL");
@@ -33,7 +31,7 @@ PortletURL viewUsersURL = renderResponse.createRenderURL();
 viewUsersURL.setParameter("struts_action", "/sites_admin/edit_site_assignments");
 viewUsersURL.setParameter("tabs1", "users");
 viewUsersURL.setParameter("tabs2", tabs2);
-viewUsersURL.setParameter("redirect", redirect);
+viewUsersURL.setParameter("redirect", currentURL);
 viewUsersURL.setParameter("groupId", String.valueOf(group.getGroupId()));
 
 UserGroupChecker userGroupChecker = null;
@@ -48,9 +46,9 @@ if (tabs2.equals("current")) {
 	emptyResultsMessage ="no-user-was-found-that-is-a-direct-member-of-this-site";
 }
 
-UserSearch userSearch = new UserSearch(renderRequest, viewUsersURL);
+SearchContainer searchContainer = new UserSearch(renderRequest, viewUsersURL);
 
-userSearch.setEmptyResultsMessage(emptyResultsMessage);
+searchContainer.setEmptyResultsMessage(emptyResultsMessage);
 %>
 
 <aui:input name="tabs1" type="hidden" value="users" />
@@ -61,7 +59,8 @@ userSearch.setEmptyResultsMessage(emptyResultsMessage);
 
 <liferay-ui:search-container
 	rowChecker="<%= userGroupChecker %>"
-	searchContainer="<%= userSearch %>"
+	searchContainer="<%= searchContainer %>"
+	var="userSearchContainer"
 >
 	<c:if test='<%= !tabs1.equals("summary") %>'>
 		<liferay-ui:search-form
@@ -72,7 +71,7 @@ userSearch.setEmptyResultsMessage(emptyResultsMessage);
 	</c:if>
 
 	<%
-	UserSearchTerms searchTerms = (UserSearchTerms)searchContainer.getSearchTerms();
+	UserSearchTerms searchTerms = (UserSearchTerms)userSearchContainer.getSearchTerms();
 
 	LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
@@ -90,7 +89,7 @@ userSearch.setEmptyResultsMessage(emptyResultsMessage);
 			<c:otherwise>
 
 				<%
-				results = UserLocalServiceUtil.getGroupUsers(group.getParentGroupId(), searchContainer.getStart(), searchContainer.getEnd());
+				results = UserLocalServiceUtil.getGroupUsers(group.getParentGroupId(), userSearchContainer.getStart(), userSearchContainer.getEnd());
 				total = UserLocalServiceUtil.getGroupUsersCount(group.getParentGroupId());
 
 				pageContext.setAttribute("results", results);
@@ -251,7 +250,7 @@ userSearch.setEmptyResultsMessage(emptyResultsMessage);
 
 				<liferay-ui:search-iterator paginate="<%= false %>" />
 
-				<c:if test="<%= total > userSearch.getDelta() %>">
+				<c:if test="<%= total > searchContainer.getDelta() %>">
 					<a href="<%= viewUsersURL %>"><liferay-ui:message key="view-more" /> &raquo;</a>
 				</c:if>
 			</liferay-ui:panel>
@@ -259,7 +258,7 @@ userSearch.setEmptyResultsMessage(emptyResultsMessage);
 			<div class="separator"><!-- --></div>
 		</c:when>
 		<c:when test='<%= !tabs1.equals("summary") %>'>
-			<c:if test="<%= total > userSearch.getDelta() %>">
+			<c:if test="<%= total > searchContainer.getDelta() %>">
 				<%= formButton %>
 			</c:if>
 

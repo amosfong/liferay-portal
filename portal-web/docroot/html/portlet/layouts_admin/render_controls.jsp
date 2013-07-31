@@ -20,6 +20,7 @@
 String action = (String)request.getAttribute("render_controls.jsp-action");
 PortletDataHandlerControl[] controls = (PortletDataHandlerControl[])request.getAttribute("render_controls.jsp-controls");
 ManifestSummary manifestSummary = (ManifestSummary)request.getAttribute("render_controls.jsp-manifestSummary");
+String portletId =(String)request.getAttribute("render_controls.jsp-portletId");
 
 for (int i = 0; i < controls.length; i++) {
 %>
@@ -33,30 +34,30 @@ for (int i = 0; i < controls.length; i++) {
 
 				PortletDataHandlerBoolean control = (PortletDataHandlerBoolean)controls[i];
 
-				String controlName = LanguageUtil.get(pageContext, control.getControlName());
+				String controlLabel = LanguageUtil.get(pageContext, control.getControlLabel());
 
 				String className = controls[i].getClassName();
 
 				if (Validator.isNotNull(className) && (manifestSummary != null)) {
-					long modelCount = manifestSummary.getModelCount(className);
+					long modelAdditionCount = manifestSummary.getModelAdditionCount(className, controls[i].getReferrerClassName());
 
-					if (modelCount != 0) {
-						controlName += modelCount > 0 ? " (" + modelCount + ")" : StringPool.BLANK;
+					if (modelAdditionCount != 0) {
+						controlLabel += modelAdditionCount > 0 ? " (" + modelAdditionCount + ")" : StringPool.BLANK;
 					}
 					else {
 						continue;
 					}
 				}
 
-				data.put("name", controlName);
+				data.put("name", controlLabel);
 
 				PortletDataHandlerControl[] children = control.getChildren();
 				%>
 
-				<aui:input data="<%= data %>" disabled="<%= controls[i].isDisabled() %>" helpMessage="<%= control.getHelpMessage(locale, action) %>" label="<%= controlName %>" name="<%= control.getNamespacedControlName() %>" type="checkbox" value="<%= control.getDefaultState() %>" />
+				<aui:input data="<%= data %>" disabled="<%= controls[i].isDisabled() %>" helpMessage="<%= control.getHelpMessage(locale, action) %>" label="<%= controlLabel %>" name="<%= Validator.isNotNull(control.getNamespace()) ? control.getNamespacedControlName() : control.getControlName() + StringPool.UNDERLINE + portletId %>" type="checkbox" value="<%= control.getDefaultState() %>" />
 
 				<c:if test="<%= children != null %>">
-					<ul id="<portlet:namespace /><%= control.getNamespacedControlName() %>Controls">
+					<ul class="unstyled" id="<portlet:namespace /><%= control.getNamespacedControlName() %>Controls">
 
 						<%
 						request.setAttribute("render_controls.jsp-controls", children);
@@ -66,12 +67,12 @@ for (int i = 0; i < controls.length; i++) {
 					</ul>
 
 					<aui:script>
-						Liferay.Util.toggleBoxes('<portlet:namespace /><%= control.getNamespacedControlName() %>Checkbox','<portlet:namespace /><%= control.getNamespacedControlName() %>Controls');
+						Liferay.Util.toggleBoxes('<portlet:namespace /><%= control.getNamespacedControlName() %>Checkbox','<portlet:namespace /><%= control.getNamespacedControlName() %>Controls', false, true);
 					</aui:script>
 				</c:if>
 			</c:when>
 			<c:when test="<%= controls[i] instanceof PortletDataHandlerChoice %>">
-				<aui:field-wrapper label='<%= "&#9632" + LanguageUtil.get(pageContext, controls[i].getControlName()) %>'>
+				<aui:field-wrapper label='<%= "&#9632" + LanguageUtil.get(pageContext, controls[i].getControlLabel()) %>'>
 
 					<%
 					PortletDataHandlerChoice control = (PortletDataHandlerChoice)controls[i];

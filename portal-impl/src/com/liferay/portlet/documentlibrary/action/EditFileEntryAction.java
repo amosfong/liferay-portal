@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -118,8 +119,9 @@ public class EditFileEntryAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -149,7 +151,8 @@ public class EditFileEntryAction extends PortletAction {
 					portletConfig, actionRequest, actionResponse);
 			}
 			else if (cmd.equals(Constants.ADD_MULTIPLE)) {
-				addMultipleFileEntries(actionRequest, actionResponse);
+				addMultipleFileEntries(
+					portletConfig, actionRequest, actionResponse);
 			}
 			else if (cmd.equals(Constants.ADD_TEMP)) {
 				addTempFileEntry(actionRequest);
@@ -184,6 +187,8 @@ public class EditFileEntryAction extends PortletAction {
 				revertFileEntry(actionRequest);
 			}
 
+			WindowState windowState = actionRequest.getWindowState();
+
 			if (cmd.equals(Constants.ADD_TEMP) ||
 				cmd.equals(Constants.DELETE_TEMP)) {
 
@@ -191,7 +196,9 @@ public class EditFileEntryAction extends PortletAction {
 			}
 			else if (cmd.equals(Constants.PREVIEW)) {
 			}
-			else if (!cmd.equals(Constants.MOVE_FROM_TRASH)) {
+			else if (!cmd.equals(Constants.MOVE_FROM_TRASH) &&
+					 !windowState.equals(LiferayWindowState.POP_UP)) {
+
 				sendRedirect(actionRequest, actionResponse);
 			}
 			else {
@@ -210,8 +217,6 @@ public class EditFileEntryAction extends PortletAction {
 					sendRedirect(actionRequest, actionResponse, redirect);
 				}
 				else {
-					WindowState windowState = actionRequest.getWindowState();
-
 					if (!windowState.equals(LiferayWindowState.POP_UP)) {
 						sendRedirect(actionRequest, actionResponse);
 					}
@@ -220,6 +225,17 @@ public class EditFileEntryAction extends PortletAction {
 							ParamUtil.getString(actionRequest, "redirect"));
 
 						if (Validator.isNotNull(redirect)) {
+							if (cmd.equals(Constants.ADD) &&
+								(fileEntry != null)) {
+
+								redirect = HttpUtil.addParameter(
+									redirect, "className",
+									DLFileEntry.class.getName());
+								redirect = HttpUtil.addParameter(
+									redirect, "classPK",
+									fileEntry.getFileEntryId());
+							}
+
 							actionResponse.sendRedirect(redirect);
 						}
 					}
@@ -234,8 +250,9 @@ public class EditFileEntryAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		try {
@@ -249,7 +266,8 @@ public class EditFileEntryAction extends PortletAction {
 
 				SessionErrors.add(renderRequest, e.getClass());
 
-				return mapping.findForward("portlet.document_library.error");
+				return actionMapping.findForward(
+					"portlet.document_library.error");
 			}
 			else {
 				throw e;
@@ -258,13 +276,14 @@ public class EditFileEntryAction extends PortletAction {
 
 		String forward = "portlet.document_library.edit_file_entry";
 
-		return mapping.findForward(getForward(renderRequest, forward));
+		return actionMapping.findForward(getForward(renderRequest, forward));
 	}
 
 	@Override
 	public void serveResource(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ResourceRequest resourceRequest,
+			ResourceResponse resourceResponse)
 		throws Exception {
 
 		PortletContext portletContext = portletConfig.getPortletContext();
@@ -278,7 +297,8 @@ public class EditFileEntryAction extends PortletAction {
 	}
 
 	protected void addMultipleFileEntries(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		List<String> validFileNames = new ArrayList<String>();
@@ -289,8 +309,8 @@ public class EditFileEntryAction extends PortletAction {
 
 		for (String selectedFileName : selectedFileNames) {
 			addMultipleFileEntries(
-				actionRequest, actionResponse, selectedFileName, validFileNames,
-				invalidFileNameKVPs);
+				portletConfig, actionRequest, actionResponse, selectedFileName,
+				validFileNames, invalidFileNameKVPs);
 		}
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
@@ -321,9 +341,9 @@ public class EditFileEntryAction extends PortletAction {
 	}
 
 	protected void addMultipleFileEntries(
-			ActionRequest actionRequest, ActionResponse actionResponse,
-			String selectedFileName, List<String> validFileNames,
-			List<KeyValuePair> invalidFileNameKVPs)
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse, String selectedFileName,
+			List<String> validFileNames, List<KeyValuePair> invalidFileNameKVPs)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -366,7 +386,7 @@ public class EditFileEntryAction extends PortletAction {
 		}
 		catch (Exception e) {
 			String errorMessage = getAddMultipleFileEntriesErrorMessage(
-				themeDisplay, e);
+				portletConfig, actionRequest, actionResponse, e);
 
 			invalidFileNameKVPs.add(
 				new KeyValuePair(selectedFileName, errorMessage));
@@ -527,10 +547,7 @@ public class EditFileEntryAction extends PortletAction {
 				SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
 			data);
 
-		SessionMessages.add(
-			actionRequest,
-			liferayPortletConfig.getPortletId() +
-				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
+		hideDefaultSuccessMessage(liferayPortletConfig, actionRequest);
 	}
 
 	protected void deleteTempFileEntry(
@@ -564,10 +581,14 @@ public class EditFileEntryAction extends PortletAction {
 	}
 
 	protected String getAddMultipleFileEntriesErrorMessage(
-			ThemeDisplay themeDisplay, Exception e)
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse, Exception e)
 		throws Exception {
 
 		String errorMessage = null;
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
 		if (e instanceof AssetCategoryException) {
 			AssetCategoryException ace = (AssetCategoryException)e;
@@ -602,9 +623,9 @@ public class EditFileEntryAction extends PortletAction {
 		else if (e instanceof FileExtensionException) {
 			errorMessage = themeDisplay.translate(
 				"please-enter-a-file-with-a-valid-extension-x",
-				StringUtil.merge(
-					PrefsPropsUtil.getStringArray(
-						PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)));
+					StringUtil.merge(
+						getAllowedFileExtensions(
+							portletConfig, actionRequest, actionResponse)));
 		}
 		else if (e instanceof FileNameException) {
 			errorMessage = themeDisplay.translate(
@@ -634,23 +655,29 @@ public class EditFileEntryAction extends PortletAction {
 			PortletResponse portletResponse)
 		throws PortalException, SystemException {
 
-		PortletPreferences preferences = portletRequest.getPreferences();
-
-		String portletResource = ParamUtil.getString(
-			portletRequest, "portletResource");
-
-		if (Validator.isNotNull(portletResource)) {
-			preferences = PortletPreferencesFactoryUtil.getPortletSetup(
-				portletRequest, portletResource);
-		}
-
 		String portletName = portletConfig.getPortletName();
 
-		if (portletName.equals(PortletKeys.MEDIA_GALLERY_DISPLAY)) {
+		if (!portletName.equals(PortletKeys.MEDIA_GALLERY_DISPLAY)) {
+			return PrefsPropsUtil.getStringArray(
+				PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA);
+		}
+		else {
+			PortletPreferences portletPreferences =
+				portletRequest.getPreferences();
+
+			String portletResource = ParamUtil.getString(
+				portletRequest, "portletResource");
+
+			if (Validator.isNotNull(portletResource)) {
+				portletPreferences =
+					PortletPreferencesFactoryUtil.getPortletSetup(
+						portletRequest, portletResource);
+			}
+
 			Set<String> extensions = new HashSet<String>();
 
 			String[] mimeTypes = DLUtil.getMediaGalleryMimeTypes(
-				preferences, portletRequest);
+				portletPreferences, portletRequest);
 
 			for (String mimeType : mimeTypes) {
 				extensions.addAll(MimeTypesUtil.getExtensions(mimeType));
@@ -658,9 +685,6 @@ public class EditFileEntryAction extends PortletAction {
 
 			return extensions.toArray(new String[extensions.size()]);
 		}
-
-		return PrefsPropsUtil.getStringArray(
-			PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA);
 	}
 
 	protected String getSaveAndContinueRedirect(
@@ -752,8 +776,7 @@ public class EditFileEntryAction extends PortletAction {
 				}
 				else if (e instanceof FileExtensionException) {
 					errorMessage = themeDisplay.translate(
-						"document-names-must-end-with-one-of-the-following-" +
-							"extensions",
+						"please-enter-a-file-with-a-valid-extension-x",
 						StringUtil.merge(
 							getAllowedFileExtensions(
 								portletConfig, actionRequest, actionResponse)));

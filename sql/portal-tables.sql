@@ -206,8 +206,8 @@ create table AssetVocabulary (
 	settings_ STRING null
 );
 
-create table BTEntry (
-	btEntryId LONG not null primary key,
+create table BackgroundTask (
+	backgroundTaskId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
 	userId LONG,
@@ -220,7 +220,8 @@ create table BTEntry (
 	taskContext TEXT null,
 	completed BOOLEAN,
 	completionDate DATE null,
-	status INTEGER
+	status INTEGER,
+	statusMessage TEXT null
 );
 
 create table BlogsEntry (
@@ -563,8 +564,6 @@ create table DLFileEntry (
 	companyId LONG,
 	userId LONG,
 	userName VARCHAR(75) null,
-	versionUserId LONG,
-	versionUserName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
 	classNameId LONG,
@@ -625,14 +624,11 @@ create table DLFileEntryTypes_DLFolders (
 );
 
 create table DLFileRank (
-	uuid_ VARCHAR(75) null,
 	fileRankId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
 	userId LONG,
-	userName VARCHAR(75) null,
 	createDate DATE null,
-	modifiedDate DATE null,
 	fileEntryId LONG,
 	active_ BOOLEAN
 );
@@ -708,6 +704,14 @@ create table DLFolder (
 	statusDate DATE null
 );
 
+create table DLSyncEvent (
+	syncEventId LONG not null primary key,
+	modifiedDate LONG,
+	event VARCHAR(75) null,
+	type_ VARCHAR(75) null,
+	typePK LONG
+);
+
 create table EmailAddress (
 	uuid_ VARCHAR(75) null,
 	emailAddressId LONG not null primary key,
@@ -773,8 +777,11 @@ create table Group_ (
 	description STRING null,
 	type_ INTEGER,
 	typeSettings TEXT null,
+	manualMembership BOOLEAN,
+	membershipRestriction INTEGER,
 	friendlyURL VARCHAR(255) null,
 	site BOOLEAN,
+	remoteStagingGroupCount INTEGER,
 	active_ BOOLEAN
 );
 
@@ -911,43 +918,6 @@ create table JournalFolder (
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
 	statusDate DATE null
-);
-
-create table JournalStructure (
-	uuid_ VARCHAR(75) null,
-	id_ LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	structureId VARCHAR(75) null,
-	parentStructureId VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	xsd TEXT null
-);
-
-create table JournalTemplate (
-	uuid_ VARCHAR(75) null,
-	id_ LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	templateId VARCHAR(75) null,
-	structureId VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	xsl TEXT null,
-	langType VARCHAR(75) null,
-	cacheable BOOLEAN,
-	smallImage BOOLEAN,
-	smallImageId LONG,
-	smallImageURL STRING null
 );
 
 create table Layout (
@@ -1099,7 +1069,7 @@ create table LayoutSetBranch (
 	wapThemeId VARCHAR(75) null,
 	wapColorSchemeId VARCHAR(75) null,
 	css TEXT null,
-	settings_ STRING null,
+	settings_ TEXT null,
 	layoutSetPrototypeUuid VARCHAR(75) null,
 	layoutSetPrototypeLinkEnabled BOOLEAN
 );
@@ -2028,6 +1998,7 @@ create table SocialActivitySet (
 	classNameId LONG,
 	classPK LONG,
 	type_ INTEGER,
+	extraData STRING null,
 	activityCount INTEGER
 );
 
@@ -2079,6 +2050,23 @@ create table Subscription (
 	frequency VARCHAR(75) null
 );
 
+create table SystemEvent (
+	systemEventId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	classNameId LONG,
+	classPK LONG,
+	classUuid VARCHAR(75) null,
+	referrerClassNameId LONG,
+	parentSystemEventId LONG,
+	systemEventSetKey LONG,
+	type_ INTEGER,
+	extraData TEXT null
+);
+
 create table Team (
 	teamId LONG not null primary key,
 	companyId LONG,
@@ -2122,6 +2110,17 @@ create table TrashVersion (
 	classNameId LONG,
 	classPK LONG,
 	status INTEGER
+);
+
+create table UserNotificationDelivery (
+	userNotificationDeliveryId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	portletId VARCHAR(200) null,
+	classNameId LONG,
+	notificationType INTEGER,
+	deliveryType INTEGER,
+	deliver BOOLEAN
 );
 
 create table User_ (

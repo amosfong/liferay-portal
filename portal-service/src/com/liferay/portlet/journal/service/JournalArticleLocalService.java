@@ -152,9 +152,48 @@ public interface JournalArticleLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.journal.model.JournalArticle fetchJournalArticle(
 		long id) throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the journal article with the matching UUID and company.
+	*
+	* @param uuid the journal article's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal article, or <code>null</code> if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.journal.model.JournalArticle fetchJournalArticleByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the journal article matching the UUID and group.
+	*
+	* @param uuid the journal article's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal article, or <code>null</code> if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.journal.model.JournalArticle fetchJournalArticleByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
 	* Returns the journal article with the primary key.
@@ -174,6 +213,21 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the journal article with the matching UUID and company.
+	*
+	* @param uuid the journal article's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal article
+	* @throws PortalException if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.journal.model.JournalArticle getJournalArticleByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
@@ -721,17 +775,14 @@ public interface JournalArticleLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
-	/**
-	* Returns the web content article matching the UUID and group.
-	*
-	* @param uuid the web content article's UUID
-	* @param groupId the primary key of the web content article's group
-	* @return the matching web content article
-	* @throws SystemException if a system exception occurred
-	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.journal.model.JournalArticle fetchArticle(
-		java.lang.String uuid, long groupId)
+		long groupId, java.lang.String articleId, double version)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.journal.model.JournalArticle fetchLatestArticle(
+		long resourcePrimKey, int status, boolean preferApproved)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
@@ -1834,6 +1885,12 @@ public interface JournalArticleLocalService extends BaseLocalService,
 	public int getTemplateArticlesCount(long groupId,
 		java.lang.String ddmTemplateKey)
 		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.lang.String getUniqueUrlTitle(long groupId,
+		java.lang.String articleId, java.lang.String urlTitle)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	/**
 	* Returns <code>true</code> if the specified web content article exists.

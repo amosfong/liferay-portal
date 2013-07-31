@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.documentlibrary.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DLFileEntryMetadata}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileEntryMetadata
+ * @author Brian Wing Shun Chan
+ * @see DLFileEntryMetadata
  * @generated
  */
 public class DLFileEntryMetadataWrapper implements DLFileEntryMetadata,
@@ -388,6 +389,26 @@ public class DLFileEntryMetadataWrapper implements DLFileEntryMetadata,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryMetadata.getFileVersion();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DLFileEntryMetadataWrapper)) {
+			return false;
+		}
+
+		DLFileEntryMetadataWrapper dlFileEntryMetadataWrapper = (DLFileEntryMetadataWrapper)obj;
+
+		if (Validator.equals(_dlFileEntryMetadata,
+					dlFileEntryMetadataWrapper._dlFileEntryMetadata)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

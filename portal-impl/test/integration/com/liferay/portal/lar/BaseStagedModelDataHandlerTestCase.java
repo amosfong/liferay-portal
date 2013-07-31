@@ -33,6 +33,8 @@ import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.service.GroupLocalServiceUtil;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.util.GroupTestUtil;
 import com.liferay.portal.util.TestPropsValues;
 
@@ -63,12 +65,16 @@ public abstract class BaseStagedModelDataHandlerTestCase extends PowerMockito {
 
 		liveGroup = GroupTestUtil.addGroup();
 		stagingGroup = GroupTestUtil.addGroup();
+
+		ServiceContextThreadLocal.pushServiceContext(new ServiceContext());
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		GroupLocalServiceUtil.deleteGroup(liveGroup);
 		GroupLocalServiceUtil.deleteGroup(stagingGroup);
+
+		ServiceContextThreadLocal.popServiceContext();
 	}
 
 	@Test
@@ -163,10 +169,19 @@ public abstract class BaseStagedModelDataHandlerTestCase extends PowerMockito {
 			PortletDataHandlerKeys.IGNORE_LAST_PUBLISH_DATE,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION_ALL,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
 			PortletDataHandlerKeys.PORTLET_DATA,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.PORTLET_DATA_ALL,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.PORTLET_SETUP_ALL,
 			new String[] {Boolean.TRUE.toString()});
 
 		return parameterMap;
@@ -249,10 +264,9 @@ public abstract class BaseStagedModelDataHandlerTestCase extends PowerMockito {
 				dependentStagedModels = ListUtil.copy(dependentStagedModels);
 			}
 
-			String stagedModelClassSimpleName =
-				getStagedModelClass().getSimpleName();
+			Class<?> stagedModelClass = getStagedModelClass();
 
-			if (className.equals(stagedModelClassSimpleName)) {
+			if (className.equals(stagedModelClass.getSimpleName())) {
 				dependentStagedModels.add(stagedModel);
 			}
 

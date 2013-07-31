@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link PasswordTracker}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PasswordTracker
+ * @author Brian Wing Shun Chan
+ * @see PasswordTracker
  * @generated
  */
 public class PasswordTrackerWrapper implements PasswordTracker,
@@ -307,6 +309,26 @@ public class PasswordTrackerWrapper implements PasswordTracker,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_passwordTracker.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PasswordTrackerWrapper)) {
+			return false;
+		}
+
+		PasswordTrackerWrapper passwordTrackerWrapper = (PasswordTrackerWrapper)obj;
+
+		if (Validator.equals(_passwordTracker,
+					passwordTrackerWrapper._passwordTracker)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

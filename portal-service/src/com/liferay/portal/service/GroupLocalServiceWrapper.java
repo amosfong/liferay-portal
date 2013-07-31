@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link GroupLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       GroupLocalService
+ * @author Brian Wing Shun Chan
+ * @see GroupLocalService
  * @generated
  */
 public class GroupLocalServiceWrapper implements GroupLocalService,
@@ -163,10 +163,41 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 		return _groupLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portal.model.Group fetchGroup(long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _groupLocalService.fetchGroup(groupId);
+	}
+
+	/**
+	* Returns the group with the matching UUID and company.
+	*
+	* @param uuid the group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching group, or <code>null</code> if a matching group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.Group fetchGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.fetchGroupByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -193,20 +224,20 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	}
 
 	/**
-	* Returns the group matching the UUID and group.
+	* Returns the group with the matching UUID and company.
 	*
 	* @param uuid the group's UUID
-	* @param groupId the primary key of the group
+	* @param companyId the primary key of the company
 	* @return the matching group
 	* @throws PortalException if a matching group could not be found
 	* @throws SystemException if a system exception occurred
 	*/
 	@Override
-	public com.liferay.portal.model.Group getGroupByUuidAndGroupId(
-		java.lang.String uuid, long groupId)
+	public com.liferay.portal.model.Group getGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
-		return _groupLocalService.getGroupByUuidAndGroupId(uuid, groupId);
+		return _groupLocalService.getGroupByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -914,13 +945,14 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	public com.liferay.portal.model.Group addGroup(long userId,
 		long parentGroupId, java.lang.String className, long classPK,
 		long liveGroupId, java.lang.String name, java.lang.String description,
-		int type, java.lang.String friendlyURL, boolean site, boolean active,
+		int type, boolean manualMembership, int membershipRestriction,
+		java.lang.String friendlyURL, boolean site, boolean active,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _groupLocalService.addGroup(userId, parentGroupId, className,
-			classPK, liveGroupId, name, description, type, friendlyURL, site,
-			active, serviceContext);
+			classPK, liveGroupId, name, description, type, manualMembership,
+			membershipRestriction, friendlyURL, site, active, serviceContext);
 	}
 
 	/**
@@ -948,8 +980,8 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	the group
 	* @throws SystemException if a system exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, String, String, int, String, boolean, boolean,
-	ServiceContext)}
+	long, long, String, String, int, boolean, int, String,
+	boolean, boolean, ServiceContext)}
 	*/
 	@Override
 	public com.liferay.portal.model.Group addGroup(long userId,
@@ -990,8 +1022,8 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	the group
 	* @throws SystemException if a system exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, String, String, int, String, boolean, boolean,
-	ServiceContext)}
+	long, long, String, String, int, boolean, int, String,
+	boolean, boolean, ServiceContext)}
 	*/
 	@Override
 	public com.liferay.portal.model.Group addGroup(long userId,
@@ -1030,8 +1062,8 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	the group
 	* @throws SystemException if a system exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, String, String, int, String, boolean, boolean,
-	ServiceContext)}
+	long, long, String, String, int, boolean, int, String,
+	boolean, boolean, ServiceContext)}
 	*/
 	@Override
 	public com.liferay.portal.model.Group addGroup(long userId,
@@ -1079,6 +1111,20 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 		_groupLocalService.checkSystemGroups(companyId);
 	}
 
+	@Override
+	public void disableStaging(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_groupLocalService.disableStaging(groupId);
+	}
+
+	@Override
+	public void enableStaging(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_groupLocalService.enableStaging(groupId);
+	}
+
 	/**
 	* Returns the group with the matching friendly URL.
 	*
@@ -1110,22 +1156,6 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 		java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _groupLocalService.fetchGroup(companyId, name);
-	}
-
-	/**
-	* Returns the group with the matching UUID and company.
-	*
-	* @param uuid the UUID
-	* @param companyId the primary key of the company
-	* @return the matching group, or <code>null</code> if a matching group
-	could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	@Override
-	public com.liferay.portal.model.Group fetchGroupByUuidandCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _groupLocalService.fetchGroupByUuidandCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -1737,6 +1767,23 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _groupLocalService.getUserPersonalSiteGroup(companyId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
+		long userId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.getUserSitesGroups(userId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
+		long userId, boolean includeAdministrative)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _groupLocalService.getUserSitesGroups(userId,
+			includeAdministrative);
 	}
 
 	/**
@@ -2931,12 +2978,14 @@ public class GroupLocalServiceWrapper implements GroupLocalService,
 	@Override
 	public com.liferay.portal.model.Group updateGroup(long groupId,
 		long parentGroupId, java.lang.String name,
-		java.lang.String description, int type, java.lang.String friendlyURL,
+		java.lang.String description, int type, boolean manualMembership,
+		int membershipRestriction, java.lang.String friendlyURL,
 		boolean active, com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _groupLocalService.updateGroup(groupId, parentGroupId, name,
-			description, type, friendlyURL, active, serviceContext);
+			description, type, manualMembership, membershipRestriction,
+			friendlyURL, active, serviceContext);
 	}
 
 	/**

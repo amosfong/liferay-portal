@@ -14,6 +14,9 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Address}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Address
+ * @author Brian Wing Shun Chan
+ * @see Address
  * @generated
  */
 public class AddressWrapper implements Address, ModelWrapper<Address> {
@@ -760,6 +763,30 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	@Override
 	public com.liferay.portal.model.ListType getType() {
 		return _address.getType();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof AddressWrapper)) {
+			return false;
+		}
+
+		AddressWrapper addressWrapper = (AddressWrapper)obj;
+
+		if (Validator.equals(_address, addressWrapper._address)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _address.getStagedModelType();
 	}
 
 	/**

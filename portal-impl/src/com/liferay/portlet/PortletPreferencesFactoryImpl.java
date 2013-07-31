@@ -46,6 +46,7 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portal.xml.StAXReaderUtil;
+import com.liferay.portlet.portletconfiguration.util.ConfigurationPortletRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +56,7 @@ import java.util.Map;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PreferencesValidator;
+import javax.portlet.filter.PortletRequestWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -379,6 +381,16 @@ public class PortletPreferencesFactoryImpl
 			String defaultPreferences)
 		throws PortalException, SystemException {
 
+		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
+			JavaConstants.JAVAX_PORTLET_REQUEST);
+
+		if (portletRequest instanceof ConfigurationPortletRequest) {
+			PortletRequestWrapper portletRequestWrapper =
+				(PortletRequestWrapper)portletRequest;
+
+			return portletRequestWrapper.getPreferences();
+		}
+
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -414,17 +426,22 @@ public class PortletPreferencesFactoryImpl
 	public PortletPreferences getPortletSetup(PortletRequest portletRequest)
 		throws PortalException, SystemException {
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
 		String portletId = PortalUtil.getPortletId(portletRequest);
 
-		return getPortletSetup(request, portletId);
+		return getPortletSetup(portletRequest, portletId);
 	}
 
 	@Override
 	public PortletPreferences getPortletSetup(
 			PortletRequest portletRequest, String portletId)
 		throws PortalException, SystemException {
+
+		if (portletRequest instanceof ConfigurationPortletRequest) {
+			PortletRequestWrapper portletRequestWrapper =
+				(PortletRequestWrapper)portletRequest;
+
+			return portletRequestWrapper.getPreferences();
+		}
 
 		HttpServletRequest request = PortalUtil.getHttpServletRequest(
 			portletRequest);

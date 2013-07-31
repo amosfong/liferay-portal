@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link JournalArticleResourceLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalArticleResourceLocalService
+ * @author Brian Wing Shun Chan
+ * @see JournalArticleResourceLocalService
  * @generated
  */
 public class JournalArticleResourceLocalServiceWrapper
@@ -168,11 +168,44 @@ public class JournalArticleResourceLocalServiceWrapper
 		return _journalArticleResourceLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleResourceLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.journal.model.JournalArticleResource fetchJournalArticleResource(
 		long resourcePrimKey)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleResourceLocalService.fetchJournalArticleResource(resourcePrimKey);
+	}
+
+	/**
+	* Returns the journal article resource matching the UUID and group.
+	*
+	* @param uuid the journal article resource's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal article resource, or <code>null</code> if a matching journal article resource could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.journal.model.JournalArticleResource fetchJournalArticleResourceByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleResourceLocalService.fetchJournalArticleResourceByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**

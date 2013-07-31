@@ -54,10 +54,10 @@ import java.rmi.RemoteException;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       CompanyServiceHttp
- * @see       com.liferay.portal.model.CompanySoap
- * @see       com.liferay.portal.service.CompanyServiceUtil
+ * @author Brian Wing Shun Chan
+ * @see CompanyServiceHttp
+ * @see com.liferay.portal.model.CompanySoap
+ * @see com.liferay.portal.service.CompanyServiceUtil
  * @generated
  */
 public class CompanyServiceSoap {
@@ -85,6 +85,20 @@ public class CompanyServiceSoap {
 		try {
 			com.liferay.portal.model.Company returnValue = CompanyServiceUtil.addCompany(webId,
 					virtualHost, mx, shardName, system, maxUsers, active);
+
+			return com.liferay.portal.model.CompanySoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.CompanySoap deleteCompany(
+		long companyId) throws RemoteException {
+		try {
+			com.liferay.portal.model.Company returnValue = CompanyServiceUtil.deleteCompany(companyId);
 
 			return com.liferay.portal.model.CompanySoap.toSoapModel(returnValue);
 		}

@@ -152,6 +152,19 @@ public interface SocialActivitySetLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.social.model.SocialActivitySet fetchSocialActivitySet(
 		long activitySetId)
@@ -286,6 +299,11 @@ public interface SocialActivitySetLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.social.model.SocialActivitySet getUserActivitySet(
+		long groupId, long userId, long classNameId, int type)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.social.model.SocialActivitySet> getUserActivitySets(
 		long userId, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -301,6 +319,15 @@ public interface SocialActivitySetLocalService extends BaseLocalService,
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getUserGroupsActivitySetsCount(long userId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.portlet.social.model.SocialActivitySet> getUserViewableActivitySets(
+		long userId, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getUserViewableActivitySetsCount(long userId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	public void incrementActivityCount(long activitySetId, long activityId)

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Shard}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Shard
+ * @author Brian Wing Shun Chan
+ * @see Shard
  * @generated
  */
 public class ShardWrapper implements Shard, ModelWrapper<Shard> {
@@ -297,6 +299,25 @@ public class ShardWrapper implements Shard, ModelWrapper<Shard> {
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_shard.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ShardWrapper)) {
+			return false;
+		}
+
+		ShardWrapper shardWrapper = (ShardWrapper)obj;
+
+		if (Validator.equals(_shard, shardWrapper._shard)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

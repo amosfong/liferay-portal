@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link MembershipRequestLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       MembershipRequestLocalService
+ * @author Brian Wing Shun Chan
+ * @see MembershipRequestLocalService
  * @generated
  */
 public class MembershipRequestLocalServiceWrapper
@@ -164,6 +164,23 @@ public class MembershipRequestLocalServiceWrapper
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _membershipRequestLocalService.dynamicQueryCount(dynamicQuery);
+	}
+
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _membershipRequestLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
 	}
 
 	@Override

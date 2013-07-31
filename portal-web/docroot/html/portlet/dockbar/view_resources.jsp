@@ -56,8 +56,6 @@ boolean viewPreview = ParamUtil.getBoolean(request, "viewPreview");
 					int deltaDefault = GetterUtil.getInteger(SessionClicks.get(request, "liferay_addpanel_numitems", "10"));
 					int delta = ParamUtil.getInteger(request, "delta", deltaDefault);
 
-					long[] groupIds = new long[]{scopeGroupId};
-
 					long[] availableClassNameIds = AssetRendererFactoryRegistryUtil.getClassNameIds(company.getCompanyId());
 
 					for (long classNameId : availableClassNameIds) {
@@ -72,7 +70,7 @@ boolean viewPreview = ParamUtil.getBoolean(request, "viewPreview");
 
 					assetEntryQuery.setClassNameIds(availableClassNameIds);
 					assetEntryQuery.setEnd(delta);
-					assetEntryQuery.setGroupIds(groupIds);
+					assetEntryQuery.setGroupIds(new long[] {scopeGroupId});
 					assetEntryQuery.setKeywords(keywords);
 					assetEntryQuery.setOrderByCol1("modifiedDate");
 					assetEntryQuery.setOrderByCol2("title");

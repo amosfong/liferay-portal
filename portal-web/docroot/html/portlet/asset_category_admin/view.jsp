@@ -40,7 +40,7 @@
 			</c:if>
 
 			<aui:nav-item dropdown="<%= true %>" label="actions">
-				<aui:nav-item iconClass="icon-trash" id="deleteSelectedItems" label="delete" />
+				<aui:nav-item iconClass="icon-remove" id="deleteSelectedItems" label="delete" />
 			</aui:nav-item>
 		</aui:nav>
 
@@ -93,6 +93,8 @@
 <aui:script use="liferay-category-admin">
 	new Liferay.Portlet.AssetCategoryAdmin(
 		{
+			baseActionURL: '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.ACTION_PHASE) %>',
+			baseRenderURL: '<%= PortletURLFactoryUtil.create(request, portletDisplay.getId(), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 			itemsPerPage: <%= SearchContainer.DEFAULT_DELTA %>,
 			portletId: '<%= portletDisplay.getId() %>'
 		}

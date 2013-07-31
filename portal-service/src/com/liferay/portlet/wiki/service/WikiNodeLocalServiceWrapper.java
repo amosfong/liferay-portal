@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link WikiNodeLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       WikiNodeLocalService
+ * @author Brian Wing Shun Chan
+ * @see WikiNodeLocalService
  * @generated
  */
 public class WikiNodeLocalServiceWrapper implements WikiNodeLocalService,
@@ -164,10 +164,57 @@ public class WikiNodeLocalServiceWrapper implements WikiNodeLocalService,
 		return _wikiNodeLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiNodeLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.wiki.model.WikiNode fetchWikiNode(long nodeId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiNodeLocalService.fetchWikiNode(nodeId);
+	}
+
+	/**
+	* Returns the wiki node with the matching UUID and company.
+	*
+	* @param uuid the wiki node's UUID
+	* @param companyId the primary key of the company
+	* @return the matching wiki node, or <code>null</code> if a matching wiki node could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.wiki.model.WikiNode fetchWikiNodeByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiNodeLocalService.fetchWikiNodeByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the wiki node matching the UUID and group.
+	*
+	* @param uuid the wiki node's UUID
+	* @param groupId the primary key of the group
+	* @return the matching wiki node, or <code>null</code> if a matching wiki node could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.wiki.model.WikiNode fetchWikiNodeByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiNodeLocalService.fetchWikiNodeByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +238,24 @@ public class WikiNodeLocalServiceWrapper implements WikiNodeLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _wikiNodeLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the wiki node with the matching UUID and company.
+	*
+	* @param uuid the wiki node's UUID
+	* @param companyId the primary key of the company
+	* @return the matching wiki node
+	* @throws PortalException if a matching wiki node could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.wiki.model.WikiNode getWikiNodeByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _wikiNodeLocalService.getWikiNodeByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -351,10 +416,17 @@ public class WikiNodeLocalServiceWrapper implements WikiNodeLocalService,
 	}
 
 	@Override
-	public com.liferay.portlet.wiki.model.WikiNode fetchWikiNode(long groupId,
+	public com.liferay.portlet.wiki.model.WikiNode fetchNode(long groupId,
 		java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _wikiNodeLocalService.fetchWikiNode(groupId, name);
+		return _wikiNodeLocalService.fetchNode(groupId, name);
+	}
+
+	@Override
+	public com.liferay.portlet.wiki.model.WikiNode fetchNodeByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiNodeLocalService.fetchNodeByUuidAndGroupId(uuid, groupId);
 	}
 
 	@Override

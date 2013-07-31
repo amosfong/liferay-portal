@@ -33,6 +33,10 @@ portletURL.setParameter("tabs1", tabs1);
 portletURL.setParameter("tabs2", tabs2);
 portletURL.setParameter("redirect", redirect);
 portletURL.setParameter("organizationId", String.valueOf(organization.getOrganizationId()));
+
+UsersAdminUtil.addPortletBreadcrumbEntries(organization, request, renderResponse);
+
+PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "assign-members"), currentURL);
 %>
 
 <liferay-ui:header
@@ -67,13 +71,14 @@ portletURL.setParameter("organizationId", String.valueOf(organization.getOrganiz
 	<liferay-ui:search-container
 		rowChecker="<%= new UserOrganizationChecker(renderResponse, organization) %>"
 		searchContainer="<%= new UserSearch(renderRequest, portletURL) %>"
+		var="userSearchContainer"
 	>
 		<liferay-ui:search-form
 			page="/html/portlet/users_admin/user_search.jsp"
 		/>
 
 		<%
-		UserSearchTerms searchTerms = (UserSearchTerms)searchContainer.getSearchTerms();
+		UserSearchTerms searchTerms = (UserSearchTerms)userSearchContainer.getSearchTerms();
 
 		LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
@@ -128,16 +133,11 @@ portletURL.setParameter("organizationId", String.valueOf(organization.getOrganiz
 		function(assignmentsRedirect) {
 			document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "organization_users";
 			document.<portlet:namespace />fm.<portlet:namespace />assignmentsRedirect.value = assignmentsRedirect;
-			document.<portlet:namespace />fm.<portlet:namespace />addUserIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
-			document.<portlet:namespace />fm.<portlet:namespace />removeUserIds.value = Liferay.Util.listUncheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
+			document.<portlet:namespace />fm.<portlet:namespace />addUserIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+			document.<portlet:namespace />fm.<portlet:namespace />removeUserIds.value = Liferay.Util.listUncheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+
 			submitForm(document.<portlet:namespace />fm);
 		},
 		['liferay-util-list-fields']
 	);
 </aui:script>
-
-<%
-UsersAdminUtil.addPortletBreadcrumbEntries(organization, request, renderResponse);
-
-PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "assign-members"), currentURL);
-%>

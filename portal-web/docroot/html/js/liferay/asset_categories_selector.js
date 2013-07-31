@@ -287,7 +287,7 @@ AUI.add(
 										vocabularyIds: vocabularyIds,
 
 										'$categoriesCount = /assetcategory/get-vocabulary-categories-count': {
-											'groupId': themeDisplay.getScopeGroupId(),
+											'@groupId': '$vocabularies.groupId',
 											'@vocabularyId': '$vocabularies.vocabularyId'
 										}
 									}
@@ -305,8 +305,8 @@ AUI.add(
 							Liferay.Service(
 								{
 									'$vocabularies = /assetvocabulary/get-groups-vocabularies': {
-										className: className,
 										groupIds: groupIds,
+										className: className,
 
 										'$categoriesCount = /assetcategory/get-vocabulary-categories-count': {
 											'groupId': '$vocabularies.groupId',
@@ -541,11 +541,11 @@ AUI.add(
 							Liferay.Service(
 								'/assetcategory/search',
 								{
-									end: -1,
 									groupIds: vocabularyGroupIds,
 									name: Lang.sub(TPL_SEARCH_QUERY, [searchValue]),
+									vocabularyIds: vocabularyIds,
 									start: -1,
-									vocabularyIds: vocabularyIds
+									end: -1
 								},
 								callback
 							);
@@ -570,7 +570,7 @@ AUI.add(
 
 						var popup = instance._popup;
 
-						popup.set('title', Liferay.Language.get('categories'));
+						popup.titleNode.html(Liferay.Language.get('categories'));
 
 						popup.entriesNode.addClass(CSS_TAGS_LIST);
 
@@ -614,14 +614,6 @@ AUI.add(
 
 						var treeId = 'vocabulary' + vocabularyId;
 
-						var vocabularyRootNode = {
-							alwaysShowHitArea: true,
-							id: treeId,
-							label: vocabularyTitle,
-							leaf: false,
-							type: 'io'
-						};
-
 						var paginatorConfig = {
 							offsetParam: 'start'
 						};
@@ -637,6 +629,15 @@ AUI.add(
 							paginatorConfig.end = -1;
 							paginatorConfig.start = -1;
 						}
+
+						var vocabularyRootNode = {
+							alwaysShowHitArea: true,
+							id: treeId,
+							label: vocabularyTitle,
+							leaf: false,
+							paginator: paginatorConfig,
+							type: 'io'
+						};
 
 						instance.TREEVIEWS[vocabularyId] = new A.TreeView(
 							{
@@ -662,8 +663,7 @@ AUI.add(
 									},
 									formatter: A.bind('_formatJSONResult', instance),
 									url: themeDisplay.getPathMain() + '/asset/get_categories'
-								},
-								paginator: paginatorConfig
+								}
 							}
 						).render(popup.entriesNode);
 					}

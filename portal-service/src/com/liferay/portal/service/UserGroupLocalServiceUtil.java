@@ -167,10 +167,39 @@ public class UserGroupLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.UserGroup fetchUserGroup(
 		long userGroupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchUserGroup(userGroupId);
+	}
+
+	/**
+	* Returns the user group with the matching UUID and company.
+	*
+	* @param uuid the user group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user group, or <code>null</code> if a matching user group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.UserGroup fetchUserGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchUserGroupByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -193,6 +222,22 @@ public class UserGroupLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the user group with the matching UUID and company.
+	*
+	* @param uuid the user group's UUID
+	* @param companyId the primary key of the company
+	* @return the matching user group
+	* @throws PortalException if a matching user group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.UserGroup getUserGroupByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getUserGroupByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -783,12 +828,6 @@ public class UserGroupLocalServiceUtil {
 		long companyId, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchUserGroup(companyId, name);
-	}
-
-	public static com.liferay.portal.model.UserGroup fetchUserGroupByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().fetchUserGroupByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

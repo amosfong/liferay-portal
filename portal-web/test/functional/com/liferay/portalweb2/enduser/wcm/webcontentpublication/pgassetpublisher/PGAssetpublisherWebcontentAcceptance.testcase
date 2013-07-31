@@ -1,0 +1,38 @@
+<definition>
+	<var name="pageName" value="Asset Publisher Page" />
+	<var name="portletName" value="Asset Publisher" />
+
+	<set-up>
+		<execute macro="User#firstLoginPG" />
+
+		<execute macro="Page#addPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="pageName" value="${pageName}" />
+			<var name="portletName" value="${portletName}" />
+		</execute>
+	</set-up>
+
+	<command name="AddWebContentPGViaAP">
+		<var name="webContentContent" value="WC WebContent Content" />
+		<var name="webContentTitle" value="WC Webcontent Title" />
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="WebContent#addPGviaAP">
+			<var name="pageName" value="${pageName}" />
+			<var name="webContentTitle" value="${webContentTitle}" />
+			<var name="webContentContent" value="${webContentContent}" />
+		</execute>
+	</command>
+
+	<tear-down>
+		<execute macro="WebContent#tearDownCP" />
+
+		<execute macro="Page#tearDownPG" />
+	</tear-down>
+</definition>

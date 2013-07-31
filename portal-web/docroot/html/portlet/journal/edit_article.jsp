@@ -17,6 +17,8 @@
 <%@ include file="/html/portlet/journal/init.jsp" %>
 
 <%
+String cmd = ParamUtil.getString(request, Constants.CMD);
+
 String tabs2 = ParamUtil.getString(request, "tabs2");
 
 String redirect = ParamUtil.getString(request, "redirect");
@@ -99,23 +101,21 @@ if (Validator.isNotNull(toLanguageId)) {
 	languageId = toLanguageId;
 }
 
-if ((article == null) && Validator.isNull(defaultLanguageId)) {
-	Locale[] availableLocales = LanguageUtil.getAvailableLocales();
-
-	Locale defaultContentLocale = LocaleUtil.fromLanguageId(languageId);
-
-	if (ArrayUtil.contains(availableLocales, defaultContentLocale)) {
+if ((article == null) && (Validator.isNull(defaultLanguageId) || !LanguageUtil.isAvailableLocale(themeDisplay.getSiteGroupId(), defaultLanguageId))) {
+	if (LanguageUtil.isAvailableLocale(themeDisplay.getSiteGroupId(), languageId)) {
 		defaultLanguageId = languageId;
 	}
 	else {
-		defaultLanguageId = LocaleUtil.toLanguageId(LocaleUtil.getDefault());
+		defaultLanguageId = LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale());
 	}
 }
 else {
-	if (Validator.isNull(defaultLanguageId)) {
+	if (Validator.isNull(defaultLanguageId) || !LanguageUtil.isAvailableLocale(themeDisplay.getSiteGroupId(), defaultLanguageId)) {
 		defaultLanguageId = article.getDefaultLocale();
 	}
 }
+
+boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 String[] mainSections = PropsValues.JOURNAL_ARTICLE_FORM_ADD;
 
@@ -141,7 +141,9 @@ request.setAttribute("edit_article.jsp-defaultLanguageId", defaultLanguageId);
 request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 %>
 
-<liferay-util:include page="/html/portlet/journal/article_header.jsp" />
+<c:if test="<%= showHeader %>">
+	<liferay-util:include page="/html/portlet/journal/article_header.jsp" />
+</c:if>
 
 <aui:form enctype="multipart/form-data" method="post" name="fm2">
 	<input name="groupId" type="hidden" value="" />
@@ -175,19 +177,17 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 	<aui:input name="articleIds" type="hidden" value="<%= articleId + EditArticleAction.VERSION_SEPARATOR + version %>" />
 	<aui:input name="version" type="hidden" value="<%= ((article == null) || article.isNew()) ? version : article.getVersion() %>" />
 	<aui:input name="languageId" type="hidden" value="<%= languageId %>" />
-	<aui:input id="articleContent" name="content" type="hidden" />
 	<aui:input name="articleURL" type="hidden" value="<%= editArticleRenderURL %>" />
 	<aui:input name="ddmStructureId" type="hidden" />
 	<aui:input name="ddmTemplateId" type="hidden" />
 	<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT) %>" />
 
-	<liferay-ui:error exception="<%= ArticleContentSizeException.class %>" message="you-have-exceeded-the-maximum-article-content-size-allowed" />
+	<liferay-ui:error exception="<%= ArticleContentSizeException.class %>" message="you-have-exceeded-the-maximum-web-content-size-allowed" />
 
 	<aui:model-context bean="<%= article %>" defaultLanguageId="<%= defaultLanguageId %>" model="<%= JournalArticle.class %>" />
 
-	<table class="lfr-table" id="<portlet:namespace />journalArticleWrapper" width="100%">
-	<tr>
-		<td class="lfr-top">
+	<div class="journal-article-wrapper" id="<portlet:namespace />journalArticleWrapper">
+		<div class="journal-article-wrapper-content">
 			<c:if test="<%= Validator.isNull(toLanguageId) %>">
 				<c:if test="<%= article != null %>">
 					<aui:workflow-status id="<%= String.valueOf(article.getArticleId()) %>" status="<%= article.getStatus() %>" version="<%= String.valueOf(article.getVersion()) %>" />
@@ -282,7 +282,7 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 							<aui:button name="translateButton" onClick='<%= renderResponse.getNamespace() + "translateArticle()" %>' type="submit" value="save" />
 
 							<%
-							String[] translations = article.getAvailableLocales();
+							String[] translations = article.getAvailableLanguageIds();
 							%>
 
 							<aui:button disabled="<%= languageId.equals(defaultLanguageId) || !ArrayUtil.contains(translations, languageId) %>" name="removeArticleLocaleButton" onClick='<%= renderResponse.getNamespace() + "removeArticleLocale();" %>' value="remove-translation" />
@@ -322,10 +322,28 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 
 				</c:otherwise>
 			</c:choose>
-		</td>
-	</tr>
-	</table>
+		</div>
+	</div>
 </aui:form>
+
+<c:if test="<%= (article != null) && Validator.equals(cmd, Constants.PREVIEW) %>">
+	<aui:script use="liferay-journal-preview">
+		<liferay-portlet:renderURL plid="<%= JournalUtil.getPreviewPlid(article, themeDisplay) %>" var="previewArticleContentURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+			<portlet:param name="struts_action" value="/journal/preview_article_content" />
+			<portlet:param name="groupId" value="<%= String.valueOf(article.getGroupId()) %>" />
+			<portlet:param name="articleId" value="<%= article.getArticleId() %>" />
+			<portlet:param name="version" value="<%= String.valueOf(article.getVersion()) %>" />
+		</liferay-portlet:renderURL>
+
+		Liferay.fire(
+			'previewArticle',
+			{
+				title: '<%= article.getTitle(locale) %>',
+				uri: '<%= previewArticleContentURL.toString() %>'
+			}
+		);
+	</aui:script>
+</c:if>
 
 <aui:script>
 	var <portlet:namespace />documentLibraryInput = null;
@@ -337,18 +355,20 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 				var confirmationMessage = '<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-discard-this-draft") %>';
 			</c:when>
 			<c:otherwise>
-				var confirmationMessage = '<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-delete-this-article-version") %>';
+				var confirmationMessage = '<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-delete-this-web-content-version") %>';
 			</c:otherwise>
 		</c:choose>
 
 		if (confirm(confirmationMessage)) {
 			document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.DELETE %>";
+
 			submitForm(document.<portlet:namespace />fm1);
 		}
 	}
 
 	function <portlet:namespace />expireArticle() {
 		document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.EXPIRE %>";
+
 		submitForm(document.<portlet:namespace />fm1);
 	}
 
@@ -360,12 +380,13 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 		if (confirm("<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-deactivate-this-language") %>")) {
 			document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.DELETE_TRANSLATION %>";
 			document.<portlet:namespace />fm1.<portlet:namespace />redirect.value = "<portlet:renderURL><portlet:param name="redirect" value="<%= redirect %>" /><portlet:param name="struts_action" value="/journal/edit_article" /><portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" /><portlet:param name="articleId" value="<%= articleId %>" /><portlet:param name="version" value="<%= String.valueOf(version) %>" /></portlet:renderURL>&<portlet:namespace />languageId=<%= HtmlUtil.escapeJS(defaultLanguageId) %>";
+
 			submitForm(document.<portlet:namespace />fm1);
 		}
 	}
 
 	function <portlet:namespace />saveArticle() {
-		document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (article != null) ? Constants.UPDATE : Constants.ADD %>";
+		document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= ((article == null) || Validator.isNull(article.getArticleId())) ? Constants.ADD : Constants.UPDATE %>";
 	}
 
 	function <portlet:namespace />selectDocumentLibrary(url) {

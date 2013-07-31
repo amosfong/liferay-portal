@@ -165,6 +165,21 @@ public class ExpandoRowLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.expando.model.ExpandoRow fetchExpandoRow(
 		long rowId) throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchExpandoRow(rowId);
@@ -289,6 +304,11 @@ public class ExpandoRowLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteRow(companyId, className, tableName, classPK);
+	}
+
+	public static void deleteRows(long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteRows(classPK);
 	}
 
 	public static java.util.List<com.liferay.portlet.expando.model.ExpandoRow> getDefaultTableRows(

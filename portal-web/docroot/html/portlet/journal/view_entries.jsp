@@ -255,7 +255,7 @@ request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(searchContainer
 			</c:when>
 			<c:otherwise>
 				<c:if test="<%= total == 0 %>">
-					<liferay-ui:message key="no-web-content-were-found" />
+					<liferay-ui:message key="no-web-content-was-found" />
 				</c:if>
 			</c:otherwise>
 		</c:choose>
@@ -318,17 +318,10 @@ for (int i = 0; i < results.size(); i++) {
 							method="get"
 							url="<%= rowURL.toString() %>"
 						/>
+					</liferay-util:buffer>
 
-						<c:if test="<%= curArticle.isDraft() || curArticle.isPending() %>">
-
-							<%
-							String statusLabel = WorkflowConstants.toLabel(curArticle.getStatus());
-							%>
-
-							<span class="workflow-status-<%= statusLabel %>">
-								(<liferay-ui:message key="<%= statusLabel %>" />)
-							</span>
-						</c:if>
+					<liferay-util:buffer var="articleStatus">
+						<aui:workflow-status showIcon="<%= false %>" showLabel="<%= false %>" status="<%= curArticle.getStatus() %>" />
 					</liferay-util:buffer>
 
 					<%

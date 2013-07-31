@@ -17,10 +17,15 @@
 <%@ include file="/html/portal/layout/edit/init.jsp" %>
 
 <%
-UnicodeProperties typeSettingsProperties = selLayout.getTypeSettingsProperties();
+String description = StringPool.BLANK;
+String panelSelectedPortlets = StringPool.BLANK;
 
-String description = typeSettingsProperties.getProperty("description", StringPool.BLANK);
-String panelSelectedPortlets = typeSettingsProperties.getProperty("panelSelectedPortlets", StringPool.BLANK);
+if (selLayout != null) {
+	UnicodeProperties typeSettingsProperties = selLayout.getTypeSettingsProperties();
+
+	description = typeSettingsProperties.getProperty("description", StringPool.BLANK);
+	panelSelectedPortlets = typeSettingsProperties.getProperty("panelSelectedPortlets", StringPool.BLANK);
+}
 %>
 
 <aui:input cssClass="layout-description" label="description" name="TypeSettingsProperties--description--" type="textarea" value="<%= description %>" wrap="soft" />
@@ -30,10 +35,6 @@ String panelSelectedPortlets = typeSettingsProperties.getProperty("panelSelected
 </div>
 
 <aui:input id="panelSelectedPortlets" name="TypeSettingsProperties--panelSelectedPortlets--" type="hidden" value="<%= panelSelectedPortlets %>" />
-
-<%
-String panelTreeKey = "panelSelectedPortletsPanelTree";
-%>
 
 <div class="lfr-tree-loading" id="<portlet:namespace />selectPortletsTreeLoading">
 	<span class="icon icon-loading lfr-tree-loading-icon"></span>
@@ -150,9 +151,9 @@ String panelTreeKey = "panelSelectedPortletsPanelTree";
 		initPanelSelectPortlets = A.Lang.emptyFn;
 	};
 
-	if (<%= selLayout.isTypePanel() %>) {
+	<c:if test="<%= (selLayout == null) || selLayout.isTypePanel() %>">
 		initPanelSelectPortlets();
-	}
+	</c:if>
 
 	Liferay.on(
 		'<portlet:namespace />toggleLayoutTypeFields',

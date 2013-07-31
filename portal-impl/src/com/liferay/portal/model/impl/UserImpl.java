@@ -15,9 +15,6 @@
 package com.liferay.portal.model.impl;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
-import com.liferay.portal.kernel.cache.Lifecycle;
-import com.liferay.portal.kernel.cache.ThreadLocalCache;
-import com.liferay.portal.kernel.cache.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.shard.ShardUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -327,62 +324,92 @@ public class UserImpl extends UserBaseImpl {
 	}
 
 	@Override
-	public List<Group> getMySites() throws PortalException, SystemException {
-		return getMySites(null, false, QueryUtil.ALL_POS);
+	public List<Group> getMySiteGroups()
+		throws PortalException, SystemException {
+
+		return getMySiteGroups(null, false, QueryUtil.ALL_POS);
 	}
 
+	@Override
+	public List<Group> getMySiteGroups(boolean includeControlPanel, int max)
+		throws PortalException, SystemException {
+
+		return getMySiteGroups(null, includeControlPanel, max);
+	}
+
+	@Override
+	public List<Group> getMySiteGroups(int max)
+		throws PortalException, SystemException {
+
+		return getMySiteGroups(null, false, max);
+	}
+
+	@Override
+	public List<Group> getMySiteGroups(
+			String[] classNames, boolean includeControlPanel, int max)
+		throws PortalException, SystemException {
+
+		return GroupServiceUtil.getUserPlacesGroups(
+			getUserId(), classNames, includeControlPanel, max);
+	}
+
+	@Override
+	public List<Group> getMySiteGroups(String[] classNames, int max)
+		throws PortalException, SystemException {
+
+		return getMySiteGroups(classNames, false, max);
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups}
+	 */
+	@Override
+	public List<Group> getMySites() throws PortalException, SystemException {
+		return getMySiteGroups();
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(boolean,
+	 *             int)}
+	 */
 	@Override
 	public List<Group> getMySites(boolean includeControlPanel, int max)
 		throws PortalException, SystemException {
 
-		return getMySites(null, includeControlPanel, max);
+		return getMySiteGroups(includeControlPanel, max);
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(int)}
+	 */
 	@Override
 	public List<Group> getMySites(int max)
 		throws PortalException, SystemException {
 
-		return getMySites(null, false, max);
+		return getMySiteGroups(max);
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(String[],
+	 *             boolean, int)}
+	 */
 	@Override
 	public List<Group> getMySites(
 			String[] classNames, boolean includeControlPanel, int max)
 		throws PortalException, SystemException {
 
-		ThreadLocalCache<List<Group>> threadLocalCache =
-			ThreadLocalCacheManager.getThreadLocalCache(
-				Lifecycle.REQUEST, UserImpl.class.getName());
-
-		String key = StringUtil.toHexString(max);
-
-		if ((classNames != null) && (classNames.length > 0)) {
-			key = StringUtil.merge(classNames).concat(StringPool.POUND).concat(
-				key);
-		}
-
-		key = key.concat(StringPool.POUND).concat(
-			String.valueOf(includeControlPanel));
-
-		List<Group> myPlaces = threadLocalCache.get(key);
-
-		if (myPlaces != null) {
-			return myPlaces;
-		}
-
-		myPlaces = GroupServiceUtil.getUserPlaces(
-			getUserId(), classNames, includeControlPanel, max);
-
-		threadLocalCache.put(key, myPlaces);
-
-		return myPlaces;
+		return getMySiteGroups(classNames, includeControlPanel, max);
 	}
 
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(String[],
+	 *             int)}
+	 */
 	@Override
 	public List<Group> getMySites(String[] classNames, int max)
 		throws PortalException, SystemException {
 
-		return getMySites(classNames, false, max);
+		return getMySiteGroups(classNames, max);
 	}
 
 	@Override
@@ -537,6 +564,19 @@ public class UserImpl extends UserBaseImpl {
 	}
 
 	@Override
+	public List<Group> getSiteGroups() throws PortalException, SystemException {
+		return getSiteGroups(false);
+	}
+
+	@Override
+	public List<Group> getSiteGroups(boolean includeAdministrative)
+		throws PortalException, SystemException {
+
+		return GroupLocalServiceUtil.getUserSitesGroups(
+			getUserId(), includeAdministrative);
+	}
+
+	@Override
 	public long[] getTeamIds() throws SystemException {
 		List<Team> teams = getTeams();
 
@@ -622,7 +662,7 @@ public class UserImpl extends UserBaseImpl {
 			max++;
 		}
 
-		List<Group> groups = getMySites(true, max);
+		List<Group> groups = getMySiteGroups(true, max);
 
 		return !groups.isEmpty();
 	}

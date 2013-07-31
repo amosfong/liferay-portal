@@ -54,12 +54,31 @@ if ((category == null) && (mailingList == null)) {
 	catch (NoSuchMailingListException nsmle) {
 	}
 }
+
+if (category != null) {
+	MBUtil.addPortletBreadcrumbEntries(category, request, renderResponse);
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
+	}
+}
+else {
+	if (parentCategoryId > 0) {
+		MBUtil.addPortletBreadcrumbEntries(parentCategoryId, request, renderResponse);
+	}
+
+	if (!layout.isTypeControlPanel()) {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-category"), currentURL);
+	}
+}
 %>
+
+<liferay-util:include page="/html/portlet/message_boards/top_links.jsp" />
 
 <liferay-ui:header
 	backURL="<%= redirect %>"
 	localizeTitle="<%= (category == null) %>"
-	title='<%= (category == null) ? "new-category" : category.getName() %>'
+	title='<%= (category == null) ? "add-category" : LanguageUtil.format(pageContext, "edit-x", category.getName()) %>'
 />
 
 <portlet:actionURL var="editCategoryURL">
@@ -111,7 +130,7 @@ if ((category == null) && (mailingList == null)) {
 			</c:if>
 		</c:if>
 
-		<aui:input name="name" />
+		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" name="name" />
 
 		<aui:input name="description" />
 
@@ -228,28 +247,10 @@ if ((category == null) && (mailingList == null)) {
 <aui:script>
 	function <portlet:namespace />saveCategory() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (category == null) ? Constants.ADD : Constants.UPDATE %>";
+
 		submitForm(document.<portlet:namespace />fm);
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
-	</c:if>
 
 	Liferay.Util.toggleBoxes('<portlet:namespace />mailingListActiveCheckbox', '<portlet:namespace />mailingListSettings');
 	Liferay.Util.toggleBoxes('<portlet:namespace />outCustomCheckbox', '<portlet:namespace />outCustomSettings');
 </aui:script>
-
-<%
-if (category != null) {
-	MBUtil.addPortletBreadcrumbEntries(category, request, renderResponse);
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
-}
-else {
-	if (parentCategoryId > 0) {
-		MBUtil.addPortletBreadcrumbEntries(parentCategoryId, request, renderResponse);
-	}
-
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-category"), currentURL);
-}
-%>

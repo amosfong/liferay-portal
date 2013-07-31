@@ -121,7 +121,6 @@ long folderId = BeanParamUtil.getLong(fileShortcut, request, "folderId");
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: '<portlet:namespace />selectFolder',
@@ -147,10 +146,6 @@ long folderId = BeanParamUtil.getLong(fileShortcut, request, "folderId");
 	function <portlet:namespace />saveFileShortcut() {
 		submitForm(document.<portlet:namespace />fm);
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />file);
-	</c:if>
 </aui:script>
 
 <%

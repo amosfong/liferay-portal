@@ -66,7 +66,7 @@ int mountFoldersCount = DLAppServiceUtil.getMountFoldersCount(scopeGroupId, DLFo
 	/>
 
 	<span class="form-search">
-		<aui:input inlineField="<%= true %>" label="" name="keywords" size="30" title="search-documents" type="text" value="<%= keywords %>" />
+		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" inlineField="<%= true %>" label="" name="keywords" size="30" title="search-documents" type="text" value="<%= keywords %>" />windowState.equals(WindowState.MAXIMIZED)
 
 		<aui:button type="submit" value="search" />
 	</span>
@@ -149,13 +149,6 @@ int mountFoldersCount = DLAppServiceUtil.getMountFoldersCount(scopeGroupId, DLFo
 		Hits hits = DLAppServiceUtil.search(repositoryId, searchContext);
 
 		searchContainer.setTotal(hits.getLength());
-
-		if (searchContainer.isRecalculateCur()) {
-			searchContext.setEnd(searchContainer.getEnd());
-			searchContext.setStart(searchContainer.getStart());
-
-			hits = DLAppServiceUtil.search(repositoryId, searchContext);
-		}
 
 		PortletURL hitURL = renderResponse.createRenderURL();
 		%>
@@ -247,12 +240,6 @@ int mountFoldersCount = DLAppServiceUtil.getMountFoldersCount(scopeGroupId, DLFo
 		<liferay-ui:search-paginator searchContainer="<%= searchContainer %>" type="more" />
 	</liferay-ui:search-container>
 </aui:form>
-
-<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-	<aui:script>
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />keywords);
-	</aui:script>
-</c:if>
 
 <%
 if (searchFolderId > 0) {

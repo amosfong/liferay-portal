@@ -27,11 +27,11 @@ String tabs2 = ParamUtil.getString(request, "tabs2", "display-settings");
 
 String redirect = ParamUtil.getString(request, "redirect");
 
-String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", DLUtil.getEmailFromName(preferences, company.getCompanyId()));
-String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", DLUtil.getEmailFromAddress(preferences, company.getCompanyId()));
+String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", DLUtil.getEmailFromName(portletPreferences, company.getCompanyId()));
+String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", DLUtil.getEmailFromAddress(portletPreferences, company.getCompanyId()));
 
-boolean emailFileEntryAddedEnabled = ParamUtil.getBoolean(request, "preferences--emailFileEntryAddedEnabled--", DLUtil.getEmailFileEntryAddedEnabled(preferences));
-boolean emailFileEntryUpdatedEnabled = ParamUtil.getBoolean(request, "preferences--emailFileEntryUpdatedEnabled--", DLUtil.getEmailFileEntryUpdatedEnabled(preferences));
+boolean emailFileEntryAddedEnabled = ParamUtil.getBoolean(request, "preferences--emailFileEntryAddedEnabled--", DLUtil.getEmailFileEntryAddedEnabled(portletPreferences));
+boolean emailFileEntryUpdatedEnabled = ParamUtil.getBoolean(request, "preferences--emailFileEntryUpdatedEnabled--", DLUtil.getEmailFileEntryUpdatedEnabled(portletPreferences));
 
 String emailParam = StringPool.BLANK;
 String defaultEmailSubject = StringPool.BLANK;
@@ -39,13 +39,13 @@ String defaultEmailBody = StringPool.BLANK;
 
 if (tabs2.equals("document-added-email")) {
 	emailParam = "emailFileEntryAdded";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.DL_EMAIL_FILE_ENTRY_ADDED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.DL_EMAIL_FILE_ENTRY_ADDED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.DL_EMAIL_FILE_ENTRY_ADDED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.DL_EMAIL_FILE_ENTRY_ADDED_BODY);
 }
 else if (tabs2.equals("document-updated-email")) {
 	emailParam = "emailFileEntryUpdated";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.DL_EMAIL_FILE_ENTRY_UPDATED_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.DL_EMAIL_FILE_ENTRY_UPDATED_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.DL_EMAIL_FILE_ENTRY_UPDATED_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.DL_EMAIL_FILE_ENTRY_UPDATED_BODY);
 }
 
 String currentLanguageId = LanguageUtil.getLanguageId(request);
@@ -53,8 +53,8 @@ String currentLanguageId = LanguageUtil.getLanguageId(request);
 String emailSubjectParam = emailParam + "Subject_" + currentLanguageId;
 String emailBodyParam = emailParam + "Body_" + currentLanguageId;
 
-String emailSubject = PrefsParamUtil.getString(preferences, request, emailSubjectParam, defaultEmailSubject);
-String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam, defaultEmailBody);
+String emailSubject = PrefsParamUtil.getString(portletPreferences, request, emailSubjectParam, defaultEmailSubject);
+String emailBody = PrefsParamUtil.getString(portletPreferences, request, emailBodyParam, defaultEmailBody);
 %>
 
 <liferay-portlet:renderURL portletConfiguration="true" var="portletURL">
@@ -132,6 +132,8 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 
 						</aui:select>
 
+						<aui:input name="preferences--enableRelatedAssets--" type="checkbox" value="<%= enableRelatedAssets %>" />
+
 						<aui:field-wrapper label="display-style-views">
 
 							<%
@@ -173,10 +175,8 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 					</aui:fieldset>
 				</liferay-ui:panel>
 
-				<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="documentLibraryEntriesListingPanel" persistState="<%= true %>" title="entries-listing">
+				<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="documentLibraryEntriesListingPanel" persistState="<%= true %>" title="entries-listing-for-list-display-style">
 					<aui:fieldset>
-						<aui:input name="preferences--enableRelatedAssets--" type="checkbox" value="<%= enableRelatedAssets %>" />
-
 						<aui:field-wrapper label="show-columns">
 
 							<%
@@ -237,7 +237,6 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 								dialog: {
 									constrain: true,
 									modal: true,
-									zIndex: Liferay.zIndex.WINDOW + 2,
 									width: 600
 								},
 								id: '_<%= HtmlUtil.escapeJS(portletResource) %>_selectFolder',
@@ -335,13 +334,13 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 				<aui:select label="language" name="languageId" onChange='<%= renderResponse.getNamespace() + "updateLanguage(this);" %>'>
 
 					<%
-					Locale[] locales = LanguageUtil.getAvailableLocales();
+					Locale[] locales = LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId());
 
 					for (int i = 0; i < locales.length; i++) {
 						String style = StringPool.BLANK;
 
-						if (Validator.isNotNull(preferences.getValue(emailParam + "Subject_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK)) ||
-							Validator.isNotNull(preferences.getValue(emailParam + "Body_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK))) {
+						if (Validator.isNotNull(portletPreferences.getValue(emailParam + "Subject_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK)) ||
+							Validator.isNotNull(portletPreferences.getValue(emailParam + "Body_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK))) {
 
 							style = "font-weight: bold;";
 						}
@@ -474,6 +473,7 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 
 	function <portlet:namespace />updateLanguage() {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '';
+
 		submitForm(document.<portlet:namespace />fm);
 	}
 

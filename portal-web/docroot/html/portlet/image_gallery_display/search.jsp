@@ -43,7 +43,7 @@ else {
 
 String keywords = ParamUtil.getString(request, "keywords");
 
-String[] mediaGalleryMimeTypes = DLUtil.getMediaGalleryMimeTypes(preferences, renderRequest);
+String[] mediaGalleryMimeTypes = DLUtil.getMediaGalleryMimeTypes(portletPreferences, renderRequest);
 
 boolean useAssetEntryQuery = false;
 %>
@@ -111,14 +111,12 @@ boolean useAssetEntryQuery = false;
 			}
 		}
 
-		int total = results.size();
-
-		searchContainer.setTotal(total);
+		searchContainer.setTotal(results.size());
 	%>
 
 	<div id="<portlet:namespace />imageGalleryAssetInfo">
 			<span class="form-search">
-				<aui:input inlineField="<%= true %>" label="" name="keywords" size="30" title="search-images" type="text" value="<%= keywords %>" />
+				<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" inlineField="<%= true %>" label="" name="keywords" size="30" title="search-images" type="text" value="<%= keywords %>" />
 
 				<aui:button type="submit" value="search" />
 			</span>
@@ -128,7 +126,7 @@ boolean useAssetEntryQuery = false;
 		<%
 		Folder folder = (Folder)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FOLDER);
 
-		long defaultFolderId = GetterUtil.getLong(preferences.getValue("rootFolderId", StringPool.BLANK), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+		long defaultFolderId = GetterUtil.getLong(portletPreferences.getValue("rootFolderId", StringPool.BLANK), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
 		long folderId = BeanParamUtil.getLong(folder, request, "folderId", defaultFolderId);
 
@@ -149,12 +147,6 @@ boolean useAssetEntryQuery = false;
 	%>
 
 </aui:form>
-
-<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-	<aui:script>
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />keywords);
-	</aui:script>
-</c:if>
 
 <%
 if (searchFolderId > 0) {

@@ -55,7 +55,7 @@
 	<path id="test.classpath">
 		<pathelement path="test-classes/${test.type}" />
 		<pathelement path="${classpath}" />
-		<fileset dir="${project.dir}/lib/development" includes="*.jar" excludes="jetty*.jar,tomcat*.jar" />
+		<fileset dir="${project.dir}/lib/development" includes="*.jar" excludes="jalopy.jar,jetty*.jar,tomcat*.jar" />
 		<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/portal" includes="*.jar" excludes="ant.jar" />
 		<fileset dir="${project.dir}/osgi/lib/common/core" includes="*.jar" />
@@ -519,31 +519,21 @@ Please set the environment variable ANT_OPTS to the recommended value of
 	</target>
 
 	<target name="format-javadoc">
-		<if>
-			<not>
-				<contains string="${java.version}" substring="1.6" casesensitive="false" />
-			</not>
-			<then>
-				<fail>Use JDK 6 to compile and run this target.</fail>
-			</then>
-			<else>
-				<echo>Run "ant compile compile-test" before using format-javadoc to generate @Override tags.</echo>
+		<echo>Run "ant compile compile-test" before using format-javadoc to generate @Override tags.</echo>
 
-				<java
-					classname="com.liferay.portal.tools.JavadocFormatter"
-					classpathref="project.classpath"
-					fork="true"
-					newenvironment="true"
-				>
-					<jvmarg value="-Xmx1024m" />
-					<arg value="javadoc.init=${init}" />
-					<arg value="javadoc.input.dir=${input.dir}" />
-					<arg value="javadoc.limit=${limit}" />
-					<arg value="javadoc.output.file.prefix=${output.file.prefix}" />
-					<arg value="javadoc.update=${update}" />
-				</java>
-			</else>
-		</if>
+		<java
+			classname="com.liferay.portal.tools.JavadocFormatter"
+			classpathref="project.classpath"
+			fork="true"
+			newenvironment="true"
+		>
+			<jvmarg value="-Xmx1024m" />
+			<arg value="javadoc.init=${init}" />
+			<arg value="javadoc.input.dir=${input.dir}" />
+			<arg value="javadoc.limit=${limit}" />
+			<arg value="javadoc.output.file.prefix=${output.file.prefix}" />
+			<arg value="javadoc.update=${update}" />
+		</java>
 	</target>
 
 	<target name="print-current-time">
@@ -799,7 +789,22 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				</then>
 			</elseif>
 			<else>
-				<fail>The property "test.type" is invalid.</fail>
+				<if>
+					<not>
+						<isset property="class" />
+					</not>
+					<then>
+						<fail>Missing class argument. Use "ant test-class -Dclass=TestClassName".</fail>
+					</then>
+					<elseif>
+						<not>
+							<isset property="test.type" />
+						</not>
+						<then>
+							<fail>Class ${class} cannot be found.</fail>
+						</then>
+					</elseif>
+				</if>
 			</else>
 		</if>
 

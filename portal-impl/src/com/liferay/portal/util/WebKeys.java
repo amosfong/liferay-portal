@@ -17,7 +17,6 @@ package com.liferay.portal.util;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.Direction;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.Distributed;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.MatchType;
-import com.liferay.util.bridges.jsf.sun.LiferayConfigureListener;
 
 /**
  * @author Brian Wing Shun Chan
@@ -42,8 +41,6 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String ASSET_VOCABULARIES = "ASSET_VOCABULARIES";
 
 	public static final String ASSET_VOCABULARY = "ASSET_VOCABULARY";
-
-	public static final String ASSOCIATE_KEY = LiferayConfigureListener.ASSOCIATE_KEY;
 
 	public static final String BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
 
@@ -78,6 +75,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String COMPANY_ID = "COMPANY_ID";
 
 	public static final String CONFIGURATION_ACTION_PATH = "CONFIGURATION_ACTION_PATH";
+
+	public static final String CONTROL_PANEL_CATEGORIES_MAP = "CONTROL_PANEL_CATEGORIES_MAP";
 
 	public static final String DEVICE = "DEVICE";
 
@@ -322,8 +321,6 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 
 	public static final String PHONE = "PHONE";
 
-	public static final String PLUGIN_REPOSITORY_REPORT = "PLUGIN_REPOSITORY_REPORT";
-
 	public static final String POLLS_QUESTION = "POLLS_QUESTION";
 
 	public static final String PORTAL_PREFERENCES = "PORTAL_PREFERENCES";
@@ -400,6 +397,8 @@ public class WebKeys implements com.liferay.portal.kernel.util.WebKeys {
 	public static final String SHOPPING_ITEM = "SHOPPING_ITEM";
 
 	public static final String SHOPPING_ORDER = "SHOPPING_ORDER";
+
+	public static final String SITE_ADMINISTRATION_CATEGORIES_MAP = "SITES_ADMINISTRATION_CATEGORIES_MAP";
 
 	public static final String SOCIAL_ACTIVITY_SETTINGS_MAP = "SOCIAL_ACTIVITY_SETTINGS_MAP";
 

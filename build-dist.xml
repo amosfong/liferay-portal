@@ -762,11 +762,11 @@ release was successful.</echo>
 			<fileset dir="${lp.plugins.dir}" includes="**/javadocs-all.xml,**/javadocs-rt.xml" />
 		</delete>
 
+		<antcall target="deploy" />
+
 		<ant dir="${lp.plugins.dir}" inheritall="false" target="clean" />
 		<ant dir="${lp.plugins.dir}" inheritall="false" target="compile" />
 		<ant dir="${lp.plugins.dir}" inheritall="false" target="format-javadoc" />
-
-		<antcall target="all" />
 
 		<parallel>
 			<if>
@@ -785,7 +785,7 @@ release was successful.</echo>
 
 			<sequential>
 				<waitfor>
-					<socket server="localhost" port="8080" />
+					<http url="http://localhost:8080" />
 				</waitfor>
 
 				<ant dir="portal-client" target="build-client" inheritAll="false" />
@@ -1912,12 +1912,14 @@ plugins.includes=</echo>
 		<xmltask source="${lp.plugins.dir}/summary.xml">
 			<call path="plugins-summary/plugin">
 				<param name="plugins.includes.plugin.bundle" path="releng/bundle/text()" />
+				<param name="plugins.includes.plugin.dependent-apps" path="releng/dependent-apps/text()" />
 				<param name="plugins.includes.plugin.marketplace" path="releng/marketplace/text()" />
 				<param name="plugins.includes.plugin.name" path="artifact-id/text()" />
 				<param name="plugins.includes.plugin.public" path="releng/public/text()" />
 				<actions>
 					<antcall target="update-plugins-includes-plugin">
 						<param name="plugins.includes.plugin.bundle" value="@{plugins.includes.plugin.bundle}" />
+						<param name="plugins.includes.plugin.dependent-apps" value="@{plugins.includes.plugin.dependent-apps}" />
 						<param name="plugins.includes.plugin.marketplace" value="@{plugins.includes.plugin.marketplace}" />
 						<param name="plugins.includes.plugin.name" value="@{plugins.includes.plugin.name}" />
 						<param name="plugins.includes.plugin.public" value="@{plugins.includes.plugin.public}" />
@@ -1949,7 +1951,7 @@ plugins.includes=</echo>
 				</or>
 			</and>
 			<then>
-				<echo append="true" file="${lp.plugins.dir}/build.${user.name}.properties">${plugins.includes.plugin.name},</echo>
+				<echo append="true" file="${lp.plugins.dir}/build.${user.name}.properties">${plugins.includes.plugin.dependent-apps},${plugins.includes.plugin.name},</echo>
 			</then>
 		</if>
 	</target>
@@ -2101,8 +2103,8 @@ plugins.includes=</echo>
 						<mkdir dir="${zip.executable.dir}/../patching-tool/patches" />
 
 						<antcall target="exec-patching-tool">
-							<param name="patching.tool.dir" value="${zip.executable.dir}/../patching-tool" />
 							<param name="patching.tool.arg.line" value="auto-discovery" />
+							<param name="patching.tool.dir" value="${zip.executable.dir}/../patching-tool" />
 						</antcall>
 
 						<zip

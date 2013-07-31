@@ -52,8 +52,8 @@ public class UpdateLookAndFeelAction extends JSONAction {
 
 	@Override
 	public String getJSON(
-			ActionMapping mapping, ActionForm form, HttpServletRequest request,
-			HttpServletResponse response)
+			ActionMapping actionMapping, ActionForm actionForm,
+			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
 		HttpSession session = request.getSession();
@@ -76,7 +76,7 @@ public class UpdateLookAndFeelAction extends JSONAction {
 		}
 
 		PortletPreferences portletSetup =
-			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+			PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(
 				layout, portletId);
 
 		String css = ParamUtil.getString(request, "css");
@@ -100,7 +100,8 @@ public class UpdateLookAndFeelAction extends JSONAction {
 
 		JSONObject titles = portletData.getJSONObject("titles");
 
-		Locale[] locales = LanguageUtil.getAvailableLocales();
+		Locale[] locales = LanguageUtil.getAvailableLocales(
+			themeDisplay.getSiteGroupId());
 
 		for (int i = 0; i < locales.length; i++) {
 			String languageId = LocaleUtil.toLanguageId(locales[i]);

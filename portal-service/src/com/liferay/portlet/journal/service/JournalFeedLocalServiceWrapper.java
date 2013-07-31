@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link JournalFeedLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalFeedLocalService
+ * @author Brian Wing Shun Chan
+ * @see JournalFeedLocalService
  * @generated
  */
 public class JournalFeedLocalServiceWrapper implements JournalFeedLocalService,
@@ -166,10 +166,59 @@ public class JournalFeedLocalServiceWrapper implements JournalFeedLocalService,
 		return _journalFeedLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFeedLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.journal.model.JournalFeed fetchJournalFeed(
 		long id) throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalFeedLocalService.fetchJournalFeed(id);
+	}
+
+	/**
+	* Returns the journal feed with the matching UUID and company.
+	*
+	* @param uuid the journal feed's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal feed, or <code>null</code> if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.journal.model.JournalFeed fetchJournalFeedByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFeedLocalService.fetchJournalFeedByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the journal feed matching the UUID and group.
+	*
+	* @param uuid the journal feed's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal feed, or <code>null</code> if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.journal.model.JournalFeed fetchJournalFeedByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFeedLocalService.fetchJournalFeedByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -193,6 +242,24 @@ public class JournalFeedLocalServiceWrapper implements JournalFeedLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _journalFeedLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the journal feed with the matching UUID and company.
+	*
+	* @param uuid the journal feed's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal feed
+	* @throws PortalException if a matching journal feed could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.journal.model.JournalFeed getJournalFeedByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalFeedLocalService.getJournalFeedByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -355,6 +422,13 @@ public class JournalFeedLocalServiceWrapper implements JournalFeedLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_journalFeedLocalService.deleteFeed(groupId, feedId);
+	}
+
+	@Override
+	public com.liferay.portlet.journal.model.JournalFeed fetchFeed(
+		long groupId, java.lang.String feedId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalFeedLocalService.fetchFeed(groupId, feedId);
 	}
 
 	@Override

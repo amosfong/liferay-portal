@@ -14,6 +14,9 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link LayoutFriendlyURL}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       LayoutFriendlyURL
+ * @author Brian Wing Shun Chan
+ * @see LayoutFriendlyURL
  * @generated
  */
 public class LayoutFriendlyURLWrapper implements LayoutFriendlyURL,
@@ -533,6 +536,31 @@ public class LayoutFriendlyURLWrapper implements LayoutFriendlyURL,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_layoutFriendlyURL.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof LayoutFriendlyURLWrapper)) {
+			return false;
+		}
+
+		LayoutFriendlyURLWrapper layoutFriendlyURLWrapper = (LayoutFriendlyURLWrapper)obj;
+
+		if (Validator.equals(_layoutFriendlyURL,
+					layoutFriendlyURLWrapper._layoutFriendlyURL)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _layoutFriendlyURL.getStagedModelType();
 	}
 
 	/**

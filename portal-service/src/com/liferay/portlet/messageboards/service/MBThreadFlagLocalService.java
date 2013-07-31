@@ -152,9 +152,48 @@ public interface MBThreadFlagLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.messageboards.model.MBThreadFlag fetchMBThreadFlag(
 		long threadFlagId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the message boards thread flag with the matching UUID and company.
+	*
+	* @param uuid the message boards thread flag's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards thread flag, or <code>null</code> if a matching message boards thread flag could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.messageboards.model.MBThreadFlag fetchMBThreadFlagByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the message boards thread flag matching the UUID and group.
+	*
+	* @param uuid the message boards thread flag's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message boards thread flag, or <code>null</code> if a matching message boards thread flag could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.messageboards.model.MBThreadFlag fetchMBThreadFlagByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
@@ -175,6 +214,21 @@ public interface MBThreadFlagLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the message boards thread flag with the matching UUID and company.
+	*
+	* @param uuid the message boards thread flag's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards thread flag
+	* @throws PortalException if a matching message boards thread flag could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portlet.messageboards.model.MBThreadFlag getMBThreadFlagByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 

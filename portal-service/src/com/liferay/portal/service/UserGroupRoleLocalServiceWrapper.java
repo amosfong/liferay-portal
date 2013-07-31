@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link UserGroupRoleLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       UserGroupRoleLocalService
+ * @author Brian Wing Shun Chan
+ * @see UserGroupRoleLocalService
  * @generated
  */
 public class UserGroupRoleLocalServiceWrapper
@@ -163,6 +163,23 @@ public class UserGroupRoleLocalServiceWrapper
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _userGroupRoleLocalService.dynamicQueryCount(dynamicQuery);
+	}
+
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _userGroupRoleLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
 	}
 
 	@Override

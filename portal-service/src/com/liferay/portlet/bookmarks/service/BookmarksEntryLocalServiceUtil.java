@@ -165,10 +165,54 @@ public class BookmarksEntryLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.bookmarks.model.BookmarksEntry fetchBookmarksEntry(
 		long entryId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchBookmarksEntry(entryId);
+	}
+
+	/**
+	* Returns the bookmarks entry with the matching UUID and company.
+	*
+	* @param uuid the bookmarks entry's UUID
+	* @param companyId the primary key of the company
+	* @return the matching bookmarks entry, or <code>null</code> if a matching bookmarks entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.bookmarks.model.BookmarksEntry fetchBookmarksEntryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchBookmarksEntryByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the bookmarks entry matching the UUID and group.
+	*
+	* @param uuid the bookmarks entry's UUID
+	* @param groupId the primary key of the group
+	* @return the matching bookmarks entry, or <code>null</code> if a matching bookmarks entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.bookmarks.model.BookmarksEntry fetchBookmarksEntryByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchBookmarksEntryByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +235,22 @@ public class BookmarksEntryLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the bookmarks entry with the matching UUID and company.
+	*
+	* @param uuid the bookmarks entry's UUID
+	* @param companyId the primary key of the company
+	* @return the matching bookmarks entry
+	* @throws PortalException if a matching bookmarks entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.bookmarks.model.BookmarksEntry getBookmarksEntryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getBookmarksEntryByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

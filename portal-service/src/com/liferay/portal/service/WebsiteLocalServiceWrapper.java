@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link WebsiteLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       WebsiteLocalService
+ * @author Brian Wing Shun Chan
+ * @see WebsiteLocalService
  * @generated
  */
 public class WebsiteLocalServiceWrapper implements WebsiteLocalService,
@@ -161,10 +161,42 @@ public class WebsiteLocalServiceWrapper implements WebsiteLocalService,
 		return _websiteLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _websiteLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portal.model.Website fetchWebsite(long websiteId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _websiteLocalService.fetchWebsite(websiteId);
+	}
+
+	/**
+	* Returns the website with the matching UUID and company.
+	*
+	* @param uuid the website's UUID
+	* @param companyId the primary key of the company
+	* @return the matching website, or <code>null</code> if a matching website could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.Website fetchWebsiteByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _websiteLocalService.fetchWebsiteByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -188,6 +220,23 @@ public class WebsiteLocalServiceWrapper implements WebsiteLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _websiteLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the website with the matching UUID and company.
+	*
+	* @param uuid the website's UUID
+	* @param companyId the primary key of the company
+	* @return the matching website
+	* @throws PortalException if a matching website could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portal.model.Website getWebsiteByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _websiteLocalService.getWebsiteByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -285,14 +334,6 @@ public class WebsiteLocalServiceWrapper implements WebsiteLocalService,
 		long classPK)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_websiteLocalService.deleteWebsites(companyId, className, classPK);
-	}
-
-	@Override
-	public com.liferay.portal.model.Website fetchWebsiteByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _websiteLocalService.fetchWebsiteByUuidAndCompanyId(uuid,
-			companyId);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package ${seleniumBuilderContext.getTestCasePackageName(testCaseName)};
 
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portalweb.portal.BaseTestCase;
+import com.liferay.portalweb.portal.util.RuntimeVariables;
 import com.liferay.portalweb.portal.util.SeleniumUtil;
 import com.liferay.portalweb.portal.util.liferayselenium.LiferaySelenium;
 
@@ -30,16 +31,10 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 
 			<#assign varElements = rootElement.elements("var")>
 
+			<#assign context = "definitionScopeVariables">
+
 			<#list varElements as varElement>
-				<#assign varName = varElement.attributeValue("name")>
-
-				<#if varElement.attributeValue("value")??>
-					<#assign varValue = varElement.attributeValue("value")>
-				<#elseif varElement.getText()??>
-					<#assign varValue = varElement.getText()>
-				</#if>
-
-				definitionScopeVariables.put("${varName}", "${varValue}");
+				<#include "var_element.ftl">
 			</#list>
 		}
 	</#if>
@@ -77,19 +72,25 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 				${childElementAttributeValue}Macro ${seleniumBuilderFileUtil.getVariableName(childElementAttributeValue)}Macro = new ${childElementAttributeValue}Macro(selenium);
 			</#list>
 
+			boolean testPassed = false;
+
 			try {
+				definitionScopeVariables.put("testCaseName", "${testCaseName}TestCase${commandName}");
+
 				<#if rootElement.element("set-up")??>
 					commandScopeVariables = new HashMap<String, String>();
 
 					commandScopeVariables.putAll(definitionScopeVariables);
 
-					selenium.sendLogger("${testCaseName}TestCase__${commandName}", "start");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "start");
+
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "pending");
 
 					<#assign setUpElement = rootElement.element("set-up")>
 
 					<#assign lineNumber = setUpElement.attributeValue("line-number")>
 
-					selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 					<#assign blockElement = setUpElement>
 
@@ -97,18 +98,20 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 
 					<#assign lineNumber = setUpElement.attributeValue("line-number")>
 
-					selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
 				</#if>
 
 				commandScopeVariables = new HashMap<String, String>();
 
 				commandScopeVariables.putAll(definitionScopeVariables);
 
-				selenium.sendLogger("${testCaseName}TestCase__${commandName}", "start");
+				selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "start");
+
+				selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "pending");
 
 				<#assign lineNumber = commandElement.attributeValue("line-number")>
 
-				selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
+				selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 				<#assign blockElement = commandElement>
 
@@ -116,7 +119,9 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 
 				<#assign lineNumber = commandElement.attributeValue("line-number")>
 
-				selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+				selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
+
+				testPassed = true;
 			}
 			finally {
 				<#if rootElement.element("tear-down")??>
@@ -126,11 +131,13 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 
 					<#assign tearDownElement = rootElement.element("tear-down")>
 
-					selenium.sendLogger("${testCaseName}TestCase__${commandName}", "start");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "start");
+
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "pending");
 
 					<#assign lineNumber = tearDownElement.attributeValue("line-number")>
 
-					selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pending");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pending");
 
 					<#assign blockElement = tearDownElement>
 
@@ -138,9 +145,22 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)} 
 
 					<#assign lineNumber = tearDownElement.attributeValue("line-number")>
 
-					selenium.sendLogger("${testCaseName}TestCase__${lineNumber}", "pass");
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${lineNumber}", "pass");
 				</#if>
+
+				if (testPassed) {
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "pass");
+				}
+				else {
+					selenium.sendLogger("${testCaseName?uncap_first}TestCase${commandName}", "fail");
+				}
 			}
 		}
 	</#list>
+
+	static {
+		<#assign commandElements = rootElement.elements("command")>
+
+		testCaseCount = ${commandElements?size};
+	}
 }

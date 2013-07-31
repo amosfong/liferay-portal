@@ -26,25 +26,6 @@ MBCategory category = messageDisplay.getCategory();
 MBThread thread = messageDisplay.getThread();
 %>
 
-<c:choose>
-	<c:when test="<%= portletName.equals(PortletKeys.MESSAGE_BOARDS_ADMIN) %>">
-
-		<%
-		PortletURL portletURL = renderResponse.createRenderURL();
-
-		portletURL.setParameter("tabs1", "message-boards-home");
-		%>
-
-		<liferay-ui:tabs
-			names="message-boards-home,recent-posts,statistics,banned-users"
-			url="<%= portletURL.toString() %>"
-		/>
-	</c:when>
-	<c:otherwise>
-		<liferay-util:include page="/html/portlet/message_boards/top_links.jsp" />
-	</c:otherwise>
-</c:choose>
-
 <div id="<portlet:namespace />addAnswerFlagDiv" style="display: none;">
 	<liferay-ui:icon
 		image="checked"
@@ -107,9 +88,9 @@ MBThread thread = messageDisplay.getThread();
 			Liferay.Service(
 				'/mbmessage/update-answer',
 				{
+					messageId: messageId,
 					answer: true,
-					cascade: false,
-					messageId: messageId
+					cascade: false
 				}
 			);
 
@@ -161,9 +142,9 @@ MBThread thread = messageDisplay.getThread();
 			Liferay.Service(
 				'/mbmessage/update-answer',
 				{
+					messageId: messageId,
 					answer: false,
-					cascade: false,
-					messageId: messageId
+					cascade: false
 				}
 			);
 

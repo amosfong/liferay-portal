@@ -22,6 +22,16 @@
 		padding-left: 20px;
 		padding-right: 20px;
 
+		.brand {
+			h1 {
+				display: inline-block;
+				font-size: inherit;
+				line-height: 1;
+				margin-bottom: 0;
+				margin-top: 0;
+			}
+		}
+
 		.container {
 			margin-left: 0;
 			margin-right: 0;
@@ -131,14 +141,20 @@
 /* ---------- Add Content ---------- */
 
 .lfr-has-add-content {
-	padding-left: 340px;
+	padding-left: 350px;
+}
+
+.lfr-has-device-preview {
+	padding-left: 220px;
+}
+
+.lfr-has-edit-layout {
+	padding-left: 460px;
 }
 
 /* ---------- Menus ---------- */
 
 .my-sites-menu {
-	min-width: 200px;
-
 	.site-type {
 		color: #FFF;
 		display: none;

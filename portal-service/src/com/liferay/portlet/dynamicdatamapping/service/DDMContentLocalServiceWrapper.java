@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DDMContentLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMContentLocalService
+ * @author Brian Wing Shun Chan
+ * @see DDMContentLocalService
  * @generated
  */
 public class DDMContentLocalServiceWrapper implements DDMContentLocalService,
@@ -166,11 +166,60 @@ public class DDMContentLocalServiceWrapper implements DDMContentLocalService,
 		return _ddmContentLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmContentLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMContent fetchDDMContent(
 		long contentId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _ddmContentLocalService.fetchDDMContent(contentId);
+	}
+
+	/**
+	* Returns the d d m content with the matching UUID and company.
+	*
+	* @param uuid the d d m content's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d m content, or <code>null</code> if a matching d d m content could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMContent fetchDDMContentByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmContentLocalService.fetchDDMContentByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the d d m content matching the UUID and group.
+	*
+	* @param uuid the d d m content's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d m content, or <code>null</code> if a matching d d m content could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMContent fetchDDMContentByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmContentLocalService.fetchDDMContentByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class DDMContentLocalServiceWrapper implements DDMContentLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddmContentLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the d d m content with the matching UUID and company.
+	*
+	* @param uuid the d d m content's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d m content
+	* @throws PortalException if a matching d d m content could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMContent getDDMContentByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _ddmContentLocalService.getDDMContentByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

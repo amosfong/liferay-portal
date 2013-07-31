@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.documentlibrary.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.sql.Blob;
@@ -26,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DLContent}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DLContent
+ * @author Brian Wing Shun Chan
+ * @see DLContent
  * @generated
  */
 public class DLContentWrapper implements DLContent, ModelWrapper<DLContent> {
@@ -395,6 +396,25 @@ public class DLContentWrapper implements DLContent, ModelWrapper<DLContent> {
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_dlContent.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DLContentWrapper)) {
+			return false;
+		}
+
+		DLContentWrapper dlContentWrapper = (DLContentWrapper)obj;
+
+		if (Validator.equals(_dlContent, dlContentWrapper._dlContent)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

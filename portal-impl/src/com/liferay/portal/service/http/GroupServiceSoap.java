@@ -54,10 +54,10 @@ import java.rmi.RemoteException;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       GroupServiceHttp
- * @see       com.liferay.portal.model.GroupSoap
- * @see       com.liferay.portal.service.GroupServiceUtil
+ * @author Brian Wing Shun Chan
+ * @see GroupServiceHttp
+ * @see com.liferay.portal.model.GroupSoap
+ * @see com.liferay.portal.service.GroupServiceUtil
  * @generated
  */
 public class GroupServiceSoap {
@@ -87,14 +87,15 @@ public class GroupServiceSoap {
 	*/
 	public static com.liferay.portal.model.GroupSoap addGroup(
 		long parentGroupId, long liveGroupId, java.lang.String name,
-		java.lang.String description, int type, java.lang.String friendlyURL,
-		boolean site, boolean active,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		java.lang.String description, int type, boolean manualMembership,
+		int membershipRestriction, java.lang.String friendlyURL, boolean site,
+		boolean active, com.liferay.portal.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
 			com.liferay.portal.model.Group returnValue = GroupServiceUtil.addGroup(parentGroupId,
-					liveGroupId, name, description, type, friendlyURL, site,
-					active, serviceContext);
+					liveGroupId, name, description, type, manualMembership,
+					membershipRestriction, friendlyURL, site, active,
+					serviceContext);
 
 			return com.liferay.portal.model.GroupSoap.toSoapModel(returnValue);
 		}
@@ -128,7 +129,8 @@ public class GroupServiceSoap {
 	if a valid friendly URL could not be created for the group
 	* @throws SystemException if a system exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	String, int, String, boolean, boolean, ServiceContext)}
+	String, int, boolean, int, String, boolean, boolean,
+	ServiceContext)}
 	*/
 	public static com.liferay.portal.model.GroupSoap addGroup(
 		long parentGroupId, java.lang.String name,
@@ -243,6 +245,50 @@ public class GroupServiceSoap {
 		}
 	}
 
+	public static void disableStaging(long groupId) throws RemoteException {
+		try {
+			GroupServiceUtil.disableStaging(groupId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void enableStaging(long groupId) throws RemoteException {
+		try {
+			GroupServiceUtil.enableStaging(groupId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns the company group.
+	*
+	* @param companyId the primary key of the company
+	* @return the group associated with the company
+	* @throws PortalException if a matching group could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.GroupSoap getCompanyGroup(
+		long companyId) throws RemoteException {
+		try {
+			com.liferay.portal.model.Group returnValue = GroupServiceUtil.getCompanyGroup(companyId);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	/**
 	* Returns the group with the primary key.
 	*
@@ -300,6 +346,8 @@ public class GroupServiceSoap {
 	* @param site whether the group is to be associated with a main site
 	* @return the matching groups, or <code>null</code> if no matches were
 	found
+	* @throws PortalException if the user did not have permission to view the
+	group or if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portal.model.GroupSoap[] getGroups(
@@ -329,6 +377,36 @@ public class GroupServiceSoap {
 	access
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.GroupSoap[] getManageableSiteGroups(
+		java.util.Collection<com.liferay.portal.model.Portlet> portlets, int max)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getManageableSiteGroups(portlets,
+					max);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns a range of all the site groups for which the user has control
+	* panel access.
+	*
+	* @param portlets the portlets to manage
+	* @param max the upper bound of the range of groups to consider (not
+	inclusive)
+	* @return the range of site groups for which the user has Control Panel
+	access
+	* @throws PortalException if a portal exception occurred
+	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link
+	#getManageableSiteGroups(Collection, int)}
 	*/
 	public static com.liferay.portal.model.GroupSoap[] getManageableSites(
 		java.util.Collection<com.liferay.portal.model.Portlet> portlets, int max)
@@ -460,6 +538,10 @@ public class GroupServiceSoap {
 		}
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroups(long,
+	String[], boolean, int)}
+	*/
 	public static com.liferay.portal.model.GroupSoap[] getUserPlaces(
 		long userId, java.lang.String[] classNames,
 		boolean includeControlPanel, int max) throws RemoteException {
@@ -504,11 +586,13 @@ public class GroupServiceSoap {
 	* @param userId the primary key of the user
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserPlaces(long, String[], int)}
+	#getUserPlacesGroups(long, String[], int)}
 	* @param max the maximum number of groups to return
 	* @return the user's group &quot;places&quot;
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroups(long,
+	String[], int)}
 	*/
 	public static com.liferay.portal.model.GroupSoap[] getUserPlaces(
 		long userId, java.lang.String[] classNames, int max)
@@ -526,6 +610,10 @@ public class GroupServiceSoap {
 		}
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroups(long,
+	String[], String, boolean, boolean, int, int)}
+	*/
 	public static com.liferay.portal.model.GroupSoap[] getUserPlaces(
 		long userId, java.lang.String[] classNames, java.lang.String name,
 		boolean active, boolean includeControlPanel, int start, int end)
@@ -570,11 +658,13 @@ public class GroupServiceSoap {
 	*
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserPlaces(String[], int)}
+	#getUserPlacesGroups(String[], int)}
 	* @param max the maximum number of groups to return
 	* @return the user's group &quot;places&quot;
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroups(
+	String[], int)}
 	*/
 	public static com.liferay.portal.model.GroupSoap[] getUserPlaces(
 		java.lang.String[] classNames, int max) throws RemoteException {
@@ -600,6 +690,7 @@ public class GroupServiceSoap {
 	* @return the number of user's group &quot;places&quot;
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroupsCount()}
 	*/
 	public static int getUserPlacesCount() throws RemoteException {
 		try {
@@ -614,14 +705,183 @@ public class GroupServiceSoap {
 		}
 	}
 
+	public static com.liferay.portal.model.GroupSoap[] getUserPlacesGroups()
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getUserPlacesGroups();
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.GroupSoap[] getUserPlacesGroups(
+		long userId, java.lang.String[] classNames,
+		boolean includeControlPanel, int max) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getUserPlacesGroups(userId,
+					classNames, includeControlPanel, max);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns the user's group &quot;places&quot; associated with the group
+	* entity class names, including the Control Panel group if the user is
+	* permitted to view the Control Panel.
+	*
+	* <ul>
+	* <li>
+	* Class name &quot;User&quot; includes the user's layout set
+	* group.
+	* </li>
+	* <li>
+	* Class name &quot;Organization&quot; includes the user's
+	* immediate organization groups and inherited organization groups.
+	* </li>
+	* <li>
+	* Class name &quot;Group&quot; includes the user's immediate
+	* organization groups and site groups.
+	* </li>
+	* <li>
+	* A <code>classNames</code>
+	* value of <code>null</code> includes the user's layout set group,
+	* organization groups, inherited organization groups, and site groups.
+	* </li>
+	* </ul>
+	*
+	* @param userId the primary key of the user
+	* @param classNames the group entity class names (optionally
+	<code>null</code>). For more information see {@link
+	#getUserPlacesGroups(long, String[], boolean, int)}
+	* @param max the maximum number of groups to return
+	* @return the user's group &quot;places&quot;
+	* @throws PortalException if a portal exception occurred
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.GroupSoap[] getUserPlacesGroups(
+		long userId, java.lang.String[] classNames, int max)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getUserPlacesGroups(userId,
+					classNames, max);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.GroupSoap[] getUserPlacesGroups(
+		long userId, java.lang.String[] classNames, java.lang.String name,
+		boolean active, boolean includeControlPanel, int start, int end)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getUserPlacesGroups(userId,
+					classNames, name, active, includeControlPanel, start, end);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns the guest or current user's group &quot;places&quot; associated
+	* with the group entity class names, including the Control Panel group if
+	* the user is permitted to view the Control Panel.
+	*
+	* <ul>
+	* <li>
+	* Class name &quot;User&quot; includes the user's layout set
+	* group.
+	* </li>
+	* <li>
+	* Class name &quot;Organization&quot; includes the user's
+	* immediate organization groups and inherited organization groups.
+	* </li>
+	* <li>
+	* Class name &quot;Group&quot; includes the user's immediate
+	* organization groups and site groups.
+	* </li>
+	* <li>
+	* A <code>classNames</code>
+	* value of <code>null</code> includes the user's layout set group,
+	* organization groups, inherited organization groups, and site groups.
+	* </li>
+	* </ul>
+	*
+	* @param classNames the group entity class names (optionally
+	<code>null</code>). For more information see {@link
+	#getUserPlacesGroups(long, String[], boolean, int)}
+	* @param max the maximum number of groups to return
+	* @return the user's group &quot;places&quot;
+	* @throws PortalException if a portal exception occurred
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portal.model.GroupSoap[] getUserPlacesGroups(
+		java.lang.String[] classNames, int max) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portal.model.Group> returnValue = GroupServiceUtil.getUserPlacesGroups(classNames,
+					max);
+
+			return com.liferay.portal.model.GroupSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
+	* Returns the number of the guest or current user's group
+	* &quot;places&quot; associated with the group entity class names,
+	* including the Control Panel group if the user is permitted to view the
+	* Control Panel.
+	*
+	* @return the number of user's group &quot;places&quot;
+	* @throws PortalException if a portal exception occurred
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int getUserPlacesGroupsCount() throws RemoteException {
+		try {
+			int returnValue = GroupServiceUtil.getUserPlacesGroupsCount();
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	/**
 	* Returns the guest or current user's layout set group, organization
 	* groups, inherited organization groups, and site groups.
 	*
-	* @return the user's layout set group, organization groups, and inherited
-	organization groups, and site groups
+	* @return the user's layout set group, organization groups, and
+	inherited organization groups, and site groups
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link #getUserPlacesGroups()}
 	*/
 	public static com.liferay.portal.model.GroupSoap[] getUserSites()
 		throws RemoteException {
@@ -842,13 +1102,14 @@ public class GroupServiceSoap {
 	*/
 	public static com.liferay.portal.model.GroupSoap updateGroup(long groupId,
 		long parentGroupId, java.lang.String name,
-		java.lang.String description, int type, java.lang.String friendlyURL,
+		java.lang.String description, int type, boolean manualMembership,
+		int membershipRestriction, java.lang.String friendlyURL,
 		boolean active, com.liferay.portal.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
 			com.liferay.portal.model.Group returnValue = GroupServiceUtil.updateGroup(groupId,
-					parentGroupId, name, description, type, friendlyURL,
-					active, serviceContext);
+					parentGroupId, name, description, type, manualMembership,
+					membershipRestriction, friendlyURL, active, serviceContext);
 
 			return com.liferay.portal.model.GroupSoap.toSoapModel(returnValue);
 		}
@@ -877,6 +1138,18 @@ public class GroupServiceSoap {
 					typeSettings);
 
 			return com.liferay.portal.model.GroupSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void updateStagedPortlets(long groupId,
+		java.lang.String stagedPortletIds) throws RemoteException {
+		try {
+			GroupServiceUtil.updateStagedPortlets(groupId, stagedPortletIds);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

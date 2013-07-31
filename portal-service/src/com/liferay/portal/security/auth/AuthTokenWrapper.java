@@ -34,6 +34,13 @@ public class AuthTokenWrapper implements AuthToken {
 	}
 
 	@Override
+	public void checkCSRFToken(HttpServletRequest request, String context)
+		throws PrincipalException {
+
+		_authToken.checkCSRFToken(request, context);
+	}
+
+	@Override
 	public String getToken(HttpServletRequest request) {
 		return _authToken.getToken(request);
 	}
@@ -43,6 +50,15 @@ public class AuthTokenWrapper implements AuthToken {
 		HttpServletRequest request, long plid, String portletId) {
 
 		return _authToken.getToken(request, plid, portletId);
+	}
+
+	@Override
+	public boolean isValidPortletInvocationToken(
+		HttpServletRequest request, long plid, String portletId,
+		String strutsAction, String tokenValue) {
+
+		return _authToken.isValidPortletInvocationToken(
+			request, plid, portletId, strutsAction, tokenValue);
 	}
 
 	public void setAuthToken(AuthToken authToken) {

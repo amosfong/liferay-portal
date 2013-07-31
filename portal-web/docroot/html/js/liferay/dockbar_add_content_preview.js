@@ -50,6 +50,14 @@ AUI.add(
 				(new A.EventHandle(instance._eventHandles)).detach();
 			},
 
+			_addContent: function(event) {
+				var instance = this;
+
+				var portlet = event.currentTarget;
+
+				instance.addPortlet(portlet);
+			},
+
 			_afterPreviewFailure: function(event) {
 				var instance = this;
 
@@ -72,14 +80,14 @@ AUI.add(
 				tooltip.align();
 
 				instance._eventHandles.push(
-					tooltip.get(STR_BOUNDING_BOX).one('.add-button-preview').on(STR_CLICK, instance._addApplication, instance)
+					tooltip.get(STR_BOUNDING_BOX).one('.add-button-preview').on(STR_CLICK, instance._addContent, instance)
 				);
 			},
 
 			_bindUIACPreview: function() {
 				var instance = this;
 
-				Liferay.Dockbar.getPanelNode().delegate(
+				Liferay.Dockbar.getPanelNode(Liferay.Dockbar.ADD_PANEL).delegate(
 					STR_MOUSEENTER,
 					instance._showTooltip,
 					'.has-preview',
@@ -101,10 +109,12 @@ AUI.add(
 								success: A.bind('_afterPreviewSuccess', instance)
 							},
 							autoLoad: false,
-							data: {
-								viewEntries: false,
-								viewPreview: true
-							}
+							data: instance.ns(
+								{
+									viewEntries: false,
+									viewPreview: true
+								}
+							)
 						}
 					);
 
@@ -153,8 +163,8 @@ AUI.add(
 
 				ioPreview.stop();
 
-				ioPreview.set('data.classPK', classPK);
-				ioPreview.set('data.className', className);
+				ioPreview.set('data.' + instance.ns('classPK'), classPK);
+				ioPreview.set('data.' + instance.ns('className'), className);
 
 				ioPreview.start();
 			},

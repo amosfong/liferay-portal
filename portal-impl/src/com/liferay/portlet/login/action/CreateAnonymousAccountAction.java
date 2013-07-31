@@ -71,8 +71,9 @@ public class CreateAnonymousAccountAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
@@ -160,8 +161,9 @@ public class CreateAnonymousAccountAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
@@ -170,12 +172,13 @@ public class CreateAnonymousAccountAction extends PortletAction {
 		String portletName = portletConfig.getPortletName();
 
 		if (!portletName.equals(PortletKeys.FAST_LOGIN)) {
-			return mapping.findForward("portlet.login.login");
+			return actionMapping.findForward("portlet.login.login");
 		}
 
 		renderResponse.setTitle(themeDisplay.translate("anonymous-account"));
 
-		return mapping.findForward("portlet.login.create_anonymous_account");
+		return actionMapping.findForward(
+			"portlet.login.create_anonymous_account");
 	}
 
 	protected void addAnonymousUser(
@@ -220,6 +223,8 @@ public class CreateAnonymousAccountAction extends PortletAction {
 		if (PropsValues.CAPTCHA_CHECK_PORTAL_CREATE_ACCOUNT) {
 			CaptchaUtil.check(actionRequest);
 		}
+
+		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_SAVE_DRAFT);
 
 		User user = UserServiceUtil.addUser(
 			themeDisplay.getCompanyId(), autoPassword, password1, password2,

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link UserGroupGroupRole}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       UserGroupGroupRole
+ * @author Brian Wing Shun Chan
+ * @see UserGroupGroupRole
  * @generated
  */
 public class UserGroupGroupRoleWrapper implements UserGroupGroupRole,
@@ -258,6 +260,26 @@ public class UserGroupGroupRoleWrapper implements UserGroupGroupRole,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_userGroupGroupRole.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof UserGroupGroupRoleWrapper)) {
+			return false;
+		}
+
+		UserGroupGroupRoleWrapper userGroupGroupRoleWrapper = (UserGroupGroupRoleWrapper)obj;
+
+		if (Validator.equals(_userGroupGroupRole,
+					userGroupGroupRoleWrapper._userGroupGroupRole)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

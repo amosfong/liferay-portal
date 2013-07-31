@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.image.SpriteProcessor;
 import com.liferay.portal.kernel.image.SpriteProcessorUtil;
+import com.liferay.portal.kernel.lar.DefaultConfigurationPortletDataHandler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
@@ -551,7 +552,9 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 	public Portlet getPortletById(String portletId) {
 		Map<String, Portlet> portletsPool = _getPortletsPool();
 
-		return portletsPool.get(portletId);
+		String rootPortletId = PortletConstants.getRootPortletId(portletId);
+
+		return portletsPool.get(rootPortletId);
 	}
 
 	@Override
@@ -1359,10 +1362,17 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 			GetterUtil.getString(
 				portletElement.elementText("url-encoder-class"),
 				portletModel.getURLEncoderClass()));
-		portletModel.setPortletDataHandlerClass(
-			GetterUtil.getString(
-				portletElement.elementText("portlet-data-handler-class"),
-				portletModel.getPortletDataHandlerClass()));
+
+		String portletDataHandlerClass = GetterUtil.getString(
+			portletElement.elementText("portlet-data-handler-class"),
+			portletModel.getPortletDataHandlerClass());
+
+		if (Validator.isNull(portletDataHandlerClass)) {
+			portletDataHandlerClass =
+				DefaultConfigurationPortletDataHandler.class.getName();
+		}
+
+		portletModel.setPortletDataHandlerClass(portletDataHandlerClass);
 
 		List<String> stagedModelDataHandlerClasses = new ArrayList<String>();
 
@@ -1409,6 +1419,24 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 			GetterUtil.getString(
 				portletElement.elementText("social-request-interpreter-class"),
 				portletModel.getSocialRequestInterpreterClass()));
+		portletModel.setUserNotificationDefinitions(
+			GetterUtil.getString(
+				portletElement.elementText("user-notification-definitions"),
+				portletModel.getUserNotificationDefinitions()));
+
+		List<String> userNotificationHandlerClasses = new ArrayList<String>();
+
+		for (Element userNotificationHandlerClassElement :
+				portletElement.elements(
+					"user-notification-handler-class")) {
+
+			userNotificationHandlerClasses.add(
+				userNotificationHandlerClassElement.getText());
+		}
+
+		portletModel.setUserNotificationHandlerClasses(
+			userNotificationHandlerClasses);
+
 		portletModel.setWebDAVStorageToken(
 			GetterUtil.getString(
 				portletElement.elementText("webdav-storage-token"),
@@ -1614,6 +1642,10 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 
 		portletModel.setAutopropagatedParameters(autopropagatedParameters);
 
+		portletModel.setRequiresNamespacedParameters(
+			GetterUtil.getBoolean(
+				portletElement.elementText("requires-namespaced-parameters"),
+				portletModel.isRequiresNamespacedParameters()));
 		portletModel.setActionTimeout(
 			GetterUtil.getInteger(
 				portletElement.elementText("action-timeout"),

@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
@@ -49,8 +50,9 @@ public class EditRuleGroupAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -62,7 +64,7 @@ public class EditRuleGroupAction extends PortletAction {
 				ruleGroup = updateRuleGroup(actionRequest);
 			}
 			else if (cmd.equals(Constants.DELETE)) {
-				deleteRuleGroup(actionRequest);
+				deleteRuleGroups(actionRequest);
 			}
 			else if (cmd.equals(Constants.COPY)) {
 				ruleGroup = copyRuleGroup(actionRequest);
@@ -95,8 +97,9 @@ public class EditRuleGroupAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		long ruleGroupId = ParamUtil.getLong(renderRequest, "ruleGroupId");
@@ -107,7 +110,7 @@ public class EditRuleGroupAction extends PortletAction {
 		renderRequest.setAttribute(
 			WebKeys.MOBILE_DEVICE_RULES_RULE_GROUP, ruleGroup);
 
-		return mapping.findForward(
+		return actionMapping.findForward(
 			"portlet.mobile_device_rules.edit_rule_group");
 	}
 
@@ -125,12 +128,24 @@ public class EditRuleGroupAction extends PortletAction {
 			ruleGroupId, groupId, serviceContext);
 	}
 
-	protected void deleteRuleGroup(ActionRequest actionRequest)
+	protected void deleteRuleGroups(ActionRequest actionRequest)
 		throws Exception {
+
+		long[] deleteRuleGroupIds = null;
 
 		long ruleGroupId = ParamUtil.getLong(actionRequest, "ruleGroupId");
 
-		MDRRuleGroupServiceUtil.deleteRuleGroup(ruleGroupId);
+		if (ruleGroupId > 0) {
+			deleteRuleGroupIds = new long[] {ruleGroupId};
+		}
+		else {
+			deleteRuleGroupIds = StringUtil.split(
+				ParamUtil.getString(actionRequest, "ruleGroupIds"), 0L);
+		}
+
+		for (long deleteRuleGroupId : deleteRuleGroupIds) {
+			MDRRuleGroupServiceUtil.deleteRuleGroup(deleteRuleGroupId);
+		}
 	}
 
 	protected String getRedirect(

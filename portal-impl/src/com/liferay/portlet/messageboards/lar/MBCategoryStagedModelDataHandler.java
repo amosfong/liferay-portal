@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.messageboards.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -24,7 +26,6 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBCategoryConstants;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBCategoryUtil;
 
 import java.util.Map;
 
@@ -35,6 +36,20 @@ public class MBCategoryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<MBCategory> {
 
 	public static final String[] CLASS_NAMES = {MBCategory.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		MBCategory category =
+			MBCategoryLocalServiceUtil.fetchMBCategoryByUuidAndGroupId(
+				uuid, groupId);
+
+		if (category != null) {
+			MBCategoryLocalServiceUtil.deleteCategory(category);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -134,8 +149,9 @@ public class MBCategoryStagedModelDataHandler
 		MBCategory importedCategory = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			MBCategory existingCategory = MBCategoryUtil.fetchByUUID_G(
-				category.getUuid(), portletDataContext.getScopeGroupId());
+			MBCategory existingCategory =
+				MBCategoryLocalServiceUtil.fetchMBCategoryByUuidAndGroupId(
+					category.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingCategory == null) {
 				serviceContext.setUuid(category.getUuid());

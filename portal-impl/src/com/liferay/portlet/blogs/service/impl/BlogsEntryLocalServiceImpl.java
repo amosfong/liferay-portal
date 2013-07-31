@@ -339,8 +339,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Expando
 
-		expandoValueLocalService.deleteValues(
-			BlogsEntry.class.getName(), entry.getEntryId());
+		expandoRowLocalService.deleteRows(entry.getEntryId());
 
 		// Message boards
 
@@ -872,10 +871,14 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		socialActivityCounterLocalService.disableActivityCounters(
 			BlogsEntry.class.getName(), entry.getEntryId());
 
+		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
+
+		extraDataJSONObject.put("title", entry.getTitle());
+
 		socialActivityLocalService.addActivity(
 			userId, entry.getGroupId(), BlogsEntry.class.getName(),
 			entry.getEntryId(), SocialActivityConstants.TYPE_MOVE_TO_TRASH,
-			StringPool.BLANK, 0);
+			extraDataJSONObject.toString(), 0);
 
 		// Workflow
 
@@ -928,7 +931,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		TrashEntry trashEntry = trashEntryLocalService.getEntry(
 			BlogsEntry.class.getName(), entryId);
 
-		updateStatus(
+		BlogsEntry entry = updateStatus(
 			userId, entryId, trashEntry.getStatus(), new ServiceContext());
 
 		// Social
@@ -936,10 +939,14 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		socialActivityCounterLocalService.enableActivityCounters(
 			BlogsEntry.class.getName(), entryId);
 
+		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
+
+		extraDataJSONObject.put("title", entry.getTitle());
+
 		socialActivityLocalService.addActivity(
 			userId, trashEntry.getGroupId(), BlogsEntry.class.getName(),
 			entryId, SocialActivityConstants.TYPE_RESTORE_FROM_TRASH,
-			StringPool.BLANK, 0);
+			extraDataJSONObject.toString(), 0);
 	}
 
 	@Override

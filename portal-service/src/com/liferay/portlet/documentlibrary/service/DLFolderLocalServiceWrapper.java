@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DLFolderLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFolderLocalService
+ * @author Brian Wing Shun Chan
+ * @see DLFolderLocalService
  * @generated
  */
 public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
@@ -166,11 +166,58 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		return _dlFolderLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFolder fetchDLFolder(
 		long folderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFolderLocalService.fetchDLFolder(folderId);
+	}
+
+	/**
+	* Returns the document library folder with the matching UUID and company.
+	*
+	* @param uuid the document library folder's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library folder, or <code>null</code> if a matching document library folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFolder fetchDLFolderByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.fetchDLFolderByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the document library folder matching the UUID and group.
+	*
+	* @param uuid the document library folder's UUID
+	* @param groupId the primary key of the group
+	* @return the matching document library folder, or <code>null</code> if a matching document library folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFolder fetchDLFolderByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.fetchDLFolderByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -195,6 +242,24 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFolderLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the document library folder with the matching UUID and company.
+	*
+	* @param uuid the document library folder's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library folder
+	* @throws PortalException if a matching document library folder could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFolder getDLFolderByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.getDLFolderByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -527,6 +592,13 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFolderLocalService.deleteFolder(userId, folderId,
 			includeTrashedEntries);
+	}
+
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFolder fetchFolder(
+		long folderId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFolderLocalService.fetchFolder(folderId);
 	}
 
 	@Override

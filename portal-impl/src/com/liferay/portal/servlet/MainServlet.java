@@ -54,15 +54,18 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
+import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.model.PortletFilter;
 import com.liferay.portal.model.PortletURLListener;
+import com.liferay.portal.model.Theme;
 import com.liferay.portal.model.User;
 import com.liferay.portal.plugin.PluginPackageUtil;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.security.jaas.JAASHelper;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.server.capabilities.ServerCapabilitiesUtil;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
@@ -454,7 +457,7 @@ public class MainServlet extends ActionServlet {
 
 		String password = getPassword(request);
 
-		setPrincipal(userId, remoteUser, password);
+		setPrincipal(companyId, userId, remoteUser, password);
 
 		try {
 			if (_log.isDebugEnabled()) {
@@ -463,7 +466,8 @@ public class MainServlet extends ActionServlet {
 						remoteUser);
 			}
 
-			userId = loginUser(request, response, userId, remoteUser);
+			userId = loginUser(
+				request, response, companyId, userId, remoteUser);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Authenticated user id " + userId);
@@ -808,8 +812,12 @@ public class MainServlet extends ActionServlet {
 					"/WEB-INF/liferay-layout-templates-ext.xml"))
 		};
 
-		LayoutTemplateLocalServiceUtil.init(
-			servletContext, xmls, pluginPackage);
+		List<LayoutTemplate> layoutTemplates =
+			LayoutTemplateLocalServiceUtil.init(
+				servletContext, xmls, pluginPackage);
+
+		servletContext.setAttribute(
+			WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);
 	}
 
 	protected PluginPackage initPluginPackage() throws Exception {
@@ -899,6 +907,8 @@ public class MainServlet extends ActionServlet {
 			}
 		}
 
+		servletContext.setAttribute(WebKeys.PLUGIN_PORTLETS, portlets);
+
 		return portlets;
 	}
 
@@ -968,8 +978,10 @@ public class MainServlet extends ActionServlet {
 					"/WEB-INF/liferay-look-and-feel-ext.xml"))
 		};
 
-		ThemeLocalServiceUtil.init(
+		List<Theme> themes = ThemeLocalServiceUtil.init(
 			servletContext, null, true, xmls, pluginPackage);
+
+		servletContext.setAttribute(WebKeys.PLUGIN_THEMES, themes);
 	}
 
 	protected void initWebSettings() throws Exception {
@@ -983,14 +995,19 @@ public class MainServlet extends ActionServlet {
 
 	protected long loginUser(
 			HttpServletRequest request, HttpServletResponse response,
-			long userId, String remoteUser)
+			long companyId, long userId, String remoteUser)
 		throws PortalException, SystemException {
 
 		if ((userId > 0) || (remoteUser == null)) {
 			return userId;
 		}
 
-		userId = GetterUtil.getLong(remoteUser);
+		if (PropsValues.PORTAL_JAAS_ENABLE) {
+			userId = JAASHelper.getJaasUserId(companyId, remoteUser);
+		}
+		else {
+			userId = GetterUtil.getLong(remoteUser);
+		}
 
 		EventsProcessorUtil.process(
 			PropsKeys.LOGIN_EVENTS_PRE, PropsValues.LOGIN_EVENTS_PRE, request,
@@ -1280,7 +1297,7 @@ public class MainServlet extends ActionServlet {
 	}
 
 	protected void setPrincipal(
-		long userId, String remoteUser, String password) {
+		long companyId, long userId, String remoteUser, String password) {
 
 		if ((userId == 0) && (remoteUser == null)) {
 			return;
@@ -1288,10 +1305,22 @@ public class MainServlet extends ActionServlet {
 
 		String name = String.valueOf(userId);
 
-		if (!PropsValues.PORTAL_JAAS_ENABLE) {
-			if (remoteUser != null) {
-				name = remoteUser;
+		if (PropsValues.PORTAL_JAAS_ENABLE) {
+			long remoteUserId = 0;
+
+			try {
+				remoteUserId = JAASHelper.getJaasUserId(companyId, remoteUser);
 			}
+			catch (Exception e) {
+				_log.warn(e);
+			}
+
+			if (remoteUserId > 0) {
+				name = String.valueOf(remoteUserId);
+			}
+		}
+		else if (remoteUser != null) {
+			name = remoteUser;
 		}
 
 		PrincipalThreadLocal.setName(name);

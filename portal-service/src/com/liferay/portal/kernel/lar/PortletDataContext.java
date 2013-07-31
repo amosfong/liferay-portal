@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Lock;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.asset.model.AssetLink;
@@ -67,19 +68,19 @@ public interface PortletDataContext extends Serializable {
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             ExportImportPathUtil#_PATH_PREFIX_GROUP}
+	 *             ExportImportPathUtil#PATH_PREFIX_GROUP}
 	 */
 	public static final String ROOT_PATH_GROUPS = "/groups/";
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             ExportImportPathUtil#_PATH_PREFIX_LAYOUT}
+	 *             ExportImportPathUtil#PATH_PREFIX_LAYOUT}
 	 */
 	public static final String ROOT_PATH_LAYOUTS = "/layouts/";
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             ExportImportPathUtil#_PATH_PREFIX_PORTLET}
+	 *             ExportImportPathUtil#PATH_PREFIX_PORTLET}
 	 */
 	public static final String ROOT_PATH_PORTLETS = "/portlets/";
 
@@ -109,6 +110,9 @@ public interface PortletDataContext extends Serializable {
 	public void addDateRangeCriteria(
 		DynamicQuery dynamicQuery, String modifiedDatePropertyName);
 
+	public void addDeletionSystemEventStagedModelTypes(
+		StagedModelType... stagedModelTypes);
+
 	public void addExpando(
 			Element element, String path, ClassedModel classedModel)
 		throws PortalException, SystemException;
@@ -136,21 +140,21 @@ public interface PortletDataContext extends Serializable {
 		String className, long classPK, List<RatingsEntry> ratingsEntries);
 
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, Class<?> clazz, String referenceType,
 		boolean missing);
 
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String referenceType, boolean missing);
 
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String binPath, String referenceType,
 		boolean missing);
 
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String className, String binPath,
 		String referenceType, boolean missing);
 
@@ -198,6 +202,9 @@ public interface PortletDataContext extends Serializable {
 
 	public boolean getBooleanParameter(String namespace, String name);
 
+	public boolean getBooleanParameter(
+		String namespace, String name, boolean useDefaultValue);
+
 	public ClassLoader getClassLoader();
 
 	public Map<String, List<MBMessage>> getComments();
@@ -207,6 +214,8 @@ public interface PortletDataContext extends Serializable {
 	public long getCompanyId();
 
 	public String getDataStrategy();
+
+	public Set<StagedModelType> getDeletionSystemEventStagedModelTypes();
 
 	public Date getEndDate();
 
@@ -272,14 +281,13 @@ public interface PortletDataContext extends Serializable {
 	public Map<String, List<RatingsEntry>> getRatingsEntries();
 
 	public Element getReferenceDataElement(
-		Element parentElement, Class<?> clazz, long groupId, long classPk);
+		Element parentElement, Class<?> clazz, long classPk);
 
 	public Element getReferenceDataElement(
 		Element parentElement, Class<?> clazz, long groupId, String uuid);
 
 	public Element getReferenceDataElement(
-		StagedModel parentStagedModel, Class<?> clazz, long groupId,
-		long classPk);
+		StagedModel parentStagedModel, Class<?> clazz, long classPk);
 
 	public Element getReferenceDataElement(
 		StagedModel parentStagedModel, Class<?> clazz, long groupId,
@@ -296,6 +304,9 @@ public interface PortletDataContext extends Serializable {
 
 	public List<Element> getReferenceDataElements(
 		StagedModel parentStagedModel, Class<?> clazz, String referenceType);
+
+	public List<Element> getReferenceElements(
+		StagedModel parentStagedModel, Class<?> clazz);
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link
@@ -397,6 +408,9 @@ public interface PortletDataContext extends Serializable {
 	public void importRatingsEntries(
 			Class<?> clazz, long classPK, long newClassPK)
 		throws PortalException, SystemException;
+
+	public boolean isCompanyStagedGroupedModel(
+		StagedGroupedModel stagedGroupedModel);
 
 	public boolean isDataStrategyMirror();
 

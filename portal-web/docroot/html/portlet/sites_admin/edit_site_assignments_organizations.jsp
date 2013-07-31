@@ -22,8 +22,6 @@ String tabs2 = (String)request.getAttribute("edit_site_assignments.jsp-tabs2");
 
 int cur = (Integer)request.getAttribute("edit_site_assignments.jsp-cur");
 
-String redirect = ParamUtil.getString(request, "redirect");
-
 Group group = (Group)request.getAttribute("edit_site_assignments.jsp-group");
 
 PortletURL portletURL = (PortletURL)request.getAttribute("edit_site_assignments.jsp-portletURL");
@@ -33,7 +31,7 @@ PortletURL viewOrganizationsURL = renderResponse.createRenderURL();
 viewOrganizationsURL.setParameter("struts_action", "/sites_admin/edit_site_assignments");
 viewOrganizationsURL.setParameter("tabs1", "organizations");
 viewOrganizationsURL.setParameter("tabs2", tabs2);
-viewOrganizationsURL.setParameter("redirect", redirect);
+viewOrganizationsURL.setParameter("redirect", currentURL);
 viewOrganizationsURL.setParameter("groupId", String.valueOf(group.getGroupId()));
 
 OrganizationGroupChecker organizationGroupChecker = null;
@@ -48,9 +46,9 @@ if (tabs2.equals("current")) {
 	emptyResultsMessage ="no-organization-was-found-that-is-a-member-of-this-site";
 }
 
-OrganizationSearch organizationSearch = new OrganizationSearch(renderRequest, viewOrganizationsURL);
+SearchContainer searchContainer = new OrganizationSearch(renderRequest, viewOrganizationsURL);
 
-organizationSearch.setEmptyResultsMessage(emptyResultsMessage);
+searchContainer.setEmptyResultsMessage(emptyResultsMessage);
 %>
 
 <aui:input name="tabs1" type="hidden" value="organizations" />
@@ -59,7 +57,8 @@ organizationSearch.setEmptyResultsMessage(emptyResultsMessage);
 
 <liferay-ui:search-container
 	rowChecker="<%= organizationGroupChecker %>"
-	searchContainer="<%= organizationSearch %>"
+	searchContainer="<%= searchContainer %>"
+	var="organizationSearchContainer"
 >
 	<c:if test='<%= !tabs1.equals("summary") %>'>
 		<liferay-ui:search-form
@@ -70,7 +69,7 @@ organizationSearch.setEmptyResultsMessage(emptyResultsMessage);
 	</c:if>
 
 	<%
-	OrganizationSearchTerms searchTerms = (OrganizationSearchTerms)searchContainer.getSearchTerms();
+	OrganizationSearchTerms searchTerms = (OrganizationSearchTerms)organizationSearchContainer.getSearchTerms();
 
 	long parentOrganizationId = OrganizationConstants.ANY_PARENT_ORGANIZATION_ID;
 
@@ -192,7 +191,7 @@ organizationSearch.setEmptyResultsMessage(emptyResultsMessage);
 
 				<liferay-ui:search-iterator paginate="<%= false %>" />
 
-				<c:if test="<%= total > organizationSearch.getDelta() %>">
+				<c:if test="<%= total > searchContainer.getDelta() %>">
 					<a href="<%= viewOrganizationsURL %>"><liferay-ui:message key="view-more" /> &raquo;</a>
 				</c:if>
 			</liferay-ui:panel>
@@ -200,7 +199,7 @@ organizationSearch.setEmptyResultsMessage(emptyResultsMessage);
 			<div class="separator"><!-- --></div>
 		</c:when>
 		<c:when test='<%= !tabs1.equals("summary") %>'>
-			<c:if test="<%= total > organizationSearch.getDelta() %>">
+			<c:if test="<%= total > searchContainer.getDelta() %>">
 				<%= formButton %>
 			</c:if>
 

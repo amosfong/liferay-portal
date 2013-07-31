@@ -229,7 +229,7 @@ AUI.add(
 					instance._backgroundColorPicker = new A.ColorPickerPopover(
 						{
 							trigger: backgroundColor,
-							zIndex: 1000
+							plugins: [Liferay.WidgetZIndex]
 						}
 					).render(instance._currentPopup.get(BOUNDING_BOX));
 				}
@@ -993,6 +993,7 @@ AUI.add(
 					},
 
 					portletData: {
+						customTitle: EMPTY,
 						language: 'en_US',
 						portletLinksTarget: EMPTY,
 						title: EMPTY,
@@ -1341,6 +1342,7 @@ AUI.add(
 							}
 
 							portletData.title = value;
+
 							instance._portletTitles(portletLanguage, value);
 						}
 					}
@@ -1462,10 +1464,13 @@ AUI.add(
 				instance._setSelect(instance._portletLinksTarget, portletData.portletLinksTarget);
 
 				var portletTitles = portletData.titles;
+
 				var portletTitle = instance._portletTitles(portletData.language);
 
 				if (!portletTitle) {
-					portletTitle = instance._defaultPortletTitle;
+					instance._portletTitles(EMPTY);
+
+					portletData.title = EMPTY;
 				}
 
 				instance._setInput(instance._customTitleInput, portletTitle);
@@ -1904,7 +1909,7 @@ AUI.add(
 					instance._fontColorPicker = new A.ColorPickerPopover(
 						{
 							trigger: fontColor,
-							zIndex: 1000
+							plugins: [Liferay.WidgetZIndex]
 						}
 					).render(instance._currentPopup.get(BOUNDING_BOX));
 				}
@@ -2008,6 +2013,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-color-picker-popover', 'aui-io-plugin-deprecated', 'aui-io-request', 'aui-tabview', 'liferay-util-window']
+		requires: ['aui-color-picker-popover', 'aui-io-plugin-deprecated', 'aui-io-request', 'aui-tabview',  'liferay-util-window', 'liferay-widget-zindex']
 	}
 );

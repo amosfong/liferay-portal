@@ -1,3 +1,19 @@
 <definition>
-	<execute test-case="PGLoginAcceptance" />
+	<execute test-case="WorkflowadminCPBlogsAcceptance" />
+
+	<execute test-case="WorkflowadminCPWebcontentAcceptance" />
+
+	<execute test-case="WorkflowadminMysubmissionsAcceptance" />
+
+	<execute test-case="WorkflowadminMyworkflowtasksAcceptance" />
+
+	<execute test-case="WorkflowadminPGAssetpublisherAcceptance" />
+
+	<execute test-case="WorkflowadminPGMessageboardsAcceptance" />
+
+	<execute test-case="WorkflowadminPGPagecommentsAcceptance" />
+
+	<execute test-case="WorkflowadminPGWebcontentdisplayAcceptance" />
+
+	<execute test-case="WorkflowadminPGWikiAcceptance" />
 </definition>

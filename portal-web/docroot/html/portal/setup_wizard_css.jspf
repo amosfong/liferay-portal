@@ -14,20 +14,9 @@
  */
 --%>
 
-<%
-String themeImagesPath = PortalUtil.getCDNHost(request.isSecure()) + theme.getStaticResourcePath() + theme.getImagesPath();
-%>
-
-body {
-	background: #EEF0F2 !important;
-	color: #363636;
-	margin: 0 auto;
-	padding: 0 !important;
-}
-
 #wrapper {
 	margin: auto;
-	max-width: 700px;
+	max-width: 960px;
 	min-width: 0;
 }
 
@@ -43,8 +32,25 @@ body {
 	visibility: hidden;
 }
 
+#banner .configuration-title {
+	background-color: #676767;
+	color: #FFF;
+	float: right;
+	font-size: 0.5em;
+	line-height: 51px;
+	padding: 0 20px;
+}
+
+#banner .logo {
+	margin-right: 20px;
+}
+
 #banner .site-name {
-	background-image: url(<%= themeDisplay.getPathThemeImages() %>/common/configuration.png);
+	color: #333;
+	font-weight: lighter;
+	line-height: 1;
+	margin-left: 0;
+	vertical-align: middle;
 }
 
 #footer {
@@ -61,55 +67,6 @@ body {
 	width: 100%;
 }
 
-.form .fieldset {
-	margin-bottom: 1em;
-}
-
-.fieldset .field-content {
-	margin-top: 0;
-}
-
-.legend {
-	border-bottom: 1px solid #333;
-	line-height: 2;
-	overflow: hidden;
-	padding: 0;
-	position: static;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.fieldset-content {
-	padding: 1em 10px 0;
-}
-
-.fieldset-legend {
-	color: #363636;
-	padding: 0;
-	position: static;
-	width: 100%;
-}
-
-.field-element {
-	display: block;
-}
-
-.field-hint {
-	float: none;
-	font-style: italic;
-}
-
-.suffix {
-	color: #777;
-	font-size: 0.9em;
-	font-style: italic;
-}
-
-.change-language {
-	display: inline-block;
-	vertical-align: bottom;
-}
-
 .database-options {
 	display: block;
 	margin-bottom: 1em;
@@ -117,14 +74,7 @@ body {
 
 .database-values {
 	border: 1px solid #CCC;
-	margin-left: 0;
 	padding: 1em;
-}
-
-.database-values dt {
-	float: left;
-	font-weight: bold;
-	margin-right: 1em;
 }
 
 .lfr-inline-code {
@@ -135,6 +85,14 @@ body {
 	font-style: normal;
 	font-weight: bold;
 	padding: 3px;
+	word-wrap: break-word;
+}
+
+.lfr-setup-notice {
+	color: #777;
+	display: block;
+	font-size: 0.9em;
+	font-style: italic;
 }
 
 .alert-block .lfr-inline-code {
@@ -144,4 +102,37 @@ body {
 
 .ie6 #wrapper {
 	width: 600px;
+}
+
+@media (max-width: 767px) {
+	.aui #wrapper {
+		padding: 1em 1.1em 0;
+	}
+
+	.alert {
+		margin-top: 11px;
+	}
+
+	#banner .configuration-title {
+		padding: 0;
+		text-align: center;
+		width: 100%;
+	}
+
+	#banner .logo {
+		margin-bottom: 20px;
+	}
+
+	#banner .site-title {
+		margin-bottom: 15px;
+		overflow: hidden;
+	}
+
+	#banner .site-name, .logo {
+		float: none;
+	}
+
+	#banner .site-name {
+		margin-top: 0;
+	}
 }

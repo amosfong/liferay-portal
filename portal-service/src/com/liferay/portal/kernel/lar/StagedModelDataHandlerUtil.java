@@ -14,14 +14,40 @@
 
 package com.liferay.portal.kernel.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.xml.Attribute;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.StagedModel;
+import com.liferay.portal.model.TypedModel;
+import com.liferay.portal.util.PortalUtil;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class StagedModelDataHandlerUtil {
+
+	public static void deleteStagedModel(
+			PortletDataContext portletDataContext, Element deletionElement)
+		throws PortalException, SystemException {
+
+		String className = deletionElement.attributeValue("class-name");
+		String extraData = deletionElement.attributeValue("extra-data");
+		String uuid = deletionElement.attributeValue("uuid");
+
+		StagedModelDataHandler<?> stagedModelDataHandler =
+			StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+				className);
+
+		if (stagedModelDataHandler != null) {
+			stagedModelDataHandler.deleteStagedModel(
+				uuid, portletDataContext.getScopeGroupId(), className,
+				extraData);
+		}
+	}
 
 	public static <T extends StagedModel> void exportStagedModel(
 			PortletDataContext portletDataContext, T stagedModel)
@@ -38,6 +64,10 @@ public class StagedModelDataHandlerUtil {
 		StagedModelDataHandler<T> stagedModelDataHandler =
 			_getStagedModelDataHandler(stagedModel);
 
+		if (stagedModelDataHandler == null) {
+			return StringPool.BLANK;
+		}
+
 		return stagedModelDataHandler.getDisplayName(stagedModel);
 	}
 
@@ -49,6 +79,22 @@ public class StagedModelDataHandlerUtil {
 
 		StagedModel stagedModel =
 			(StagedModel)portletDataContext.getZipEntryAsObject(element, path);
+
+		Attribute classNameAttribute = element.attribute("class-name");
+
+		if ((classNameAttribute != null) &&
+			(stagedModel instanceof TypedModel)) {
+
+			String className = classNameAttribute.getValue();
+
+			if (Validator.isNotNull(className)) {
+				long classNameId = PortalUtil.getClassNameId(className);
+
+				TypedModel typedModel = (TypedModel)stagedModel;
+
+				typedModel.setClassNameId(classNameId);
+			}
+		}
 
 		importStagedModel(portletDataContext, stagedModel);
 	}

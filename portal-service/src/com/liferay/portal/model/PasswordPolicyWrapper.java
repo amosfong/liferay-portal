@@ -14,6 +14,9 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link PasswordPolicy}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       PasswordPolicy
+ * @author Brian Wing Shun Chan
+ * @see PasswordPolicy
  * @generated
  */
 public class PasswordPolicyWrapper implements PasswordPolicy,
@@ -1207,6 +1210,31 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_passwordPolicy.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PasswordPolicyWrapper)) {
+			return false;
+		}
+
+		PasswordPolicyWrapper passwordPolicyWrapper = (PasswordPolicyWrapper)obj;
+
+		if (Validator.equals(_passwordPolicy,
+					passwordPolicyWrapper._passwordPolicy)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _passwordPolicy.getStagedModelType();
 	}
 
 	/**

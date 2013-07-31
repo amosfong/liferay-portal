@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.messageboards.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -58,8 +59,10 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.SubscriptionSender;
+import com.liferay.portlet.PortletURLFactoryUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLinkConstants;
+import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.util.LinkbackProducerUtil;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.messageboards.MessageBodyException;
@@ -84,6 +87,7 @@ import com.liferay.portlet.messageboards.util.MailingListThreadLocal;
 import com.liferay.portlet.messageboards.util.comparator.MessageCreateDateComparator;
 import com.liferay.portlet.messageboards.util.comparator.MessageThreadComparator;
 import com.liferay.portlet.messageboards.util.comparator.ThreadLastPostDateComparator;
+import com.liferay.portlet.social.model.SocialActivity;
 import com.liferay.portlet.social.model.SocialActivityConstants;
 import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.util.SerializableUtil;
@@ -97,6 +101,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -463,6 +469,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		MBMessage message = mbMessagePersistence.findByPrimaryKey(messageId);
 
+		deleteDiscussionSocialActivities(BlogsEntry.class.getName(), message);
+
 		return deleteMessage(message);
 	}
 
@@ -482,6 +490,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 			if (!messages.isEmpty()) {
 				MBMessage message = messages.get(0);
+
+				deleteDiscussionSocialActivities(
+					BlogsEntry.class.getName(), message);
 
 				mbThreadLocalService.deleteThread(message.getThreadId());
 			}
@@ -669,8 +680,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		// Expando
 
-		expandoValueLocalService.deleteValues(
-			message.getWorkflowClassName(), message.getMessageId());
+		expandoRowLocalService.deleteRows(message.getMessageId());
 
 		// Ratings
 
@@ -1752,12 +1762,81 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		}
 	}
 
+	protected void deleteDiscussionSocialActivities(
+			String className, MBMessage message)
+		throws PortalException, SystemException {
+
+		MBDiscussion discussion = mbDiscussionPersistence.findByThreadId(
+			message.getThreadId());
+
+		long classNameId = PortalUtil.getClassNameId(className);
+		long classPK = discussion.getClassPK();
+
+		if (discussion.getClassNameId() != classNameId) {
+			return;
+		}
+
+		List<SocialActivity> socialActivities =
+			socialActivityLocalService.getActivities(
+				0, className, classPK, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		for (SocialActivity socialActivity : socialActivities) {
+			if (Validator.isNull(socialActivity.getExtraData())) {
+				continue;
+			}
+
+			JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject(
+				socialActivity.getExtraData());
+
+			long extraDataMessageId = extraDataJSONObject.getLong("messageId");
+
+			if (message.getMessageId() == extraDataMessageId) {
+				socialActivityLocalService.deleteActivity(
+					socialActivity.getActivityId());
+			}
+		}
+	}
+
 	protected String getBody(String subject, String body) {
 		if (Validator.isNull(body)) {
 			return subject;
 		}
 
 		return body;
+	}
+
+	protected String getMessageURL(
+			MBMessage message, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		HttpServletRequest request = serviceContext.getRequest();
+
+		if (request == null) {
+			return StringPool.BLANK;
+		}
+
+		String layoutURL = getLayoutURL(
+			message.getGroupId(), PortletKeys.MESSAGE_BOARDS, serviceContext);
+
+		if (Validator.isNotNull(layoutURL)) {
+			return layoutURL + Portal.FRIENDLY_URL_SEPARATOR +
+				"message_boards/view_message/" + message.getMessageId();
+		}
+		else {
+			long controlPanelPlid = PortalUtil.getControlPanelPlid(
+				serviceContext.getCompanyId());
+
+			PortletURL portletURL = PortletURLFactoryUtil.create(
+				request, PortletKeys.MESSAGE_BOARDS_ADMIN, controlPanelPlid,
+				PortletRequest.RENDER_PHASE);
+
+			portletURL.setParameter(
+				"struts_action", "/message_boards_admin/view_message");
+			portletURL.setParameter(
+				"messageId", String.valueOf(message.getMessageId()));
+
+			return portletURL.toString();
+		}
 	}
 
 	protected String getSubject(String subject, String body) {
@@ -1910,10 +1989,6 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			categoryIds.addAll(category.getAncestorCategoryIds());
 		}
 
-		String messageURL =
-			layoutFullURL + Portal.FRIENDLY_URL_SEPARATOR +
-				"message_boards/view_message/" + message.getMessageId();
-
 		String fromName = MBUtil.getEmailFromName(
 			preferences, message.getCompanyId());
 		String fromAddress = MBUtil.getEmailFromAddress(
@@ -1927,29 +2002,19 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				company.getMx(), fromAddress);
 		}
 
-		String subjectPrefix = null;
+		String subject = null;
 		String body = null;
 		String signature = null;
 
 		if (serviceContext.isCommandUpdate()) {
-			subjectPrefix = MBUtil.getEmailMessageUpdatedSubjectPrefix(
-				preferences);
+			subject = MBUtil.getEmailMessageUpdatedSubject(preferences);
 			body = MBUtil.getEmailMessageUpdatedBody(preferences);
 			signature = MBUtil.getEmailMessageUpdatedSignature(preferences);
 		}
 		else {
-			subjectPrefix = MBUtil.getEmailMessageAddedSubjectPrefix(
-				preferences);
+			subject = MBUtil.getEmailMessageAddedSubject(preferences);
 			body = MBUtil.getEmailMessageAddedBody(preferences);
 			signature = MBUtil.getEmailMessageAddedSignature(preferences);
-		}
-
-		if (!subjectPrefix.contains("[$MESSAGE_SUBJECT$]")) {
-			String subject = message.getSubject();
-
-			subject = subjectPrefix.trim() + StringPool.SPACE + subject.trim();
-
-			message.setSubject(subject);
 		}
 
 		boolean htmlFormat = MBUtil.getEmailHtmlFormat(preferences);
@@ -2014,8 +2079,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			"[$CATEGORY_NAME$]", categoryName, "[$MAILING_LIST_ADDRESS$]",
 			replyToAddress, "[$MESSAGE_ID$]", message.getMessageId(),
 			"[$MESSAGE_SUBJECT$]", message.getSubject(), "[$MESSAGE_URL$]",
-			messageURL, "[$MESSAGE_USER_ADDRESS$]", emailAddress,
-			"[$MESSAGE_USER_NAME$]", fullName);
+			getMessageURL(message, serviceContext), "[$MESSAGE_USER_ADDRESS$]",
+			emailAddress, "[$MESSAGE_USER_NAME$]", fullName);
 		subscriptionSenderPrototype.setFrom(fromAddress, fromName);
 		subscriptionSenderPrototype.setHtmlFormat(htmlFormat);
 		subscriptionSenderPrototype.setInReplyTo(inReplyTo);
@@ -2026,7 +2091,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		subscriptionSenderPrototype.setReplyToAddress(replyToAddress);
 		subscriptionSenderPrototype.setScopeGroupId(message.getGroupId());
 		subscriptionSenderPrototype.setServiceContext(serviceContext);
-		subscriptionSenderPrototype.setSubject(message.getSubject());
+		subscriptionSenderPrototype.setSubject(subject);
 		subscriptionSenderPrototype.setUserId(message.getUserId());
 
 		SubscriptionSender subscriptionSender =

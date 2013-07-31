@@ -26,7 +26,6 @@ page import="com.liferay.portal.kernel.template.TemplateVariableDefinition" %><%
 page import="com.liferay.portal.kernel.template.TemplateVariableGroup" %><%@
 page import="com.liferay.portal.template.TemplateContextHelper" %><%@
 page import="com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata" %><%@
-page import="com.liferay.portlet.documentlibrary.model.DLFolderConstants" %><%@
 page import="com.liferay.portlet.dynamicdatalists.model.DDLRecordSet" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.NoSuchStructureException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.RequiredStructureException" %><%@
@@ -61,6 +60,8 @@ page import="com.liferay.portlet.dynamicdatamapping.util.DDMTemplateHelperUtil" 
 page import="com.liferay.portlet.dynamicdatamapping.util.DDMUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.util.DDMXSDUtil" %><%@
 page import="com.liferay.portlet.journal.model.JournalArticle" %>
+
+<%@ page import="java.util.StringTokenizer" %>
 
 <%
 PortalPreferences portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(request);
@@ -97,8 +98,6 @@ if (scopeTemplateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY)) {
 else if (scopeTemplateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM)) {
 	templateTypeValue = DDMTemplateConstants.TEMPLATE_TYPE_FORM;
 }
-
-Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZone);
 %>
 
 <%@ include file="/html/portlet/dynamic_data_mapping/init-ext.jsp" %>

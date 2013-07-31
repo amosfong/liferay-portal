@@ -3,6 +3,8 @@
 
 	var arrayIndexOf = A.Array.indexOf;
 
+	var STR_HEAD = 'head';
+
 	var TPL_NOT_AJAXABLE = '<div class="alert alert-info">{0}</div>';
 
 	var Portlet = {
@@ -44,6 +46,22 @@
 			);
 		},
 
+		_loadMarkupHeadElements: function(response, loadHTML) {
+			var markupHeadElements = response.markupHeadElements;
+
+			if (markupHeadElements && markupHeadElements.length) {
+				var head = A.one(STR_HEAD);
+
+				head.append(markupHeadElements);
+
+				var container = A.Node.create('<div />');
+
+				container.plug(A.Plugin.ParseContent);
+
+				container.setContent(markupHeadElements);
+			}
+		},
+
 		_loadPortletFiles: function(response, loadHTML) {
 			var headerCssPaths = response.headerCssPaths || [];
 			var footerCssPaths = response.footerCssPaths || [];
@@ -52,7 +70,7 @@
 
 			javascriptPaths = javascriptPaths.concat(response.footerJavaScriptPaths || []);
 
-			var head = A.one('head');
+			var head = A.one(STR_HEAD);
 			var body = A.getBody();
 
 			if (headerCssPaths.length) {
@@ -248,7 +266,8 @@
 				portletBound.plug(A.Plugin.ParseContent);
 
 				portletBound.setContent(html);
-				portletBound = portletBound.get('firstChild');
+
+				portletBound = portletBound.one('> *');
 
 				var id = portletBound.attr('id');
 
@@ -325,6 +344,7 @@
 								addPortletReturn(response.portletHTML);
 							}
 							else {
+								Portlet._loadMarkupHeadElements(response);
 								Portlet._loadPortletFiles(response, addPortletReturn);
 							}
 						}
@@ -633,19 +653,24 @@
 
 	Liferay.provide(
 		Portlet,
-		'openConfiguration',
-		function(portlet, portletId, configurationURL, namespacedId) {
+		'openWindow',
+		function(portlet, portletId, url, namespacedId, windowTitle) {
 			var instance = this;
 
 			portlet = A.one(portlet);
 
-			if (portlet && configurationURL) {
+			if (portlet && url) {
 				var title = portlet.one('.portlet-title') || portlet.one('.portlet-title-default');
 
-				var titleHtml = title.html();
+				var titleHtml = windowTitle;
 
-				if (portlet.one('#cpPortletTitle')) {
-					titleHtml = title.one('.portlet-title-text').outerHTML();
+				if (title) {
+					if (portlet.one('#cpPortletTitle')) {
+						titleHtml = title.one('.portlet-title-text').outerHTML() + ' - ' + titleHtml;
+					}
+					else {
+						titleHtml = title.html() + ' - ' + titleHtml;
+					}
 				}
 
 				Liferay.Util.openWindow(
@@ -653,11 +678,11 @@
 						cache: false,
 						dialogIframe: {
 							id: namespacedId + 'configurationIframe',
-							uri: configurationURL
+							uri: url
 						},
 						id: namespacedId + 'configurationIframeDialog',
-						title: titleHtml + ' - ' + Liferay.Language.get('configuration'),
-						uri: configurationURL
+						title: titleHtml,
+						uri: url
 					}
 				);
 			}

@@ -1904,11 +1904,16 @@ public class StringUtil {
 						"Unable to open resource at " + url.toString());
 				}
 
-				String s = read(is);
+				try {
+					String s = read(is);
 
-				if (s != null) {
-					sb.append(s);
-					sb.append(StringPool.NEW_LINE);
+					if (s != null) {
+						sb.append(s);
+						sb.append(StringPool.NEW_LINE);
+					}
+				}
+				finally {
+					StreamUtil.cleanUp(is);
 				}
 			}
 
@@ -1922,9 +1927,14 @@ public class StringUtil {
 					"Unable to open resource in class loader " + name);
 			}
 
-			String s = read(is);
+			try {
+				String s = read(is);
 
-			return s;
+				return s;
+			}
+			finally {
+				StreamUtil.cleanUp(is);
+			}
 		}
 	}
 
@@ -3972,6 +3982,126 @@ public class StringUtil {
 	 */
 	public static String valueOf(Object obj) {
 		return String.valueOf(obj);
+	}
+
+	public static boolean wildcardMatches(
+		String s, String wildcard, char singleWildcardCharacter,
+		char multipleWildcardCharacter, char escapeWildcardCharacter,
+		boolean caseSensitive) {
+
+		if (!caseSensitive) {
+			s = s.toLowerCase();
+			wildcard = wildcard.toLowerCase();
+		}
+
+		// Update the wildcard, single whildcard character, and multiple
+		// wildcard character so that they no longer have escaped wildcard
+		// characters
+
+		int index = wildcard.indexOf(escapeWildcardCharacter);
+
+		if (index != -1) {
+
+			// Search for safe wildcard replacement
+
+			char newSingleWildcardCharacter = 0;
+
+			while (wildcard.indexOf(newSingleWildcardCharacter) != -1) {
+				newSingleWildcardCharacter++;
+			}
+
+			char newMultipleWildcardCharacter =
+				(char)(newSingleWildcardCharacter + 1);
+
+			while (wildcard.indexOf(newMultipleWildcardCharacter) != -1) {
+				newMultipleWildcardCharacter++;
+			}
+
+			// Purify
+
+			StringBuilder sb = new StringBuilder(wildcard);
+
+			for (int i = 0; i < sb.length(); i++) {
+				char c = sb.charAt(i);
+
+				if (c == escapeWildcardCharacter) {
+					sb.deleteCharAt(i);
+				}
+				else if (c == singleWildcardCharacter) {
+					sb.setCharAt(i, newSingleWildcardCharacter);
+				}
+				else if (c == multipleWildcardCharacter) {
+					sb.setCharAt(i, newMultipleWildcardCharacter);
+				}
+			}
+
+			wildcard = sb.toString();
+
+			singleWildcardCharacter = newSingleWildcardCharacter;
+			multipleWildcardCharacter = newMultipleWildcardCharacter;
+		}
+
+		// Align head
+
+		for (index = 0; index < s.length(); index++) {
+			char c = wildcard.charAt(index);
+
+			if (c == multipleWildcardCharacter) {
+				break;
+			}
+
+			if ((s.charAt(index) != c) && (c != singleWildcardCharacter)) {
+				return false;
+			}
+		}
+
+		// Match body
+
+		int sIndex = index;
+		int wildcardIndex = index;
+
+		int matchPoint = 0;
+		int comparePoint = 0;
+
+		while (sIndex < s.length()) {
+			char c = wildcard.charAt(wildcardIndex);
+
+			if (c == multipleWildcardCharacter) {
+				if (++wildcardIndex == wildcard.length()) {
+					return true;
+				}
+
+				matchPoint = wildcardIndex;
+				comparePoint = sIndex + 1;
+			}
+			else if ((c == s.charAt(sIndex)) ||
+					 (c == singleWildcardCharacter)) {
+
+				sIndex++;
+				wildcardIndex++;
+			}
+			else {
+				wildcardIndex = matchPoint;
+				sIndex = comparePoint++;
+			}
+		}
+
+		// Match tail
+
+		while (wildcardIndex < wildcard.length()) {
+			if (wildcard.charAt(wildcardIndex) != multipleWildcardCharacter) {
+				break;
+			}
+
+			wildcardIndex++;
+		}
+
+		if (wildcardIndex == wildcard.length()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	public static String wrap(String text) {

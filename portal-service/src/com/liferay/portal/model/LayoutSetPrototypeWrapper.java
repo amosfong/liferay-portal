@@ -14,6 +14,9 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link LayoutSetPrototype}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       LayoutSetPrototype
+ * @author Brian Wing Shun Chan
+ * @see LayoutSetPrototype
  * @generated
  */
 public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
@@ -643,6 +646,13 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	}
 
 	@Override
+	public long getGroupId()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _layoutSetPrototype.getGroupId();
+	}
+
+	@Override
 	public com.liferay.portal.model.LayoutSet getLayoutSet()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -663,6 +673,31 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	public void setSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties settingsProperties) {
 		_layoutSetPrototype.setSettingsProperties(settingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof LayoutSetPrototypeWrapper)) {
+			return false;
+		}
+
+		LayoutSetPrototypeWrapper layoutSetPrototypeWrapper = (LayoutSetPrototypeWrapper)obj;
+
+		if (Validator.equals(_layoutSetPrototype,
+					layoutSetPrototypeWrapper._layoutSetPrototype)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _layoutSetPrototype.getStagedModelType();
 	}
 
 	/**

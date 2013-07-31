@@ -25,7 +25,7 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						window[Liferay.Util.getPortletNamespace('15') + 'selectDocumentLibrary'] = A.bind('_selectFileEntry', instance);
+						window[Liferay.Util.getPortletNamespace('166') + 'selectDocumentLibrary'] = A.bind('_selectFileEntry', instance);
 					},
 
 					getElementsValue: function() {
@@ -41,31 +41,32 @@ AUI.add(
 
 						instance.toolbar.add(
 							{
-								handler: A.bind('_handleChooseEvent', instance),
+								on: {
+									click: A.bind('_onClickChoose', instance)
+								},
 								label: Liferay.Language.get('choose')
 							},
 							1
 						);
 					},
 
-					_handleChooseEvent: function() {
+					_onClickChoose: function() {
 						var instance = this;
 
-						var uri = Liferay.Util.addParams(
-							{
-								groupId: themeDisplay.getScopeGroupId(),
-								p_p_id: '166',
-								p_p_state: 'pop_up',
-								struts_action: '/dynamic_data_mapping/select_document_library'
-							},
-							themeDisplay.getURLControlPanel()
-						);
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getURLControlPanel());
+
+						portletURL.setParameter('groupId', themeDisplay.getScopeGroupId());
+						portletURL.setParameter('struts_action', '/dynamic_data_mapping/select_document_library');
+
+						portletURL.setPortletId('166');
+
+						portletURL.setWindowState('pop_up');
 
 						Liferay.Util.openWindow(
 							{
 								id: 'selectDocumentLibrary',
 								title: Liferay.Language.get('javax.portlet.title.20'),
-								uri: uri
+								uri: portletURL.toString()
 							}
 						);
 					},
@@ -158,7 +159,7 @@ AUI.add(
 					}
 				},
 
-				CSS_PREFIX: '',
+				CSS_PREFIX: 'table',
 
 				DATATYPE_VALIDATOR: {
 					'date': 'date',
@@ -219,8 +220,8 @@ AUI.add(
 						Liferay.Service(
 							'/ddlrecordset/update-min-display-rows',
 							{
-								minDisplayRows: minDisplayRows,
 								recordSetId: recordsetId,
+								minDisplayRows: minDisplayRows,
 								serviceContext: JSON.stringify(
 									{
 										scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -378,10 +379,10 @@ AUI.add(
 					Liferay.Service(
 						'/ddlrecord/add-record',
 						{
-							displayIndex: displayIndex,
-							fieldsMap: JSON.stringify(fieldsMap),
 							groupId: themeDisplay.getScopeGroupId(),
 							recordSetId: recordsetId,
+							displayIndex: displayIndex,
+							fieldsMap: JSON.stringify(fieldsMap),
 							serviceContext: JSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -468,7 +469,7 @@ AUI.add(
 									if (value !== STR_EMPTY) {
 										var date = new Date(Lang.toInt(value));
 
-										date = DateMath.add(value, DateMath.MINUTES, value.getTimezoneOffset());
+										date = DateMath.add(date, DateMath.MINUTES, date.getTimezoneOffset());
 
 										value = A.DataType.Date.format(date);
 									}
@@ -492,31 +493,6 @@ AUI.add(
 									}
 
 									return label;
-								};
-							}
-							else if (type === 'ddm-fileupload') {
-								item.formatter = function(obj) {
-									var data = obj.data;
-
-									var label = STR_EMPTY;
-									var value = data[name];
-
-									if (value !== STR_EMPTY) {
-										var fileData = SpreadSheet.Util.parseJSON(value);
-
-										if (fileData.classPK) {
-											label = fileData.name;
-										}
-									}
-
-									return label;
-								};
-
-								structureField = instance.findStructureFieldByAttribute(structure, 'name', name);
-
-								config.validator.rules[name] = {
-									acceptFiles: structureField.acceptFiles,
-									requiredFields: true
 								};
 							}
 							else if ((type === 'radio') || (type === 'select')) {
@@ -633,10 +609,10 @@ AUI.add(
 					Liferay.Service(
 						'/ddlrecord/update-record',
 						{
+							recordId: recordId,
 							displayIndex: displayIndex,
 							fieldsMap: JSON.stringify(fieldsMap),
 							mergeFields: merge,
-							recordId: recordId,
 							serviceContext: JSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -660,8 +636,8 @@ AUI.add(
 				Liferay.Service(
 					'/dlapp/get-file-entry-by-uuid-and-group-id',
 					{
-						groupId: fileJSON.groupId,
-						uuid: fileJSON.uuid
+						uuid: fileJSON.uuid,
+						groupId: fileJSON.groupId
 					},
 					callback
 				);

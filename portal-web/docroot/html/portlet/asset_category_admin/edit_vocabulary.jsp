@@ -29,6 +29,8 @@ long vocabularyId = BeanParamUtil.getLong(vocabulary, request, "vocabularyId");
 </portlet:actionURL>
 
 <aui:form action="<%= editVocabularyURL %>" cssClass="update-vocabulary-form" method="get" name='<%= randomNamespace + "fm" %>'>
+	<div class="hide lfr-message-response" id="vocabularyMessagesEdit"></div>
+
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= vocabulary == null ? Constants.ADD : Constants.UPDATE %>" />
 	<aui:input name="vocabularyId" type="hidden" value="<%= vocabularyId %>" />
 
@@ -37,7 +39,7 @@ long vocabularyId = BeanParamUtil.getLong(vocabulary, request, "vocabularyId");
 	<aui:fieldset>
 		<div>
 			<div class="add-vocabulary-layer asset-category-layer">
-				<aui:input cssClass="vocabulary-name" label="name" name="title" />
+				<aui:input autoFocus="<%= true %>" cssClass="vocabulary-name" label="name" name="title" />
 
 				<aui:input name="description" />
 

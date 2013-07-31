@@ -35,28 +35,18 @@ if (Validator.isNotNull(viewUsersRedirect)) {
 	portletURL.setParameter("viewUsersRedirect", viewUsersRedirect);
 }
 
-pageContext.setAttribute("portletURL", portletURL);
-
 String portletURLString = portletURL.toString();
+
+request.setAttribute("view.jsp-usersListView", usersListView);
+
+request.setAttribute("view.jsp-portletURL", portletURL);
 %>
 
 <liferay-ui:error exception="<%= CompanyMaxUsersException.class %>" message="unable-to-activate-user-because-that-would-exceed-the-maximum-number-of-users-allowed" />
 <liferay-ui:error exception="<%= RequiredOrganizationException.class %>" message="you-cannot-delete-organizations-that-have-suborganizations-or-users" />
 <liferay-ui:error exception="<%= RequiredUserException.class %>" message="you-cannot-delete-or-deactivate-yourself" />
 
-<c:if test="<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS) || usersListView.equals(UserConstants.LIST_VIEW_FLAT_USERS) %>">
-	<portlet:renderURL var="headerBackURL">
-		<portlet:param name="struts_action" value="/users_admin/view_users" />
-	</portlet:renderURL>
-
-	<liferay-ui:header
-		backLabel="users-and-organizations-home"
-		backURL="<%= headerBackURL.toString() %>"
-		title='<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS) ? "organizations" : "users" %>'
-	/>
-</c:if>
-
-<aui:form action="<%= portletURLString %>" method="get" name="fm">
+<aui:form action="<%= portletURLString %>" method="post" name="fm">
 	<liferay-portlet:renderURLParams varImpl="portletURL" />
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
 	<aui:input name="toolbarItem" type="hidden" value="<%= toolbarItem %>" />
@@ -67,11 +57,35 @@ String portletURLString = portletURL.toString();
 
 	int inactiveUsersCount = 0;
 	int usersCount = 0;
+
+	long organizationId = ParamUtil.getLong(request, "organizationId", OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID);
+
+	Organization organization = null;
+
+	if (organizationId != 0) {
+		organization = OrganizationServiceUtil.getOrganization(organizationId);
+	}
+
+	if (organization != null) {
+		inactiveUsersCount = UserLocalServiceUtil.getOrganizationUsersCount(organizationId, WorkflowConstants.STATUS_INACTIVE);
+		usersCount = UserLocalServiceUtil.getOrganizationUsersCount(organizationId, WorkflowConstants.STATUS_APPROVED);
+	}
+	else {
+		LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
+
+		if (!usersListView.equals(UserConstants.LIST_VIEW_FLAT_USERS)) {
+			userParams.put("noOrganizations", Boolean.TRUE);
+			userParams.put("usersOrgsCount", 0);
+		}
+
+		inactiveUsersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), null, WorkflowConstants.STATUS_INACTIVE, userParams);
+		usersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED, userParams);
+	}
 	%>
 
 	<c:choose>
 		<c:when test="<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS) %>">
-			<%@ include file="/html/portlet/users_admin/view_flat_organizations.jspf" %>
+			<liferay-util:include page="/html/portlet/users_admin/view_flat_organizations.jsp" />
 		</c:when>
 		<c:when test="<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_USERS) %>">
 
@@ -148,12 +162,14 @@ String portletURLString = portletURL.toString();
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.DELETE %>";
 		document.<portlet:namespace />fm.<portlet:namespace />redirect.value = document.<portlet:namespace />fm.<portlet:namespace />organizationsRedirect.value;
 		document.<portlet:namespace />fm.<portlet:namespace />deleteOrganizationIds.value = organizationIds;
+
 		submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/users_admin/edit_organization" /></portlet:actionURL>");
 	}
 
 	function <portlet:namespace />search() {
-		document.<portlet:namespace />fm.method = "get";
+		document.<portlet:namespace />fm.method = "post";
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "";
+
 		submitForm(document.<portlet:namespace />fm, '<%= portletURLString %>');
 	}
 
@@ -183,13 +199,10 @@ String portletURLString = portletURL.toString();
 		window,
 		'<portlet:namespace />deleteOrganizations',
 		function() {
-			var organizationIds = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
-
-			if (!organizationIds) {
-				return;
-			}
-
-			<portlet:namespace />doDeleteOrganization('<%= Organization.class.getName() %>', organizationIds);
+			<portlet:namespace />doDeleteOrganization(
+				'<%= Organization.class.getName() %>',
+				Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds')
+			);
 		},
 		['liferay-util-list-fields']
 	);
@@ -198,29 +211,11 @@ String portletURLString = portletURL.toString();
 		window,
 		'<portlet:namespace />deleteUsers',
 		function(cmd) {
-			var deleteUsers = true;
-
-			var deleteUserIds = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
-
-			if (!deleteUserIds) {
-				deleteUsers = false;
-			}
-			else if (cmd == "<%= Constants.DEACTIVATE %>") {
-				if (!confirm('<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-deactivate-the-selected-users") %>')) {
-					deleteUsers = false;
-				}
-			}
-			else if (cmd == "<%= Constants.DELETE %>") {
-				if (!confirm('<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-permanently-delete-the-selected-users") %>')) {
-					deleteUsers = false;
-				}
-			}
-
-			if (deleteUsers) {
+			if (((cmd == "<%= Constants.DEACTIVATE %>") && confirm('<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-deactivate-the-selected-users") %>')) || ((cmd == "<%= Constants.DELETE %>") && confirm('<%= UnicodeLanguageUtil.get(pageContext, "are-you-sure-you-want-to-permanently-delete-the-selected-users") %>'))) {
 				document.<portlet:namespace />fm.method = "post";
 				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = cmd;
 				document.<portlet:namespace />fm.<portlet:namespace />redirect.value = document.<portlet:namespace />fm.<portlet:namespace />usersRedirect.value;
-				document.<portlet:namespace />fm.<portlet:namespace />deleteUserIds.value = deleteUserIds;
+				document.<portlet:namespace />fm.<portlet:namespace />deleteUserIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
 
 				submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/users_admin/edit_user" /></portlet:actionURL>");
 			}

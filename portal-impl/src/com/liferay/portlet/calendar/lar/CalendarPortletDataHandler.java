@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.lar.BasePortletDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
-import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -53,19 +53,12 @@ public class CalendarPortletDataHandler extends BasePortletDataHandler {
 	public static final String NAMESPACE = "calendar";
 
 	public CalendarPortletDataHandler() {
+		setDeletionSystemEventStagedModelTypes(
+			new StagedModelType(CalEvent.class));
 		setExportControls(
 			new PortletDataHandlerBoolean(
 				NAMESPACE, "events", true, true, null,
 				CalEvent.class.getName()));
-		setExportMetadataControls(
-			new PortletDataHandlerBoolean(
-				NAMESPACE, "events", true,
-				new PortletDataHandlerControl[] {
-					new PortletDataHandlerBoolean(NAMESPACE, "categories"),
-					new PortletDataHandlerBoolean(NAMESPACE, "comments"),
-					new PortletDataHandlerBoolean(NAMESPACE, "ratings"),
-					new PortletDataHandlerBoolean(NAMESPACE, "tags")
-				}));
 		setPublishToLiveByDefault(true);
 	}
 
@@ -203,7 +196,7 @@ public class CalendarPortletDataHandler extends BasePortletDataHandler {
 				timeZone = user.getTimeZone();
 			}
 			else {
-				locale = LocaleUtil.getDefault();
+				locale = LocaleUtil.getSiteDefault();
 				timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
 			}
 

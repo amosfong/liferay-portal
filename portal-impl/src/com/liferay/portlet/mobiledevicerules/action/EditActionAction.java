@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.mobile.device.rulegroup.action.impl.LayoutTemplateModificationActionHandler;
 import com.liferay.portal.mobile.device.rulegroup.action.impl.SimpleRedirectActionHandler;
@@ -72,8 +73,9 @@ public class EditActionAction extends EditRuleAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -83,7 +85,7 @@ public class EditActionAction extends EditRuleAction {
 				updateAction(actionRequest);
 			}
 			else if (cmd.equals(Constants.DELETE)) {
-				deleteAction(actionRequest);
+				deleteActions(actionRequest);
 			}
 
 			sendRedirect(actionRequest, actionResponse);
@@ -108,8 +110,9 @@ public class EditActionAction extends EditRuleAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		long actionId = ParamUtil.getLong(renderRequest, "actionId");
@@ -145,13 +148,15 @@ public class EditActionAction extends EditRuleAction {
 		renderRequest.setAttribute(
 			WebKeys.MOBILE_DEVICE_RULES_RULE_GROUP, ruleGroup);
 
-		return mapping.findForward("portlet.mobile_device_rules.edit_action");
+		return actionMapping.findForward(
+			"portlet.mobile_device_rules.edit_action");
 	}
 
 	@Override
 	public void serveResource(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ResourceRequest resourceRequest,
+			ResourceResponse resourceResponse)
 		throws Exception {
 
 		long actionId = ParamUtil.getLong(resourceRequest, "actionId");
@@ -167,10 +172,22 @@ public class EditActionAction extends EditRuleAction {
 			portletConfig, resourceRequest, resourceResponse, type);
 	}
 
-	protected void deleteAction(ActionRequest actionRequest) throws Exception {
+	protected void deleteActions(ActionRequest actionRequest) throws Exception {
+		long[] deleteActionIds = null;
+
 		long actionId = ParamUtil.getLong(actionRequest, "actionId");
 
-		MDRActionServiceUtil.deleteAction(actionId);
+		if (actionId > 0) {
+			deleteActionIds = new long[] {actionId};
+		}
+		else {
+			deleteActionIds = StringUtil.split(
+				ParamUtil.getString(actionRequest, "actionIds"), 0L);
+		}
+
+		for (long deleteActionId : deleteActionIds) {
+			MDRActionServiceUtil.deleteAction(deleteActionId);
+		}
 	}
 
 	@Override

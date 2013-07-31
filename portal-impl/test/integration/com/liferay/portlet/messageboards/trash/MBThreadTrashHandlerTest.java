@@ -140,6 +140,27 @@ public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Override
+	protected BaseModel<?> addBaseModelWithWorkflow(
+			boolean approved, ServiceContext serviceContext)
+		throws Exception {
+
+		MBMessage message = MBTestUtil.addMessage(
+			serviceContext.getScopeGroupId());
+
+		return message.getThread();
+	}
+
+	@Override
+	protected void deleteParentBaseModel(
+			BaseModel<?> parentBaseModel, boolean includeTrashedEntries)
+		throws Exception {
+
+		MBCategory parentCategory = (MBCategory)parentBaseModel;
+
+		MBCategoryLocalServiceUtil.deleteCategory(parentCategory, false);
+	}
+
+	@Override
 	protected BaseModel<?> getBaseModel(long primaryKey) throws Exception {
 		return MBThreadLocalServiceUtil.getThread(primaryKey);
 	}

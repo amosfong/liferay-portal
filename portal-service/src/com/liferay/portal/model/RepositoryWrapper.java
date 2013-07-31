@@ -14,6 +14,9 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Repository}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Repository
+ * @author Brian Wing Shun Chan
+ * @see Repository
  * @generated
  */
 public class RepositoryWrapper implements Repository, ModelWrapper<Repository> {
@@ -601,6 +604,30 @@ public class RepositoryWrapper implements Repository, ModelWrapper<Repository> {
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties) {
 		_repository.setTypeSettingsProperties(typeSettingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof RepositoryWrapper)) {
+			return false;
+		}
+
+		RepositoryWrapper repositoryWrapper = (RepositoryWrapper)obj;
+
+		if (Validator.equals(_repository, repositoryWrapper._repository)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _repository.getStagedModelType();
 	}
 
 	/**

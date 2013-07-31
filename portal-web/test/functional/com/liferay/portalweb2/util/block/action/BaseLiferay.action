@@ -5,6 +5,15 @@
 		</default>
 	</command>
 
+	<command name="assertClick">
+		<case comparator="contains" locator1="/input">
+			<execute function="AssertClick#assertValueClickAt" />
+		</case>
+		<default>
+			<execute function="AssertClick#assertTextClickAt" />
+		</default>
+	</command>
+
 	<command name="assertElementNotPresent">
 		<default>
 			<execute function="AssertElementNotPresent#assertElementNotPresent" />
@@ -26,6 +35,12 @@
 	<command name="assertNotChecked">
 		<default>
 			<execute function="AssertNotChecked#assertNotChecked" />
+		</default>
+	</command>
+
+	<command name="assertSelectedLabel">
+		<default>
+			<execute function="AssertSelectedLabel#assertSelectedLabel" />
 		</default>
 	</command>
 
@@ -98,6 +113,12 @@
 		</default>
 	</command>
 
+	<command name="downloadTempFile">
+		<default>
+			<execute function="DownloadTempFile#downloadTempFile" />
+		</default>
+	</command>
+
 	<command name="dragAndDrop">
 		<default>
 			<execute function="DragAndDrop#dragAndDrop" />
@@ -140,6 +161,12 @@
 		</default>
 	</command>
 
+	<command name="makeVisible">
+		<default>
+			<execute function="MakeVisible#makeVisible" />
+		</default>
+	</command>
+
 	<command name="mouseOver">
 		<default>
 			<execute function="MouseOver#mouseOver" />
@@ -165,8 +192,11 @@
 	</command>
 
 	<command name="selectFrame">
-		<default>
+		<case comparator="contains" locator1="/iframe">
 			<execute function="SelectFrame#selectFrame" />
+		</case>
+		<default>
+			<execute function="SelectFrame#selectFrameTop" />
 		</default>
 	</command>
 
@@ -191,6 +221,24 @@
 	<command name="uncheck">
 		<default>
 			<execute function="Uncheck#clickAt" />
+		</default>
+	</command>
+
+	<command name="uploadCommonFile">
+		<default>
+			<execute function="UploadCommonFile#uploadCommonFile" />
+		</default>
+	</command>
+
+	<command name="uploadFile">
+		<default>
+			<execute function="UploadFile#uploadFile" />
+		</default>
+	</command>
+
+	<command name="uploadTempFile">
+		<default>
+			<execute function="UploadTempFile#uploadTempFile" />
 		</default>
 	</command>
 </definition>

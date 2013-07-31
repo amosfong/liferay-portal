@@ -29,6 +29,8 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see JournalTemplateService
  * @see com.liferay.portlet.journal.service.base.JournalTemplateServiceBaseImpl
  * @see com.liferay.portlet.journal.service.impl.JournalTemplateServiceImpl
+ * @deprecated As of 6.2.0, since Web Content Administration now uses the
+Dynamic Data Mapping framework to handle templates
  * @generated
  */
 public class JournalTemplateServiceUtil {
@@ -107,7 +109,8 @@ public class JournalTemplateServiceUtil {
 
 	public static java.util.List<com.liferay.portlet.journal.model.JournalTemplate> getStructureTemplates(
 		long groupId, java.lang.String structureId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getStructureTemplates(groupId, structureId);
 	}
 

@@ -98,8 +98,7 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 	public void getFileAsStream(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		boolean incrementCounter)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFileShortcut> getFileShortcuts(
@@ -183,7 +182,8 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 			com.liferay.portal.kernel.exception.SystemException;
 
 	public void moveFolder(
-		com.liferay.portal.kernel.repository.model.Folder folder);
+		com.liferay.portal.kernel.repository.model.Folder folder)
+		throws com.liferay.portal.kernel.exception.SystemException;
 
 	public com.liferay.portal.kernel.repository.model.Folder moveFolderFromTrash(
 		long userId, com.liferay.portal.kernel.repository.model.Folder folder,

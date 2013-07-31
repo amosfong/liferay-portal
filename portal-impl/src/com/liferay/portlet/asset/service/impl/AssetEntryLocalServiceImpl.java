@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -85,6 +86,12 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 		assetEntryPersistence.remove(entry);
 
+		// System event
+
+		systemEventLocalService.addSystemEvent(
+			0, entry.getGroupId(), entry.getClassName(), entry.getClassPK(),
+			entry.getClassUuid(), null, SystemEventConstants.TYPE_DELETE, null);
+
 		// Links
 
 		assetLinkLocalService.deleteLinks(entry.getEntryId());
@@ -97,6 +104,10 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 					tag.getTagId(), entry.getClassNameId());
 			}
 		}
+
+		// Social
+
+		socialActivityLocalService.deleteActivities(entry);
 	}
 
 	@Override

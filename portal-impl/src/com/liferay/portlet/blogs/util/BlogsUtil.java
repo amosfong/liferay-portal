@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.portlet.PortletPreferences;
 
@@ -62,7 +63,7 @@ public class BlogsUtil {
 		Map<Locale, String> map = LocalizationUtil.getLocalizationMap(
 			preferences, "emailEntryAddedBody");
 
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String defaultValue = map.get(defaultLocale);
 
@@ -99,7 +100,7 @@ public class BlogsUtil {
 		Map<Locale, String> map = LocalizationUtil.getLocalizationMap(
 			preferences, "emailEntryAddedSubject");
 
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String defaultValue = map.get(defaultLocale);
 
@@ -121,7 +122,7 @@ public class BlogsUtil {
 		Map<Locale, String> map = LocalizationUtil.getLocalizationMap(
 			preferences, "emailEntryUpdatedBody");
 
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String defaultValue = map.get(defaultLocale);
 
@@ -158,7 +159,7 @@ public class BlogsUtil {
 		Map<Locale, String> map = LocalizationUtil.getLocalizationMap(
 			preferences, "emailEntryUpdatedSubject");
 
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String defaultValue = map.get(defaultLocale);
 
@@ -243,17 +244,15 @@ public class BlogsUtil {
 		}
 		else {
 			title = FriendlyURLNormalizerUtil.normalize(
-				title, _URL_TITLE_REPLACE_CHARS);
+				title, _friendlyURLPattern);
 		}
 
 		return ModelHintsUtil.trimString(
 			BlogsEntry.class.getName(), "urlTitle", title);
 	}
 
-	private static final char[] _URL_TITLE_REPLACE_CHARS = new char[] {
-		'.', '/'
-	};
-
 	private static Log _log = LogFactoryUtil.getLog(BlogsUtil.class);
+
+	private static Pattern _friendlyURLPattern = Pattern.compile("[^a-z0-9_-]");
 
 }

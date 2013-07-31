@@ -43,18 +43,19 @@ public class LayoutSetBranchTable {
 		{"wapThemeId", Types.VARCHAR},
 		{"wapColorSchemeId", Types.VARCHAR},
 		{"css", Types.CLOB},
-		{"settings_", Types.VARCHAR},
+		{"settings_", Types.CLOB},
 		{"layoutSetPrototypeUuid", Types.VARCHAR},
 		{"layoutSetPrototypeLinkEnabled", Types.BOOLEAN}
 	};
 
-	public static final String TABLE_SQL_CREATE = "create table LayoutSetBranch (layoutSetBranchId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,privateLayout BOOLEAN,name VARCHAR(75) null,description STRING null,master BOOLEAN,logo BOOLEAN,logoId LONG,themeId VARCHAR(75) null,colorSchemeId VARCHAR(75) null,wapThemeId VARCHAR(75) null,wapColorSchemeId VARCHAR(75) null,css TEXT null,settings_ STRING null,layoutSetPrototypeUuid VARCHAR(75) null,layoutSetPrototypeLinkEnabled BOOLEAN)";
+	public static final String TABLE_SQL_CREATE = "create table LayoutSetBranch (layoutSetBranchId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,privateLayout BOOLEAN,name VARCHAR(75) null,description STRING null,master BOOLEAN,logo BOOLEAN,logoId LONG,themeId VARCHAR(75) null,colorSchemeId VARCHAR(75) null,wapThemeId VARCHAR(75) null,wapColorSchemeId VARCHAR(75) null,css TEXT null,settings_ TEXT null,layoutSetPrototypeUuid VARCHAR(75) null,layoutSetPrototypeLinkEnabled BOOLEAN)";
 
 	public static final String TABLE_SQL_DROP = "drop table LayoutSetBranch";
 
 	public static final String[] TABLE_SQL_ADD_INDEXES = {
 		"create index IX_8FF5D6EA on LayoutSetBranch (groupId)",
 		"create index IX_C4079FD3 on LayoutSetBranch (groupId, privateLayout)",
+		"create index IX_CCF0DA29 on LayoutSetBranch (groupId, privateLayout, master)",
 		"create unique index IX_5FF18552 on LayoutSetBranch (groupId, privateLayout, name)"
 	};
 

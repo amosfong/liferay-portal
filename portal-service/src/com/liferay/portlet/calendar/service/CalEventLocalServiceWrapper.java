@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link CalEventLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       CalEventLocalService
+ * @author Brian Wing Shun Chan
+ * @see CalEventLocalService
  * @generated
  */
 public class CalEventLocalServiceWrapper implements CalEventLocalService,
@@ -166,11 +166,58 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 		return _calEventLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _calEventLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.calendar.model.CalEvent fetchCalEvent(
 		long eventId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _calEventLocalService.fetchCalEvent(eventId);
+	}
+
+	/**
+	* Returns the cal event with the matching UUID and company.
+	*
+	* @param uuid the cal event's UUID
+	* @param companyId the primary key of the company
+	* @return the matching cal event, or <code>null</code> if a matching cal event could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.calendar.model.CalEvent fetchCalEventByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _calEventLocalService.fetchCalEventByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the cal event matching the UUID and group.
+	*
+	* @param uuid the cal event's UUID
+	* @param groupId the primary key of the group
+	* @return the matching cal event, or <code>null</code> if a matching cal event could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.calendar.model.CalEvent fetchCalEventByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _calEventLocalService.fetchCalEventByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -194,6 +241,24 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _calEventLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the cal event with the matching UUID and company.
+	*
+	* @param uuid the cal event's UUID
+	* @param companyId the primary key of the company
+	* @return the matching cal event
+	* @throws PortalException if a matching cal event could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.calendar.model.CalEvent getCalEventByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _calEventLocalService.getCalEventByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

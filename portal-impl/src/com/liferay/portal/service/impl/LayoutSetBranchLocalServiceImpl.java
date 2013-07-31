@@ -323,6 +323,15 @@ public class LayoutSetBranchLocalServiceImpl
 	}
 
 	@Override
+	public LayoutSetBranch fetchLayoutSetBranch(
+			long groupId, boolean privateLayout, String name)
+		throws SystemException {
+
+		return layoutSetBranchPersistence.fetchByG_P_N(
+			groupId, privateLayout, name);
+	}
+
+	@Override
 	public LayoutSetBranch getLayoutSetBranch(
 			long groupId, boolean privateLayout, String name)
 		throws PortalException, SystemException {
@@ -385,10 +394,11 @@ public class LayoutSetBranchLocalServiceImpl
 		}
 
 		if (layoutSetBranchId > 0) {
-			try {
-				return getLayoutSetBranch(layoutSetBranchId);
-			}
-			catch (NoSuchLayoutSetBranchException nslsbe) {
+			LayoutSetBranch layoutSetBranch = fetchLayoutSetBranch(
+				layoutSetBranchId);
+
+			if (layoutSetBranch != null) {
+				return layoutSetBranch;
 			}
 		}
 

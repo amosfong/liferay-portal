@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.messageboards.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link MBMessage}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       MBMessage
+ * @author Brian Wing Shun Chan
+ * @see MBMessage
  * @generated
  */
 public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
@@ -1174,6 +1176,30 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	@Override
 	public void setAttachmentsFolderId(long attachmentsFolderId) {
 		_mbMessage.setAttachmentsFolderId(attachmentsFolderId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof MBMessageWrapper)) {
+			return false;
+		}
+
+		MBMessageWrapper mbMessageWrapper = (MBMessageWrapper)obj;
+
+		if (Validator.equals(_mbMessage, mbMessageWrapper._mbMessage)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _mbMessage.getStagedModelType();
 	}
 
 	/**

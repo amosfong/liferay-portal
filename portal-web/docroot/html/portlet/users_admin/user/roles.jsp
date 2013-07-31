@@ -101,14 +101,13 @@ userGroupRoles.addAll(siteRoles);
 						dialog: {
 							constrain: true,
 							modal: true,
-							zIndex: Liferay.zIndex.WINDOW + 2,
 							width: 600
 						},
 						id: '<portlet:namespace />selectRegularRole',
 						title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "regular-role") %>',
 						uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/users_admin/select_regular_role" /><portlet:param name="p_u_i_d" value='<%= (selUser == null) ? "0" : String.valueOf(selUser.getUserId()) %>' /></portlet:renderURL>'
 					},
-					function(event){
+					function(event) {
 						<portlet:namespace />selectRole(event.roleid, event.roletitle, event.searchcontainername, event.groupname, event.groupid);
 					}
 				);
@@ -269,15 +268,13 @@ userGroupRoles.addAll(siteRoles);
 				Liferay.Util.selectEntity(
 					{
 						dialog: {
-							modal: true,
-							zIndex: Liferay.zIndex.WINDOW + 2,
-							width: 600
+							modal: true
 						},
 						id: '<portlet:namespace />selectOrganizationRole',
 						title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "organization-role") %>',
 						uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/users_admin/select_organization_role" /><portlet:param name="step" value="1" /><portlet:param name="organizationIds" value="<%= StringUtil.merge(organizationIds) %>" /><portlet:param name="p_u_i_d" value='<%= (selUser == null) ? "0" : String.valueOf(selUser.getUserId()) %>' /></portlet:renderURL>'
 					},
-					function(event){
+					function(event) {
 						<portlet:namespace />selectRole(event.roleid, event.roletitle, event.searchcontainername, event.groupname, event.groupid);
 					}
 				);
@@ -385,14 +382,13 @@ userGroupRoles.addAll(siteRoles);
 								dialog: {
 									constrain: true,
 									modal: true,
-									zIndex: Liferay.zIndex.WINDOW + 2,
 									width: 600
 								},
 								id: '<portlet:namespace />selectSiteRole',
 								title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "site-role") %>',
 								uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/users_admin/select_site_role" /><portlet:param name="step" value="1" /><portlet:param name="p_u_i_d" value='<%= (selUser == null) ? "0" : String.valueOf(selUser.getUserId()) %>' /></portlet:renderURL>'
 							},
-							function(event){
+							function(event) {
 								<portlet:namespace />selectRole(event.roleid, event.roletitle, event.searchcontainername, event.groupname, event.groupid);
 							}
 						);

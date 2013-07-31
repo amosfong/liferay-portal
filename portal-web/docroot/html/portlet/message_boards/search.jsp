@@ -56,7 +56,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 	/>
 
 	<span class="form-search">
-		<aui:input inlineField="<%= true %>" label="" name="keywords" size="30" title="search-messages" type="text" value="<%= keywords %>" />
+		<aui:input autoFocus="<%= (windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook()) %>" inlineField="<%= true %>" label="" name="keywords" size="30" title="search-messages" type="text" value="<%= keywords %>" />
 
 		<aui:button type="submit" value="search" />
 	</span>
@@ -105,21 +105,11 @@ String keywords = ParamUtil.getString(request, "keywords");
 
 			hits = indexer.search(searchContext);
 
-			total = hits.getLength();
-
-			searchContainer.setTotal(total);
-
-			if (searchContainer.isRecalculateCur()) {
-				searchContext.setStart(searchContainer.getStart());
-				searchContext.setEnd(searchContainer.getEnd());
-
-				hits = indexer.search(searchContext);
-			}
+			searchContainer.setTotal(hits.getLength());
 
 			PortletURL hitURL = renderResponse.createRenderURL();
 
 			pageContext.setAttribute("results", SearchResultUtil.getSearchResults(hits, locale, hitURL));
-			pageContext.setAttribute("total", total);
 			%>
 
 		</liferay-ui:search-container-results>
@@ -158,12 +148,6 @@ String keywords = ParamUtil.getString(request, "keywords");
 	</liferay-ui:search-container>
 
 </aui:form>
-
-<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook() %>">
-	<aui:script>
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />keywords);
-	</aui:script>
-</c:if>
 
 <%
 if (breadcrumbsCategoryId > 0) {

@@ -77,6 +77,16 @@ public class AssetCategoryServiceUtil {
 		return getService().addCategory(title, vocabularyId, serviceContext);
 	}
 
+	/**
+	* @deprecated As of 6.2.0, Replaced by {@link #deleteCategories(long[],
+	ServiceContext)}
+	*/
+	public static void deleteCategories(long[] categoryIds)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		getService().deleteCategories(categoryIds);
+	}
+
 	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> deleteCategories(
 		long[] categoryIds,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -223,8 +233,8 @@ public class AssetCategoryServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #
-	getVocabularyRootCategories(long, long, int, int,
+	* @deprecated As of 6.2.0, replaced by {@link
+	#getVocabularyRootCategories(long, long, int, int,
 	OrderByComparator)}
 	*/
 	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getVocabularyRootCategories(

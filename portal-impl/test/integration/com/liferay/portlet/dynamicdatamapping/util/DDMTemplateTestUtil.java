@@ -60,7 +60,7 @@ public class DDMTemplateTestUtil {
 	public static DDMTemplate addTemplate(long structureId) throws Exception {
 		return addTemplate(
 			structureId, TemplateConstants.LANG_TYPE_VM, getSampleTemplateXSL(),
-			LocaleUtil.getDefault());
+			LocaleUtil.getSiteDefault());
 	}
 
 	public static DDMTemplate addTemplate(
@@ -77,7 +77,7 @@ public class DDMTemplateTestUtil {
 
 		return addTemplate(
 			groupId, structureId, TemplateConstants.LANG_TYPE_VM,
-			getSampleTemplateXSL(), LocaleUtil.getDefault());
+			getSampleTemplateXSL(), LocaleUtil.getSiteDefault());
 	}
 
 	public static DDMTemplate addTemplate(
@@ -90,8 +90,17 @@ public class DDMTemplateTestUtil {
 	}
 
 	public static DDMTemplate addTemplate(
-			long groupId, long structureId, String language, String script,
-			Locale defaultLocale)
+			long groupId, long classNameId, long classPK)
+		throws Exception {
+
+		return addTemplate(
+			groupId, classNameId, classPK, TemplateConstants.LANG_TYPE_VM,
+			getSampleTemplateXSL(), LocaleUtil.getSiteDefault());
+	}
+
+	public static DDMTemplate addTemplate(
+			long groupId, long classNameId, long classPK, String language,
+			String script, Locale defaultLocale)
 		throws Exception {
 
 		Map<Locale, String> nameMap = new HashMap<Locale, String>();
@@ -104,11 +113,19 @@ public class DDMTemplateTestUtil {
 		serviceContext.setAddGuestPermissions(true);
 
 		return DDMTemplateLocalServiceUtil.addTemplate(
-			TestPropsValues.getUserId(), groupId,
-			PortalUtil.getClassNameId(DDMStructure.class.getName()),
-			structureId, nameMap, null,
-			DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY, null, language, script,
-			serviceContext);
+			TestPropsValues.getUserId(), groupId, classNameId, classPK, nameMap,
+			null, DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY, null, language,
+			script, serviceContext);
+	}
+
+	public static DDMTemplate addTemplate(
+			long groupId, long structureId, String language, String script,
+			Locale defaultLocale)
+		throws Exception {
+
+		return addTemplate(
+			groupId, PortalUtil.getClassNameId(DDMStructure.class), structureId,
+			language, script, defaultLocale);
 	}
 
 	public static DDMTemplate addTemplate(
@@ -117,7 +134,7 @@ public class DDMTemplateTestUtil {
 
 		return addTemplate(
 			TestPropsValues.getGroupId(), structureId, language, script,
-			LocaleUtil.getDefault());
+			LocaleUtil.getSiteDefault());
 	}
 
 	public static DDMTemplate addTemplate(

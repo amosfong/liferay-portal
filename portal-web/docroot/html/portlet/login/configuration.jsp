@@ -22,8 +22,8 @@ String tabs2 = ParamUtil.getString(request, "tabs2", "general");
 
 String redirect = ParamUtil.getString(request, "redirect");
 
-String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", LoginUtil.getEmailFromName(preferences, company.getCompanyId()));
-String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", LoginUtil.getEmailFromAddress(preferences, company.getCompanyId()));
+String emailFromName = ParamUtil.getString(request, "preferences--emailFromName--", LoginUtil.getEmailFromName(portletPreferences, company.getCompanyId()));
+String emailFromAddress = ParamUtil.getString(request, "preferences--emailFromAddress--", LoginUtil.getEmailFromAddress(portletPreferences, company.getCompanyId()));
 
 String emailParam = "emailPasswordSent";
 String defaultEmailSubject = StringPool.BLANK;
@@ -31,12 +31,12 @@ String defaultEmailBody = StringPool.BLANK;
 
 if (tabs2.equals("password-reset-notification")) {
 	emailParam = "emailPasswordReset";
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_RESET_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_RESET_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.ADMIN_EMAIL_PASSWORD_RESET_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.ADMIN_EMAIL_PASSWORD_RESET_BODY);
 }
 else if (tabs2.equals("password-changed-notification")) {
-	defaultEmailSubject = ContentUtil.get(PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_SENT_SUBJECT));
-	defaultEmailBody = ContentUtil.get(PropsUtil.get(PropsKeys.ADMIN_EMAIL_PASSWORD_SENT_BODY));
+	defaultEmailSubject = ContentUtil.get(PropsValues.ADMIN_EMAIL_PASSWORD_SENT_SUBJECT);
+	defaultEmailBody = ContentUtil.get(PropsValues.ADMIN_EMAIL_PASSWORD_SENT_BODY);
 }
 
 String currentLanguageId = LanguageUtil.getLanguageId(request);
@@ -44,8 +44,8 @@ String currentLanguageId = LanguageUtil.getLanguageId(request);
 String emailSubjectParam = emailParam + "Subject_" + currentLanguageId;
 String emailBodyParam = emailParam + "Body_" + currentLanguageId;
 
-String emailSubject = PrefsParamUtil.getString(preferences, request, emailSubjectParam, defaultEmailSubject);
-String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam, defaultEmailBody);
+String emailSubject = PrefsParamUtil.getString(portletPreferences, request, emailSubjectParam, defaultEmailSubject);
+String emailBody = PrefsParamUtil.getString(portletPreferences, request, emailBodyParam, defaultEmailBody);
 %>
 
 <liferay-portlet:renderURL portletConfiguration="true" var="portletURL">
@@ -90,13 +90,13 @@ String emailBody = PrefsParamUtil.getString(preferences, request, emailBodyParam
 						<aui:select label="language" name="languageId" onChange='<%= renderResponse.getNamespace() + "updateLanguage(this);" %>'>
 
 							<%
-							Locale[] locales = LanguageUtil.getAvailableLocales();
+							Locale[] locales = LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId());
 
 							for (int i = 0; i < locales.length; i++) {
 								String style = StringPool.BLANK;
 
-								if (Validator.isNotNull(preferences.getValue(emailParam + "Subject_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK)) ||
-									Validator.isNotNull(preferences.getValue(emailParam + "Body_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK))) {
+								if (Validator.isNotNull(portletPreferences.getValue(emailParam + "Subject_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK)) ||
+									Validator.isNotNull(portletPreferences.getValue(emailParam + "Body_" + LocaleUtil.toLanguageId(locales[i]), StringPool.BLANK))) {
 
 									style = "font-weight: bold;";
 								}

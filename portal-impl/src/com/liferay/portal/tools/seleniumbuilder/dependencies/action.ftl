@@ -14,10 +14,38 @@ import com.liferay.portalweb2.util.block.action.BaseLiferayAction;
 	</#list>
 </#if>
 
-public class ${seleniumBuilderContext.getActionSimpleClassName(actionName)} extends
+import java.util.Map;
+
+<#assign rootElement = seleniumBuilderContext.getPathRootElement(actionName)>
+
+<#assign bodyElement = rootElement.element("body")>
+
+<#assign tableElement = bodyElement.element("table")>
+
+<#assign tbodyElement = tableElement.element("tbody")>
+
+<#assign trElements = tbodyElement.elements("tr")>
+
+<#assign extendedPath = "">
+
+<#list trElements as trElement>
+	<#assign tdElements = trElement.elements("td")>
+
+	<#if tdElements[0].getText() = "EXTEND_ACTION_PATH">
+		<#assign extendedPath = tdElements[1].getText()>
+			import ${seleniumBuilderContext.getActionClassName(extendedPath)};
+		<#break>
+	</#if>
+</#list>
+
+<#assign actionSimpleClassName = seleniumBuilderContext.getActionSimpleClassName(actionName)>
+
+public class ${actionSimpleClassName} extends
 
 <#if actionName = "BaseLiferay">
 	BaseAction
+<#elseif extendedPath != "">
+	${extendedPath}Action
 <#else>
 	BaseLiferayAction
 </#if>
@@ -50,9 +78,9 @@ public class ${seleniumBuilderContext.getActionSimpleClassName(actionName)} exte
 				</#if>
 			</#list>
 
-			) throws Exception {
+			, Map<String,String> environmentScopeVariables) throws Exception {
 				<#list 1..seleniumBuilderContext.getFunctionLocatorCount(functionName) as i>
-					locator${i} = getLocator(locator${i}, locatorKey${i});
+					locator${i} = getLocator(locator${i}, locatorKey${i}, environmentScopeVariables);
 				</#list>
 
 				<#assign childElementAttributeValues = seleniumBuilderFileUtil.getChildElementAttributeValues(commandElement, "function")>
@@ -128,7 +156,7 @@ public class ${seleniumBuilderContext.getActionSimpleClassName(actionName)} exte
 								</#if>
 							</#list>
 
-							);
+							, environmentScopeVariables);
 						</#if>
 					}
 				<#elseif commandElement.element("default")??>

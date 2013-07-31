@@ -32,6 +32,10 @@ portletURL.setParameter("topLink", topLink);
 portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 
 request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
+
+if ((category != null) && layout.isTypeControlPanel()) {
+	MBUtil.addPortletBreadcrumbEntries(category, request, renderResponse);
+}
 %>
 
 <portlet:actionURL var="undoTrashURL">
@@ -41,75 +45,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 <liferay-ui:trash-undo portletURL="<%= undoTrashURL %>" />
 
-<aui:nav-bar>
-	<aui:nav>
-
-		<%
-		String label = "message-boards-home";
-
-		portletURL.setParameter("topLink", label);
-		portletURL.setParameter("tag", StringPool.BLANK);
-		%>
-
-		<aui:nav-item cssClass='<%= topLink.equals(label) ? "active" : StringPool.BLANK %>' href="<%= portletURL.toString() %>" label="<%= label %>" selected="<%= topLink.equals(label) %>" />
-
-		<%
-		label = "recent-posts";
-
-		portletURL.setParameter("topLink", label);
-		%>
-
-		<aui:nav-item cssClass='<%= topLink.equals(label) ? "active" : StringPool.BLANK %>' href="<%= portletURL.toString() %>" label="<%= label %>" selected="<%= topLink.equals(label) %>" />
-
-		<%
-		label = "statistics";
-
-		portletURL.setParameter("topLink", label);
-		%>
-
-		<aui:nav-item cssClass='<%= topLink.equals(label) ? "active" : StringPool.BLANK %>' href="<%= portletURL.toString() %>" label="<%= label %>" selected="<%= topLink.equals(label) %>" />
-
-		<c:if test="<%= MBPermission.contains(permissionChecker, scopeGroupId, ActionKeys.BAN_USER) %>">
-
-			<%
-			label = "banned-users";
-
-			portletURL.setParameter("topLink", label);
-			%>
-
-			<aui:nav-item cssClass='<%= topLink.equals(label) ? "active" : StringPool.BLANK %>' href="<%= portletURL.toString() %>" label="<%= label %>" selected="<%= topLink.equals(label) %>" />
-		</c:if>
-	</aui:nav>
-
-	<c:if test="<%= showSearch %>">
-		<liferay-portlet:renderURL varImpl="searchURL">
-			<portlet:param name="struts_action" value="/message_boards/search" />
-		</liferay-portlet:renderURL>
-
-		<div class="navbar-search pull-right">
-			<div class="form-search">
-				<aui:form action="<%= searchURL %>" method="get" name="searchFm">
-					<liferay-portlet:renderURLParams varImpl="searchURL" />
-					<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-					<aui:input name="breadcrumbsCategoryId" type="hidden" value="<%= categoryId %>" />
-					<aui:input name="searchCategoryId" type="hidden" value="<%= categoryId %>" />
-
-					<div class="input-append">
-						<input class="search-query span9" id="<portlet:namespace/>keywords1" name="<portlet:namespace/>keywords" placeholder="<liferay-ui:message key="keywords" />" type="text" />
-
-						<aui:button primary="<%= false %>" type="submit" value="search" />
-					</div>
-				</aui:form>
-			</div>
-		</div>
-
-		<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook() %>">
-			<aui:script>
-				Liferay.Util.focusFormField(document.<portlet:namespace />searchFm.<portlet:namespace />keywords);
-			</aui:script>
-		</c:if>
-	</c:if>
-</aui:nav-bar>
+<liferay-util:include page="/html/portlet/message_boards/top_links.jsp" />
 
 <c:choose>
 	<c:when test='<%= topLink.equals("message-boards-home") %>'>
@@ -221,9 +157,10 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 							iteratorURL="<%= portletURL %>"
 							rowChecker="<%= new RowChecker(renderResponse) %>"
 							total="<%= categoriesCount %>"
+							var="categorySearchContainer"
 						>
 							<liferay-ui:search-container-results
-								results="<%= MBCategoryServiceUtil.getCategories(scopeGroupId, categoryId, WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd()) %>"
+								results="<%= MBCategoryServiceUtil.getCategories(scopeGroupId, categoryId, WorkflowConstants.STATUS_APPROVED, categorySearchContainer.getStart(), categorySearchContainer.getEnd()) %>"
 							/>
 
 							<liferay-ui:search-container-row
@@ -242,7 +179,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 							<br>
 
-							<aui:button onClick='<%= renderResponse.getNamespace() + "deleteCategories();" %>' value='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "move-to-the-recycle-bin" : "delete" %>' />
+							<aui:button disabled="<%= true %>" name="deleteCategory" onClick='<%= renderResponse.getNamespace() + "deleteCategories();" %>' value='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "move-to-the-recycle-bin" : "delete" %>' />
 
 							<div class="separator"><!-- --></div>
 
@@ -257,6 +194,12 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 					<%
 					portletURL.setParameter("topLink", ParamUtil.getString(request, "topLink"));
+
+					int status = WorkflowConstants.STATUS_APPROVED;
+
+					if (permissionChecker.isCompanyAdmin() || permissionChecker.isGroupAdmin(scopeGroupId)) {
+						status = WorkflowConstants.STATUS_ANY;
+					}
 					%>
 
 					<aui:input name="<%= Constants.CMD %>" type="hidden" />
@@ -269,10 +212,11 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 						headerNames="thread,flag,started-by,posts,views,last-post"
 						iteratorURL="<%= portletURL %>"
 						rowChecker="<%= new RowChecker(renderResponse) %>"
-						total="<%= MBThreadServiceUtil.getThreadsCount(scopeGroupId, categoryId, WorkflowConstants.STATUS_APPROVED) %>"
+						total="<%= MBThreadServiceUtil.getThreadsCount(scopeGroupId, categoryId, status) %>"
+						var="threadSearchContainer"
 					>
 						<liferay-ui:search-container-results
-							results="<%= MBThreadServiceUtil.getThreads(scopeGroupId, categoryId, WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd()) %>"
+							results="<%= MBThreadServiceUtil.getThreads(scopeGroupId, categoryId, status, threadSearchContainer.getStart(), threadSearchContainer.getEnd()) %>"
 						/>
 
 						<liferay-ui:search-container-row
@@ -314,7 +258,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 							>
 
 								<%
-								String[] threadPriority = MBUtil.getThreadPriority(preferences, themeDisplay.getLanguageId(), thread.getPriority(), themeDisplay);
+								String[] threadPriority = MBUtil.getThreadPriority(portletPreferences, themeDisplay.getLanguageId(), thread.getPriority(), themeDisplay);
 
 								if ((threadPriority != null) && (thread.getPriority() > 0)) {
 									buffer.append("<img class=\"thread-priority\" alt=\"");
@@ -404,6 +348,13 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 							</liferay-ui:search-container-column-text>
 
+							<liferay-ui:search-container-column-text
+								href="<%= rowURL %>"
+								name="status"
+							>
+								<aui:workflow-status showIcon="<%= false %>" showLabel="<%= false %>" status="<%= thread.getStatus() %>" />
+							</liferay-ui:search-container-column-text>
+
 							<liferay-ui:search-container-column-jsp
 								align="right"
 								path="/html/portlet/message_boards/message_action.jsp"
@@ -412,11 +363,11 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 
 						<br>
 
-						<aui:button onClick='<%= renderResponse.getNamespace() + "deleteThreads();" %>' value='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "move-to-the-recycle-bin" : "delete" %>' />
+						<aui:button disabled="<%= true %>" name="delete" onClick='<%= renderResponse.getNamespace() + "deleteThreads();" %>' value='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "move-to-the-recycle-bin" : "delete" %>' />
 
-						<aui:button onClick='<%= renderResponse.getNamespace() + "lockThreads();" %>' value="lock" />
+						<aui:button disabled="<%= true %>" name="lockThread" onClick='<%= renderResponse.getNamespace() + "lockThreads();" %>' value="lock" />
 
-						<aui:button onClick='<%= renderResponse.getNamespace() + "unlockThreads();" %>' value="unlock" />
+						<aui:button disabled="<%= true %>" name="unlockThread" onClick='<%= renderResponse.getNamespace() + "unlockThreads();" %>' value="unlock" />
 
 						<div class="separator"><!-- --></div>
 
@@ -526,7 +477,7 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					>
 
 						<%
-						String[] threadPriority = MBUtil.getThreadPriority(preferences, themeDisplay.getLanguageId(), thread.getPriority(), themeDisplay);
+						String[] threadPriority = MBUtil.getThreadPriority(portletPreferences, themeDisplay.getLanguageId(), thread.getPriority(), themeDisplay);
 
 						if ((threadPriority != null) && (thread.getPriority() > 0)) {
 							buffer.append("<img class=\"thread-priority\" alt=\"");
@@ -697,9 +648,9 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 					value="<%= HtmlUtil.escape(PortalUtil.getUserName(ban.getUserId(), StringPool.BLANK)) %>"
 				/>
 
-				<liferay-ui:search-container-column-text
+				<liferay-ui:search-container-column-date
 					name="ban-date"
-					value="<%= dateFormatDateTime.format(ban.getCreateDate()) %>"
+					value="<%= ban.getCreateDate() %>"
 				/>
 
 				<c:if test="<%= PropsValues.MESSAGE_BOARDS_EXPIRE_BAN_INTERVAL > 0 %>">
@@ -727,25 +678,22 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 </c:choose>
 
 <aui:script>
+	Liferay.Util.toggleSearchContainerButton('#<portlet:namespace />deleteCategory', '#<portlet:namespace /><%= searchContainerReference.getId("categorySearchContainer") %>SearchContainer', document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+
+	Liferay.Util.toggleSearchContainerButton('#<portlet:namespace />delete', '#<portlet:namespace /><%= searchContainerReference.getId("threadSearchContainer") %>SearchContainer', document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+	Liferay.Util.toggleSearchContainerButton('#<portlet:namespace />lockThread', '#<portlet:namespace /><%= searchContainerReference.getId("threadSearchContainer") %>SearchContainer', document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+	Liferay.Util.toggleSearchContainerButton('#<portlet:namespace />unlockThread', '#<portlet:namespace /><%= searchContainerReference.getId("threadSearchContainer") %>SearchContainer', document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+
 	Liferay.provide(
 		window,
 		'<portlet:namespace />deleteCategories',
 		function() {
-			var deleteCategories = true;
+			if (confirm('<%= UnicodeLanguageUtil.get(pageContext, TrashUtil.isTrashEnabled(scopeGroupId) ? "are-you-sure-you-want-to-move-the-selected-entries-to-the-recycle-bin" : "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
+				document.<portlet:namespace />fm.method = "post";
+				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>";
+				document.<portlet:namespace />fm.<portlet:namespace />deleteCategoryIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
 
-			var deleteCategoryIds = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, "<portlet:namespace />allRowIds");
-
-			if (!deleteCategoryIds) {
-				deleteCategories = false;
-			}
-
-			if (deleteCategories) {
-				if (confirm('<%= UnicodeLanguageUtil.get(pageContext, TrashUtil.isTrashEnabled(scopeGroupId) ? "are-you-sure-you-want-to-move-the-selected-entries-to-the-recycle-bin" : "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
-					document.<portlet:namespace />fm.method = "post";
-					document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>";
-					document.<portlet:namespace />fm.<portlet:namespace />deleteCategoryIds.value = deleteCategoryIds;
-					submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_category" /></portlet:actionURL>");
-				}
+				submitForm(document.<portlet:namespace />fm, "<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_category" /></portlet:actionURL>");
 			}
 		},
 		['liferay-util-list-fields']
@@ -758,7 +706,8 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 			if (confirm('<%= UnicodeLanguageUtil.get(pageContext, TrashUtil.isTrashEnabled(scopeGroupId) ? "are-you-sure-you-want-to-move-the-selected-entries-to-the-recycle-bin" : "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
 				document.<portlet:namespace />fm1.method = "post";
 				document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>";
-				document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, "<portlet:namespace />allRowIds");
+				document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+
 				submitForm(document.<portlet:namespace />fm1, "<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/delete_thread" /></portlet:actionURL>");
 			}
 		},
@@ -771,7 +720,8 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 		function() {
 			document.<portlet:namespace />fm1.method = "post";
 			document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.LOCK %>";
-			document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, "<portlet:namespace />allRowIds");
+			document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+
 			submitForm(document.<portlet:namespace />fm1, "<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_message" /></portlet:actionURL>");
 		},
 		['liferay-util-list-fields']
@@ -783,7 +733,8 @@ request.setAttribute("view.jsp-viewCategory", Boolean.TRUE.toString());
 		function() {
 			document.<portlet:namespace />fm1.method = "post";
 			document.<portlet:namespace />fm1.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.UNLOCK %>";
-			document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, "<portlet:namespace />allRowIds");
+			document.<portlet:namespace />fm1.<portlet:namespace />threadIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm1, '<portlet:namespace />allRowIds');
+
 			submitForm(document.<portlet:namespace />fm1, "<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_message" /></portlet:actionURL>");
 		},
 		['liferay-util-list-fields']

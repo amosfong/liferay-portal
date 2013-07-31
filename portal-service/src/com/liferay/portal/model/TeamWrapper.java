@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Team}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Team
+ * @author Brian Wing Shun Chan
+ * @see Team
  * @generated
  */
 public class TeamWrapper implements Team, ModelWrapper<Team> {
@@ -447,6 +449,25 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _team.getRole();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof TeamWrapper)) {
+			return false;
+		}
+
+		TeamWrapper teamWrapper = (TeamWrapper)obj;
+
+		if (Validator.equals(_team, teamWrapper._team)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

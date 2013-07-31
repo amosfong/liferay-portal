@@ -6982,8 +6982,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 		groupImpl.setDescription(group.getDescription());
 		groupImpl.setType(group.getType());
 		groupImpl.setTypeSettings(group.getTypeSettings());
+		groupImpl.setManualMembership(group.isManualMembership());
+		groupImpl.setMembershipRestriction(group.getMembershipRestriction());
 		groupImpl.setFriendlyURL(group.getFriendlyURL());
 		groupImpl.setSite(group.isSite());
+		groupImpl.setRemoteStagingGroupCount(group.getRemoteStagingGroupCount());
 		groupImpl.setActive(group.isActive());
 
 		return groupImpl;
@@ -9381,7 +9384,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	protected class ContainsOrganization {
 		protected ContainsOrganization() {
 			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT COUNT(*) AS COUNT_VALUE FROM Groups_Orgs WHERE groupId = ? AND organizationId = ?",
+					"SELECT 1 FROM Groups_Orgs WHERE groupId = ? AND organizationId = ?",
 					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
 					RowMapper.COUNT);
 		}
@@ -9391,15 +9394,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 						new Long(groupId), new Long(organizationId)
 					});
 
-			if (results.size() > 0) {
-				Integer count = results.get(0);
-
-				if (count.intValue() > 0) {
-					return true;
-				}
+			if (results.isEmpty()) {
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
 		private MappingSqlQuery<Integer> _mappingSqlQuery;
@@ -9547,7 +9546,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	protected class ContainsRole {
 		protected ContainsRole() {
 			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT COUNT(*) AS COUNT_VALUE FROM Groups_Roles WHERE groupId = ? AND roleId = ?",
+					"SELECT 1 FROM Groups_Roles WHERE groupId = ? AND roleId = ?",
 					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
 					RowMapper.COUNT);
 		}
@@ -9557,15 +9556,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 						new Long(groupId), new Long(roleId)
 					});
 
-			if (results.size() > 0) {
-				Integer count = results.get(0);
-
-				if (count.intValue() > 0) {
-					return true;
-				}
+			if (results.isEmpty()) {
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
 		private MappingSqlQuery<Integer> _mappingSqlQuery;
@@ -9705,7 +9700,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	protected class ContainsUserGroup {
 		protected ContainsUserGroup() {
 			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT COUNT(*) AS COUNT_VALUE FROM Groups_UserGroups WHERE groupId = ? AND userGroupId = ?",
+					"SELECT 1 FROM Groups_UserGroups WHERE groupId = ? AND userGroupId = ?",
 					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
 					RowMapper.COUNT);
 		}
@@ -9715,15 +9710,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 						new Long(groupId), new Long(userGroupId)
 					});
 
-			if (results.size() > 0) {
-				Integer count = results.get(0);
-
-				if (count.intValue() > 0) {
-					return true;
-				}
+			if (results.isEmpty()) {
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
 		private MappingSqlQuery<Integer> _mappingSqlQuery;
@@ -9871,7 +9862,7 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 	protected class ContainsUser {
 		protected ContainsUser() {
 			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT COUNT(*) AS COUNT_VALUE FROM Users_Groups WHERE groupId = ? AND userId = ?",
+					"SELECT 1 FROM Users_Groups WHERE groupId = ? AND userId = ?",
 					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
 					RowMapper.COUNT);
 		}
@@ -9881,15 +9872,11 @@ public class GroupPersistenceImpl extends BasePersistenceImpl<Group>
 						new Long(groupId), new Long(userId)
 					});
 
-			if (results.size() > 0) {
-				Integer count = results.get(0);
-
-				if (count.intValue() > 0) {
-					return true;
-				}
+			if (results.isEmpty()) {
+				return false;
 			}
 
-			return false;
+			return true;
 		}
 
 		private MappingSqlQuery<Integer> _mappingSqlQuery;

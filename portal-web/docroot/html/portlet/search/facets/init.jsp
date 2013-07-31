@@ -21,7 +21,7 @@ String randomNamespace = PortalUtil.generateRandomKey(request, _RANDOM_KEY_INPUT
 
 Facet facet = (Facet)request.getAttribute("search.jsp-facet");
 
-String fieldParam = ParamUtil.getString(request, facet.getFieldName());
+String fieldParam = ParamUtil.getString(request, facet.getFieldId());
 
 FacetConfiguration facetConfiguration = facet.getFacetConfiguration();
 
@@ -32,7 +32,6 @@ FacetCollector facetCollector = facet.getFacetCollector();
 List<TermCollector> termCollectors = facetCollector.getTermCollectors();
 
 String cssClass = "search-facet search-".concat(facetConfiguration.getDisplayStyle());
-String cssClassSelector = ".portlet-search .menu .search-facet.search-".concat(facetConfiguration.getDisplayStyle());
 %>
 
 <%!

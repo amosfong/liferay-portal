@@ -21,10 +21,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * This class is used by SOAP remote services, specifically {@link com.liferay.portlet.calendar.service.http.CalEventServiceSoap}.
+ * This class is used by SOAP remote services.
  *
- * @author    Brian Wing Shun Chan
- * @see       com.liferay.portlet.calendar.service.http.CalEventServiceSoap
+ * @author Brian Wing Shun Chan
  * @generated
  */
 public class CalEventSoap implements Serializable {

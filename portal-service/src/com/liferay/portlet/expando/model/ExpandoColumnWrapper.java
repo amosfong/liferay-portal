@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.expando.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ExpandoColumn}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ExpandoColumn
+ * @author Brian Wing Shun Chan
+ * @see ExpandoColumn
  * @generated
  */
 public class ExpandoColumnWrapper implements ExpandoColumn,
@@ -388,6 +389,25 @@ public class ExpandoColumnWrapper implements ExpandoColumn,
 	public void setTypeSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties) {
 		_expandoColumn.setTypeSettingsProperties(typeSettingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ExpandoColumnWrapper)) {
+			return false;
+		}
+
+		ExpandoColumnWrapper expandoColumnWrapper = (ExpandoColumnWrapper)obj;
+
+		if (Validator.equals(_expandoColumn, expandoColumnWrapper._expandoColumn)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

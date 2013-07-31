@@ -17,8 +17,6 @@
 <%@ include file="/html/portlet/layout_set_prototypes/init.jsp" %>
 
 <%
-String keywords = ParamUtil.getString(request, "keywords");
-
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/layout_set_prototypes/view");
@@ -26,9 +24,7 @@ portletURL.setParameter("struts_action", "/layout_set_prototypes/view");
 
 <liferay-ui:error exception="<%= RequiredLayoutSetPrototypeException.class %>" message="you-cannot-delete-site-templates-that-are-used-by-a-site" />
 
-<liferay-util:include page="/html/portlet/layout_set_prototypes/toolbar.jsp">
-	<liferay-util:param name="toolbarItem" value="view-all" />
-</liferay-util:include>
+<liferay-util:include page="/html/portlet/layout_set_prototypes/toolbar.jsp" />
 
 <aui:form action="<%= portletURL.toString() %>" method="get" name="fm">
 	<liferay-portlet:renderURLParams varImpl="portletURL" />

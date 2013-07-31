@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link JournalArticle}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalArticle
+ * @author Brian Wing Shun Chan
+ * @see JournalArticle
  * @generated
  */
 public class JournalArticleWrapper implements JournalArticle,
@@ -1524,6 +1526,14 @@ public class JournalArticleWrapper implements JournalArticle,
 	}
 
 	@Override
+	public java.lang.String[] getAvailableLanguageIds() {
+		return _journalArticle.getAvailableLanguageIds();
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
+	*/
+	@Override
 	public java.lang.String[] getAvailableLocales() {
 		return _journalArticle.getAvailableLocales();
 	}
@@ -1539,7 +1549,9 @@ public class JournalArticleWrapper implements JournalArticle,
 	}
 
 	@Override
-	public com.liferay.portlet.journal.model.JournalFolder getFolder() {
+	public com.liferay.portlet.journal.model.JournalFolder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticle.getFolder();
 	}
 
@@ -1551,12 +1563,16 @@ public class JournalArticleWrapper implements JournalArticle,
 	}
 
 	@Override
-	public com.liferay.portlet.journal.model.JournalFolder getTrashContainer() {
+	public com.liferay.portlet.journal.model.JournalFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticle.getTrashContainer();
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticle.isInTrashContainer();
 	}
 
@@ -1568,6 +1584,31 @@ public class JournalArticleWrapper implements JournalArticle,
 	@Override
 	public void setSmallImageType(java.lang.String smallImageType) {
 		_journalArticle.setSmallImageType(smallImageType);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof JournalArticleWrapper)) {
+			return false;
+		}
+
+		JournalArticleWrapper journalArticleWrapper = (JournalArticleWrapper)obj;
+
+		if (Validator.equals(_journalArticle,
+					journalArticleWrapper._journalArticle)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _journalArticle.getStagedModelType();
 	}
 
 	/**

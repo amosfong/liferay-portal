@@ -28,7 +28,7 @@
 	property="userName"
 />
 
-<liferay-ui:search-container-column-text
+<liferay-ui:search-container-column-date
 	href="<%= rowURL %>"
 	name="create-date"
 	orderable="<%= false %>"
@@ -39,5 +39,5 @@
 	href="<%= rowURL %>"
 	name="status"
 >
-	<liferay-ui:message key="<%= WorkflowConstants.toLabel(entry.getStatus()) %>" />
+	<aui:workflow-status showIcon="<%= false %>" showLabel="<%= false %>" status="<%= entry.getStatus() %>" />
 </liferay-ui:search-container-column-text>

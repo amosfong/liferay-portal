@@ -111,8 +111,7 @@ public class DLAppHelperLocalServiceUtil {
 	public static void getFileAsStream(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		boolean incrementCounter)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		getService().getFileAsStream(userId, fileEntry, incrementCounter);
 	}
 
@@ -218,7 +217,8 @@ public class DLAppHelperLocalServiceUtil {
 	}
 
 	public static void moveFolder(
-		com.liferay.portal.kernel.repository.model.Folder folder) {
+		com.liferay.portal.kernel.repository.model.Folder folder)
+		throws com.liferay.portal.kernel.exception.SystemException {
 		getService().moveFolder(folder);
 	}
 

@@ -14,9 +14,8 @@
 
 package com.liferay.portlet.journalarticles.action;
 
-import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portlet.journalcontent.action.WebContentAction;
 
@@ -37,23 +36,23 @@ public class ViewAction extends WebContentAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
-		try {
-			PortletPreferences preferences = renderRequest.getPreferences();
+		PortletPreferences portletPreferences = renderRequest.getPreferences();
 
-			long groupId = GetterUtil.getLong(
-				preferences.getValue("groupId", StringPool.BLANK));
+		long groupId = GetterUtil.getLong(
+			portletPreferences.getValue("groupId", null));
 
-			GroupLocalServiceUtil.getGroup(groupId);
+		Group group = GroupLocalServiceUtil.fetchGroup(groupId);
 
-			return mapping.findForward("portlet.journal_articles.view");
+		if (group == null) {
+			return actionMapping.findForward("/portal/portlet_not_setup");
 		}
-		catch (NoSuchGroupException nsge) {
-			return mapping.findForward("/portal/portlet_not_setup");
-		}
+
+		return actionMapping.findForward("portlet.journal_articles.view");
 	}
 
 }

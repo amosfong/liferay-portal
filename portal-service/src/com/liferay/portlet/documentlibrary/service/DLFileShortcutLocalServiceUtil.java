@@ -165,10 +165,54 @@ public class DLFileShortcutLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut fetchDLFileShortcut(
 		long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchDLFileShortcut(fileShortcutId);
+	}
+
+	/**
+	* Returns the document library file shortcut with the matching UUID and company.
+	*
+	* @param uuid the document library file shortcut's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library file shortcut, or <code>null</code> if a matching document library file shortcut could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut fetchDLFileShortcutByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchDLFileShortcutByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the document library file shortcut matching the UUID and group.
+	*
+	* @param uuid the document library file shortcut's UUID
+	* @param groupId the primary key of the group
+	* @return the matching document library file shortcut, or <code>null</code> if a matching document library file shortcut could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut fetchDLFileShortcutByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchDLFileShortcutByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +235,22 @@ public class DLFileShortcutLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the document library file shortcut with the matching UUID and company.
+	*
+	* @param uuid the document library file shortcut's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library file shortcut
+	* @throws PortalException if a matching document library file shortcut could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut getDLFileShortcutByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getDLFileShortcutByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**

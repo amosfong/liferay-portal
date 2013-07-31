@@ -165,6 +165,21 @@ public class PortletPreferencesLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.PortletPreferences fetchPortletPreferences(
 		long portletPreferencesId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -337,6 +352,30 @@ public class PortletPreferencesLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .getPortletPreferencesCount(ownerType, plid, portletId);
+	}
+
+	public static long getPortletPreferencesCount(int ownerType,
+		java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getPortletPreferencesCount(ownerType, portletId);
+	}
+
+	public static long getPortletPreferencesCount(long ownerId, int ownerType,
+		java.lang.String portletId, boolean excludeDefaultPreferences)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getPortletPreferencesCount(ownerId, ownerType, portletId,
+			excludeDefaultPreferences);
+	}
+
+	public static long getPortletPreferencesCount(long companyId, long groupId,
+		long ownerId, int ownerType, long plid,
+		com.liferay.portal.model.Portlet portlet, boolean privateLayout,
+		boolean excludeDefaultPreferences)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getPortletPreferencesCount(companyId, groupId, ownerId,
+			ownerType, plid, portlet, privateLayout, excludeDefaultPreferences);
 	}
 
 	public static javax.portlet.PortletPreferences getPreferences(

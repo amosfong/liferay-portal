@@ -14,6 +14,7 @@
 
 package com.liferay.portalweb.portal.util;
 
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -21,13 +22,104 @@ import com.liferay.util.ContextReplace;
 
 import java.io.File;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class RuntimeVariables {
+
+	public static String evaluateVariable(
+		String value, Map<String, String> context) {
+
+		String varValue = value;
+
+		Pattern pattern = Pattern.compile("\\$\\{([^}]*?)\\}");
+
+		Matcher matcher = pattern.matcher(varValue);
+
+		while (matcher.find()) {
+			String statement = matcher.group(1);
+
+			Pattern statementPattern = Pattern.compile(
+				"(.*)\\?(.*)\\(([^\\)]*?)\\)");
+
+			Matcher statementMatcher = statementPattern.matcher(statement);
+
+			if (statementMatcher.find()) {
+				String operand = statementMatcher.group(1);
+
+				if (!context.containsKey(operand)) {
+					continue;
+				}
+
+				String[] arguments = StringUtil.split(
+					statementMatcher.group(3));
+
+				List<String> argumentsList = new ArrayList<String>();
+
+				for (int i = 1; i < arguments.length; i++) {
+					if ((i % 2) == 1) {
+						argumentsList.add(arguments[i]);
+					}
+				}
+
+				String method = statementMatcher.group(2);
+
+				String operandValue = context.get(operand);
+
+				String replaceRegex = "\\$\\{([^}]*?)\\}";
+
+				String result = "";
+
+				if (method.startsWith("increment")) {
+					int i = GetterUtil.getInteger(operandValue) + 1;
+
+					result = String.valueOf(i);
+				}
+				else if (method.startsWith("length")) {
+					result = String.valueOf(operandValue.length());
+				}
+				else if (method.startsWith("lowercase")) {
+					result = operandValue.toLowerCase();
+				}
+				else if (method.startsWith("replace")) {
+					result = operandValue.replace(
+						argumentsList.get(0), argumentsList.get(1));
+				}
+
+				varValue = varValue.replaceFirst(replaceRegex, result);
+			}
+			else {
+				String varName = statement;
+
+				if (!context.containsKey(varName)) {
+					continue;
+				}
+
+				String replaceRegex = "\\$\\{([^}]*?)\\}";
+
+				String result = context.get(varName);
+
+				result = Matcher.quoteReplacement(result);
+
+				varValue = varValue.replaceFirst(replaceRegex, result);
+			}
+		}
+
+		varValue = varValue.replace("\\$", "$");
+		varValue = varValue.replace("\\{", "{");
+		varValue = varValue.replace("\\}", "}");
+
+		return StringEscapeUtils.escapeJava(varValue);
+	}
 
 	public static String getValue(String key) {
 		return _instance._getValue(key);
@@ -97,7 +189,6 @@ public class RuntimeVariables {
 			text = StringUtil.replace(text, "Bloggs", "Test");
 			text = StringUtil.replace(text, "Joe", "Test");
 			text = StringUtil.replace(text, "joebloggs", "test");
-			text = StringUtil.replace(text, "Liferay", "liferay.com");
 		}
 
 		if (Validator.isNotNull(TestPropsValues.CLUSTER_NODE_1)) {

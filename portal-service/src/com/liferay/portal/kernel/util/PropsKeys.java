@@ -181,6 +181,8 @@ public interface PropsKeys {
 
 	public static final String AUTH_TOKEN_IGNORE_ACTIONS = "auth.token.ignore.actions";
 
+	public static final String AUTH_TOKEN_IGNORE_CONTEXTS = "auth.token.ignore.contexts";
+
 	public static final String AUTH_TOKEN_IGNORE_PORTLETS = "auth.token.ignore.portlets";
 
 	public static final String AUTH_TOKEN_IMPL = "auth.token.impl";
@@ -219,7 +221,17 @@ public interface PropsKeys {
 
 	public static final String AUTO_DEPLOY_UNPACK_WAR = "auto.deploy.unpack.war";
 
+	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_INSTALL_OPTIONS = "auto.deploy.websphere.wsadmin.app.manager.install.options";
+
+	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_LIST_OPTIONS = "auto.deploy.websphere.wsadmin.app.manager.list.options";
+
 	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_QUERY = "auto.deploy.websphere.wsadmin.app.manager.query";
+
+	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_MANAGER_UPDATE_OPTIONS = "auto.deploy.websphere.wsadmin.app.manager.update.options";
+
+	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_APP_NAME_SUFFIX = "auto.deploy.websphere.wsadmin.app.name.suffix";
+
+	public static final String AUTO_DEPLOY_WEBSPHERE_WSADMIN_PROPERTIES_FILE = "auto.deploy.websphere.wsadmin.properties.file.name";
 
 	public static final String AUTO_LOGIN_HOOKS = "auto.login.hooks";
 
@@ -406,6 +418,8 @@ public interface PropsKeys {
 	public static final String CLUSTER_LINK_CHANNEL_SYSTEM_PROPERTIES = "cluster.link.channel.system.properties";
 
 	public static final String CLUSTER_LINK_ENABLED = "cluster.link.enabled";
+
+	public static final String CLUSTER_LINK_NODE_BOOTUP_RESPONSE_TIMEOUT = "cluster.link.node.bootup.response.timeout";
 
 	public static final String COMBO_ALLOWED_FILE_EXTENSIONS = "combo.allowed.file.extensions";
 
@@ -665,9 +679,9 @@ public interface PropsKeys {
 
 	public static final String DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH = "dl.file.entry.preview.video.width";
 
-	public static final String DL_FILE_ENTRY_PROCESSORS = "dl.file.entry.processors";
+	public static final String DL_FILE_ENTRY_PREVIEWABLE_PROCESSOR_MAX_SIZE = "dl.file.entry.previewable.processor.max.size";
 
-	public static final String DL_FILE_ENTRY_PROCESSORS_TRIGGER_SYNCHRONOUSLY = "dl.file.entry.processors.trigger.synchronously";
+	public static final String DL_FILE_ENTRY_PROCESSORS = "dl.file.entry.processors";
 
 	public static final String DL_FILE_ENTRY_THUMBNAIL_CUSTOM_1_MAX_HEIGHT = "dl.file.entry.thumbnail.custom1.max.height";
 
@@ -753,8 +767,6 @@ public interface PropsKeys {
 
 	public static final String DOCKBAR_ADMINISTRATIVE_LINKS_SHOW_IN_POP_UP = "dockbar.administrative.links.show.in.pop.up";
 
-	public static final String DOCKBAR_SHOW_SITE_CONTENT_ICON = "dockbar.show.site.content.icon";
-
 	public static final String DYNAMIC_DATA_LISTS_ERROR_TEMPLATE = "dynamic.data.lists.error.template";
 
 	public static final String DYNAMIC_DATA_LISTS_RECORD_SET_FORCE_AUTOGENERATE_KEY = "dynamic.data.lists.record.set.force.autogenerate.key";
@@ -789,6 +801,8 @@ public interface PropsKeys {
 
 	public static final String EHCACHE_CACHE_MANAGER_PEER_PROVIDER_FACTORY = "ehcache.cache.manager.peer.provider.factory";
 
+	public static final String EHCACHE_CACHE_MANAGER_STATISTICS_THREAD_POOL_SIZE = "ehcache.cache.manager.statistics.thread.pool.size";
+
 	public static final String EHCACHE_CLUSTER_LINK_REPLICATION_ENABLED = "ehcache.cluster.link.replication.enabled";
 
 	public static final String EHCACHE_MULTI_VM_CONFIG_LOCATION = "ehcache.multi.vm.config.location";
@@ -797,7 +811,9 @@ public interface PropsKeys {
 
 	public static final String EHCACHE_SINGLE_VM_CONFIG_LOCATION = "ehcache.single.vm.config.location";
 
-	public static final String EHCACHE_STATISTICS_ENABLED = "ehcache.statistics.enabled";
+	public static final String EHCACHE_SOCKET_SO_TIMEOUT = "ehcache.socket.so.timeout";
+
+	public static final String EHCACHE_SOCKET_START_PORT = "ehcache.socket.start.port";
 
 	public static final String FACEBOOK_CONNECT_APP_ID = "facebook.connect.app.id";
 
@@ -815,9 +831,11 @@ public interface PropsKeys {
 
 	public static final String FACEBOOK_CONNECT_VERIFIED_ACCOUNT_REQUIRED = "facebook.connect.verified.account.required";
 
-	public static final String FIELD_EDITABLE_COM_LIFERAY_PORTAL_MODEL_USER_EMAILADDRESS = "field.editable.com.liferay.portal.model.User.emailAddress";
+	public static final String FIELD_EDITABLE_DOMAINS = "field.editable.domains";
 
-	public static final String FIELD_EDITABLE_COM_LIFERAY_PORTAL_MODEL_USER_SCREENNAME = "field.editable.com.liferay.portal.model.User.screenName";
+	public static final String FIELD_EDITABLE_ROLES = "field.editable.roles";
+
+	public static final String FIELD_EDITABLE_USER_TYPES = "field.editable.user.types";
 
 	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_BIRTHDAY = "field.enable.com.liferay.portal.model.Contact.birthday";
 
@@ -866,6 +884,8 @@ public interface PropsKeys {
 	public static final String GOOGLE_GADGET_SERVLET_MAPPING = "google.gadget.servlet.mapping";
 
 	public static final String GZIP_COMPRESSION_LEVEL = "gzip.compression.level";
+
+	public static final String HIBERNATE_CACHE_USE_QUERY_CACHE = "hibernate.cache.use_query_cache";
 
 	public static final String HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = "hibernate.cache.use_second_level_cache";
 
@@ -933,6 +953,10 @@ public interface PropsKeys {
 
 	public static final String INDEX_READ_ONLY = "index.read.only";
 
+	public static final String INDEX_SEARCH_COLLATED_SPELL_CHECK_RESULT_ENABLED = "index.search.collated.spell.check.result.enabled";
+
+	public static final String INDEX_SEARCH_COLLATED_SPELL_CHECK_RESULT_SCORES_THRESHOLD = "index.search.collated.spell.check.result.scores.threshold";
+
 	public static final String INDEX_SEARCH_ENGINE_ID = "index.search.engine.id";
 
 	public static final String INDEX_SEARCH_HIGHLIGHT_ENABLED = "index.search.highlight.enabled";
@@ -943,9 +967,15 @@ public interface PropsKeys {
 
 	public static final String INDEX_SEARCH_LIMIT = "index.search.limit";
 
+	public static final String INDEX_SEARCH_QUERY_INDEXING_ENABLED = "index.search.query.indexing.enabled";
+
+	public static final String INDEX_SEARCH_QUERY_INDEXING_THRESHOLD = "index.search.query.indexing.threshold";
+
 	public static final String INDEX_SEARCH_QUERY_SUGGESTION_ENABLED = "index.search.query.suggestion.enabled";
 
-	public static final String INDEX_SEARCH_QUERY_SUGGESTION_SCORING_THRESHOLD = "index.search.query.suggestion.scoring.threshold";
+	public static final String INDEX_SEARCH_QUERY_SUGGESTION_MAX = "index.search.query.suggestion.max";
+
+	public static final String INDEX_SEARCH_QUERY_SUGGESTION_SCORES_THRESHOLD = "index.search.query.suggestion.scores.threshold";
 
 	public static final String INDEX_SEARCH_SCORING_ENABLED = "index.search.scoring.enabled";
 
@@ -1419,6 +1449,8 @@ public interface PropsKeys {
 
 	public static final String LUCENE_ANALYZER_MAX_TOKENS = "lucene.analyzer.max.tokens";
 
+	public static final String LUCENE_BOOLEAN_QUERY_CLAUSE_MAX_SIZE = "lucene.boolean.query.clause.max.size";
+
 	public static final String LUCENE_BUFFER_SIZE = "lucene.buffer.size";
 
 	public static final String LUCENE_CLUSTER_INDEX_LOADING_SYNC_TIMEOUT = "lucene.cluster.index.loading.sync.timeout";
@@ -1438,6 +1470,10 @@ public interface PropsKeys {
 	public static final String LUCENE_MERGE_POLICY = "lucene.merge.policy";
 
 	public static final String LUCENE_REPLICATE_WRITE = "lucene.replicate.write";
+
+	public static final String LUCENE_SPELL_CHECKER_DICTIONARY = "lucene.spell.checker.dictionary";
+
+	public static final String LUCENE_SPELL_CHECKER_SUPPORTED_LOCALES = "lucene.spell.checker.supported.locales";
 
 	public static final String LUCENE_STORE_TYPE = "lucene.store.type";
 
@@ -1515,8 +1551,6 @@ public interface PropsKeys {
 
 	public static final String MEMBERSHIP_POLICY_USER_GROUPS = "membership.policy.user.groups";
 
-	public static final String MEMORY_CLUSTER_SCHEDULER_LOCK_CACHE_ENABLED = "memory.cluster.scheduler.lock.cache.enabled";
-
 	public static final String MESSAGE_BOARDS_ALLOW_ANONYMOUS_POSTING = "message.boards.anonymous.posting.enabled";
 
 	public static final String MESSAGE_BOARDS_ANONYMOUS_POSTING_ENABLED = "message.boards.anonymous.posting.enabled";
@@ -1539,7 +1573,7 @@ public interface PropsKeys {
 
 	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_ADDED_SIGNATURE = "message.boards.email.message.added.signature";
 
-	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_ADDED_SUBJECT_PREFIX = "message.boards.email.message.added.subject.prefix";
+	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_ADDED_SUBJECT = "message.boards.email.message.added.subject";
 
 	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_UPDATED_BODY = "message.boards.email.message.updated.body";
 
@@ -1547,7 +1581,7 @@ public interface PropsKeys {
 
 	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_UPDATED_SIGNATURE = "message.boards.email.message.updated.signature";
 
-	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_UPDATED_SUBJECT_PREFIX = "message.boards.email.message.updated.subject.prefix";
+	public static final String MESSAGE_BOARDS_EMAIL_MESSAGE_UPDATED_SUBJECT = "message.boards.email.message.updated.subject";
 
 	public static final String MESSAGE_BOARDS_EXPIRE_BAN_INTERVAL = "message.boards.expire.ban.interval";
 
@@ -1592,6 +1626,8 @@ public interface PropsKeys {
 	public static final String MOBILE_DEVICE_RULES_RULE_GROUP_COPY_POSTFIX = "mobile.device.rules.rule.group.copy.postfix";
 
 	public static final String MOBILE_DEVICE_SESSION_CACHE_ENABLED = "mobile.device.session.cache.enabled";
+
+	public static final String MOBILE_DEVICE_STYLING_WAP_ENABLED = "mobile.device.styling.wap.enabled";
 
 	public static final String MODEL_HINTS_CONFIGS = "model.hints.configs";
 
@@ -1859,8 +1895,6 @@ public interface PropsKeys {
 
 	public static final String PERMISSIONS_THREAD_LOCAL_CACHE_MAX_SIZE = "permissions.thread.local.cache.max.size";
 
-	public static final String PERMISSIONS_USER_CHECK_ALGORITHM = "permissions.user.check.algorithm";
-
 	public static final String PERMISSIONS_VIEW_DYNAMIC_INHERITANCE = "permissions.view.dynamic.inheritance";
 
 	public static final String PERSISTENCE_PROVIDER = "persistence.provider";
@@ -1890,8 +1924,6 @@ public interface PropsKeys {
 	public static final String POP_SERVER_NOTIFICATIONS_INTERVAL = "pop.server.notifications.interval";
 
 	public static final String POP_SERVER_SUBDOMAIN = "pop.server.subdomain";
-
-	public static final String PORTAL_CTX = "portal.ctx";
 
 	public static final String PORTAL_IMPERSONATION_ENABLE = "portal.impersonation.enable";
 
@@ -1946,6 +1978,8 @@ public interface PropsKeys {
 	public static final String PORTLET_URL_APPEND_PARAMETERS = "portlet.url.append.parameters";
 
 	public static final String PORTLET_URL_ESCAPE_XML = "portlet.url.escape.xml";
+
+	public static final String PORTLET_URL_GENERATE_BY_PATH_ENABLED = "portlet.url.generate.by.path.enabled";
 
 	public static final String PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS = "portlet.url.refresh.url.reserved.parameters";
 
@@ -2225,15 +2259,17 @@ public interface PropsKeys {
 
 	public static final String SOCIAL_ACTIVITY_CONTRIBUTION_LIMIT_VALUES = "social.activity.contribution.limit.values";
 
-	public static final String SOCIAL_ACTIVITY_COUNTER_LOCK_RETRY_DELAY = "social.activity.counter.lock.retry.delay";
-
-	public static final String SOCIAL_ACTIVITY_COUNTER_LOCK_TIMEOUT = "social.activity.counter.lock.timeout";
-
 	public static final String SOCIAL_ACTIVITY_COUNTER_PERIOD_LENGTH = "social.activity.counter.period.length";
+
+	public static final String SOCIAL_ACTIVITY_LOCK_RETRY_DELAY = "social.activity.lock.retry.delay";
+
+	public static final String SOCIAL_ACTIVITY_LOCK_TIMEOUT = "social.activity.lock.timeout";
 
 	public static final String SOCIAL_ACTIVITY_PARTICIPATION_INCREMENTS = "social.activity.participation.increments";
 
 	public static final String SOCIAL_ACTIVITY_PARTICIPATION_LIMIT_VALUES = "social.activity.participation.limit.values";
+
+	public static final String SOCIAL_ACTIVITY_SETS_BUNDLING_ENABLED = "social.activity.sets.bundling.enabled";
 
 	public static final String SOCIAL_ACTIVITY_SETS_ENABLED = "social.activity.sets.enabled";
 
@@ -2280,6 +2316,8 @@ public interface PropsKeys {
 	public static final String SQL_DATA_MAX_PARAMETERS = "sql.data.max.parameters";
 
 	public static final String STAGING_LOCK_ENABLED = "staging.lock.enabled";
+
+	public static final String STAGING_REMOTE_TRANSFER_BUFFER_SIZE = "staging.remote.transfer.buffer.size";
 
 	public static final String STRIP_CSS_SASS_ENABLED = "strip.css.sass.enabled";
 
@@ -2358,6 +2396,8 @@ public interface PropsKeys {
 	public static final String TRASH_ENTRY_CHECK_INTERVAL = "trash.entry.check.interval";
 
 	public static final String TRASH_SEARCH_LIMIT = "trash.search.limit";
+
+	public static final String TUNNELING_SERVLET_SHARED_SECRET = "tunneling.servlet.shared.secret";
 
 	public static final String UPGRADE_DATABASE_TRANSACTIONS_DISABLED = "upgrade.database.transactions.disabled";
 
@@ -2531,7 +2571,7 @@ public interface PropsKeys {
 
 	public static final String WIKI_EMAIL_PAGE_ADDED_SIGNATURE = "wiki.email.page.added.signature";
 
-	public static final String WIKI_EMAIL_PAGE_ADDED_SUBJECT_PREFIX = "wiki.email.page.added.subject.prefix";
+	public static final String WIKI_EMAIL_PAGE_ADDED_SUBJECT = "wiki.email.page.added.subject";
 
 	public static final String WIKI_EMAIL_PAGE_UPDATED_BODY = "wiki.email.page.updated.body";
 
@@ -2539,7 +2579,7 @@ public interface PropsKeys {
 
 	public static final String WIKI_EMAIL_PAGE_UPDATED_SIGNATURE = "wiki.email.page.updated.signature";
 
-	public static final String WIKI_EMAIL_PAGE_UPDATED_SUBJECT_PREFIX = "wiki.email.page.updated.subject.prefix";
+	public static final String WIKI_EMAIL_PAGE_UPDATED_SUBJECT = "wiki.email.page.updated.subject";
 
 	public static final String WIKI_FORMATS = "wiki.formats";
 

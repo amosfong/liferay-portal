@@ -14,6 +14,7 @@
 
 package com.liferay.portal.events;
 
+import com.liferay.portal.cache.ehcache.EhcacheStreamBootstrapCacheLoader;
 import com.liferay.portal.jericho.CachedLoggerProvider;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
@@ -41,11 +42,13 @@ import com.liferay.portal.kernel.servlet.JspFactorySwapper;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.plugin.PluginPackageIndexer;
+import com.liferay.portal.service.BackgroundTaskLocalServiceUtil;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.messageboards.util.MBMessageIndexer;
 
+import javax.portlet.MimeResponse;
 import javax.portlet.PortletRequest;
 
 /**
@@ -77,6 +80,9 @@ public class StartupAction extends SimpleAction {
 		// Portal resiliency
 
 		DistributedRegistry.registerDistributed(
+			MimeResponse.MARKUP_HEAD_ELEMENT, Direction.DUPLEX,
+			MatchType.EXACT);
+		DistributedRegistry.registerDistributed(
 			PortletRequest.LIFECYCLE_PHASE, Direction.DUPLEX, MatchType.EXACT);
 		DistributedRegistry.registerDistributed(WebKeys.class);
 
@@ -85,9 +91,14 @@ public class StartupAction extends SimpleAction {
 		intraband.registerDatagramReceiveHandler(
 			SystemDataType.MAILBOX.getValue(),
 			new MailboxDatagramReceiveHandler());
+
+		MessageBus messageBus = (MessageBus)PortalBeanLocatorUtil.locate(
+			MessageBus.class.getName());
+
 		intraband.registerDatagramReceiveHandler(
 			SystemDataType.MESSAGE.getValue(),
-			new MessageDatagramReceiveHandler());
+			new MessageDatagramReceiveHandler(messageBus));
+
 		intraband.registerDatagramReceiveHandler(
 			SystemDataType.PORTAL_CACHE.getValue(),
 			new PortalCacheDatagramReceiveHandler());
@@ -147,8 +158,6 @@ public class StartupAction extends SimpleAction {
 			_log.debug("Initialize message bus");
 		}
 
-		MessageBus messageBus = (MessageBus)PortalBeanLocatorUtil.locate(
-			MessageBus.class.getName());
 		MessageSender messageSender =
 			(MessageSender)PortalBeanLocatorUtil.locate(
 				MessageSender.class.getName());
@@ -162,6 +171,10 @@ public class StartupAction extends SimpleAction {
 		// Cluster executor
 
 		ClusterExecutorUtil.initialize();
+
+		// Ehache bootstrap
+
+		EhcacheStreamBootstrapCacheLoader.start();
 
 		// Scheduler
 
@@ -182,6 +195,10 @@ public class StartupAction extends SimpleAction {
 		// Liferay JspFactory
 
 		JspFactorySwapper.swap();
+
+		// Background tasks
+
+		BackgroundTaskLocalServiceUtil.cleanUpBackgroundTasks();
 
 		// Jericho
 

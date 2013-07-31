@@ -1,5 +1,5 @@
 def isAppInstalled(appName):
-	appNames = AdminApp.list()
+	appNames = AdminApp.list(${auto.deploy.websphere.wsadmin.app.manager.list.options})
 
 	if len(appNames) > 0:
 		for curAppName in appNames.split('\n'):
@@ -12,13 +12,13 @@ def isAppInstalled(appName):
 
 appManager = AdminControl.queryNames('${auto.deploy.websphere.wsadmin.app.manager.query}')
 
-if isAppInstalled('${plugin.servlet.context.name}'):
-	print AdminControl.invoke(appManager, 'stopApplication', '${plugin.servlet.context.name}')
+if isAppInstalled('${auto.deploy.websphere.wsadmin.app.name}'):
+	print AdminControl.invoke(appManager, 'stopApplication', '${auto.deploy.websphere.wsadmin.app.name}')
 
-	print AdminApp.update('${plugin.servlet.context.name}', 'app', '[-contents ${auto.deploy.dest.dir}/${plugin.servlet.context.name}.war -contextroot /${plugin.servlet.context.name} -operation update -usedefaultbindings]')
+	print AdminApp.update('${auto.deploy.websphere.wsadmin.app.name}', 'app', '[${auto.deploy.websphere.wsadmin.app.manager.update.options}]')
 else:
-	print AdminApp.install('${auto.deploy.dest.dir}/${plugin.servlet.context.name}.war', '[-appname ${plugin.servlet.context.name} -contextroot /${plugin.servlet.context.name} -usedefaultbindings]')
+	print AdminApp.install('${auto.deploy.dest.dir}/${plugin.servlet.context.name}.war', '[${auto.deploy.websphere.wsadmin.app.manager.install.options}]')
 
 print AdminConfig.save()
 
-print AdminControl.invoke(appManager, 'startApplication', '${plugin.servlet.context.name}')
+print AdminControl.invoke(appManager, 'startApplication', '${auto.deploy.websphere.wsadmin.app.name}')

@@ -28,6 +28,7 @@ page import="com.liferay.portal.NoSuchGroupException" %><%@
 page import="com.liferay.portal.NoSuchLayoutException" %><%@
 page import="com.liferay.portal.NoSuchLayoutSetException" %><%@
 page import="com.liferay.portal.NoSuchRoleException" %><%@
+page import="com.liferay.portal.PendingBackgroundTaskException" %><%@
 page import="com.liferay.portal.RemoteExportException" %><%@
 page import="com.liferay.portal.RemoteOptionsException" %><%@
 page import="com.liferay.portal.RequiredGroupException" %><%@
@@ -54,13 +55,12 @@ page import="com.liferay.portlet.sites.search.UserGroupRoleUserChecker" %><%@
 page import="com.liferay.portlet.sitesadmin.search.SiteChecker" %><%@
 page import="com.liferay.portlet.sitesadmin.search.TeamDisplayTerms" %><%@
 page import="com.liferay.portlet.sitesadmin.search.TeamSearch" %><%@
-page import="com.liferay.portlet.sitesadmin.search.TeamSearchTerms" %><%@
 page import="com.liferay.portlet.sitesadmin.search.UserGroupTeamChecker" %><%@
 page import="com.liferay.portlet.sitesadmin.search.UserTeamChecker" %><%@
 page import="com.liferay.portlet.usergroupsadmin.search.UserGroupChecker" %><%@
+page import="com.liferay.portlet.usergroupsadmin.search.UserGroupDisplayTerms" %><%@
 page import="com.liferay.portlet.usergroupsadmin.search.UserGroupGroupChecker" %><%@
 page import="com.liferay.portlet.usergroupsadmin.search.UserGroupSearch" %><%@
-page import="com.liferay.portlet.usergroupsadmin.search.UserGroupSearchTerms" %><%@
 page import="com.liferay.portlet.usersadmin.search.GroupSearch" %><%@
 page import="com.liferay.portlet.usersadmin.search.GroupSearchTerms" %><%@
 page import="com.liferay.portlet.usersadmin.search.OrganizationGroupChecker" %><%@
@@ -77,10 +77,13 @@ if (permissionChecker.isCompanyAdmin()) {
 	filterManageableGroups = false;
 }
 
+if (GroupPermissionUtil.contains(permissionChecker, ActionKeys.VIEW)) {
+	filterManageableGroups = false;
+}
+
 long[] classNameIds = new long[] {PortalUtil.getClassNameId(Company.class), PortalUtil.getClassNameId(Group.class), PortalUtil.getClassNameId(Organization.class)};
 
 Format dateFormatDate = FastDateFormatFactoryUtil.getDate(locale, timeZone);
-Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZone);
 %>
 
 <%@ include file="/html/portlet/sites_admin/init-ext.jsp" %>

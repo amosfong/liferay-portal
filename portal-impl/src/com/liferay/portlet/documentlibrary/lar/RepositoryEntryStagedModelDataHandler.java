@@ -23,7 +23,6 @@ import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.RepositoryEntry;
 import com.liferay.portal.service.RepositoryEntryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.persistence.RepositoryEntryUtil;
 
 import java.util.Map;
 
@@ -35,6 +34,13 @@ public class RepositoryEntryStagedModelDataHandler
 
 	public static final String[] CLASS_NAMES =
 		{RepositoryEntry.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+		String uuid, long groupId, String className, String extraData) {
+
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -80,9 +86,10 @@ public class RepositoryEntryStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			RepositoryEntry existingRepositoryEntry =
-				RepositoryEntryUtil.fetchByUUID_G(
-					repositoryEntry.getUuid(),
-					portletDataContext.getScopeGroupId());
+				RepositoryEntryLocalServiceUtil.
+					fetchRepositoryEntryByUuidAndGroupId(
+						repositoryEntry.getUuid(),
+						portletDataContext.getScopeGroupId());
 
 			if (existingRepositoryEntry == null) {
 				serviceContext.setUuid(repositoryEntry.getUuid());

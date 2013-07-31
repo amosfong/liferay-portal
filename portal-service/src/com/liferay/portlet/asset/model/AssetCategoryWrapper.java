@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.asset.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link AssetCategory}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       AssetCategory
+ * @author Brian Wing Shun Chan
+ * @see AssetCategory
  * @generated
  */
 public class AssetCategoryWrapper implements AssetCategory,
@@ -867,6 +869,30 @@ public class AssetCategoryWrapper implements AssetCategory,
 	@Override
 	public boolean isRootCategory() {
 		return _assetCategory.isRootCategory();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof AssetCategoryWrapper)) {
+			return false;
+		}
+
+		AssetCategoryWrapper assetCategoryWrapper = (AssetCategoryWrapper)obj;
+
+		if (Validator.equals(_assetCategory, assetCategoryWrapper._assetCategory)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _assetCategory.getStagedModelType();
 	}
 
 	/**

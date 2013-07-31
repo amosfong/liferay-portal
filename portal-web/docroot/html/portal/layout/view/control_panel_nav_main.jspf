@@ -17,6 +17,8 @@
 <div>
 
 	<%
+	List<Portlet> portlets = PortalUtil.getControlPanelPortlets(controlPanelCategory, themeDisplay);
+
 	if (portlets.size() > 1) {
 	%>
 
@@ -49,7 +51,7 @@
 				}
 			%>
 
-				<aui:nav-item href="<%= urlControlPanelSitesPortlet %>" label="<%= PortalUtil.getPortletTitle(curPortlet, application, locale) %>" selected="<%= selected %>" />
+				<aui:nav-item anchorId='<%= "controlPanelSubNav" + curPortletId + "Link" %>' href="<%= urlControlPanelSitesPortlet %>" label="<%= PortalUtil.getPortletTitle(curPortlet, application, locale) %>" selected="<%= selected %>" />
 
 			<%
 			}

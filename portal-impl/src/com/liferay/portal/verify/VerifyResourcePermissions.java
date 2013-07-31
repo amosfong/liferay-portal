@@ -41,7 +41,6 @@ import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.calendar.model.CalEvent;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
@@ -234,9 +233,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 			BlogsEntry.class.getName(), "BlogsEntry", "entryId"
 		},
 		new String[] {
-			CalEvent.class.getName(), "CalEvent", "eventId"
-		},
-		new String[] {
 			DDMStructure.class.getName(), "DDMStructure", "structureId"
 		},
 		new String[] {
@@ -256,6 +252,9 @@ public class VerifyResourcePermissions extends VerifyProcess {
 		},
 		new String[] {
 			JournalFeed.class.getName(), "JournalFeed", "id_"
+		},
+		new String[] {
+			Layout.class.getName(), "Layout", "plid"
 		},
 		new String[] {
 			LayoutSetBranch.class.getName(), "LayoutSetBranch",

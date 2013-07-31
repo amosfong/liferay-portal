@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link WikiPageResourceLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       WikiPageResourceLocalService
+ * @author Brian Wing Shun Chan
+ * @see WikiPageResourceLocalService
  * @generated
  */
 public class WikiPageResourceLocalServiceWrapper
@@ -168,6 +168,23 @@ public class WikiPageResourceLocalServiceWrapper
 		return _wikiPageResourceLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPageResourceLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.wiki.model.WikiPageResource fetchWikiPageResource(
 		long resourcePrimKey)
@@ -283,6 +300,13 @@ public class WikiPageResourceLocalServiceWrapper
 		long nodeId, java.lang.String title)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _wikiPageResourceLocalService.fetchPageResource(nodeId, title);
+	}
+
+	@Override
+	public com.liferay.portlet.wiki.model.WikiPageResource fetchPageResource(
+		java.lang.String uuid)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _wikiPageResourceLocalService.fetchPageResource(uuid);
 	}
 
 	@Override

@@ -50,21 +50,32 @@ public interface JournalArticle extends JournalArticleModel, PersistedModel {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public java.lang.String[] getAvailableLanguageIds();
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
+	*/
 	public java.lang.String[] getAvailableLocales();
 
 	public java.lang.String getContentByLocale(java.lang.String languageId);
 
 	public java.lang.String getDefaultLocale();
 
-	public com.liferay.portlet.journal.model.JournalFolder getFolder();
+	public com.liferay.portlet.journal.model.JournalFolder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	public java.lang.String getSmallImageType()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
-	public com.liferay.portlet.journal.model.JournalFolder getTrashContainer();
+	public com.liferay.portlet.journal.model.JournalFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
-	public boolean isInTrashContainer();
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	public boolean isTemplateDriven();
 

@@ -91,8 +91,8 @@ public class JournalArticleAssetRenderer
 	}
 
 	@Override
-	public String[] getAvailableLocales() {
-		return _article.getAvailableLocales();
+	public String[] getAvailableLanguageIds() {
+		return _article.getAvailableLanguageIds();
 	}
 
 	@Override
@@ -231,6 +231,11 @@ public class JournalArticleAssetRenderer
 				WebKeys.THEME_DISPLAY);
 
 		Layout layout = themeDisplay.getLayout();
+
+		if (Validator.isNotNull(_article.getLayoutUuid())) {
+			layout = LayoutLocalServiceUtil.getLayoutByUuidAndCompanyId(
+				_article.getLayoutUuid(), _article.getCompanyId());
+		}
 
 		String portletId = (String)liferayPortletRequest.getAttribute(
 			WebKeys.PORTLET_ID);

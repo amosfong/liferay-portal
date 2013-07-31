@@ -26,7 +26,6 @@ import com.liferay.portlet.polls.model.PollsChoice;
 import com.liferay.portlet.polls.model.PollsQuestion;
 import com.liferay.portlet.polls.model.PollsVote;
 import com.liferay.portlet.polls.service.PollsVoteLocalServiceUtil;
-import com.liferay.portlet.polls.service.persistence.PollsVoteUtil;
 
 import java.util.Map;
 
@@ -38,6 +37,13 @@ public class PollsVoteStagedModelDataHandler
 	extends BaseStagedModelDataHandler<PollsVote> {
 
 	public static final String[] CLASS_NAMES = {PollsVote.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+		String uuid, long groupId, String className, String extraData) {
+
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -94,8 +100,9 @@ public class PollsVoteStagedModelDataHandler
 		serviceContext.setCreateDate(vote.getVoteDate());
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			PollsVote existingVote = PollsVoteUtil.fetchByUUID_G(
-				vote.getUuid(), portletDataContext.getScopeGroupId());
+			PollsVote existingVote =
+				PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
+					vote.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingVote == null) {
 				serviceContext.setUuid(vote.getUuid());

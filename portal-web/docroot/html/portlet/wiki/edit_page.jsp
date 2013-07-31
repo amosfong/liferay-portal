@@ -236,7 +236,7 @@ if (Validator.isNull(redirect)) {
 		<c:when test="<%= editable %>">
 			<aui:fieldset>
 				<c:if test="<%= editTitle %>">
-					<aui:input name="title" size="30" value="<%= title %>" />
+					<aui:input autoFocus="<%= !preview %>" name="title" size="30" value="<%= title %>" />
 				</c:if>
 
 				<c:if test="<%= Validator.isNotNull(parentTitle) %>">
@@ -432,7 +432,7 @@ if (Validator.isNull(redirect)) {
 
 					<c:if test="<%= !newPage && WikiPagePermission.contains(permissionChecker, wikiPage, ActionKeys.DELETE) %>">
 						<c:choose>
-							<c:when test="<%= TrashUtil.isTrashEnabled(scopeGroupId) %>">
+							<c:when test="<%= !wikiPage.isDraft() && TrashUtil.isTrashEnabled(scopeGroupId) %>">
 								<aui:button name="moveToTrashButton" onClick='<%= renderResponse.getNamespace() + "moveToTrashPage();" %>' value="move-to-the-recycle-bin" />
 							</c:when>
 							<c:when test="<%= wikiPage.isDraft() %>">
@@ -539,12 +539,6 @@ if (Validator.isNull(redirect)) {
 	}
 
 	window.<portlet:namespace />currentFormatIndex = document.<portlet:namespace />fm.<portlet:namespace />format.selectedIndex;
-
-	<c:if test="<%= editable && !preview %>">
-		if (!window.<portlet:namespace />editor) {
-			Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace /><%= editTitle ? "title" : "content" %>);
-		}
-	</c:if>
 </aui:script>
 
 <%

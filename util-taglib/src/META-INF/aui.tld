@@ -1363,9 +1363,63 @@
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
 	<tag>
+		<name>icon</name>
+		<tag-class>com.liferay.taglib.aui.IconTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>data</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.util.Map</type>
+		</attribute>
+		<attribute>
+			<name>id</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>image</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>target</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>url</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<dynamic-attributes>true</dynamic-attributes>
+	</tag>
+	<tag>
 		<name>input</name>
 		<tag-class>com.liferay.taglib.aui.InputTag</tag-class>
 		<body-content>JSP</body-content>
+		<attribute>
+			<name>autoFocus</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
 		<attribute>
 			<name>autoSize</name>
 			<required>false</required>
@@ -1407,6 +1461,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Object</type>
+		</attribute>
+		<attribute>
+			<name>dateTogglerCheckboxLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
 			<name>defaultLanguageId</name>
@@ -2044,6 +2104,11 @@
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
 	<tag>
+		<name>spacer</name>
+		<tag-class>com.liferay.taglib.aui.SpacerTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag>
+	<tag>
 		<name>translation-manager</name>
 		<tag-class>com.liferay.taglib.aui.TranslationManagerTag</tag-class>
 		<body-content>JSP</body-content>
@@ -2128,6 +2193,18 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Class</type>
+		</attribute>
+		<attribute>
+			<name>showIcon</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
+			<name>showLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
 		</attribute>
 		<attribute>
 			<name>status</name>

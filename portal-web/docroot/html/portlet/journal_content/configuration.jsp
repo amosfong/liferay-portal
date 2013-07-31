@@ -115,6 +115,7 @@ catch (NoSuchArticleException nsae) {
 						<liferay-portlet:renderURL portletName="<%= PortletKeys.DYNAMIC_DATA_MAPPING %>" var="editTemplateURL">
 							<portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
+							<portlet:param name="refererPortletName" value="<%= PortletKeys.JOURNAL %>" />
 							<portlet:param name="groupId" value="<%= String.valueOf(tableIteratorObj.getGroupId()) %>" />
 							<portlet:param name="templateId" value="<%= String.valueOf(tableIteratorObj.getTemplateId()) %>" />
 						</liferay-portlet:renderURL>
@@ -172,8 +173,6 @@ catch (NoSuchArticleException nsae) {
 	<br />
 
 	<%
-	OrderByComparator orderByComparator = JournalUtil.getArticleOrderByComparator(searchContainer.getOrderByCol(), searchContainer.getOrderByType());
-
 	ArticleSearchTerms searchTerms = (ArticleSearchTerms)searchContainer.getSearchTerms();
 
 	searchTerms.setFolderIds(new ArrayList<Long>());
@@ -217,11 +216,11 @@ catch (NoSuchArticleException nsae) {
 
 		// Modified date
 
-		row.addText(dateFormatDate.format(curArticle.getModifiedDate()), rowHREF);
+		row.addDate(curArticle.getModifiedDate(), rowHREF);
 
 		// Display date
 
-		row.addText(dateFormatDate.format(curArticle.getDisplayDate()), rowHREF);
+		row.addDate(curArticle.getDisplayDate(), rowHREF);
 
 		// Author
 

@@ -15,6 +15,7 @@
 package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.OSDetector;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portalweb.portal.util.RuntimeVariables;
@@ -367,23 +368,50 @@ public abstract class BaseSeleniumImpl
 	}
 
 	@Override
-	public void saveScreenShotAndSource() throws Exception {
-		String screenShotName = null;
+	public void saveScreenshot(String fileName) throws Exception {
+		if (!TestPropsValues.SAVE_SCREENSHOT) {
+			return;
+		}
+
+		if (_screenshotFileName.equals(fileName)) {
+			_screenshotCount++;
+		}
+		else {
+			_screenshotCount = 0;
+
+			_screenshotFileName = fileName;
+		}
+
+		String screenshotDir = TestPropsValues.OUTPUT_DIR + _screenshotFileName;
+
+		if (!FileUtil.exists(screenshotDir)) {
+			FileUtil.mkdirs(screenshotDir);
+		}
+
+		captureEntirePageScreenshot(
+			screenshotDir + "/" + _screenshotFileName + _screenshotCount +
+				".jpg",
+			"");
+	}
+
+	@Override
+	public void saveScreenshotAndSource() throws Exception {
+		String screenshotName = null;
 
 		if (TestPropsValues.SAVE_SCREENSHOT) {
-			screenShotName = getScreenshotFileName();
+			screenshotName = getScreenshotFileName();
 
 			captureEntirePageScreenshot(
-				_OUTPUT_SCREENSHOTS_DIR + screenShotName + ".jpg", "");
+				_OUTPUT_SCREENSHOTS_DIR + screenshotName + ".jpg", "");
 		}
 
 		if (TestPropsValues.SAVE_SOURCE) {
 			String content = getHtmlSource();
 
-			screenShotName = getScreenshotFileName();
+			screenshotName = getScreenshotFileName();
 
 			FileUtil.write(
-				_OUTPUT_SCREENSHOTS_DIR + screenShotName + ".html", content);
+				_OUTPUT_SCREENSHOTS_DIR + screenshotName + ".html", content);
 		}
 	}
 
@@ -449,10 +477,15 @@ public abstract class BaseSeleniumImpl
 
 	@Override
 	public void uploadCommonFile(String location, String value) {
-		super.type(
-			location,
-			_projectDir + "portal-web\\test\\functional\\com\\liferay\\" +
-				"portalweb\\dependencies\\" + value);
+		String dependenciesDir =
+			"portal-web//test//functional//com//liferay//portalweb//" +
+				"dependencies//";
+
+		if (OSDetector.isWindows()) {
+			dependenciesDir = StringUtil.replace(dependenciesDir, "//", "\\");
+		}
+
+		super.type(location, _projectDir + dependenciesDir + value);
 	}
 
 	@Override
@@ -633,6 +666,8 @@ public abstract class BaseSeleniumImpl
 	private CommandProcessor _commandProcessor;
 	private String _primaryTestSuiteName;
 	private String _projectDir;
+	private int _screenshotCount = 0;
+	private String _screenshotFileName = "";
 	private String _timeout = "90000";
 
 }

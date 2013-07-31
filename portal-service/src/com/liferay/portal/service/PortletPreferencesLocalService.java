@@ -150,6 +150,19 @@ public interface PortletPreferencesLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PortletPreferences fetchPortletPreferences(
 		long portletPreferencesId)
@@ -288,6 +301,23 @@ public interface PortletPreferencesLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public long getPortletPreferencesCount(int ownerType, long plid,
 		java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public long getPortletPreferencesCount(int ownerType,
+		java.lang.String portletId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public long getPortletPreferencesCount(long ownerId, int ownerType,
+		java.lang.String portletId, boolean excludeDefaultPreferences)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public long getPortletPreferencesCount(long companyId, long groupId,
+		long ownerId, int ownerType, long plid,
+		com.liferay.portal.model.Portlet portlet, boolean privateLayout,
+		boolean excludeDefaultPreferences)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

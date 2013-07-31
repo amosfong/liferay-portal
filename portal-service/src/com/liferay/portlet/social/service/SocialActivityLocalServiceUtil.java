@@ -165,6 +165,21 @@ public class SocialActivityLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.social.model.SocialActivity fetchSocialActivity(
 		long activityId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -399,7 +414,6 @@ public class SocialActivityLocalServiceUtil {
 	* @param assetEntry the asset from which to remove stored activities
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
-	* @deprecated As of 6.2.0, replaced by {@link #deleteActivities(long)}
 	*/
 	public static void deleteActivities(
 		com.liferay.portlet.asset.model.AssetEntry assetEntry)
@@ -419,8 +433,9 @@ public class SocialActivityLocalServiceUtil {
 	*
 	* @param className the target asset's class name
 	* @param classPK the primary key of the target asset
+	* @throws PortalException if the user's activity counters could not be
+	deleted
 	* @throws SystemException if a system exception occurred
-	* @deprecated As of 6.2.0, replaced by {@link #deleteActivities(long)}
 	*/
 	public static void deleteActivities(java.lang.String className, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -434,7 +449,6 @@ public class SocialActivityLocalServiceUtil {
 	* @param activityId the primary key of the stored activity
 	* @throws PortalException if the activity could not be found
 	* @throws SystemException if a system exception occurred
-	* @deprecated As of 6.2.0, replaced by {@link #deleteActivities(long)}
 	*/
 	public static void deleteActivity(long activityId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -446,8 +460,9 @@ public class SocialActivityLocalServiceUtil {
 	* Removes the stored activity and its mirror activity from the database.
 	*
 	* @param activity the activity to be removed
+	* @throws PortalException if the user's activity counters could not be
+	deleted or if a portal exception occurred
 	* @throws SystemException if a system exception occurred
-	* @deprecated As of 6.2.0, replaced by {@link #deleteActivities(long)}
 	*/
 	public static void deleteActivity(
 		com.liferay.portlet.social.model.SocialActivity activity)

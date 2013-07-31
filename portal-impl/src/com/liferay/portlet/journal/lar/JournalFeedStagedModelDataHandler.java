@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -39,7 +41,6 @@ import com.liferay.portlet.journal.FeedTargetLayoutFriendlyUrlException;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalFeed;
 import com.liferay.portlet.journal.service.JournalFeedLocalServiceUtil;
-import com.liferay.portlet.journal.service.persistence.JournalFeedUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,20 @@ public class JournalFeedStagedModelDataHandler
 	extends BaseStagedModelDataHandler<JournalFeed> {
 
 	public static final String[] CLASS_NAMES = {JournalFeed.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		JournalFeed feed =
+			JournalFeedLocalServiceUtil.fetchJournalFeedByUuidAndGroupId(
+				uuid, groupId);
+
+		if (feed != null) {
+			JournalFeedLocalServiceUtil.deleteFeed(feed);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -193,7 +208,7 @@ public class JournalFeedStagedModelDataHandler
 		boolean autoFeedId = false;
 
 		if (Validator.isNumber(feedId) ||
-			(JournalFeedUtil.fetchByG_F(
+			(JournalFeedLocalServiceUtil.fetchFeed(
 				portletDataContext.getScopeGroupId(), feedId) != null)) {
 
 			autoFeedId = true;
@@ -280,8 +295,11 @@ public class JournalFeedStagedModelDataHandler
 
 		try {
 			if (portletDataContext.isDataStrategyMirror()) {
-				JournalFeed existingFeed = JournalFeedUtil.fetchByUUID_G(
-					feed.getUuid(), portletDataContext.getScopeGroupId());
+				JournalFeed existingFeed =
+					JournalFeedLocalServiceUtil.
+						fetchJournalFeedByUuidAndGroupId(
+							feed.getUuid(),
+							portletDataContext.getScopeGroupId());
 
 				if (existingFeed == null) {
 					serviceContext.setUuid(feed.getUuid());

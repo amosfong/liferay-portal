@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link AssetVocabularyLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       AssetVocabularyLocalService
+ * @author Brian Wing Shun Chan
+ * @see AssetVocabularyLocalService
  * @generated
  */
 public class AssetVocabularyLocalServiceWrapper
@@ -168,11 +168,60 @@ public class AssetVocabularyLocalServiceWrapper
 		return _assetVocabularyLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetVocabularyLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.asset.model.AssetVocabulary fetchAssetVocabulary(
 		long vocabularyId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _assetVocabularyLocalService.fetchAssetVocabulary(vocabularyId);
+	}
+
+	/**
+	* Returns the asset vocabulary with the matching UUID and company.
+	*
+	* @param uuid the asset vocabulary's UUID
+	* @param companyId the primary key of the company
+	* @return the matching asset vocabulary, or <code>null</code> if a matching asset vocabulary could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.asset.model.AssetVocabulary fetchAssetVocabularyByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetVocabularyLocalService.fetchAssetVocabularyByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the asset vocabulary matching the UUID and group.
+	*
+	* @param uuid the asset vocabulary's UUID
+	* @param groupId the primary key of the group
+	* @return the matching asset vocabulary, or <code>null</code> if a matching asset vocabulary could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.asset.model.AssetVocabulary fetchAssetVocabularyByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _assetVocabularyLocalService.fetchAssetVocabularyByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -197,6 +246,24 @@ public class AssetVocabularyLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _assetVocabularyLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the asset vocabulary with the matching UUID and company.
+	*
+	* @param uuid the asset vocabulary's UUID
+	* @param companyId the primary key of the company
+	* @return the matching asset vocabulary
+	* @throws PortalException if a matching asset vocabulary could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.asset.model.AssetVocabulary getAssetVocabularyByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _assetVocabularyLocalService.getAssetVocabularyByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

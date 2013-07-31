@@ -58,8 +58,9 @@ public class EditNodeAction extends PortletAction {
 
 	@Override
 	public void processAction(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			ActionRequest actionRequest, ActionResponse actionResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, ActionRequest actionRequest,
+			ActionResponse actionResponse)
 		throws Exception {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
@@ -109,8 +110,9 @@ public class EditNodeAction extends PortletAction {
 
 	@Override
 	public ActionForward render(
-			ActionMapping mapping, ActionForm form, PortletConfig portletConfig,
-			RenderRequest renderRequest, RenderResponse renderResponse)
+			ActionMapping actionMapping, ActionForm actionForm,
+			PortletConfig portletConfig, RenderRequest renderRequest,
+			RenderResponse renderResponse)
 		throws Exception {
 
 		try {
@@ -126,14 +128,14 @@ public class EditNodeAction extends PortletAction {
 
 				SessionErrors.add(renderRequest, e.getClass());
 
-				return mapping.findForward("portlet.wiki.error");
+				return actionMapping.findForward("portlet.wiki.error");
 			}
 			else {
 				throw e;
 			}
 		}
 
-		return mapping.findForward(
+		return actionMapping.findForward(
 			getForward(renderRequest, "portlet.wiki.edit_node"));
 	}
 
@@ -183,10 +185,7 @@ public class EditNodeAction extends PortletAction {
 				liferayPortletConfig.getPortletId() +
 					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA, data);
 
-			SessionMessages.add(
-				actionRequest,
-				liferayPortletConfig.getPortletId() +
-					SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
+			hideDefaultSuccessMessage(liferayPortletConfig, actionRequest);
 		}
 	}
 
@@ -251,22 +250,22 @@ public class EditNodeAction extends PortletAction {
 			ActionRequest actionRequest, String oldName, String newName)
 		throws Exception {
 
-		PortletPreferences preferences = actionRequest.getPreferences();
+		PortletPreferences portletPreferences = actionRequest.getPreferences();
 
-		String hiddenNodes = preferences.getValue(
+		String hiddenNodes = portletPreferences.getValue(
 			"hiddenNodes", StringPool.BLANK);
-		String visibleNodes = preferences.getValue(
+		String visibleNodes = portletPreferences.getValue(
 			"visibleNodes", StringPool.BLANK);
 
 		String regex = oldName + ",?";
 
-		preferences.setValue(
+		portletPreferences.setValue(
 			"hiddenNodes", hiddenNodes.replaceFirst(regex, newName));
-		preferences.setValue(
+		portletPreferences.setValue(
 			"visibleNodes",
 			visibleNodes.replaceFirst(regex, newName));
 
-		preferences.store();
+		portletPreferences.store();
 	}
 
 }

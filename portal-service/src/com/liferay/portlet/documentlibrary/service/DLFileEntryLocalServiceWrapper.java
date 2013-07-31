@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DLFileEntryLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileEntryLocalService
+ * @author Brian Wing Shun Chan
+ * @see DLFileEntryLocalService
  * @generated
  */
 public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
@@ -166,11 +166,60 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 		return _dlFileEntryLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileEntry fetchDLFileEntry(
 		long fileEntryId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryLocalService.fetchDLFileEntry(fileEntryId);
+	}
+
+	/**
+	* Returns the document library file entry with the matching UUID and company.
+	*
+	* @param uuid the document library file entry's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library file entry, or <code>null</code> if a matching document library file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFileEntry fetchDLFileEntryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.fetchDLFileEntryByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the document library file entry matching the UUID and group.
+	*
+	* @param uuid the document library file entry's UUID
+	* @param groupId the primary key of the group
+	* @return the matching document library file entry, or <code>null</code> if a matching document library file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFileEntry fetchDLFileEntryByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.fetchDLFileEntryByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the document library file entry with the matching UUID and company.
+	*
+	* @param uuid the document library file entry's UUID
+	* @param companyId the primary key of the company
+	* @return the matching document library file entry
+	* @throws PortalException if a matching document library file entry could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFileEntry getDLFileEntryByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getDLFileEntryByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

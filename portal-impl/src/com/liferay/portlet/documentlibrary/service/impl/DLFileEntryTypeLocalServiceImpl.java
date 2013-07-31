@@ -16,6 +16,7 @@ package com.liferay.portlet.documentlibrary.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -23,6 +24,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SortedArrayList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -138,11 +140,11 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		Map<Locale, String> nameMap = new HashMap<Locale, String>();
 
-		nameMap.put(LocaleUtil.getDefault(), name);
+		nameMap.put(LocaleUtil.getSiteDefault(), name);
 
 		Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
 
-		descriptionMap.put(LocaleUtil.getDefault(), description);
+		descriptionMap.put(LocaleUtil.getSiteDefault(), description);
 
 		return addFileEntryType(
 			userId, groupId, null, nameMap, descriptionMap, ddmStructureIds,
@@ -173,6 +175,9 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public void deleteFileEntryType(DLFileEntryType dlFileEntryType)
 		throws PortalException, SystemException {
 
@@ -252,6 +257,8 @@ public class DLFileEntryTypeLocalServiceImpl
 	public DLFileEntryType getFileEntryType(
 			long groupId, String fileEntryTypeKey)
 		throws PortalException, SystemException {
+
+		fileEntryTypeKey = fileEntryTypeKey.trim().toUpperCase();
 
 		return dlFileEntryTypePersistence.findByG_F(groupId, fileEntryTypeKey);
 	}
@@ -410,11 +417,11 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		Map<Locale, String> nameMap = new HashMap<Locale, String>();
 
-		nameMap.put(LocaleUtil.getDefault(), name);
+		nameMap.put(LocaleUtil.getSiteDefault(), name);
 
 		Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
 
-		descriptionMap.put(LocaleUtil.getDefault(), description);
+		descriptionMap.put(LocaleUtil.getSiteDefault(), description);
 
 		updateFileEntryType(
 			userId, fileEntryTypeId, nameMap, descriptionMap, ddmStructureIds,

@@ -377,6 +377,18 @@
 				(LayoutSet.pageCount != 0)
 		]]>
 	</sql>
+	<sql id="com.liferay.portal.service.persistence.GroupFinder.joinByManualMembership">
+		<![CDATA[
+			WHERE
+				(Group_.manualMembership = ?)
+		]]>
+	</sql>
+	<sql id="com.liferay.portal.service.persistence.GroupFinder.joinByMembershipRestriction">
+		<![CDATA[
+			WHERE
+				(Group_.membershipRestriction = ?)
+		]]>
+	</sql>
 	<sql id="com.liferay.portal.service.persistence.GroupFinder.joinByPageCount">
 		<![CDATA[
 			INNER JOIN
@@ -473,7 +485,7 @@
 							(ResourcePermission.companyId = Layout.companyId) AND
 							(ResourcePermission.name = Layout.name) AND
 							(ResourcePermission.scope = ?) AND
-							(resourcePermission.primKey = CAST_TEXT(Layout.plid)) AND
+							(ResourcePermission.primKey = CAST_TEXT(Layout.plid)) AND
 							(ResourcePermission.roleId = ?)
 				))
 		]]>
@@ -776,6 +788,45 @@
 			WHERE
 				(PasswordPolicy.companyId = ?) AND
 				(lower(PasswordPolicy.name) LIKE ? OR ? IS NULL)
+		]]>
+	</sql>
+	<sql id="com.liferay.portal.service.persistence.PortletPreferencesFinder.countByO_O_P">
+		<![CDATA[
+			SELECT
+				COUNT(*) AS COUNT_VALUE
+			FROM
+				PortletPreferences
+			WHERE
+				(PortletPreferences.ownerId = ?) AND
+				(PortletPreferences.ownerType = ?) AND
+				(
+					(PortletPreferences.portletId = ?) OR
+					(PortletPreferences.portletId LIKE ?)
+				) AND
+				(PortletPreferences.preferences != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
+		]]>
+	</sql>
+	<sql id="com.liferay.portal.service.persistence.PortletPreferencesFinder.countByC_G_O_O_P_P_P">
+		<![CDATA[
+			SELECT
+				COUNT(*) AS COUNT_VALUE
+			FROM
+				PortletPreferences
+			INNER JOIN
+				Layout ON
+					(Layout.plid = PortletPreferences.plid)
+			WHERE
+				(Layout.companyId = ?) AND
+				(Layout.groupId = ?) AND
+				(PortletPreferences.ownerId = ?) AND
+				(PortletPreferences.ownerType = ?) AND
+				(
+					(PortletPreferences.portletId = ?) OR
+					(PortletPreferences.portletId LIKE ?)
+				) AND
+				(Layout.plid = ?) AND
+				(Layout.privateLayout = ?) AND
+				(PortletPreferences.preferences != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.PortletPreferencesFinder.findByPortletId">
@@ -1152,14 +1203,10 @@
 			INNER JOIN
 				Role_ ON
 					(Role_.roleId = ResourceBlockPermission.roleId)
-			INNER JOIN
-				ResourceAction ON
-					(ResourceAction.name = ResourceBlock.name)
 			WHERE
 				(ResourceBlock.resourceBlockId = ?) AND
 				(ResourceBlock.name = ?) AND
-				(ResourceAction.actionId = ?) AND
-				(MOD(INTEGER_DIV(ResourceBlockPermission.actionIds, ResourceAction.bitwisevalue), 2) = 1)
+				(MOD(INTEGER_DIV(ResourceBlockPermission.actionIds, ?), 2) = 1)
 			ORDER BY
 				Role_.name ASC
 		]]>
@@ -1193,16 +1240,12 @@
 			INNER JOIN
 				Role_ ON
 					(Role_.roleId = ResourcePermission.roleId)
-			INNER JOIN
-				ResourceAction ON
-					(ResourceAction.name = ResourcePermission.name)
 			WHERE
 				(ResourcePermission.companyId = ?) AND
 				(ResourcePermission.name = ?) AND
 				(ResourcePermission.scope = ?) AND
 				(ResourcePermission.primKey = ?) AND
-				(ResourceAction.actionId = ?) AND
-				(MOD(INTEGER_DIV(ResourcePermission.actionIds, ResourceAction.bitwisevalue), 2) = 1)
+				(MOD(INTEGER_DIV(ResourcePermission.actionIds, ?), 2) = 1)
 			ORDER BY
 				Role_.name ASC
 		]]>

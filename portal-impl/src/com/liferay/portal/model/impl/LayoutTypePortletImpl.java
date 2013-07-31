@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
-import com.liferay.portal.kernel.portlet.PortletSecurityUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -71,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Brian Wing Shun Chan
@@ -283,6 +281,25 @@ public class LayoutTypePortletImpl
 			portlets, staticPortlets);
 
 		return addStaticPortlets(portlets, staticPortlets, embeddedPortlets);
+	}
+
+	@Override
+	public List<Portlet> getAllPortlets(boolean includeSystem)
+		throws PortalException, SystemException {
+
+		List<Portlet> filteredPortlets = new ArrayList<Portlet>();
+
+		List<Portlet> portlets = getAllPortlets();
+
+		for (Portlet portlet : portlets) {
+			if (portlet.isSystem() && !includeSystem) {
+				continue;
+			}
+
+			filteredPortlets.add(portlet);
+		}
+
+		return filteredPortlets;
 	}
 
 	@Override
@@ -1384,8 +1401,6 @@ public class LayoutTypePortletImpl
 					PortletKeys.PREFS_OWNER_TYPE_USER, layout.getPlid()));
 		}
 
-		Set<String> whiteList = PortletSecurityUtil.getWhitelist();
-
 		for (PortletPreferences portletPreference : portletPreferences) {
 			String portletId = portletPreference.getPortletId();
 
@@ -1394,9 +1409,8 @@ public class LayoutTypePortletImpl
 
 			if (Validator.isNull(portletId) ||
 				columnPortlets.contains(portlet) ||
-				staticPortlets.contains(portlet) || portlet.isSystem() ||
-				portlet.isUndeployedPortlet() || !portlet.isActive() ||
-				!whiteList.contains(portletId)) {
+				staticPortlets.contains(portlet) || !portlet.isReady() ||
+				portlet.isUndeployedPortlet() || !portlet.isActive()) {
 
 				continue;
 			}

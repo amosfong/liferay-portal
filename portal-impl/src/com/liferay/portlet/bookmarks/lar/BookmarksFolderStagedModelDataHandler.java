@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.bookmarks.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -23,7 +25,6 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.bookmarks.model.BookmarksFolder;
 import com.liferay.portlet.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.portlet.bookmarks.service.BookmarksFolderLocalServiceUtil;
-import com.liferay.portlet.bookmarks.service.persistence.BookmarksFolderUtil;
 
 import java.util.Map;
 
@@ -36,6 +37,20 @@ public class BookmarksFolderStagedModelDataHandler
 
 	public static final String[] CLASS_NAMES =
 		{BookmarksFolder.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		BookmarksFolder folder =
+			BookmarksFolderLocalServiceUtil.
+				fetchBookmarksFolderByUuidAndGroupId(uuid, groupId);
+
+		if (folder != null) {
+			BookmarksFolderLocalServiceUtil.deleteFolder(folder);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -99,8 +114,10 @@ public class BookmarksFolderStagedModelDataHandler
 		BookmarksFolder importedFolder = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			BookmarksFolder existingFolder = BookmarksFolderUtil.fetchByUUID_G(
-				folder.getUuid(), portletDataContext.getScopeGroupId());
+			BookmarksFolder existingFolder =
+				BookmarksFolderLocalServiceUtil.
+					fetchBookmarksFolderByUuidAndGroupId(
+						folder.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingFolder == null) {
 				serviceContext.setUuid(folder.getUuid());
@@ -124,6 +141,22 @@ public class BookmarksFolderStagedModelDataHandler
 
 		portletDataContext.importClassedModel(
 			folder, importedFolder, BookmarksPortletDataHandler.NAMESPACE);
+	}
+
+	@Override
+	protected boolean validateMissingReference(
+			String uuid, long companyId, long groupId)
+		throws Exception {
+
+		BookmarksFolder folder =
+			BookmarksFolderLocalServiceUtil.
+				fetchBookmarksFolderByUuidAndGroupId(uuid, groupId);
+
+		if (folder == null) {
+			return false;
+		}
+
+		return true;
 	}
 
 }

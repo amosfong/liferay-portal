@@ -1,9 +1,5 @@
 <definition>
-	<command name="pgBlogsEntry">
-		<execute macro="Page#pgGoto">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
+	<command name="blogsEntryPG">
 		<execute action="PGSearch#type" locator-key1="SEARCH_FIELD" value1="${entryTitle}" />
 		<execute action="PGSearch#click" locator-key1="SEARCH_ICON" />
 
@@ -13,11 +9,7 @@
 		<execute action="PGSearchResults#assertTextEquals" locator-key1="SEARCH_RESULTS" value1="Showing 1 - 1." />
 	</command>
 
-	<command name="pgMessageboardsThread">
-		<execute macro="Page#pgGoto">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
+	<command name="messageboardsThreadPG">
 		<execute action="PGSearch#type" locator-key1="SEARCH_FIELD" value1="${threadSubject}" />
 		<execute action="PGSearch#click" locator-key1="SEARCH_ICON" />
 
@@ -27,11 +19,7 @@
 		<execute action="PGSearchResults#assertTextEquals" locator-key1="SEARCH_RESULTS" value1="Showing 1 - 1." />
 	</command>
 
-	<command name="pgUser">
-		<execute macro="Page#pgGoto">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
+	<command name="userPG">
 		<execute action="PGSearch#type" locator-key1="SEARCH_FIELD" value1="users*" />
 		<execute action="PGSearch#click" locator-key1="SEARCH_ICON" />
 
@@ -46,11 +34,7 @@
 		<execute action="PGSearchResults#assertTextEquals" locator-key1="SEARCH_RESULTS" value1="Showing 1 - 1." />
 	</command>
 
-	<command name="pgWikiPage">
-		<execute macro="Page#pgGoto">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
+	<command name="wikiPagePG">
 		<execute action="PGSearch#type" locator-key1="SEARCH_FIELD" value1="${wikiPageTitle}" />
 		<execute action="PGSearch#click" locator-key1="SEARCH_ICON" />
 

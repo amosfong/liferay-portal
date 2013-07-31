@@ -16,6 +16,9 @@ package com.liferay.portal.kernel.staging;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.lar.MissingReference;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
@@ -27,8 +30,11 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 
+import java.io.Serializable;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.portlet.PortletRequest;
@@ -174,6 +180,21 @@ public class StagingUtil {
 			remoteGroupId, serviceContext);
 	}
 
+	public static JSONArray getErrorMessagesJSONArray(
+		Locale locale, Map<String, MissingReference> missingReferences,
+		Map<String, Serializable> contextMap) {
+
+		return getStaging().getErrorMessagesJSONArray(
+			locale, missingReferences, contextMap);
+	}
+
+	public static JSONObject getExceptionMessagesJSONObject(
+		Locale locale, Exception e, Map<String, Serializable> contextMap) {
+
+		return getStaging().getExceptionMessagesJSONObject(
+			locale, e, contextMap);
+	}
+
 	public static Group getLiveGroup(long groupId)
 		throws PortalException, SystemException {
 
@@ -227,6 +248,10 @@ public class StagingUtil {
 		return getStaging().getSchedulerGroupName(destinationName, groupId);
 	}
 
+	public static String getStagedPortletId(String portletId) {
+		return getStaging().getStagedPortletId(portletId);
+	}
+
 	public static Staging getStaging() {
 		PortalRuntimePermission.checkGetBeanProperty(StagingUtil.class);
 
@@ -241,6 +266,14 @@ public class StagingUtil {
 		PortletRequest PortletRequest) {
 
 		return getStaging().getStagingParameters(PortletRequest);
+	}
+
+	public static JSONArray getWarningMessagesJSONArray(
+		Locale locale, Map<String, MissingReference> missingReferences,
+		Map<String, Serializable> contextMap) {
+
+		return getStaging().getWarningMessagesJSONArray(
+			locale, missingReferences, contextMap);
 	}
 
 	public static WorkflowTask getWorkflowTask(
@@ -259,6 +292,10 @@ public class StagingUtil {
 
 	public static boolean isIncomplete(Layout layout, long layoutSetBranchId) {
 		return getStaging().isIncomplete(layout, layoutSetBranchId);
+	}
+
+	public static void lockGroup(long userId, long groupId) throws Exception {
+		getStaging().lockGroup(userId, groupId);
 	}
 
 	public static void publishLayout(
@@ -385,6 +422,10 @@ public class StagingUtil {
 
 		getStaging().setRecentLayoutSetBranchId(
 			user, layoutSetId, layoutSetBranchId);
+	}
+
+	public static void unlockGroup(long groupId) throws SystemException {
+		getStaging().unlockGroup(groupId);
 	}
 
 	public static void unscheduleCopyFromLive(PortletRequest PortletRequest)

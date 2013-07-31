@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link JournalFolder}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalFolder
+ * @author Brian Wing Shun Chan
+ * @see JournalFolder
  * @generated
  */
 public class JournalFolderWrapper implements JournalFolder,
@@ -779,6 +781,13 @@ public class JournalFolderWrapper implements JournalFolder,
 	}
 
 	@Override
+	public java.util.List<java.lang.Long> getAncestorFolderIds()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalFolder.getAncestorFolderIds();
+	}
+
+	@Override
 	public java.util.List<com.liferay.portlet.journal.model.JournalFolder> getAncestors()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -805,6 +814,30 @@ public class JournalFolderWrapper implements JournalFolder,
 	@Override
 	public boolean isRoot() {
 		return _journalFolder.isRoot();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof JournalFolderWrapper)) {
+			return false;
+		}
+
+		JournalFolderWrapper journalFolderWrapper = (JournalFolderWrapper)obj;
+
+		if (Validator.equals(_journalFolder, journalFolderWrapper._journalFolder)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _journalFolder.getStagedModelType();
 	}
 
 	/**

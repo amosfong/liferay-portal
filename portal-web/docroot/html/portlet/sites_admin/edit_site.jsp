@@ -113,12 +113,25 @@ if ((group != null) && group.isCompany()) {
 	advancedSections = ArrayUtil.remove(advancedSections, "default-user-associations");
 	advancedSections = ArrayUtil.remove(advancedSections, "analytics");
 	advancedSections = ArrayUtil.remove(advancedSections, "content-sharing");
+
+	miscellaneousSections = new String[0];
 }
 
 String[][] categorySections = {mainSections, seoSections, advancedSections, miscellaneousSections};
 %>
 
 <c:if test="<%= !portletName.equals(PortletKeys.SITE_SETTINGS) %>">
+
+	<%
+	if (group != null) {
+		PortalUtil.addPortletBreadcrumbEntry(request, group.getDescriptiveName(locale), null);
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
+	}
+	else {
+		PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-site"), currentURL);
+	}
+	%>
+
 	<liferay-util:include page="/html/portlet/sites_admin/toolbar.jsp">
 		<liferay-util:param name="toolbarItem" value='<%= (group == null) ? "add" : "browse" %>' />
 	</liferay-util:include>
@@ -155,7 +168,7 @@ String[][] categorySections = {mainSections, seoSections, advancedSections, misc
 
 <aui:form action="<%= editSiteURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveGroup();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
-	<aui:input name="redirect" type="hidden" />
+	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 	<aui:input name="closeRedirect" type="hidden" value="<%= closeRedirect %>" />
 	<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
@@ -223,13 +236,13 @@ String[][] categorySections = {mainSections, seoSections, advancedSections, misc
 		</c:if>
 
 		if (ok) {
+			<c:if test="<%= (group != null) %>">
+				<portlet:namespace />saveLocales();
+			</c:if>
+
 			submitForm(document.<portlet:namespace />fm);
 		}
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />name);
-	</c:if>
 </aui:script>
 
 <aui:script use="aui-base">
@@ -262,16 +275,6 @@ String[][] categorySections = {mainSections, seoSections, advancedSections, misc
 		toggleCompatibleSiteTemplates();
 	}
 </aui:script>
-
-<%
-if (group != null) {
-	PortalUtil.addPortletBreadcrumbEntry(request, group.getDescriptiveName(locale), null);
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
-}
-else {
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-site"), currentURL);
-}
-%>
 
 <%!
 private static final String[] _CATEGORY_NAMES = {"basic-information", "search-engine-optimization", "advanced", "miscellaneous"};

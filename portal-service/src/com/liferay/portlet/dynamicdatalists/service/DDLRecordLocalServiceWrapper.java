@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DDLRecordLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DDLRecordLocalService
+ * @author Brian Wing Shun Chan
+ * @see DDLRecordLocalService
  * @generated
  */
 public class DDLRecordLocalServiceWrapper implements DDLRecordLocalService,
@@ -166,11 +166,59 @@ public class DDLRecordLocalServiceWrapper implements DDLRecordLocalService,
 		return _ddlRecordLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddlRecordLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.dynamicdatalists.model.DDLRecord fetchDDLRecord(
 		long recordId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _ddlRecordLocalService.fetchDDLRecord(recordId);
+	}
+
+	/**
+	* Returns the d d l record with the matching UUID and company.
+	*
+	* @param uuid the d d l record's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d l record, or <code>null</code> if a matching d d l record could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecord fetchDDLRecordByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddlRecordLocalService.fetchDDLRecordByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the d d l record matching the UUID and group.
+	*
+	* @param uuid the d d l record's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d l record, or <code>null</code> if a matching d d l record could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecord fetchDDLRecordByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddlRecordLocalService.fetchDDLRecordByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +243,24 @@ public class DDLRecordLocalServiceWrapper implements DDLRecordLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddlRecordLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the d d l record with the matching UUID and company.
+	*
+	* @param uuid the d d l record's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d l record
+	* @throws PortalException if a matching d d l record could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecord getDDLRecordByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _ddlRecordLocalService.getDDLRecordByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

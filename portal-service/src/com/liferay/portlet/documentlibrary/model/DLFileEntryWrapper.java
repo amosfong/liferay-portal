@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DLFileEntry}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileEntry
+ * @author Brian Wing Shun Chan
+ * @see DLFileEntry
  * @generated
  */
 public class DLFileEntryWrapper implements DLFileEntry,
@@ -55,8 +57,6 @@ public class DLFileEntryWrapper implements DLFileEntry,
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("userName", getUserName());
-		attributes.put("versionUserId", getVersionUserId());
-		attributes.put("versionUserName", getVersionUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("classNameId", getClassNameId());
@@ -118,18 +118,6 @@ public class DLFileEntryWrapper implements DLFileEntry,
 
 		if (userName != null) {
 			setUserName(userName);
-		}
-
-		Long versionUserId = (Long)attributes.get("versionUserId");
-
-		if (versionUserId != null) {
-			setVersionUserId(versionUserId);
-		}
-
-		String versionUserName = (String)attributes.get("versionUserName");
-
-		if (versionUserName != null) {
-			setVersionUserName(versionUserName);
 		}
 
 		Date createDate = (Date)attributes.get("createDate");
@@ -420,68 +408,6 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	@Override
 	public void setUserName(java.lang.String userName) {
 		_dlFileEntry.setUserName(userName);
-	}
-
-	/**
-	* Returns the version user ID of this document library file entry.
-	*
-	* @return the version user ID of this document library file entry
-	*/
-	@Override
-	public long getVersionUserId() {
-		return _dlFileEntry.getVersionUserId();
-	}
-
-	/**
-	* Sets the version user ID of this document library file entry.
-	*
-	* @param versionUserId the version user ID of this document library file entry
-	*/
-	@Override
-	public void setVersionUserId(long versionUserId) {
-		_dlFileEntry.setVersionUserId(versionUserId);
-	}
-
-	/**
-	* Returns the version user uuid of this document library file entry.
-	*
-	* @return the version user uuid of this document library file entry
-	* @throws SystemException if a system exception occurred
-	*/
-	@Override
-	public java.lang.String getVersionUserUuid()
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _dlFileEntry.getVersionUserUuid();
-	}
-
-	/**
-	* Sets the version user uuid of this document library file entry.
-	*
-	* @param versionUserUuid the version user uuid of this document library file entry
-	*/
-	@Override
-	public void setVersionUserUuid(java.lang.String versionUserUuid) {
-		_dlFileEntry.setVersionUserUuid(versionUserUuid);
-	}
-
-	/**
-	* Returns the version user name of this document library file entry.
-	*
-	* @return the version user name of this document library file entry
-	*/
-	@Override
-	public java.lang.String getVersionUserName() {
-		return _dlFileEntry.getVersionUserName();
-	}
-
-	/**
-	* Sets the version user name of this document library file entry.
-	*
-	* @param versionUserName the version user name of this document library file entry
-	*/
-	@Override
-	public void setVersionUserName(java.lang.String versionUserName) {
-		_dlFileEntry.setVersionUserName(versionUserName);
 	}
 
 	/**
@@ -1094,7 +1020,9 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	}
 
 	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder getFolder() {
+	public com.liferay.portlet.documentlibrary.model.DLFolder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntry.getFolder();
 	}
 
@@ -1122,8 +1050,34 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	}
 
 	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer() {
+	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntry.getTrashContainer();
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserId()}
+	*/
+	@Override
+	public long getVersionUserId() {
+		return _dlFileEntry.getVersionUserId();
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserName()}
+	*/
+	@Override
+	public java.lang.String getVersionUserName() {
+		return _dlFileEntry.getVersionUserName();
+	}
+
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserUuid()}
+	*/
+	@Override
+	public java.lang.String getVersionUserUuid() {
+		return _dlFileEntry.getVersionUserUuid();
 	}
 
 	@Override
@@ -1142,7 +1096,9 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntry.isInTrashContainer();
 	}
 
@@ -1150,6 +1106,30 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	public void setExtraSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties extraSettingsProperties) {
 		_dlFileEntry.setExtraSettingsProperties(extraSettingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DLFileEntryWrapper)) {
+			return false;
+		}
+
+		DLFileEntryWrapper dlFileEntryWrapper = (DLFileEntryWrapper)obj;
+
+		if (Validator.equals(_dlFileEntry, dlFileEntryWrapper._dlFileEntry)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _dlFileEntry.getStagedModelType();
 	}
 
 	/**

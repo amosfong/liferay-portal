@@ -17,10 +17,12 @@ package com.liferay.portlet.messageboards.trash;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
+import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.model.LayoutConstants;
+import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -30,6 +32,7 @@ import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
+import com.liferay.portlet.messageboards.service.permission.MBCategoryPermission;
 import com.liferay.portlet.messageboards.service.permission.MBMessagePermission;
 import com.liferay.portlet.messageboards.util.MBUtil;
 
@@ -162,6 +165,21 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
+	public boolean hasTrashPermission(
+			PermissionChecker permissionChecker, long groupId, long classPK,
+			String trashActionId)
+		throws PortalException, SystemException {
+
+		if (trashActionId.equals(TrashActionKeys.MOVE)) {
+			return MBCategoryPermission.contains(
+				permissionChecker, groupId, classPK, ActionKeys.ADD_MESSAGE);
+		}
+
+		return super.hasTrashPermission(
+			permissionChecker, groupId, classPK, trashActionId);
+	}
+
+	@Override
 	public boolean isInTrash(long classPK)
 		throws PortalException, SystemException {
 
@@ -172,7 +190,7 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public boolean isInTrashContainer(long classPK)
-			throws PortalException, SystemException {
+		throws PortalException, SystemException {
 
 		MBThread thread = MBThreadLocalServiceUtil.getThread(classPK);
 
@@ -182,6 +200,22 @@ public class MBThreadTrashHandler extends BaseTrashHandler {
 	@Override
 	public boolean isMovable() {
 		return true;
+	}
+
+	@Override
+	public boolean isRestorable(long classPK)
+		throws PortalException, SystemException {
+
+		MBThread thread = MBThreadLocalServiceUtil.getThread(classPK);
+
+		if ((thread.getCategoryId() > 0) &&
+			(MBCategoryLocalServiceUtil.fetchMBCategory(
+				thread.getCategoryId()) == null)) {
+
+			return false;
+		}
+
+		return !thread.isInTrashContainer();
 	}
 
 	@Override

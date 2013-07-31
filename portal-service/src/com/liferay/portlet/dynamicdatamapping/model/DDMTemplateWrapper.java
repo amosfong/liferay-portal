@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DDMTemplate}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMTemplate
+ * @author Brian Wing Shun Chan
+ * @see DDMTemplate
  * @generated
  */
 public class DDMTemplateWrapper implements DDMTemplate,
@@ -1085,6 +1087,30 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setSmallImageType(java.lang.String smallImageType) {
 		_ddmTemplate.setSmallImageType(smallImageType);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMTemplateWrapper)) {
+			return false;
+		}
+
+		DDMTemplateWrapper ddmTemplateWrapper = (DDMTemplateWrapper)obj;
+
+		if (Validator.equals(_ddmTemplate, ddmTemplateWrapper._ddmTemplate)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _ddmTemplate.getStagedModelType();
 	}
 
 	/**

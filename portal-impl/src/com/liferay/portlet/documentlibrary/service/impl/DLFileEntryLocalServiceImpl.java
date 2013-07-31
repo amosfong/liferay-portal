@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -53,6 +54,7 @@ import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileVersion;
@@ -184,8 +186,6 @@ public class DLFileEntryLocalServiceImpl
 		dlFileEntry.setCompanyId(user.getCompanyId());
 		dlFileEntry.setUserId(user.getUserId());
 		dlFileEntry.setUserName(user.getFullName());
-		dlFileEntry.setVersionUserId(user.getUserId());
-		dlFileEntry.setVersionUserName(user.getFullName());
 		dlFileEntry.setCreateDate(serviceContext.getCreateDate(now));
 		dlFileEntry.setModifiedDate(serviceContext.getModifiedDate(now));
 
@@ -706,6 +706,9 @@ public class DLFileEntryLocalServiceImpl
 
 	@Indexable(type = IndexableType.DELETE)
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public DLFileEntry deleteFileEntry(DLFileEntry dlFileEntry)
 		throws PortalException, SystemException {
 
@@ -738,8 +741,7 @@ public class DLFileEntryLocalServiceImpl
 		for (DLFileVersion dlFileVersion : dlFileVersions) {
 			dlFileVersionPersistence.remove(dlFileVersion);
 
-			expandoValueLocalService.deleteValues(
-				DLFileEntry.class.getName(), dlFileVersion.getFileVersionId());
+			expandoRowLocalService.deleteRows(dlFileVersion.getFileVersionId());
 
 			workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
 				dlFileEntry.getCompanyId(), dlFileEntry.getGroupId(),
@@ -748,8 +750,7 @@ public class DLFileEntryLocalServiceImpl
 
 		// Expando
 
-		expandoValueLocalService.deleteValues(
-			DLFileEntry.class.getName(), dlFileEntry.getFileEntryId());
+		expandoRowLocalService.deleteRows(dlFileEntry.getFileEntryId());
 
 		// Lock
 
@@ -838,8 +839,7 @@ public class DLFileEntryLocalServiceImpl
 
 			dlFileVersionPersistence.remove(dlFileVersion);
 
-			expandoValueLocalService.deleteValues(
-				DLFileEntry.class.getName(), dlFileVersion.getFileVersionId());
+			expandoRowLocalService.deleteRows(dlFileVersion.getFileVersionId());
 
 			dlFileEntry = dlFileEntryPersistence.findByPrimaryKey(fileEntryId);
 
@@ -851,10 +851,6 @@ public class DLFileEntryLocalServiceImpl
 						dlFileVersionLocalService.getLatestFileVersion(
 							dlFileEntry.getFileEntryId(), true);
 
-					dlFileEntry.setVersionUserId(
-						dlLatestFileVersion.getUserId());
-					dlFileEntry.setVersionUserName(
-						dlLatestFileVersion.getUserName());
 					dlFileEntry.setModifiedDate(
 						dlLatestFileVersion.getCreateDate());
 					dlFileEntry.setExtension(
@@ -1500,8 +1496,6 @@ public class DLFileEntryLocalServiceImpl
 				dlFileEntry.setFileEntryTypeId(
 					dlFileVersion.getFileEntryTypeId());
 				dlFileEntry.setVersion(dlFileVersion.getVersion());
-				dlFileEntry.setVersionUserId(dlFileVersion.getUserId());
-				dlFileEntry.setVersionUserName(dlFileVersion.getUserName());
 				dlFileEntry.setModifiedDate(dlFileVersion.getCreateDate());
 				dlFileEntry.setSize(dlFileVersion.getSize());
 
@@ -1680,20 +1674,8 @@ public class DLFileEntryLocalServiceImpl
 
 		dlFileVersion.setGroupId(dlFileEntry.getGroupId());
 		dlFileVersion.setCompanyId(dlFileEntry.getCompanyId());
-
-		long versionUserId = dlFileEntry.getVersionUserId();
-
-		if (versionUserId <= 0) {
-			versionUserId = dlFileEntry.getUserId();
-		}
-
-		dlFileVersion.setUserId(versionUserId);
-
-		String versionUserName = GetterUtil.getString(
-			dlFileEntry.getVersionUserName(), dlFileEntry.getUserName());
-
-		dlFileVersion.setUserName(versionUserName);
-
+		dlFileVersion.setUserId(user.getUserId());
+		dlFileVersion.setUserName(user.getFullName());
 		dlFileVersion.setCreateDate(modifiedDate);
 		dlFileVersion.setModifiedDate(modifiedDate);
 		dlFileVersion.setRepositoryId(dlFileEntry.getRepositoryId());
@@ -2203,8 +2185,7 @@ public class DLFileEntryLocalServiceImpl
 
 		dlFileVersionPersistence.remove(dlFileVersion);
 
-		expandoValueLocalService.deleteValues(
-			DLFileEntry.class.getName(), dlFileVersion.getFileVersionId());
+		expandoRowLocalService.deleteRows(dlFileVersion.getFileVersionId());
 
 		dlFileEntryMetadataLocalService.deleteFileVersionFileEntryMetadata(
 			dlFileVersion.getFileVersionId());
@@ -2410,6 +2391,8 @@ public class DLFileEntryLocalServiceImpl
 			int status, Date statusDate, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
+		dlFileVersion.setUserId(user.getUserId());
+		dlFileVersion.setUserName(user.getFullName());
 		dlFileVersion.setModifiedDate(statusDate);
 
 		if (Validator.isNotNull(sourceFileName)) {

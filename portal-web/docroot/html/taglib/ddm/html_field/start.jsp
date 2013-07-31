@@ -18,7 +18,7 @@
 
 <div class="lfr-ddm-container" id="<%= randomNamespace %>">
 	<c:if test="<%= Validator.isNotNull(xsd) %>">
-		<%= DDMXSDUtil.getSimpleFieldHTMLByName(pageContext, classNameId, classPK, field, portletResponse.getNamespace(), fieldsNamespace, null, readOnly, requestedLocale) %>
+		<%= DDMXSDUtil.getSimpleFieldHTMLByName(pageContext, classNameId, classPK, field, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale) %>
 
 		<aui:input name="<%= fieldsDisplayInputName %>" type="hidden" />
 
@@ -28,8 +28,10 @@
 					classNameId: <%= classNameId %>,
 					classPK: <%= classPK %>,
 					container: '#<%= randomNamespace %>',
+					doAsGroupId: <%= scopeGroupId %>,
 					fieldsDisplayInput: '#<portlet:namespace /><%= fieldsDisplayInputName %>',
 					namespace: '<%= fieldsNamespace %>',
+					p_l_id: <%= themeDisplay.getPlid() %>,
 					portletNamespace: '<portlet:namespace />',
 					repeatable: <%= repeatable %>
 				}

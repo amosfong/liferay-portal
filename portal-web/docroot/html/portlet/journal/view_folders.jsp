@@ -71,7 +71,7 @@ if ((folderId != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) && (parentFold
 
 	parentTitle = grandParentFolder.getName();
 }
-else {
+else if (((folderId != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) && (parentFolderId == 0)) || ((folderId == JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) && (parentFolderId == 0) && expandFolder)) {
 	parentTitle = LanguageUtil.get(pageContext, "home");
 }
 %>
@@ -213,7 +213,7 @@ else {
 							dataView="<%= dataView %>"
 							entryTitle='<%= LanguageUtil.get(pageContext, "basic-web-content") %>'
 							iconImage="copy"
-							selected='<%= (structureId == "0") %>'
+							selected='<%= structureId.equals("0") %>'
 							viewURL="<%= viewBasicDDMStructureArticlesURL.toString() %>"
 						/>
 					</c:if>

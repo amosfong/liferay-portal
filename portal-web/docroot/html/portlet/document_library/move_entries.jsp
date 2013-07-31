@@ -346,7 +346,6 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: '<portlet:namespace />selectFolder',
@@ -372,10 +371,6 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 	function <portlet:namespace />saveFileEntry() {
 		submitForm(document.<portlet:namespace />fm);
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />file);
-	</c:if>
 </aui:script>
 
 <%

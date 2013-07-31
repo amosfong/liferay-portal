@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.xml.XPath;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -178,13 +180,13 @@ public class JournalFeedLocalServiceImpl
 	}
 
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public void deleteFeed(JournalFeed feed)
 		throws PortalException, SystemException {
 
-		// Expando
+		// Feed
 
-		expandoValueLocalService.deleteValues(
-			JournalFeed.class.getName(), feed.getId());
+		journalFeedPersistence.remove(feed);
 
 		// Resources
 
@@ -192,9 +194,10 @@ public class JournalFeedLocalServiceImpl
 			feed.getCompanyId(), JournalFeed.class.getName(),
 			ResourceConstants.SCOPE_INDIVIDUAL, feed.getId());
 
-		// Feed
+		// Expando
 
-		journalFeedPersistence.remove(feed);
+		expandoValueLocalService.deleteValues(
+			JournalFeed.class.getName(), feed.getId());
 	}
 
 	@Override
@@ -203,7 +206,7 @@ public class JournalFeedLocalServiceImpl
 
 		JournalFeed feed = journalFeedPersistence.findByPrimaryKey(feedId);
 
-		deleteFeed(feed);
+		journalFeedLocalService.deleteFeed(feed);
 	}
 
 	@Override
@@ -212,7 +215,14 @@ public class JournalFeedLocalServiceImpl
 
 		JournalFeed feed = journalFeedPersistence.findByG_F(groupId, feedId);
 
-		deleteFeed(feed);
+		journalFeedLocalService.deleteFeed(feed);
+	}
+
+	@Override
+	public JournalFeed fetchFeed(long groupId, String feedId)
+		throws SystemException {
+
+		return journalFeedPersistence.fetchByG_F(groupId, feedId);
 	}
 
 	@Override

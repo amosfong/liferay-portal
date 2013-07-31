@@ -10,6 +10,8 @@
 
 	var isArray = Lang.isArray;
 	var arrayIndexOf = AArray.indexOf;
+	var prefix = AString.prefix;
+	var startsWith = AString.startsWith;
 
 	var EVENT_CLICK = 'click';
 
@@ -51,6 +53,8 @@
 	var SRC_HIDE_LINK = {
 		src: 'hideLink'
 	};
+
+	var STR_CHECKED = 'checked';
 
 	var Window = {
 		_map: {}
@@ -502,6 +506,32 @@
 			return Liferay.EDITORS && Liferay.EDITORS[editorImpl];
 		},
 
+		ns: function(namespace, obj) {
+			var instance = this;
+
+			var value;
+
+			var ns = instance._ns;
+
+			if (!Lang.isObject(obj)) {
+				value = ns(namespace, obj);
+			}
+			else {
+				value = {};
+
+				A.Object.each(
+					obj,
+					function(item, index, collection) {
+						index = ns(namespace, index);
+
+						value[index] = item;
+					}
+				);
+			}
+
+			return value;
+		},
+
 		openWindow: function(config, callback) {
 			config.openingWindow = window;
 
@@ -693,6 +723,20 @@
 			return str.replace(regex, A.bind('_unescapeHTML', Util, entitiesMap));
 		},
 
+		_defaultPreviewArticleFn: function(event) {
+			var instance = this;
+
+			event.preventDefault();
+
+			Liferay.Util.openWindow(
+				{
+					cache: false,
+					title: event.title,
+					uri: event.uri
+				}
+			);
+		},
+
 		_defaultSubmitFormFn: function(event) {
 			var form = event.form;
 
@@ -716,7 +760,7 @@
 				var action = event.action;
 				var singleSubmit = event.singleSubmit;
 
-				var inputs = form.all('input[type=button], input[type=reset], input[type=submit]');
+				var inputs = form.all('input[type=button], input[type=image], input[type=reset], input[type=submit]');
 
 				Util.disableFormButtons(inputs, form);
 
@@ -829,6 +873,18 @@
 			return editable;
 		},
 
+		_ns: A.cached(
+			function(namespace, str) {
+				var value = str;
+
+				if (!Lang.isUndefined(str) && !startsWith(str, namespace)) {
+					value = prefix(namespace, str);
+				}
+
+				return value;
+			}
+		),
+
 		_unescapeHTML: function(entities, match) {
 			return entities[match];
 		},
@@ -919,7 +975,7 @@
 			var checkbox = A.one(form[name]);
 
 			if (checkbox) {
-				checkbox.set('checked', checked);
+				checkbox.set(STR_CHECKED, checked);
 			}
 		},
 		['aui-base']
@@ -940,10 +996,10 @@
 
 			form = A.one(form);
 
-			form.all(selector).set('checked', A.one(allBox).get('checked'));
+			form.all(selector).set(STR_CHECKED, A.one(allBox).get(STR_CHECKED));
 
 			if (selectClassName) {
-				form.all(selectClassName).toggleClass('info', A.one(allBox).get('checked'));
+				form.all(selectClassName).toggleClass('info', A.one(allBox).get(STR_CHECKED));
 			}
 		},
 		['aui-base']
@@ -968,14 +1024,14 @@
 					if (!item.compareTo(allBox) && (arrayIndexOf(name, item.attr('name')) > -1)) {
 						totalBoxes++;
 
-						if (item.get('checked')) {
+						if (item.get(STR_CHECKED)) {
 							totalOn++;
 						}
 					}
 				}
 			);
 
-			allBox.set('checked', (totalBoxes == totalOn));
+			allBox.set(STR_CHECKED, (totalBoxes == totalOn));
 		},
 		['aui-base']
 	);
@@ -1144,7 +1200,7 @@
 			var toggleBox = A.one('#' + toggleBoxId);
 
 			if (checkBox && toggleBox) {
-				if (checkBox.get('checked') && checkDisabled) {
+				if (checkBox.get(STR_CHECKED) && checkDisabled) {
 					toggleBox.set('disabled', true);
 				}
 				else {
@@ -1274,7 +1330,14 @@
 
 			config = A.merge(defaultValues,	config);
 
-			var ddmURL = Liferay.PortletURL.createRenderURL();
+			var ddmURL;
+
+			if (config.basePortletURL) {
+				ddmURL = Liferay.PortletURL.createURL(config.basePortletURL);
+			}
+			else {
+				ddmURL = Liferay.PortletURL.createRenderURL();
+			}
 
 			ddmURL.setEscapeXML(false);
 
@@ -1748,12 +1811,12 @@
 	Liferay.provide(
 		Util,
 		'toggleBoxes',
-		function(checkBoxId, toggleBoxId, displayWhenUnchecked) {
+		function(checkBoxId, toggleBoxId, displayWhenUnchecked, toggleChildCheckboxes) {
 			var checkBox = A.one('#' + checkBoxId);
 			var toggleBox = A.one('#' + toggleBoxId);
 
 			if (checkBox && toggleBox) {
-				var checked = checkBox.get('checked');
+				var checked = checkBox.get(STR_CHECKED);
 
 				if (checked) {
 					toggleBox.show();
@@ -1770,6 +1833,12 @@
 					EVENT_CLICK,
 					function() {
 						toggleBox.toggle();
+
+						if (toggleChildCheckboxes) {
+							var childCheckboxes = toggleBox.all('input[type=checkbox]');
+
+							childCheckboxes.set(STR_CHECKED, checkBox.get(STR_CHECKED));
+						}
 					}
 				);
 			}
@@ -1789,8 +1858,8 @@
 
 			if (trigger) {
 				var hiddenClass = 'controls-hidden';
-				var iconHiddenClass = 'icon-remove';
-				var iconVisibleClass = 'icon-ok';
+				var iconHiddenClass = 'icon-eye-close';
+				var iconVisibleClass = 'icon-eye-open';
 				var visibleClass = 'controls-visible';
 				var currentClass = visibleClass;
 				var currentIconClass = iconVisibleClass;
@@ -1853,7 +1922,7 @@
 			var radioButton = A.one('#' + radioId);
 
 			if (radioButton) {
-				var checked = radioButton.get('checked');
+				var checked = radioButton.get(STR_CHECKED);
 
 				var showBoxes;
 
@@ -1920,12 +1989,31 @@
 
 	Liferay.provide(
 		Util,
+		'toggleSearchContainerButton',
+		function(buttonId, searchContainerId, form, ignoreFieldName) {
+			var searchContainer = A.one(searchContainerId);
+
+			if (searchContainer) {
+				searchContainer.delegate(
+					'change',
+					function() {
+						Liferay.Util.toggleDisabled(buttonId, !Liferay.Util.listCheckedExcept(form, ignoreFieldName));
+					},
+					'input[type=checkbox]'
+				);
+			}
+		},
+		['aui-base', 'liferay-util-list-fields']
+	);
+
+	Liferay.provide(
+		Util,
 		'updateCheckboxValue',
 		function(checkbox) {
 			checkbox = A.one(checkbox);
 
 			if (checkbox) {
-				var checked = checkbox.attr('checked');
+				var checked = checkbox.attr(STR_CHECKED);
 
 				var value = 'false';
 
@@ -1962,6 +2050,13 @@
 		'submitForm',
 		{
 			defaultFn: Util._defaultSubmitFormFn
+		}
+	);
+
+	Liferay.publish(
+		'previewArticle',
+		{
+			defaultFn: Util._defaultPreviewArticleFn
 		}
 	);
 
@@ -2018,6 +2113,13 @@
 	Util.Window = Window;
 
 	Liferay.Util = Util;
+
+	Liferay.STATUS_CODE = {
+		BAD_REQUEST: 400,
+		INTERNAL_SERVER_ERROR: 500,
+		OK: 200,
+		SC_DUPLICATE_FILE_EXCEPTION: 490
+	};
 
 	// 0-200: Theme Developer
 	// 200-400: Portlet Developer

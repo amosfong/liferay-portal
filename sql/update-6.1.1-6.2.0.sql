@@ -26,8 +26,8 @@ update BookmarksFolder set statusByUserId = userId;
 update BookmarksFolder set statusByUserName = userName;
 update BookmarksFolder set statusDate = modifiedDate;
 
-create table BTEntry (
-	btEntryId LONG not null primary key,
+create table BackgroundTask (
+	backgroundTaskId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
 	userId LONG,
@@ -40,7 +40,8 @@ create table BTEntry (
 	taskContext TEXT null,
 	completed BOOLEAN,
 	completionDate DATE null,
-	status INTEGER
+	status INTEGER,
+	statusMessage TEXT null
 );
 
 alter table Contact_ add classNameId LONG;
@@ -312,11 +313,13 @@ alter table DDMTemplate add smallImageURL STRING;
 update DDMTemplate set type_ = 'display' where type_ = 'list';
 update DDMTemplate set type_ = 'form' where type_ = 'detail';
 
+alter table DLFileEntry drop column versionUserId;
+alter table DLFileEntry drop column versionUserName;
+
 alter table DLFileEntry add classNameId LONG;
 alter table DLFileEntry add classPK LONG;
 alter table DLFileEntry add manualCheckInRequired BOOLEAN;
 
-alter table DLFileRank add uuid_ VARCHAR(75) null;
 alter table DLFileRank add active_ BOOLEAN;
 
 COMMIT_TRANSACTION;
@@ -345,6 +348,16 @@ update DLFolder set statusByUserId = userId;
 update DLFolder set statusByUserName = userName;
 update DLFolder set statusDate = modifiedDate;
 
+drop table DLSync;
+
+create table DLSyncEvent (
+	syncEventId LONG not null primary key,
+	modifiedDate LONG,
+	event VARCHAR(75) null,
+	type_ VARCHAR(75) null,
+	typePK LONG
+);
+
 alter table EmailAddress add uuid_ VARCHAR(75) null;
 
 alter table ExpandoRow add modifiedDate DATE null;
@@ -355,7 +368,14 @@ update ExpandoRow set modifiedDate = CURRENT_TIMESTAMP;
 
 alter table Group_ add uuid_ VARCHAR(75) null;
 alter table Group_ add treePath STRING null;
+alter table Group_ add manualMembership BOOLEAN;
+alter table Group_ add membershipRestriction INTEGER;
+alter table Group_ add remoteStagingGroupCount INTEGER;
 
+COMMIT_TRANSACTION;
+
+update Group_ set manualMembership = TRUE;
+update Group_ set membershipRestriction = 0;
 update Group_ set site = FALSE where name = 'Control Panel';
 update Group_ set site = TRUE where friendlyURL = '/global';
 
@@ -364,6 +384,10 @@ drop table Groups_Permissions;
 alter table Image drop column text_;
 
 alter table JournalArticle add folderId LONG;
+
+COMMIT_TRANSACTION;
+
+update JournalArticle set folderId = 0;
 
 create table JournalFolder (
 	uuid_ VARCHAR(75) null,
@@ -478,6 +502,9 @@ alter table PollsChoice add modifiedDate DATE null;
 alter table PollsVote add uuid_ VARCHAR(75) null;
 alter table PollsVote add groupId LONG;
 
+update Portlet set active_ = FALSE where portletId = "62";
+update Portlet set active_ = FALSE where portletId = "173";
+
 alter table RepositoryEntry add companyId LONG;
 alter table RepositoryEntry add userId LONG;
 alter table RepositoryEntry add userName VARCHAR(75) null;
@@ -523,7 +550,25 @@ create table SocialActivitySet (
 	classNameId LONG,
 	classPK LONG,
 	type_ INTEGER,
+	extraData STRING null,
 	activityCount INTEGER
+);
+
+create table SystemEvent (
+	systemEventId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	classNameId LONG,
+	classPK LONG,
+	classUuid VARCHAR(75) null,
+	referrerClassNameId LONG,
+	parentSystemEventId LONG,
+	systemEventSetKey LONG,
+	type_ INTEGER,
+	extraData TEXT null
 );
 
 create table TrashEntry (
@@ -558,6 +603,17 @@ alter table UserGroup add userId LONG;
 alter table UserGroup add userName VARCHAR(75) null;
 alter table UserGroup add createDate DATE null;
 alter table UserGroup add modifiedDate DATE null;
+
+create table UserNotificationDelivery (
+	userNotificationDeliveryId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	portletId VARCHAR(200) null,
+	classNameId LONG,
+	notificationType INTEGER,
+	deliveryType INTEGER,
+	deliver BOOLEAN
+);
 
 alter table UserNotificationEvent add delivered BOOLEAN;
 

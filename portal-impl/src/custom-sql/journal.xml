@@ -263,16 +263,23 @@
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalFolderFinder.findA_ByG_F">
 		<![CDATA[
 			SELECT
-				DISTINCT JournalArticle.folderId AS modelFolderId, JournalArticle.articleId as articleId, MAX(JournalArticle.version) AS version, 0 AS modelFolder
+				DISTINCT JournalArticle.folderId AS modelFolderId, JournalArticle.articleId as articleId, JournalArticle.version AS version, 0 AS modelFolder, JournalArticle.displayDate as displayDate, JournalArticle.modifiedDate as modifiedDate
 			FROM
-				JournalArticle
-			WHERE
-				(JournalArticle.groupId = ?) AND
-				(JournalArticle.classNameId = 0) AND
-				([$STATUS$])
-				[$ARTICLE_FOLDER_ID$]
-			GROUP BY
-				JournalArticle.folderId, JournalArticle.articleId
+				(
+					SELECT
+						MAX(JournalArticle.id_) AS id_
+					FROM
+						JournalArticle
+					WHERE
+						(JournalArticle.groupId = ?) AND
+						(JournalArticle.classNameId = 0) AND
+						([$STATUS$])
+						[$ARTICLE_FOLDER_ID$]
+					GROUP BY
+						JournalArticle.folderId, JournalArticle.articleId
+				) TEMP_TABLE
+				INNER JOIN
+					JournalArticle ON (TEMP_TABLE.id_ = JournalArticle.id_)
 		]]>
 	</sql>
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalFolderFinder.findByF_ByNoAssets">
@@ -295,99 +302,13 @@
 	<sql id="com.liferay.portlet.journal.service.persistence.JournalFolderFinder.findF_ByG_F">
 		<![CDATA[
 			SELECT
-				DISTINCT folderId AS modelFolderId, '' AS articleId, 0 AS version, 1 AS modelFolder
+				DISTINCT folderId AS modelFolderId, '' AS articleId, 0 AS version, 1 AS modelFolder, JournalFolder.createDate as displayDate, JournalFolder.modifiedDate as modifiedDate
 			FROM
 				JournalFolder
 			WHERE
 				(JournalFolder.groupId = ?) AND
 				([$STATUS$])
 				[$FOLDER_PARENT_FOLDER_ID$]
-		]]>
-	</sql>
-	<sql id="com.liferay.portlet.journal.service.persistence.JournalStructureFinder.countByC_G_S_N_D">
-		<![CDATA[
-			SELECT
-				COUNT(DISTINCT JournalStructure.structureId) AS COUNT_VALUE
-			FROM
-				JournalStructure
-			WHERE
-				(companyId = ?) AND
-				[$GROUP_ID$]
-				(
-					(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-				)
-		]]>
-	</sql>
-	<sql id="com.liferay.portlet.journal.service.persistence.JournalStructureFinder.findByC_G_S_N_D">
-		<![CDATA[
-			SELECT
-				{JournalStructure.*}
-			FROM
-				(
-					SELECT DISTINCT
-						id_
-					FROM
-						JournalStructure
-					WHERE
-						(companyId = ?) AND
-						[$GROUP_ID$]
-						(
-							(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-							(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-							(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-						)
-				) TEMP_TABLE
-				INNER JOIN
-					JournalStructure ON
-						(TEMP_TABLE.id_ = JournalStructure.id_)
-			ORDER BY
-				structureId ASC
-		]]>
-	</sql>
-	<sql id="com.liferay.portlet.journal.service.persistence.JournalTemplateFinder.countByC_G_T_S_N_D">
-		<![CDATA[
-			SELECT
-				COUNT(DISTINCT JournalTemplate.templateId) AS COUNT_VALUE
-			FROM
-				JournalTemplate
-			WHERE
-				(companyId = ?) AND
-				[$GROUP_ID$]
-				(
-					(templateId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-					(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-				)
-		]]>
-	</sql>
-	<sql id="com.liferay.portlet.journal.service.persistence.JournalTemplateFinder.findByC_G_T_S_N_D">
-		<![CDATA[
-			SELECT
-				{JournalTemplate.*}
-			FROM
-				(
-					SELECT DISTINCT
-						id_
-					FROM
-						JournalTemplate
-					WHERE
-						(companyId = ?) AND
-						[$GROUP_ID$]
-						(
-							(templateId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-							(structureId LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-							(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-							(lower(description) LIKE ? [$AND_OR_NULL_CHECK$])
-						)
-				) TEMP_TABLE
-				INNER JOIN
-					JournalTemplate ON
-						(TEMP_TABLE.id_ = JournalTemplate.id_)
-			ORDER BY
-				templateId ASC
 		]]>
 	</sql>
 </custom-sql>

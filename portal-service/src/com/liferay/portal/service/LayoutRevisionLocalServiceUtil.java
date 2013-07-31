@@ -167,6 +167,21 @@ public class LayoutRevisionLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portal.model.LayoutRevision fetchLayoutRevision(
 		long layoutRevisionId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -309,6 +324,12 @@ public class LayoutRevisionLocalServiceUtil {
 		return getService().fetchLastLayoutRevision(plid, head);
 	}
 
+	public static com.liferay.portal.model.LayoutRevision fetchLayoutRevision(
+		long layoutSetBranchId, boolean head, long plid)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchLayoutRevision(layoutSetBranchId, head, plid);
+	}
+
 	public static java.util.List<com.liferay.portal.model.LayoutRevision> getChildLayoutRevisions(
 		long layoutSetBranchId, long parentLayoutRevisionId, long plid)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -377,6 +398,15 @@ public class LayoutRevisionLocalServiceUtil {
 		long layoutSetBranchId, long plid, int status)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getLayoutRevisions(layoutSetBranchId, plid, status);
+	}
+
+	public static java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
+		long layoutSetBranchId, long plid, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getLayoutRevisions(layoutSetBranchId, plid, start, end,
+			orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(

@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link BookmarksEntryService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       BookmarksEntryService
+ * @author Brian Wing Shun Chan
+ * @see BookmarksEntryService
  * @generated
  */
 public class BookmarksEntryServiceWrapper implements BookmarksEntryService,
@@ -88,6 +88,12 @@ public class BookmarksEntryServiceWrapper implements BookmarksEntryService,
 	public int getEntriesCount(long groupId, long folderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _bookmarksEntryService.getEntriesCount(groupId, folderId);
+	}
+
+	@Override
+	public int getEntriesCount(long groupId, long folderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _bookmarksEntryService.getEntriesCount(groupId, folderId, status);
 	}
 
 	@Override

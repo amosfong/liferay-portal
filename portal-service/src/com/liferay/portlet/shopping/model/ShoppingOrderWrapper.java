@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.shopping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ShoppingOrder}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ShoppingOrder
+ * @author Brian Wing Shun Chan
+ * @see ShoppingOrder
  * @generated
  */
 public class ShoppingOrderWrapper implements ShoppingOrder,
@@ -1630,6 +1631,25 @@ public class ShoppingOrderWrapper implements ShoppingOrder,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_shoppingOrder.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ShoppingOrderWrapper)) {
+			return false;
+		}
+
+		ShoppingOrderWrapper shoppingOrderWrapper = (ShoppingOrderWrapper)obj;
+
+		if (Validator.equals(_shoppingOrder, shoppingOrderWrapper._shoppingOrder)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

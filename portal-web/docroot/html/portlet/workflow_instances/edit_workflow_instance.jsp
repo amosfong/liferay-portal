@@ -23,8 +23,6 @@ WorkflowInstance workflowInstance = (WorkflowInstance)request.getAttribute(WebKe
 
 Map<String, Serializable> workflowContext = workflowInstance.getWorkflowContext();
 
-long companyId = GetterUtil.getLong((String)workflowContext.get(WorkflowConstants.CONTEXT_COMPANY_ID));
-long groupId = GetterUtil.getLong((String)workflowContext.get(WorkflowConstants.CONTEXT_GROUP_ID));
 String className = (String)workflowContext.get(WorkflowConstants.CONTEXT_ENTRY_CLASS_NAME);
 long classPK = GetterUtil.getLong((String)workflowContext.get(WorkflowConstants.CONTEXT_ENTRY_CLASS_PK));
 
@@ -246,7 +244,6 @@ request.setAttribute(WebKeys.WORKFLOW_ASSET_PREVIEW, Boolean.TRUE);
 					formName="fm1"
 					ratingsEnabled="<%= false %>"
 					redirect="<%= currentURL %>"
-					subject="<%= workflowInstance.getWorkflowDefinitionName() %>"
 					userId="<%= user.getUserId() %>"
 				/>
 			</liferay-ui:panel>

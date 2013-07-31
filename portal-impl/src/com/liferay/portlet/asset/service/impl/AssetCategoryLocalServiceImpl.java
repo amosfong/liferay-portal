@@ -73,7 +73,7 @@ public class AssetCategoryLocalServiceImpl
 		User user = userPersistence.findByPrimaryKey(userId);
 		long groupId = serviceContext.getScopeGroupId();
 
-		String name = titleMap.get(LocaleUtil.getDefault());
+		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
 		name = ModelHintsUtil.trimString(
 			AssetCategory.class.getName(), "name", name);
@@ -157,7 +157,7 @@ public class AssetCategoryLocalServiceImpl
 
 		Map<Locale, String> titleMap = new HashMap<Locale, String>();
 
-		Locale locale = LocaleUtil.getDefault();
+		Locale locale = LocaleUtil.getSiteDefault();
 
 		titleMap.put(locale, title);
 
@@ -471,7 +471,7 @@ public class AssetCategoryLocalServiceImpl
 
 		// Category
 
-		String name = titleMap.get(LocaleUtil.getDefault());
+		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
 		name = ModelHintsUtil.trimString(
 			AssetCategory.class.getName(), "name", name);
@@ -533,19 +533,27 @@ public class AssetCategoryLocalServiceImpl
 
 			if (Validator.isNotNull(key)) {
 				boolean addCategoryProperty = true;
+				boolean updateCategoryProperty = false;
+
+				AssetCategoryProperty oldCategoryProperty = null;
 
 				Iterator<AssetCategoryProperty> iterator =
 					oldCategoryProperties.iterator();
 
 				while (iterator.hasNext()) {
-					AssetCategoryProperty oldCategoryProperty = iterator.next();
+					oldCategoryProperty = iterator.next();
 
 					if ((userId == oldCategoryProperty.getUserId()) &&
 						(categoryId == oldCategoryProperty.getCategoryId()) &&
-						key.equals(oldCategoryProperty.getKey()) &&
-						value.equals(oldCategoryProperty.getValue())) {
+						key.equals(oldCategoryProperty.getKey())) {
 
 						addCategoryProperty = false;
+
+						if (!value.equals(oldCategoryProperty.getValue())) {
+							updateCategoryProperty = true;
+
+							oldCategoryProperty.setValue(value);
+						}
 
 						iterator.remove();
 
@@ -556,6 +564,10 @@ public class AssetCategoryLocalServiceImpl
 				if (addCategoryProperty) {
 					assetCategoryPropertyLocalService.addCategoryProperty(
 						userId, categoryId, key, value);
+				}
+				else if (updateCategoryProperty) {
+					assetCategoryPropertyLocalService.
+						updateAssetCategoryProperty(oldCategoryProperty);
 				}
 			}
 		}

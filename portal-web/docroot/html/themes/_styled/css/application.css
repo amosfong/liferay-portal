@@ -97,6 +97,10 @@
 		overflow: visible;
 		padding: 5px;
 		position: relative;
+
+		.lfr-tag-selector-input {
+			margin-bottom: 0;
+		}
 	}
 }
 
@@ -355,6 +359,22 @@
 
 /* ---------- Tree View ---------- */
 
+.tree-node-content {
+	.tree-hitarea {
+		color: #999;
+		font-size: 10px;
+		padding-right: 6px;
+	}
+
+	.tree-label {
+		margin-left: 5px;
+	}
+
+	.tree-node-hidden-hitarea {
+		visibility: hidden;
+	}
+}
+
 .tree-node-selected .tree-label {
 	background-color: transparent;
 	font-weight: bold;
@@ -523,5 +543,12 @@
 
 	.paginator-current-page {
 		color: #FFF;
+	}
+}
+
+.ios.mobile {
+	.modal-content .dialog-iframe-bd {
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 }

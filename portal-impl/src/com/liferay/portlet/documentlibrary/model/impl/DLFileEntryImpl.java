@@ -16,8 +16,10 @@ package com.liferay.portlet.documentlibrary.model.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -187,33 +189,12 @@ public class DLFileEntryImpl extends DLFileEntryBaseImpl {
 	}
 
 	@Override
-	public DLFolder getFolder() {
-		DLFolder dlFolder = new DLFolderImpl();
-
+	public DLFolder getFolder() throws PortalException, SystemException {
 		if (getFolderId() <= 0) {
-			return dlFolder;
+			return new DLFolderImpl();
 		}
 
-		try {
-			dlFolder = DLFolderLocalServiceUtil.getFolder(getFolderId());
-		}
-		catch (NoSuchFolderException nsfe) {
-			try {
-				DLFileVersion dlFileVersion = getLatestFileVersion(true);
-
-				if (!dlFileVersion.isInTrash()) {
-					_log.error(nsfe, nsfe);
-				}
-			}
-			catch (Exception e) {
-				_log.error(e, e);
-			}
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-
-		return dlFolder;
+		return DLFolderLocalServiceUtil.getFolder(getFolderId());
 	}
 
 	@Override
@@ -269,14 +250,85 @@ public class DLFileEntryImpl extends DLFileEntryBaseImpl {
 	}
 
 	@Override
-	public DLFolder getTrashContainer() {
-		DLFolder dlFolder = getFolder();
+	public StagedModelType getStagedModelType() {
+		return new StagedModelType(FileEntry.class);
+	}
+
+	@Override
+	public DLFolder getTrashContainer()
+		throws PortalException, SystemException {
+
+		DLFolder dlFolder = null;
+
+		try {
+			dlFolder = getFolder();
+		}
+		catch (NoSuchFolderException nsfe) {
+			return null;
+		}
 
 		if (dlFolder.isInTrash()) {
 			return dlFolder;
 		}
 
 		return dlFolder.getTrashContainer();
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserId()}
+	 */
+	@Override
+	public long getVersionUserId() {
+		long versionUserId = 0;
+
+		try {
+			DLFileVersion dlFileVersion = getFileVersion();
+
+			versionUserId = dlFileVersion.getUserId();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		return versionUserId;
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserName()}
+	 */
+	@Override
+	public String getVersionUserName() {
+		String versionUserName = StringPool.BLANK;
+
+		try {
+			DLFileVersion dlFileVersion = getFileVersion();
+
+			versionUserName = dlFileVersion.getUserName();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		return versionUserName;
+	}
+
+	/**
+	 * @deprecated As of 6.2.0, replaced by {@link DLFileVersion#getUserUuid()}
+	 */
+	@Override
+	public String getVersionUserUuid() {
+		String versionUserUuid = StringPool.BLANK;
+
+		try {
+			DLFileVersion dlFileVersion = getFileVersion();
+
+			versionUserUuid = dlFileVersion.getUserUuid();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		return versionUserUuid;
 	}
 
 	@Override
@@ -323,7 +375,9 @@ public class DLFileEntryImpl extends DLFileEntryBaseImpl {
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws PortalException, SystemException {
+
 		if (getTrashContainer() != null) {
 			return true;
 		}

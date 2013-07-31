@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link JournalArticleService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalArticleService
+ * @author Brian Wing Shun Chan
+ * @see JournalArticleService
  * @generated
  */
 public class JournalArticleServiceWrapper implements JournalArticleService,
@@ -757,6 +757,12 @@ public class JournalArticleServiceWrapper implements JournalArticleService,
 	public int getArticlesCount(long groupId, long folderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleService.getArticlesCount(groupId, folderId);
+	}
+
+	@Override
+	public int getArticlesCount(long groupId, long folderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleService.getArticlesCount(groupId, folderId, status);
 	}
 
 	/**

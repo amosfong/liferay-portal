@@ -38,9 +38,16 @@ import javax.portlet.PortletRequest;
  *
  * @author Alexander Chow
  * @author Zsolt Berentey
- * @see    {@link TrashHandler}
+ * @see    TrashHandler
  */
 public abstract class BaseTrashHandler implements TrashHandler {
+
+	@Override
+	@SuppressWarnings("unused")
+	public void checkDuplicateEntry(
+			long classPK, long containerModelId, String newName)
+		throws PortalException, SystemException {
+	}
 
 	@Override
 	@SuppressWarnings("unused")

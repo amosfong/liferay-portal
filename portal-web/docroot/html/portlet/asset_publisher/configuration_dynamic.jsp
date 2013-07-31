@@ -122,7 +122,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 
 						Long[] assetAvailableClassTypeIds = assetAvailableClassTypeIdsSet.toArray(new Long[assetAvailableClassTypeIdsSet.size()]);
 
-						Long[] assetSelectedClassTypeIds = AssetPublisherUtil.getClassTypeIds(preferences, className, assetAvailableClassTypeIds);
+						Long[] assetSelectedClassTypeIds = AssetPublisherUtil.getClassTypeIds(portletPreferences, className, assetAvailableClassTypeIds);
 
 						// Left list
 
@@ -138,7 +138,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 
 						List<KeyValuePair> subtypesRightList = new ArrayList<KeyValuePair>();
 
-						boolean anyAssetSubtype = GetterUtil.getBoolean(preferences.getValue("anyClassType" + className, Boolean.TRUE.toString()));
+						boolean anyAssetSubtype = GetterUtil.getBoolean(portletPreferences.getValue("anyClassType" + className, Boolean.TRUE.toString()));
 					%>
 
 						<div class='asset-subtype <%= (assetSelectedClassTypeIds.length < 1) ? StringPool.BLANK : "hide" %>' id="<portlet:namespace /><%= className %>Options">
@@ -234,10 +234,28 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 			</liferay-ui:panel>
 
 			<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="assetPublisherQueryRulesPanelContainer" persistState="<%= true %>" title="filter[action]">
-				<liferay-ui:asset-tags-error />
-
 				<div id="<portlet:namespace />queryRules">
 					<aui:fieldset label="displayed-assets-must-match-these-rules">
+						<liferay-ui:asset-tags-error />
+
+						<%
+						DuplicateQueryRuleException dqre = null;
+						%>
+
+						<liferay-ui:error exception="<%= DuplicateQueryRuleException.class %>">
+
+							<%
+							dqre = (DuplicateQueryRuleException)errorException;
+
+							String name = dqre.getName();
+							%>
+
+							<liferay-util:buffer var="messageArgument">
+								<em>(<liferay-ui:message key='<%= dqre.isContains() ? "contains" : "does-not-contain" %>' /> - <liferay-ui:message key='<%= dqre.isAndOperator() ? "all" : "any" %>' /> - <liferay-ui:message key='<%= name.equals(("assetTags")) ? "tags" : "categories" %>' />)</em>
+							</liferay-util:buffer>
+
+							<liferay-ui:message arguments="<%= messageArgument %>" key="only-one-rule-with-the-combination-x-is-supported" translateArguments="<%= false %>" />
+						</liferay-ui:error>
 
 						<%
 						String queryLogicIndexesParam = ParamUtil.getString(request, "queryLogicIndexes");
@@ -251,7 +269,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 							queryLogicIndexes = new int[0];
 
 							for (int i = 0; true; i++) {
-								String queryValues = PrefsParamUtil.getString(preferences, request, "queryValues" + i);
+								String queryValues = PrefsParamUtil.getString(portletPreferences, request, "queryValues" + i);
 
 								if (Validator.isNull(queryValues)) {
 									break;
@@ -268,7 +286,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 						int index = 0;
 
 						for (int queryLogicIndex : queryLogicIndexes) {
-							String queryValues = StringUtil.merge(preferences.getValues("queryValues" + queryLogicIndex , new String[0]));
+							String queryValues = StringUtil.merge(portletPreferences.getValues("queryValues" + queryLogicIndex , new String[0]));
 							String tagNames = ParamUtil.getString(request, "queryTagNames" + queryLogicIndex, queryValues);
 							String categoryIds = ParamUtil.getString(request, "queryCategoryIds" + queryLogicIndex, queryValues);
 
@@ -276,9 +294,23 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 								request.setAttribute("configuration.jsp-categorizableGroupIds", _getCategorizableGroupIds(groupIds));
 								request.setAttribute("configuration.jsp-index", String.valueOf(index));
 								request.setAttribute("configuration.jsp-queryLogicIndex", String.valueOf(queryLogicIndex));
+
+								String cssClass = StringPool.BLANK;
+
+								if (dqre != null) {
+									boolean queryContains = PrefsParamUtil.getBoolean(portletPreferences, request, "queryContains" + queryLogicIndex, true);
+									boolean queryAndOperator = PrefsParamUtil.getBoolean(portletPreferences, request, "queryAndOperator" + queryLogicIndex);
+									String queryName = PrefsParamUtil.getString(portletPreferences, request, "queryName" + queryLogicIndex, "assetTags");
+
+									String dqreQueryName = dqre.getName();
+
+									if ((dqre.isContains() == queryContains) && (dqre.isAndOperator() == queryAndOperator) && dqreQueryName.equals(queryName)) {
+										cssClass = "asset-query-rule-error";
+									}
+								}
 						%>
 
-								<div class="lfr-form-row">
+								<div class="lfr-form-row <%= cssClass %>">
 									<div class="row-fields">
 										<liferay-util:include page="/html/portlet/asset_publisher/edit_query_rule.jsp" />
 									</div>
@@ -653,11 +685,11 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 	sourcePanel.delegate(
 		'click',
 		function(event) {
-			var assetSubtypeFieldsPopupNodes = A.all('.asset-subtypefields-popup .button-input');
+			var assetSubtypeFieldsPopupNodes = A.all('.asset-subtypefields-popup .btn');
 
 			Liferay.Util.toggleDisabled(assetSubtypeFieldsPopupNodes, !event.target.attr('checked'));
 		},
-		'.asset-subtypefields-wrapper-enable .field-input'
+		'.asset-subtypefields-wrapper-enable .field'
 	);
 
 	Liferay.after(
@@ -677,7 +709,6 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 600
 					},
 					eventName: '<portlet:namespace />selectDDMStructureField',

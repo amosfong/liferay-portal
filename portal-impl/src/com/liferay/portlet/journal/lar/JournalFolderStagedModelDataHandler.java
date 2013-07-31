@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -24,7 +26,6 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.model.JournalFolderConstants;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
-import com.liferay.portlet.journal.service.persistence.JournalFolderUtil;
 
 import java.util.Map;
 
@@ -35,6 +36,20 @@ public class JournalFolderStagedModelDataHandler
 	extends BaseStagedModelDataHandler<JournalFolder> {
 
 	public static final String[] CLASS_NAMES = {JournalFolder.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		JournalFolder folder =
+			JournalFolderLocalServiceUtil.fetchJournalFolderByUuidAndGroupId(
+				uuid, groupId);
+
+		if (folder != null) {
+			JournalFolderLocalServiceUtil.deleteFolder(folder);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -101,8 +116,10 @@ public class JournalFolderStagedModelDataHandler
 		long groupId = portletDataContext.getScopeGroupId();
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			JournalFolder existingFolder = JournalFolderUtil.fetchByUUID_G(
-				folder.getUuid(), groupId);
+			JournalFolder existingFolder =
+				JournalFolderLocalServiceUtil.
+					fetchJournalFolderByUuidAndGroupId(
+						folder.getUuid(), groupId);
 
 			if (existingFolder == null) {
 				serviceContext.setUuid(folder.getUuid());

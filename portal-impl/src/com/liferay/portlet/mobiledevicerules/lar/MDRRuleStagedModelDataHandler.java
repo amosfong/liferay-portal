@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.mobiledevicerules.lar;
 
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -25,7 +26,6 @@ import com.liferay.portlet.mobiledevicerules.model.MDRRule;
 import com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleGroupLocalServiceUtil;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil;
-import com.liferay.portlet.mobiledevicerules.service.persistence.MDRRuleUtil;
 
 import java.util.Map;
 
@@ -36,6 +36,19 @@ public class MDRRuleStagedModelDataHandler
 	extends BaseStagedModelDataHandler<MDRRule> {
 
 	public static final String[] CLASS_NAMES = {MDRRule.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws SystemException {
+
+		MDRRule rule = MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
+			uuid, groupId);
+
+		if (rule != null) {
+			MDRRuleLocalServiceUtil.deleteRule(rule);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -96,8 +109,9 @@ public class MDRRuleStagedModelDataHandler
 		MDRRule importedRule = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			MDRRule existingRule = MDRRuleUtil.fetchByUUID_G(
-				rule.getUuid(), portletDataContext.getScopeGroupId());
+			MDRRule existingRule =
+				MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
+					rule.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingRule == null) {
 				serviceContext.setUuid(rule.getUuid());

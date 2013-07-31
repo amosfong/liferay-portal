@@ -17,6 +17,8 @@
 <%@ include file="/html/portlet/dockbar/init.jsp" %>
 
 <%
+String panelContainerId = ParamUtil.getString(request, "panelContainerId");
+
 PortletCategory portletCategory = (PortletCategory)request.getAttribute(WebKeys.PORTLET_CATEGORY);
 
 int portletCategoryIndex = GetterUtil.getInteger((String)request.getAttribute(WebKeys.PORTLET_CATEGORY_INDEX));
@@ -77,7 +79,7 @@ if (!categories.isEmpty() || !portlets.isEmpty()) {
 %>
 
 	<div class="lfr-add-content">
-		<liferay-ui:panel collapsible="<%= layout.isTypePortlet() %>" cssClass="lfr-content-category panel-page-category unstyled" defaultState="closed" extended="<%= true %>" id="<%= panelId %>" persistState="<%= true %>" title="<%= title %>">
+		<liferay-ui:panel collapsible="<%= layout.isTypePortlet() %>" cssClass="lfr-content-category panel-page-category unstyled" defaultState="closed" extended="<%= true %>" id="<%= panelId %>" parentId="<%= panelContainerId %>" persistState="<%= true %>" title="<%= title %>">
 
 			<aui:nav cssClass="nav-list">
 
@@ -88,7 +90,9 @@ if (!categories.isEmpty() || !portlets.isEmpty()) {
 					request.setAttribute(WebKeys.PORTLET_CATEGORY_PATH, newCategoryPath);
 				%>
 
-					<liferay-util:include page="/html/portlet/dockbar/view_category.jsp" />
+					<liferay-util:include page="/html/portlet/dockbar/view_category.jsp">
+						<liferay-util:param name="panelContainerId" value="<%= panelContainerId %>" />
+					</liferay-util:include>
 
 				<%
 					request.setAttribute(WebKeys.PORTLET_CATEGORY_PATH, oldCategoryPath);
@@ -133,19 +137,24 @@ if (!categories.isEmpty() || !portlets.isEmpty()) {
 							data.put("search", divId.toString().replace(':', '-'));
 							data.put("title", PortalUtil.getPortletTitle(portlet, application, locale));
 
-							String cssClass = "lfr-content-item";
+							String cssClass = "drag-content-item";
 
 							if (portletLocked) {
 								cssClass += " lfr-portlet-used";
 							}
 							%>
 
-							<aui:nav-item cssClass="<%= cssClass %>"
-								data="<%= data %>"
-								href=""
-								iconClass='<%= portletInstanceable ? "icon-th-large" : "icon-stop" %>'
-								label="<%= PortalUtil.getPortletTitle(portlet, application, locale) %>"
-							>
+							<aui:nav-item cssClass="lfr-content-item" href="">
+								<span <%= AUIUtil.buildData(data) %> class="<%= cssClass %>">
+									<icon class="<%= portletInstanceable ? "icon-th-large" : "icon-stop" %>"></icon>
+
+									<liferay-ui:message key="<%= PortalUtil.getPortletTitle(portlet, application, locale) %>" />
+								</span>
+
+								<%
+								data.remove("draggable");
+								%>
+
 								<span <%= AUIUtil.buildData(data) %> class='add-content-item <%= portletLocked ? "lfr-portlet-used" : StringPool.BLANK %>'>
 									<liferay-ui:message key="add" />
 								</span>

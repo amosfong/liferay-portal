@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.calendar.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link CalEvent}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       CalEvent
+ * @author Brian Wing Shun Chan
+ * @see CalEvent
  * @generated
  */
 public class CalEventWrapper implements CalEvent, ModelWrapper<CalEvent> {
@@ -861,6 +863,30 @@ public class CalEventWrapper implements CalEvent, ModelWrapper<CalEvent> {
 	public void setRecurrenceObj(
 		com.liferay.portal.kernel.cal.TZSRecurrence recurrenceObj) {
 		_calEvent.setRecurrenceObj(recurrenceObj);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof CalEventWrapper)) {
+			return false;
+		}
+
+		CalEventWrapper calEventWrapper = (CalEventWrapper)obj;
+
+		if (Validator.equals(_calEvent, calEventWrapper._calEvent)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _calEvent.getStagedModelType();
 	}
 
 	/**

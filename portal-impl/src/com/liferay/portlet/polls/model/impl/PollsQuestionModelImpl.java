@@ -18,6 +18,7 @@ import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -488,7 +489,7 @@ public class PollsQuestionModelImpl extends BaseModelImpl<PollsQuestion>
 
 	@Override
 	public void setTitle(String title, Locale locale) {
-		setTitle(title, locale, LocaleUtil.getDefault());
+		setTitle(title, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -513,7 +514,7 @@ public class PollsQuestionModelImpl extends BaseModelImpl<PollsQuestion>
 
 	@Override
 	public void setTitleMap(Map<Locale, String> titleMap) {
-		setTitleMap(titleMap, LocaleUtil.getDefault());
+		setTitleMap(titleMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -587,7 +588,7 @@ public class PollsQuestionModelImpl extends BaseModelImpl<PollsQuestion>
 
 	@Override
 	public void setDescription(String description, Locale locale) {
-		setDescription(description, locale, LocaleUtil.getDefault());
+		setDescription(description, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -614,7 +615,7 @@ public class PollsQuestionModelImpl extends BaseModelImpl<PollsQuestion>
 
 	@Override
 	public void setDescriptionMap(Map<Locale, String> descriptionMap) {
-		setDescriptionMap(descriptionMap, LocaleUtil.getDefault());
+		setDescriptionMap(descriptionMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -649,6 +650,12 @@ public class PollsQuestionModelImpl extends BaseModelImpl<PollsQuestion>
 	@Override
 	public void setLastVoteDate(Date lastVoteDate) {
 		_lastVoteDate = lastVoteDate;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return new StagedModelType(PortalUtil.getClassNameId(
+				PollsQuestion.class.getName()));
 	}
 
 	public long getColumnBitmask() {

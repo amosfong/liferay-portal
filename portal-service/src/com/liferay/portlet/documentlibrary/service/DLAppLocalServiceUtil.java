@@ -210,14 +210,12 @@ public class DLAppLocalServiceUtil {
 	* @param fileEntryId the primary key of the file entry
 	* @param serviceContext the service context to be applied
 	* @return the file rank
-	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.documentlibrary.model.DLFileRank addFileRank(
 		long repositoryId, long companyId, long userId, long fileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .addFileRank(repositoryId, companyId, userId, fileEntryId,
 			serviceContext);
@@ -555,6 +553,7 @@ public class DLAppLocalServiceUtil {
 	*
 	* @param userId the primary key of the user
 	* @param fileEntryId the primary key of the file entry
+	* @return the file entry
 	* @throws PortalException if the file entry could not be found
 	* @throws SystemException if a system exception occurred
 	*/
@@ -563,6 +562,15 @@ public class DLAppLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().moveFileEntryToTrash(userId, fileEntryId);
+	}
+
+	public static com.liferay.portal.kernel.repository.model.Folder moveFolder(
+		long userId, long folderId, long parentFolderId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .moveFolder(userId, folderId, parentFolderId, serviceContext);
 	}
 
 	/**
@@ -833,14 +841,12 @@ public class DLAppLocalServiceUtil {
 	* @param fileEntryId the primary key of the file rank's file entry
 	* @param serviceContext the service context to be applied
 	* @return the file rank
-	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.documentlibrary.model.DLFileRank updateFileRank(
 		long repositoryId, long companyId, long userId, long fileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .updateFileRank(repositoryId, companyId, userId,
 			fileEntryId, serviceContext);

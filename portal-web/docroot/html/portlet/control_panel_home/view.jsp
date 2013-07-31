@@ -20,14 +20,12 @@
 	<aui:row>
 
 		<%
-		for (String category : PortletCategoryKeys.ALL) {
+		Map<String, List<Portlet>> categoriesMap = PortalUtil.getControlPanelCategoriesMap(request);
+
+		for (String category : categoriesMap.keySet()) {
 			String title = LanguageUtil.get(pageContext, "category." + category);
 
-			List<Portlet> categoryPortlets = PortalUtil.getControlPanelPortlets(category, themeDisplay);
-
-			if (categoryPortlets.isEmpty()) {
-				continue;
-			}
+			List<Portlet> categoryPortlets = categoriesMap.get(category);
 		%>
 
 			<aui:col width="<%= 25 %>">
@@ -37,10 +35,6 @@
 
 						<%
 						for (Portlet categoryPortlet : categoryPortlets) {
-							if (!categoryPortlet.isActive() || categoryPortlet.isInstanceable()) {
-								continue;
-							}
-
 							String categoryPortletId = categoryPortlet.getPortletId();
 
 							String urlCategoryPortlet = HttpUtil.setParameter(themeDisplay.getURLControlPanel(), "p_p_id", categoryPortletId);
@@ -49,18 +43,14 @@
 						%>
 
 							<li>
-								<a href="<%= urlCategoryPortlet %>">
-									<c:choose>
-										<c:when test="<%= Validator.isNull(categoryPortlet.getIcon()) %>">
-											<liferay-ui:icon src='<%= themeDisplay.getPathContext() + "/html/icons/default.png" %>' />
-										</c:when>
-										<c:otherwise>
-											<liferay-portlet:icon-portlet portlet="<%= categoryPortlet %>" />
-										</c:otherwise>
-									</c:choose>
-
-									<%= PortalUtil.getPortletTitle(categoryPortlet, application, locale) %>
-								</a>
+								<liferay-ui:icon
+									cssClass="control-panel-home-link"
+									id='<%= "controlPanelPortletLink_" + categoryPortletId %>'
+									label="<%= true %>"
+									message="<%= PortalUtil.getPortletTitle(categoryPortlet, application, locale) %>"
+									src='<%= Validator.isNull(categoryPortlet.getIcon())? themeDisplay.getPathContext() + "/html/icons/default.png" : categoryPortlet.getStaticResourcePath().concat(categoryPortlet.getIcon()) %>'
+									url="<%= urlCategoryPortlet %>"
+								/>
 
 								<c:if test='<%= Validator.isNotNull(portletDescription) && !portletDescription.startsWith("javax.portlet.description") %>'>
 									<liferay-ui:icon-help message="<%= portletDescription %>" />
@@ -78,6 +68,11 @@
 		}
 		%>
 
+		<c:if test="<%= categoriesMap.isEmpty() %>">
+			<div class="alert alert-info">
+				<liferay-ui:message key="you-do-not-have-permission-to-access-any-control-panel-applications" />
+			</div>
+		</c:if>
 	</aui:row>
 	<aui:row>
 		<liferay-util:include page="/html/portlet/control_panel_home/view_actions.jsp" />

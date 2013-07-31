@@ -18,6 +18,7 @@ import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -742,7 +743,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setName(String name, Locale locale) {
-		setName(name, locale, LocaleUtil.getDefault());
+		setName(name, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -767,7 +768,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setNameMap(Map<Locale, String> nameMap) {
-		setNameMap(nameMap, LocaleUtil.getDefault());
+		setNameMap(nameMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -841,7 +842,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setTitle(String title, Locale locale) {
-		setTitle(title, locale, LocaleUtil.getDefault());
+		setTitle(title, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -866,7 +867,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setTitleMap(Map<Locale, String> titleMap) {
-		setTitleMap(titleMap, LocaleUtil.getDefault());
+		setTitleMap(titleMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -940,7 +941,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setDescription(String description, Locale locale) {
-		setDescription(description, locale, LocaleUtil.getDefault());
+		setDescription(description, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -967,7 +968,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setDescriptionMap(Map<Locale, String> descriptionMap) {
-		setDescriptionMap(descriptionMap, LocaleUtil.getDefault());
+		setDescriptionMap(descriptionMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -1043,7 +1044,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setKeywords(String keywords, Locale locale) {
-		setKeywords(keywords, locale, LocaleUtil.getDefault());
+		setKeywords(keywords, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -1068,7 +1069,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setKeywordsMap(Map<Locale, String> keywordsMap) {
-		setKeywordsMap(keywordsMap, LocaleUtil.getDefault());
+		setKeywordsMap(keywordsMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -1144,7 +1145,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setRobots(String robots, Locale locale) {
-		setRobots(robots, locale, LocaleUtil.getDefault());
+		setRobots(robots, locale, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -1169,7 +1170,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	@Override
 	public void setRobotsMap(Map<Locale, String> robotsMap) {
-		setRobotsMap(robotsMap, LocaleUtil.getDefault());
+		setRobotsMap(robotsMap, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -1465,6 +1466,12 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 
 	public String getOriginalSourcePrototypeLayoutUuid() {
 		return GetterUtil.getString(_originalSourcePrototypeLayoutUuid);
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return new StagedModelType(PortalUtil.getClassNameId(
+				Layout.class.getName()));
 	}
 
 	public long getColumnBitmask() {

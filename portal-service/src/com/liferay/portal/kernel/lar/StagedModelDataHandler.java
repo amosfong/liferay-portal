@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.StagedModel;
 
@@ -24,6 +26,10 @@ import com.liferay.portal.model.StagedModel;
  */
 public interface StagedModelDataHandler<T extends StagedModel> {
 
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException;
+
 	public void exportStagedModel(
 			PortletDataContext portletDataContext, T stagedModel)
 		throws PortletDataException;
@@ -32,13 +38,14 @@ public interface StagedModelDataHandler<T extends StagedModel> {
 
 	public String getDisplayName(T StagedModel);
 
-	public String getManifestSummaryKey(StagedModel stagedModel);
+	public int[] getExportableStatuses();
 
 	public void importStagedModel(
 			PortletDataContext portletDataContext, T stagedModel)
 		throws PortletDataException;
 
 	public boolean validateReference(
-		Element rootElement, Element referenceElement);
+		PortletDataContext portletDataContext, Element rootElement,
+		Element referenceElement);
 
 }

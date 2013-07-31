@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.journal.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link JournalArticleResource}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalArticleResource
+ * @author Brian Wing Shun Chan
+ * @see JournalArticleResource
  * @generated
  */
 public class JournalArticleResourceWrapper implements JournalArticleResource,
@@ -287,6 +288,26 @@ public class JournalArticleResourceWrapper implements JournalArticleResource,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_journalArticleResource.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof JournalArticleResourceWrapper)) {
+			return false;
+		}
+
+		JournalArticleResourceWrapper journalArticleResourceWrapper = (JournalArticleResourceWrapper)obj;
+
+		if (Validator.equals(_journalArticleResource,
+					journalArticleResourceWrapper._journalArticleResource)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

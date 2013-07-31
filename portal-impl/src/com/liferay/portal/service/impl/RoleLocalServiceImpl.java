@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.spring.aop.Skip;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.CharPool;
@@ -49,6 +50,7 @@ import com.liferay.portal.model.ResourceTypePermission;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Shard;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
@@ -318,7 +320,25 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 
 		String companyIdHexString = StringUtil.toHexString(companyId);
 
-		for (Role role : roleFinder.findBySystem(companyId)) {
+		List<Role> roles = null;
+
+		try {
+			roles = roleFinder.findBySystem(companyId);
+		}
+		catch (Exception e) {
+
+			// LPS-34324
+
+			runSQL("alter table Role_ add uuid_ VARCHAR(75) null");
+			runSQL("alter table Role_ add userId LONG");
+			runSQL("alter table Role_ add userName VARCHAR(75) null");
+			runSQL("alter table Role_ add createDate DATE null");
+			runSQL("alter table Role_ add modifiedDate DATE null");
+
+			roles = roleFinder.findBySystem(companyId);
+		}
+
+		for (Role role : roles) {
 			_systemRolesMap.put(
 				companyIdHexString.concat(role.getName()), role);
 		}
@@ -398,7 +418,7 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 
 		Role role = rolePersistence.findByPrimaryKey(roleId);
 
-		return deleteRole(role);
+		return roleLocalService.deleteRole(role);
 	}
 
 	/**
@@ -411,6 +431,9 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
 	public Role deleteRole(Role role) throws PortalException, SystemException {
 		if (PortalUtil.isSystemRole(role.getName()) &&
 			!CompanyThreadLocal.isDeleteInProcess()) {
@@ -473,8 +496,7 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 
 		// Expando
 
-		expandoValueLocalService.deleteValues(
-			Role.class.getName(), role.getRoleId());
+		expandoRowLocalService.deleteRows(role.getRoleId());
 
 		// Permission cache
 
@@ -509,13 +531,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		}
 
 		return roleLocalService.loadFetchRole(companyId, name);
-	}
-
-	@Override
-	public Role fetchRoleByUuidAndCompanyId(String uuid, long companyId)
-		throws SystemException {
-
-		return rolePersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**

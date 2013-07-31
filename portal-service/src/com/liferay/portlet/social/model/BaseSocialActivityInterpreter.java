@@ -76,15 +76,7 @@ public abstract class BaseSocialActivityInterpreter
 		SocialActivitySet activitySet, ServiceContext serviceContext) {
 
 		try {
-			List<SocialActivity> activities =
-				SocialActivityLocalServiceUtil.getActivitySetActivities(
-					activitySet.getActivitySetId(), 0, 1);
-
-			if (!activities.isEmpty()) {
-				SocialActivity activity = activities.get(0);
-
-				return doInterpret(activity, serviceContext);
-			}
+			return doInterpret(activitySet, serviceContext);
 		}
 		catch (Exception e) {
 			_log.error("Unable to interpret activity set", e);
@@ -181,6 +173,23 @@ public abstract class BaseSocialActivityInterpreter
 		return _deprecatedMarkerSocialActivityFeedEntry;
 	}
 
+	protected SocialActivityFeedEntry doInterpret(
+			SocialActivitySet activitySet, ServiceContext serviceContext)
+		throws Exception {
+
+		List<SocialActivity> activities =
+			SocialActivityLocalServiceUtil.getActivitySetActivities(
+				activitySet.getActivitySetId(), 0, 1);
+
+		if (!activities.isEmpty()) {
+			SocialActivity activity = activities.get(0);
+
+			return doInterpret(activity, serviceContext);
+		}
+
+		return null;
+	}
+
 	protected long getActivitySetId(long activityId) {
 		return 0;
 	}
@@ -196,7 +205,7 @@ public abstract class BaseSocialActivityInterpreter
 			SocialActivity activity, ServiceContext serviceContext)
 		throws Exception {
 
-		return StringPool.BLANK;
+		return activity.getExtraDataValue("title", serviceContext.getLocale());
 	}
 
 	protected String getGroupName(long groupId, ServiceContext serviceContext) {

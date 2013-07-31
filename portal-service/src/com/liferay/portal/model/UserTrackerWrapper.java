@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link UserTracker}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       UserTracker
+ * @author Brian Wing Shun Chan
+ * @see UserTracker
  * @generated
  */
 public class UserTrackerWrapper implements UserTracker,
@@ -439,6 +441,25 @@ public class UserTrackerWrapper implements UserTracker,
 	@Override
 	public java.util.List<com.liferay.portal.model.UserTrackerPath> getPaths() {
 		return _userTracker.getPaths();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof UserTrackerWrapper)) {
+			return false;
+		}
+
+		UserTrackerWrapper userTrackerWrapper = (UserTrackerWrapper)obj;
+
+		if (Validator.equals(_userTracker, userTrackerWrapper._userTracker)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

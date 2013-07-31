@@ -22,10 +22,10 @@ import com.browseengine.bobo.api.BrowseHit;
 import com.browseengine.bobo.api.BrowseRequest;
 import com.browseengine.bobo.api.BrowseResult;
 import com.browseengine.bobo.api.FacetAccessible;
-import com.browseengine.bobo.api.FacetSpec.FacetSortSpec;
 import com.browseengine.bobo.api.FacetSpec;
-import com.browseengine.bobo.facets.FacetHandler.TermCountSize;
+import com.browseengine.bobo.api.FacetSpec.FacetSortSpec;
 import com.browseengine.bobo.facets.FacetHandler;
+import com.browseengine.bobo.facets.FacetHandler.TermCountSize;
 import com.browseengine.bobo.facets.impl.MultiValueFacetHandler;
 import com.browseengine.bobo.facets.impl.RangeFacetHandler;
 import com.browseengine.bobo.facets.impl.SimpleFacetHandler;
@@ -297,9 +297,9 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 			throw new SearchException(e);
 		}
 		finally {
-			close(boboBrowser);
+			cleanUp(boboBrowser);
 
-			close(indexSearcher);
+			LuceneHelperUtil.cleanUp(indexSearcher);
 		}
 
 		if (_log.isDebugEnabled()) {
@@ -397,7 +397,7 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 			throw new SearchException(e);
 		}
 		finally {
-			close(indexSearcher);
+			LuceneHelperUtil.cleanUp(indexSearcher);
 		}
 
 		if (_log.isDebugEnabled()) {
@@ -409,7 +409,7 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 		return hits;
 	}
 
-	protected void close(BoboBrowser boboBrowser) {
+	protected void cleanUp(BoboBrowser boboBrowser) {
 		if (boboBrowser == null) {
 			return;
 		}
@@ -446,25 +446,6 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 					"Unable to clean up BoboIndexReader#_runtimeFacetDataMap",
 					e);
 			}
-		}
-	}
-
-	protected void close(IndexSearcher indexSearcher) {
-		if (indexSearcher == null) {
-			return;
-		}
-
-		try {
-			indexSearcher.close();
-
-			IndexReader indexReader = indexSearcher.getIndexReader();
-
-			if (indexReader != null) {
-				indexReader.close();
-			}
-		}
-		catch (IOException ioe) {
-			_log.error(ioe, ioe);
 		}
 	}
 
@@ -582,6 +563,20 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS)) {
 			start = 0;
 			end = length;
+		}
+
+		if ((length > 0) && (start >= length)) {
+			int delta = end - start;
+
+			int cur = start / delta;
+
+			start = 0;
+
+			if (cur > 0) {
+				start = (cur - 1) * delta;
+			}
+
+			end = start + delta;
 		}
 
 		Set<String> queryTerms = new HashSet<String>();

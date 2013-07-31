@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.softwarecatalog.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link SCProductVersion}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       SCProductVersion
+ * @author Brian Wing Shun Chan
+ * @see SCProductVersion
  * @generated
  */
 public class SCProductVersionWrapper implements SCProductVersion,
@@ -546,6 +547,26 @@ public class SCProductVersionWrapper implements SCProductVersion,
 	@Override
 	public com.liferay.portlet.softwarecatalog.model.SCProductEntry getProductEntry() {
 		return _scProductVersion.getProductEntry();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof SCProductVersionWrapper)) {
+			return false;
+		}
+
+		SCProductVersionWrapper scProductVersionWrapper = (SCProductVersionWrapper)obj;
+
+		if (Validator.equals(_scProductVersion,
+					scProductVersionWrapper._scProductVersion)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

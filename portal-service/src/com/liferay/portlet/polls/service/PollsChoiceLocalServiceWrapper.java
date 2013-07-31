@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link PollsChoiceLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       PollsChoiceLocalService
+ * @author Brian Wing Shun Chan
+ * @see PollsChoiceLocalService
  * @generated
  */
 public class PollsChoiceLocalServiceWrapper implements PollsChoiceLocalService,
@@ -166,11 +166,60 @@ public class PollsChoiceLocalServiceWrapper implements PollsChoiceLocalService,
 		return _pollsChoiceLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _pollsChoiceLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.polls.model.PollsChoice fetchPollsChoice(
 		long choiceId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _pollsChoiceLocalService.fetchPollsChoice(choiceId);
+	}
+
+	/**
+	* Returns the polls choice with the matching UUID and company.
+	*
+	* @param uuid the polls choice's UUID
+	* @param companyId the primary key of the company
+	* @return the matching polls choice, or <code>null</code> if a matching polls choice could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.polls.model.PollsChoice fetchPollsChoiceByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _pollsChoiceLocalService.fetchPollsChoiceByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the polls choice matching the UUID and group.
+	*
+	* @param uuid the polls choice's UUID
+	* @param groupId the primary key of the group
+	* @return the matching polls choice, or <code>null</code> if a matching polls choice could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.polls.model.PollsChoice fetchPollsChoiceByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _pollsChoiceLocalService.fetchPollsChoiceByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class PollsChoiceLocalServiceWrapper implements PollsChoiceLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _pollsChoiceLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the polls choice with the matching UUID and company.
+	*
+	* @param uuid the polls choice's UUID
+	* @param companyId the primary key of the company
+	* @return the matching polls choice
+	* @throws PortalException if a matching polls choice could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.polls.model.PollsChoice getPollsChoiceByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _pollsChoiceLocalService.getPollsChoiceByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

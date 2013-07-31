@@ -84,6 +84,8 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 <c:if test="<%= showAddContentButton && (scopeGroup != null) && (!scopeGroup.hasStagingGroup() || scopeGroup.isStagingGroup()) && !portletName.equals(PortletKeys.RELATED_ASSETS) %>">
 
 	<%
+	addPortletURLs = AssetUtil.getAddPortletURLs(liferayPortletRequest, liferayPortletResponse, classNameIds, classTypeIds, allAssetCategoryIds, allAssetTagNames, null);
+
 	for (long groupId : groupIds) {
 	%>
 
@@ -98,7 +100,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 </c:if>
 
 <div class="subscribe-action">
-	<c:if test="<%= !portletName.equals(PortletKeys.RECENT_CONTENT) && !portletName.equals(PortletKeys.RELATED_ASSETS) && PortletPermissionUtil.contains(permissionChecker, plid, portletDisplay.getId(), ActionKeys.SUBSCRIBE) && AssetPublisherUtil.getEmailAssetEntryAddedEnabled(preferences) %>">
+	<c:if test="<%= !portletName.equals(PortletKeys.RECENT_CONTENT) && !portletName.equals(PortletKeys.RELATED_ASSETS) && PortletPermissionUtil.contains(permissionChecker, plid, portletDisplay.getId(), ActionKeys.SUBSCRIBE) && AssetPublisherUtil.getEmailAssetEntryAddedEnabled(portletPreferences) %>">
 		<c:choose>
 			<c:when test="<%= AssetPublisherUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), themeDisplay.getPlid(), portletDisplay.getId()) %>">
 				<portlet:actionURL var="unsubscribeURL">
@@ -128,6 +130,14 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 			</c:otherwise>
 		</c:choose>
 	</c:if>
+
+	<c:if test="<%= enableRSS %>">
+		<liferay-portlet:resourceURL varImpl="rssURL">
+			<portlet:param name="struts_action" value="/asset_publisher/rss" />
+		</liferay-portlet:resourceURL>
+
+		<liferay-ui:rss resourceURL="<%= rssURL %>" />
+	</c:if>
 </div>
 
 <%
@@ -149,7 +159,7 @@ if (!paginationType.equals("none")) {
 </c:if>
 
 <%
-long portletDisplayDDMTemplateId = PortletDisplayTemplateUtil.getPortletDisplayTemplateDDMTemplateId(themeDisplay, displayStyle);
+long portletDisplayDDMTemplateId = PortletDisplayTemplateUtil.getPortletDisplayTemplateDDMTemplateId(displayStyleGroupId, displayStyle);
 
 Map<String, Object> contextObjects = new HashMap<String, Object>();
 
@@ -167,16 +177,6 @@ contextObjects.put(PortletDisplayTemplateConstants.ASSET_PUBLISHER_HELPER, Asset
 
 <c:if test='<%= !paginationType.equals("none") && (searchContainer.getTotal() > searchContainer.getResults().size()) %>'>
 	<liferay-ui:search-paginator searchContainer="<%= searchContainer %>" type="<%= paginationType %>" />
-</c:if>
-
-<c:if test="<%= enableRSS %>">
-	<liferay-portlet:resourceURL varImpl="rssURL">
-		<portlet:param name="struts_action" value="/asset_publisher/rss" />
-	</liferay-portlet:resourceURL>
-
-	<div class="subscribe">
-		<liferay-ui:rss resourceURL="<%= rssURL %>" />
-	</div>
 </c:if>
 
 <%!

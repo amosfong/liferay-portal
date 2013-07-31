@@ -60,7 +60,7 @@ portletURL.setParameter("struts_action", "/message_boards/view");
 
 			<aui:nav-item cssClass='<%= topLink.equals(label) ? "active" : StringPool.BLANK %>' href="<%= portletURL.toString() %>" label="<%= label %>" selected="<%= topLink.equals(label) %>" />
 
-			<c:if test="<%= MBUtil.getEmailMessageAddedEnabled(preferences) || MBUtil.getEmailMessageUpdatedEnabled(preferences) %>">
+			<c:if test="<%= MBUtil.getEmailMessageAddedEnabled(portletPreferences) || MBUtil.getEmailMessageUpdatedEnabled(portletPreferences) %>">
 
 				<%
 				label = "my-subscriptions";
@@ -116,8 +116,14 @@ portletURL.setParameter("struts_action", "/message_boards/view");
 
 		<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook() %>">
 			<aui:script>
-				Liferay.Util.focusFormField(document.<portlet:namespace />searchFm.<portlet:namespace />keywords);
+				Liferay.Util.focusFormField(document.getElementById('<portlet:namespace />keywords1'));
 			</aui:script>
 		</c:if>
 	</c:if>
 </aui:nav-bar>
+
+<c:if test="<%= layout.isTypeControlPanel() %>">
+	<div id="breadcrumb">
+		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+	</div>
+</c:if>

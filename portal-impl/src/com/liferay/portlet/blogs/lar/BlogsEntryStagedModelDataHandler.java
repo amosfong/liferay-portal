@@ -14,23 +14,23 @@
 
 package com.liferay.portlet.blogs.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
-import com.liferay.portal.kernel.lar.ExportImportUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Image;
+import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.persistence.ImageUtil;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
-import com.liferay.portlet.blogs.service.persistence.BlogsEntryUtil;
 
 import java.io.InputStream;
 
@@ -43,6 +43,20 @@ public class BlogsEntryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<BlogsEntry> {
 
 	public static final String[] CLASS_NAMES = {BlogsEntry.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		BlogsEntry entry =
+			BlogsEntryLocalServiceUtil.fetchBlogsEntryByUuidAndGroupId(
+				uuid, groupId);
+
+		if (entry != null) {
+			BlogsEntryLocalServiceUtil.deleteEntry(entry);
+		}
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -59,19 +73,15 @@ public class BlogsEntryStagedModelDataHandler
 			PortletDataContext portletDataContext, BlogsEntry entry)
 		throws Exception {
 
-		if (!entry.isApproved() && !entry.isInTrash()) {
-			return;
-		}
-
 		Element entryElement = portletDataContext.getExportDataElement(entry);
 
 		if (entry.isSmallImage()) {
-			Image smallImage = ImageUtil.fetchByPrimaryKey(
+			Image smallImage = ImageLocalServiceUtil.fetchImage(
 				entry.getSmallImageId());
 
 			if (Validator.isNotNull(entry.getSmallImageURL())) {
 				String smallImageURL =
-					ExportImportUtil.replaceExportContentReferences(
+					ExportImportHelperUtil.replaceExportContentReferences(
 						portletDataContext, entry, entryElement,
 						entry.getSmallImageURL().concat(StringPool.SPACE),
 						true);
@@ -80,7 +90,8 @@ public class BlogsEntryStagedModelDataHandler
 			}
 			else if (smallImage != null) {
 				String smallImagePath = ExportImportPathUtil.getModelPath(
-					entry, smallImage.getImageId() + StringPool.PERIOD +
+					entry,
+					smallImage.getImageId() + StringPool.PERIOD +
 						smallImage.getType());
 
 				entryElement.addAttribute("small-image-path", smallImagePath);
@@ -92,10 +103,10 @@ public class BlogsEntryStagedModelDataHandler
 			}
 		}
 
-		String content = ExportImportUtil.replaceExportContentReferences(
+		String content = ExportImportHelperUtil.replaceExportContentReferences(
 			portletDataContext, entry, entryElement, entry.getContent(),
 			portletDataContext.getBooleanParameter(
-				BlogsPortletDataHandler.NAMESPACE, "embedded-assets"));
+				BlogsPortletDataHandler.NAMESPACE, "referenced-content"));
 
 		entry.setContent(content);
 
@@ -114,10 +125,10 @@ public class BlogsEntryStagedModelDataHandler
 		Element entryElement =
 			portletDataContext.getImportDataStagedModelElement(entry);
 
-		String content = ExportImportUtil.replaceImportContentReferences(
+		String content = ExportImportHelperUtil.replaceImportContentReferences(
 			portletDataContext, entryElement, entry.getContent(),
 			portletDataContext.getBooleanParameter(
-				BlogsPortletDataHandler.NAMESPACE, "embedded-assets"));
+				BlogsPortletDataHandler.NAMESPACE, "referenced-content"));
 
 		entry.setContent(content);
 
@@ -138,7 +149,6 @@ public class BlogsEntryStagedModelDataHandler
 		boolean allowPingbacks = entry.isAllowPingbacks();
 		boolean allowTrackbacks = entry.isAllowTrackbacks();
 		String[] trackbacks = StringUtil.split(entry.getTrackbacks());
-		int status = entry.getStatus();
 
 		String smallImageFileName = null;
 		InputStream smallImageInputStream = null;
@@ -150,7 +160,7 @@ public class BlogsEntryStagedModelDataHandler
 
 				if (Validator.isNotNull(entry.getSmallImageURL())) {
 					String smallImageURL =
-						ExportImportUtil.replaceImportContentReferences(
+						ExportImportHelperUtil.replaceImportContentReferences(
 							portletDataContext, entryElement,
 							entry.getSmallImageURL(), true);
 
@@ -172,20 +182,14 @@ public class BlogsEntryStagedModelDataHandler
 				portletDataContext.createServiceContext(
 					entry, BlogsPortletDataHandler.NAMESPACE);
 
-			if ((status != WorkflowConstants.STATUS_APPROVED) &&
-				(status != WorkflowConstants.STATUS_IN_TRASH)) {
-
-				serviceContext.setWorkflowAction(
-					WorkflowConstants.ACTION_SAVE_DRAFT);
-			}
-
 			BlogsEntry importedEntry = null;
 
 			if (portletDataContext.isDataStrategyMirror()) {
 				serviceContext.setAttribute("urlTitle", entry.getUrlTitle());
 
-				BlogsEntry existingEntry = BlogsEntryUtil.fetchByUUID_G(
-					entry.getUuid(), portletDataContext.getScopeGroupId());
+				BlogsEntry existingEntry =
+					BlogsEntryLocalServiceUtil.fetchBlogsEntryByUuidAndGroupId(
+						entry.getUuid(), portletDataContext.getScopeGroupId());
 
 				if (existingEntry == null) {
 					serviceContext.setUuid(entry.getUuid());
@@ -198,12 +202,6 @@ public class BlogsEntryStagedModelDataHandler
 						entry.isSmallImage(), entry.getSmallImageURL(),
 						smallImageFileName, smallImageInputStream,
 						serviceContext);
-
-					if (status == WorkflowConstants.STATUS_IN_TRASH) {
-						importedEntry =
-							BlogsEntryLocalServiceUtil.moveEntryToTrash(
-								userId, importedEntry);
-					}
 				}
 				else {
 					importedEntry = BlogsEntryLocalServiceUtil.updateEntry(

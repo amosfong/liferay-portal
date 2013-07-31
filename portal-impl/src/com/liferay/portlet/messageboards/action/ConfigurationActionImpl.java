@@ -25,6 +25,8 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.WebKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +84,11 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 	protected void updateThreadPriorities(ActionRequest actionRequest)
 		throws Exception {
 
-		Locale[] locales = LanguageUtil.getAvailableLocales();
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Locale[] locales = LanguageUtil.getAvailableLocales(
+			themeDisplay.getSiteGroupId());
 
 		for (int i = 0; i < locales.length; i++) {
 			String languageId = LocaleUtil.toLanguageId(locales[i]);
@@ -118,7 +124,11 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 	protected void updateUserRanks(ActionRequest actionRequest)
 		throws Exception {
 
-		Locale[] locales = LanguageUtil.getAvailableLocales();
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Locale[] locales = LanguageUtil.getAvailableLocales(
+			themeDisplay.getSiteGroupId());
 
 		for (Locale locale : locales) {
 			String languageId = LocaleUtil.toLanguageId(locale);
@@ -182,13 +192,13 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 	protected void validateEmailMessageAdded(ActionRequest actionRequest)
 		throws Exception {
 
-		String emailMessageAddedSubjectPrefix = getParameter(
-			actionRequest, "emailMessageAddedSubjectPrefix");
+		String emailMessageAddedSubject = getParameter(
+			actionRequest, "emailMessageAddedSubject");
 		String emailMessageAddedBody = getParameter(
 			actionRequest, "emailMessageAddedBody");
 
-		if (Validator.isNull(emailMessageAddedSubjectPrefix)) {
-			SessionErrors.add(actionRequest, "emailMessageAddedSubjectPrefix");
+		if (Validator.isNull(emailMessageAddedSubject)) {
+			SessionErrors.add(actionRequest, "emailMessageAddedSubject");
 		}
 		else if (Validator.isNull(emailMessageAddedBody)) {
 			SessionErrors.add(actionRequest, "emailMessageAddedBody");
@@ -198,14 +208,13 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 	protected void validateEmailMessageUpdated(ActionRequest actionRequest)
 		throws Exception {
 
-		String emailMessageUpdatedSubjectPrefix = getParameter(
-			actionRequest, "emailMessageUpdatedSubjectPrefix");
+		String emailMessageUpdatedSubject = getParameter(
+			actionRequest, "emailMessageUpdatedSubject");
 		String emailMessageUpdatedBody = getParameter(
 			actionRequest, "emailMessageUpdatedBody");
 
-		if (Validator.isNull(emailMessageUpdatedSubjectPrefix)) {
-			SessionErrors.add(
-				actionRequest, "emailMessageUpdatedSubjectPrefix");
+		if (Validator.isNull(emailMessageUpdatedSubject)) {
+			SessionErrors.add(actionRequest, "emailMessageUpdatedSubject");
 		}
 		else if (Validator.isNull(emailMessageUpdatedBody)) {
 			SessionErrors.add(actionRequest, "emailMessageUpdatedBody");

@@ -85,6 +85,10 @@ import javax.portlet.PortletRequest;
  */
 public interface TrashHandler {
 
+	public void checkDuplicateEntry(
+			long classPK, long containerModelId, String newName)
+		throws PortalException, SystemException;
+
 	/**
 	 * Checks if a duplicate trash entry already exists in the destination
 	 * container.
@@ -228,6 +232,8 @@ public interface TrashHandler {
 	 *
 	 * @param  classPK the primary key of a model entity the container models
 	 *         must be able to contain
+	 * @return the parent container model of the model entity with the primary
+	 *         key
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -246,6 +252,7 @@ public interface TrashHandler {
 	 *
 	 * @param  classPK the primary key of a model entity the container models
 	 *         must be able to contain
+	 * @return all the matching parent container models of the model entity
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -416,6 +423,7 @@ public interface TrashHandler {
 	 * @param  classPK the primary key of a container model
 	 * @param  start the lower bound of the range of results
 	 * @param  end the upper bound of the range of results (not inclusive)
+	 * @return the range of matching trash renderers of model entities
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */

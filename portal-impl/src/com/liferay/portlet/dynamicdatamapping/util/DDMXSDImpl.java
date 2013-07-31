@@ -299,6 +299,7 @@ public class DDMXSDImpl implements DDMXSD {
 			locale);
 	}
 
+	@Override
 	public String getHTML(
 			PageContext pageContext, String xml, Fields fields,
 			String portletNamespace, String namespace, String mode,
@@ -350,7 +351,7 @@ public class DDMXSDImpl implements DDMXSD {
 
 		Document document = element.getDocument();
 
-		String defaultLocale = LocalizationUtil.getDefaultLocale(
+		String defaultLocale = LocalizationUtil.getDefaultLanguageId(
 			document.asXML());
 
 		List<Element> dynamicElementElements = element.elements(
@@ -408,10 +409,6 @@ public class DDMXSDImpl implements DDMXSD {
 
 			if (type.equals(DDMImpl.TYPE_CHECKBOX)) {
 				hiddenAttributesJSONArray.put("required");
-			}
-
-			if (type.equals(DDMImpl.TYPE_DDM_FILEUPLOAD)) {
-				hiddenAttributesJSONArray.put("predefinedValue");
 			}
 
 			hiddenAttributesJSONArray.put("readOnly");
@@ -614,13 +611,14 @@ public class DDMXSDImpl implements DDMXSD {
 
 		String xml = document.asXML();
 
-		String[] availableLocales = LocalizationUtil.getAvailableLocales(xml);
+		String[] availableLanguageIds =
+			LocalizationUtil.getAvailableLanguageIds(xml);
 
-		String defaultLanguageId = LocalizationUtil.getDefaultLocale(xml);
+		String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(xml);
 
 		String languageId = LocaleUtil.toLanguageId(locale);
 
-		if (!ArrayUtil.contains(availableLocales, languageId)) {
+		if (!ArrayUtil.contains(availableLanguageIds, languageId)) {
 			languageId = defaultLanguageId;
 		}
 

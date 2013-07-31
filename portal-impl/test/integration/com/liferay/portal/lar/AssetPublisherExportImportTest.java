@@ -28,7 +28,6 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
@@ -36,11 +35,13 @@ import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.TransactionalCallbackAwareExecutionTestListener;
 import com.liferay.portal.util.GroupTestUtil;
 import com.liferay.portal.util.LayoutTestUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.TestPropsValues;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.assetpublisher.util.AssetPublisher;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -56,8 +57,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-
 /**
  * @author Julio Camarero
  */
@@ -66,89 +65,80 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 		MainServletExecutionTestListener.class,
 		TransactionalCallbackAwareExecutionTestListener.class
 	})
-@PrepareForTest({PortletLocalServiceUtil.class})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Transactional
 public class AssetPublisherExportImportTest
 	extends BasePortletExportImportTestCase {
 
+	@Override
+	public String getPortletId() {
+		return PortletKeys.ASSET_PUBLISHER;
+	}
+
 	@Test
 	public void testAnyDLFileEntryType() throws Exception {
-		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			group.getGroupId(), DLFileEntryType.class.getName());
-
-		DLFileEntryType dlFileEntryType = DLAppTestUtil.addDLFileEntryType(
-			group.getGroupId(), ddmStructure.getStructureId());
-
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext();
-
-		serviceContext.setUuid(ddmStructure.getUuid());
-
-		DDMStructure importedDDMStructure = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), DLFileEntryType.class.getName(),
-			ddmStructure.getXsd(), LocaleUtil.getDefault(), serviceContext);
-
-		serviceContext.setUuid(dlFileEntryType.getUuid());
-
-		DLFileEntryType importedDLFileEntryType =
-			DLAppTestUtil.addDLFileEntryType(
-				TestPropsValues.getUserId(), importedGroup.getGroupId(),
-				ServiceTestUtil.randomString(), ServiceTestUtil.randomString(),
-				new long[] {importedDDMStructure.getStructureId()},
-				serviceContext);
-
 		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
 
+		long dlFileEntryClassNameId = PortalUtil.getClassNameId(
+			DLFileEntry.class);
+
+		preferenceMap.put(
+			"anyAssetType",
+			new String[] {String.valueOf(dlFileEntryClassNameId)});
 		preferenceMap.put(
 			"anyClassTypeDLFileEntryAssetRendererFactory",
 			new String[] {
-				String.valueOf(dlFileEntryType.getFileEntryTypeId())
+				String.valueOf(Boolean.TRUE)
 			});
 
 		PortletPreferences portletPreferences = getImportedPortletPreferences(
 			preferenceMap);
 
-		long anyClassTypeDLFileEntryAssetRendererFactory = GetterUtil.getLong(
+		long anyAssetType = GetterUtil.getLong(
+			portletPreferences.getValue("anyAssetType", null));
+
+		Assert.assertEquals(dlFileEntryClassNameId, anyAssetType);
+
+		String anyClassTypeDLFileEntryAssetRendererFactory =
 			portletPreferences.getValue(
-				"anyClassTypeDLFileEntryAssetRendererFactory", null));
+				"anyClassTypeDLFileEntryAssetRendererFactory", null);
 
 		Assert.assertEquals(
 			anyClassTypeDLFileEntryAssetRendererFactory,
-			importedDLFileEntryType.getFileEntryTypeId());
+			String.valueOf(Boolean.TRUE));
 	}
 
 	@Test
 	public void testAnyJournalStructure() throws Exception {
-		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			group.getGroupId(), JournalArticle.class.getName());
-
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext();
-
-		serviceContext.setUuid(ddmStructure.getUuid());
-
-		DDMStructure importedDDMStructure = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), JournalArticle.class.getName(),
-			ddmStructure.getXsd(), LocaleUtil.getDefault(), serviceContext);
-
 		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
 
+		long journalArticleClassNameId = PortalUtil.getClassNameId(
+			JournalArticle.class);
+
+		preferenceMap.put(
+			"anyAssetType",
+			new String[] {String.valueOf(journalArticleClassNameId)});
 		preferenceMap.put(
 			"anyClassTypeJournalArticleAssetRendererFactory",
 			new String[] {
-				String.valueOf(ddmStructure.getStructureId())
+				String.valueOf(Boolean.TRUE)
 			});
 
 		PortletPreferences portletPreferences = getImportedPortletPreferences(
 			preferenceMap);
 
-		long anyClassTypeJournalArticleAssetRendererFactory =
-			GetterUtil.getLong(
-				portletPreferences.getValue(
-					"anyClassTypeJournalArticleAssetRendererFactory", null));
+		long anyAssetType = GetterUtil.getLong(
+			portletPreferences.getValue("anyAssetType", null));
+
+		Assert.assertEquals(journalArticleClassNameId, anyAssetType);
+
+		String anyClassTypeDLFileEntryAssetRendererFactory =
+			portletPreferences.getValue(
+				"anyClassTypeJournalArticleAssetRendererFactory", null);
 
 		Assert.assertEquals(
-			anyClassTypeJournalArticleAssetRendererFactory,
-			importedDDMStructure.getStructureId());
+			anyClassTypeDLFileEntryAssetRendererFactory,
+			String.valueOf(Boolean.TRUE));
 	}
 
 	@Test
@@ -247,6 +237,127 @@ public class AssetPublisherExportImportTest
 	}
 
 	@Test
+	public void testOneDLFileEntryType() throws Exception {
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			group.getGroupId(), DLFileEntryType.class.getName());
+
+		DLFileEntryType dlFileEntryType = DLAppTestUtil.addDLFileEntryType(
+			group.getGroupId(), ddmStructure.getStructureId());
+
+		ServiceContext serviceContext = ServiceTestUtil.getServiceContext();
+
+		serviceContext.setUuid(ddmStructure.getUuid());
+
+		DDMStructure importedDDMStructure = DDMStructureTestUtil.addStructure(
+			importedGroup.getGroupId(), DLFileEntryType.class.getName(), 0,
+			ddmStructure.getXsd(), LocaleUtil.getDefault(), serviceContext);
+
+		serviceContext.setUuid(dlFileEntryType.getUuid());
+
+		DLFileEntryType importedDLFileEntryType =
+			DLAppTestUtil.addDLFileEntryType(
+				TestPropsValues.getUserId(), importedGroup.getGroupId(),
+				ServiceTestUtil.randomString(), ServiceTestUtil.randomString(),
+				new long[] {importedDDMStructure.getStructureId()},
+				serviceContext);
+
+		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+
+		long dlFileEntryClassNameId = PortalUtil.getClassNameId(
+			DLFileEntry.class);
+
+		preferenceMap.put(
+			"anyAssetType",
+			new String[] {String.valueOf(dlFileEntryClassNameId)});
+		preferenceMap.put(
+			"anyClassTypeDLFileEntryAssetRendererFactory",
+			new String[] {
+				String.valueOf(dlFileEntryType.getFileEntryTypeId())
+			});
+		preferenceMap.put(
+			"classTypeIds",
+			new String[] {
+				String.valueOf(dlFileEntryType.getFileEntryTypeId())
+			});
+
+		PortletPreferences portletPreferences = getImportedPortletPreferences(
+			preferenceMap);
+
+		long anyClassTypeDLFileEntryAssetRendererFactory = GetterUtil.getLong(
+			portletPreferences.getValue(
+				"anyClassTypeDLFileEntryAssetRendererFactory", null));
+
+		Assert.assertEquals(
+			anyClassTypeDLFileEntryAssetRendererFactory,
+			importedDLFileEntryType.getFileEntryTypeId());
+
+		long anyAssetType = GetterUtil.getLong(
+			portletPreferences.getValue("anyAssetType", null));
+
+		Assert.assertEquals(dlFileEntryClassNameId, anyAssetType);
+
+		long classTypeIds = GetterUtil.getLong(
+			portletPreferences.getValue("classTypeIds", null));
+
+		Assert.assertEquals(
+			importedDLFileEntryType.getFileEntryTypeId(), classTypeIds);
+	}
+
+	@Test
+	public void testOneJournalStructure() throws Exception {
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			group.getGroupId(), JournalArticle.class.getName());
+
+		ServiceContext serviceContext = ServiceTestUtil.getServiceContext();
+
+		serviceContext.setUuid(ddmStructure.getUuid());
+
+		DDMStructure importedDDMStructure = DDMStructureTestUtil.addStructure(
+			importedGroup.getGroupId(), JournalArticle.class.getName(), 0,
+			ddmStructure.getXsd(), LocaleUtil.getDefault(), serviceContext);
+
+		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+
+		long journalArticleClassNameId = PortalUtil.getClassNameId(
+			JournalArticle.class);
+
+		preferenceMap.put(
+			"anyAssetType",
+			new String[] {String.valueOf(journalArticleClassNameId)});
+		preferenceMap.put(
+			"anyClassTypeJournalArticleAssetRendererFactory",
+			new String[] {
+				String.valueOf(ddmStructure.getStructureId())
+			});
+		preferenceMap.put(
+			"classTypeIds",
+			new String[] {String.valueOf(ddmStructure.getStructureId())});
+
+		PortletPreferences portletPreferences = getImportedPortletPreferences(
+			preferenceMap);
+
+		long anyClassTypeJournalArticleAssetRendererFactory =
+			GetterUtil.getLong(
+				portletPreferences.getValue(
+					"anyClassTypeJournalArticleAssetRendererFactory", null));
+
+		Assert.assertEquals(
+			anyClassTypeJournalArticleAssetRendererFactory,
+			importedDDMStructure.getStructureId());
+
+		long anyAssetType = GetterUtil.getLong(
+			portletPreferences.getValue("anyAssetType", null));
+
+		Assert.assertEquals(journalArticleClassNameId, anyAssetType);
+
+		long classTypeIds = GetterUtil.getLong(
+			portletPreferences.getValue("classTypeIds", null));
+
+		Assert.assertEquals(
+			importedDDMStructure.getStructureId(), classTypeIds);
+	}
+
+	@Test
 	public void testSeveralDLFileEntryTypes() throws Exception {
 		DDMStructure ddmStructure1 = DDMStructureTestUtil.addStructure(
 			group.getGroupId(), DLFileEntryType.class.getName());
@@ -259,7 +370,7 @@ public class AssetPublisherExportImportTest
 		serviceContext.setUuid(ddmStructure1.getUuid());
 
 		DDMStructure importedDDMStructure1 = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), DLFileEntryType.class.getName(),
+			importedGroup.getGroupId(), DLFileEntryType.class.getName(), 0,
 			ddmStructure1.getXsd(), LocaleUtil.getDefault(), serviceContext);
 
 		serviceContext.setUuid(dlFileEntryType1.getUuid());
@@ -280,7 +391,7 @@ public class AssetPublisherExportImportTest
 		serviceContext.setUuid(ddmStructure2.getUuid());
 
 		DDMStructure importedDDMStructure2 = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), DLFileEntryType.class.getName(),
+			importedGroup.getGroupId(), DLFileEntryType.class.getName(), 0,
 			ddmStructure2.getXsd(), LocaleUtil.getDefault(), serviceContext);
 
 		serviceContext.setUuid(dlFileEntryType2.getUuid());
@@ -328,7 +439,7 @@ public class AssetPublisherExportImportTest
 		serviceContext.setUuid(ddmStructure1.getUuid());
 
 		DDMStructure importedDDMStructure1 = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), JournalArticle.class.getName(),
+			importedGroup.getGroupId(), JournalArticle.class.getName(), 0,
 			ddmStructure1.getXsd(), LocaleUtil.getDefault(), serviceContext);
 
 		DDMStructure ddmStructure2 = DDMStructureTestUtil.addStructure(
@@ -337,7 +448,7 @@ public class AssetPublisherExportImportTest
 		serviceContext.setUuid(ddmStructure2.getUuid());
 
 		DDMStructure importedDDMStructure2 = DDMStructureTestUtil.addStructure(
-			importedGroup.getGroupId(), JournalArticle.class.getName(),
+			importedGroup.getGroupId(), JournalArticle.class.getName(), 0,
 			ddmStructure1.getXsd(), LocaleUtil.getDefault(), serviceContext);
 
 		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
@@ -497,27 +608,16 @@ public class AssetPublisherExportImportTest
 			PortletDataHandlerKeys.CATEGORIES,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
-			PortletDataHandlerKeys.PORTLET_SETUP,
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.PORTLET_CONFIGURATION_ALL,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.PORTLET_SETUP_ALL,
 			new String[] {Boolean.TRUE.toString()});
 
 		return parameterMap;
-	}
-
-	protected PortletPreferences getImportedPortletPreferences(
-			Map<String, String[]> preferenceMap)
-		throws Exception {
-
-		// Export site LAR
-
-		String assetPublisherPortletId = LayoutTestUtil.addPortletToLayout(
-			TestPropsValues.getUserId(), this.layout,
-			PortletKeys.ASSET_PUBLISHER, "column-1", preferenceMap);
-
-		doExportImportPortlet(assetPublisherPortletId);
-
-		return LayoutTestUtil.getPortletPreferences(
-			importedLayout.getCompanyId(), importedLayout.getPlid(),
-			assetPublisherPortletId);
 	}
 
 	@Override

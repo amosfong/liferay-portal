@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link LayoutSet}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       LayoutSet
+ * @author Brian Wing Shun Chan
+ * @see LayoutSet
  * @generated
  */
 public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
@@ -750,6 +752,25 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	@Override
 	public void setVirtualHostname(java.lang.String virtualHostname) {
 		_layoutSet.setVirtualHostname(virtualHostname);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof LayoutSetWrapper)) {
+			return false;
+		}
+
+		LayoutSetWrapper layoutSetWrapper = (LayoutSetWrapper)obj;
+
+		if (Validator.equals(_layoutSet, layoutSetWrapper._layoutSet)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

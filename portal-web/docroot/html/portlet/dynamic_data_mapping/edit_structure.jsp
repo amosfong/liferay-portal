@@ -18,6 +18,7 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
+boolean showBackURL = ParamUtil.getBoolean(request, "showBackURL", true);
 
 String portletResourceNamespace = ParamUtil.getString(request, "portletResourceNamespace");
 
@@ -105,6 +106,7 @@ if (Validator.isNotNull(script)) {
 	<liferay-ui:header
 		backURL="<%= viewRecordsURL %>"
 		localizeTitle="<%= localizeTitle %>"
+		showBackURL="<%= showBackURL %>"
 		title="<%= title %>"
 	/>
 
@@ -213,10 +215,10 @@ if (Validator.isNotNull(script)) {
 	function <portlet:namespace />openParentStructureSelector() {
 		Liferay.Util.openDDMPortlet(
 			{
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletKeys.DYNAMIC_DATA_MAPPING, themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
 				classPK: <%= (structure != null) ? structure.getPrimaryKey() : 0 %>,
 				dialog: {
-					destroyOnHide: true,
-					zIndex: Liferay.zIndex.WINDOW + 2
+					destroyOnHide: true
 				},
 				eventName: '<portlet:namespace />selectParentStructure',
 				showGlobalScope: true,
@@ -224,7 +226,7 @@ if (Validator.isNotNull(script)) {
 				struts_action: '/dynamic_data_mapping/select_structure',
 				title: '<%= HtmlUtil.escapeJS(scopeTitle) %>'
 			},
-			function(event){
+			function(event) {
 				document.<portlet:namespace />fm.<portlet:namespace />parentStructureId.value = event.ddmstructureid;
 
 				var nameEl = document.getElementById('<portlet:namespace />parentStructureName');

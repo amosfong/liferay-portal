@@ -163,7 +163,6 @@ portletURL.setParameter("fileEntryId", String.valueOf(fileEntryId));
 					dialog: {
 						constrain: true,
 						modal: true,
-						zIndex: Liferay.zIndex.WINDOW + 2,
 						width: 680
 					},
 					id: '<portlet:namespace />selectFolder',
@@ -189,10 +188,6 @@ portletURL.setParameter("fileEntryId", String.valueOf(fileEntryId));
 	function <portlet:namespace />saveFileEntry() {
 		submitForm(document.<portlet:namespace />fm);
 	}
-
-	<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-		Liferay.Util.focusFormField(document.<portlet:namespace />fm.<portlet:namespace />file);
-	</c:if>
 </aui:script>
 
 <%

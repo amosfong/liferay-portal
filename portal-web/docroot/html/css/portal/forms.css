@@ -1,5 +1,6 @@
 .control-group-inline {
 	display: inline-block;
+	vertical-align: middle;
 }
 
 .button-holder {
@@ -11,6 +12,15 @@
 
 	.aui-field-wrapper {
 		margin-left: 20px;
+	}
+
+	.datepicker-display {
+		float: none;
+
+		.datepicker-button-wrapper, .datepicker-select-wrapper {
+			display: inline;
+			float: none;
+		}
 	}
 
 	.lfr-ddm-repeatable-add-button, .lfr-ddm-repeatable-delete-button {
@@ -28,6 +38,10 @@
 			right: 24px;
 		}
 	}
+}
+
+.field-wrapper .btn {
+	margin-top: 6px;
 }
 
 .lfr-input-resource {

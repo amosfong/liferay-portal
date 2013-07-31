@@ -16,7 +16,6 @@ package com.liferay.portal.util;
 
 import com.liferay.mail.model.FileAttachment;
 import com.liferay.mail.service.MailServiceUtil;
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,6 +23,7 @@ import com.liferay.portal.kernel.mail.MailMessage;
 import com.liferay.portal.kernel.mail.SMTPAccount;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.EscapableObject;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlEscapableObject;
@@ -47,6 +47,9 @@ import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.permission.SubscriptionPermissionUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -62,6 +65,7 @@ import javax.mail.internet.InternetAddress;
 /**
  * @author Brian Wing Shun Chan
  * @author Mate Thurzo
+ * @author Raymond Augé
  */
 public class SubscriptionSender implements Serializable {
 
@@ -111,6 +115,18 @@ public class SubscriptionSender implements Serializable {
 				currentThread.setContextClassLoader(_classLoader);
 			}
 
+			String inferredClassName = null;
+			long inferredClassPK = 0;
+
+			if (!_persistestedSubscribersOVPs.isEmpty()) {
+				ObjectValuePair<String, Long> objectValuePair =
+					_persistestedSubscribersOVPs.get(
+						_persistestedSubscribersOVPs.size() - 1);
+
+				inferredClassName = objectValuePair.getKey();
+				inferredClassPK = objectValuePair.getValue();
+			}
+
 			for (ObjectValuePair<String, Long> ovp :
 					_persistestedSubscribersOVPs) {
 
@@ -123,7 +139,8 @@ public class SubscriptionSender implements Serializable {
 
 				for (Subscription subscription : subscriptions) {
 					try {
-						notifySubscriber(subscription);
+						notifySubscriber(
+							subscription, inferredClassName, inferredClassPK);
 					}
 					catch (PortalException pe) {
 						_log.error(
@@ -358,7 +375,9 @@ public class SubscriptionSender implements Serializable {
 			subscription.getSubscriptionId());
 	}
 
-	protected boolean hasPermission(Subscription subscription, User user)
+	protected boolean hasPermission(
+			Subscription subscription, String inferredClassName,
+			long inferredClassPK, User user)
 		throws Exception {
 
 		PermissionChecker permissionChecker =
@@ -366,18 +385,18 @@ public class SubscriptionSender implements Serializable {
 
 		return SubscriptionPermissionUtil.contains(
 			permissionChecker, subscription.getClassName(),
-			subscription.getClassPK());
+			subscription.getClassPK(), inferredClassName, inferredClassPK);
 	}
 
-	protected void notifySubscriber(Subscription subscription)
+	protected void notifySubscriber(
+			Subscription subscription, String inferredClassName,
+			long inferredClassPK)
 		throws Exception {
 
-		User user = null;
+		User user = UserLocalServiceUtil.fetchUserById(
+			subscription.getUserId());
 
-		try {
-			user = UserLocalServiceUtil.getUserById(subscription.getUserId());
-		}
-		catch (NoSuchUserException nsue) {
+		if (user == null) {
 			if (_log.isInfoEnabled()) {
 				_log.info(
 					"Subscription " + subscription.getSubscriptionId() +
@@ -417,7 +436,9 @@ public class SubscriptionSender implements Serializable {
 		}
 
 		try {
-			if (!hasPermission(subscription, user)) {
+			if (!hasPermission(
+					subscription, inferredClassName, inferredClassPK, user)) {
+
 				if (_log.isDebugEnabled()) {
 					_log.debug("Skip unauthorized user " + user.getUserId());
 				}
@@ -652,10 +673,36 @@ public class SubscriptionSender implements Serializable {
 	protected String subject;
 	protected long userId;
 
+	private void readObject(ObjectInputStream objectInputStream)
+		throws ClassNotFoundException, IOException {
+
+		objectInputStream.defaultReadObject();
+
+		String servletContextName = objectInputStream.readUTF();
+
+		if (!servletContextName.isEmpty()) {
+			_classLoader = ClassLoaderPool.getClassLoader(servletContextName);
+		}
+	}
+
+	private void writeObject(ObjectOutputStream objectOutputStream)
+		throws IOException {
+
+		objectOutputStream.defaultWriteObject();
+
+		String servletContextName = StringPool.BLANK;
+
+		if (_classLoader != null) {
+			servletContextName = ClassLoaderPool.getContextName(_classLoader);
+		}
+
+		objectOutputStream.writeUTF(servletContextName);
+	}
+
 	private static Log _log = LogFactoryUtil.getLog(SubscriptionSender.class);
 
 	private List<InternetAddress> _bulkAddresses;
-	private ClassLoader _classLoader;
+	private transient ClassLoader _classLoader;
 	private Map<String, EscapableObject<String>> _context =
 		new HashMap<String, EscapableObject<String>>();
 	private String _contextUserPrefix;

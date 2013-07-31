@@ -21,10 +21,12 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.SearchContainerReference;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PortalUtil;
 
 import java.util.ArrayList;
@@ -57,6 +59,8 @@ public class SearchContainer<R> {
 
 	public static final String DEFAULT_DELTA_PARAM = "delta";
 
+	public static final String DEFAULT_DEPRECATED_TOTAL_VAR = "deprecatedTotal";
+
 	/**
 	 * @deprecated As of 6.2.0, see LPS-6312
 	 */
@@ -65,6 +69,12 @@ public class SearchContainer<R> {
 	public static final String DEFAULT_ORDER_BY_COL_PARAM = "orderByCol";
 
 	public static final String DEFAULT_ORDER_BY_TYPE_PARAM = "orderByType";
+
+	public static final String DEFAULT_RESULTS_VAR = "results";
+
+	public static final String DEFAULT_TOTAL_VAR = "total";
+
+	public static final String DEFAULT_VAR = "searchContainer";
 
 	public static final int MAX_DELTA = 200;
 
@@ -138,6 +148,14 @@ public class SearchContainer<R> {
 		}
 
 		_emptyResultsMessage = emptyResultsMessage;
+
+		SearchContainerReference searchContainerReference =
+			(SearchContainerReference)portletRequest.getAttribute(
+				WebKeys.SEARCH_CONTAINER_REFERENCE);
+
+		if (searchContainerReference != null) {
+			searchContainerReference.register(this);
+		}
 	}
 
 	public SearchContainer(
@@ -323,6 +341,10 @@ public class SearchContainer<R> {
 		return _total;
 	}
 
+	public String getTotalVar() {
+		return _totalVar;
+	}
+
 	public boolean isDeltaConfigurable() {
 		return _deltaConfigurable;
 	}
@@ -445,6 +467,10 @@ public class SearchContainer<R> {
 		_calculateStartAndEnd();
 	}
 
+	public void setTotalVar(String totalVar) {
+		_totalVar = totalVar;
+	}
+
 	private void _buildNormalizedHeaderNames(List<String> headerNames) {
 		if (headerNames == null) {
 			return;
@@ -521,6 +547,7 @@ public class SearchContainer<R> {
 	private DisplayTerms _searchTerms;
 	private int _start;
 	private int _total;
+	private String _totalVar;
 	private boolean _uniqueId;
 
 }

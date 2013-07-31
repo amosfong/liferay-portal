@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link MBMessageLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       MBMessageLocalService
+ * @author Brian Wing Shun Chan
+ * @see MBMessageLocalService
  * @generated
  */
 public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
@@ -166,11 +166,59 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 		return _mbMessageLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbMessageLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMessage fetchMBMessage(
 		long messageId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _mbMessageLocalService.fetchMBMessage(messageId);
+	}
+
+	/**
+	* Returns the message-boards message with the matching UUID and company.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessage fetchMBMessageByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbMessageLocalService.fetchMBMessageByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the message-boards message matching the UUID and group.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessage fetchMBMessageByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbMessageLocalService.fetchMBMessageByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +243,24 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mbMessageLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the message-boards message with the matching UUID and company.
+	*
+	* @param uuid the message-boards message's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message-boards message
+	* @throws PortalException if a matching message-boards message could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessage getMBMessageByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbMessageLocalService.getMBMessageByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

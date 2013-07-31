@@ -32,6 +32,8 @@ import com.liferay.portal.service.BaseService;
  * @see JournalTemplateServiceUtil
  * @see com.liferay.portlet.journal.service.base.JournalTemplateServiceBaseImpl
  * @see com.liferay.portlet.journal.service.impl.JournalTemplateServiceImpl
+ * @deprecated As of 6.2.0, since Web Content Administration now uses the
+            Dynamic Data Mapping framework to handle templates
  * @generated
  */
 @AccessControlled
@@ -95,7 +97,8 @@ public interface JournalTemplateService extends BaseService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.journal.model.JournalTemplate> getStructureTemplates(
 		long groupId, java.lang.String structureId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.journal.model.JournalTemplate getTemplate(

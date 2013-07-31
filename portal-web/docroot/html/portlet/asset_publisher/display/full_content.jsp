@@ -84,16 +84,16 @@ request.setAttribute("view.jsp-showIconLabel", true);
 				<%
 				String languageId = LanguageUtil.getLanguageId(request);
 
-				String[] availableLocales = assetRenderer.getAvailableLocales();
+				String[] availableLanguageIds = assetRenderer.getAvailableLanguageIds();
 				%>
 
-				<c:if test="<%= availableLocales.length > 1 %>">
+				<c:if test="<%= availableLanguageIds.length > 1 %>">
 					<c:if test="<%= enableConversions || enablePrint %>">
 						<div class="locale-separator"> </div>
 					</c:if>
 
 					<div class="locale-actions">
-						<liferay-ui:language displayStyle="<%= 0 %>" languageIds="<%= availableLocales %>" />
+						<liferay-ui:language displayStyle="<%= 0 %>" languageIds="<%= availableLanguageIds %>" />
 					</div>
 				</c:if>
 			</c:if>
@@ -129,6 +129,7 @@ request.setAttribute("view.jsp-showIconLabel", true);
 
 	viewFullContentURL.setParameter("struts_action", "/asset_publisher/view_content");
 	viewFullContentURL.setParameter("type", assetRendererFactory.getType());
+	viewFullContentURL.setParameter("viewMode", print ? Constants.PRINT : Constants.VIEW);
 
 	if (Validator.isNotNull(assetRenderer.getUrlTitle())) {
 		if (assetRenderer.getGroupId() != scopeGroupId) {
@@ -234,7 +235,6 @@ request.setAttribute("view.jsp-showIconLabel", true);
 				formName='<%= "fm" + assetEntry.getClassPK() %>'
 				ratingsEnabled="<%= enableCommentRatings %>"
 				redirect="<%= currentURL %>"
-				subject="<%= assetRenderer.getTitle(locale) %>"
 				userId="<%= assetRenderer.getUserId() %>"
 			/>
 		</c:if>

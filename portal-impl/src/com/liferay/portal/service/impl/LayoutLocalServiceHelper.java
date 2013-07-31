@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutFriendlyURL;
@@ -107,7 +106,7 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 
 		Map<Locale, String> newFriendlyURLMap = new HashMap<Locale, String>();
 
-		Locale[] locales = LanguageUtil.getAvailableLocales();
+		Locale[] locales = LanguageUtil.getAvailableLocales(groupId);
 
 		for (Locale locale : locales) {
 			String friendlyURL = friendlyURLMap.get(locale);
@@ -124,7 +123,7 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 			String friendlyURL = getFriendlyURL(
 				groupId, privateLayout, layoutId, name, StringPool.BLANK);
 
-			newFriendlyURLMap.put(LocaleUtil.getDefault(), friendlyURL);
+			newFriendlyURLMap.put(LocaleUtil.getSiteDefault(), friendlyURL);
 		}
 
 		return newFriendlyURLMap;
@@ -189,10 +188,8 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 			LayoutSetPrototype layoutSetPrototype, String layoutUuid)
 		throws PortalException, SystemException {
 
-		Group group = layoutSetPrototype.getGroup();
-
 		Layout layout = layoutPersistence.fetchByUUID_G_P(
-			layoutUuid, group.getGroupId(), true);
+			layoutUuid, layoutSetPrototype.getGroupId(), true);
 
 		if (layout != null) {
 			return true;
@@ -229,6 +226,19 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 				if (firstLayoutId == layoutId) {
 					firstLayout = true;
 				}
+			}
+		}
+		else {
+
+			// Layout cannot become a child of a layout that is not sortable
+			// because it is linked to a layout set prototype
+
+			Layout parentLayout = layoutPersistence.findByG_P_L(
+				groupId, privateLayout, parentLayoutId);
+
+			if (!SitesUtil.isLayoutSortable(parentLayout)) {
+				throw new LayoutParentLayoutIdException(
+					LayoutParentLayoutIdException.NOT_SORTABLE);
 			}
 		}
 
@@ -341,7 +351,7 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 		throws PortalException {
 
 		String defaultLanguageId = LocaleUtil.toLanguageId(
-			LocaleUtil.getDefault());
+			LocaleUtil.getSiteDefault());
 
 		if (defaultLanguageId.equals(languageId)) {
 			validateName(name);
@@ -408,10 +418,9 @@ public class LayoutLocalServiceHelper implements IdentifiableBean {
 			if (firstLayoutId == layoutId) {
 				Layout secondLayout = layouts.get(1);
 
-				try {
-					validateFirstLayout(secondLayout.getType());
-				}
-				catch (LayoutTypeException lte) {
+				if (Validator.isNull(secondLayout.getType()) ||
+					!PortalUtil.isLayoutFirstPageable(secondLayout.getType())) {
+
 					throw new LayoutParentLayoutIdException(
 						LayoutParentLayoutIdException.FIRST_LAYOUT_TYPE);
 				}

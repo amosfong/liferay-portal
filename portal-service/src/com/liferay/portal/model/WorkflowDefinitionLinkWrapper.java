@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link WorkflowDefinitionLink}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       WorkflowDefinitionLink
+ * @author Brian Wing Shun Chan
+ * @see WorkflowDefinitionLink
  * @generated
  */
 public class WorkflowDefinitionLinkWrapper implements WorkflowDefinitionLink,
@@ -544,6 +546,26 @@ public class WorkflowDefinitionLinkWrapper implements WorkflowDefinitionLink,
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_workflowDefinitionLink.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof WorkflowDefinitionLinkWrapper)) {
+			return false;
+		}
+
+		WorkflowDefinitionLinkWrapper workflowDefinitionLinkWrapper = (WorkflowDefinitionLinkWrapper)obj;
+
+		if (Validator.equals(_workflowDefinitionLink,
+					workflowDefinitionLinkWrapper._workflowDefinitionLink)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

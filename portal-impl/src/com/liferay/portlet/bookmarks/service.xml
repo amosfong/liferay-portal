@@ -65,6 +65,11 @@
 			<finder-column name="folderId" arrayable-operator="OR" />
 			<finder-column name="status" />
 		</finder>
+		<finder name="G_F_NotS" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="folderId" arrayable-operator="OR" />
+			<finder-column name="status" comparator="!=" />
+		</finder>
 		<finder name="G_U_F_S" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="userId" />
@@ -79,7 +84,7 @@
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetTag" />
-		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
+		<reference package-path="com.liferay.portlet.expando" entity="ExpandoRow" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivityCounter" />
 		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
@@ -152,7 +157,7 @@
 		<reference package-path="com.liferay.portal" entity="Subscription" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
 		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
-		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
+		<reference package-path="com.liferay.portlet.expando" entity="ExpandoRow" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivityCounter" />
 		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />

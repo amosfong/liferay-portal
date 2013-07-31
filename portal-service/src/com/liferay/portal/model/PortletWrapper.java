@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Portlet}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Portlet
+ * @author Brian Wing Shun Chan
+ * @see Portlet
  * @generated
  */
 public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
@@ -357,17 +359,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	public void addSchedulerEntry(
 		com.liferay.portal.kernel.scheduler.SchedulerEntry schedulerEntry) {
 		_portlet.addSchedulerEntry(schedulerEntry);
-	}
-
-	/**
-	* Checks whether this portlet is equal to the specified object.
-	*
-	* @param obj the object to compare this portlet against
-	* @return <code>true</code> if the portlet is equal to the specified object
-	*/
-	@Override
-	public boolean equals(java.lang.Object obj) {
-		return _portlet.equals(obj);
 	}
 
 	/**
@@ -1712,6 +1703,40 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
+	* Returns the class loader resource path to the use notification
+	* definitions of the portlet.
+	*
+	* @return the class loader resource path to the use notification
+	definitions of the portlet
+	*/
+	@Override
+	public java.lang.String getUserNotificationDefinitions() {
+		return _portlet.getUserNotificationDefinitions();
+	}
+
+	/**
+	* Returns the names of the classes that represent user notification
+	* handlers associated with the portlet.
+	*
+	* @return the names of the classes that represent user notification
+	handlers associated with the portlet
+	*/
+	@Override
+	public java.util.List<java.lang.String> getUserNotificationHandlerClasses() {
+		return _portlet.getUserNotificationHandlerClasses();
+	}
+
+	/**
+	* Returns the user notification handler instances of the portlet.
+	*
+	* @return the user notification handler instances of the portlet
+	*/
+	@Override
+	public java.util.List<com.liferay.portal.kernel.notifications.UserNotificationHandler> getUserNotificationHandlerInstances() {
+		return _portlet.getUserNotificationHandlerInstances();
+	}
+
+	/**
 	* Returns the user principal strategy of the portlet.
 	*
 	* @return the user principal strategy of the portlet
@@ -2063,6 +2088,18 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	@Override
 	public boolean isRemoteable() {
 		return _portlet.isRemoteable();
+	}
+
+	/**
+	* Returns <code>true</code> if the portlet will only process namespaced
+	* parameters.
+	*
+	* @return <code>true</code> if the portlet will only process namespaced
+	parameters
+	*/
+	@Override
+	public boolean isRequiresNamespacedParameters() {
+		return _portlet.isRequiresNamespacedParameters();
 	}
 
 	/**
@@ -2968,6 +3005,19 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
+	* Set to <code>true</code> if the portlet will only process namespaced
+	* parameters.
+	*
+	* @param requiresNamespacedParameters boolean value for whether the portlet
+	will only process namespaced parameters
+	*/
+	@Override
+	public void setRequiresNamespacedParameters(
+		boolean requiresNamespacedParameters) {
+		_portlet.setRequiresNamespacedParameters(requiresNamespacedParameters);
+	}
+
+	/**
 	* Sets the resource bundle of the portlet.
 	*
 	* @param resourceBundle the resource bundle of the portlet
@@ -3227,6 +3277,32 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	}
 
 	/**
+	* Sets the class loader resource path to the user notification definitions
+	* of the portlet.
+	*
+	* @param userNotificationDefinitions the class loader resource path to the
+	user notification definitions of the portlet
+	*/
+	@Override
+	public void setUserNotificationDefinitions(
+		java.lang.String userNotificationDefinitions) {
+		_portlet.setUserNotificationDefinitions(userNotificationDefinitions);
+	}
+
+	/**
+	* Sets the names of the classes that represent user notification handlers
+	* associated with the portlet.
+	*
+	* @param userNotificationHandlerClasses the names of the classes that
+	represent user notification handlers associated with the portlet
+	*/
+	@Override
+	public void setUserNotificationHandlerClasses(
+		java.util.List<java.lang.String> userNotificationHandlerClasses) {
+		_portlet.setUserNotificationHandlerClasses(userNotificationHandlerClasses);
+	}
+
+	/**
 	* Sets the user principal strategy of the portlet.
 	*
 	* @param userPrincipalStrategy the user principal strategy of the portlet
@@ -3301,6 +3377,25 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	@Override
 	public void setXmlRpcMethodClass(java.lang.String xmlRpcMethodClass) {
 		_portlet.setXmlRpcMethodClass(xmlRpcMethodClass);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof PortletWrapper)) {
+			return false;
+		}
+
+		PortletWrapper portletWrapper = (PortletWrapper)obj;
+
+		if (Validator.equals(_portlet, portletWrapper._portlet)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

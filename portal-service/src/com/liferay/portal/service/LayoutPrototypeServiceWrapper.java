@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link LayoutPrototypeService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       LayoutPrototypeService
+ * @author Brian Wing Shun Chan
+ * @see LayoutPrototypeService
  * @generated
  */
 public class LayoutPrototypeServiceWrapper implements LayoutPrototypeService,
@@ -49,8 +49,8 @@ public class LayoutPrototypeServiceWrapper implements LayoutPrototypeService,
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addLayoutPrototype(long,
-	Map, String, boolean, ServiceContext)}
+	* @deprecated As of 6.2.0, replaced by {@link #addLayoutPrototype(Map,
+	String, boolean, ServiceContext)}
 	*/
 	@Override
 	public com.liferay.portal.model.LayoutPrototype addLayoutPrototype(

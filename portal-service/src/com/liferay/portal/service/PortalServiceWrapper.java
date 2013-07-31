@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link PortalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       PortalService
+ * @author Brian Wing Shun Chan
+ * @see PortalService
  * @generated
  */
 public class PortalServiceWrapper implements PortalService,
@@ -95,12 +95,6 @@ public class PortalServiceWrapper implements PortalService,
 	public void testAutoSyncHibernateSessionStateOnTxCreation()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_portalService.testAutoSyncHibernateSessionStateOnTxCreation();
-	}
-
-	@Override
-	public void testCounterIncrement_Rollback()
-		throws com.liferay.portal.kernel.exception.SystemException {
-		_portalService.testCounterIncrement_Rollback();
 	}
 
 	@Override

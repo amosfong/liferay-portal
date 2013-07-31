@@ -17,8 +17,8 @@ package com.liferay.portal.service;
 /**
  * Provides a wrapper for {@link TeamLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       TeamLocalService
+ * @author Brian Wing Shun Chan
+ * @see TeamLocalService
  * @generated
  */
 public class TeamLocalServiceWrapper implements TeamLocalService,
@@ -161,6 +161,22 @@ public class TeamLocalServiceWrapper implements TeamLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _teamLocalService.dynamicQueryCount(dynamicQuery);
+	}
+
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _teamLocalService.dynamicQueryCount(dynamicQuery, projection);
 	}
 
 	@Override

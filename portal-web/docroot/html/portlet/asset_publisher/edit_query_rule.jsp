@@ -29,10 +29,10 @@ String queryName = "assetTags";
 String queryValues = null;
 
 if (queryLogicIndex >= 0) {
-	queryContains = PrefsParamUtil.getBoolean(preferences, request, "queryContains" + queryLogicIndex, true);
-	queryAndOperator = PrefsParamUtil.getBoolean(preferences, request, "queryAndOperator" + queryLogicIndex);
-	queryName = PrefsParamUtil.getString(preferences, request, "queryName" + queryLogicIndex, "assetTags");
-	queryValues = StringUtil.merge(preferences.getValues("queryValues" + queryLogicIndex, new String[0]));
+	queryContains = PrefsParamUtil.getBoolean(portletPreferences, request, "queryContains" + queryLogicIndex, true);
+	queryAndOperator = PrefsParamUtil.getBoolean(portletPreferences, request, "queryAndOperator" + queryLogicIndex);
+	queryName = PrefsParamUtil.getString(portletPreferences, request, "queryName" + queryLogicIndex, "assetTags");
+	queryValues = StringUtil.merge(portletPreferences.getValues("queryValues" + queryLogicIndex, new String[0]));
 
 	if (Validator.equals(queryName, "assetTags")) {
 		queryValues = ParamUtil.getString(request, "queryTagNames" + queryLogicIndex, queryValues);
@@ -43,7 +43,7 @@ if (queryLogicIndex >= 0) {
 }
 %>
 
-<div class="field-row query-row">
+<div class="field-row form-inline query-row">
 	<aui:select inlineField="<%= true %>" label="" name='<%= "queryContains" + index %>'>
 		<aui:option label="contains" selected="<%= queryContains %>" value="true" />
 		<aui:option label="does-not-contain" selected="<%= !queryContains %>" value="false" />
@@ -54,7 +54,7 @@ if (queryLogicIndex >= 0) {
 		<aui:option label="any" selected="<%= !queryAndOperator %>" value="false" />
 	</aui:select>
 
-	<aui:select cssClass="asset-query-name" id='<%= randomNamespace + "selector" %>' inlineLabel="left" label="of-the-following" name='<%= "queryName" + index %>'>
+	<aui:select cssClass="asset-query-name" id='<%= randomNamespace + "selector" %>' inlineField="<%= true %>" label="of-the-following" name='<%= "queryName" + index %>'>
 		<aui:option label="tags" selected='<%= Validator.equals(queryName, "assetTags") %>' value="assetTags" />
 		<aui:option label="categories" selected='<%= Validator.equals(queryName, "assetCategories") %>' value="assetCategories" />
 	</aui:select>
@@ -62,7 +62,6 @@ if (queryLogicIndex >= 0) {
 	<div class="field tags-selector <%= Validator.equals(queryName, "assetTags") ? StringPool.BLANK : "hide" %>">
 		<liferay-ui:asset-tags-selector
 			curTags='<%= Validator.equals(queryName, "assetTags") ? queryValues : null %>'
-			focus="<%= false %>"
 			groupIds="<%= categorizableGroupIds %>"
 			hiddenInput='<%= "queryTagNames" + index %>'
 		/>
@@ -71,7 +70,6 @@ if (queryLogicIndex >= 0) {
 	<div class="field categories-selector <%= Validator.equals(queryName, "assetCategories") ? StringPool.BLANK : "hide" %>">
 		<liferay-ui:asset-categories-selector
 			curCategoryIds='<%= Validator.equals(queryName, "assetCategories") ? queryValues : null %>'
-			focus="<%= false %>"
 			hiddenInput='<%= "queryCategoryIds" + index %>'
 		/>
 	</div>

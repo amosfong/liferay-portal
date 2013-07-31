@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Ticket}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Ticket
+ * @author Brian Wing Shun Chan
+ * @see Ticket
  * @generated
  */
 public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
@@ -438,6 +440,25 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	@Override
 	public boolean isExpired() {
 		return _ticket.isExpired();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof TicketWrapper)) {
+			return false;
+		}
+
+		TicketWrapper ticketWrapper = (TicketWrapper)obj;
+
+		if (Validator.equals(_ticket, ticketWrapper._ticket)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

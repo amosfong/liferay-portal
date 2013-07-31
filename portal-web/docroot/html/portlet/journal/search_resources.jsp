@@ -126,14 +126,8 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 				</span>
 			</c:if>
 
-			<liferay-ui:icon cssClass="close-search" id="closeSearch" image="../aui/closethick" url="javascript:;" />
+			<liferay-ui:icon cssClass="close-search" id="closeSearch" image="../aui/remove" url="javascript:;" />
 		</div>
-
-		<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
-			<aui:script>
-				Liferay.Util.focusFormField(document.<portlet:namespace />fm1.<portlet:namespace />keywords);
-			</aui:script>
-		</c:if>
 
 		<aui:script use="aui-base">
 			A.one('#<portlet:namespace />closeSearch').on(
@@ -217,7 +211,6 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 							if (Validator.isNotNull(keywords)) {
 								searchContext.setAttribute(Field.CONTENT, keywords);
 								searchContext.setAttribute(Field.DESCRIPTION, keywords);
-								searchContext.setAttribute(Field.STATUS, WorkflowConstants.STATUS_ANY);
 								searchContext.setAttribute(Field.TITLE, keywords);
 								searchContext.setAttribute("articleId", keywords);
 								searchContext.setKeywords(keywords);
@@ -250,13 +243,6 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 						total = hits.getLength();
 
 						searchContainer.setTotal(total);
-
-						if (searchContainer.isRecalculateCur()) {
-							searchContext.setEnd(searchContainer.getEnd());
-							searchContext.setStart(searchContainer.getStart());
-
-							hits = indexer.search(searchContext);
-						}
 
 						PortletURL hitURL = liferayPortletResponse.createRenderURL();
 
@@ -385,6 +371,8 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 								<c:when test="<%= (curArticle != null) && JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.VIEW) %>">
 
 									<%
+									String articleImageURL = curArticle.getArticleImageURL(themeDisplay);
+
 									PortletURL rowURL = liferayPortletResponse.createRenderURL();
 
 									rowURL.setParameter("struts_action", "/journal/edit_article");
@@ -406,7 +394,7 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 										rowCheckerName="<%= JournalArticle.class.getSimpleName() %>"
 										showCheckbox="<%= JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.DELETE) || JournalArticlePermission.contains(permissionChecker, curArticle, ActionKeys.UPDATE) %>"
 										status="<%= curArticle.getStatus() %>"
-										thumbnailSrc='<%= themeDisplay.getPathThemeImages() + "/file_system/large/article.png" %>'
+										thumbnailSrc='<%= Validator.isNotNull(articleImageURL) ? articleImageURL : themeDisplay.getPathThemeImages() + "/file_system/large/article.png" %>'
 										title="<%= curArticle.getTitle(locale) %>"
 										url="<%= rowURL.toString() %>"
 									/>
@@ -430,10 +418,10 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, entryEn
 					<div class="alert alert-info">
 
 						<%
-						String message = LanguageUtil.get(pageContext, "no-articles-were-found-that-matched-the-specified-filters");
+						String message = LanguageUtil.get(pageContext, "no-web-content-was-found-that-matched-the-specified-filters");
 
 						if (!advancedSearch) {
-							message = LanguageUtil.format(pageContext, "no-articles-were-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(keywords) + "</strong>");
+							message = LanguageUtil.format(pageContext, "no-web-content-was-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(keywords) + "</strong>");
 						}
 						%>
 

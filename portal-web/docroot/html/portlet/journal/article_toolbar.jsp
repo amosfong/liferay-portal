@@ -39,22 +39,59 @@ if ((article != null) && article.isDraft()) {
 
 	var toolbarButtonGroup = [];
 
-	<c:if test="<%= (article != null) && Validator.isNotNull(structureId) && (classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
+	<c:if test="<%= (article != null) && (classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
+		<liferay-portlet:renderURL plid="<%= JournalUtil.getPreviewPlid(article, themeDisplay) %>" var="previewArticleContentURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+			<portlet:param name="struts_action" value="/journal/preview_article_content" />
+			<portlet:param name="groupId" value="<%= String.valueOf(article.getGroupId()) %>" />
+			<portlet:param name="articleId" value="<%= article.getArticleId() %>" />
+			<portlet:param name="version" value="<%= String.valueOf(article.getVersion()) %>" />
+		</liferay-portlet:renderURL>
+
+		var previewArticleContentURL = '<%= previewArticleContentURL %>';
+
+		var form = A.one(document.<portlet:namespace />fm1);
+
+		form.delegate(
+			'change',
+			function(event) {
+				previewArticleContentURL = null;
+			},
+			':input'
+		);
+
 		toolbarButtonGroup.push(
 			{
 				icon: 'icon-search',
-				id: '<portlet:namespace />previewArticleButton',
-				label: '<%= UnicodeLanguageUtil.get(pageContext, "preview") %>'
-			}
-		);
-	</c:if>
+				label: '<%= UnicodeLanguageUtil.get(pageContext, "preview") %>',
+				on: {
+					click: function(event) {
+						event.domEvent.preventDefault();
 
-	<c:if test="<%= (article != null) && Validator.isNotNull(structureId) %>">
-		toolbarButtonGroup.push(
-			{
-				icon: 'icon-download',
-				id: '<portlet:namespace />downloadArticleContentButton',
-				label: '<%= UnicodeLanguageUtil.get(pageContext, "download") %>'
+						if (previewArticleContentURL && !(typeof CKEDITOR === 'undefined') && !CKEDITOR.instances.<portlet:namespace />articleContent.checkDirty()) {
+							Liferay.fire(
+								'previewArticle',
+								{
+									title: '<%= article.getTitle(locale) %>',
+									uri: '<%= previewArticleContentURL.toString() %>'
+								}
+							);
+						}
+						else if (confirm('<liferay-ui:message key="in-order-to-preview-your-changes,-the-web-content-will-be-saved-as-a-draft" />')) {
+							var hasStructure = window.<portlet:namespace />journalPortlet.hasStructure();
+							var hasTemplate = window.<portlet:namespace />journalPortlet.hasTemplate();
+							var updateStructureDefaultValues = window.<portlet:namespace />journalPortlet.updateStructureDefaultValues();
+
+							if (hasStructure && !hasTemplate && !updateStructureDefaultValues) {
+								window.<portlet:namespace />journalPortlet.displayTemplateMessage();
+							}
+							else {
+								form.one('#<portlet:namespace /><%= Constants.CMD %>').val('<%= Constants.PREVIEW %>');
+
+								submitForm(form);
+							}
+						}
+					}
+				}
 			}
 		);
 	</c:if>
@@ -115,7 +152,7 @@ if ((article != null) && article.isDraft()) {
 	<c:if test="<%= (article != null) && JournalArticlePermission.contains(permissionChecker, article, ActionKeys.DELETE) && !article.isApproved() && !article.isDraft() %>">
 		toolbarButtonGroup.push(
 			{
-				icon: 'icon-trash',
+				icon: 'icon-remove',
 				label: '<liferay-ui:message key="<%= deleteButtonLabel %>" />',
 				on: {
 					click: function() {
@@ -141,7 +178,7 @@ if ((article != null) && article.isDraft()) {
 				icon: 'icon-time',
 				label: '<%= UnicodeLanguageUtil.get(pageContext, "view-history") %>',
 				on: {
-					click: function (event) {
+					click: function(event) {
 						window.location = '<%= viewHistoryURL %>';
 
 						event.domEvent.preventDefault();

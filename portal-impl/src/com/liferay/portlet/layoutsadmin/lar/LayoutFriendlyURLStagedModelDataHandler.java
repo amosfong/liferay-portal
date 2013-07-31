@@ -14,14 +14,19 @@
 
 package com.liferay.portlet.layoutsadmin.lar;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutFriendlyURL;
 import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.persistence.LayoutFriendlyURLUtil;
+
+import java.util.Map;
 
 /**
  * @author Sergio González
@@ -31,6 +36,19 @@ public class LayoutFriendlyURLStagedModelDataHandler
 
 	public static final String[] CLASS_NAMES =
 		{LayoutFriendlyURL.class.getName()};
+
+	@Override
+	public void deleteStagedModel(
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException, SystemException {
+
+		LayoutFriendlyURL layoutFriendlyURL =
+			LayoutFriendlyURLLocalServiceUtil.
+				getLayoutFriendlyURLByUuidAndGroupId(uuid, groupId);
+
+		LayoutFriendlyURLLocalServiceUtil.deleteLayoutFriendlyURL(
+			layoutFriendlyURL);
+	}
 
 	@Override
 	public String[] getClassNames() {
@@ -61,7 +79,12 @@ public class LayoutFriendlyURLStagedModelDataHandler
 		long userId = portletDataContext.getUserId(
 			layoutFriendlyURL.getUserUuid());
 
-		long plid = portletDataContext.getPlid();
+		Map<Long, Long> plids =
+			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+				Layout.class);
+
+		long plid = MapUtil.getLong(
+			plids, layoutFriendlyURL.getPlid(), layoutFriendlyURL.getPlid());
 
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
 			layoutFriendlyURL, LayoutPortletDataHandler.NAMESPACE);
@@ -70,9 +93,12 @@ public class LayoutFriendlyURLStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			LayoutFriendlyURL existingLayoutFriendlyURL =
-				LayoutFriendlyURLUtil.fetchByUUID_G(
-					layoutFriendlyURL.getUuid(),
-					portletDataContext.getScopeGroupId());
+				getExistingLayoutFriendlyURL(
+					portletDataContext, layoutFriendlyURL, plid);
+
+			layoutFriendlyURL= getUniqueLayoutFriendlyURL(
+				portletDataContext, layoutFriendlyURL,
+				existingLayoutFriendlyURL);
 
 			if (existingLayoutFriendlyURL == null) {
 				serviceContext.setUuid(layoutFriendlyURL.getUuid());
@@ -96,6 +122,9 @@ public class LayoutFriendlyURLStagedModelDataHandler
 			}
 		}
 		else {
+			layoutFriendlyURL = getUniqueLayoutFriendlyURL(
+				portletDataContext, layoutFriendlyURL, null);
+
 			importedLayoutFriendlyURL =
 				LayoutFriendlyURLLocalServiceUtil.addLayoutFriendlyURL(
 					userId, portletDataContext.getCompanyId(),
@@ -108,6 +137,56 @@ public class LayoutFriendlyURLStagedModelDataHandler
 		portletDataContext.importClassedModel(
 			layoutFriendlyURL, importedLayoutFriendlyURL,
 			LayoutPortletDataHandler.NAMESPACE);
+	}
+
+	protected LayoutFriendlyURL getExistingLayoutFriendlyURL(
+			PortletDataContext portletDataContext,
+			LayoutFriendlyURL layoutFriendlyURL, long plid)
+		throws Exception {
+
+		LayoutFriendlyURL existingLayoutFriendlyURL =
+			LayoutFriendlyURLLocalServiceUtil.
+				fetchLayoutFriendlyURLByUuidAndGroupId(
+					layoutFriendlyURL.getUuid(),
+					portletDataContext.getScopeGroupId());
+
+		if (existingLayoutFriendlyURL == null) {
+			existingLayoutFriendlyURL =
+				LayoutFriendlyURLLocalServiceUtil.fetchLayoutFriendlyURL(
+					plid, layoutFriendlyURL.getLanguageId(), false);
+		}
+
+		return existingLayoutFriendlyURL;
+	}
+
+	protected LayoutFriendlyURL getUniqueLayoutFriendlyURL(
+			PortletDataContext portletDataContext,
+			LayoutFriendlyURL layoutFriendlyURL,
+			LayoutFriendlyURL existingLayoutFriendlyURL)
+		throws Exception {
+
+		String friendlyURL = layoutFriendlyURL.getFriendlyURL();
+
+		for (int i = 1;; i++) {
+			LayoutFriendlyURL duplicateLayoutFriendlyURL =
+				LayoutFriendlyURLLocalServiceUtil.fetchLayoutFriendlyURL(
+					portletDataContext.getScopeGroupId(),
+					layoutFriendlyURL.isPrivateLayout(),
+					layoutFriendlyURL.getFriendlyURL(),
+					layoutFriendlyURL.getLanguageId());
+
+			if ((duplicateLayoutFriendlyURL == null) ||
+				((existingLayoutFriendlyURL != null) &&
+				 (existingLayoutFriendlyURL.getLayoutFriendlyURLId() ==
+					duplicateLayoutFriendlyURL.getLayoutFriendlyURLId()))) {
+
+				break;
+			}
+
+			layoutFriendlyURL.setFriendlyURL(friendlyURL + i);
+		}
+
+		return layoutFriendlyURL;
 	}
 
 }

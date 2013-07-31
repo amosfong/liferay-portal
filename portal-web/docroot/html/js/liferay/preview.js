@@ -9,7 +9,15 @@ AUI.add(
 
 		var CSS_IMAGE_SELECTED = 'lfr-preview-file-image-selected';
 
+		var STR_CLICK = 'click';
+
+		var STR_CURRENT_INDEX = 'currentIndex';
+
+		var STR_MAX_INDEX = 'maxIndex';
+
 		var STR_SCROLLER = 'scroller';
+
+		var STR_SRC = 'src';
 
 		var MAP_EVENT_SCROLLER = {
 			src: STR_SCROLLER
@@ -23,11 +31,9 @@ AUI.add(
 
 		var TPL_LOADING_INDICATOR = '<div class="lfr-preview-file-loading-indicator hide">{0}&nbsp;</div>';
 
-		var TPL_MAX_ARROW_LEFT = '<a href="javascript:;" class="image-viewer-arrow image-viewer-arrow-left lfr-preview-file-arrow lfr-preview-file-arrow-left"></a>';
+		var TPL_MAX_ARROW_LEFT = '<a href="javascript:;" class="image-viewer-control carousel-control left lfr-preview-file-arrow">‹</a>';
 
-		var TPL_MAX_ARROW_RIGHT = '<a href="javascript:;" class="image-viewer-arrow image-viewer-arrow-right lfr-preview-file-arrow lfr-preview-file-arrow-right"></a>';
-
-		var TPL_MAX_CLOSE = '<a href="javascript:;" class="image-viewer-close lfr-preview-file-close"></a>';
+		var TPL_MAX_ARROW_RIGHT = '<a href="javascript:;" class="image-viewer-control carousel-control right lfr-preview-file-arrow">›</a>';
 
 		var TPL_MAX_CONTROLS = '<span class="lfr-preview-file-image-overlay-controls"></span>';
 
@@ -100,7 +106,7 @@ AUI.add(
 						var imageListContent = instance._imageListContent;
 
 						imageListContent.delegate('mouseenter', instance._onImageListMouseEnter, 'a', instance);
-						imageListContent.delegate('click', instance._onImageListClick, 'a', instance);
+						imageListContent.delegate(STR_CLICK, instance._onImageListClick, 'a', instance);
 
 						imageListContent.on('scroll', instance._onImageListScroll, instance);
 					},
@@ -120,7 +126,7 @@ AUI.add(
 
 						var imageIndex = previewImage.attr(ATTR_DATA_IMAGE_INDEX);
 
-						instance.set('currentIndex', imageIndex, {src: 'scroller'});
+						instance.set(STR_CURRENT_INDEX, imageIndex, {src: 'scroller'});
 					},
 
 					_onImageListMouseEnter: function(event) {
@@ -132,7 +138,7 @@ AUI.add(
 
 						var imageIndex = previewImage.attr(ATTR_DATA_IMAGE_INDEX);
 
-						instance.set('currentIndex', imageIndex, MAP_EVENT_SCROLLER);
+						instance.set(STR_CURRENT_INDEX, imageIndex, MAP_EVENT_SCROLLER);
 					},
 
 					_onImageListScroll: function(event) {
@@ -140,7 +146,7 @@ AUI.add(
 
 						var imageListContentEl = instance._imageListContent.getDOM();
 
-						var maxIndex = instance.get('maxIndex');
+						var maxIndex = instance.get(STR_MAX_INDEX);
 
 						var previewFileCountDown = instance._previewFileCountDown;
 
@@ -167,6 +173,8 @@ AUI.add(
 
 					_maximizePreview: function(event) {
 						var instance = this;
+
+						instance._getMaxPreviewImage().attr(STR_SRC, instance._baseImageURL + (instance.get(STR_CURRENT_INDEX) + 1));
 
 						instance._getMaxOverlay().show();
 					},
@@ -212,15 +220,12 @@ AUI.add(
 							var arrowLeft = A.Node.create(TPL_MAX_ARROW_LEFT);
 							var arrowRight = A.Node.create(TPL_MAX_ARROW_RIGHT);
 
-							var close = A.Node.create(TPL_MAX_CLOSE);
-
 							maxPreviewControls = A.Node.create(TPL_MAX_CONTROLS);
 
 							maxPreviewControls.append(arrowLeft);
 							maxPreviewControls.append(arrowRight);
-							maxPreviewControls.append(close);
 
-							maxPreviewControls.delegate('click', instance._onMaxPreviewControlsClick, '.lfr-preview-file-arrow, .lfr-preview-file-close', instance);
+							maxPreviewControls.delegate(STR_CLICK, instance._onMaxPreviewControlsClick, '.lfr-preview-file-arrow', instance);
 
 							instance._maxPreviewControls = maxPreviewControls;
 						}
@@ -268,7 +273,7 @@ AUI.add(
 						if (!maxOverlay) {
 							var maxOverlayMask = instance._getMaxOverlayMask();
 
-							maxOverlay = new A.OverlayBase(
+							maxOverlay = new A.Modal(
 								{
 									after: {
 										render: function(event) {
@@ -278,14 +283,16 @@ AUI.add(
 											maxOverlayMask.set('visible', event.newVal);
 										}
 									},
+									centered: true,
 									cssClass: 'lfr-preview-file-image-overlay',
 									height: '90%',
-									width: '85%',
-									zIndex: 1005
+									plugins: [Liferay.WidgetZIndex],
+									width: '85%'
 								}
 							).render();
 
-							maxOverlay.get('contentBox').append(instance._getMaxPreviewImage());
+							maxOverlay.getStdModNode(A.WidgetStdMod.BODY).append(instance._getMaxPreviewImage());
+
 							maxOverlay.get('boundingBox').append(instance._getMaxPreviewControls());
 
 							instance._maxOverlay = maxOverlay;
@@ -302,17 +309,14 @@ AUI.add(
 						var maxOverlay = instance._getMaxOverlay();
 
 						if (target.hasClass('lfr-preview-file-arrow')) {
-							if (target.hasClass('lfr-preview-file-arrow-right')) {
+							if (target.hasClass('right')) {
 								instance._updateIndex(1);
 							}
-							else if (target.hasClass('lfr-preview-file-arrow-left')) {
+							else if (target.hasClass('left')) {
 								instance._updateIndex(-1);
 							}
 
-							instance._getMaxPreviewImage().attr('src', instance._baseImageURL + (instance.get('currentIndex') + 1));
-						}
-						else if (target.hasClass('lfr-preview-file-close')) {
-							maxOverlay.hide();
+							instance._getMaxPreviewImage().attr(STR_SRC, instance._baseImageURL + (instance.get(STR_CURRENT_INDEX) + 1));
 						}
 					},
 
@@ -323,9 +327,9 @@ AUI.add(
 						var previewFileCountDown = instance._previewFileCountDown;
 						var displayedIndex;
 
-						var currentIndex = instance.get('currentIndex');
+						var currentIndex = instance.get(STR_CURRENT_INDEX);
 
-						maxIndex = maxIndex || instance.get('maxIndex');
+						maxIndex = maxIndex || instance.get(STR_MAX_INDEX);
 
 						var baseImageURL = instance._baseImageURL;
 
@@ -401,7 +405,7 @@ AUI.add(
 							value = A.Attribute.INVALID_VALUE;
 						}
 						else {
-							value = Math.min(Math.max(value, 0), instance.get('maxIndex') - 1);
+							value = Math.min(Math.max(value, 0), instance.get(STR_MAX_INDEX) - 1);
 						}
 
 						return value;
@@ -410,11 +414,11 @@ AUI.add(
 					_updateIndex: function(increment) {
 						var instance = this;
 
-						var currentIndex = instance.get('currentIndex');
+						var currentIndex = instance.get(STR_CURRENT_INDEX);
 
 						currentIndex += increment;
 
-						instance.set('currentIndex', currentIndex);
+						instance.set(STR_CURRENT_INDEX, currentIndex);
 					},
 
 					_uiSetCurrentIndex: function(value, src, prevVal) {
@@ -422,7 +426,7 @@ AUI.add(
 
 						var displayedIndex = value + 1;
 
-						instance._currentPreviewImage.attr('src', instance._baseImageURL + displayedIndex);
+						instance._currentPreviewImage.attr(STR_SRC, instance._baseImageURL + displayedIndex);
 						instance._previewFileIndexNode.setContent(displayedIndex);
 
 						var nodeList = instance._nodeList;
@@ -453,6 +457,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'aui-overlay-mask-deprecated', 'aui-toolbar']
+		requires: ['aui-base', 'aui-modal', 'aui-overlay-mask-deprecated', 'aui-toolbar', 'liferay-widget-zindex']
 	}
 );

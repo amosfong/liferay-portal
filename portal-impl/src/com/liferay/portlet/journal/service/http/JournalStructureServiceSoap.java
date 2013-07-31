@@ -33,16 +33,6 @@ import java.util.Map;
  * support certain types.
  *
  * <p>
- * ServiceBuilder follows certain rules in translating the methods. For example,
- * if the method in the service utility returns a {@link java.util.List}, that
- * is translated to an array of {@link com.liferay.portlet.journal.model.JournalStructureSoap}.
- * If the method in the service utility returns a
- * {@link com.liferay.portlet.journal.model.JournalStructure}, that is translated to a
- * {@link com.liferay.portlet.journal.model.JournalStructureSoap}. Methods that SOAP cannot
- * safely wire are skipped.
- * </p>
- *
- * <p>
  * The benefits of using the SOAP utility is that it is cross platform
  * compatible. SOAP allows different languages like Java, .NET, C++, PHP, and
  * even Perl, to call the generated services. One drawback of SOAP is that it is
@@ -59,10 +49,11 @@ import java.util.Map;
  * The SOAP utility is only generated for remote services.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       JournalStructureServiceHttp
- * @see       com.liferay.portlet.journal.model.JournalStructureSoap
- * @see       com.liferay.portlet.journal.service.JournalStructureServiceUtil
+ * @author Brian Wing Shun Chan
+ * @see JournalStructureServiceHttp
+ * @see com.liferay.portlet.journal.service.JournalStructureServiceUtil
+ * @deprecated As of 6.2.0, since Web Content Administration now uses the
+            Dynamic Data Mapping framework to handle templates
  * @generated
  */
 public class JournalStructureServiceSoap {

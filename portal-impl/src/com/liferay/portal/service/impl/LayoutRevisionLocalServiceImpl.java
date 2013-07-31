@@ -123,6 +123,10 @@ public class LayoutRevisionLocalServiceImpl
 			layoutRevision.getLayoutRevisionId(), layoutRevision,
 			serviceContext);
 
+		StagingUtil.setRecentLayoutRevisionId(
+			user, layoutSetBranchId, plid,
+			layoutRevision.getLayoutRevisionId());
+
 		return layoutRevision;
 	}
 
@@ -162,6 +166,13 @@ public class LayoutRevisionLocalServiceImpl
 			catch (NoSuchPortletPreferencesException nsppe) {
 			}
 		}
+
+		User user = userPersistence.findByPrimaryKey(
+			layoutRevision.getUserId());
+
+		StagingUtil.deleteRecentLayoutRevisionId(
+			user, layoutRevision.getLayoutSetBranchId(),
+			layoutRevision.getPlid());
 
 		return layoutRevisionPersistence.remove(layoutRevision);
 	}
@@ -225,6 +236,15 @@ public class LayoutRevisionLocalServiceImpl
 		catch (NoSuchLayoutRevisionException nslre) {
 			return null;
 		}
+	}
+
+	@Override
+	public LayoutRevision fetchLayoutRevision(
+			long layoutSetBranchId, boolean head, long plid)
+		throws SystemException {
+
+		return layoutRevisionPersistence.fetchByL_H_P(
+			layoutSetBranchId, head, plid);
 	}
 
 	@Override
@@ -320,6 +340,16 @@ public class LayoutRevisionLocalServiceImpl
 
 		return layoutRevisionPersistence.findByL_P_S(
 			layoutSetBranchId, plid, status);
+	}
+
+	@Override
+	public List<LayoutRevision> getLayoutRevisions(
+			long layoutSetBranchId, long plid, int start, int end,
+			OrderByComparator orderByComparator)
+		throws SystemException {
+
+		return layoutRevisionPersistence.findByL_P(
+			layoutSetBranchId, plid, start, end, orderByComparator);
 	}
 
 	@Override
@@ -420,16 +450,18 @@ public class LayoutRevisionLocalServiceImpl
 				layoutRevision, layoutRevision.getParentLayoutRevisionId(),
 				serviceContext);
 
-			StagingUtil.deleteRecentLayoutRevisionId(
-				user, layoutRevision.getLayoutSetBranchId(),
-				layoutRevision.getPlid());
-
 			StagingUtil.setRecentLayoutBranchId(
 				user, layoutRevision.getLayoutSetBranchId(),
 				layoutRevision.getPlid(), layoutRevision.getLayoutBranchId());
 		}
 		else {
-			layoutRevision = oldLayoutRevision;
+			if (_layoutRevisionId.get() > 0) {
+				layoutRevision = layoutRevisionPersistence.findByPrimaryKey(
+					_layoutRevisionId.get());
+			}
+			else {
+				layoutRevision = oldLayoutRevision;
+			}
 
 			layoutRevision.setName(name);
 			layoutRevision.setTitle(title);

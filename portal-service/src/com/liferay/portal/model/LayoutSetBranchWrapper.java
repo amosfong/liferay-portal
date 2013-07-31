@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.Validator;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link LayoutSetBranch}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       LayoutSetBranch
+ * @author Brian Wing Shun Chan
+ * @see LayoutSetBranch
  * @generated
  */
 public class LayoutSetBranchWrapper implements LayoutSetBranch,
@@ -880,6 +882,26 @@ public class LayoutSetBranchWrapper implements LayoutSetBranch,
 	public void setSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties settingsProperties) {
 		_layoutSetBranch.setSettingsProperties(settingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof LayoutSetBranchWrapper)) {
+			return false;
+		}
+
+		LayoutSetBranchWrapper layoutSetBranchWrapper = (LayoutSetBranchWrapper)obj;
+
+		if (Validator.equals(_layoutSetBranch,
+					layoutSetBranchWrapper._layoutSetBranch)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

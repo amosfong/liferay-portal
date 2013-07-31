@@ -14,6 +14,7 @@
 
 package com.liferay.counter.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.Map;
  * This class is a wrapper for {@link Counter}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       Counter
+ * @author Brian Wing Shun Chan
+ * @see Counter
  * @generated
  */
 public class CounterWrapper implements Counter, ModelWrapper<Counter> {
@@ -230,6 +231,25 @@ public class CounterWrapper implements Counter, ModelWrapper<Counter> {
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_counter.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof CounterWrapper)) {
+			return false;
+		}
+
+		CounterWrapper counterWrapper = (CounterWrapper)obj;
+
+		if (Validator.equals(_counter, counterWrapper._counter)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

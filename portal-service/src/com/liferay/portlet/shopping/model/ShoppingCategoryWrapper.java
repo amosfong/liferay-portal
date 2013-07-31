@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.shopping.model;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +26,8 @@ import java.util.Map;
  * This class is a wrapper for {@link ShoppingCategory}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       ShoppingCategory
+ * @author Brian Wing Shun Chan
+ * @see ShoppingCategory
  * @generated
  */
 public class ShoppingCategoryWrapper implements ShoppingCategory,
@@ -476,6 +477,26 @@ public class ShoppingCategoryWrapper implements ShoppingCategory,
 	@Override
 	public boolean isRoot() {
 		return _shoppingCategory.isRoot();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ShoppingCategoryWrapper)) {
+			return false;
+		}
+
+		ShoppingCategoryWrapper shoppingCategoryWrapper = (ShoppingCategoryWrapper)obj;
+
+		if (Validator.equals(_shoppingCategory,
+					shoppingCategoryWrapper._shoppingCategory)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

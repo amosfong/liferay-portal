@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DLFileVersion}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DLFileVersion
+ * @author Brian Wing Shun Chan
+ * @see DLFileVersion
  * @generated
  */
 public class DLFileVersionWrapper implements DLFileVersion,
@@ -1018,7 +1020,9 @@ public class DLFileVersionWrapper implements DLFileVersion,
 	}
 
 	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder getFolder() {
+	public com.liferay.portlet.documentlibrary.model.DLFolder getFolder()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileVersion.getFolder();
 	}
 
@@ -1028,12 +1032,16 @@ public class DLFileVersionWrapper implements DLFileVersion,
 	}
 
 	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer() {
+	public com.liferay.portlet.documentlibrary.model.DLFolder getTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileVersion.getTrashContainer();
 	}
 
 	@Override
-	public boolean isInTrashContainer() {
+	public boolean isInTrashContainer()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileVersion.isInTrashContainer();
 	}
 
@@ -1041,6 +1049,30 @@ public class DLFileVersionWrapper implements DLFileVersion,
 	public void setExtraSettingsProperties(
 		com.liferay.portal.kernel.util.UnicodeProperties extraSettingsProperties) {
 		_dlFileVersion.setExtraSettingsProperties(extraSettingsProperties);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DLFileVersionWrapper)) {
+			return false;
+		}
+
+		DLFileVersionWrapper dlFileVersionWrapper = (DLFileVersionWrapper)obj;
+
+		if (Validator.equals(_dlFileVersion, dlFileVersionWrapper._dlFileVersion)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _dlFileVersion.getStagedModelType();
 	}
 
 	/**

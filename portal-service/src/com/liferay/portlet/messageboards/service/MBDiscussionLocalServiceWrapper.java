@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link MBDiscussionLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       MBDiscussionLocalService
+ * @author Brian Wing Shun Chan
+ * @see MBDiscussionLocalService
  * @generated
  */
 public class MBDiscussionLocalServiceWrapper implements MBDiscussionLocalService,
@@ -166,11 +166,60 @@ public class MBDiscussionLocalServiceWrapper implements MBDiscussionLocalService
 		return _mbDiscussionLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbDiscussionLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.messageboards.model.MBDiscussion fetchMBDiscussion(
 		long discussionId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _mbDiscussionLocalService.fetchMBDiscussion(discussionId);
+	}
+
+	/**
+	* Returns the message boards discussion with the matching UUID and company.
+	*
+	* @param uuid the message boards discussion's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards discussion, or <code>null</code> if a matching message boards discussion could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBDiscussion fetchMBDiscussionByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbDiscussionLocalService.fetchMBDiscussionByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the message boards discussion matching the UUID and group.
+	*
+	* @param uuid the message boards discussion's UUID
+	* @param groupId the primary key of the group
+	* @return the matching message boards discussion, or <code>null</code> if a matching message boards discussion could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBDiscussion fetchMBDiscussionByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _mbDiscussionLocalService.fetchMBDiscussionByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class MBDiscussionLocalServiceWrapper implements MBDiscussionLocalService
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _mbDiscussionLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the message boards discussion with the matching UUID and company.
+	*
+	* @param uuid the message boards discussion's UUID
+	* @param companyId the primary key of the company
+	* @return the matching message boards discussion
+	* @throws PortalException if a matching message boards discussion could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.messageboards.model.MBDiscussion getMBDiscussionByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _mbDiscussionLocalService.getMBDiscussionByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**

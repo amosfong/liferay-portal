@@ -25,10 +25,12 @@
 					<i class="<%= iconClass %>"></i>
 				</c:if>
 
-				<liferay-ui:message key="<%= label %>" />
+				<span class="nav-item-label">
+					<liferay-ui:message key="<%= label %>" />
+				</span>
 
 				<c:if test="<%= dropdown %>">
-					<b class="caret"></b>
+					<i class="icon-caret-down"></i>
 				</c:if>
 		<c:if test="<%= Validator.isNotNull(href) %>">
 			</a>
@@ -72,6 +74,6 @@
 		</aui:script>
 
 		<c:if test="<%= wrapDropDownMenu %>">
-			<ul class="dropdown-menu">
+			<ul class='dropdown-menu <%= LanguageUtil.get(locale, "lang.dir").equals("rtl") ? "pull-right" : StringPool.BLANK %>'>
 		</c:if>
 	</c:if>

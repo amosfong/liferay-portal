@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.lar.PortletDataContextListener;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.lar.UserIdStrategy;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -54,6 +55,8 @@ import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Lock;
+import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.PortletModel;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcedModel;
 import com.liferay.portal.model.Role;
@@ -72,7 +75,6 @@ import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.TeamLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.NoSuchEntryException;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLink;
@@ -83,9 +85,7 @@ import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
 import com.liferay.portlet.blogs.model.impl.BlogsEntryImpl;
 import com.liferay.portlet.bookmarks.model.impl.BookmarksEntryImpl;
 import com.liferay.portlet.bookmarks.model.impl.BookmarksFolderImpl;
-import com.liferay.portlet.calendar.model.impl.CalEventImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileRankImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileShortcutImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -93,8 +93,6 @@ import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
 import com.liferay.portlet.journal.model.impl.JournalArticleImpl;
 import com.liferay.portlet.journal.model.impl.JournalFeedImpl;
-import com.liferay.portlet.journal.model.impl.JournalStructureImpl;
-import com.liferay.portlet.journal.model.impl.JournalTemplateImpl;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.model.MBThread;
@@ -179,15 +177,12 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	public void addAssetLinks(Class<?> clazz, long classPK)
-		throws PortalException, SystemException {
+		throws SystemException {
 
-		AssetEntry assetEntry = null;
+		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
+			clazz.getName(), classPK);
 
-		try {
-			assetEntry = AssetEntryLocalServiceUtil.getEntry(
-				clazz.getName(), classPK);
-		}
-		catch (NoSuchEntryException nsee) {
+		if (assetEntry == null) {
 			return;
 		}
 
@@ -281,7 +276,9 @@ public class PortletDataContextImpl implements PortletDataContext {
 		Class<?> clazz = classedModel.getModelClass();
 		long classPK = getClassPK(classedModel);
 
+		addAssetCategories(clazz, classPK);
 		addAssetLinks(clazz, classPK);
+		addAssetTags(clazz, classPK);
 		addExpando(element, path, classedModel);
 		addLocks(clazz, String.valueOf(classPK));
 		addPermissions(clazz, classPK);
@@ -289,20 +286,18 @@ public class PortletDataContextImpl implements PortletDataContext {
 		boolean portletDataAll = MapUtil.getBoolean(
 			getParameterMap(), PortletDataHandlerKeys.PORTLET_DATA_ALL);
 
-		if (portletDataAll || getBooleanParameter(namespace, "categories")) {
-			addAssetCategories(clazz, classPK);
-		}
+		if (portletDataAll ||
+			MapUtil.getBoolean(
+				getParameterMap(), PortletDataHandlerKeys.COMMENTS)) {
 
-		if (portletDataAll || getBooleanParameter(namespace, "comments")) {
 			addComments(clazz, classPK);
 		}
 
-		if (portletDataAll || getBooleanParameter(namespace, "ratings")) {
-			addRatingsEntries(clazz, classPK);
-		}
+		if (portletDataAll ||
+			MapUtil.getBoolean(
+				getParameterMap(), PortletDataHandlerKeys.RATINGS)) {
 
-		if (portletDataAll || getBooleanParameter(namespace, "tags")) {
-			addAssetTags(clazz, classPK);
+			addRatingsEntries(clazz, classPK);
 		}
 
 		addZipEntry(path, classedModel);
@@ -335,8 +330,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 		}
 
 		for (MBMessage message : messages) {
-			message.setUserUuid(message.getUserUuid());
-
 			addRatingsEntries(MBDiscussion.class, message.getPrimaryKey());
 		}
 
@@ -365,7 +358,16 @@ public class PortletDataContextImpl implements PortletDataContext {
 			modifiedDatePropertyName);
 
 		dynamicQuery.add(modifiedDateProperty.ge(_startDate));
-		dynamicQuery.add(modifiedDateProperty.lt(_endDate));
+		dynamicQuery.add(modifiedDateProperty.le(_endDate));
+	}
+
+	@Override
+	public void addDeletionSystemEventStagedModelTypes(
+		StagedModelType... stagedModelTypes) {
+
+		for (StagedModelType stagedModelType : stagedModelTypes) {
+			_deletionSystemEventModelTypes.add(stagedModelType);
+		}
 	}
 
 	@Override
@@ -455,7 +457,8 @@ public class PortletDataContextImpl implements PortletDataContext {
 				((type == RoleConstants.TYPE_ORGANIZATION) &&
 				 group.isOrganization()) ||
 				((type == RoleConstants.TYPE_SITE) &&
-				 (group.isLayoutSetPrototype() || group.isSite()))) {
+				 (group.isLayout() || group.isLayoutSetPrototype() ||
+				  group.isSite()))) {
 
 				String name = role.getName();
 
@@ -532,10 +535,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return;
 		}
 
-		for (RatingsEntry entry : ratingsEntries) {
-			entry.setUserUuid(entry.getUserUuid());
-		}
-
 		_ratingsEntriesMap.put(
 			getPrimaryKeyString(clazz, classPK), ratingsEntries);
 	}
@@ -550,112 +549,86 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, Class<?> clazz, String referenceType,
 		boolean missing) {
 
 		return addReferenceElement(
-			referrerStagedModel, element, classedModel, clazz.getName(),
+			referrerClassedModel, element, classedModel, clazz.getName(),
 			StringPool.BLANK, referenceType, missing);
 	}
 
 	@Override
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String referenceType, boolean missing) {
 
 		return addReferenceElement(
-			referrerStagedModel, element, classedModel,
+			referrerClassedModel, element, classedModel,
 			classedModel.getModelClassName(), StringPool.BLANK, referenceType,
 			missing);
 	}
 
 	@Override
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String binPath, String referenceType,
 		boolean missing) {
 
 		return addReferenceElement(
-			referrerStagedModel, element, classedModel,
+			referrerClassedModel, element, classedModel,
 			classedModel.getModelClassName(), binPath, referenceType, missing);
 	}
 
 	@Override
 	public Element addReferenceElement(
-		StagedModel referrerStagedModel, Element element,
+		ClassedModel referrerClassedModel, Element element,
 		ClassedModel classedModel, String className, String binPath,
 		String referenceType, boolean missing) {
 
+		Element referenceElement = doAddReferenceElement(
+			referrerClassedModel, element, classedModel, className, binPath,
+			referenceType, false);
+
+		String referenceKey = classedModel.getModelClassName();
+
+		referenceKey = referenceKey.concat(StringPool.POUND).concat(
+			String.valueOf(classedModel.getPrimaryKeyObj()));
+
 		if (missing) {
-			addReferenceElement(
-				referrerStagedModel, element, classedModel, className, binPath,
-				false);
-		}
+			if (_references.contains(referenceKey)) {
+				return referenceElement;
+			}
 
-		Element referenceElement = null;
+			_missingReferences.add(referenceKey);
 
-		if (missing) {
-			Element referencesElement = _missingReferencesElement;
-
-			referenceElement = referencesElement.addElement(
-				"missing-reference");
+			doAddReferenceElement(
+				referrerClassedModel, null, classedModel, className, binPath,
+				referenceType, true);
 		}
 		else {
-			Element referencesElement = element.element("references");
+			_references.add(referenceKey);
 
-			if (referencesElement == null) {
-				referencesElement = element.addElement("references");
+			if (_missingReferences.contains(referenceKey)) {
+				_missingReferences.remove(referenceKey);
+
+				StringBundler sb = new StringBundler(5);
+
+				sb.append("missing-reference[@class-name='");
+				sb.append(classedModel.getModelClassName());
+				sb.append("' and @class-pk='");
+				sb.append(String.valueOf(classedModel.getPrimaryKeyObj()));
+				sb.append("']");
+
+				XPath xPath = SAXReaderUtil.createXPath(sb.toString());
+
+				List<Node> missingReferenceNodes = xPath.selectNodes(
+					_missingReferencesElement);
+
+				for (Node missingReferenceNode : missingReferenceNodes) {
+					_missingReferencesElement.remove(missingReferenceNode);
+				}
 			}
-
-			referenceElement = referencesElement.addElement("reference");
-		}
-
-		referenceElement.addAttribute("class-name", className);
-
-		referenceElement.addAttribute(
-			"class-pk", String.valueOf(classedModel.getPrimaryKeyObj()));
-
-		if (missing) {
-			if (classedModel instanceof StagedModel) {
-				referenceElement.addAttribute(
-					"display-name",
-					StagedModelDataHandlerUtil.getDisplayName(
-						(StagedModel)classedModel));
-			}
-			else {
-				referenceElement.addAttribute(
-					"display-name",
-					String.valueOf(classedModel.getPrimaryKeyObj()));
-			}
-		}
-
-		if (classedModel instanceof StagedGroupedModel) {
-			StagedGroupedModel stagedGroupedModel =
-				(StagedGroupedModel)classedModel;
-
-			referenceElement.addAttribute(
-				"group-id", String.valueOf(stagedGroupedModel.getGroupId()));
-		}
-
-		if (Validator.isNotNull(binPath)) {
-			referenceElement.addAttribute("path", binPath);
-		}
-
-		referenceElement.addAttribute("type", referenceType);
-
-		if (missing) {
-			referenceElement.addAttribute(
-				"referrer-class-name", referrerStagedModel.getModelClassName());
-			referenceElement.addAttribute(
-				"referrer-display-name",
-				StagedModelDataHandlerUtil.getDisplayName(referrerStagedModel));
-		}
-
-		if (classedModel instanceof StagedModel) {
-			StagedModel stagedModel = (StagedModel)classedModel;
-
-			referenceElement.addAttribute("uuid", stagedModel.getUuid());
 		}
 
 		return referenceElement;
@@ -828,6 +801,20 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public boolean getBooleanParameter(String namespace, String name) {
+		return getBooleanParameter(namespace, name, true);
+	}
+
+	@Override
+	public boolean getBooleanParameter(
+		String namespace, String name, boolean useDefaultValue) {
+
+		if (!useDefaultValue) {
+			return MapUtil.getBoolean(
+				getParameterMap(),
+				PortletDataHandlerControl.getNamespacedControlName(
+					namespace, name));
+		}
+
 		boolean defaultValue = MapUtil.getBoolean(
 			getParameterMap(),
 			PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT, true);
@@ -861,6 +848,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	@Override
 	public String getDataStrategy() {
 		return _dataStrategy;
+	}
+
+	@Override
+	public Set<StagedModelType> getDeletionSystemEventStagedModelTypes() {
+		return _deletionSystemEventModelTypes;
 	}
 
 	@Override
@@ -1045,10 +1037,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public Element getReferenceDataElement(
-		Element parentElement, Class<?> clazz, long groupId, long classPk) {
+		Element parentElement, Class<?> clazz, long classPk) {
 
 		List<Element> referenceElements = getReferenceElements(
-			parentElement, clazz, groupId, null, classPk, null);
+			parentElement, clazz, 0, null, classPk, null);
 
 		List<Element> referenceDataElements = getReferenceDataElements(
 			referenceElements, clazz);
@@ -1079,13 +1071,12 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 	@Override
 	public Element getReferenceDataElement(
-		StagedModel parentStagedModel, Class<?> clazz, long groupId,
-		long classPk) {
+		StagedModel parentStagedModel, Class<?> clazz, long classPk) {
 
 		Element parentElement = getImportDataStagedModelElement(
 			parentStagedModel);
 
-		return getReferenceDataElement(parentElement, clazz, groupId, classPk);
+		return getReferenceDataElement(parentElement, clazz, classPk);
 	}
 
 	@Override
@@ -1131,6 +1122,13 @@ public class PortletDataContextImpl implements PortletDataContext {
 			parentStagedModel, clazz, referenceType);
 
 		return getReferenceDataElements(referenceElements, clazz);
+	}
+
+	@Override
+	public List<Element> getReferenceElements(
+		StagedModel parentStagedModel, Class<?> clazz) {
+
+		return getReferenceElements(parentStagedModel, clazz, null);
 	}
 
 	@Override
@@ -1352,11 +1350,17 @@ public class PortletDataContextImpl implements PortletDataContext {
 		boolean portletDataAll = MapUtil.getBoolean(
 			getParameterMap(), PortletDataHandlerKeys.PORTLET_DATA_ALL);
 
-		if (portletDataAll || getBooleanParameter(namespace, "comments")) {
+		if (portletDataAll ||
+			MapUtil.getBoolean(
+				getParameterMap(), PortletDataHandlerKeys.COMMENTS)) {
+
 			importComments(clazz, classPK, newClassPK, getScopeGroupId());
 		}
 
-		if (portletDataAll || getBooleanParameter(namespace, "ratings")) {
+		if (portletDataAll ||
+			MapUtil.getBoolean(
+				getParameterMap(), PortletDataHandlerKeys.RATINGS)) {
+
 			importRatingsEntries(clazz, classPK, newClassPK);
 		}
 	}
@@ -1619,6 +1623,19 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public boolean isCompanyStagedGroupedModel(
+		StagedGroupedModel stagedGroupedModel) {
+
+		if ((stagedGroupedModel.getGroupId() == getCompanyGroupId()) &&
+			(getGroupId() != getCompanyGroupId())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public boolean isDataStrategyMirror() {
 		if (_dataStrategy.equals(PortletDataHandlerKeys.DATA_STRATEGY_MIRROR) ||
 			_dataStrategy.equals(
@@ -1878,23 +1895,14 @@ public class PortletDataContextImpl implements PortletDataContext {
 
 		// Asset
 
-		boolean portletDataAll = MapUtil.getBoolean(
-			getParameterMap(), PortletDataHandlerKeys.PORTLET_DATA_ALL);
-
 		if (isResourceMain(classedModel)) {
-			if (portletDataAll ||
-				getBooleanParameter(namespace, "categories")) {
+			long[] assetCategoryIds = getAssetCategoryIds(clazz, classPK);
 
-				long[] assetCategoryIds = getAssetCategoryIds(clazz, classPK);
+			serviceContext.setAssetCategoryIds(assetCategoryIds);
 
-				serviceContext.setAssetCategoryIds(assetCategoryIds);
-			}
+			String[] assetTagNames = getAssetTagNames(clazz, classPK);
 
-			if (portletDataAll || getBooleanParameter(namespace, "tags")) {
-				String[] assetTagNames = getAssetTagNames(clazz, classPK);
-
-				serviceContext.setAssetTagNames(assetTagNames);
-			}
+			serviceContext.setAssetTagNames(assetTagNames);
 		}
 
 		// Expando
@@ -1924,6 +1932,95 @@ public class PortletDataContextImpl implements PortletDataContext {
 		}
 
 		return serviceContext;
+	}
+
+	protected Element doAddReferenceElement(
+		ClassedModel referrerClassedModel, Element element,
+		ClassedModel classedModel, String className, String binPath,
+		String referenceType, boolean missing) {
+
+		Element referenceElement = null;
+
+		if (missing) {
+			Element referencesElement = _missingReferencesElement;
+
+			referenceElement = referencesElement.addElement(
+				"missing-reference");
+		}
+		else {
+			Element referencesElement = element.element("references");
+
+			if (referencesElement == null) {
+				referencesElement = element.addElement("references");
+			}
+
+			referenceElement = referencesElement.addElement("reference");
+		}
+
+		referenceElement.addAttribute("class-name", className);
+
+		referenceElement.addAttribute(
+			"class-pk", String.valueOf(classedModel.getPrimaryKeyObj()));
+
+		if (missing) {
+			if (classedModel instanceof StagedModel) {
+				referenceElement.addAttribute(
+					"display-name",
+					StagedModelDataHandlerUtil.getDisplayName(
+						(StagedModel)classedModel));
+			}
+			else {
+				referenceElement.addAttribute(
+					"display-name",
+					String.valueOf(classedModel.getPrimaryKeyObj()));
+			}
+		}
+
+		if (classedModel instanceof StagedGroupedModel) {
+			StagedGroupedModel stagedGroupedModel =
+				(StagedGroupedModel)classedModel;
+
+			referenceElement.addAttribute(
+				"group-id", String.valueOf(stagedGroupedModel.getGroupId()));
+		}
+
+		if (Validator.isNotNull(binPath)) {
+			referenceElement.addAttribute("path", binPath);
+		}
+
+		referenceElement.addAttribute("type", referenceType);
+
+		if (missing) {
+			referenceElement.addAttribute(
+				"referrer-class-name",
+				referrerClassedModel.getModelClassName());
+
+			if (referrerClassedModel instanceof PortletModel) {
+				Portlet portlet = (Portlet)referrerClassedModel;
+
+				referenceElement.addAttribute(
+					"referrer-display-name", portlet.getRootPortletId());
+			}
+			else if (referrerClassedModel instanceof StagedModel) {
+				StagedModel referrerStagedModel =
+					(StagedModel)referrerClassedModel;
+
+				referenceElement.addAttribute(
+					"referrer-display-name",
+					StagedModelDataHandlerUtil.getDisplayName(
+						referrerStagedModel));
+			}
+		}
+
+		if (classedModel instanceof StagedModel) {
+			StagedModel stagedModel = (StagedModel)classedModel;
+
+			referenceElement.addAttribute("uuid", stagedModel.getUuid());
+			referenceElement.addAttribute(
+				"company-id", String.valueOf(stagedModel.getCompanyId()));
+		}
+
+		return referenceElement;
 	}
 
 	protected Map<Long, Set<String>> getActionIds(
@@ -2156,15 +2253,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 		_xStream.alias("BlogsEntry", BlogsEntryImpl.class);
 		_xStream.alias("BookmarksFolder", BookmarksFolderImpl.class);
 		_xStream.alias("BookmarksEntry", BookmarksEntryImpl.class);
-		_xStream.alias("CalEvent", CalEventImpl.class);
 		_xStream.alias("DLFolder", DLFolderImpl.class);
 		_xStream.alias("DLFileEntry", DLFileEntryImpl.class);
 		_xStream.alias("DLFileShortcut", DLFileShortcutImpl.class);
-		_xStream.alias("DLFileRank", DLFileRankImpl.class);
 		_xStream.alias("JournalArticle", JournalArticleImpl.class);
 		_xStream.alias("JournalFeed", JournalFeedImpl.class);
-		_xStream.alias("JournalStructure", JournalStructureImpl.class);
-		_xStream.alias("JournalTemplate", JournalTemplateImpl.class);
 		_xStream.alias("Lock", LockImpl.class);
 		_xStream.alias("MBBan", MBBanImpl.class);
 		_xStream.alias("MBCategory", MBCategoryImpl.class);
@@ -2206,6 +2299,8 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private long _companyGroupId;
 	private long _companyId;
 	private String _dataStrategy;
+	private Set<StagedModelType> _deletionSystemEventModelTypes =
+		new HashSet<StagedModelType>();
 	private Date _endDate;
 	private Map<String, List<ExpandoColumn>> _expandoColumnsMap =
 		new HashMap<String, List<ExpandoColumn>>();
@@ -2214,6 +2309,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private Element _importDataRootElement;
 	private Map<String, Lock> _locksMap = new HashMap<String, Lock>();
 	private ManifestSummary _manifestSummary = new ManifestSummary();
+	private Set<String> _missingReferences = new HashSet<String>();
 	private Element _missingReferencesElement;
 	private List<Layout> _newLayouts;
 	private Map<String, Map<?, ?>> _newPrimaryKeysMaps =
@@ -2229,6 +2325,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private boolean _privateLayout;
 	private Map<String, List<RatingsEntry>> _ratingsEntriesMap =
 		new HashMap<String, List<RatingsEntry>>();
+	private Set<String> _references = new HashSet<String>();
 	private Set<String> _scopedPrimaryKeys = new HashSet<String>();
 	private long _scopeGroupId;
 	private String _scopeLayoutUuid;

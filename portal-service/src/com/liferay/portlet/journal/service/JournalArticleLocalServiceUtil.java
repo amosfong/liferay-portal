@@ -165,9 +165,53 @@ public class JournalArticleLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.journal.model.JournalArticle fetchJournalArticle(
 		long id) throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchJournalArticle(id);
+	}
+
+	/**
+	* Returns the journal article with the matching UUID and company.
+	*
+	* @param uuid the journal article's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal article, or <code>null</code> if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalArticle fetchJournalArticleByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchJournalArticleByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the journal article matching the UUID and group.
+	*
+	* @param uuid the journal article's UUID
+	* @param groupId the primary key of the group
+	* @return the matching journal article, or <code>null</code> if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalArticle fetchJournalArticleByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchJournalArticleByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -190,6 +234,22 @@ public class JournalArticleLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the journal article with the matching UUID and company.
+	*
+	* @param uuid the journal article's UUID
+	* @param companyId the primary key of the company
+	* @return the matching journal article
+	* @throws PortalException if a matching journal article could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.journal.model.JournalArticle getJournalArticleByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getJournalArticleByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -818,18 +878,17 @@ public class JournalArticleLocalServiceUtil {
 			serviceContext);
 	}
 
-	/**
-	* Returns the web content article matching the UUID and group.
-	*
-	* @param uuid the web content article's UUID
-	* @param groupId the primary key of the web content article's group
-	* @return the matching web content article
-	* @throws SystemException if a system exception occurred
-	*/
 	public static com.liferay.portlet.journal.model.JournalArticle fetchArticle(
-		java.lang.String uuid, long groupId)
+		long groupId, java.lang.String articleId, double version)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().fetchArticle(uuid, groupId);
+		return getService().fetchArticle(groupId, articleId, version);
+	}
+
+	public static com.liferay.portlet.journal.model.JournalArticle fetchLatestArticle(
+		long resourcePrimKey, int status, boolean preferApproved)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchLatestArticle(resourcePrimKey, status, preferApproved);
 	}
 
 	/**
@@ -2016,6 +2075,13 @@ public class JournalArticleLocalServiceUtil {
 		java.lang.String ddmTemplateKey)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getTemplateArticlesCount(groupId, ddmTemplateKey);
+	}
+
+	public static java.lang.String getUniqueUrlTitle(long groupId,
+		java.lang.String articleId, java.lang.String urlTitle)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getUniqueUrlTitle(groupId, articleId, urlTitle);
 	}
 
 	/**

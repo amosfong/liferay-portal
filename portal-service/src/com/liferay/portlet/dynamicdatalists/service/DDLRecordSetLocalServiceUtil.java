@@ -165,10 +165,53 @@ public class DDLRecordSetLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet fetchDDLRecordSet(
 		long recordSetId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchDDLRecordSet(recordSetId);
+	}
+
+	/**
+	* Returns the d d l record set with the matching UUID and company.
+	*
+	* @param uuid the d d l record set's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet fetchDDLRecordSetByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchDDLRecordSetByUuidAndCompanyId(uuid, companyId);
+	}
+
+	/**
+	* Returns the d d l record set matching the UUID and group.
+	*
+	* @param uuid the d d l record set's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet fetchDDLRecordSetByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchDDLRecordSetByUuidAndGroupId(uuid, groupId);
 	}
 
 	/**
@@ -191,6 +234,22 @@ public class DDLRecordSetLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the d d l record set with the matching UUID and company.
+	*
+	* @param uuid the d d l record set's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d l record set
+	* @throws PortalException if a matching d d l record set could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet getDDLRecordSetByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getDDLRecordSetByUuidAndCompanyId(uuid, companyId);
 	}
 
 	/**
@@ -326,6 +385,12 @@ public class DDLRecordSetLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteRecordSets(groupId);
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet fetchRecordSet(
+		long recordSetId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchRecordSet(recordSetId);
 	}
 
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSet fetchRecordSet(

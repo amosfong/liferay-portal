@@ -165,6 +165,21 @@ public class TrashEntryLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	public static long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
 	public static com.liferay.portlet.trash.model.TrashEntry fetchTrashEntry(
 		long entryId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -291,6 +306,7 @@ public class TrashEntryLocalServiceUtil {
 	* Deletes the trash entry with the primary key.
 	*
 	* @param entryId the primary key of the trash entry
+	* @return the trash entry with the primary key
 	* @throws PortalException if a trash entry with the primary key could not
 	be found
 	* @throws SystemException if a system exception occurred
@@ -307,6 +323,7 @@ public class TrashEntryLocalServiceUtil {
 	*
 	* @param className the class name of entity
 	* @param classPK the primary key of the entry
+	* @return the trash entry with the entity class name and primary key
 	* @throws PortalException if a trash entry with the primary key could not
 	be found
 	* @throws SystemException if a system exception occurred

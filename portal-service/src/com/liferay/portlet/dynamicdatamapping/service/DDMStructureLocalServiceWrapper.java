@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link DDMStructureLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMStructureLocalService
+ * @author Brian Wing Shun Chan
+ * @see DDMStructureLocalService
  * @generated
  */
 public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService,
@@ -166,11 +166,60 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 		return _ddmStructureLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchDDMStructure(
 		long structureId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStructureLocalService.fetchDDMStructure(structureId);
+	}
+
+	/**
+	* Returns the d d m structure with the matching UUID and company.
+	*
+	* @param uuid the d d m structure's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d m structure, or <code>null</code> if a matching d d m structure could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchDDMStructureByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.fetchDDMStructureByUuidAndCompanyId(uuid,
+			companyId);
+	}
+
+	/**
+	* Returns the d d m structure matching the UUID and group.
+	*
+	* @param uuid the d d m structure's UUID
+	* @param groupId the primary key of the group
+	* @return the matching d d m structure, or <code>null</code> if a matching d d m structure could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchDDMStructureByUuidAndGroupId(
+		java.lang.String uuid, long groupId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.fetchDDMStructureByUuidAndGroupId(uuid,
+			groupId);
 	}
 
 	/**
@@ -195,6 +244,24 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStructureLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	/**
+	* Returns the d d m structure with the matching UUID and company.
+	*
+	* @param uuid the d d m structure's UUID
+	* @param companyId the primary key of the company
+	* @return the matching d d m structure
+	* @throws PortalException if a matching d d m structure could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure getDDMStructureByUuidAndCompanyId(
+		java.lang.String uuid, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _ddmStructureLocalService.getDDMStructureByUuidAndCompanyId(uuid,
+			companyId);
 	}
 
 	/**
@@ -796,22 +863,6 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 			com.liferay.portal.kernel.exception.SystemException {
 		return _ddmStructureLocalService.fetchStructure(groupId, classNameId,
 			structureKey, includeGlobalStructures);
-	}
-
-	/**
-	* Returns the structure matching the UUID and group.
-	*
-	* @param uuid the structure's UUID
-	* @param groupId the primary key of the structure's group
-	* @return the matching structure, or <code>null</code> if a matching
-	structure could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	@Override
-	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchStructure(
-		java.lang.String uuid, long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _ddmStructureLocalService.fetchStructure(uuid, groupId);
 	}
 
 	/**

@@ -19,7 +19,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.model.User;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFileRank;
@@ -27,7 +28,6 @@ import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.service.base.DLFileRankLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.util.comparator.FileRankCreateDateComparator;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,22 +39,16 @@ public class DLFileRankLocalServiceImpl extends DLFileRankLocalServiceBaseImpl {
 	public DLFileRank addFileRank(
 			long groupId, long companyId, long userId, long fileEntryId,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
-
-		User user = userPersistence.findByPrimaryKey(userId);
-		Date now = new Date();
+		throws SystemException {
 
 		long fileRankId = counterLocalService.increment();
 
 		DLFileRank dlFileRank = dlFileRankPersistence.create(fileRankId);
 
-		dlFileRank.setUuid(serviceContext.getUuid());
 		dlFileRank.setGroupId(groupId);
 		dlFileRank.setCompanyId(companyId);
-		dlFileRank.setUserId(user.getUserId());
-		dlFileRank.setUserName(user.getFullName());
-		dlFileRank.setCreateDate(serviceContext.getCreateDate(now));
-		dlFileRank.setModifiedDate(serviceContext.getModifiedDate(now));
+		dlFileRank.setUserId(userId);
+		dlFileRank.setCreateDate(serviceContext.getCreateDate(null));
 		dlFileRank.setFileEntryId(fileEntryId);
 		dlFileRank.setActive(true);
 
@@ -108,6 +102,9 @@ public class DLFileRankLocalServiceImpl extends DLFileRankLocalServiceBaseImpl {
 	}
 
 	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP, send = false,
+		type = SystemEventConstants.TYPE_DELETE)
 	public void deleteFileRank(DLFileRank dlFileRank) throws SystemException {
 		dlFileRankPersistence.remove(dlFileRank);
 	}
@@ -199,7 +196,7 @@ public class DLFileRankLocalServiceImpl extends DLFileRankLocalServiceBaseImpl {
 	public DLFileRank updateFileRank(
 			long groupId, long companyId, long userId, long fileEntryId,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws SystemException {
 
 		if (!PropsValues.DL_FILE_RANK_ENABLED) {
 			return null;
@@ -209,7 +206,7 @@ public class DLFileRankLocalServiceImpl extends DLFileRankLocalServiceBaseImpl {
 			companyId, userId, fileEntryId);
 
 		if (dlFileRank != null) {
-			dlFileRank.setModifiedDate(serviceContext.getModifiedDate(null));
+			dlFileRank.setCreateDate(serviceContext.getCreateDate(null));
 
 			try {
 				dlFileRankPersistence.update(dlFileRank);

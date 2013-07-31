@@ -44,7 +44,7 @@ import com.liferay.portal.model.CacheField;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.tools.ArgumentsUtil;
-import com.liferay.portal.tools.sourceformatter.SourceFormatter;
+import com.liferay.portal.tools.sourceformatter.JavaSourceProcessor;
 import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.xml.XMLFormatter;
@@ -376,7 +376,7 @@ public class ServiceBuilder {
 
 		className = className.substring(0, className.length() - 5);
 
-		content = SourceFormatter.stripJavaImports(
+		content = JavaSourceProcessor.stripJavaImports(
 			content, packagePath, className);
 
 		File tempFile = new File("ServiceBuilder.temp");
@@ -1895,6 +1895,18 @@ public class ServiceBuilder {
 		List<JavaMethod> methods = ListUtil.fromArray(
 			_getMethods(modelImplJavaClass));
 
+		Iterator<JavaMethod> itr = methods.iterator();
+
+		while (itr.hasNext()) {
+			JavaMethod method = itr.next();
+
+			String methodName = method.getName();
+
+			if (methodName.equals("getStagedModelType")) {
+				itr.remove();
+			}
+		}
+
 		JavaClass modelJavaClass = _getJavaClass(
 			_serviceOutputPath + "/model/" + entity.getName() + "Model.java");
 
@@ -2804,6 +2816,8 @@ public class ServiceBuilder {
 		context.put("methods", methods);
 		context.put("sessionTypeName", _getSessionTypeName(sessionType));
 
+		context = _putDeprecatedKeys(context, javaClass);
+
 		// Content
 
 		String content = _processTemplate(_tplService, context);
@@ -2847,6 +2861,8 @@ public class ServiceBuilder {
 		context.put(
 			"referenceList", _mergeReferenceList(entity.getReferenceList()));
 
+		context = _putDeprecatedKeys(context, javaClass);
+
 		// Content
 
 		String content = _processTemplate(_tplServiceBaseImpl, context);
@@ -2876,6 +2892,8 @@ public class ServiceBuilder {
 		context.put("entity", entity);
 		context.put("methods", _getMethods(javaClass));
 		context.put("sessionTypeName", _getSessionTypeName(sessionType));
+
+		context = _putDeprecatedKeys(context, javaClass);
 
 		// Content
 
@@ -2925,6 +2943,8 @@ public class ServiceBuilder {
 		context.put("methods", methods);
 		context.put("sessionTypeName", _getSessionTypeName(sessionType));
 
+		context = _putDeprecatedKeys(context, javaClass);
+
 		// Content
 
 		String content = _processTemplate(_tplServiceClpInvoker, context);
@@ -2935,7 +2955,7 @@ public class ServiceBuilder {
 			_outputPath + "/service/base/" + entity.getName() +
 				_getSessionTypeName(sessionType) + "ServiceClpInvoker.java");
 
-		writeFile(ejbFile, content);
+		writeFile(ejbFile, content, _author);
 	}
 
 	private void _createServiceClpMessageListener() throws Exception {
@@ -2957,7 +2977,7 @@ public class ServiceBuilder {
 		File ejbFile = new File(
 			_serviceOutputPath + "/service/messaging/ClpMessageListener.java");
 
-		writeFile(ejbFile, content);
+		writeFile(ejbFile, content, _author);
 	}
 
 	private void _createServiceClpSerializer(List<String> exceptions)
@@ -2981,7 +3001,7 @@ public class ServiceBuilder {
 		File ejbFile = new File(
 			_serviceOutputPath + "/service/ClpSerializer.java");
 
-		writeFile(ejbFile, content);
+		writeFile(ejbFile, content, _author);
 	}
 
 	private void _createServiceFactory(Entity entity, int sessionType) {
@@ -3016,6 +3036,8 @@ public class ServiceBuilder {
 		context.put("entity", entity);
 		context.put("methods", _getMethods(javaClass));
 		context.put("hasHttpMethods", new Boolean(_hasHttpMethods(javaClass)));
+
+		context = _putDeprecatedKeys(context, javaClass);
 
 		// Content
 
@@ -3099,6 +3121,8 @@ public class ServiceBuilder {
 		context.put("entity", entity);
 		context.put("methods", _getMethods(javaClass));
 
+		context = _putDeprecatedKeys(context, javaClass);
+
 		// Content
 
 		String content = _processTemplate(_tplServiceSoap, context);
@@ -3124,6 +3148,8 @@ public class ServiceBuilder {
 		context.put("entity", entity);
 		context.put("methods", _getMethods(javaClass));
 		context.put("sessionTypeName", _getSessionTypeName(sessionType));
+
+		context = _putDeprecatedKeys(context, javaClass);
 
 		// Content
 
@@ -3162,6 +3188,8 @@ public class ServiceBuilder {
 		context.put("entity", entity);
 		context.put("methods", _getMethods(javaClass));
 		context.put("sessionTypeName", _getSessionTypeName(sessionType));
+
+		context = _putDeprecatedKeys(context, javaClass);
 
 		// Content
 
@@ -4538,6 +4566,8 @@ public class ServiceBuilder {
 			entityElement.attributeValue("cache-enabled"), true);
 		boolean jsonEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("json-enabled"), remoteService);
+		boolean deprecated = GetterUtil.getBoolean(
+			entityElement.attributeValue("deprecated"));
 
 		List<EntityColumn> pkList = new ArrayList<EntityColumn>();
 		List<EntityColumn> regularColList = new ArrayList<EntityColumn>();
@@ -4914,9 +4944,9 @@ public class ServiceBuilder {
 				_packagePath, _portletName, _portletShortName, ejbName,
 				humanName, table, alias, uuid, uuidAccessor, localService,
 				remoteService, persistenceClass, finderClass, dataSource,
-				sessionFactory, txManager, cacheEnabled, jsonEnabled, pkList,
-				regularColList, blobList, collectionList, columnList, order,
-				finderList, referenceList, txRequiredList));
+				sessionFactory, txManager, cacheEnabled, jsonEnabled,
+				deprecated, pkList, regularColList, blobList, collectionList,
+				columnList, order, finderList, referenceList, txRequiredList));
 	}
 
 	private String _processTemplate(String name) throws Exception {
@@ -4927,6 +4957,21 @@ public class ServiceBuilder {
 		throws Exception {
 
 		return StringUtil.strip(FreeMarkerUtil.process(name, context), '\r');
+	}
+
+	private Map<String, Object> _putDeprecatedKeys(
+		Map<String, Object> context, JavaClass javaClass) {
+
+		context.put("classDeprecated", false);
+
+		DocletTag tag = javaClass.getTagByName("deprecated");
+
+		if (tag != null) {
+			context.put("classDeprecated", true);
+			context.put("classDeprecatedComment", tag.getValue());
+		}
+
+		return context;
 	}
 
 	private Set<String> _readLines(String fileName) throws Exception {
@@ -4962,7 +5007,6 @@ public class ServiceBuilder {
 	private static Pattern _getterPattern = Pattern.compile(
 		"public .* get.*" + Pattern.quote("(") + "|public boolean is.*" +
 			Pattern.quote("("));
-
 	private static Pattern _setterPattern = Pattern.compile(
 		"public void set.*" + Pattern.quote("("));
 

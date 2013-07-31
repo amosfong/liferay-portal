@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
 import java.util.Date;
@@ -25,8 +27,8 @@ import java.util.Map;
  * This class is a wrapper for {@link DDMContent}.
  * </p>
  *
- * @author    Brian Wing Shun Chan
- * @see       DDMContent
+ * @author Brian Wing Shun Chan
+ * @see DDMContent
  * @generated
  */
 public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
@@ -624,6 +626,30 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	public void persist()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		_ddmContent.persist();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMContentWrapper)) {
+			return false;
+		}
+
+		DDMContentWrapper ddmContentWrapper = (DDMContentWrapper)obj;
+
+		if (Validator.equals(_ddmContent, ddmContentWrapper._ddmContent)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _ddmContent.getStagedModelType();
 	}
 
 	/**

@@ -19,8 +19,8 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link TrashEntryLocalService}.
  *
- * @author    Brian Wing Shun Chan
- * @see       TrashEntryLocalService
+ * @author Brian Wing Shun Chan
+ * @see TrashEntryLocalService
  * @generated
  */
 public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
@@ -166,6 +166,23 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 		return _trashEntryLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	/**
+	* Returns the number of rows that match the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows that match the dynamic query
+	* @throws SystemException if a system exception occurred
+	*/
+	@Override
+	public long dynamicQueryCount(
+		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
+		com.liferay.portal.kernel.dao.orm.Projection projection)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _trashEntryLocalService.dynamicQueryCount(dynamicQuery,
+			projection);
+	}
+
 	@Override
 	public com.liferay.portlet.trash.model.TrashEntry fetchTrashEntry(
 		long entryId)
@@ -301,6 +318,7 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 	* Deletes the trash entry with the primary key.
 	*
 	* @param entryId the primary key of the trash entry
+	* @return the trash entry with the primary key
 	* @throws PortalException if a trash entry with the primary key could not
 	be found
 	* @throws SystemException if a system exception occurred
@@ -317,6 +335,7 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 	*
 	* @param className the class name of entity
 	* @param classPK the primary key of the entry
+	* @return the trash entry with the entity class name and primary key
 	* @throws PortalException if a trash entry with the primary key could not
 	be found
 	* @throws SystemException if a system exception occurred

@@ -37,8 +37,6 @@ import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiNodePermission;
 import com.liferay.portlet.wiki.service.persistence.WikiNodeActionableDynamicQuery;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
 
 import javax.portlet.PortletURL;
@@ -120,6 +118,14 @@ public class WikiNodeIndexer extends BaseIndexer {
 
 		Document document = getDocument(obj);
 
+		if (!node.isInTrash()) {
+			SearchEngineUtil.deleteDocument(
+				getSearchEngineId(), node.getCompanyId(),
+				document.get(Field.UID));
+
+			return;
+		}
+
 		SearchEngineUtil.updateDocument(
 			getSearchEngineId(), node.getCompanyId(), document);
 	}
@@ -146,8 +152,6 @@ public class WikiNodeIndexer extends BaseIndexer {
 	protected void reindexEntries(long companyId)
 		throws PortalException, SystemException {
 
-		final Collection<Document> documents = new ArrayList<Document>();
-
 		ActionableDynamicQuery actionableDynamicQuery =
 			new WikiNodeActionableDynamicQuery() {
 
@@ -165,17 +169,15 @@ public class WikiNodeIndexer extends BaseIndexer {
 
 				Document document = getDocument(node);
 
-				documents.add(document);
+				addDocument(document);
 			}
 
 		};
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();
-
-		SearchEngineUtil.updateDocuments(
-			getSearchEngineId(), companyId, documents);
 	}
 
 }

@@ -102,6 +102,7 @@ public class ResourceActionsImpl implements ResourceActions {
 			new HashMap<String, List<String>>();
 		_portletResourceLayoutManagerActions =
 			new HashMap<String, List<String>>();
+		_portletRootModelResource = new HashMap<String, String>();
 		_modelPortletResources = new HashMap<String, Set<String>>();
 		_modelResourceActions = new HashMap<String, List<String>>();
 		_modelResourceGroupDefaultActions = new HashMap<String, List<String>>();
@@ -487,6 +488,13 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	@Override
+	public String getPortletRootModelResource(String portletName) {
+		portletName = PortletConstants.getRootPortletId(portletName);
+
+		return _portletRootModelResource.get(portletName);
+	}
+
+	@Override
 	public List<String> getResourceActions(String name) {
 		if (name.indexOf(CharPool.PERIOD) != -1) {
 			return getModelResourceActions(name);
@@ -807,20 +815,16 @@ public class ResourceActionsImpl implements ResourceActions {
 	protected int[] getRoleTypes(
 		long companyId, Group group, String modelResource) {
 
-		int[] types = {
-			RoleConstants.TYPE_REGULAR, RoleConstants.TYPE_SITE
-		};
+		int[] types = RoleConstants.TYPES_REGULAR_AND_SITE;
 
 		if (isPortalModelResource(modelResource)) {
 			if (modelResource.equals(Organization.class.getName()) ||
 				modelResource.equals(User.class.getName())) {
 
-				types = new int[] {
-					RoleConstants.TYPE_REGULAR, RoleConstants.TYPE_ORGANIZATION
-				};
+				types = RoleConstants.TYPES_ORGANIZATION_AND_REGULAR;
 			}
 			else {
-				types = new int[] {RoleConstants.TYPE_REGULAR};
+				types = RoleConstants.TYPES_REGULAR;
 			}
 		}
 		else {
@@ -835,13 +839,11 @@ public class ResourceActionsImpl implements ResourceActions {
 				}
 
 				if (group.isOrganization()) {
-					types = new int[] {
-						RoleConstants.TYPE_REGULAR,
-						RoleConstants.TYPE_ORGANIZATION, RoleConstants.TYPE_SITE
-					};
+					types =
+						RoleConstants.TYPES_ORGANIZATION_AND_REGULAR_AND_SITE;
 				}
 				else if (group.isUser()) {
-					types = new int[] {RoleConstants.TYPE_REGULAR};
+					types = RoleConstants.TYPES_REGULAR;
 				}
 			}
 		}
@@ -1007,6 +1009,15 @@ public class ResourceActionsImpl implements ResourceActions {
 			}
 
 			portletResources.add(portletName);
+
+			// Reference for a model to root portlets
+
+			boolean root = GetterUtil.getBoolean(
+				modelResourceElement.elementText("root"));
+
+			if (root) {
+				_portletRootModelResource.put(portletName, name);
+			}
 		}
 
 		double weight = GetterUtil.getDouble(
@@ -1167,5 +1178,6 @@ public class ResourceActionsImpl implements ResourceActions {
 	private Map<String, List<String>> _portletResourceGuestDefaultActions;
 	private Map<String, List<String>> _portletResourceGuestUnsupportedActions;
 	private Map<String, List<String>> _portletResourceLayoutManagerActions;
+	private Map<String, String> _portletRootModelResource;
 
 }

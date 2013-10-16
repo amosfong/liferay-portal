@@ -123,7 +123,7 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 		<c:if test="<%= LayoutPermissionUtil.contains(permissionChecker, selPlid, ActionKeys.PERMISSIONS) %>">
 			<aui:nav-item data-value="permissions" iconClass="icon-lock" label="permissions" />
 		</c:if>
-		<c:if test="<%= LayoutPermissionUtil.contains(permissionChecker, selPlid, ActionKeys.DELETE) %>">
+		<c:if test="<%= !portletName.equals(PortletKeys.DOCKBAR) && LayoutPermissionUtil.contains(permissionChecker, selPlid, ActionKeys.DELETE) %>">
 			<aui:nav-item data-value="delete" iconClass="icon-remove" label="delete" />
 		</c:if>
 		<c:if test="<%= LayoutPermissionUtil.contains(permissionChecker, selLayout, ActionKeys.UPDATE) %>">
@@ -173,24 +173,9 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 		<c:otherwise>
 			<c:if test="<%= !group.isLayoutPrototype() && (selLayout != null) %>">
 				<c:if test="<%= selGroup.isStagingGroup() %>">
-					<liferay-ui:error exception="<%= RemoteExportException.class %>">
+					<%@ include file="/html/portlet/layouts_admin/error_auth_exception.jspf" %>
 
-						<%
-						RemoteExportException ree = (RemoteExportException)errorException;
-						%>
-
-						<c:if test="<%= ree.getType() == RemoteExportException.BAD_CONNECTION %>">
-							<%= LanguageUtil.format(pageContext, "could-not-connect-to-address-x.-please-verify-that-the-specified-port-is-correct-and-that-the-remote-server-is-configured-to-accept-requests-from-this-server", "<em>" + ree.getURL() + "</em>") %>
-						</c:if>
-
-						<c:if test="<%= ree.getType() == RemoteExportException.NO_GROUP %>">
-							<%= LanguageUtil.format(pageContext, "remote-group-with-id-x-does-not-exist", ree.getGroupId()) %>
-						</c:if>
-
-						<c:if test="<%= ree.getType() == RemoteExportException.NO_PERMISSIONS %>">
-							<liferay-ui:message arguments="<%= ree.getGroupId() %>" key="you-do-not-have-permissions-to-edit-the-site-with-id-x-on-the-remote-server" />
-						</c:if>
-					</liferay-ui:error>
+					<%@ include file="/html/portlet/layouts_admin/error_remote_export_exception.jspf" %>
 
 					<div class="alert alert-block">
 						<liferay-ui:message key="the-staging-environment-is-activated-changes-have-to-be-published-to-make-them-available-to-end-users" />

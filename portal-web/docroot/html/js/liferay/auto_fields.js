@@ -1,11 +1,20 @@
 AUI.add(
 	'liferay-auto-fields',
 	function(A) {
+		var AArray = A.Array;
+		var AObject = A.Object;
 		var Lang = A.Lang;
 
 		var CSS_AUTOROW_CONTROLS = 'lfr-autorow-controls';
 
 		var CSS_ICON_LOADING = 'loading-animation';
+
+		var CSS_VALIDATION_HELPER_CLASSES = [
+			'error',
+			'error-field',
+			'success',
+			'success-field'
+		];
 
 		var TPL_INPUT_HIDDEN = '<input name="{name}" type="hidden" />';
 
@@ -37,6 +46,8 @@ AUI.add(
 
 		var AutoFields = A.Component.create(
 			{
+				AUGMENTS: [Liferay.PortletBase],
+
 				EXTENDS: A.Base,
 
 				NAME: 'autofields',
@@ -117,7 +128,7 @@ AUI.add(
 									contentBox.append(formRow);
 								}
 
-								if (index == 0) {
+								if (index === 0) {
 									instance._rowTemplate = formRow.clone();
 									instance._clearForm(instance._rowTemplate);
 								}
@@ -186,11 +197,72 @@ AUI.add(
 						}
 
 						if (deleteRow) {
+							var form = node.ancestor('form');
+
 							node.hide();
+
+							AArray.each(
+								CSS_VALIDATION_HELPER_CLASSES,
+								function(item, index, collection) {
+									var disabledClass = item + '-disabled';
+
+									node.all('.' + item).replaceClass(item, disabledClass);
+								}
+							);
+
+							var rules;
+
+							var deletedRules = {};
+
+							var formValidator = instance._getFormValidator(node);
+
+							if (formValidator) {
+								var errors = formValidator.errors;
+
+								rules = formValidator.get('rules');
+
+								node.all('input, select, textarea').each(
+									function(item, index, collection) {
+										var name = item.attr('name') || item.attr('id');
+
+										if (rules && rules[name]) {
+											deletedRules[name] = rules[name];
+
+											delete rules[name];
+										}
+
+										if (errors && errors[name]) {
+											delete errors[name];
+										}
+									}
+								);
+							}
 
 							instance._undoManager.add(
 								function(stateData) {
+									if (rules) {
+										AObject.each(
+											deletedRules,
+											function(item, index, collection) {
+												rules[index] = item;
+											}
+										);
+									}
+
+									AArray.each(
+										CSS_VALIDATION_HELPER_CLASSES,
+										function(item, index, collection) {
+											var disabledClass = item + '-disabled';
+
+											node.all('.' + disabledClass).replaceClass(disabledClass, item);
+										}
+									);
+
 									node.show();
+
+									if (form) {
+										form.fire('autofields:update');
+									}
 								}
 							);
 
@@ -201,6 +273,10 @@ AUI.add(
 									guid: instance._guid
 								}
 							);
+
+							if (form) {
+								form.fire('autofields:update');
+							}
 						}
 					},
 
@@ -297,6 +373,13 @@ AUI.add(
 								}
 							}
 						);
+
+						AArray.each(
+							CSS_VALIDATION_HELPER_CLASSES,
+							function(item, index, collection) {
+								node.all('.' + item).removeClass(item);
+							}
+						);
 					},
 
 					_clearHiddenRows: function(item, index, collection) {
@@ -314,20 +397,26 @@ AUI.add(
 						var clone = currentRow.clone();
 						var guid = (++instance._guid);
 
-						var clonedRow;
+						var formValidator = instance._getFormValidator(node);
 
 						if (instance.url) {
 							clonedRow = instance._createCloneFromURL(clone, guid);
 						}
 						else {
-							clonedRow = instance._createCloneFromMarkup(clone, guid);
+							clonedRow = instance._createCloneFromMarkup(clone, guid, formValidator);
 						}
 
 						return clonedRow;
 					},
 
-					_createCloneFromMarkup: function(node, guid) {
+					_createCloneFromMarkup: function(node, guid, formValidator) {
 						var instance = this;
+
+						var rules;
+
+						if (formValidator) {
+							rules = formValidator.get('rules');
+						}
 
 						node.all('input, select, textarea, span').each(
 							function(item, index, collection) {
@@ -354,9 +443,15 @@ AUI.add(
 									item.attr('id', newName);
 								}
 
+								if (rules && rules[oldName]) {
+									rules[newName] = rules[oldName];
+								}
+
 								node.all('label[for=' + oldName + ']').attr('for', newName);
 							}
 						);
+
+						node.all('.help-inline').remove();
 
 						instance._clearForm(node);
 
@@ -377,9 +472,11 @@ AUI.add(
 						A.io.request(
 							instance.url,
 							{
-								data: {
-									index: guid
-								},
+								data: instance.ns(
+									{
+										index: guid
+									}
+								),
 								on: {
 									success: function(event, id, obj) {
 										var responseData = this.get('responseData');
@@ -391,6 +488,22 @@ AUI.add(
 						);
 
 						return node;
+					},
+
+					_getFormValidator: function(node) {
+						var instance = this;
+
+						var formValidator;
+
+						var form = node.ancestor('form');
+
+						if (form) {
+							var formId = form.attr('id');
+
+							formValidator = Liferay.Form.get(formId).formValidator;
+						}
+
+						return formValidator;
 					},
 
 					_isHiddenRow: function(row) {
@@ -438,6 +551,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'aui-data-set-deprecated', 'aui-io-request', 'aui-parse-content', 'base', 'liferay-undo-manager', 'sortable']
+		requires: ['aui-base', 'aui-data-set-deprecated', 'aui-io-request', 'aui-parse-content', 'base', 'liferay-portlet-base', 'liferay-undo-manager', 'sortable']
 	}
 );

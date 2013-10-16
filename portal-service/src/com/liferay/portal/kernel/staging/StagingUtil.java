@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,17 @@ public class StagingUtil {
 		return getStaging().buildRemoteURL(
 			remoteAddress, remotePort, remotePathContext, secureConnection,
 			remoteGroupId, privateLayout);
+	}
+
+	public static void checkDefaultLayoutSetBranches(
+			long userId, Group liveGroup, boolean branchingPublic,
+			boolean branchingPrivate, boolean remote,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		getStaging().checkDefaultLayoutSetBranches(
+			userId, liveGroup, branchingPublic, branchingPrivate, false,
+			serviceContext);
 	}
 
 	public static void copyFromLive(PortletRequest PortletRequest)
@@ -453,6 +465,23 @@ public class StagingUtil {
 
 		getStaging().updateLastImportSettings(
 			layoutElement, layout, portletDataContext);
+	}
+
+	public static void updateLastPublishDate(
+			long sourceGroupId, boolean privateLayout, Date lastPublishDate)
+		throws Exception {
+
+		getStaging().updateLastPublishDate(
+			sourceGroupId, privateLayout, lastPublishDate);
+	}
+
+	public static void updateLastPublishDate(
+			String portletId, PortletPreferences portletPreferences,
+			Date lastPublishDate)
+		throws Exception {
+
+		getStaging().updateLastPublishDate(
+			portletId, portletPreferences, lastPublishDate);
 	}
 
 	public static void updateStaging(

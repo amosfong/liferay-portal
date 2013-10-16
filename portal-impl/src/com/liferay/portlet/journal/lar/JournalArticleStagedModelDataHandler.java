@@ -116,7 +116,8 @@ public class JournalArticleStagedModelDataHandler
 	@Override
 	public int[] getExportableStatuses() {
 		return new int[] {
-			WorkflowConstants.STATUS_APPROVED, WorkflowConstants.STATUS_EXPIRED
+			WorkflowConstants.STATUS_APPROVED, WorkflowConstants.STATUS_EXPIRED,
+			WorkflowConstants.STATUS_SCHEDULED
 		};
 	}
 
@@ -527,7 +528,9 @@ public class JournalArticleStagedModelDataHandler
 			serviceContext.setAddGroupPermissions(addGroupPermissions);
 			serviceContext.setAddGuestPermissions(addGuestPermissions);
 
-			if (article.getStatus() != WorkflowConstants.STATUS_APPROVED) {
+			if ((article.getStatus() != WorkflowConstants.STATUS_APPROVED) &&
+				(article.getStatus() != WorkflowConstants.STATUS_SCHEDULED)) {
+
 				serviceContext.setWorkflowAction(
 					WorkflowConstants.ACTION_SAVE_DRAFT);
 			}
@@ -643,11 +646,16 @@ public class JournalArticleStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(article.getUserUuid());
 
+		Element articleElement =
+			portletDataContext.getImportDataStagedModelElement(article);
+
+		String articleResourceUuid = articleElement.attributeValue(
+			"article-resource-uuid");
+
 		JournalArticleResource existingArticleResource =
 			JournalArticleResourceLocalServiceUtil.
 				fetchJournalArticleResourceByUuidAndGroupId(
-					article.getArticleResourceUuid(),
-					portletDataContext.getScopeGroupId());
+					articleResourceUuid, portletDataContext.getScopeGroupId());
 
 		if (existingArticleResource == null) {
 			return;

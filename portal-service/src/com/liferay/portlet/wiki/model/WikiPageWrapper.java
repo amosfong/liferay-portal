@@ -1096,11 +1096,6 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	@Override
-	public com.liferay.portlet.wiki.model.WikiNode getTrashContainer() {
-		return _wikiPage.getTrashContainer();
-	}
-
-	@Override
 	public java.util.List<com.liferay.portlet.wiki.model.WikiPage> getViewableChildPages() {
 		return _wikiPage.getViewableChildPages();
 	}

@@ -296,7 +296,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		if (staging) {
 			name = name.concat(" (Staging)");
-			friendlyURL = friendlyURL.concat("-staging");
+			friendlyURL = getFriendlyURL(friendlyURL.concat("-staging"));
 		}
 
 		if (parentGroupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
@@ -4189,7 +4189,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	}
 
 	protected boolean isParentGroup(long parentGroupId, long groupId)
-			throws PortalException, SystemException {
+		throws PortalException, SystemException {
 
 		// Return true if parentGroupId is among the parent groups of groupId
 

@@ -137,8 +137,6 @@ portletURL.setParameter("rootNodeName", rootNodeName);
 								</aui:fieldset>
 
 								<aui:fieldset cssClass="portlet-data-section" label="look-and-feel">
-									<aui:input helpMessage="export-import-theme-help" label="theme" name="<%= PortletDataHandlerKeys.THEME %>" type="checkbox" value="<%= false %>" />
-
 									<aui:input helpMessage="export-import-theme-settings-help" label="theme-settings" name="<%= PortletDataHandlerKeys.THEME_REFERENCE %>" type="checkbox" value="<%= true %>" />
 
 									<aui:input label="logo" name="<%= PortletDataHandlerKeys.LOGO %>" type="checkbox" value="<%= true %>" />
@@ -208,7 +206,7 @@ portletURL.setParameter("rootNodeName", rootNodeName);
 																<liferay-util:include page="/html/portlet/layouts_admin/render_controls.jsp" />
 															</ul>
 														</aui:fieldset>
-													 </div>
+													</div>
 
 													<ul class="hide" id="<portlet:namespace />showChangeConfiguration_<%= portlet.getRootPortletId() %>">
 														<li>
@@ -602,7 +600,6 @@ portletURL.setParameter("rootNodeName", rootNodeName);
 			rangeLastNode: '#rangeLast',
 			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>Checkbox',
 			setupNode: '#<%= PortletDataHandlerKeys.PORTLET_SETUP_ALL %>Checkbox',
-			themeNode: '#<%= PortletDataHandlerKeys.THEME %>Checkbox',
 			themeReferenceNode: '#<%= PortletDataHandlerKeys.THEME_REFERENCE %>Checkbox',
 			userPreferencesNode: '#<%= PortletDataHandlerKeys.PORTLET_USER_PREFERENCES_ALL %>Checkbox'
 		}

@@ -83,7 +83,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 	<div class="taglib-discussion">
 		<aui:form action="<%= formAction %>" method="post" name="<%= formName %>">
 			<aui:input name="randomNamespace" type="hidden" value="<%= randomNamespace %>" />
-			<aui:input name="<%= Constants.CMD %>" type="hidden" />
+			<aui:input id="<%= randomNamespace + Constants.CMD %>" name="<%= Constants.CMD %>" type="hidden" />
 			<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 			<aui:input name="contentURL" type="hidden" value="<%= PortalUtil.getCanonicalURL(redirect, themeDisplay, layout) %>" />
 			<aui:input name="assetEntryVisible" type="hidden" value="<%= assetEntryVisible %>" />
@@ -336,7 +336,6 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 										String msgBody = BBCodeTranslatorUtil.getHTML(message.getBody());
 
 										msgBody = StringUtil.replace(msgBody, "@theme_images_path@/emoticons", themeDisplay.getPathThemeImages() + "/emoticons");
-										msgBody = HtmlUtil.wordBreak(msgBody, 80);
 										%>
 
 										<%= msgBody %>
@@ -569,7 +568,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 
 				var messageId = form.one('#<%= namespace %>messageId' + i).val();
 
-				form.one('#<%= namespace %><%= Constants.CMD %>').val('<%= Constants.DELETE %>');
+				form.one('#<%= namespace %><%= randomNamespace %><%= Constants.CMD %>').val('<%= Constants.DELETE %>');
 				form.one('#<%= namespace %>messageId').val(messageId);
 
 				<portlet:namespace />sendMessage(form);
@@ -613,7 +612,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 				var body = form.one('#<%= namespace %><%= randomNamespace%>postReplyBody' + i).val();
 				var parentMessageId = form.one('#<%= namespace %>parentMessageId' + i).val();
 
-				form.one('#<%= namespace %><%= Constants.CMD %>').val('<%= Constants.ADD %>');
+				form.one('#<%= namespace %><%= randomNamespace %><%= Constants.CMD %>').val('<%= Constants.ADD %>');
 				form.one('#<%= namespace %>parentMessageId').val(parentMessageId);
 				form.one('#<%= namespace %>body').val(body);
 
@@ -733,7 +732,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 
 				var form = A.one('#<%= namespace %><%= HtmlUtil.escapeJS(formName) %>');
 
-				var cmd = form.one('#<%= namespace %><%= Constants.CMD %>');
+				var cmd = form.one('#<%= namespace %><%= randomNamespace %><%= Constants.CMD %>');
 
 				var cmdVal = '<%= Constants.UNSUBSCRIBE_FROM_COMMENTS %>';
 
@@ -763,7 +762,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 					form.one('#<%= namespace %>workflowAction').val('<%= WorkflowConstants.ACTION_SAVE_DRAFT %>');
 				}
 
-				form.one('#<%= namespace %><%= Constants.CMD %>').val('<%= Constants.UPDATE %>');
+				form.one('#<%= namespace %><%= randomNamespace %><%= Constants.CMD %>').val('<%= Constants.UPDATE %>');
 				form.one('#<%= namespace %>messageId').val(messageId);
 				form.one('#<%= namespace %>body').val(body);
 

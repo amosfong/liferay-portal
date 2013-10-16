@@ -68,7 +68,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.lar.LayoutExporter;
 import com.liferay.portal.lar.backgroundtask.BackgroundTaskContextMapFactory;
 import com.liferay.portal.lar.backgroundtask.LayoutRemoteStagingBackgroundTaskExecutor;
 import com.liferay.portal.lar.backgroundtask.LayoutStagingBackgroundTaskExecutor;
@@ -80,6 +79,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutBranch;
 import com.liferay.portal.model.LayoutRevision;
+import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.LayoutSetBranch;
 import com.liferay.portal.model.LayoutSetBranchConstants;
 import com.liferay.portal.model.Lock;
@@ -88,6 +88,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.WorkflowInstanceLink;
 import com.liferay.portal.security.auth.HttpPrincipal;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.auth.RemoteAuthException;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionThreadLocal;
@@ -99,6 +100,7 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutRevisionLocalServiceUtil;
 import com.liferay.portal.service.LayoutServiceUtil;
 import com.liferay.portal.service.LayoutSetBranchLocalServiceUtil;
+import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
@@ -117,6 +119,7 @@ import com.liferay.portlet.documentlibrary.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.FileExtensionException;
 import com.liferay.portlet.documentlibrary.FileNameException;
 import com.liferay.portlet.documentlibrary.FileSizeException;
+import com.liferay.portlet.layoutsadmin.lar.StagedTheme;
 
 import java.io.Serializable;
 
@@ -132,6 +135,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -179,6 +183,63 @@ public class StagingImpl implements Staging {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public void checkDefaultLayoutSetBranches(
+			long userId, Group liveGroup, boolean branchingPublic,
+			boolean branchingPrivate, boolean remote,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		long targetGroupId = 0;
+
+		if (remote) {
+			targetGroupId = liveGroup.getGroupId();
+		}
+		else {
+			Group stagingGroup = liveGroup.getStagingGroup();
+
+			if (stagingGroup == null) {
+				return;
+			}
+
+			targetGroupId = stagingGroup.getGroupId();
+		}
+
+		if (branchingPublic) {
+			LayoutSetBranch layoutSetBranch =
+				LayoutSetBranchLocalServiceUtil.fetchLayoutSetBranch(
+					targetGroupId, false,
+					LayoutSetBranchConstants.MASTER_BRANCH_NAME);
+
+			if (layoutSetBranch == null) {
+				addDefaultLayoutSetBranch(
+					userId, targetGroupId, liveGroup.getDescriptiveName(),
+					false, serviceContext);
+			}
+		}
+		else {
+			LayoutSetBranchLocalServiceUtil.deleteLayoutSetBranches(
+				targetGroupId, false, true);
+		}
+
+		if (branchingPrivate) {
+			LayoutSetBranch layoutSetBranch =
+				LayoutSetBranchLocalServiceUtil.fetchLayoutSetBranch(
+					targetGroupId, true,
+					LayoutSetBranchConstants.MASTER_BRANCH_NAME);
+
+			if (layoutSetBranch == null) {
+				addDefaultLayoutSetBranch(
+					userId, targetGroupId, liveGroup.getDescriptiveName(), true,
+					serviceContext);
+			}
+		}
+		else {
+			LayoutSetBranchLocalServiceUtil.deleteLayoutSetBranches(
+				targetGroupId, true, true);
+		}
 	}
 
 	@Override
@@ -299,6 +360,11 @@ public class StagingImpl implements Staging {
 			ree.setGroupId(remoteGroupId);
 
 			throw ree;
+		}
+		catch (RemoteAuthException rae) {
+			rae.setURL(url);
+
+			throw rae;
 		}
 		catch (SystemException se) {
 			RemoteExportException ree = new RemoteExportException(
@@ -633,9 +699,19 @@ public class StagingImpl implements Staging {
 			JSONObject errorMessageJSONObject =
 				JSONFactoryUtil.createJSONObject();
 
+			String className = missingReference.getClassName();
 			Map<String, String> referrers = missingReference.getReferrers();
 
-			if (referrers.size() == 1) {
+			if (className.equals(StagedTheme.class.getName())) {
+				errorMessageJSONObject.put(
+					"info",
+					LanguageUtil.format(
+						locale,
+						"the-referenced-theme-x-is-not-deployed-in-the-" +
+							"current-environment",
+						missingReference.getClassPK()));
+			}
+			else if (referrers.size() == 1) {
 				Set<Map.Entry<String, String>> referrerDisplayNames =
 					referrers.entrySet();
 
@@ -1067,9 +1143,6 @@ public class StagingImpl implements Staging {
 			PortletDataHandlerKeys.PORTLET_SETUP_ALL,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
-			PortletDataHandlerKeys.THEME,
-			new String[] {Boolean.FALSE.toString()});
-		parameterMap.put(
 			PortletDataHandlerKeys.THEME_REFERENCE,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
@@ -1154,12 +1227,6 @@ public class StagingImpl implements Staging {
 
 			parameterMap.put(
 				PortletDataHandlerKeys.PORTLET_DATA_ALL,
-				new String[] {Boolean.FALSE.toString()});
-		}
-
-		if (!parameterMap.containsKey(PortletDataHandlerKeys.THEME)) {
-			parameterMap.put(
-				PortletDataHandlerKeys.THEME,
 				new String[] {Boolean.FALSE.toString()});
 		}
 
@@ -1740,6 +1807,50 @@ public class StagingImpl implements Staging {
 	}
 
 	@Override
+	public void updateLastPublishDate(
+			long groupId, boolean privateLayout, Date lastPublishDate)
+		throws Exception {
+
+		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+			groupId, privateLayout);
+
+		UnicodeProperties settingsProperties =
+			layoutSet.getSettingsProperties();
+
+		settingsProperties.setProperty(
+			"last-publish-date", String.valueOf(lastPublishDate.getTime()));
+
+		LayoutSetLocalServiceUtil.updateSettings(
+			layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
+			settingsProperties.toString());
+	}
+
+	@Override
+	public void updateLastPublishDate(
+			String portletId, PortletPreferences portletPreferences,
+			Date lastPublishDate)
+		throws Exception {
+
+		try {
+			portletPreferences.setValue(
+				"last-publish-date", String.valueOf(lastPublishDate.getTime()));
+
+			portletPreferences.store();
+		}
+		catch (UnsupportedOperationException uoe) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Not updating the portlet setup for " + portletId +
+						" because no setup was returned for the current " +
+							"page");
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+	}
+
+	@Override
 	public void updateStaging(PortletRequest portletRequest, Group liveGroup)
 		throws Exception {
 
@@ -1862,60 +1973,19 @@ public class StagingImpl implements Staging {
 			GroupConstants.DEFAULT_LIVE_GROUP_ID, false);
 	}
 
-	protected void checkDefaultLayoutSetBranches(
-			long userId, Group liveGroup, boolean branchingPublic,
-			boolean branchingPrivate, boolean remote,
-			ServiceContext serviceContext)
+	protected void clearLastPublishDate(long groupId, boolean privateLayout)
 		throws Exception {
 
-		long targetGroupId = 0;
+		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+			groupId, privateLayout);
 
-		if (remote) {
-			targetGroupId = liveGroup.getGroupId();
-		}
-		else {
-			Group stagingGroup = liveGroup.getStagingGroup();
+		UnicodeProperties settingsProperties =
+			layoutSet.getSettingsProperties();
 
-			if (stagingGroup == null) {
-				return;
-			}
+		settingsProperties.remove("last-publish-date");
 
-			targetGroupId = stagingGroup.getGroupId();
-		}
-
-		if (branchingPublic) {
-			LayoutSetBranch layoutSetBranch =
-				LayoutSetBranchLocalServiceUtil.fetchLayoutSetBranch(
-					targetGroupId, false,
-					LayoutSetBranchConstants.MASTER_BRANCH_NAME);
-
-			if (layoutSetBranch == null) {
-				addDefaultLayoutSetBranch(
-					userId, targetGroupId, liveGroup.getDescriptiveName(),
-					false, serviceContext);
-			}
-		}
-		else {
-			LayoutSetBranchLocalServiceUtil.deleteLayoutSetBranches(
-				targetGroupId, false, true);
-		}
-
-		if (branchingPrivate) {
-			LayoutSetBranch layoutSetBranch =
-				LayoutSetBranchLocalServiceUtil.fetchLayoutSetBranch(
-					targetGroupId, true,
-					LayoutSetBranchConstants.MASTER_BRANCH_NAME);
-
-			if (layoutSetBranch == null) {
-				addDefaultLayoutSetBranch(
-					userId, targetGroupId, liveGroup.getDescriptiveName(), true,
-					serviceContext);
-			}
-		}
-		else {
-			LayoutSetBranchLocalServiceUtil.deleteLayoutSetBranches(
-				targetGroupId, true, true);
-		}
+		LayoutSetLocalServiceUtil.updateSettings(
+			groupId, privateLayout, settingsProperties.toString());
 	}
 
 	protected void deleteRecentLayoutRevisionId(
@@ -1958,6 +2028,11 @@ public class StagingImpl implements Staging {
 
 			throw ree;
 		}
+		catch (RemoteAuthException rae) {
+			rae.setURL(remoteURL);
+
+			throw rae;
+		}
 		catch (SystemException se) {
 			RemoteExportException ree = new RemoteExportException(
 				RemoteExportException.BAD_CONNECTION);
@@ -1998,6 +2073,11 @@ public class StagingImpl implements Staging {
 			ree.setGroupId(remoteGroupId);
 
 			throw ree;
+		}
+		catch (RemoteAuthException rae) {
+			rae.setURL(remoteURL);
+
+			throw rae;
 		}
 		catch (SystemException se) {
 			RemoteExportException ree = new RemoteExportException(
@@ -2416,9 +2496,8 @@ public class StagingImpl implements Staging {
 			ServiceContext serviceContext)
 		throws Exception {
 
-		LayoutExporter.updateLastPublishDate(
-			liveGroup.getPrivateLayoutSet(), 0);
-		LayoutExporter.updateLastPublishDate(liveGroup.getPublicLayoutSet(), 0);
+		clearLastPublishDate(liveGroup.getGroupId(), true);
+		clearLastPublishDate(liveGroup.getGroupId(), false);
 
 		Set<String> parameterNames = serviceContext.getAttributes().keySet();
 
@@ -2566,6 +2645,11 @@ public class StagingImpl implements Staging {
 
 			throw ree;
 		}
+		catch (RemoteAuthException rae) {
+			rae.setURL(remoteURL);
+
+			throw rae;
+		}
 		catch (SystemException se) {
 			RemoteExportException ree = new RemoteExportException(
 				RemoteExportException.BAD_CONNECTION);
@@ -2659,6 +2743,11 @@ public class StagingImpl implements Staging {
 			ree.setGroupId(remoteGroupId);
 
 			throw ree;
+		}
+		catch (RemoteAuthException rae) {
+			rae.setURL(remoteURL);
+
+			throw rae;
 		}
 		catch (SystemException se) {
 			RemoteExportException ree = new RemoteExportException(

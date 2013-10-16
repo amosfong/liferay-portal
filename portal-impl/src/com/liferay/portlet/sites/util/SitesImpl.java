@@ -326,9 +326,8 @@ public class SitesImpl implements Sites {
 	public void copyPortletPermissions(Layout targetLayout, Layout sourceLayout)
 		throws Exception {
 
-		long companyId = targetLayout.getCompanyId();
-
-		List<Role> roles = RoleLocalServiceUtil.getRoles(companyId);
+		List<Role> roles = RoleLocalServiceUtil.getGroupRelatedRoles(
+			targetLayout.getGroupId());
 
 		LayoutTypePortlet sourceLayoutTypePortlet =
 			(LayoutTypePortlet)sourceLayout.getLayoutType();
@@ -361,13 +360,14 @@ public class SitesImpl implements Sites {
 				List<String> actions =
 					ResourcePermissionLocalServiceUtil.
 						getAvailableResourcePermissionActionIds(
-							companyId, resourceName,
+							targetLayout.getCompanyId(), resourceName,
 							ResourceConstants.SCOPE_INDIVIDUAL,
 							sourceResourcePrimKey, role.getRoleId(), actionIds);
 
 				ResourcePermissionLocalServiceUtil.setResourcePermissions(
-					companyId, resourceName, ResourceConstants.SCOPE_INDIVIDUAL,
-					targetResourcePrimKey, role.getRoleId(),
+					targetLayout.getCompanyId(), resourceName,
+					ResourceConstants.SCOPE_INDIVIDUAL, targetResourcePrimKey,
+					role.getRoleId(),
 					actions.toArray(new String[actions.size()]));
 			}
 		}
@@ -667,9 +667,6 @@ public class SitesImpl implements Sites {
 			PortletDataHandlerKeys.PORTLET_SETUP_ALL,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
-			PortletDataHandlerKeys.THEME,
-			new String[] {Boolean.FALSE.toString()});
-		parameterMap.put(
 			PortletDataHandlerKeys.THEME_REFERENCE,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
@@ -820,6 +817,21 @@ public class SitesImpl implements Sites {
 			 (groupContentSharingEnabled ==
 				CONTENT_SHARING_WITH_CHILDREN_DEFAULT_VALUE))) {
 
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean isFirstLayout(
+			long groupId, boolean privateLayout, long layoutId)
+		throws SystemException {
+
+		Layout firstLayout = LayoutLocalServiceUtil.fetchFirstLayout(
+			groupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+		if ((firstLayout != null) && (firstLayout.getLayoutId() == layoutId )) {
 			return true;
 		}
 
@@ -1720,9 +1732,6 @@ public class SitesImpl implements Sites {
 		parameterMap.put(
 			PortletDataHandlerKeys.PORTLET_SETUP_ALL,
 			new String[] {Boolean.TRUE.toString()});
-		parameterMap.put(
-			PortletDataHandlerKeys.THEME,
-			new String[] {Boolean.FALSE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.THEME_REFERENCE,
 			new String[] {Boolean.TRUE.toString()});

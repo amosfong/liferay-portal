@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.staging.StagingConstants;
 import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -55,7 +56,9 @@ import com.liferay.portal.model.MembershipRequest;
 import com.liferay.portal.model.MembershipRequestConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.Team;
+import com.liferay.portal.security.auth.AuthException;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.auth.RemoteAuthException;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.GroupServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
@@ -179,6 +182,7 @@ public class EditGroupAction extends PortletAction {
 			}
 			else if (e instanceof AssetCategoryException ||
 					 e instanceof AssetTagException ||
+					 e instanceof AuthException ||
 					 e instanceof DuplicateGroupException ||
 					 e instanceof GroupFriendlyURLException ||
 					 e instanceof GroupNameException ||
@@ -186,12 +190,31 @@ public class EditGroupAction extends PortletAction {
 					 e instanceof LayoutSetVirtualHostException ||
 					 e instanceof LocaleException ||
 					 e instanceof PendingBackgroundTaskException ||
+					 e instanceof RemoteAuthException ||
 					 e instanceof RemoteExportException ||
 					 e instanceof RemoteOptionsException ||
 					 e instanceof RequiredGroupException ||
 					 e instanceof SystemException) {
 
-				SessionErrors.add(actionRequest, e.getClass(), e);
+				if (e instanceof RemoteAuthException) {
+					SessionErrors.add(actionRequest, AuthException.class, e);
+				}
+				else {
+					SessionErrors.add(actionRequest, e.getClass(), e);
+				}
+
+				int stagingType = ParamUtil.getInteger(
+					actionRequest, "stagingType");
+
+				if (stagingType != StagingConstants.TYPE_NOT_STAGED) {
+					redirect = HttpUtil.setParameter(
+						redirect, actionResponse.getNamespace() + "stagingType",
+						stagingType);
+				}
+
+				sendRedirect(
+					portletConfig, actionRequest, actionResponse, redirect,
+					closeRedirect);
 			}
 			else {
 				throw e;

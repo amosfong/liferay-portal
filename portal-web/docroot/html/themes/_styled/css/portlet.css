@@ -50,6 +50,11 @@ body.portlet {
 				color: #FFF;
 			}
 		}
+
+		.portlet-options .lfr-icon-menu-text {
+			color: transparent;
+			font-size: 0;
+		}
 	}
 }
 
@@ -741,5 +746,13 @@ body.portlet {
 
 	.breadcrumbs {
 		zoom: 1;
+	}
+}
+
+.ie8 {
+	.dockbar, .lfr-icon-action, .logo {
+		img {
+			max-width: none;
+		}
 	}
 }

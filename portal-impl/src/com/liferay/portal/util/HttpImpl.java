@@ -635,7 +635,7 @@ public class HttpImpl implements Http {
 
 	@Override
 	public String getRequestURL(HttpServletRequest request) {
-		return request.getRequestURL().toString();
+		return String.valueOf(request.getRequestURL());
 	}
 
 	@Override
@@ -807,29 +807,37 @@ public class HttpImpl implements Http {
 
 	@Override
 	public String protocolize(String url, boolean secure) {
-		if (Validator.isNull(url)) {
-			return url;
-		}
-
-		if (secure) {
-			if (url.startsWith(Http.HTTP_WITH_SLASH)) {
-				return StringUtil.replace(
-					url, Http.HTTP_WITH_SLASH, Http.HTTPS_WITH_SLASH);
-			}
-		}
-		else {
-			if (url.startsWith(Http.HTTPS_WITH_SLASH)) {
-				return StringUtil.replace(
-					url, Http.HTTPS_WITH_SLASH, Http.HTTP_WITH_SLASH);
-			}
-		}
-
-		return url;
+		return protocolize(url, -1, secure);
 	}
 
 	@Override
 	public String protocolize(String url, HttpServletRequest request) {
 		return protocolize(url, request.isSecure());
+	}
+
+	@Override
+	public String protocolize(String url, int port, boolean secure) {
+		if (Validator.isNull(url)) {
+			return url;
+		}
+
+		try {
+			URL urlObj = new URL(url);
+
+			String protocol = Http.HTTP;
+
+			if (secure) {
+				protocol = Http.HTTPS;
+			}
+
+			urlObj = new URL(
+				protocol, urlObj.getHost(), port, urlObj.getFile());
+
+			return urlObj.toString();
+		}
+		catch (Exception e) {
+			return url;
+		}
 	}
 
 	@Override
@@ -1313,10 +1321,12 @@ public class HttpImpl implements Http {
 					if (!hasRequestHeader(
 							postMethod, HttpHeaders.CONTENT_TYPE)) {
 
-						postMethod.addRequestHeader(
-							HttpHeaders.CONTENT_TYPE,
-							ContentTypes.
-								APPLICATION_X_WWW_FORM_URLENCODED_UTF8);
+						HttpClientParams httpClientParams =
+							httpClient.getParams();
+
+						httpClientParams.setParameter(
+							HttpMethodParams.HTTP_CONTENT_CHARSET,
+							StringPool.UTF8);
 					}
 
 					processPostMethod(postMethod, fileParts, parts);

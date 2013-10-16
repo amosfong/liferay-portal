@@ -3,11 +3,10 @@
 
 .control-group-inline {
 	display: inline-block;
-	vertical-align: middle;
 }
 
 .button-holder {
-	margin-top: 20px;
+	margin: 20px 0;
 }
 
 .lfr-ddm-container {

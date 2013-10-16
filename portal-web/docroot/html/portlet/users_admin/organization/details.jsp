@@ -38,9 +38,7 @@ long countryId = BeanParamUtil.getLong(organization, request, "countryId");
 long groupId = 0;
 
 if (organization != null) {
-	Group group = organization.getGroup();
-
-	groupId = group.getGroupId();
+	groupId = organization.getGroupId();
 }
 
 User selUser = (User)request.getAttribute("user.selUser");
@@ -235,9 +233,10 @@ if (parentOrganization != null) {
 
 <liferay-ui:icon
 	cssClass="modify-link"
+	iconClass="icon-search"
 	id="selectOrganizationLink"
-	image="add"
 	label="<%= true %>"
+	linkCssClass="btn"
 	message="select"
 	method="get"
 	url="javascript:;"

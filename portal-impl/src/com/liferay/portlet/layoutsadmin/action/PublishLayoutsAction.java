@@ -26,8 +26,11 @@ import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.security.auth.AuthException;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.security.auth.RemoteAuthException;
 import com.liferay.portlet.sites.action.ActionUtil;
 
 import java.util.Date;
@@ -141,15 +144,27 @@ public class PublishLayoutsAction extends EditLayoutsAction {
 
 				setForward(actionRequest, "portlet.layouts_admin.error");
 			}
-			else if (e instanceof DuplicateLockException ||
+			else if (e instanceof AuthException ||
+					 e instanceof DuplicateLockException ||
 					 e instanceof LayoutPrototypeException ||
+					 e instanceof RemoteAuthException ||
 					 e instanceof RemoteExportException ||
 					 e instanceof RemoteOptionsException ||
 					 e instanceof SystemException) {
 
-				SessionErrors.add(actionRequest, e.getClass(), e);
+				if (e instanceof RemoteAuthException) {
+					SessionErrors.add(actionRequest, AuthException.class, e);
+				}
+				else {
+					SessionErrors.add(actionRequest, e.getClass(), e);
+				}
 
-				redirect = ParamUtil.getString(actionRequest, "pagesRedirect");
+				redirect = ParamUtil.getString(
+					actionRequest, "pagesRedirect", redirect);
+
+				redirect = StringUtil.replace(
+					redirect, "tabs2=current-and-previous",
+					"tabs2=new-publication-process");
 
 				sendRedirect(
 					portletConfig, actionRequest, actionResponse, redirect,

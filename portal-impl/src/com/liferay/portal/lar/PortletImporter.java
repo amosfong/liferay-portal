@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -1103,27 +1104,31 @@ public class PortletImporter {
 					continue;
 				}
 
+				long curPlid = plid;
+				String curPortletId = portletId;
+
 				if (ownerType == PortletKeys.PREFS_OWNER_TYPE_GROUP) {
-					plid = PortletKeys.PREFS_PLID_SHARED;
+					curPlid = PortletKeys.PREFS_PLID_SHARED;
+					curPortletId = PortletConstants.getRootPortletId(portletId);
 					ownerId = portletDataContext.getScopeGroupId();
-					portletId = PortletConstants.getRootPortletId(portletId);
 				}
 
 				if (ownerType == PortletKeys.PREFS_OWNER_TYPE_ARCHIVED) {
-					portletId = PortletConstants.getRootPortletId(portletId);
-
 					String userUuid = element.attributeValue(
 						"archive-user-uuid");
-					String name = element.attributeValue("archive-name");
 
 					long userId = portletDataContext.getUserId(userUuid);
 
+					String name = element.attributeValue("archive-name");
+
+					curPortletId = PortletConstants.getRootPortletId(portletId);
+
 					PortletItem portletItem =
 						PortletItemLocalServiceUtil.updatePortletItem(
-							userId, groupId, name, portletId,
+							userId, groupId, name, curPortletId,
 							PortletPreferences.class.getName());
 
-					plid = LayoutConstants.DEFAULT_PLID;
+					curPlid = LayoutConstants.DEFAULT_PLID;
 					ownerId = portletItem.getPortletItemId();
 				}
 
@@ -1142,7 +1147,8 @@ public class PortletImporter {
 
 				javax.portlet.PortletPreferences jxPortletPreferences =
 					PortletPreferencesFactoryUtil.fromXML(
-						companyId, ownerId, ownerType, plid, portletId, xml);
+						companyId, ownerId, ownerType, curPlid, curPortletId,
+						xml);
 
 				Element importDataRootElement =
 					portletDataContext.getImportDataRootElement();
@@ -1157,14 +1163,14 @@ public class PortletImporter {
 					}
 
 					Portlet portlet = PortletLocalServiceUtil.getPortletById(
-						portletDataContext.getCompanyId(), portletId);
+						portletDataContext.getCompanyId(), curPortletId);
 
 					PortletDataHandler portletDataHandler =
 						portlet.getPortletDataHandlerInstance();
 
 					jxPortletPreferences =
 						portletDataHandler.processImportPortletPreferences(
-							portletDataContext, portletId,
+							portletDataContext, curPortletId,
 							jxPortletPreferences);
 				}
 				finally {
@@ -1173,7 +1179,8 @@ public class PortletImporter {
 				}
 
 				updatePortletPreferences(
-					portletDataContext, ownerId, ownerType, plid, portletId,
+					portletDataContext, ownerId, ownerType, curPlid,
+					curPortletId,
 					PortletPreferencesFactoryUtil.toXML(jxPortletPreferences),
 					importPortletData);
 			}
@@ -1757,76 +1764,71 @@ public class PortletImporter {
 			long plid, String portletId, String xml, boolean importData)
 		throws Exception {
 
-		if (importData) {
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			portletDataContext.getCompanyId(), portletId);
+
+		if (portlet == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Do not update portlet preferences for " + portletId +
+						" because the portlet does not exist");
+			}
+
+			return;
+		}
+
+		PortletDataHandler portletDataHandler =
+			portlet.getPortletDataHandlerInstance();
+
+		if (importData ||
+			(portletDataHandler.isDisplayPortlet() &&
+			 !MergeLayoutPrototypesThreadLocal.isInProgress())) {
+
 			PortletPreferencesLocalServiceUtil.updatePreferences(
 				ownerId, ownerType, plid, portletId, xml);
+
+			return;
 		}
-		else {
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(
-				portletDataContext.getCompanyId(), portletId);
 
-			if (portlet == null) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Do not update portlet preferences for " + portletId +
-							" because the portlet does not exist");
-				}
+		// Portlet preferences to be updated only when importing data
 
-				return;
+		String[] dataPortletPreferences =
+			portletDataHandler.getDataPortletPreferences();
+
+		// Current portlet preferences
+
+		javax.portlet.PortletPreferences portletPreferences =
+			PortletPreferencesLocalServiceUtil.getPreferences(
+				portletDataContext.getCompanyId(), ownerId, ownerType, plid,
+				portletId);
+
+		// New portlet preferences
+
+		javax.portlet.PortletPreferences jxPortletPreferences =
+			PortletPreferencesFactoryUtil.fromXML(
+				portletDataContext.getCompanyId(), ownerId, ownerType, plid,
+				portletId, xml);
+
+		Enumeration<String> enu = jxPortletPreferences.getNames();
+
+		while (enu.hasMoreElements()) {
+			String name = enu.nextElement();
+
+			String scopeLayoutUuid = portletDataContext.getScopeLayoutUuid();
+			String scopeType = portletDataContext.getScopeType();
+
+			if (!ArrayUtil.contains(dataPortletPreferences, name) ||
+				(Validator.isNull(scopeLayoutUuid) &&
+				 scopeType.equals("company"))) {
+
+				String[] values = jxPortletPreferences.getValues(name, null);
+
+				portletPreferences.setValues(name, values);
 			}
-
-			PortletDataHandler portletDataHandler =
-				portlet.getPortletDataHandlerInstance();
-
-			if (portletDataHandler == null) {
-				PortletPreferencesLocalServiceUtil.updatePreferences(
-					ownerId, ownerType, plid, portletId, xml);
-
-				return;
-			}
-
-			// Portlet preferences to be updated only when importing data
-
-			String[] dataPortletPreferences =
-				portletDataHandler.getDataPortletPreferences();
-
-			// Current portlet preferences
-
-			javax.portlet.PortletPreferences portletPreferences =
-				PortletPreferencesLocalServiceUtil.getPreferences(
-					portletDataContext.getCompanyId(), ownerId, ownerType, plid,
-					portletId);
-
-			// New portlet preferences
-
-			javax.portlet.PortletPreferences jxPortletPreferences =
-				PortletPreferencesFactoryUtil.fromXML(
-					portletDataContext.getCompanyId(), ownerId, ownerType, plid,
-					portletId, xml);
-
-			Enumeration<String> enu = jxPortletPreferences.getNames();
-
-			while (enu.hasMoreElements()) {
-				String name = enu.nextElement();
-
-				String scopeLayoutUuid =
-					portletDataContext.getScopeLayoutUuid();
-				String scopeType = portletDataContext.getScopeType();
-
-				if (!ArrayUtil.contains(dataPortletPreferences, name) ||
-					(Validator.isNull(scopeLayoutUuid) &&
-					 scopeType.equals("company"))) {
-
-					String[] values = jxPortletPreferences.getValues(
-						name, null);
-
-					portletPreferences.setValues(name, values);
-				}
-			}
-
-			PortletPreferencesLocalServiceUtil.updatePreferences(
-				ownerId, ownerType, plid, portletId, portletPreferences);
 		}
+
+		PortletPreferencesLocalServiceUtil.updatePreferences(
+			ownerId, ownerType, plid, portletId, portletPreferences);
 	}
 
 	protected void validateFile(

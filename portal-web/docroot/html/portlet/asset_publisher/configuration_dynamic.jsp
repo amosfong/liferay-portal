@@ -337,6 +337,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 						{
 							contentBox: '#<portlet:namespace />queryRules > fieldset',
 							fieldIndexes: '<portlet:namespace />queryLogicIndexes',
+							namespace: '<portlet:namespace />',
 							url: '<portlet:renderURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="struts_action" value="/portlet_configuration/edit_query_rule" /></portlet:renderURL>'
 						}
 					).render();
@@ -572,7 +573,7 @@ String selectStyle = (String)request.getAttribute("configuration.jsp-selectStyle
 
 			<%
 			for (Tuple classTypeFieldName : classTypeFieldNames) {
-				String value = DDMIndexerUtil.encodeName(subtypeId, (String)classTypeFieldName.getObject(1));
+				String value = DDMIndexerUtil.encodeName((Long)classTypeFieldName.getObject(3), (String)classTypeFieldName.getObject(1));
 				String selectedOrderByColumn1 = StringPool.BLANK;
 				String selectedOrderByColumn2 = StringPool.BLANK;
 

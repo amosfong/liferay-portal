@@ -14,6 +14,17 @@
 		comboBase: LiferayAUI.getComboPath(),
 		filter: Liferay.AUI.getFilter(),
 		groups: {
+			editor: {
+				base: PATH_JAVASCRIPT + '/editor/',
+				combine: COMBINE,
+				modules: {
+					'inline-editor-ckeditor': {
+						path: 'ckeditor/main.js'
+					}
+				},
+				root: PATH_JAVASCRIPT + '/editor/'
+			},
+
 			liferay: {
 				base: PATH_JAVASCRIPT + '/liferay/',
 				combine: COMBINE,
@@ -262,7 +273,6 @@
 						path: 'history.js',
 						requires: [
 							'history-hash',
-							'liferay-history-html5',
 							'querystring-parse-simple'
 						]
 					},

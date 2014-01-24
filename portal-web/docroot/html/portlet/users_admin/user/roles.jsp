@@ -19,6 +19,7 @@
 <%
 User selUser = (User)request.getAttribute("user.selUser");
 List<Group> groups = (List<Group>)request.getAttribute("user.groups");
+List<Group> inheritedSites = (List<Group>)request.getAttribute("user.inheritedSites");
 List<Organization> organizations = (List<Organization>)request.getAttribute("user.organizations");
 Long[] organizationIds = UsersAdminUtil.getOrganizationIds(organizations);
 List<Role> roles = (List<Role>)request.getAttribute("user.roles");
@@ -118,23 +119,26 @@ userGroupRoles.addAll(siteRoles);
 	</aui:script>
 </c:if>
 
-<h3><liferay-ui:message key="inherited-roles" /></h3>
+<h3><liferay-ui:message key="inherited-regular-roles" /></h3>
+
+<%
+List<Group> roleGroups = new ArrayList<Group>();
+
+for (Group group : allGroups) {
+	if (RoleLocalServiceUtil.hasGroupRoles(group.getGroupId())) {
+		roleGroups.add(group);
+	}
+}
+%>
+
+<c:if test="<%= roleGroups.isEmpty() %>">
+	<liferay-ui:message key="this-user-does-not-have-any-inherited-regular-roles" />
+</c:if>
 
 <liferay-ui:search-container
 	headerNames="title,group"
 	id="inheritedRolesSearchContainer"
 >
-
-	<%
-	List<Group> roleGroups = new ArrayList<Group>();
-
-	for (Group group : allGroups) {
-		if (RoleLocalServiceUtil.hasGroupRoles(group.getGroupId())) {
-			roleGroups.add(group);
-		}
-	}
-	%>
-
 	<liferay-ui:search-container-results
 		results="<%= roleGroups %>"
 		total="<%= roleGroups.size() %>"
@@ -285,8 +289,8 @@ userGroupRoles.addAll(siteRoles);
 <h3><liferay-ui:message key="site-roles" /></h3>
 
 <c:choose>
-	<c:when test="<%= siteRoles.isEmpty() %>">
-		<liferay-ui:message key="this-user-does-not-have-any-site-roles" />
+	<c:when test="<%= groups.isEmpty() && inheritedSites.isEmpty() %>">
+		<liferay-ui:message key="this-user-does-not-belong-to-a-site-to-which-a-site-role-can-be-assigned" />
 	</c:when>
 	<c:otherwise>
 		<liferay-ui:search-container
@@ -471,10 +475,10 @@ userGroupRoles.addAll(siteRoles);
 
 			var rowColumns = [];
 
-			rowColumns.push(A.Escape.html(name));
+			rowColumns.push(name);
 
 			if (groupName) {
-				rowColumns.push(A.Escape.html(groupName));
+				rowColumns.push(groupName);
 			}
 
 			if (groupId) {
@@ -493,7 +497,7 @@ userGroupRoles.addAll(siteRoles);
 			searchContainer.addRow(rowColumns, roleId);
 			searchContainer.updateDataStore();
 		},
-		['liferay-search-container', 'escape']
+		['liferay-search-container']
 	);
 </aui:script>
 

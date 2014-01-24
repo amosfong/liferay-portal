@@ -24,26 +24,7 @@
 
 		<execute action="Home#assertClick" locator-key1="PAGE" value1="${pageName}" />
 
-		<if>
-			<condition action="PGStaging#isElementNotPresent" locator-key1="STAGING_MENU_SUBMIT_FOR_PUBLICATION" />
-			<then>
-				<execute action="PGStaging#click" locator-key1="STAGING_DROP_DOWN_BUTTON" />
-				<execute action="PGStaging#assertElementPresent" locator-key1="STAGING_MENU_SUBMIT_FOR_PUBLICATION" />
-			</then>
-		</if>
-
-		<execute action="PGStaging#assertClick" locator-key1="STAGING_MENU_SUBMIT_FOR_PUBLICATION" value1="Submit for Publication" />
-		<execute action="PGStaging#assertElementPresent" locator-key1="STAGING_MENU_SUBMIT_FOR_PUBLICATION_DISABLED" />
-
-		<if>
-			<condition action="PGStaging#isTextEqual" locator-key1="STAGING_MENU_STATUS" value1="Pending (Created)" />
-			<then>
-				<execute action="PGStaging#assertTextEquals" locator-key1="STAGING_MENU_STATUS" value1="Pending (Created)" />
-			</then>
-			<else>
-				<execute action="PGStaging#assertTextEquals" locator-key1="STAGING_MENU_STATUS" value1="${workflowStatus}" />
-			</else>
-		</if>
+		<execute macro="Staging#submitForPublicationPageRevision" />
 	</command>
 
 	<command name="gotoCmdCP">
@@ -153,7 +134,17 @@
 	<command name="gotoPG">
 		<execute macro="Page#openURL" />
 
-		<execute action="Home#click" locator1="link=${pageName}" />
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<var name="key_pageName" value="${pageName}" />
+
+				<execute action="SOSiteHome#click" locator-key1="NAVIGATION_PAGE" />
+			</then>
+			<else>
+				<execute action="Home#click" locator1="link=${pageName}" />
+			</else>
+		</if>
 	</command>
 
 	<command name="gotoUsersCP">
@@ -191,11 +182,11 @@
 				<var name="siteNameURL" value="/${siteNameURL?lowercase()}" />
 			</then>
 			<elseif>
-   			 	<isset var="friendlyURL" />
-    			<then>
-     				<var name="siteNameURL" value="/${friendlyURL}" />
-    			</then>
-   			</elseif>
+				<isset var="friendlyURL" />
+				<then>
+					<var name="siteNameURL" value="/${friendlyURL}" />
+				</then>
+			</elseif>
 			<else>
 				<var name="siteNameURL" value="/guest" />
 			</else>
@@ -213,12 +204,12 @@
 
 		<if>
 			<isset var="virtualHostsURL" />
-    		<then>
-     			<var name="siteNameURL" value="${virtualHostsURL}" />
+			<then>
+				<var name="siteNameURL" value="${virtualHostsURL}" />
 
-     			<execute action="Home#open" locator1="${siteNameURL}" />
-    		</then>
-    		<else>
+				<execute action="Home#open" locator1="${siteNameURL}" />
+			</then>
+			<else>
 				<execute action="Home#open" locator1="${pageAccessURL}${siteNameURL}${pageStagingURL}" />
 			</else>
 		</if>

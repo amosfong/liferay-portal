@@ -89,7 +89,7 @@ public class Entity {
 		this(
 			null, null, null, name, null, null, null, false, false, false, true,
 			null, null, null, null, null, true, false, false, false, false,
-			null, null, null, null, null, null, null, null, null);
+			false, null, null, null, null, null, null, null, null, null);
 	}
 
 	public Entity(
@@ -98,8 +98,8 @@ public class Entity {
 		boolean uuidAccessor, boolean localService, boolean remoteService,
 		String persistenceClass, String finderClass, String dataSource,
 		String sessionFactory, String txManager, boolean cacheEnabled,
-		boolean dynamicUpdateEnabled, boolean jsonEnabled, boolean trashEnabled,
-		boolean deprecated, List<EntityColumn> pkList,
+		boolean dynamicUpdateEnabled, boolean jsonEnabled, boolean mvccEnabled,
+		boolean trashEnabled, boolean deprecated, List<EntityColumn> pkList,
 		List<EntityColumn> regularColList, List<EntityColumn> blobList,
 		List<EntityColumn> collectionList, List<EntityColumn> columnList,
 		EntityOrder order, List<EntityFinder> finderList,
@@ -126,6 +126,7 @@ public class Entity {
 		_cacheEnabled = cacheEnabled;
 		_dynamicUpdateEnabled = dynamicUpdateEnabled;
 		_jsonEnabled = jsonEnabled;
+		_mvccEnabled = mvccEnabled;
 		_trashEnabled = trashEnabled;
 		_deprecated = deprecated;
 		_pkList = pkList;
@@ -685,6 +686,10 @@ public class Entity {
 		return _jsonEnabled;
 	}
 
+	public boolean isMvccEnabled() {
+		return _mvccEnabled;
+	}
+
 	public boolean isOrdered() {
 		if (_order != null) {
 			return true;
@@ -847,6 +852,7 @@ public class Entity {
 	private String _humanName;
 	private boolean _jsonEnabled;
 	private boolean _localService;
+	private boolean _mvccEnabled;
 	private String _name;
 	private EntityOrder _order;
 	private String _packagePath;

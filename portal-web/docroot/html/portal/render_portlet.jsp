@@ -209,6 +209,14 @@ if (!portletId.equals(PortletKeys.PORTLET_CONFIGURATION)) {
 			showPortletCssIcon = true;
 		}
 	}
+
+	if (layoutTypePortlet.isCustomizable() && !layoutTypePortlet.isColumnDisabled(columnId) && LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE)) {
+		showConfigurationIcon = true;
+
+		if (PropsValues.PORTLET_CSS_ENABLED) {
+			showPortletCssIcon = true;
+		}
+	}
 }
 
 if (group.isLayoutPrototype()) {
@@ -813,7 +821,6 @@ Boolean renderPortletBoundary = GetterUtil.getBoolean(request.getAttribute(WebKe
 	%>
 
 	<div class="<%= cssClasses %>" id="p_p_id<%= HtmlUtil.escapeAttribute(renderResponseImpl.getNamespace()) %>" <%= freeformStyles %>>
-		<span id="p_<%= HtmlUtil.escapeAttribute(portletId) %>"></span>
 </c:if>
 
 <c:choose>

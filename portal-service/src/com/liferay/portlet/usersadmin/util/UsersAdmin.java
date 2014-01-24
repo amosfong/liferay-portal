@@ -16,9 +16,9 @@ package com.liferay.portlet.usersadmin.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.model.Address;
 import com.liferay.portal.model.EmailAddress;
 import com.liferay.portal.model.Group;
@@ -48,6 +48,15 @@ import javax.servlet.http.HttpServletRequest;
 public interface UsersAdmin {
 
 	public static final String CUSTOM_QUESTION = "write-my-own-question";
+
+	public static final String[] ORGANIZATION_SELECTED_FIELD_NAMES =
+		{Field.COMPANY_ID, Field.ORGANIZATION_ID, Field.UID};
+
+	public static final String[] USER_GROUP_SELECTED_FIELD_NAMES =
+		{Field.COMPANY_ID, Field.UID, Field.USER_GROUP_ID};
+
+	public static final String[] USER_SELECTED_FIELD_NAMES =
+		{Field.COMPANY_ID, Field.UID, Field.USER_ID};
 
 	public void addPortletBreadcrumbEntries(
 			Organization organization, HttpServletRequest request,
@@ -111,7 +120,7 @@ public interface UsersAdmin {
 	public OrderByComparator getOrganizationOrderByComparator(
 		String orderByCol, String orderByType);
 
-	public Tuple getOrganizations(Hits hits)
+	public List<Organization> getOrganizations(Hits hits)
 		throws PortalException, SystemException;
 
 	public List<OrgLabor> getOrgLabors(ActionRequest actionRequest);
@@ -130,13 +139,14 @@ public interface UsersAdmin {
 	public List<UserGroupRole> getUserGroupRoles(PortletRequest portletRequest)
 		throws PortalException, SystemException;
 
-	public Tuple getUserGroups(Hits hits)
+	public List<UserGroup> getUserGroups(Hits hits)
 		throws PortalException, SystemException;
 
 	public OrderByComparator getUserOrderByComparator(
 		String orderByCol, String orderByType);
 
-	public Tuple getUsers(Hits hits) throws PortalException, SystemException;
+	public List<User> getUsers(Hits hits)
+		throws PortalException, SystemException;
 
 	public List<Website> getWebsites(ActionRequest actionRequest);
 

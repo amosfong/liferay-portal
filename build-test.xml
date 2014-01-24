@@ -230,11 +230,12 @@
 					<equals arg1="${database}" arg2="postgresql-9.2" />
 					<equals arg1="${database}" arg2="sql-server-2005" />
 					<equals arg1="${database}" arg2="sql-server-2008" />
+					<equals arg1="${database}" arg2="sql-server-2012" />
 					<equals arg1="${database}" arg2="sybase" />
 				</or>
 			</not>
 			<then>
-				<fail>Please set "database" to one of the following:${line.separator}db2-9.7, db2-10.1, hsql, mysql, oracle-10, oracle-11, postgresql-8.4, postgresql-9.0, postgresql-9.2, sql-server-2005, sql-server-2008, sybase</fail>
+				<fail>Please set "database" to one of the following:${line.separator}db2-9.7, db2-10.1, hsql, mysql, oracle-10, oracle-11, postgresql-8.4, postgresql-9.0, postgresql-9.2, sql-server-2005, sql-server-2008, sql-server-2012, sybase</fail>
 			</then>
 		</if>
 	</target>
@@ -1071,6 +1072,15 @@ tck.url=true</echo>
 		</if>
 
 		<if>
+			<equals arg1="${tear.down.before.test}" arg2="true" />
+			<then>
+				<echo file="portal-web/test/test-portal-web-ext.properties" append="true">
+					tear.down.before.test=true
+				</echo>
+			</then>
+		</if>
+
+		<if>
 			<equals arg1="${test.assert.javascript.errors}" arg2="false" />
 			<then>
 				<echo file="portal-web/test/test-portal-web-ext.properties" append="true">
@@ -1460,6 +1470,12 @@ tck.url=true</echo>
 							/>
 						</unzip>
 
+						<chmod perm="a+x">
+							<fileset dir="${app.server.dir}/patching-tool">
+								<include name="*.sh" />
+							</fileset>
+						</chmod>
+
 						<get
 							dest="${app.server.dir}/patching-tool/patches"
 							src="${test.build.fix.pack.zip.url}"
@@ -1684,6 +1700,30 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 		<delete file="create.sql" />
 	</target>
 
+	<target name="rebuild-legacy-database">
+		<antcall target="rebuild-database">
+			<param name="database" value="${database}" />
+			<param name="sql.dir" value="sql/create-bare/" />
+			<param name="sql.file" value="create-bare-${database}.sql" />
+		</antcall>
+
+		<unzip
+			dest="${liferay.home}"
+			src="${portal.legacy.dir}/${portal.version}/data-archive/data-archive-${database}.zip"
+		/>
+
+		<if>
+			<equals arg1="${database}" arg2="mysql" />
+			<then>
+				<exec executable="mysql" input="${liferay.home}/${database}.sql">
+					<arg value="--database=lportal" />
+					<arg value="--password=${database.mysql.password}" />
+					<arg value="--user=${database.mysql.username}" />
+				</exec>
+			</then>
+		</if>
+	</target>
+
 	<target name="record-test-package-names">
 		<script classpathref="project.classpath" language="beanshell">
 			import com.liferay.portal.kernel.util.OSDetector;
@@ -1834,30 +1874,6 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 					<property name="test.class" value="${test.simple.class.name}" />
 				</ant>
 			</else>
-		</if>
-	</target>
-
-	<target name="rebuild-legacy-database">
-		<antcall target="rebuild-database">
-			<param name="database" value="${database}" />
-			<param name="sql.dir" value="sql/create-bare/" />
-			<param name="sql.file" value="create-bare-${database}.sql" />
-		</antcall>
-
-		<unzip
-			dest="${liferay.home}"
-			src="${portal.legacy.dir}/${portal.version}/data-archive/data-archive-${database}.zip"
-		/>
-
-		<if>
-			<equals arg1="${database}" arg2="mysql" />
-			<then>
-				<exec executable="mysql" input="${liferay.home}/${database}.sql">
-					<arg value="--database=lportal" />
-					<arg value="--password=" />
-					<arg value="--user=" />
-				</exec>
-			</then>
 		</if>
 	</target>
 
@@ -2194,6 +2210,19 @@ Please set "ie.driver.zip" in test.properties to point to "IEDriverServer_x64_2.
 	</target>
 
 	<target name="start-selenium">
+		<loadfile failonerror="false" property="system-ext.properties.content" srcfile="portal-impl/classes/system-ext.properties" />
+
+		<if>
+			<not>
+				<contains string="${system-ext.properties.content}" substring="java.awt.headless=false" />
+			</not>
+			<then>
+				<echo append="true" file="portal-impl/classes/system-ext.properties">
+					java.awt.headless=false
+				</echo>
+			</then>
+		</if>
+
 		<!--<java
 			jar="lib/development/selenium-server.jar"
 			fork="true"
@@ -2265,6 +2294,27 @@ Please set "ie.driver.zip" in test.properties to point to "IEDriverServer_x64_2.
 	</target>
 
 	<target name="stop-selenium">
+		<if>
+			<available file="portal-impl/src/system-ext.properties" />
+			<then>
+				<if>
+					<not>
+						<filesmatch
+							file1="portal-impl/src/system-ext.properties"
+							file2="portal-impl/classes/system-ext.properties"
+						/>
+					</not>
+					<then>
+						<copy
+							file="portal-impl/src/system-ext.properties"
+							overwrite="true"
+							tofile="portal-impl/classes/system-ext.properties"
+						/>
+					</then>
+				</if>
+			</then>
+		</if>
+
 		<antelope:post to="http://localhost:14444/selenium-server/driver/?cmd=shutDownSeleniumServer" wantresponse="true" />
 	</target>
 

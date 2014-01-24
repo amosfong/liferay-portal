@@ -428,7 +428,7 @@ public class ServicePreAction extends Action {
 				layout = null;
 			}
 			else if (!isLoginRequest(request) &&
-					 ((!viewableGroup || !viewableSourceGroup) ||
+					 (!viewableGroup || !viewableSourceGroup ||
 					  (!redirectToDefaultLayout &&
 					   !hasAccessPermission(
 						   permissionChecker, layout, doAsGroupId,
@@ -581,7 +581,8 @@ public class ServicePreAction extends Action {
 			boolean customizable = layoutTypePortlet.isCustomizable();
 
 			if (!customizable ||
-				(group.isLayoutPrototype() || group.isLayoutSetPrototype())) {
+				group.isLayoutPrototype() || group.isLayoutSetPrototype() ||
+				group.isStagingGroup()) {
 
 				customizedView = false;
 			}

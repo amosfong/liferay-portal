@@ -76,7 +76,7 @@ Map<String, ThemeSetting> configurableSettings = selTheme.getConfigurableSetting
 							<liferay-ui:message key="color-scheme" />
 						</dt>
 						<dd>
-							<%= selColorScheme.getName() %>
+							<%= HtmlUtil.escape(selColorScheme.getName()) %>
 						</dd>
 					</c:if>
 
@@ -87,10 +87,10 @@ Map<String, ThemeSetting> configurableSettings = selTheme.getConfigurableSetting
 						%>
 
 							<dt class="theme-setting">
-								<liferay-ui:message key="<%= name %>" />
+								<liferay-ui:message key="<%= HtmlUtil.escape(name) %>" />
 							</dt>
 							<dd>
-								<%= selLayoutSet.getThemeSetting(name, device) %>
+								<%= HtmlUtil.escape(selLayoutSet.getThemeSetting(name, device)) %>
 							</dd>
 
 						<%
@@ -198,7 +198,7 @@ Map<String, ThemeSetting> configurableSettings = selTheme.getConfigurableSetting
 		<div class="float-container lfr-available-themes" id="<%= device %>availableThemes">
 			<legend>
 				<span class="header-title">
-					<%= LanguageUtil.format(pageContext, "available-themes-x", (themes.size() - 1)) %>
+					<%= LanguageUtil.format(pageContext, "available-themes-x", (themes.size() - 1), false) %>
 				</span>
 
 				<c:if test="<%= permissionChecker.isOmniadmin() && PortletLocalServiceUtil.hasPortlet(themeDisplay.getCompanyId(), PortletKeys.MARKETPLACE_STORE) && PrefsPropsUtil.getBoolean(PropsKeys.AUTO_DEPLOY_ENABLED, PropsValues.AUTO_DEPLOY_ENABLED) %>">

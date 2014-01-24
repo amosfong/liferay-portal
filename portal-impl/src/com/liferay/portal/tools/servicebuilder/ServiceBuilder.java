@@ -635,6 +635,8 @@ public class ServiceBuilder {
 			_autoNamespaceTables = GetterUtil.getBoolean(
 				rootElement.attributeValue("auto-namespace-tables"),
 				_autoNamespaceTables);
+			_mvccEnabled = GetterUtil.getBoolean(
+				rootElement.attributeValue("mvcc-enabled"));
 
 			Element authorElement = rootElement.element("author");
 
@@ -3985,7 +3987,7 @@ public class ServiceBuilder {
 		List<EntityColumn> pkList = entity.getPKList();
 		List<EntityColumn> regularColList = entity.getRegularColList();
 
-		if (regularColList.size() == 0) {
+		if (regularColList.isEmpty()) {
 			return null;
 		}
 
@@ -4075,6 +4077,10 @@ public class ServiceBuilder {
 				colIdType.equals("identity")) {
 
 				sb.append(" IDENTITY");
+			}
+
+			if (colName.equals("mvccVersion")) {
+				sb.append(" default 0");
 			}
 
 			if (((i + 1) != regularColList.size()) ||
@@ -4363,14 +4369,18 @@ public class ServiceBuilder {
 		String txManager = entityElement.attributeValue("tx-manager");
 		boolean cacheEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("cache-enabled"), true);
-		boolean dynamicUpdateEnabled = GetterUtil.getBoolean(
-			entityElement.attributeValue("dynamic-update-enabled"));
 		boolean jsonEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("json-enabled"), remoteService);
+		boolean mvccEnabled = GetterUtil.getBoolean(
+			entityElement.attributeValue("mvcc-enabled"), _mvccEnabled);
 		boolean trashEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("trash-enabled"));
 		boolean deprecated = GetterUtil.getBoolean(
 			entityElement.attributeValue("deprecated"));
+
+		boolean dynamicUpdateEnabled = GetterUtil.getBoolean(
+			entityElement.attributeValue("dynamic-update-enabled"),
+			mvccEnabled);
 
 		List<EntityColumn> pkList = new ArrayList<EntityColumn>();
 		List<EntityColumn> regularColList = new ArrayList<EntityColumn>();
@@ -4378,9 +4388,18 @@ public class ServiceBuilder {
 		List<EntityColumn> collectionList = new ArrayList<EntityColumn>();
 		List<EntityColumn> columnList = new ArrayList<EntityColumn>();
 
+		boolean permissionedModel = false;
+
 		List<Element> columnElements = entityElement.elements("column");
 
-		boolean permissionedModel = false;
+		if (mvccEnabled && !columnElements.isEmpty()) {
+			Element columnElement = SAXReaderUtil.createElement("column");
+
+			columnElement.addAttribute("name", "mvccVersion");
+			columnElement.addAttribute("type", "long");
+
+			columnElements.add(columnElement);
+		}
 
 		if (uuid) {
 			Element columnElement = SAXReaderUtil.createElement("column");
@@ -4749,9 +4768,9 @@ public class ServiceBuilder {
 				humanName, table, alias, uuid, uuidAccessor, localService,
 				remoteService, persistenceClass, finderClass, dataSource,
 				sessionFactory, txManager, cacheEnabled, dynamicUpdateEnabled,
-				jsonEnabled, trashEnabled, deprecated, pkList, regularColList,
-				blobList, collectionList, columnList, order, finderList,
-				referenceList, txRequiredList));
+				jsonEnabled, mvccEnabled, trashEnabled, deprecated, pkList,
+				regularColList, blobList, collectionList, columnList, order,
+				finderList, referenceList, txRequiredList));
 	}
 
 	private String _processTemplate(String name, Map<String, Object> context)
@@ -4830,6 +4849,7 @@ public class ServiceBuilder {
 	private Map<String, JavaClass> _javaClasses =
 		new HashMap<String, JavaClass>();
 	private String _modelHintsFileName;
+	private boolean _mvccEnabled;
 	private String _outputPath;
 	private String _packagePath;
 	private String _pluginName;

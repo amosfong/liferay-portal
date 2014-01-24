@@ -772,8 +772,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 			else if ((previousJavaTerm.getType() ==
 						TYPE_VARIABLE_PRIVATE_STATIC) &&
-					 (previousJavaTermName.equals("_log") ||
-					  previousJavaTermName.equals("_instance"))) {
+					 (previousJavaTermName.equals("_instance") ||
+					  previousJavaTermName.equals("_log") ||
+					  previousJavaTermName.equals("_logger"))) {
 
 				requiresEmptyLine = true;
 			}

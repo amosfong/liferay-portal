@@ -14,31 +14,41 @@
 
 package com.liferay.portal.app.resolver;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import org.osgi.framework.ServiceReference;
 import aQute.bnd.header.Attrs;
 import aQute.bnd.header.OSGiHeader;
-import aQute.bnd.header.Parameters;
 
 import com.liferay.portal.app.license.AppLicenseVerifier;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.hooks.resolver.ResolverHookFactory;
-import org.osgi.framework.hooks.resolver.ResolverHook;
-import org.osgi.framework.wiring.BundleRevision;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.Bundle;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Iterator;
+import java.util.SortedMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.hooks.resolver.ResolverHook;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Amos Fong
  */
 public class AppResolverHook implements ResolverHook {
+
+	public AppResolverHook(
+		final Collection<BundleRevision> triggers,
+		final ServiceTracker<AppLicenseVerifier, AppLicenseVerifier>
+			serviceTracker) {
+
+		_triggers = triggers;
+		_serviceTracker = serviceTracker;
+	}
 
 	@Override
 	public void filterSingletonCollisions(
@@ -48,40 +58,41 @@ public class AppResolverHook implements ResolverHook {
 
 	@Override
 	public void filterResolvable(Collection<BundleRevision> candidates) {
-	}
+		Iterator<BundleRevision> iterator = candidates.iterator();
 
-	@Override
-	public void filterMatches(
-		BundleRequirement requirement,
-		Collection<BundleCapability> candidates) {
+		while (iterator.hasNext()) {
+			BundleRevision bundleRevision = iterator.next();
 
-		try {
-			doFilterMatches(requirement);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			candidates.clear();
+			try {
+				filterResolvable(bundleRevision);
+			}
+			catch (Exception e) {
+				iterator.remove();
+			}
 		}
 	}
 
-	@Override
-	public void end() {
-	}
-
-	protected void doFilterMatches(BundleRequirement requirement)
+	private void filterResolvable(BundleRevision bundleRevision)
 		throws Exception {
 
-		BundleRevision bundleRevision = requirement.getResource();
+		SortedMap<ServiceReference<AppLicenseVerifier>, AppLicenseVerifier>
+			verifiers = _serviceTracker.getTracked();
+
+		if (verifiers.isEmpty()) {
+			System.out.println("# NO LICENSE VERIFIERS FOUND");
+
+			return;
+		}
 
 		Bundle bundle = bundleRevision.getBundle();
 
-//		System.out.println("####HOOK RESOLVER FILTERING: " + bundle.getBundleId());
+		System.out.println(
+			"####HOOK RESOLVER FILTERING: " + bundle.getBundleId());
 
 		Dictionary<String, String> headers = bundle.getHeaders();
 
 		String marketplaceProperties = headers.get("X-Liferay-Marketplace");
-		
+
 		if (marketplaceProperties == null) {
 			return;
 		}
@@ -97,36 +108,49 @@ public class AppResolverHook implements ResolverHook {
 		System.out.println("productType: " + productType);
 		System.out.println("productVersion: " + productVersion);
 		System.out.println("licenseVersion: " + licenseVersion);
-		
+
 		if (productId == null) {
 			return;
 		}
 
-		Registry registry = RegistryUtil.getRegistry();
+		Filter filter = FrameworkUtil.createFilter(
+			"(version=" + licenseVersion + ")");
 
-		String filter = "(version=*)"; // "(version=" + licenseVersion;
+		for (ServiceReference<AppLicenseVerifier> serviceReference :
+				verifiers.keySet()) {
 
-		Collection<AppLicenseVerifier> appLicenseVerifiers =
-			registry.getServices(AppLicenseVerifier.class, filter);
+			if (!filter.match(serviceReference)) {
+				continue;
+			}
 
-		if ((appLicenseVerifiers == null) || appLicenseVerifiers.isEmpty()) {
-			
-			System.out.println("# NO LICENSE VERIFIERS FOUND");
+			AppLicenseVerifier appLicenseVerifier = verifiers.get(
+				serviceReference);
 
-			// throw new License verifier exception
-		}
+			if (!appLicenseVerifier.verify(
+					productId, productType, productVersion)) {
 
-		for (AppLicenseVerifier appLicenseVerifier : appLicenseVerifiers) {
-//			if (!appLicenseVerifier.verify()) {
-//				System.out.println("####HOOK RESOLVER NOT VERIFIED");
-//
-//				candidates.clear();
-//			}
+				System.out.println("####HOOK RESOLVER NOT VERIFIED");
+			}
+
+			break;
 		}
 	}
 
+	@Override
+	public void filterMatches(
+		BundleRequirement requirement,
+		Collection<BundleCapability> candidates) {
+	}
+
+	@Override
+	public void end() {
+	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AppResolverHook.class);
+
+	private final ServiceTracker<AppLicenseVerifier, AppLicenseVerifier>
+		_serviceTracker;
+	private final Collection<BundleRevision> _triggers;
 
 }

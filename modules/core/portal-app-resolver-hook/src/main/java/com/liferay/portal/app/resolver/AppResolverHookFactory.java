@@ -14,31 +14,38 @@
 
 package com.liferay.portal.app.resolver;
 
-import org.osgi.framework.ServiceReference;
-import aQute.bnd.header.Attrs;
-import aQute.bnd.header.OSGiHeader;
-import aQute.bnd.header.Parameters;
-
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.framework.hooks.resolver.ResolverHookFactory;
-import org.osgi.framework.hooks.resolver.ResolverHook;
-import org.osgi.framework.wiring.BundleRevision;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.Bundle;
+import com.liferay.portal.app.license.AppLicenseVerifier;
 
 import java.util.Collection;
-import java.util.Dictionary;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.hooks.resolver.ResolverHook;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Amos Fong
  */
 public class AppResolverHookFactory implements ResolverHookFactory {
 
+	public AppResolverHookFactory(BundleContext bundleContext) {
+		_serviceTracker = new ServiceTracker<>(
+			bundleContext, AppLicenseVerifier.class, null);
+
+		_serviceTracker.open();
+	}
+
+	public void close() {
+		_serviceTracker.close();
+	}
+
 	@Override
 	public ResolverHook begin(final Collection<BundleRevision> triggers) {
-		return new AppResolverHook();
+		return new AppResolverHook(triggers, _serviceTracker);
 	}
+
+	private final ServiceTracker<AppLicenseVerifier, AppLicenseVerifier>
+		_serviceTracker;
 
 }

@@ -14,25 +14,20 @@
 
 package com.liferay.portal.app.resolver;
 
-import org.osgi.framework.hooks.resolver.ResolverHookFactory;
-
 import org.eclipse.osgi.internal.hookregistry.ActivatorHookFactory;
 import org.eclipse.osgi.internal.hookregistry.HookConfigurator;
 import org.eclipse.osgi.internal.hookregistry.HookRegistry;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 
 /**
  * @author Amos Fong
  */
 public class AppResolverHookConfigurator
 	implements ActivatorHookFactory, BundleActivator, HookConfigurator {
-
-	public AppResolverHookConfigurator() {
-	}
 
 	@Override
 	public void addHooks(HookRegistry hookRegistry) {
@@ -46,8 +41,10 @@ public class AppResolverHookConfigurator
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		_appResolverHookFactory = new AppResolverHookFactory(bundleContext);
+
 		_serviceRegistration = bundleContext.registerService(
-			ResolverHookFactory.class, new AppResolverHookFactory(), null);
+			ResolverHookFactory.class, _appResolverHookFactory, null);
 	}
 
 	@Override
@@ -55,8 +52,11 @@ public class AppResolverHookConfigurator
 		if (_serviceRegistration != null) {
 			_serviceRegistration.unregister();
 		}
+
+		_appResolverHookFactory.close();
 	}
 
+	private AppResolverHookFactory _appResolverHookFactory;
 	private ServiceRegistration<ResolverHookFactory> _serviceRegistration;
 
 }

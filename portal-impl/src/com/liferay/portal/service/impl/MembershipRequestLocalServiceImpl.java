@@ -143,7 +143,8 @@ public class MembershipRequestLocalServiceImpl
 
 	@Override
 	public List<MembershipRequest> search(
-		long groupId, int status, int start, int end, OrderByComparator obc) {
+		long groupId, int status, int start, int end,
+		OrderByComparator<MembershipRequest> obc) {
 
 		return membershipRequestPersistence.findByG_S(
 			groupId, status, start, end, obc);

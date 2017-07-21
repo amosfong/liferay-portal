@@ -4,29 +4,28 @@ buildscript {
 	}
 
 	repositories {
-		mavenLocal()
-
 		maven {
 			url "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
 		}
 	}
 }
 
-#if (${projectType} != "workspace")repositories {
-	mavenLocal()
-
-	maven {
-		url "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
-	}
-}
-#end
 apply plugin: "com.liferay.portal.tools.theme.builder"
 
 dependencies {
 	parentThemes group: "com.liferay", name: "com.liferay.frontend.theme.styled", version: "2.0.13"
 	parentThemes group: "com.liferay", name: "com.liferay.frontend.theme.unstyled", version: "2.0.13"
 
-	portalCommonCSS group: "com.liferay", name: "com.liferay.frontend.css.common", version: "2.0.1"
+	portalCommonCSS group: "com.liferay", name: "com.liferay.frontend.css.common", version: "2.0.3"
 
 	themeBuilder group: "com.liferay", name: "com.liferay.portal.tools.theme.builder", version: "@com.liferay.portal.tools.theme.builder.version@"
 }
+#if (${projectType} != "workspace")
+
+repositories {
+	mavenLocal()
+
+	maven {
+		url "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
+	}
+}#end

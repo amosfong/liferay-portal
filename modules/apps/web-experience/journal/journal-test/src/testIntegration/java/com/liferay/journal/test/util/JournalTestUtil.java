@@ -270,6 +270,15 @@ public class JournalTestUtil {
 		serviceContext.setLayoutFullURL("http://localhost");
 
 		return addArticle(
+			groupId, folderId, articleId, autoArticleId, serviceContext);
+	}
+
+	public static JournalArticle addArticle(
+			long groupId, long folderId, String articleId,
+			boolean autoArticleId, ServiceContext serviceContext)
+		throws Exception {
+
+		return addArticle(
 			groupId, folderId, JournalArticleConstants.CLASSNAME_ID_DEFAULT,
 			articleId, autoArticleId,
 			_getLocalizedMap(RandomTestUtil.randomString()),
@@ -959,8 +968,7 @@ public class JournalTestUtil {
 		return map;
 	}
 
-	private static final Locale[] _locales = {
-		LocaleUtil.US, LocaleUtil.GERMANY, LocaleUtil.SPAIN
-	};
+	private static final Locale[] _locales =
+		{LocaleUtil.US, LocaleUtil.GERMANY, LocaleUtil.SPAIN};
 
 }

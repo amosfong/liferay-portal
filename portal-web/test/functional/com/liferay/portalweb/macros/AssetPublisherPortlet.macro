@@ -1,4 +1,14 @@
 <definition>
+	<command name="addAsset">
+		<execute function="Click#makeVisibleClickAt" locator1="AP#ADD_ASSET_PLUS_ICON" />
+
+		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="${assetType}">
+			<var name="key_menuItem" value="${assetType}" />
+		</execute>
+
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+	</command>
+
 	<command name="assertSiteScopeSearch">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
@@ -69,12 +79,9 @@
 	</command>
 
 	<command name="configureAPSelectMoreThanOnePG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -104,13 +111,26 @@
 	<command name="configureAssetDisplayOrderPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Asset Selection" />
+		</execute>
+
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Ordering and Grouping" />
 		</execute>
 
 		<execute function="Select" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_BY_SELECT" value1="${fieldNameOrder}" />
 
-		<execute function="Select" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_DIRECTION_SELECT" value1="${sortOrder}" />
+		<var name="key_sortOrder" value="${sortOrder}" />
+
+		<if>
+			<condition function="IsNotVisible" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_DIRECTIONAL_ICON" />
+			<then>
+				<execute function="Click" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_GENERIC_ICON" />
+			</then>
+		</if>
+
+		<execute function="AssertVisible" locator1="APConfiguration#ORDERING_AND_GROUPING_ORDER_DIRECTIONAL_ICON" />
 
 		<execute macro="PortletEntry#save" />
 	</command>
@@ -118,7 +138,22 @@
 	<command name="configureAssetLinkBehaviorPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
+
+		<if>
+			<isset var="disableConfiguration" />
+			<then>
+				<execute function="Uncheck#uncheckToggleSwitch" locator1="ToggleSwitch#ANY_TOGGLE_SWITCH">
+					<var name="key_toggleSwitchLabel" value="${disableConfiguration}" />
+				</execute>
+			</then>
+		</if>
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#ASSET_LINK_BEHAVIOR_SELECT" value1="${assetLinkBehavior}" />
 
@@ -161,7 +196,13 @@
 	<command name="configureDisplayConversionsPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
 
 		<for list="${documentTypes}" param="documentType">
 			<var method="StringUtil#upperCase('${documentType}')" name="documentTypeUppercase" />
@@ -183,16 +224,75 @@
 		<execute macro="PortletEntry#save" />
 	</command>
 
+	<command name="configureDisplaySettings">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
+
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
+
+		<for list="${displaySettings}" param="displaySetting">
+			<if>
+				<contains string="${displaySetting}" substring="Social Bookmarks" />
+				<then>
+					<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
+				</then>
+				<else>
+					<execute function="Check" locator1="Checkbox#ANY_CHECKBOX">
+						<var name="checkboxName" value="${displaySetting}" />
+					</execute>
+				</else>
+			</if>
+		</for>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
 	<command name="configureDisplayTemplatePG">
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
 
 		<execute function="Select" locator1="APConfigurationDisplaysettings#DISPLAY_TEMPLATE_SELECT" value1="${displayTemplate}" />
 
 		<execute macro="PortletEntry#save" />
 
 		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="configureFilterByCategories">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
+
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Asset Selection" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Filter" />
+		</execute>
+
+		<execute function="Select" locator1="APConfiguration#FILTER_CATEGORIZATION_SELECT" value1="Categories" />
+
+		<execute macro="AssetCategorization#addCategory">
+			<var name="categoryName" value="${categoryName}" />
+			<var name="vocabularyName" value="${vocabularyName}" />
+		</execute>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrameTop" />
 	</command>
 
 	<command name="configureFilterByFieldPG">
@@ -253,70 +353,10 @@
 		<execute function="AssertSelectedLabel" locator1="APConfiguration#SOURCE_SCOPE_ASSET_SUBTYPE_SELECT" value1="${assetSubtype}" />
 	</command>
 
-	<command name="configureFlagAllDisplaySettingsCheckboxes">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
-		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
-
-		<if>
-			<condition function="IsElementPresent" locator1="Configuration#SETUP_DISPLAY_SETTINGS" />
-			<then>
-				<execute function="AssertClick" locator1="Configuration#SETUP_DISPLAY_SETTINGS" value1="Display Settings" />
-			</then>
-		</if>
-
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_PRINT" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_FLAGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RELATED_ASSETS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_COMMENTS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_COMMENT_RATINGS" />
-		<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
-
-		<execute macro="PortletEntry#save" />
-
-		<execute function="SelectFrameTop" value1="relative=top" />
-	</command>
-
-	<command name="configureFlaggableDisplaySettingsPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="${portletName}" />
-			<var name="portletOption" value="Configuration" />
-		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
-
-		<execute macro="Navigator#gotoNavTab">
-			<var name="navTab" value="Display Settings" />
-		</execute>
-
-		<if>
-			<equals arg1="${enableRatings}" arg2="true" />
-			<then>
-				<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" value1="Enable Ratings" />
-			</then>
-		</if>
-
-		<if>
-			<equals arg1="${setAsDefaultPage}" arg2="true" />
-			<then>
-				<execute function="Check#checkHiddenToggleSwitch" locator1="ToggleSwitch#SET_AS_THE_DEFAULT_ASSET_PUBLISHER_FOR_THIS_PAGE" value1="Set as the Default Asset Publisher for This Page" />
-			</then>
-		</if>
-
-		<execute macro="PortletEntry#save" />
-	</command>
-
 	<command name="configureManualAssetSelectionPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_MANUAL" />
 
@@ -355,7 +395,9 @@
 	<command name="configurePaginationPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
-		<execute function="AssertClick" locator1="NavTab#DISPLAY_SETTINGS" value1="Display Settings" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
 
 		<execute function="Type" locator1="APConfigurationDisplaysettings#NUMBER_OF_ITEMS_TO_DISPLAY_FIELD" value1="${paginationNumber}" />
 
@@ -377,12 +419,9 @@
 	</command>
 
 	<command name="configureShowMetadataFieldsPG">
-		<execute macro="Portlet#gotoPortletOptions">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
 			<var name="portletName" value="${portletName}" />
-			<var name="portletOption" value="Configuration" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Navigator#gotoNavTab">
 			<var name="navTab" value="Display Settings" />
@@ -476,12 +515,9 @@
 	<command name="configureSiteScopeRemoveSitePG">
 		<var name="key_siteName" value="${siteName}" />
 
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Scope" />
@@ -541,7 +577,9 @@
 	<command name="enableRSSSubscription">
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="AssertClick" locator1="NavTab#SUBSCRIPTIONS" value1="Subscriptions" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Subscriptions" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="APConfiguration#SUBSCRIPTIONS_ENABLE_RSS_SUBSCRIPTION_LABEL" value1="Enable RSS Subscription" />
 
@@ -549,8 +587,15 @@
 	</command>
 
 	<command name="gotoConfigurationPG">
+		<if>
+			<contains string="${portletName}" substring="{portletName}" />
+			<then>
+				<var name="portletName" value="Asset Publisher" />
+			</then>
+		</if>
+
 		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
+			<var name="portletName" value="${portletName}" />
 			<var name="portletOption" value="Configuration" />
 		</execute>
 
@@ -845,32 +890,6 @@
 		<execute function="AssertTextEquals" locator1="AP#ASSET_ABSTRACT_TITLE" value1="${assetTitle}" />
 	</command>
 
-	<command name="viewConfigureFlaggableDisplaySettingsPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
-
-		<execute macro="Navigator#gotoNavTab">
-			<var name="navTab" value="Display Settings" />
-		</execute>
-
-		<if>
-			<equals arg1="${enableRatings}" arg2="true" />
-			<then>
-				<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_RATINGS" value1="Enable Ratings" />
-			</then>
-		</if>
-
-		<if>
-			<equals arg1="${setAsDefaultPage}" arg2="true" />
-			<then>
-				<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#SET_AS_THE_DEFAULT_ASSET_PUBLISHER_FOR_THIS_PAGE" value1="Set as the Default Asset Publisher for This Page" />
-			</then>
-		</if>
-
-		<execute macro="PortletEntry#save" />
-
-		<execute function="SelectFrameTop" />
-	</command>
-
 	<command name="viewConfigureSiteScopeContentSharingPG">
 		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
 
@@ -990,13 +1009,42 @@
 		</execute>
 	</command>
 
-	<command name="viewDynamicAssetSelectionConfigurationPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+	<command name="viewDisplaySettings">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
 
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Display Settings" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Set and Enable" />
+		</execute>
+
+		<for list="${displaySettings}" param="displaySetting">
+			<if>
+				<contains string="${displaySetting}" substring="Social Bookmarks" />
+				<then>
+					<execute function="AssertChecked#assertCheckedHiddenToggleSwitch" locator1="ToggleSwitch#ENABLE_SOCIAL_BOOKMARKS" />
+				</then>
+				<else>
+					<execute function="AssertChecked" locator1="Checkbox#ANY_CHECKBOX">
+						<var name="checkboxName" value="${displaySetting}" />
+					</execute>
+				</else>
+			</if>
+		</for>
+
+		<execute macro="PortletEntry#save" />
+
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="viewDynamicAssetSelectionConfigurationPG">
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
 
 		<execute function="Click" locator1="APConfiguration#ASSET_SELECTION_DYNAMIC" />
 
@@ -1018,7 +1066,9 @@
 	</command>
 
 	<command name="viewFilterAndFieldsPG">
-		<execute macro="AssetPublisherPortlet#gotoConfigurationPG" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
+		</execute>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Source" />
@@ -1055,12 +1105,9 @@
 	</command>
 
 	<command name="viewManualAssetSelectionConfigurationPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Asset Entries" />
@@ -1090,9 +1137,9 @@
 		<execute function="Click" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT" />
 
 		<for list="${assetEntryTypes}" param="assetEntryType">
-			<var name="key_assetEntryType" value="${assetEntryType}" />
-
-			<execute function="AssertTextEquals#assertPartialText" locator1="APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_MENULIST_ITEM" value1="${assetEntryType}" />
+			<execute function="AssertTextEquals#assertPartialText" locator1="MenuItem#ANY_MENU_ITEM" value1="${assetEntryType}">
+				<var name="key_menuItem" value="${assetEntryType}" />
+			</execute>
 		</for>
 
 		<execute macro="IFrame#selectTopFrame" />
@@ -1201,17 +1248,18 @@
 		</if>
 	</command>
 
+	<command name="viewPlusIconNotPresentPG">
+		<execute function="AssertElementNotPresent" locator1="AP#ADD_ASSET_PLUS_ICON" />
+	</command>
+
 	<command name="viewReadMoreLinkNotPresentPG">
 		<execute function="AssertTextNotPresent" locator1="Link#READ_MORE" value1="Read More" />
 	</command>
 
 	<command name="viewRestoredSetupPG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="portletOption" value="Configuration" />
+		<execute macro="AssetPublisherPortlet#gotoConfigurationPG">
+			<var name="portletName" value="${portletName}" />
 		</execute>
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Asset Entries" />

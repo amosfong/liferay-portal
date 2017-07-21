@@ -22,16 +22,18 @@ import static com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleCon
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.asset.kernel.model.adapter.StagedAssetLink;
 import com.liferay.exportimport.constants.ExportImportConstants;
 import com.liferay.exportimport.kernel.controller.ExportController;
 import com.liferay.exportimport.kernel.controller.ExportImportController;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
-import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
-import com.liferay.exportimport.kernel.lar.PortletDataContextFactoryUtil;
+import com.liferay.exportimport.kernel.lar.PortletDataContextFactory;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleManager;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
@@ -46,6 +48,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutPrototype;
+import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -61,10 +64,12 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -115,7 +120,9 @@ public class LayoutExportController implements ExportController {
 
 			_exportImportLifecycleManager.fireExportImportLifecycleEvent(
 				EVENT_LAYOUT_EXPORT_STARTED, getProcessFlag(),
-				PortletDataContextFactoryUtil.clonePortletDataContext(
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
+				_portletDataContextFactory.clonePortletDataContext(
 					portletDataContext));
 
 			File file = doExport(portletDataContext);
@@ -124,7 +131,9 @@ public class LayoutExportController implements ExportController {
 
 			_exportImportLifecycleManager.fireExportImportLifecycleEvent(
 				EVENT_LAYOUT_EXPORT_SUCCEEDED, getProcessFlag(),
-				PortletDataContextFactoryUtil.clonePortletDataContext(
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
+				_portletDataContextFactory.clonePortletDataContext(
 					portletDataContext));
 
 			return file;
@@ -134,7 +143,9 @@ public class LayoutExportController implements ExportController {
 
 			_exportImportLifecycleManager.fireExportImportLifecycleEvent(
 				EVENT_LAYOUT_EXPORT_FAILED, getProcessFlag(),
-				PortletDataContextFactoryUtil.clonePortletDataContext(
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
+				_portletDataContextFactory.clonePortletDataContext(
 					portletDataContext),
 				t);
 
@@ -284,6 +295,26 @@ public class LayoutExportController implements ExportController {
 
 		// Export the group
 
+		LayoutSet layoutSet = _layoutSetLocalService.getLayoutSet(
+			portletDataContext.getGroupId(),
+			portletDataContext.isPrivateLayout());
+
+		String layoutSetPrototypeUuid = layoutSet.getLayoutSetPrototypeUuid();
+
+		if (!group.isStaged() && Validator.isNotNull(layoutSetPrototypeUuid)) {
+			LayoutSetPrototype layoutSetPrototype =
+				_layoutSetPrototypeLocalService.
+					getLayoutSetPrototypeByUuidAndCompanyId(
+						layoutSetPrototypeUuid, companyId);
+
+			headerElement.addAttribute(
+				"layout-set-prototype-uuid", layoutSetPrototypeUuid);
+
+			headerElement.addAttribute(
+				"layout-set-prototype-name",
+				layoutSetPrototype.getName(LocaleUtil.getDefault()));
+		}
+
 		StagedGroup stagedGroup = ModelAdapterUtil.adapt(
 			group, Group.class, StagedGroup.class);
 
@@ -296,6 +327,9 @@ public class LayoutExportController implements ExportController {
 		_portletExportController.exportExpandoTables(portletDataContext);
 		_portletExportController.exportLocks(portletDataContext);
 
+		portletDataContext.addDeletionSystemEventStagedModelTypes(
+			new StagedModelType(StagedAssetLink.class));
+
 		_deletionSystemEventExporter.exportDeletionSystemEvents(
 			portletDataContext);
 
@@ -304,7 +338,7 @@ public class LayoutExportController implements ExportController {
 				portletDataContext);
 		}
 
-		ExportImportHelperUtil.writeManifestSummary(
+		_exportImportHelper.writeManifestSummary(
 			document, portletDataContext.getManifestSummary());
 
 		if (_log.isInfoEnabled()) {
@@ -368,11 +402,11 @@ public class LayoutExportController implements ExportController {
 			(Map<String, String[]>)settingsMap.get("parameterMap");
 		DateRange dateRange = ExportImportDateUtil.getDateRange(
 			exportImportConfiguration);
-		ZipWriter zipWriter = ExportImportHelperUtil.getLayoutSetZipWriter(
+		ZipWriter zipWriter = _exportImportHelper.getLayoutSetZipWriter(
 			sourceGroupId);
 
 		PortletDataContext portletDataContext =
-			PortletDataContextFactoryUtil.createExportPortletDataContext(
+			_portletDataContextFactory.createExportPortletDataContext(
 				group.getCompanyId(), sourceGroupId, parameterMap,
 				dateRange.getStartDate(), dateRange.getEndDate(), zipWriter);
 
@@ -381,6 +415,9 @@ public class LayoutExportController implements ExportController {
 		long[] layoutIds = GetterUtil.getLongValues(
 			settingsMap.get("layoutIds"));
 
+		portletDataContext.setExportImportProcessId(
+			String.valueOf(
+				exportImportConfiguration.getExportImportConfigurationId()));
 		portletDataContext.setPrivateLayout(privateLayout);
 		portletDataContext.setLayoutIds(layoutIds);
 
@@ -406,23 +443,27 @@ public class LayoutExportController implements ExportController {
 			portletDataContext, layout);
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setBackgroundTaskLocalService(
 		BackgroundTaskLocalService backgroundTaskLocalService) {
-
-		_backgroundTaskLocalService = backgroundTaskLocalService;
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setExportImportLifecycleManager(
 		ExportImportLifecycleManager exportImportLifecycleManager) {
-
-		_exportImportLifecycleManager = exportImportLifecycleManager;
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setGroupLocalService(GroupLocalService groupLocalService) {
-		_groupLocalService = groupLocalService;
 	}
 
 	/**
@@ -440,7 +481,10 @@ public class LayoutExportController implements ExportController {
 		LayoutLocalService layoutLocalService) {
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setLayoutPrototypeLocalService(
 		LayoutPrototypeLocalService layoutPrototypeLocalService) {
 
@@ -471,38 +515,66 @@ public class LayoutExportController implements ExportController {
 		LayoutSetLocalService layoutSetLocalService) {
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setLayoutSetPrototypeLocalService(
 		LayoutSetPrototypeLocalService layoutSetPrototypeLocalService) {
-
-		_layoutSetPrototypeLocalService = layoutSetPrototypeLocalService;
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setPortletExportController(
 		PortletExportController portletExportController) {
-
-		_portletExportController = portletExportController;
 	}
 
-	@Reference(unbind = "-")
+	/**
+	 * @deprecated As of 4.0.0
+	 */
+	@Deprecated
 	protected void setUserLocalService(UserLocalService userLocalService) {
-		_userLocalService = userLocalService;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutExportController.class);
 
+	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
+
 	private final DeletionSystemEventExporter _deletionSystemEventExporter =
 		DeletionSystemEventExporter.getInstance();
+
+	@Reference
+	private ExportImportHelper _exportImportHelper;
+
+	@Reference
 	private ExportImportLifecycleManager _exportImportLifecycleManager;
+
+	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
 	private LayoutPrototypeLocalService _layoutPrototypeLocalService;
+
+	@Reference
+	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Reference
 	private LayoutSetPrototypeLocalService _layoutSetPrototypeLocalService;
+
 	private final PermissionExporter _permissionExporter =
 		PermissionExporter.getInstance();
+
+	@Reference
+	private PortletDataContextFactory _portletDataContextFactory;
+
+	@Reference
 	private PortletExportController _portletExportController;
+
+	@Reference
 	private UserLocalService _userLocalService;
 
 }

@@ -3,6 +3,10 @@ import com.liferay.gradle.util.FileUtil
 
 import groovy.json.JsonSlurper
 
+import java.nio.file.Path
+
+import java.util.regex.Pattern
+
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.CommitDiff
 import org.ajoberstar.grgit.Grgit
@@ -36,6 +40,7 @@ buildscript {
 apply plugin: "org.ajoberstar.grgit"
 
 task cherryPickArtifacts
+task lockDependencyVersion
 task syncGitRepoReleases
 
 cherryPickArtifacts {
@@ -61,6 +66,96 @@ cherryPickArtifacts {
 	}
 
 	group = "releng"
+}
+
+lockDependencyVersion {
+	description = "Replaces 'default' or project dependencies with a specific version. Required properties: '-PdependencyName', '-PdependencyVersion'."
+
+	doLast {
+		assert project.properties["dependencyName"] : "Please provide a value for the '-PdependencyName' property"
+		assert project.properties["dependencyVersion"] : "Please provide a value for the '-PdependencyVersion' property"
+
+		assert dependencyName.startsWith("com.liferay.") : "Please provide a value for the '-PdependencyName' property which starts with 'com.liferay.'"
+
+		Path repositoryRootDirPath = grgit.repository.rootDir.parentFile.toPath()
+
+		Pattern dependencyPattern
+		String dependencyGroup = "com.liferay"
+
+		String dependencyProjectName = dependencyName.substring(12)
+
+		dependencyProjectName = dependencyProjectName.replace('.' as char, '-' as char)
+
+		if (dependencyName.startsWith("com.liferay.portal.")) {
+			dependencyGroup = "com.liferay.portal"
+			dependencyPattern = ~/provided\s+group:\s*"${dependencyGroup}",\s*name:\s*"${dependencyName}",\s*version:\s*"default"/
+		}
+		else {
+			dependencyPattern = ~/provided project\(".+:${dependencyProjectName}"\)/
+		}
+
+		String dependencyReplacement = "provided group: \"${dependencyGroup}\", name: \"${dependencyName}\", version: \"${dependencyVersion}\""
+
+		NestedBuildFactory nestedBuildFactory = gradle.services.get(NestedBuildFactory)
+
+		boolean commitChanges = false
+
+		FileTree buildGradleFileTree = fileTree(dir: projectDir, includes: ["apps/**/build.gradle", "core/**/build.gradle"])
+
+		buildGradleFileTree.each {
+			File buildGradleFile ->
+
+			File moduleDir = buildGradleFile.parentFile
+
+			String buildGradle = buildGradleFile.text
+
+			String newBuildGradle = buildGradle.replaceFirst(dependencyPattern, dependencyReplacement)
+
+			if (buildGradle == newBuildGradle) {
+				return
+			}
+
+			buildGradleFile.text = newBuildGradle
+
+			String moduleTaskPrefix = _getModuleTaskPrefix(moduleDir)
+
+			StartParameter startParameter = gradle.startParameter.newBuild()
+
+			startParameter.taskNames = [moduleTaskPrefix + "compileJava", moduleTaskPrefix + "compileJSP", moduleTaskPrefix + "formatSource"]
+
+			GradleLauncher gradleLauncher = nestedBuildFactory.nestedInstance(startParameter)
+
+			try {
+				gradleLauncher.run()
+			}
+			catch (Exception e) {
+				println "Unable to lock dependency '${dependencyName}' version to ${dependencyVersion} in ${relativePath(moduleDir)}"
+
+				e.printStackTrace()
+
+				buildGradleFile.text = buildGradle
+
+				return
+			}
+			finally {
+				gradleLauncher.stop()
+			}
+
+			String buildGradleRelativePath = String.valueOf(repositoryRootDirPath.relativize(buildGradleFile.toPath()))
+
+			buildGradleRelativePath = buildGradleRelativePath.replace(File.separatorChar, '/' as char)
+
+			grgit.add patterns: [buildGradleRelativePath]
+
+			commitChanges = true
+
+			println "Dependency '${dependencyName}' version locked to ${dependencyVersion} in ${relativePath(moduleDir)}"
+		}
+
+		if (commitChanges) {
+			grgit.commit message: "${dependencyProjectName} ${dependencyVersion} apply"
+		}
+	}
 }
 
 syncGitRepoReleases {
@@ -97,7 +192,7 @@ syncGitRepoReleases {
 			try {
 				assert settingsGradleFile.renameTo(settingsGradleBackupFile)
 
-				syncRelease = System.setProperty("org.gradle.project.syncRelease", "true")
+				syncRelease = _setSystemProperty("org.gradle.project.syncRelease", "true")
 
 				StartParameter startParameter = gradle.startParameter.newBuild()
 
@@ -116,12 +211,7 @@ syncGitRepoReleases {
 
 				assert settingsGradleBackupFile.renameTo(settingsGradleFile)
 
-				if (syncRelease) {
-					System.setProperty "org.gradle.project.syncRelease", syncRelease
-				}
-				else {
-					System.properties.remove "org.gradle.project.syncRelease"
-				}
+				_setSystemProperty "org.gradle.project.syncRelease", syncRelease
 			}
 		}
 	}
@@ -178,79 +268,102 @@ private void _cherryPickPrepNext(Commit commit) {
 	assert moduleDirName : "Unable to parse commit ${commit.id}"
 
 	File moduleDir = new File(projectDir.parentFile, moduleDirName)
+	boolean moduleOSGi = true
+
+	String moduleTaskPrefix = _getModuleTaskPrefix(moduleDir)
 
 	if (_isGitRepoReadOnly(moduleDir)) {
 		println "Commit ${commit.id} NOT cherry-picked: ${relativePath(moduleDir)} is in a read-only subrepo"
-
-		return
-	}
-
-	List<String> excludedTaskNames = []
-	Closure<String> versionClosure = osgiVersionClosure
-	String versionFileName = "bnd.bnd"
-
-	if (_exists(moduleDir, "build.xml")) {
-		versionClosure = antVersionClosure
-		versionFileName = "docroot/WEB-INF/liferay-plugin-package.properties"
-	}
-	else if (_contains(moduleDir, "gulpfile.js", "require('liferay-theme-tasks')")) {
-		excludedTaskNames = ["writeParentThemesDigest"]
-		versionClosure = themeVersionClosure
-		versionFileName = "package.json"
-	}
-
-	File versionFile = new File(moduleDir, versionFileName)
-
-	String newVersion = versionClosure(_getCommitFileStream(commit.id, FileUtil.relativize(versionFile, projectDir.parentFile)))
-	String curVersion = versionClosure(versionFile)
-
-	def curVersionNumber
-	def newVersionNumber
-
-	if (newVersion.indexOf('.') != -1) {
-		curVersionNumber = VersionNumber.parse(curVersion)
-		newVersionNumber = VersionNumber.parse(newVersion)
 	}
 	else {
-		curVersionNumber = curVersion as Integer
-		newVersionNumber = newVersion as Integer
+		List<String> excludedTaskNames = []
+		Closure<String> versionClosure = osgiVersionClosure
+		String versionFileName = "bnd.bnd"
+
+		if (_exists(moduleDir, "build.xml")) {
+			moduleOSGi = false
+			versionClosure = antVersionClosure
+			versionFileName = "docroot/WEB-INF/liferay-plugin-package.properties"
+		}
+		else if (_contains(moduleDir, "gulpfile.js", "require('liferay-theme-tasks')")) {
+			excludedTaskNames = ["writeParentThemesDigest"]
+			moduleOSGi = false
+			versionClosure = themeVersionClosure
+			versionFileName = "package.json"
+		}
+
+		File versionFile = new File(moduleDir, versionFileName)
+
+		String newVersion = versionClosure(_getCommitFileStream(commit.id, FileUtil.relativize(versionFile, projectDir.parentFile)))
+		String curVersion = versionClosure(versionFile)
+
+		def curVersionNumber
+		def newVersionNumber
+
+		if (newVersion.indexOf('.') != -1) {
+			curVersionNumber = VersionNumber.parse(curVersion)
+			newVersionNumber = VersionNumber.parse(newVersion)
+		}
+		else {
+			curVersionNumber = curVersion as Integer
+			newVersionNumber = newVersion as Integer
+		}
+
+		if (curVersionNumber >= newVersionNumber) {
+			println "Commit ${commit.id} NOT cherry-picked: ${relativePath(moduleDir)} has a version (${curVersionNumber}) which is greater or equal than the one in the commit (${newVersionNumber})"
+		}
+		else {
+			StartParameter startParameter = gradle.startParameter.newBuild()
+
+			startParameter.excludedTaskNames = excludedTaskNames.collect {
+				moduleTaskPrefix + it
+			}
+
+			startParameter.projectProperties = ["forced.update.version": newVersion]
+			startParameter.taskNames = [moduleTaskPrefix + "updateVersion"]
+
+			NestedBuildFactory nestedBuildFactory = gradle.services.get(NestedBuildFactory)
+
+			GradleLauncher gradleLauncher = nestedBuildFactory.nestedInstance(startParameter)
+
+			try {
+				gradleLauncher.run()
+			}
+			finally {
+				gradleLauncher.stop()
+			}
+
+			grgit.add patterns: [moduleDirName]
+
+			grgit.commit author: commit.author, message: commit.fullMessage
+
+			println "Commit ${commit.id} cherry-picked: ${relativePath(moduleDir)} updated from version ${curVersionNumber} to ${newVersionNumber}"
+		}
 	}
 
-	if (curVersionNumber >= newVersionNumber) {
-		println "Commit ${commit.id} NOT cherry-picked: ${relativePath(moduleDir)} has a version (${curVersionNumber}) which is greater or equal than the one in the commit (${newVersionNumber})"
+	if (moduleOSGi) {
+		StartParameter startParameter = gradle.startParameter.newBuild()
 
-		return
+		String baselineIgnoreFailures = _setSystemProperty("baseline.ignoreFailures", "true")
+		String syncRelease = _setSystemProperty("org.gradle.project.syncRelease", "true")
+
+		startParameter.projectProperties = ["syncRelease": "true"]
+		startParameter.taskNames = [moduleTaskPrefix + "baseline"]
+
+		NestedBuildFactory nestedBuildFactory = gradle.services.get(NestedBuildFactory)
+
+		GradleLauncher gradleLauncher = nestedBuildFactory.nestedInstance(startParameter)
+
+		try {
+			gradleLauncher.run()
+		}
+		finally {
+			gradleLauncher.stop()
+
+			_setSystemProperty "baseline.ignoreFailures", baselineIgnoreFailures
+			_setSystemProperty "org.gradle.project.syncRelease", syncRelease
+		}
 	}
-
-	StartParameter startParameter = gradle.startParameter.newBuild()
-
-	String moduleTaskPrefix = relativePath(moduleDir)
-
-	moduleTaskPrefix = ":" + moduleTaskPrefix.replace(File.separatorChar, ':' as char) + ":"
-
-	startParameter.excludedTaskNames = excludedTaskNames.collect {
-		moduleTaskPrefix + it
-	}
-
-	startParameter.projectProperties = ["forced.update.version": newVersion]
-	startParameter.taskNames = [moduleTaskPrefix + "updateVersion"]
-
-	NestedBuildFactory nestedBuildFactory = gradle.services.get(NestedBuildFactory)
-
-	GradleLauncher gradleLauncher = nestedBuildFactory.nestedInstance(startParameter)
-
-	try {
-		gradleLauncher.run()
-	}
-	finally {
-		gradleLauncher.stop()
-	}
-
-	grgit.add patterns: [moduleDirName]
-
-	grgit.commit author: commit.author, message: commit.fullMessage
-
-	println "Commit ${commit.id} cherry-picked: ${relativePath(moduleDir)} updated from version ${curVersionNumber} to ${newVersionNumber}"
 }
 
 private boolean _contains(File dir, String fileName, String s) {
@@ -301,6 +414,12 @@ private InputStream _getCommitFileStream(String commitId, String fileName) {
 	}
 }
 
+private String _getModuleTaskPrefix(File moduleDir) {
+	String moduleTaskPrefix = relativePath(moduleDir)
+
+	":" + moduleTaskPrefix.replace(File.separatorChar, ':' as char) + ":"
+}
+
 private RevCommit _getRevCommit(String commitId) {
 	ObjectId objectId = JGitUtil.resolveObject(grgit.repository, commitId)
 
@@ -322,4 +441,17 @@ private boolean _isGitRepoReadOnly(File dir) {
 	}
 
 	return _contains(gitRepoDir, ".gitrepo", "mode = pull")
+}
+
+private String _setSystemProperty(String key, String value) {
+	String oldValue
+
+	if (value) {
+		oldValue = System.setProperty(key, value)
+	}
+	else {
+		oldValue = System.properties.remove(key)
+	}
+
+	return oldValue
 }

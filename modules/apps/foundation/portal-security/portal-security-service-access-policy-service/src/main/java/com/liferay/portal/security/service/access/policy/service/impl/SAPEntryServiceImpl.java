@@ -14,18 +14,15 @@
 
 package com.liferay.portal.security.service.access.policy.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.security.service.access.policy.constants.SAPActionKeys;
-import com.liferay.portal.security.service.access.policy.constants.SAPConstants;
 import com.liferay.portal.security.service.access.policy.model.SAPEntry;
 import com.liferay.portal.security.service.access.policy.service.base.SAPEntryServiceBaseImpl;
 import com.liferay.portal.security.service.access.policy.service.permission.SAPEntryPermission;
+import com.liferay.portal.security.service.access.policy.service.permission.SAPPermission;
 
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +31,6 @@ import java.util.Map;
 /**
  * @author Brian Wing Shun Chan
  */
-@ProviderType
 public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 
 	@Override
@@ -44,9 +40,8 @@ public class SAPEntryServiceImpl extends SAPEntryServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		PortletPermissionUtil.check(
-			getPermissionChecker(), SAPConstants.SERVICE_NAME,
-			SAPActionKeys.ACTION_ADD_SAP_ENTRY);
+		SAPPermission.check(
+			getPermissionChecker(), SAPActionKeys.ACTION_ADD_SAP_ENTRY);
 
 		return sapEntryLocalService.addSAPEntry(
 			getUserId(), allowedServiceSignatures, defaultSAPEntry, enabled,

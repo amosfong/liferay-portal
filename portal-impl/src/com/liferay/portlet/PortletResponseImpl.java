@@ -566,21 +566,25 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 		try {
 			Layout layout = (Layout)portletRequestImpl.getAttribute(
 				WebKeys.LAYOUT);
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)portletRequestImpl.getAttribute(
+					WebKeys.THEME_DISPLAY);
 
-			if (layout == null) {
-				ThemeDisplay themeDisplay =
-					(ThemeDisplay)portletRequestImpl.getAttribute(
-						WebKeys.THEME_DISPLAY);
-
-				if (themeDisplay != null) {
-					layout = themeDisplay.getLayout();
-				}
+			if ((layout == null) && (themeDisplay != null)) {
+				layout = themeDisplay.getLayout();
 			}
 
 			if (_portletSetup == null) {
-				_portletSetup =
-					PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(
+				if (themeDisplay == null) {
+					_portletSetup =
+						PortletPreferencesFactoryUtil.
+							getStrictLayoutPortletSetup(
+								layout, this.portletName);
+				}
+				else {
+					_portletSetup = themeDisplay.getStrictLayoutPortletSetup(
 						layout, this.portletName);
+				}
 			}
 
 			String linkToLayoutUuid = GetterUtil.getString(
@@ -662,14 +666,20 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 						new Object[] {this, plid, lifecycle});
 				}
 				catch (Exception e) {
-					_log.error(e);
+					_log.error("Unable to create portlet URL", e);
 				}
 			}
 		}
 
 		if (portletURL == null) {
-			portletURL = PortletURLFactoryUtil.create(
-				portletRequestImpl, portletName, plid, lifecycle);
+			if (portletName.equals(portlet.getPortletId())) {
+				portletURL = PortletURLFactoryUtil.create(
+					portletRequestImpl, portlet, plid, lifecycle);
+			}
+			else {
+				portletURL = PortletURLFactoryUtil.create(
+					portletRequestImpl, portletName, plid, lifecycle);
+			}
 		}
 
 		PortletApp portletApp = portlet.getPortletApp();
@@ -698,14 +708,24 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 		}
 
 		try {
-			portletURL.setWindowState(portletRequestImpl.getWindowState());
+			if (portlet.hasWindowState(
+					portletRequestImpl.getResponseContentType(),
+					portletRequestImpl.getWindowState())) {
+
+				portletURL.setWindowState(portletRequestImpl.getWindowState());
+			}
 		}
 		catch (WindowStateException wse) {
 			_log.error(wse.getMessage());
 		}
 
 		try {
-			portletURL.setPortletMode(portletRequestImpl.getPortletMode());
+			if (portlet.hasPortletMode(
+					portletRequestImpl.getResponseContentType(),
+					portletRequestImpl.getPortletMode())) {
+
+				portletURL.setPortletMode(portletRequestImpl.getPortletMode());
+			}
 		}
 		catch (PortletModeException pme) {
 			_log.error(pme.getMessage());

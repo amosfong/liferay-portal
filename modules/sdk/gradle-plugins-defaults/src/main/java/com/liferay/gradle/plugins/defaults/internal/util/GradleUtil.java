@@ -61,6 +61,22 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 
 	public static final String SNAPSHOT_VERSION_SUFFIX = "-SNAPSHOT";
 
+	public static MavenArtifactRepository addMavenArtifactRepository(
+		RepositoryHandler repositoryHandler, final Object url) {
+
+		return repositoryHandler.maven(
+			new Action<MavenArtifactRepository>() {
+
+				@Override
+				public void execute(
+					MavenArtifactRepository mavenArtifactRepository) {
+
+					mavenArtifactRepository.setUrl(url);
+				}
+
+			});
+	}
+
 	public static <T extends Task> T addTask(
 		Project project, String name, Class<T> clazz, boolean overwrite) {
 
@@ -113,10 +129,26 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 		return properties.getProperty(key, defaultValue);
 	}
 
+	public static File getMavenLocalDir(Project project) {
+		RepositoryHandler repositoryHandler = project.getRepositories();
+
+		ArtifactRepository artifactRepository = repositoryHandler.findByName(
+			ArtifactRepositoryContainer.DEFAULT_MAVEN_LOCAL_REPO_NAME);
+
+		if (!(artifactRepository instanceof MavenArtifactRepository)) {
+			return null;
+		}
+
+		MavenArtifactRepository mavenArtifactRepository =
+			(MavenArtifactRepository)artifactRepository;
+
+		return new File(mavenArtifactRepository.getUrl());
+	}
+
 	public static File getMavenLocalFile(
 		Project project, String group, String name, String version) {
 
-		File dir = _getMavenLocalDir(project);
+		File dir = getMavenLocalDir(project);
 
 		if (dir == null) {
 			return null;
@@ -239,7 +271,9 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 
 		List<String> taskNames = startParameter.getTaskNames();
 
-		if (taskNames.contains(taskName)) {
+		if (taskNames.contains(taskName) ||
+			taskNames.contains(project.getPath() + ":" + taskName)) {
+
 			return true;
 		}
 
@@ -247,7 +281,7 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 	}
 
 	public static boolean isFromMavenLocal(Project project, File file) {
-		File mavenLocalDir = _getMavenLocalDir(project);
+		File mavenLocalDir = getMavenLocalDir(project);
 
 		if ((mavenLocalDir != null) && FileUtil.isChild(file, mavenLocalDir)) {
 			return true;
@@ -266,19 +300,7 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 		return false;
 	}
 
-	public static boolean isTestProject(Project project) {
-		String projectName = project.getName();
-
-		if (projectName.endsWith("-test")) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public static void setProjectSnapshotVersion(
-		Project project, String... propertyNames) {
-
+	public static boolean isSnapshot(Project project, String... propertyNames) {
 		boolean snapshot = false;
 
 		if (project.hasProperty(SNAPSHOT_PROPERTY_NAME)) {
@@ -297,9 +319,27 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 			}
 		}
 
+		return snapshot;
+	}
+
+	public static boolean isTestProject(Project project) {
+		String projectName = project.getName();
+
+		if (projectName.endsWith("-test")) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void setProjectSnapshotVersion(
+		Project project, String... propertyNames) {
+
 		String version = String.valueOf(project.getVersion());
 
-		if (snapshot && !version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+		if (isSnapshot(project, propertyNames) &&
+			!version.endsWith(SNAPSHOT_VERSION_SUFFIX)) {
+
 			project.setVersion(version + SNAPSHOT_VERSION_SUFFIX);
 		}
 	}
@@ -347,22 +387,6 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 		sb.append(moduleVersionSelector.getVersion());
 
 		return sb.toString();
-	}
-
-	private static File _getMavenLocalDir(Project project) {
-		RepositoryHandler repositoryHandler = project.getRepositories();
-
-		ArtifactRepository artifactRepository = repositoryHandler.findByName(
-			ArtifactRepositoryContainer.DEFAULT_MAVEN_LOCAL_REPO_NAME);
-
-		if (!(artifactRepository instanceof MavenArtifactRepository)) {
-			return null;
-		}
-
-		MavenArtifactRepository mavenArtifactRepository =
-			(MavenArtifactRepository)artifactRepository;
-
-		return new File(mavenArtifactRepository.getUrl());
 	}
 
 }

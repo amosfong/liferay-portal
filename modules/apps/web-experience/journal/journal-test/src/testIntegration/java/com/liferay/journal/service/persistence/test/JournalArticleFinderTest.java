@@ -33,11 +33,13 @@ import com.liferay.journal.util.comparator.ArticleReviewDateComparator;
 import com.liferay.journal.util.comparator.ArticleVersionComparator;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -52,7 +54,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -289,6 +294,48 @@ public class JournalArticleFinderTest {
 		JournalArticle article = articles.get(0);
 
 		Assert.assertEquals(_USER_ID, article.getUserId());
+	}
+
+	@Test
+	public void testLocalizedQueryByC_G_F_C_A_V_T_D_C_T_S_T_D_R()
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		Map<Locale, String> titleMap = new HashMap<>();
+
+		titleMap.put(Locale.US, "Localized Article");
+		titleMap.put(Locale.FRANCE, "Localized Article");
+
+		JournalTestUtil.addArticle(
+			_group.getGroupId(), _folder.getFolderId(),
+			JournalArticleConstants.CLASSNAME_ID_DEFAULT, titleMap, titleMap,
+			titleMap, Locale.US, true, true, serviceContext);
+
+		QueryDefinition<JournalArticle> queryDefinition =
+			new QueryDefinition<>();
+
+		queryDefinition.setStatus(WorkflowConstants.STATUS_ANY);
+
+		int actualCount =
+			_journalArticleFinder.countByC_G_F_C_A_V_T_D_C_S_T_D_R(
+				_group.getCompanyId(), _group.getGroupId(), _folderIds,
+				JournalArticleConstants.CLASSNAME_ID_DEFAULT, null, null,
+				"\"Localized Article\"", null, null, null, (String)null, null,
+				null, null, true, queryDefinition);
+
+		Assert.assertEquals(1, actualCount);
+
+		List<JournalArticle> articles =
+			_journalArticleFinder.findByC_G_F_C_A_V_T_D_C_S_T_D_R(
+				_group.getCompanyId(), _group.getGroupId(), _folderIds,
+				JournalArticleConstants.CLASSNAME_ID_DEFAULT, null, null,
+				"\"Localized Article\"", null, null, null, (String)null, null,
+				null, null, true, queryDefinition);
+
+		Assert.assertEquals(articles.toString(), 1, articles.size());
 	}
 
 	@Test

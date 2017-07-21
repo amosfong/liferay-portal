@@ -25,13 +25,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.rss.util.RSSUtil;
@@ -372,10 +372,12 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 
 	@Override
 	public WikiPage getPage(long pageId) throws PortalException {
-		WikiPagePermissionChecker.check(
-			getPermissionChecker(), pageId, ActionKeys.VIEW);
+		WikiPage page = wikiPageLocalService.getPage(pageId);
 
-		return wikiPageLocalService.getPage(pageId);
+		WikiPagePermissionChecker.check(
+			getPermissionChecker(), page, ActionKeys.VIEW);
+
+		return page;
 	}
 
 	@Override
@@ -403,30 +405,36 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 
 	@Override
 	public WikiPage getPage(long nodeId, String title) throws PortalException {
-		WikiPagePermissionChecker.check(
-			getPermissionChecker(), nodeId, title, ActionKeys.VIEW);
+		WikiPage page = wikiPageLocalService.getPage(nodeId, title);
 
-		return wikiPageLocalService.getPage(nodeId, title);
+		WikiPagePermissionChecker.check(
+			getPermissionChecker(), page, ActionKeys.VIEW);
+
+		return page;
 	}
 
 	@Override
 	public WikiPage getPage(long nodeId, String title, Boolean head)
 		throws PortalException {
 
-		WikiPagePermissionChecker.check(
-			getPermissionChecker(), nodeId, title, ActionKeys.VIEW);
+		WikiPage page = wikiPageLocalService.getPage(nodeId, title, head);
 
-		return wikiPageLocalService.getPage(nodeId, title, head);
+		WikiPagePermissionChecker.check(
+			getPermissionChecker(), page, ActionKeys.VIEW);
+
+		return page;
 	}
 
 	@Override
 	public WikiPage getPage(long nodeId, String title, double version)
 		throws PortalException {
 
-		WikiPagePermissionChecker.check(
-			getPermissionChecker(), nodeId, title, version, ActionKeys.VIEW);
+		WikiPage page = wikiPageLocalService.getPage(nodeId, title, version);
 
-		return wikiPageLocalService.getPage(nodeId, title, version);
+		WikiPagePermissionChecker.check(
+			getPermissionChecker(), page, ActionKeys.VIEW);
+
+		return page;
 	}
 
 	@Override
@@ -753,7 +761,7 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 			sb.append(entryURL);
 
 			if (entryURL.endsWith(StringPool.SLASH)) {
-				sb.append(HttpUtil.encodeURL(page.getTitle()));
+				sb.append(URLCodec.encodeURL(page.getTitle()));
 			}
 
 			if (diff) {

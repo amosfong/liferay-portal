@@ -43,10 +43,10 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.EscapableLocalizableFunction;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -190,8 +190,8 @@ public class SubscriptionMBMessageLocalServiceWrapper
 				subscriptionSender.setLocalizedContextAttribute(
 					"[$CATEGORY_NAME$]",
 					new EscapableLocalizableFunction(
-						locale ->
-							_getLocalizedRootCategoryName(group, locale)));
+						locale -> _getLocalizedRootCategoryName(
+							group, locale)));
 			}
 			catch (PortalException pe) {
 				ReflectionUtil.throwException(pe);
@@ -268,7 +268,7 @@ public class SubscriptionMBMessageLocalServiceWrapper
 
 		String contentURL = (String)serviceContext.getAttribute("contentURL");
 
-		contentURL = HttpUtil.addParameter(
+		contentURL = _http.addParameter(
 			contentURL, serviceContext.getAttribute("namespace") + "messageId",
 			message.getMessageId());
 
@@ -277,8 +277,8 @@ public class SubscriptionMBMessageLocalServiceWrapper
 			"pingbackUserName");
 
 		if (Validator.isNull(userName)) {
-			userAddress = PortalUtil.getUserEmailAddress(message.getUserId());
-			userName = PortalUtil.getUserName(
+			userAddress = _portal.getUserEmailAddress(message.getUserId());
+			userName = _portal.getUserName(
 				message.getUserId(), StringPool.BLANK);
 		}
 
@@ -469,7 +469,7 @@ public class SubscriptionMBMessageLocalServiceWrapper
 
 			Date modifiedDate = parentMessage.getModifiedDate();
 
-			inReplyTo = PortalUtil.getMailId(
+			inReplyTo = _portal.getMailId(
 				company.getMx(), MBUtil.MESSAGE_POP_PORTLET_PREFIX,
 				message.getCategoryId(), parentMessage.getMessageId(),
 				modifiedDate.getTime());
@@ -587,8 +587,16 @@ public class SubscriptionMBMessageLocalServiceWrapper
 
 	private CompanyLocalService _companyLocalService;
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private Http _http;
+
 	private MBDiscussionLocalService _mbDiscussionLocalService;
 	private MBMessageLocalService _mbMessageLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private SubscriptionLocalService _subscriptionLocalService;
 	private UserLocalService _userLocalService;
 

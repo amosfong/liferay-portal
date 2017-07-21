@@ -44,11 +44,11 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import"));
 			KBArticleImportException kbaie = (KBArticleImportException)errorException;
 			%>
 
-			<%= LanguageUtil.format(request, "an-unexpected-error-occurred-while-importing-articles-x", kbaie.getLocalizedMessage()) %>
+			<%= LanguageUtil.format(request, "an-unexpected-error-occurred-while-importing-articles-x", HtmlUtil.escape(kbaie.getLocalizedMessage())) %>
 		</liferay-ui:error>
 
 		<liferay-ui:error exception="<%= UploadRequestSizeException.class %>">
-			<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE), locale) %>" key="request-is-larger-than-x-and-could-not-be-processed" translateArguments="<%= false %>" />
+			<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(UploadServletRequestConfigurationHelperUtil.getMaxSize(), locale) %>" key="request-is-larger-than-x-and-could-not-be-processed" translateArguments="<%= false %>" />
 		</liferay-ui:error>
 
 		<aui:fieldset-group markupView="lexicon">
@@ -56,7 +56,7 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import"));
 				<aui:field-wrapper>
 					<div class="alert alert-info">
 						<liferay-ui:message
-							arguments="<%= StringUtil.merge(kbGroupServiceConfiguration.markdownImporterArticleExtensions(), StringPool.COMMA_AND_SPACE) %>"
+							arguments="<%= HtmlUtil.escape(StringUtil.merge(kbGroupServiceConfiguration.markdownImporterArticleExtensions(), StringPool.COMMA_AND_SPACE)) %>"
 							key="upload-your-zip-file-help"
 						/>
 					</div>

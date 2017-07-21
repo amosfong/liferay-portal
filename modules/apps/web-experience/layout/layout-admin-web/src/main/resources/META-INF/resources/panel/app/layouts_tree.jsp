@@ -20,7 +20,7 @@
 LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayContext(liferayPortletRequest, liferayPortletResponse);
 %>
 
-<div class="layouts-tree-container" id="<portlet:namespace/>layoutsTreeContainer">
+<div class="layouts-tree-container" id="<portlet:namespace />layoutsTreeContainer">
 	<c:if test="<%= layoutsTreeDisplayContext.isShowLayoutTabs() %>">
 
 		<%
@@ -112,7 +112,7 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 
 								<c:if test="<%= layoutsTreeDisplayContext.isShowExpandLayoutSetButton(false) %>">
 									<li>
-										<a href="javascript:;" id="<portlet:namespace/>expandPagesLink"><liferay-ui:message key="expand-area" /></a>
+										<a href="javascript:;" id="<portlet:namespace />expandPagesLink"><liferay-ui:message key="expand-area" /></a>
 									</li>
 								</c:if>
 
@@ -184,7 +184,7 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 
 								<c:if test="<%= layoutsTreeDisplayContext.isShowExpandLayoutSetButton(false) %>">
 									<li>
-										<a href="javascript:;" id="<portlet:namespace/>expandPagesLink"><liferay-ui:message key="expand-area" /></a>
+										<a href="javascript:;" id="<portlet:namespace />expandPagesLink"><liferay-ui:message key="expand-area" /></a>
 									</li>
 								</c:if>
 
@@ -214,23 +214,29 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 					<span class="scope-name"><%= HtmlUtil.escape(layoutsTreeDisplayContext.getLayoutSetBranchName()) %></span>
 
 					<span class="nav-equal-height-heading-field">
-						<liferay-ui:icon-menu direction="left" icon="cog" markupView="lexicon" message="" showArrow="<%= false %>">
+						<div class="dropdown">
+							<a aria-expanded="false" class="dropdown-toggle icon-monospaced" data-toggle="dropdown" href="javascript:;">
+								<aui:icon image="cog" markupView="lexicon" />
+							</a>
 
-							<%
-							for (LayoutSetBranch curLayoutSetBranch : layoutsTreeDisplayContext.getLayoutSetBranches()) {
-							%>
+							<ul class="dropdown-menu dropdown-menu-center">
 
-								<liferay-ui:icon
-									cssClass="<%= layoutsTreeDisplayContext.getLayoutSetBranchCssClass(curLayoutSetBranch) %>"
-									message="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>"
-									url="<%= layoutsTreeDisplayContext.getLayoutSetBranchURL(curLayoutSetBranch) %>"
-								/>
+								<%
+								for (LayoutSetBranch curLayoutSetBranch : layoutsTreeDisplayContext.getLayoutSetBranches()) {
+								%>
 
-							<%
-							}
-							%>
+									<li class="<%= layoutsTreeDisplayContext.getLayoutSetBranchCssClass(curLayoutSetBranch) %>">
+										<a class="truncate-text" href="<%= layoutsTreeDisplayContext.getLayoutSetBranchURL(curLayoutSetBranch) %>">
+											<liferay-ui:message key="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>" localizeKey="<%= LayoutSetBranchConstants.MASTER_BRANCH_NAME.equals(curLayoutSetBranch.getName()) %>" />
+										</a>
+									</li>
 
-						</liferay-ui:icon-menu>
+								<%
+								}
+								%>
+
+							</ul>
+						</div>
 					</span>
 				</div>
 			</li>
@@ -319,11 +325,6 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 	);
 </aui:script>
 
-<liferay-portlet:renderURL portletName="<%= LayoutAdminPortletKeys.GROUP_PAGES %>" var="treeURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-	<portlet:param name="mvcPath" value="/panel/app/layouts_tree_expanded.jsp" />
-	<portlet:param name="showLayoutTabs" value="<%= String.valueOf(Boolean.FALSE) %>" />
-</liferay-portlet:renderURL>
-
 <aui:script use="liferay-url-preview">
 	var expandedTreeDialog;
 
@@ -337,7 +338,7 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 					expandedTreeDialog = new Liferay.UrlPreview(
 						{
 							title: '<%= HtmlUtil.escape(LanguageUtil.get(request, "pages")) %>',
-							url: '<%= treeURL.toString() %>',
+							url: '<%= layoutsTreeDisplayContext.getItemSelectorURL() %>',
 							width: Liferay.Util.isPhone() ? '100%' : '900px'
 						}
 					);

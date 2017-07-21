@@ -1,8 +1,8 @@
 <definition component-name="portal-wcm">
+	<property name="custom.properties" value="default.layout.template.id=1_column" />
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Content and Application Templates" />
-	<property name="custom.properties" value="default.layout.template.id=1_column" />
 
 	<set-up>
 		<execute macro="TestCase#setUpPortalInstance" />
@@ -48,6 +48,7 @@
 
 	<command name="AddRSSADTViaPortletConfiguration" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Content and Application Templates,RSS" />
 
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="ADT Test Page" />
@@ -66,7 +67,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Latimes > Technology News" />
-			<var name="feedUrlLink" value="http://www.latimes.com/business/technology/rss2.0.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="rss2.0.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -109,6 +111,8 @@
 	</command>
 
 	<command name="AddRSSADTWithCorruptScript" priority="3">
+		<property name="testray.component.names" value="Content and Application Templates,RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="ADT Test Page" />
 			<var name="siteName" value="Test Site Name" />
@@ -126,7 +130,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Latimes > Technology News" />
-			<var name="feedUrlLink" value="http://www.latimes.com/business/technology/rss2.0.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="rss2.0.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -160,6 +165,8 @@
 	</command>
 
 	<command name="AddRSSADTWithScript" priority="3">
+		<property name="testray.component.names" value="Content and Application Templates,RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="ADT Test Page" />
 			<var name="siteName" value="Test Site Name" />
@@ -177,7 +184,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Technology" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="Technology.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -214,6 +222,8 @@
 	</command>
 
 	<command name="ADTAssetPublisher" priority="3">
+		<property name="testray.component.names" value="Asset Publisher,Content and Application Templates" />
+
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Test Site Name" />
 		</execute>
@@ -253,7 +263,9 @@
 			<var name="siteName" value="Test Site Name" />
 		</execute>
 
-		<execute macro="AssetPublisherPortlet#configureFlagAllDisplaySettingsCheckboxes" />
+		<execute macro="AssetPublisherPortlet#configureDisplaySettings">
+			<var name="displaySettings" value="Comments,Comment Ratings,Enable Social Bookmarks,Flags,Print,Ratings,Related Assets" />
+		</execute>
 
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="ADT Test Page" />
@@ -282,6 +294,7 @@
 
 	<command name="ADTBreadcrumb" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Breadcrumb,Content and Application Templates" />
 
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="ADT Test Page" />
@@ -317,6 +330,7 @@
 
 	<command name="ADTCategoriesNavigation" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Categories,Content and Application Templates" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Test Site Name" />
@@ -385,6 +399,8 @@
 	</command>
 
 	<command name="ADTDMMediaGallery" priority="3">
+		<property name="testray.component.names" value="Content and Application Templates,Documents Management" />
+
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Test Site Name" />
 		</execute>
@@ -480,6 +496,8 @@
 	</command>
 
 	<command name="ADTSiteMap" priority="3">
+		<property name="testray.component.names" value="Content and Application Templates,Sitemap" />
+
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Test Site Name" />
 		</execute>
@@ -569,6 +587,8 @@
 	</command>
 
 	<command name="ADTStagingCategoriesNavigation" priority="3">
+		<property name="testray.component.names" value="Categories,Content and Application Templates,Staging" />
+
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Test Site Name" />
 		</execute>
@@ -659,6 +679,7 @@
 
 	<command name="ADTTagsNavigationPortlet" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Content and Application Templates,Tags" />
 
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Test Site Name" />
@@ -785,6 +806,8 @@
 	</command>
 
 	<command name="ADTWiki" priority="3">
+		<property name="testray.component.names" value="Content and Application Templates,Wiki" />
+
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Test Site Name" />
 		</execute>

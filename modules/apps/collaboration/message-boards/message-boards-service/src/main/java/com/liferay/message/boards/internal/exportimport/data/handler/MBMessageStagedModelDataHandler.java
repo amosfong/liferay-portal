@@ -34,9 +34,11 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -54,6 +56,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -223,6 +228,25 @@ public class MBMessageStagedModelDataHandler
 	}
 
 	@Override
+	protected void doImportMissingReference(
+			PortletDataContext portletDataContext, String uuid, long groupId,
+			long messageId)
+		throws Exception {
+
+		MBMessage existingMessage = fetchMissingReference(uuid, groupId);
+
+		if (existingMessage == null) {
+			return;
+		}
+
+		Map<Long, Long> messageIds =
+			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+				MBMessage.class);
+
+		messageIds.put(messageId, existingMessage.getMessageId());
+	}
+
+	@Override
 	protected void doImportStagedModel(
 			PortletDataContext portletDataContext, MBMessage message)
 		throws Exception {
@@ -317,10 +341,43 @@ public class MBMessageStagedModelDataHandler
 								message.getBody(), serviceContext);
 					}
 					else {
+						Stream<ObjectValuePair<String, InputStream>>
+							objectValuePairStream = inputStreamOVPs.stream();
+
+						Set<String> incomingFileNames =
+							objectValuePairStream.map(
+								ObjectValuePair::getKey
+							).collect(
+								Collectors.toSet()
+							);
+
+						List<FileEntry> portletFileEntries =
+							PortletFileRepositoryUtil.getPortletFileEntries(
+								existingMessage.getGroupId(),
+								existingMessage.getAttachmentsFolderId());
+
+						Stream<FileEntry> portletFileEntryStream =
+							portletFileEntries.stream();
+
+						List<Long> updatedFileEntryIds =
+							portletFileEntryStream.filter(
+								fileEntry -> incomingFileNames.contains(
+									fileEntry.getFileName())
+							).map(
+								FileEntry::getFileEntryId
+							).collect(
+								Collectors.toList()
+							);
+
+						for (Long fileEntryId : updatedFileEntryIds) {
+							PortletFileRepositoryUtil.deletePortletFileEntry(
+								fileEntryId);
+						}
+
 						importedMessage = _mbMessageLocalService.updateMessage(
 							userId, existingMessage.getMessageId(),
 							message.getSubject(), message.getBody(),
-							inputStreamOVPs, new ArrayList<String>(),
+							inputStreamOVPs, Collections.emptyList(),
 							message.getPriority(), message.getAllowPingbacks(),
 							serviceContext);
 					}
@@ -399,7 +456,9 @@ public class MBMessageStagedModelDataHandler
 		}
 
 		if (existingMessage.isInTrash()) {
-			TrashHandler trashHandler = existingMessage.getTrashHandler();
+			TrashHandler trashHandler =
+				TrashHandlerRegistryUtil.getTrashHandler(
+					MBMessage.class.getName());
 
 			if (trashHandler.isRestorable(existingMessage.getMessageId())) {
 				trashHandler.restoreTrashEntry(
@@ -410,7 +469,9 @@ public class MBMessageStagedModelDataHandler
 		if (existingMessage.isInTrashContainer()) {
 			MBThread existingThread = existingMessage.getThread();
 
-			TrashHandler trashHandler = existingThread.getTrashHandler();
+			TrashHandler trashHandler =
+				TrashHandlerRegistryUtil.getTrashHandler(
+					MBThread.class.getName());
 
 			if (trashHandler.isRestorable(existingThread.getThreadId())) {
 				trashHandler.restoreTrashEntry(

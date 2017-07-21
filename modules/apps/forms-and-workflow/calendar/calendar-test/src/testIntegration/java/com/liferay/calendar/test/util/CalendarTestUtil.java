@@ -17,12 +17,16 @@ package com.liferay.calendar.test.util;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.service.CalendarLocalServiceUtil;
+import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.util.TimeZoneUtil;
 
 import java.util.TimeZone;
 
@@ -44,6 +48,13 @@ public class CalendarTestUtil {
 			false, false, serviceContext);
 	}
 
+	public static Calendar addCalendar(Group group) throws PortalException {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		return addCalendar(group, serviceContext);
+	}
+
 	public static Calendar addCalendar(
 			Group group, ServiceContext serviceContext)
 		throws PortalException {
@@ -59,15 +70,22 @@ public class CalendarTestUtil {
 			CalendarResourceUtil.getGroupCalendarResource(
 				group.getGroupId(), serviceContext);
 
-		Calendar calendar = calendarResource.getDefaultCalendar();
-
-		if (timeZone != null) {
-			calendar.setTimeZoneId(timeZone.getID());
-
-			CalendarLocalServiceUtil.updateCalendar(calendar);
+		if (timeZone == null) {
+			timeZone = TimeZoneUtil.getDefault();
 		}
 
+		Calendar calendar = CalendarLocalServiceUtil.addCalendar(
+			group.getCreatorUserId(), group.getGroupId(),
+			calendarResource.getCalendarResourceId(),
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(), timeZone.getID(),
+			RandomTestUtil.randomInt(), false, false, false, serviceContext);
+
 		return calendar;
+	}
+
+	public static Calendar addCalendar(User user) throws PortalException {
+		return addCalendar(user, null, createServiceContext(user));
 	}
 
 	public static Calendar addCalendar(User user, ServiceContext serviceContext)
@@ -93,6 +111,59 @@ public class CalendarTestUtil {
 		}
 
 		return calendar;
+	}
+
+	public static Calendar addCalendarResourceCalendar(Group group)
+		throws PortalException {
+
+		ServiceContext createServiceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		CalendarResource calendarResource =
+			CalendarResourceLocalServiceUtil.addCalendarResource(
+				group.getCreatorUserId(), group.getGroupId(),
+				ClassNameLocalServiceUtil.getClassNameId(
+					CalendarResource.class),
+				0, null, null, RandomTestUtil.randomLocaleStringMap(),
+				RandomTestUtil.randomLocaleStringMap(), true,
+				createServiceContext);
+
+		return calendarResource.getDefaultCalendar();
+	}
+
+	public static Calendar addCalendarResourceCalendar(User user)
+		throws PortalException {
+
+		CalendarResource calendarResource =
+			CalendarResourceLocalServiceUtil.addCalendarResource(
+				user.getUserId(), user.getGroupId(),
+				ClassNameLocalServiceUtil.getClassNameId(
+					CalendarResource.class),
+				0, null, null, RandomTestUtil.randomLocaleStringMap(),
+				RandomTestUtil.randomLocaleStringMap(), true,
+				createServiceContext(user));
+
+		return calendarResource.getDefaultCalendar();
+	}
+
+	public static ServiceContext createServiceContext(User user) {
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(user.getCompanyId());
+		serviceContext.setUserId(user.getUserId());
+
+		return serviceContext;
+	}
+
+	public static Calendar getDefaultCalendar(Group group)
+		throws PortalException {
+
+		CalendarResource calendarResource =
+			CalendarResourceUtil.getGroupCalendarResource(
+				group.getGroupId(),
+				ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
+		return calendarResource.getDefaultCalendar();
 	}
 
 }

@@ -96,7 +96,7 @@ birthdayCalendar.set(Calendar.YEAR, 1970);
 		UserPasswordException.MustComplyWithRegex upe = (UserPasswordException.MustComplyWithRegex)errorException;
 		%>
 
-		<liferay-ui:message arguments="<%= upe.regex %>" key="that-password-does-not-comply-with-the-regular-expression" translateArguments="<%= false %>" />
+		<liferay-ui:message arguments="<%= HtmlUtil.escape(upe.regex) %>" key="that-password-does-not-comply-with-the-regular-expression" translateArguments="<%= false %>" />
 	</liferay-ui:error>
 
 	<liferay-ui:error exception="<%= UserPasswordException.MustMatch.class %>" message="the-passwords-you-entered-do-not-match" />
@@ -173,7 +173,7 @@ birthdayCalendar.set(Calendar.YEAR, 1970);
 			</c:if>
 
 			<c:choose>
-				<c:when test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_BIRTHDAY) %>">
+				<c:when test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_KERNEL_MODEL_CONTACT_BIRTHDAY) %>">
 					<aui:input name="birthday" value="<%= birthdayCalendar %>" />
 				</c:when>
 				<c:otherwise>
@@ -183,14 +183,14 @@ birthdayCalendar.set(Calendar.YEAR, 1970);
 				</c:otherwise>
 			</c:choose>
 
-			<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_MALE) %>">
+			<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_KERNEL_MODEL_CONTACT_MALE) %>">
 				<aui:select label="gender" name="male">
 					<aui:option label="male" value="1" />
 					<aui:option label="female" selected="<%= !male %>" value="0" />
 				</aui:select>
 			</c:if>
 
-			<c:if test="<%= PropsValues.CAPTCHA_CHECK_PORTAL_CREATE_ACCOUNT %>">
+			<c:if test="<%= captchaConfiguration.createAccountCaptchaEnabled() %>">
 				<portlet:resourceURL id="/login/captcha" var="captchaURL" />
 
 				<liferay-captcha:captcha url="<%= captchaURL %>" />

@@ -21,14 +21,64 @@ import com.liferay.item.selector.BaseItemSelectorCriterion;
  */
 public class LayoutItemSelectorCriterion extends BaseItemSelectorCriterion {
 
+	public LayoutItemSelectorCriterion() {
+		_showPrivatePages = true;
+		_showPublicPages = true;
+	}
+
 	public boolean isCheckDisplayPage() {
 		return _checkDisplayPage;
+	}
+
+	public boolean isEnableCurrentPage() {
+		return _enableCurrentPage;
+	}
+
+	public boolean isFollowURLOnTitleClick() {
+		return _followURLOnTitleClick;
+	}
+
+	public boolean isShowActionsMenu() {
+		return _showActionsMenu;
+	}
+
+	public boolean isShowPrivatePages() {
+		return _showPrivatePages;
+	}
+
+	public boolean isShowPublicPages() {
+		return _showPublicPages;
 	}
 
 	public void setCheckDisplayPage(boolean checkDisplayPage) {
 		_checkDisplayPage = checkDisplayPage;
 	}
 
+	public void setEnableCurrentPage(boolean enableCurrentPage) {
+		_enableCurrentPage = enableCurrentPage;
+	}
+
+	public void setFollowURLOnTitleClick(boolean followURLOnTitleClick) {
+		_followURLOnTitleClick = followURLOnTitleClick;
+	}
+
+	public void setShowActionsMenu(boolean showActionsMenu) {
+		_showActionsMenu = showActionsMenu;
+	}
+
+	public void setShowPrivatePages(boolean showPrivatePages) {
+		_showPrivatePages = showPrivatePages;
+	}
+
+	public void setShowPublicPages(boolean showPublicPages) {
+		_showPublicPages = showPublicPages;
+	}
+
 	private boolean _checkDisplayPage;
+	private boolean _enableCurrentPage;
+	private boolean _followURLOnTitleClick;
+	private boolean _showActionsMenu;
+	private boolean _showPrivatePages;
+	private boolean _showPublicPages;
 
 }

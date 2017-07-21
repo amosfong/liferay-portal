@@ -16,7 +16,6 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletApp;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.portlet.InvokerFilterContainer;
 import com.liferay.portal.kernel.portlet.InvokerPortlet;
 import com.liferay.portal.kernel.portlet.InvokerPortletFactory;
@@ -24,6 +23,7 @@ import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletContextFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactory;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
@@ -131,7 +131,7 @@ public class PortletInstanceFactoryImpl implements PortletInstanceFactory {
 		boolean deployed = !portlet.isUndeployedPortlet();
 
 		if (portlet.isInstanceable() && deployed &&
-			PortletConstants.hasInstanceId(portlet.getPortletId())) {
+			PortletIdCodec.hasInstanceId(portlet.getPortletId())) {
 
 			instanceable = true;
 		}
@@ -233,7 +233,7 @@ public class PortletInstanceFactoryImpl implements PortletInstanceFactory {
 
 	@Override
 	public void delete(Portlet portlet) {
-		if (PortletConstants.hasInstanceId(portlet.getPortletId())) {
+		if (PortletIdCodec.hasInstanceId(portlet.getPortletId())) {
 			Map<String, InvokerPortlet> portletInstances = _pool.get(
 				portlet.getRootPortletId());
 

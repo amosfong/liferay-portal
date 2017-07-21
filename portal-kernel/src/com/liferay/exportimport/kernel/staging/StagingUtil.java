@@ -52,6 +52,12 @@ import javax.servlet.http.HttpServletRequest;
 public class StagingUtil {
 
 	public static String buildRemoteURL(
+		ExportImportConfiguration exportImportConfiguration) {
+
+		return _staging.buildRemoteURL(exportImportConfiguration);
+	}
+
+	public static String buildRemoteURL(
 		String remoteAddress, int remotePort, String remotePathContext,
 		boolean secureConnection) {
 
@@ -255,6 +261,10 @@ public class StagingUtil {
 		Locale locale, Exception e, Map<String, Serializable> contextMap) {
 
 		return _staging.getExceptionMessagesJSONObject(locale, e, contextMap);
+	}
+
+	public static Group getLiveGroup(Group group) {
+		return _staging.getLiveGroup(group);
 	}
 
 	public static Group getLiveGroup(long groupId) {

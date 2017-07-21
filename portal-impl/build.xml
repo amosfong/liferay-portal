@@ -141,8 +141,7 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			<arg value="lang.file=${lang.file}" />
 			<arg value="lang.plugin=false" />
 			<arg value="lang.translate=true" />
-			<arg value="lang.translate.client.id=${microsoft.translator.client.id}" />
-			<arg value="lang.translate.client.secret=${microsoft.translator.client.secret}" />
+			<arg value="lang.translate.subscription.key=${microsoft.translator.subscription.key}" />
 		</java>
 	</target>
 
@@ -162,7 +161,7 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			newenvironment="true"
 		>
 			<jvmarg value="-Dexternal-properties=com/liferay/portal/tools/dependencies/portal-tools.properties" />
-			<arg value="${project.dir}/lib/versions.xml" />
+			<arg value="${project.dir}/lib/versions.xml,${project.dir}/lib/versions-ext.xml" />
 			<arg value="${project.dir}/lib/versions.xsl" />
 			<arg value="${project.dir}/lib/versions.html" />
 		</java>
@@ -208,6 +207,7 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			<arg value="service.hbm.file=${basedir}/src/META-INF/portal-hbm.xml" />
 			<arg value="service.impl.dir=${basedir}/src" />
 			<arg value="service.input.file=${service.file}" />
+			<arg value="service.model.hints.configs=${basedir}/src/META-INF/portal-model-hints.xml" />
 			<arg value="service.model.hints.file=${basedir}/src/META-INF/portal-model-hints.xml" />
 			<arg value="service.osgi.module=false" />
 			<arg value="service.plugin.name=" />
@@ -297,12 +297,6 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		</antcall>
 	</target>
 
-	<target name="build-service-portlet-trash">
-		<antcall target="build-service">
-			<param name="service.file" value="${basedir}/src/com/liferay/portlet/trash/service.xml" />
-		</antcall>
-	</target>
-
 	<target name="build-service-portlets">
 		<antcall target="build-service-portlet-announcements" />
 		<antcall target="build-service-portlet-asset" />
@@ -312,7 +306,6 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		<antcall target="build-service-portlet-messageboards" />
 		<antcall target="build-service-portlet-ratings" />
 		<antcall target="build-service-portlet-social" />
-		<antcall target="build-service-portlet-trash" />
 	</target>
 
 	<target name="build-services">
@@ -450,12 +443,6 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		</antcall>
 	</target>
 
-	<target name="build-wsdd-portlet-trash">
-		<antcall target="build-wsdd">
-			<param name="service.file" value="${basedir}/src/com/liferay/portlet/trash/service.xml" />
-		</antcall>
-	</target>
-
 	<target name="build-wsdd-portlets">
 		<antcall target="build-wsdd-portlet-announcements" />
 		<antcall target="build-wsdd-portlet-asset" />
@@ -466,7 +453,6 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 		<antcall target="build-wsdd-portlet-messageboards" />
 		<antcall target="build-wsdd-portlet-ratings" />
 		<antcall target="build-wsdd-portlet-social" />
-		<antcall target="build-wsdd-portlet-trash" />
 	</target>
 
 	<target name="build-wsdds">
@@ -587,12 +573,10 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 			<arg value="show.documentation=${source.formatter.show.documentation}" />
 			<arg value="source.auto.fix=${source.auto.fix}" />
 			<arg value="source.base.dir=${source.base.dir}" />
-			<arg value="source.copyright.file=${source.copyright.file}" />
 			<arg value="source.file.extensions=${source.file.extensions}" />
 			<arg value="source.files=${source.files}" />
 			<arg value="source.print.errors=${source.print.errors}" />
 			<arg value="source.throw.exception=${source.throw.exception}" />
-			<arg value="source.use.properties=${source.use.properties}" />
 		</java>
 
 		<delete file="ServiceBuilder.temp" />

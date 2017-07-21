@@ -18,17 +18,18 @@ import com.liferay.calendar.constants.CalendarPortletKeys;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.service.CalendarLocalService;
+import com.liferay.exportimport.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -104,12 +106,24 @@ public class CalendarStagedModelDataHandler
 			PortletDataContext portletDataContext, Calendar calendar)
 		throws Exception {
 
+		CalendarResource calendarResource = calendar.getCalendarResource();
+
 		StagedModelDataHandlerUtil.exportReferenceStagedModel(
-			portletDataContext, calendar, calendar.getCalendarResource(),
+			portletDataContext, calendar, calendarResource,
 			PortletDataContext.REFERENCE_TYPE_STRONG);
+
+		String calendarName = calendar.getName(LocaleUtil.getDefault());
+
+		Group group = _groupLocalService.getGroup(calendar.getGroupId());
 
 		Element calendarElement = portletDataContext.getExportDataElement(
 			calendar);
+
+		if (!Objects.equals(calendarName, group.getDescriptiveName()) ||
+			!calendarResource.isGroup()) {
+
+			calendarElement.addAttribute("keepCalendarName", "true");
+		}
 
 		portletDataContext.addClassedModel(
 			calendarElement, ExportImportPathUtil.getModelPath(calendar),
@@ -175,7 +189,7 @@ public class CalendarStagedModelDataHandler
 			}
 			else {
 				importedCalendar = _calendarLocalService.updateCalendar(
-					existingCalendar.getCalendarId(), calendar.getNameMap(),
+					existingCalendar.getCalendarId(), calendarNameMap,
 					calendar.getDescriptionMap(), calendar.getTimeZoneId(),
 					calendar.getColor(), calendar.isDefaultCalendar(),
 					calendar.isEnableComments(), calendar.isEnableRatings(),
@@ -199,14 +213,13 @@ public class CalendarStagedModelDataHandler
 			PortletDataContext portletDataContext, Calendar calendar)
 		throws Exception {
 
-		Group sourceGroup = _groupLocalService.fetchGroup(
-			portletDataContext.getSourceGroupId());
+		Element element = portletDataContext.getImportDataStagedModelElement(
+			calendar);
 
-		String calendarName = calendar.getName(LocaleUtil.getDefault());
+		boolean keepCalendarName = GetterUtil.getBoolean(
+			element.attributeValue("keepCalendarName"));
 
-		if ((sourceGroup == null) ||
-			!calendarName.equals(sourceGroup.getDescriptiveName())) {
-
+		if (keepCalendarName) {
 			return calendar.getNameMap();
 		}
 

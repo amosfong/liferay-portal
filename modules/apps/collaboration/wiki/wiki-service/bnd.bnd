@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Wiki Service
 Bundle-SymbolicName: com.liferay.wiki.service
-Bundle-Version: 1.5.0
+Bundle-Version: 1.7.0
 Export-Package:\
 	com.liferay.wiki.asset,\
 	com.liferay.wiki.engine.impl,\
@@ -50,6 +50,7 @@ Import-Package:\
 	!org.intabulas.sandler.*,\
 	\
 	!org.jgroups.*,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Wiki

@@ -29,10 +29,10 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
 <%@ page import="com.liferay.document.library.kernel.exception.FileSizeException" %><%@
+page import="com.liferay.document.library.kernel.util.DLValidatorUtil" %><%@
 page import="com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys" %><%@
 page import="com.liferay.exportimport.kernel.staging.LayoutStagingUtil" %><%@
 page import="com.liferay.exportimport.kernel.staging.StagingUtil" %><%@
-page import="com.liferay.layout.admin.web.internal.constants.LayoutAdminPortletKeys" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsPrototypeTreeDisplayContext" %><%@
 page import="com.liferay.layout.admin.web.internal.display.context.LayoutsTreeDisplayContext" %><%@
@@ -61,11 +61,13 @@ page import="com.liferay.portal.kernel.model.Group" %><%@
 page import="com.liferay.portal.kernel.model.GroupConstants" %><%@
 page import="com.liferay.portal.kernel.model.Layout" %><%@
 page import="com.liferay.portal.kernel.model.LayoutBranch" %><%@
+page import="com.liferay.portal.kernel.model.LayoutBranchConstants" %><%@
 page import="com.liferay.portal.kernel.model.LayoutConstants" %><%@
 page import="com.liferay.portal.kernel.model.LayoutPrototype" %><%@
 page import="com.liferay.portal.kernel.model.LayoutRevision" %><%@
 page import="com.liferay.portal.kernel.model.LayoutSet" %><%@
 page import="com.liferay.portal.kernel.model.LayoutSetBranch" %><%@
+page import="com.liferay.portal.kernel.model.LayoutSetBranchConstants" %><%@
 page import="com.liferay.portal.kernel.model.LayoutSetPrototype" %><%@
 page import="com.liferay.portal.kernel.model.LayoutTemplate" %><%@
 page import="com.liferay.portal.kernel.model.LayoutTemplateConstants" %><%@
@@ -93,6 +95,7 @@ page import="com.liferay.portal.kernel.service.ThemeLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.UserGroupLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.service.permission.GroupPermissionUtil" %><%@
 page import="com.liferay.portal.kernel.service.permission.LayoutPermissionUtil" %><%@
+page import="com.liferay.portal.kernel.servlet.HttpHeaders" %><%@
 page import="com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorConstants" %><%@
 page import="com.liferay.portal.kernel.template.StringTemplateResource" %><%@
 page import="com.liferay.portal.kernel.util.ArrayUtil" %><%@

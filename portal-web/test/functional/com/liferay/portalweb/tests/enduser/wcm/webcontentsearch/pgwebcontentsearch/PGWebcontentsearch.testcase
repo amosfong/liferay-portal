@@ -1,4 +1,4 @@
-<definition component-name="portal-search">
+<definition component-name="portal-wcm">
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Web Content Administration" />
@@ -45,6 +45,8 @@
 	</tear-down>
 
 	<command name="SearchWebContent" priority="4">
+		<property name="testray.component.names" value="Categories,Web Content Search" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
@@ -158,6 +160,8 @@
 	</command>
 
 	<command name="SearchWebContentCategory" priority="4">
+		<property name="testray.component.names" value="Categories,Web Content Search" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -256,6 +260,8 @@
 	</command>
 
 	<command name="SearchWebContentCategoryQuotes" priority="3">
+		<property name="testray.component.names" value="Categories,Web Content Search" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -310,7 +316,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Category Name"</var>
+			<var name="webContentSearchTerm" value="&quot;Category Name&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -319,7 +325,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Category"</var>
+			<var name="webContentSearchTerm" value="&quot;Category&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -328,7 +334,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Name"</var>
+			<var name="webContentSearchTerm" value="&quot;Name&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -337,31 +343,33 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Category Name1"</var>
+			<var name="webContentSearchTerm" value="&quot;Category Name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"Category Name1"</var>
+			<var name="webContentSearchTerm" value="&quot;Category Name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Category1"</var>
+			<var name="webContentSearchTerm" value="&quot;Category1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"Category1"</var>
+			<var name="webContentSearchTerm" value="&quot;Category1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Name1"</var>
+			<var name="webContentSearchTerm" value="&quot;Name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"Name1"</var>
+			<var name="webContentSearchTerm" value="&quot;Name1&quot;" />
 		</execute>
 	</command>
 
 	<command name="SearchWebContentQuotes" priority="3">
+		<property name="testray.component.names" value="Web Content Search" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
@@ -388,7 +396,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC WebContent Title"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Title&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -397,7 +405,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC WebContent Content"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Content&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -406,7 +414,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC"</var>
+			<var name="webContentSearchTerm" value="&quot;WC&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -415,7 +423,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WebContent"</var>
+			<var name="webContentSearchTerm" value="&quot;WebContent&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -424,7 +432,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Title"</var>
+			<var name="webContentSearchTerm" value="&quot;Title&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -433,7 +441,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Content"</var>
+			<var name="webContentSearchTerm" value="&quot;Content&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -442,7 +450,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC WebContent"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -451,7 +459,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WebContent Title"</var>
+			<var name="webContentSearchTerm" value="&quot;WebContent Title&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -460,7 +468,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WebContent Content"</var>
+			<var name="webContentSearchTerm" value="&quot;WebContent Content&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -469,55 +477,58 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"WC1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WebContent1"</var>
+			<var name="webContentSearchTerm" value="&quot;WebContent1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"WebContent1"</var>
+			<var name="webContentSearchTerm" value="&quot;WebContent1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Title1"</var>
+			<var name="webContentSearchTerm" value="&quot;Title1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"Title1"</var>
+			<var name="webContentSearchTerm" value="&quot;Title1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"Content1"</var>
+			<var name="webContentSearchTerm" value="&quot;Content1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"Content1"</var>
+			<var name="webContentSearchTerm" value="&quot;Content1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC WebContent Title1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Title1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"WC WebContent Title1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Title1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"WC WebContent Content1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Content1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"WC WebContent Content1"</var>
+			<var name="webContentSearchTerm" value="&quot;WC WebContent Content1&quot;" />
 		</execute>
 	</command>
 
-	<command name="SearchWebContentTag" priority="4">
+	<command name="SearchWebContentTag" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Tags,Training,Web Content Display" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
@@ -598,6 +609,8 @@
 	</command>
 
 	<command name="SearchWebContentTagQuotes" priority="3">
+		<property name="testray.component.names" value="Web Content Search" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
@@ -634,7 +647,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"tag name"</var>
+			<var name="webContentSearchTerm" value="&quot;tag name&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -643,7 +656,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"tag"</var>
+			<var name="webContentSearchTerm" value="&quot;tag&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -652,7 +665,7 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"name"</var>
+			<var name="webContentSearchTerm" value="&quot;name&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewResultsEntry">
@@ -661,27 +674,27 @@
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"tag name1"</var>
+			<var name="webContentSearchTerm" value="&quot;tag name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"tag name1"</var>
+			<var name="webContentSearchTerm" value="&quot;tag name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"tag1"</var>
+			<var name="webContentSearchTerm" value="&quot;tag1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"tag1"</var>
+			<var name="webContentSearchTerm" value="&quot;tag1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#search">
-			<var name="webContentSearchTerm">"name1"</var>
+			<var name="webContentSearchTerm" value="&quot;name1&quot;" />
 		</execute>
 
 		<execute macro="WebContentSearchPortlet#viewNoResults">
-			<var name="webContentSearchTerm">"name1"</var>
+			<var name="webContentSearchTerm" value="&quot;name1&quot;" />
 		</execute>
 	</command>
 </definition>

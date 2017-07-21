@@ -16,8 +16,10 @@ package com.liferay.blogs.item.selector.web.internal;
 
 import com.liferay.blogs.item.selector.criterion.BlogsItemSelectorCriterion;
 import com.liferay.blogs.item.selector.web.constants.BlogsItemSelectorViewConstants;
+import com.liferay.blogs.item.selector.web.internal.constants.BlogsItemSelectorWebKeys;
 import com.liferay.blogs.item.selector.web.internal.display.context.BlogsItemSelectorViewDisplayContext;
 import com.liferay.blogs.service.BlogsEntryLocalService;
+import com.liferay.document.library.display.context.DLMimeTypeDisplayContext;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorReturnTypeResolverHandler;
 import com.liferay.item.selector.ItemSelectorView;
@@ -43,6 +45,9 @@ import javax.servlet.ServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Roberto Díaz
@@ -54,9 +59,6 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class BlogsItemSelectorView
 	implements ItemSelectorView<BlogsItemSelectorCriterion> {
-
-	public static final String BLOGS_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT =
-		"BLOGS_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT";
 
 	@Override
 	public Class<BlogsItemSelectorCriterion> getItemSelectorCriterionClass() {
@@ -103,8 +105,12 @@ public class BlogsItemSelectorView
 					_blogsEntryLocalService);
 
 		request.setAttribute(
-			BLOGS_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
+			BlogsItemSelectorWebKeys.BLOGS_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
 			blogsItemSelectorViewDisplayContext);
+
+		request.setAttribute(
+			BlogsItemSelectorWebKeys.DL_MIME_TYPE_DISPLAY_CONTEXT,
+			_dlMimeTypeDisplayContext);
 
 		ServletContext servletContext = getServletContext();
 
@@ -112,6 +118,17 @@ public class BlogsItemSelectorView
 			servletContext.getRequestDispatcher("/blogs_attachments.jsp");
 
 		requestDispatcher.include(request, response);
+	}
+
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	public void setDLMimeTypeDisplayContext(
+		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
+
+		_dlMimeTypeDisplayContext = dlMimeTypeDisplayContext;
 	}
 
 	@Reference(unbind = "-")
@@ -131,6 +148,12 @@ public class BlogsItemSelectorView
 		_servletContext = servletContext;
 	}
 
+	public void unsetDLMimeTypeDisplayContext(
+		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
+
+		_dlMimeTypeDisplayContext = null;
+	}
+
 	@Reference(unbind = "-")
 	protected void setBlogsEntryLocalService(
 		BlogsEntryLocalService blogsEntryLocalService) {
@@ -147,6 +170,7 @@ public class BlogsItemSelectorView
 				}));
 
 	private BlogsEntryLocalService _blogsEntryLocalService;
+	private DLMimeTypeDisplayContext _dlMimeTypeDisplayContext;
 	private ItemSelectorReturnTypeResolverHandler
 		_itemSelectorReturnTypeResolverHandler;
 	private ServletContext _servletContext;

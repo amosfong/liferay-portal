@@ -189,11 +189,11 @@ public class LocaleTransformerListener extends BaseTransformerListener {
 			filterByLocalizability(
 				rootElement, articleDefaultLanguageId, ddmStructure);
 		}
-		catch (PortalException pe) {
-			_log.error(pe);
-		}
 		catch (NullPointerException npe) {
-			_log.error(npe);
+			_log.error("Unable to filter by localizability", npe);
+		}
+		catch (PortalException pe) {
+			_log.error("Unable to filter by localizability", pe);
 		}
 	}
 

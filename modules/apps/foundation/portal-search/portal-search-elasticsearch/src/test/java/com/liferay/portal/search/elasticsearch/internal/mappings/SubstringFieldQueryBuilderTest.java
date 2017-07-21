@@ -38,6 +38,12 @@ public class SubstringFieldQueryBuilderTest
 
 	@Override
 	@Test
+	public void testLuceneUnfriendlyTerms() throws Exception {
+		super.testLuceneUnfriendlyTerms();
+	}
+
+	@Override
+	@Test
 	public void testMultiwordPhrasePrefixes() throws Exception {
 		super.testMultiwordPhrasePrefixes();
 	}
@@ -56,6 +62,12 @@ public class SubstringFieldQueryBuilderTest
 
 	@Override
 	@Test
+	public void testParentheses() throws Exception {
+		super.testParentheses();
+	}
+
+	@Override
+	@Test
 	public void testPhrases() throws Exception {
 		super.testPhrases();
 	}
@@ -70,6 +82,12 @@ public class SubstringFieldQueryBuilderTest
 	@Test
 	public void testSubstrings() throws Exception {
 		super.testSubstrings();
+	}
+
+	@Override
+	@Test
+	public void testWildcardCharacters() throws Exception {
+		super.testWildcardCharacters();
 	}
 
 	@Override

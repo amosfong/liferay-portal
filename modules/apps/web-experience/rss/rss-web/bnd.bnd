@@ -1,6 +1,6 @@
 Bundle-Name: Liferay RSS Web
 Bundle-SymbolicName: com.liferay.rss.web
-Bundle-Version: 2.2.1
+Bundle-Version: 2.2.7
 Export-Package:\
 	com.liferay.rss.web.configuration,\
 	com.liferay.rss.web.constants,\
@@ -8,3 +8,4 @@ Export-Package:\
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Publication Tools
 Web-ContextPath: /rss-web
+-dsannotations-options: inherit

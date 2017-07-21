@@ -16,6 +16,7 @@ package com.liferay.calendar.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
@@ -68,6 +69,13 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	 *
 	 * Never modify or reference this interface directly. Always use {@link CalendarBookingLocalServiceUtil} to access the calendar booking local service. Add custom service methods to {@link com.liferay.calendar.service.impl.CalendarBookingLocalServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasExclusiveCalendarBooking(Calendar calendar,
+		long startTime, long endTime) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean isStagingCalendarBooking(CalendarBooking calendarBooking)
+		throws PortalException;
 
 	/**
 	* Adds the calendar booking to the database. Also notifies the appropriate model listeners.
@@ -203,6 +211,10 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 	public CalendarBooking getCalendarBookingInstance(long calendarBookingId,
 		int instanceIndex) throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public CalendarBooking getLastInstanceCalendarBooking(
+		CalendarBooking calendarBooking);
+
 	public CalendarBooking invokeTransition(long userId,
 		CalendarBooking calendarBooking, long startTime, int status,
 		boolean updateInstance, boolean allFollowing,
@@ -256,6 +268,16 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		long firstReminder, java.lang.String firstReminderType,
 		long secondReminder, java.lang.String secondReminderType,
 		ServiceContext serviceContext) throws PortalException;
+
+	public CalendarBooking updateCalendarBookingInstance(long userId,
+		long calendarBookingId, int instanceIndex, long calendarId,
+		long[] childCalendarIds, Map<Locale, java.lang.String> titleMap,
+		Map<Locale, java.lang.String> descriptionMap,
+		java.lang.String location, long startTime, long endTime,
+		boolean allDay, boolean allFollowing, long firstReminder,
+		java.lang.String firstReminderType, long secondReminder,
+		java.lang.String secondReminderType, ServiceContext serviceContext)
+		throws PortalException;
 
 	public CalendarBooking updateCalendarBookingInstance(long userId,
 		long calendarBookingId, int instanceIndex, long calendarId,
@@ -516,4 +538,7 @@ public interface CalendarBookingLocalService extends BaseLocalService,
 		long[] assetCategoryIds, java.lang.String[] assetTagNames,
 		long[] assetLinkEntryIds, java.lang.Double priority)
 		throws PortalException;
+
+	public void updateLastInstanceCalendarBookingRecurrence(
+		CalendarBooking calendarBooking, java.lang.String recurrence);
 }

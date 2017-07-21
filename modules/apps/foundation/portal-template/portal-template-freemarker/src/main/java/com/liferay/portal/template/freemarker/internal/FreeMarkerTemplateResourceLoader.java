@@ -38,9 +38,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	configurationPid = "com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration",
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
-	service = {
-		FreeMarkerTemplateResourceLoader.class, TemplateResourceLoader.class
-	}
+	service =
+		{FreeMarkerTemplateResourceLoader.class, TemplateResourceLoader.class}
 )
 public class FreeMarkerTemplateResourceLoader
 	implements TemplateResourceLoader {
@@ -83,7 +82,7 @@ public class FreeMarkerTemplateResourceLoader
 			FreeMarkerEngineConfiguration.class, properties);
 
 		_defaultTemplateResourceLoader = new DefaultTemplateResourceLoader(
-			TemplateConstants.LANG_TYPE_FTL, null,
+			TemplateConstants.LANG_TYPE_FTL,
 			_freemarkerEngineConfiguration.resourceModificationCheck(),
 			_multiVMPool, _singleVMPool);
 	}

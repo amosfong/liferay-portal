@@ -16,6 +16,8 @@ package com.liferay.journal.web.internal.portlet;
 
 import com.liferay.asset.kernel.exception.AssetCategoryException;
 import com.liferay.asset.kernel.exception.AssetTagException;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
@@ -97,7 +99,7 @@ import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -109,14 +111,17 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.PropsValues;
+import com.liferay.trash.TrashHelper;
 import com.liferay.trash.kernel.service.TrashEntryService;
-import com.liferay.trash.kernel.util.TrashUtil;
+import com.liferay.trash.util.TrashWebKeys;
 
 import java.io.File;
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -460,6 +465,8 @@ public class JournalPortlet extends MVCPortlet {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
+		renderRequest.setAttribute(TrashWebKeys.TRASH_HELPER, _trashHelper);
+
 		String path = getPath(renderRequest, renderResponse);
 
 		if (Objects.equals(path, "/edit_article.jsp")) {
@@ -495,6 +502,11 @@ public class JournalPortlet extends MVCPortlet {
 	public void serveResource(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws IOException, PortletException {
+
+		resourceRequest.setAttribute(TrashWebKeys.TRASH_HELPER, _trashHelper);
+
+		resourceRequest.setAttribute(
+			JournalWebConfiguration.class.getName(), _journalWebConfiguration);
 
 		String resourceID = GetterUtil.getString(
 			resourceRequest.getResourceID());
@@ -559,9 +571,17 @@ public class JournalPortlet extends MVCPortlet {
 		}
 	}
 
-	@Reference(unbind = "-")
-	public void setItemSelector(ItemSelector itemSelector) {
-		_itemSelector = itemSelector;
+	public void subscribeArticle(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		long articleId = ParamUtil.getLong(actionRequest, "articleId");
+
+		_journalArticleService.subscribe(
+			themeDisplay.getScopeGroupId(), articleId);
 	}
 
 	public void subscribeFolder(
@@ -592,6 +612,19 @@ public class JournalPortlet extends MVCPortlet {
 			ddmStructureId);
 
 		sendEditArticleRedirect(actionRequest, actionResponse);
+	}
+
+	public void unsubscribeArticle(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		long articleId = ParamUtil.getLong(actionRequest, "articleId");
+
+		_journalArticleService.unsubscribe(
+			themeDisplay.getScopeGroupId(), articleId);
 	}
 
 	public void unsubscribeFolder(
@@ -738,6 +771,10 @@ public class JournalPortlet extends MVCPortlet {
 		boolean neverExpire = ParamUtil.getBoolean(
 			uploadPortletRequest, "neverExpire");
 
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			neverExpire = true;
+		}
+
 		if (expirationDateAmPm == Calendar.PM) {
 			expirationDateHour += 12;
 		}
@@ -754,8 +791,13 @@ public class JournalPortlet extends MVCPortlet {
 			uploadPortletRequest, "reviewDateMinute");
 		int reviewDateAmPm = ParamUtil.getInteger(
 			uploadPortletRequest, "reviewDateAmPm");
+
 		boolean neverReview = ParamUtil.getBoolean(
 			uploadPortletRequest, "neverReview");
+
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			neverReview = true;
+		}
 
 		if (reviewDateAmPm == Calendar.PM) {
 			reviewDateHour += 12;
@@ -846,6 +888,16 @@ public class JournalPortlet extends MVCPortlet {
 				portletPreferences.setValue(
 					"articleId", article.getArticleId());
 
+				AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+					JournalArticle.class.getName(),
+					article.getResourcePrimKey());
+
+				if (assetEntry != null) {
+					portletPreferences.setValue(
+						"assetEntryId",
+						String.valueOf(assetEntry.getEntryId()));
+				}
+
 				portletPreferences.store();
 
 				updateContentSearch(
@@ -865,6 +917,13 @@ public class JournalPortlet extends MVCPortlet {
 
 			MultiSessionMessages.add(
 				actionRequest, ddmPortletId + "requestProcessed");
+		}
+
+		boolean hideDefaultSuccessMessage = ParamUtil.getBoolean(
+			actionRequest, "hideDefaultSuccessMessage");
+
+		if (hideDefaultSuccessMessage) {
+			hideDefaultSuccessMessage(actionRequest);
 		}
 	}
 
@@ -1037,7 +1096,15 @@ public class JournalPortlet extends MVCPortlet {
 		}
 
 		if (moveToTrash && !trashedModels.isEmpty()) {
-			TrashUtil.addTrashSessionMessages(actionRequest, trashedModels);
+			Map<String, Object> data = new HashMap<>();
+
+			data.put("trashedModels", trashedModels);
+
+			SessionMessages.add(
+				actionRequest,
+				_portal.getPortletId(actionRequest) +
+					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+				data);
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
@@ -1089,7 +1156,15 @@ public class JournalPortlet extends MVCPortlet {
 		}
 
 		if (moveToTrash && !trashedModels.isEmpty()) {
-			TrashUtil.addTrashSessionMessages(actionRequest, trashedModels);
+			Map<String, Object> data = new HashMap<>();
+
+			data.put("trashedModels", trashedModels);
+
+			SessionMessages.add(
+				actionRequest,
+				_portal.getPortletId(actionRequest) +
+					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+				data);
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
@@ -1117,7 +1192,15 @@ public class JournalPortlet extends MVCPortlet {
 		}
 
 		if (moveToTrash && !trashedModels.isEmpty()) {
-			TrashUtil.addTrashSessionMessages(actionRequest, trashedModels);
+			Map<String, Object> data = new HashMap<>();
+
+			data.put("trashedModels", trashedModels);
+
+			SessionMessages.add(
+				actionRequest,
+				_portal.getPortletId(actionRequest) +
+					SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+				data);
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
@@ -1241,18 +1324,18 @@ public class JournalPortlet extends MVCPortlet {
 		int workflowAction = ParamUtil.getInteger(
 			actionRequest, "workflowAction", WorkflowConstants.ACTION_PUBLISH);
 
-		String portletId = HttpUtil.getParameter(redirect, "p_p_id", false);
+		String portletId = _http.getParameter(redirect, "p_p_id", false);
 
 		String namespace = _portal.getPortletNamespace(portletId);
 
 		if (Validator.isNotNull(oldUrlTitle)) {
 			String oldRedirectParam = namespace + "redirect";
 
-			String oldRedirect = HttpUtil.getParameter(
+			String oldRedirect = _http.getParameter(
 				redirect, oldRedirectParam, false);
 
 			if (Validator.isNotNull(oldRedirect)) {
-				String newRedirect = HttpUtil.decodeURL(oldRedirect);
+				String newRedirect = _http.decodeURL(oldRedirect);
 
 				newRedirect = StringUtil.replace(
 					newRedirect, oldUrlTitle, article.getUrlTitle());
@@ -1298,10 +1381,10 @@ public class JournalPortlet extends MVCPortlet {
 
 				if (Validator.isNotNull(redirect)) {
 					if (actionName.equals("addArticle") && (article != null)) {
-						redirect = HttpUtil.addParameter(
+						redirect = _http.addParameter(
 							redirect, namespace + "className",
 							JournalArticle.class.getName());
-						redirect = HttpUtil.addParameter(
+						redirect = _http.addParameter(
 							redirect, namespace + "classPK",
 							JournalArticleAssetRenderer.getClassPK(article));
 					}
@@ -1329,116 +1412,11 @@ public class JournalPortlet extends MVCPortlet {
 		}
 	}
 
-	@Reference
-	protected void setDDMStructureLocalService(
-		DDMStructureLocalService ddmStructureLocalService) {
-
-		_ddmStructureLocalService = ddmStructureLocalService;
-	}
-
-	@Reference
-	protected void setJournalArticleService(
-		JournalArticleService journalArticleService) {
-
-		_journalArticleService = journalArticleService;
-	}
-
-	@Reference
-	protected void setJournalContent(JournalContent journalContent) {
-		_journalContent = journalContent;
-	}
-
-	@Reference
-	protected void setJournalContentSearchLocalService(
-		JournalContentSearchLocalService journalContentSearchLocalService) {
-
-		_journalContentSearchLocalService = journalContentSearchLocalService;
-	}
-
-	@Reference
-	protected void setJournalConverter(JournalConverter journalConverter) {
-		_journalConverter = journalConverter;
-	}
-
-	@Reference
-	protected void setJournalFeedService(
-		JournalFeedService journalFeedService) {
-
-		_journalFeedService = journalFeedService;
-	}
-
-	@Reference
-	protected void setJournalFolderService(
-		JournalFolderService journalFolderService) {
-
-		_journalFolderService = journalFolderService;
-	}
-
-	@Reference
-	protected void setLayoutLocalService(
-		LayoutLocalService layoutLocalService) {
-
-		_layoutLocalService = layoutLocalService;
-	}
-
 	@Reference(
 		target = "(&(release.bundle.symbolic.name=com.liferay.journal.web)(release.schema.version=1.0.0))",
 		unbind = "-"
 	)
 	protected void setRelease(Release release) {
-	}
-
-	@Reference
-	protected void setTrashEntryService(TrashEntryService trashEntryService) {
-		_trashEntryService = trashEntryService;
-	}
-
-	protected void unsetDDMStructureLocalService(
-		DDMStructureLocalService ddmStructureLocalService) {
-
-		_ddmStructureLocalService = null;
-	}
-
-	protected void unsetJournalArticleService(
-		JournalArticleService journalArticleService) {
-
-		_journalArticleService = null;
-	}
-
-	protected void unsetJournalContent(JournalContent journalContent) {
-		_journalContent = null;
-	}
-
-	protected void unsetJournalContentSearchLocalService(
-		JournalContentSearchLocalService journalContentSearchLocalService) {
-
-		_journalContentSearchLocalService = null;
-	}
-
-	protected void unsetJournalConverter(JournalConverter journalConverter) {
-		_journalConverter = null;
-	}
-
-	protected void unsetJournalFeedService(
-		JournalFeedService journalFeedService) {
-
-		_journalFeedService = null;
-	}
-
-	protected void unsetJournalFolderService(
-		JournalFolderService journalFolderService) {
-
-		_journalFolderService = null;
-	}
-
-	protected void unsetLayoutLocalService(
-		LayoutLocalService layoutLocalService) {
-
-		_layoutLocalService = null;
-	}
-
-	protected void unsetTrashEntryService(TrashEntryService trashEntryService) {
-		_trashEntryService = null;
 	}
 
 	protected void updateContentSearch(
@@ -1464,20 +1442,48 @@ public class JournalPortlet extends MVCPortlet {
 
 	private static final Log _log = LogFactoryUtil.getLog(JournalPortlet.class);
 
+	@Reference
+	private AssetEntryLocalService _assetEntryLocalService;
+
+	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
+
+	@Reference
+	private Http _http;
+
+	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
 	private JournalArticleService _journalArticleService;
+
+	@Reference
 	private JournalContent _journalContent;
+
+	@Reference
 	private JournalContentSearchLocalService _journalContentSearchLocalService;
+
+	@Reference
 	private JournalConverter _journalConverter;
+
+	@Reference
 	private JournalFeedService _journalFeedService;
+
+	@Reference
 	private JournalFolderService _journalFolderService;
+
 	private volatile JournalWebConfiguration _journalWebConfiguration;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private Portal _portal;
 
+	@Reference
 	private TrashEntryService _trashEntryService;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 }

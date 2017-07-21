@@ -19,15 +19,9 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
-import com.liferay.source.formatter.SourceFormatterArgs;
-import com.liferay.source.formatter.SourceFormatterMessage;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,19 +30,10 @@ import java.util.regex.Pattern;
  */
 public class JavaIfStatementCheck extends IfStatementCheck {
 
-	public JavaIfStatementCheck(SourceFormatterArgs sourceFormatterArgs) {
-		_sourceFormatterArgs = sourceFormatterArgs;
-	}
-
 	@Override
-	public Tuple process(String fileName, String absolutePath, String content)
+	protected String doProcess(
+			String fileName, String absolutePath, String content)
 		throws Exception {
-
-		if (hasGeneratedTag(content)) {
-			return new Tuple(content, Collections.emptySet());
-		}
-
-		Set<SourceFormatterMessage> sourceFormatterMessages = new HashSet<>();
 
 		Matcher matcher = _ifStatementPattern.matcher(content);
 
@@ -66,24 +51,20 @@ public class JavaIfStatementCheck extends IfStatementCheck {
 				lineEnding.equals(StringPool.SEMICOLON)) {
 
 				addMessage(
-					sourceFormatterMessages, fileName,
-					"Incorrect " + type + " statement",
+					fileName, "Incorrect " + type + " statement",
 					getLineCount(content, matcher.start()));
 			}
 			else {
 				String newIfClause = _formatIfClause(
-					sourceFormatterMessages, ifClause, fileName,
-					getLineCount(content, matcher.start()));
+					ifClause, fileName, getLineCount(content, matcher.start()));
 
 				if (!ifClause.equals(newIfClause)) {
-					return new Tuple(
-						StringUtil.replace(content, ifClause, newIfClause),
-						sourceFormatterMessages);
+					return StringUtil.replace(content, ifClause, newIfClause);
 				}
 			}
 		}
 
-		return new Tuple(content, sourceFormatterMessages);
+		return content;
 	}
 
 	private String _fixIfClause(String ifClause, String line, int delta) {
@@ -127,29 +108,6 @@ public class JavaIfStatementCheck extends IfStatementCheck {
 			newLine, StringPool.FOUR_SPACES, StringPool.TAB);
 
 		return StringUtil.replace(ifClause, line, newLine);
-	}
-
-	private String _formatIfClause(
-			Set<SourceFormatterMessage> sourceFormatterMessages,
-			String ifClause, String fileName, int lineCount)
-		throws Exception {
-
-		String ifClauseSingleLine = StringUtil.replace(
-			ifClause,
-			new String[] {
-				StringPool.TAB + StringPool.SPACE, StringPool.TAB,
-				StringPool.OPEN_PARENTHESIS + StringPool.NEW_LINE,
-				StringPool.NEW_LINE
-			},
-			new String[] {
-				StringPool.TAB, StringPool.BLANK, StringPool.OPEN_PARENTHESIS,
-				StringPool.SPACE
-			});
-
-		checkIfClauseParentheses(
-			sourceFormatterMessages, ifClauseSingleLine, fileName, lineCount);
-
-		return _formatIfClause(ifClause);
 	}
 
 	private String _formatIfClause(String ifClause) throws Exception {
@@ -211,7 +169,7 @@ public class JavaIfStatementCheck extends IfStatementCheck {
 
 					if ((linePartLevel <= 0) &&
 						((previousLineLength + linePart.length()) <
-							_sourceFormatterArgs.getMaxLineLength())) {
+							getMaxLineLength())) {
 
 						if (linePart.equals(trimmedLine)) {
 							return StringUtil.replace(
@@ -324,6 +282,27 @@ public class JavaIfStatementCheck extends IfStatementCheck {
 		return ifClause;
 	}
 
+	private String _formatIfClause(
+			String ifClause, String fileName, int lineCount)
+		throws Exception {
+
+		String ifClauseSingleLine = StringUtil.replace(
+			ifClause,
+			new String[] {
+				StringPool.TAB + StringPool.SPACE, StringPool.TAB,
+				StringPool.OPEN_PARENTHESIS + StringPool.NEW_LINE,
+				StringPool.NEW_LINE
+			},
+			new String[] {
+				StringPool.TAB, StringPool.BLANK, StringPool.OPEN_PARENTHESIS,
+				StringPool.SPACE
+			});
+
+		checkIfClauseParentheses(ifClauseSingleLine, fileName, lineCount);
+
+		return _formatIfClause(ifClause);
+	}
+
 	private int _getIncorrectLineBreakPos(String line, String previousLine) {
 		for (int x = line.length();;) {
 			int y = line.lastIndexOf(" || ", x - 1);
@@ -360,6 +339,5 @@ public class JavaIfStatementCheck extends IfStatementCheck {
 		".*?( [|&^]+( |\\Z)|\\) \\{\\Z)");
 	private final Pattern _ifStatementPattern = Pattern.compile(
 		"\t+(catch|(else )?if|while) \\(.*?(\\) \\{|;)\n", Pattern.DOTALL);
-	private final SourceFormatterArgs _sourceFormatterArgs;
 
 }

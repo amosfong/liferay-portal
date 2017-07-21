@@ -83,7 +83,9 @@ AUI.add(
 									delete fieldContext.valid;
 								}
 
-								field.setValue(fieldContext.value);
+								if (!Util.compare(field.get('value'), fieldContext.value)) {
+									field.setValue(fieldContext.value);
+								}
 							}
 
 							if (fieldContext.valid) {
@@ -91,6 +93,19 @@ AUI.add(
 							}
 
 							fieldContext = field.processEvaluationContext(fieldContext, result);
+
+							fieldContext = A.merge(
+								field.get('context'),
+								{
+									errorMessage: fieldContext.errorMessage,
+									options: fieldContext.options,
+									readOnly: fieldContext.readOnly,
+									required: fieldContext.required,
+									valid: fieldContext.valid,
+									value: fieldContext.value,
+									visible: fieldContext.visible
+								}
+							);
 
 							field.set('context', fieldContext);
 						}

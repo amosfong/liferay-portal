@@ -348,8 +348,7 @@ public class DDMStructureLocalServiceUtil {
 	*/
 	public static com.liferay.dynamic.data.mapping.model.DDMStructure fetchStructure(
 		long groupId, long classNameId, java.lang.String structureKey,
-		boolean includeAncestorStructures)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		boolean includeAncestorStructures) {
 		return getService()
 				   .fetchStructure(groupId, classNameId, structureKey,
 			includeAncestorStructures);
@@ -1072,8 +1071,8 @@ public class DDMStructureLocalServiceUtil {
 	}
 
 	/**
-	* Returns an ordered range of all the structures matching the group,
-	* class name ID, name, and description.
+	* Returns an ordered range of all the structures matching the group, class
+	* name ID, name, and description.
 	*
 	* <p>
 	* Useful when paginating results. Returns a maximum of <code>end -

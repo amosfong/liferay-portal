@@ -14,10 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.data.provider.internal;
 
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
+import com.liferay.dynamic.data.mapping.data.provider.internal.rest.DDMRESTDataProviderSettings;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
@@ -37,6 +34,7 @@ import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
 
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -117,8 +115,28 @@ public class DDMRESTDataProviderSettingsTest {
 			ddmFormField.getNestedDDMFormFieldsMap();
 
 		Assert.assertEquals(
-			nestedDDMFormFieldsMap.toString(), 3,
+			nestedDDMFormFieldsMap.toString(), 4,
 			nestedDDMFormFieldsMap.size());
+
+		// Label
+
+		DDMFormField inputParameterLabelDDMFormField =
+			nestedDDMFormFieldsMap.get("inputParameterLabel");
+
+		Assert.assertNotNull(inputParameterLabelDDMFormField);
+
+		Assert.assertEquals("text", inputParameterLabelDDMFormField.getType());
+		Assert.assertEquals(
+			"string", inputParameterLabelDDMFormField.getDataType());
+
+		Map<String, Object> inputParameterLabelDDMFormFieldProperties =
+			inputParameterLabelDDMFormField.getProperties();
+
+		Assert.assertTrue(
+			inputParameterLabelDDMFormFieldProperties.containsKey(
+				"placeholder"));
+
+		// Name
 
 		DDMFormField inputParameterNameDDMFormField =
 			nestedDDMFormFieldsMap.get("inputParameterName");
@@ -135,6 +153,8 @@ public class DDMRESTDataProviderSettingsTest {
 		Assert.assertTrue(
 			inputParameterNameDDMFormFieldProperties.containsKey(
 				"placeholder"));
+
+		// Type
 
 		DDMFormField inputParameterTypeDDMFormField =
 			nestedDDMFormFieldsMap.get("inputParameterType");
@@ -156,6 +176,8 @@ public class DDMRESTDataProviderSettingsTest {
 		Assert.assertTrue(optionValues.contains("text"));
 		Assert.assertTrue(optionValues.contains("number"));
 
+		// Required
+
 		DDMFormField inputParameterRequiredDDMFormField =
 			nestedDDMFormFieldsMap.get("inputParameterRequired");
 
@@ -165,17 +187,6 @@ public class DDMRESTDataProviderSettingsTest {
 			"checkbox", inputParameterRequiredDDMFormField.getType());
 		Assert.assertEquals(
 			"boolean", inputParameterRequiredDDMFormField.getDataType());
-	}
-
-	protected void assertKey(DDMFormField ddmFormField) {
-		Assert.assertNotNull(ddmFormField);
-
-		Assert.assertTrue(ddmFormField.isRequired());
-
-		Map<String, Object> properties = ddmFormField.getProperties();
-
-		Assert.assertTrue(properties.containsKey("placeholder"));
-		Assert.assertTrue(properties.containsKey("tooltip"));
 	}
 
 	protected void assertOutputParameters(DDMFormField ddmFormField) {
@@ -190,6 +201,8 @@ public class DDMRESTDataProviderSettingsTest {
 		Assert.assertEquals(
 			nestedDDMFormFieldsMap.toString(), 3,
 			nestedDDMFormFieldsMap.size());
+
+		// Name
 
 		DDMFormField outputParameterNameDDMFormField =
 			nestedDDMFormFieldsMap.get("outputParameterName");
@@ -207,6 +220,8 @@ public class DDMRESTDataProviderSettingsTest {
 			outputParameterNameDDMFormFieldProperties.containsKey(
 				"placeholder"));
 
+		// Path
+
 		DDMFormField outputParameterPathDDMFormField =
 			nestedDDMFormFieldsMap.get("outputParameterPath");
 
@@ -222,6 +237,8 @@ public class DDMRESTDataProviderSettingsTest {
 		Assert.assertTrue(
 			outputParameterPathDDMFormFieldProperties.containsKey(
 				"placeholder"));
+
+		// Type
 
 		DDMFormField outputParameterTypeDDMFormField =
 			nestedDDMFormFieldsMap.get("outputParameterType");
@@ -270,7 +287,7 @@ public class DDMRESTDataProviderSettingsTest {
 		Assert.assertTrue(properties.containsKey("placeholder"));
 		Assert.assertTrue(properties.containsKey("tooltip"));
 
-		Assert.assertEquals("text", ddmFormField.getType());
+		Assert.assertEquals("password", ddmFormField.getType());
 	}
 
 	protected void assertStartPaginationParameterName(
@@ -327,15 +344,15 @@ public class DDMRESTDataProviderSettingsTest {
 	protected void setUpLanguageUtil() {
 		LanguageUtil languageUtil = new LanguageUtil();
 
-		Language language = mock(Language.class);
+		Language language = PowerMockito.mock(Language.class);
 
 		languageUtil.setLanguage(language);
 	}
 
 	protected void setUpResourceBundleUtil() {
-		mockStatic(ResourceBundleUtil.class);
+		PowerMockito.mockStatic(ResourceBundleUtil.class);
 
-		when(
+		PowerMockito.when(
 			ResourceBundleUtil.getBundle(
 				Matchers.anyString(), Matchers.any(Locale.class),
 				Matchers.any(ClassLoader.class))

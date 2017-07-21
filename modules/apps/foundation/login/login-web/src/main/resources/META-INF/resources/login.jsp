@@ -42,7 +42,12 @@
 
 		String redirect = ParamUtil.getString(request, "redirect");
 
-		String login = LoginUtil.getLogin(request, "login", company);
+		String login = (String)SessionErrors.get(renderRequest, "login");
+
+		if (Validator.isNull(login)) {
+			login = LoginUtil.getLogin(request, "login", company);
+		}
+
 		String password = StringPool.BLANK;
 		boolean rememberMe = ParamUtil.getBoolean(request, "rememberMe");
 
@@ -63,9 +68,10 @@
 
 				<div class="inline-alert-container lfr-alert-container"></div>
 
+				<liferay-util:dynamic-include key="com.liferay.login.web#/login.jsp#alertPre" />
+
 				<c:choose>
 					<c:when test='<%= SessionMessages.contains(request, "passwordSent") %>'>
-
 						<div class="alert alert-success">
 							<liferay-ui:message key="your-password-was-sent-to-the-provided-email-address" />
 						</div>
@@ -83,16 +89,16 @@
 									<liferay-ui:message key="thank-you-for-creating-an-account" />
 
 									<c:if test="<%= company.isStrangersVerify() %>">
-										<liferay-ui:message arguments="<%= userEmailAddress %>" key="your-email-verification-code-was-sent-to-x" translateArguments="<%= false %>" />
+										<liferay-ui:message arguments="<%= HtmlUtil.escape(userEmailAddress) %>" key="your-email-verification-code-was-sent-to-x" translateArguments="<%= false %>" />
 									</c:if>
 								</c:when>
 								<c:otherwise>
-									<liferay-ui:message arguments="<%= userPassword %>" key="thank-you-for-creating-an-account.-your-password-is-x" translateArguments="<%= false %>" />
+									<liferay-ui:message arguments="<%= HtmlUtil.escape(userPassword) %>" key="thank-you-for-creating-an-account.-your-password-is-x" translateArguments="<%= false %>" />
 								</c:otherwise>
 							</c:choose>
 
 							<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.ADMIN_EMAIL_USER_ADDED_ENABLED) %>">
-								<liferay-ui:message arguments="<%= userEmailAddress %>" key="your-password-was-sent-to-x" translateArguments="<%= false %>" />
+								<liferay-ui:message arguments="<%= HtmlUtil.escape(userEmailAddress) %>" key="your-password-was-sent-to-x" translateArguments="<%= false %>" />
 							</c:if>
 						</div>
 					</c:when>
@@ -103,7 +109,7 @@
 						%>
 
 						<div class="alert alert-success">
-							<liferay-ui:message arguments="<%= userEmailAddress %>" key="thank-you-for-creating-an-account.-you-will-be-notified-via-email-at-x-when-your-account-has-been-approved" translateArguments="<%= false %>" />
+							<liferay-ui:message arguments="<%= HtmlUtil.escape(userEmailAddress) %>" key="thank-you-for-creating-an-account.-you-will-be-notified-via-email-at-x-when-your-account-has-been-approved" translateArguments="<%= false %>" />
 						</div>
 					</c:when>
 				</c:choose>
@@ -127,6 +133,8 @@
 
 				<liferay-ui:error exception="<%= UserPasswordException.class %>" message="authentication-failed" />
 				<liferay-ui:error exception="<%= UserScreenNameException.MustNotBeNull.class %>" message="the-screen-name-cannot-be-blank" />
+
+				<liferay-util:dynamic-include key="com.liferay.login.web#/login.jsp#alertPost" />
 
 				<aui:fieldset>
 

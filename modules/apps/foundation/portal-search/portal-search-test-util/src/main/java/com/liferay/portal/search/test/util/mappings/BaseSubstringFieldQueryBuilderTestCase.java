@@ -15,6 +15,7 @@
 package com.liferay.portal.search.test.util.mappings;
 
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.analysis.FieldQueryBuilder;
 import com.liferay.portal.search.internal.analysis.SimpleKeywordTokenizer;
@@ -74,7 +75,6 @@ public abstract class BaseSubstringFieldQueryBuilderTestCase
 		assertSearch("\"tag1\"", 1);
 
 		assertSearchNoHits("name-tag");
-		assertSearchNoHits("tag(142857)");
 		assertSearchNoHits("tag2");
 
 		assertSearchNoHits("\"NA G\"");
@@ -82,6 +82,39 @@ public abstract class BaseSubstringFieldQueryBuilderTestCase
 		assertSearchNoHits("\"Name Tag\"");
 		assertSearchNoHits("\"Tag (Name)\"");
 		assertSearchNoHits("\"tag 1\"");
+	}
+
+	protected void testLuceneUnfriendlyTerms() throws Exception {
+		assertSearchNoHits(StringPool.STAR);
+
+		assertSearchNoHits(StringPool.AMPERSAND);
+		assertSearchNoHits(StringPool.CARET);
+		assertSearchNoHits(StringPool.COLON);
+		assertSearchNoHits(StringPool.DASH);
+		assertSearchNoHits(StringPool.EXCLAMATION);
+
+		assertSearchNoHits(StringPool.CLOSE_PARENTHESIS);
+		assertSearchNoHits(StringPool.OPEN_PARENTHESIS);
+
+		assertSearchNoHits(StringPool.CLOSE_BRACKET);
+		assertSearchNoHits(StringPool.OPEN_BRACKET);
+
+		assertSearchNoHits(StringPool.CLOSE_CURLY_BRACE);
+		assertSearchNoHits(StringPool.OPEN_CURLY_BRACE);
+
+		assertSearchNoHits(StringPool.BACK_SLASH);
+
+		assertSearchNoHits(
+			StringPool.STAR + StringPool.SPACE + StringPool.AMPERSAND +
+				StringPool.DASH + StringPool.SPACE + StringPool.EXCLAMATION);
+
+		assertSearchNoHits("AND");
+		assertSearchNoHits("NOT");
+		assertSearchNoHits("OR");
+
+		assertSearchNoHits("ONE AND TWO OR THREE NOT FOUR");
+
+		assertSearchNoHits("\"ONE\" NOT \"TWO\"");
 	}
 
 	protected void testMultiwordPhrasePrefixes() throws Exception {
@@ -165,6 +198,32 @@ public abstract class BaseSubstringFieldQueryBuilderTestCase
 		assertSearchNoHits("Tagname9");
 	}
 
+	protected void testParentheses() throws Exception {
+		addDocument("401 k");
+		addDocument("401(k)");
+
+		assertSearch("(", 1);
+		assertSearch("(k", 1);
+		assertSearch("(k)", 1);
+		assertSearch(")", 1);
+
+		assertSearch("1", 2);
+		assertSearch("1(", 1);
+		assertSearch("1(k", 1);
+		assertSearch("1(k)", 1);
+		assertSearch("4", 2);
+		assertSearch("401 k", 2);
+		assertSearch("401", 2);
+		assertSearch("401(k)", 1);
+		assertSearch("k", 2);
+		assertSearch("k)", 1);
+
+		assertSearchNoHits("()");
+
+		assertSearchNoHits("1k");
+		assertSearchNoHits("401k");
+	}
+
 	protected void testPhrases() throws Exception {
 		addDocument("Names of Tags");
 		addDocument("More names of tags here");
@@ -200,6 +259,11 @@ public abstract class BaseSubstringFieldQueryBuilderTestCase
 		addDocument("Tag Name");
 		addDocument("TAG1");
 
+		assertSearch("*", 4);
+		assertSearch("**", 4);
+		assertSearch("***", 4);
+		assertSearch("****", 4);
+
 		assertSearch("me", 3);
 		assertSearch("me*", 3);
 		assertSearch("met", 2);
@@ -220,6 +284,55 @@ public abstract class BaseSubstringFieldQueryBuilderTestCase
 		assertSearch("*namet*", 1);
 		assertSearch("*Ta", 4);
 		assertSearch("*Ta*", 4);
+	}
+
+	protected void testWildcardCharacters() throws Exception {
+		addDocument("AAA+BBB-CCC{DDD]");
+		addDocument("AAA BBB CCC DDD");
+		addDocument("M*A*S*H");
+		addDocument("M... A... S... H");
+		addDocument("Who? When? Where?");
+		addDocument("Who. When. Where.");
+
+		assertSearch("AAA+???-CCC?DDD]", Arrays.asList("aaa+bbb-ccc{ddd]"));
+		assertSearch("AAA+*{DDD*", Arrays.asList("aaa+bbb-ccc{ddd]"));
+		assertSearch("AA?+BB?-CC?{DD?]", Arrays.asList("aaa+bbb-ccc{ddd]"));
+		assertSearch("AA*+BB*-CC*{DD*]", Arrays.asList("aaa+bbb-ccc{ddd]"));
+
+		assertSearch("M*A*S*H", Arrays.asList("m*a*s*h", "m... a... s... h"));
+		assertSearch(
+			"M A S H",
+			Arrays.asList(
+				"m*a*s*h", "m... a... s... h", "aaa+bbb-ccc{ddd]",
+				"aaa bbb ccc ddd", "who? when? where?", "who. when. where."));
+		assertSearch(
+			"M* A* *S *H",
+			Arrays.asList(
+				"m*a*s*h", "m... a... s... h", "aaa+bbb-ccc{ddd]",
+				"aaa bbb ccc ddd", "who? when? where?", "who. when. where."));
+
+		assertSearch(
+			"When?", Arrays.asList("who? when? where?", "who. when. where."));
+		assertSearch(
+			"Who? When?",
+			Arrays.asList("who? when? where?", "who. when. where."));
+		assertSearch(
+			"Who? *en? Where?",
+			Arrays.asList("who? when? where?", "who. when. where."));
+		assertSearch(
+			"Who? * Where?",
+			Arrays.asList(
+				"who? when? where?", "who. when. where.", "aaa+bbb-ccc{ddd]",
+				"aaa bbb ccc ddd", "m*a*s*h", "m... a... s... h"));
+		assertSearch(
+			"Who?   When?   Where?",
+			Arrays.asList("who? when? where?", "who. when. where."));
+		assertSearch(
+			"Wh?? W?en? Wher??",
+			Arrays.asList("who? when? where?", "who. when. where."));
+		assertSearch(
+			"Wh* W*en* Wher*",
+			Arrays.asList("who? when? where?", "who. when. where."));
 	}
 
 	protected String[] toLowerCase(String[] values) {

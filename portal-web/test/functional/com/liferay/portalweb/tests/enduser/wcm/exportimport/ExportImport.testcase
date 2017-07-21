@@ -151,7 +151,7 @@
 			<var name="larFileName" value="Edited Export Template Name" />
 		</execute>
 
-		<var group="1" input="Edited Export Template Name" name="larFile" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('Edited Export Template Name', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFile" />
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="SitePagesExport#CURRENT_AND_PREVIOUS_STATUS" value1="Successful" />
 
@@ -357,7 +357,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="file name ${larFileName}" />
 
@@ -388,6 +388,9 @@
 	</command>
 
 	<command name="ExportImportPrivatePage" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Private Page" />
 			<var name="sitePagePrivacy" value="Private" />
@@ -410,7 +413,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9k)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9k)]*', '1')" name="larFileName" />
 
 		<echo message="lar file name ${larFileName}" />
 
@@ -437,7 +440,7 @@
 	</command>
 
 	<command name="ExportImportSampleLARPortlet" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 		<property name="portlet.plugins.includes" value="sample-lar-portlet" />
 
 		<execute macro="Page#add">
@@ -509,6 +512,9 @@
 	</command>
 
 	<command name="ExportImportSmoke" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="User#firstLoginPG" />
 
 		<execute macro="LAR#configureExportSiteCP" />
@@ -523,7 +529,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="lar file name ${larFileName}" />
 
@@ -580,7 +586,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="file name ${larFileName}" />
 
@@ -610,7 +616,11 @@
 		</execute>
 	</command>
 
-	<command name="ExportImportValidation" priority="4">
+	<command name="ExportImportValidation" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="ExportImport#ExportImportValidation" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -671,7 +681,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="file name ${larFileName}" />
 
@@ -731,7 +741,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}" name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="file name ${larFileName}" />
 
@@ -822,7 +832,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="1" input="${valueName}"  name="larFileName" pattern="([a-zA-z0-9_.-]*)[(0-9KB)]*" />
+		<var method="RegexUtil#replace('${valueName}', '([a-zA-z0-9_.-]*)[(0-9KB)]*', '1')" name="larFileName" />
 
 		<echo message="lar file name ${larFileName}" />
 

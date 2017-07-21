@@ -1,8 +1,9 @@
 Bundle-Name: Liferay My Account Web
 Bundle-SymbolicName: com.liferay.my.account.web
-Bundle-Version: 1.0.6
+Bundle-Version: 1.0.11
 Import-Package:\
 	javax.net.ssl,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title:

@@ -1,17 +1,19 @@
+apply plugin: "com.liferay.lang.merger"
+
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
-
-apply plugin: "com.liferay.lang.merger"
 
 dependencies {
 	provided group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.1.0"
 	provided group: "com.liferay", name: "com.liferay.application.list.api", version: "2.0.0"
-	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.api", version: "3.6.0-20170308.203023-12"
-	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.data.provider", version: "2.1.0-20170105.185245-2"
+	provided group: "com.liferay", name: "com.liferay.captcha.api", version: "1.1.0"
+	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.api", version: "3.6.0-20170620.133954-23"
+	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.data.provider", version: "2.1.0-20170408.062712-10"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.data.provider.web", version: "1.0.0"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.expression", version: "2.1.0-20170310.013734-10"
+	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.evaluator", version: "2.1.0-20170203.003009-3"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.field.type", version: "2.0.0"
-	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.renderer", version: "2.2.0-20161227.165132-2"
+	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.renderer", version: "2.2.0-20170418.232433-27"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.values.factory", version: "2.0.8-20170125.002431-2"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.form.values.query", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.io", version: "2.0.13-20170308.203117-3"
@@ -23,7 +25,7 @@ dependencies {
 	provided group: "com.liferay", name: "com.liferay.portal.configuration.metatype", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.registry.api", version: "1.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "2.0.0"
-	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.7.0"
+	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
 	provided group: "com.liferay.portal", name: "com.liferay.util.java", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.util.taglib", version: "2.0.0"
 	provided group: "commons-lang", name: "commons-lang", version: "2.6"
@@ -36,6 +38,7 @@ dependencies {
 	provided project(":apps:forms-and-workflow:dynamic-data-lists:dynamic-data-lists-api")
 	provided project(":apps:forms-and-workflow:dynamic-data-lists:dynamic-data-lists-service")
 
+	testCompile group: "com.liferay", name: "com.liferay.dynamic.data.mapping.test.util", version: "2.1.2-20161129.044808-1"
 	testCompile group: "org.jabsorb", name: "jabsorb", version: "1.3.1"
 	testCompile group: "org.jodd", name: "jodd-bean", version: "3.6.4"
 	testCompile group: "org.jodd", name: "jodd-core", version: "3.6.4"

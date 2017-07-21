@@ -17,7 +17,7 @@ package com.liferay.layout.set.internal.exportimport.data.handler;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
-import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistryUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -69,6 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -154,9 +156,13 @@ public class StagedLayoutSetStagedModelDataHandler
 			portletDataContext.getGroupId(),
 			portletDataContext.isPrivateLayout());
 
-		List<String> sourceLayoutUuids = layoutElements.stream().map(
-			(layoutElement) -> layoutElement.attributeValue("uuid")).collect(
-				Collectors.toList());
+		Stream<Element> layoutElementsStream = layoutElements.stream();
+
+		List<String> sourceLayoutUuids = layoutElementsStream.map(
+			(layoutElement) -> layoutElement.attributeValue("uuid")
+		).collect(
+			Collectors.toList()
+		);
 
 		if (_log.isDebugEnabled() && !sourceLayoutUuids.isEmpty()) {
 			_log.debug("Delete missing layouts");
@@ -203,6 +209,10 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		settingsProperties.remove("last-publish-date");
 
+		// Page versioning
+
+		stagedLayoutSet = unwrapLayoutSetStagingHandler(stagedLayoutSet);
+
 		portletDataContext.addClassedModel(
 			stagedLayoutSetElement,
 			ExportImportPathUtil.getModelPath(stagedLayoutSet),
@@ -217,7 +227,8 @@ public class StagedLayoutSetStagedModelDataHandler
 		if (ExportImportThreadLocal.isStagingInProcess() &&
 			updateLastPublishDate) {
 
-			ExportImportProcessCallbackRegistryUtil.registerCallback(
+			_exportImportProcessCallbackRegistry.registerCallback(
+				portletDataContext.getExportImportProcessId(),
 				new UpdateLayoutSetLastPublishDateCallable(
 					portletDataContext.getDateRange(),
 					portletDataContext.getGroupId(),
@@ -333,7 +344,7 @@ public class StagedLayoutSetStagedModelDataHandler
 				if (!LayoutStagingUtil.prepareLayoutStagingHandler(
 						portletDataContext, layout)) {
 
-					return;
+					continue;
 				}
 
 				StagedModelDataHandlerUtil.exportReferenceStagedModel(
@@ -512,6 +523,19 @@ public class StagedLayoutSetStagedModelDataHandler
 		}
 	}
 
+	protected StagedLayoutSet unwrapLayoutSetStagingHandler(
+		StagedLayoutSet stagedLayoutSet) {
+
+		LayoutSet layoutSet = ModelAdapterUtil.adapt(
+			stagedLayoutSet, StagedLayoutSet.class, LayoutSet.class);
+
+		layoutSet = LayoutStagingUtil.mergeLayoutSetRevisionIntoLayoutSet(
+			layoutSet);
+
+		return ModelAdapterUtil.adapt(
+			layoutSet, LayoutSet.class, StagedLayoutSet.class);
+	}
+
 	protected void updateLastMergeTime(
 			PortletDataContext portletDataContext, Set<Layout> modifiedLayouts)
 		throws PortalException {
@@ -639,6 +663,10 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagedLayoutSetStagedModelDataHandler.class);
+
+	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

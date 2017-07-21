@@ -27,6 +27,7 @@
 
 	<command name="AddOrganizationRole" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Roles" />
@@ -50,9 +51,7 @@
 		</execute>
 	</command>
 
-	<command name="AddRegularRole" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="AddRegularRole" priority="4">
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Roles" />
 		</execute>

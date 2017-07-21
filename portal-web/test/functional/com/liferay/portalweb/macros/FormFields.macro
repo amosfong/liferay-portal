@@ -20,6 +20,12 @@
 		<execute function="Uncheck" locator1="FormFields#CHECKBOX" />
 	</command>
 
+	<command name="duplicateField">
+		<execute function="Click" locator1="Form#SIDEBAR_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="Form#SIDEBAR_MENUITEM_DUPLICATE_FIELD" value1="Duplicate Field" />
+	</command>
+
 	<command name="editBlankMultiTextFieldWithEnterKey">
 		<var name="key_fieldName" value="${fieldName}" />
 
@@ -31,7 +37,6 @@
 	</command>
 
 	<command name="editDate">
-		<var name="key_fieldLabel" value="${fieldLabel}" />
 		<var name="key_fieldName" value="${fieldName}" />
 
 		<execute function="Type" locator1="FormFields#DATE_FIELD" value1="${fieldValue}" />
@@ -70,6 +75,12 @@
 		<execute function="Type" locator1="FormFields#PARAGRAPH_BODY_TEXT_FIELD" value1="${fieldValue}" />
 	</command>
 
+	<command name="editPassword">
+		<var name="key_fieldName" value="${fieldName}" />
+
+		<execute function="Type" locator1="FormFields#PASSWORD_FIELD" value1="${fieldValue}" />
+	</command>
+
 	<command name="editRepeatableTextMultiline">
 		<var name="key_fieldName" value="${fieldName}" />
 		<var name="key_repeatableFieldNumber" value="${repeatableFieldNumber}" />
@@ -105,9 +116,15 @@
 		<execute function="Type" locator1="FormFields#TEXT_MULTILINE_FIELD" value1="${fieldValue}" />
 	</command>
 
-	<command name="editValidation">
-		<execute function="Select" locator1="FormFields#VALIDATION_TYPE" value1="${validationType}" />
+	<command name="editTextWithBackspace">
+		<var name="key_fieldName" value="${fieldName}" />
 
+		<execute function="DoubleClick" locator1="FormFields#TEXT_FIELD" />
+
+		<execute function="KeyPress" locator1="FormFields#TEXT_FIELD" value1="\BACK_SPACE" />
+	</command>
+
+	<command name="editValidation">
 		<execute function="Select" locator1="FormFields#VALIDATION_ARGUMENT" value1="${validationArgument}" />
 
 		<execute function="Type" locator1="FormFields#VALIDATION_INPUT" value1="${validationInput}" />

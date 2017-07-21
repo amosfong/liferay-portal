@@ -16,14 +16,14 @@ package com.liferay.comment.page.comments.web.internal.exportimport.data.handler
 
 import com.liferay.comment.page.comments.web.internal.constants.PageCommentsPortletKeys;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
-import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistryUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportProcessCallbackRegistry;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
-import com.liferay.portal.kernel.comment.CommentManagerUtil;
+import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.comment.DiscussionStagingHandler;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -38,6 +38,7 @@ import javax.portlet.PortletPreferences;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Gergely Mathe
@@ -56,7 +57,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 	@Override
 	public StagedModelType[] getDeletionSystemEventStagedModelTypes() {
 		DiscussionStagingHandler discussionStagingHandler =
-			CommentManagerUtil.getDiscussionStagingHandler();
+			_commentManager.getDiscussionStagingHandler();
 
 		if (discussionStagingHandler == null) {
 			return new StagedModelType[0];
@@ -74,7 +75,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 	@Override
 	public PortletDataHandlerControl[] getExportControls() {
 		DiscussionStagingHandler discussionStagingHandler =
-			CommentManagerUtil.getDiscussionStagingHandler();
+			_commentManager.getDiscussionStagingHandler();
 
 		if (discussionStagingHandler == null) {
 			return new PortletDataHandlerControl[0];
@@ -117,7 +118,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 			return portletPreferences;
 		}
 
-		CommentManagerUtil.deleteGroupComments(
+		_commentManager.deleteGroupComments(
 			portletDataContext.getScopeGroupId());
 
 		return portletPreferences;
@@ -130,7 +131,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		DiscussionStagingHandler discussionStagingHandler =
-			CommentManagerUtil.getDiscussionStagingHandler();
+			_commentManager.getDiscussionStagingHandler();
 
 		if (discussionStagingHandler == null) {
 			return StringPool.BLANK;
@@ -160,8 +161,8 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences, String data)
 		throws Exception {
 
-		ExportImportProcessCallbackRegistryUtil.registerCallback(
-			new ImportCommentsCallable(portletDataContext));
+		_exportImportProcessCallbackRegistry.registerCallback(
+			new ImportCommentsCallable(_commentManager, portletDataContext));
 
 		return null;
 	}
@@ -173,7 +174,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		DiscussionStagingHandler discussionStagingHandler =
-			CommentManagerUtil.getDiscussionStagingHandler();
+			_commentManager.getDiscussionStagingHandler();
 
 		if (discussionStagingHandler == null) {
 			return;
@@ -186,16 +187,27 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 		actionableDynamicQuery.performCount();
 	}
 
+	@Reference
+	private CommentManager _commentManager;
+
+	@Reference
+	private ExportImportProcessCallbackRegistry
+		_exportImportProcessCallbackRegistry;
+
 	private static class ImportCommentsCallable implements Callable<Void> {
 
-		public ImportCommentsCallable(PortletDataContext portletDataContext) {
+		public ImportCommentsCallable(
+			CommentManager commentManager,
+			PortletDataContext portletDataContext) {
+
+			_commentManager = commentManager;
 			_portletDataContext = portletDataContext;
 		}
 
 		@Override
 		public Void call() throws PortalException {
 			DiscussionStagingHandler discussionStagingHandler =
-				CommentManagerUtil.getDiscussionStagingHandler();
+				_commentManager.getDiscussionStagingHandler();
 
 			if (discussionStagingHandler == null) {
 				return null;
@@ -224,6 +236,7 @@ public class PageCommentsPortletDataHandler extends BasePortletDataHandler {
 			return null;
 		}
 
+		private final CommentManager _commentManager;
 		private final PortletDataContext _portletDataContext;
 
 	}

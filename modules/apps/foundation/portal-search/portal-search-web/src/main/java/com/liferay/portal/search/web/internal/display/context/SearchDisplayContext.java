@@ -17,13 +17,17 @@ package com.liferay.portal.search.web.internal.display.context;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchContextFactory;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcherManager;
+import com.liferay.portal.kernel.search.generic.BooleanClauseImpl;
+import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Html;
@@ -64,7 +68,7 @@ public class SearchDisplayContext {
 			FacetedSearcherManager facetedSearcherManager,
 			IndexSearchPropsValues indexSearchPropsValues,
 			PortletURLFactory portletURLFactory)
-		throws Exception {
+		throws PortletException {
 
 		_renderRequest = renderRequest;
 		_portletPreferences = portletPreferences;
@@ -86,11 +90,15 @@ public class SearchDisplayContext {
 
 		if (keywords == null) {
 			_hits = null;
+			_keywords = null;
+			_queryString = null;
 			_searchContainer = null;
 			_searchContext = null;
 
 			return;
 		}
+
+		_keywords = new Keywords(keywords);
 
 		HttpServletRequest request = portal.getHttpServletRequest(
 			_renderRequest);
@@ -104,6 +112,18 @@ public class SearchDisplayContext {
 
 		SearchContext searchContext = SearchContextFactory.getInstance(request);
 
+		boolean luceneSyntax = isUseAdvancedSearchSyntax();
+
+		if (!luceneSyntax) {
+			luceneSyntax = _keywords.isLuceneSyntax();
+		}
+
+		if (luceneSyntax) {
+			searchContext.setAttribute("luceneSyntax", Boolean.TRUE);
+		}
+
+		searchContext.setKeywords(_keywords.getKeywords());
+
 		SearchRequestImpl searchRequestImpl = new SearchRequestImpl(
 			() -> searchContext, searchContainerOptions -> searchContainer,
 			facetedSearcherManager);
@@ -114,6 +134,7 @@ public class SearchDisplayContext {
 		SearchResponseImpl searchResponseImpl = searchRequestImpl.search();
 
 		_hits = searchResponseImpl.getHits();
+		_queryString = searchResponseImpl.getQueryString();
 		_searchContainer = searchResponseImpl.getSearchContainer();
 		_searchContext = searchResponseImpl.getSearchContext();
 	}
@@ -187,6 +208,8 @@ public class SearchDisplayContext {
 			isCollatedSpellCheckResultEnabled());
 		_queryConfig.setCollatedSpellCheckResultScoresThreshold(
 			getCollatedSpellCheckResultDisplayThreshold());
+		_queryConfig.setHighlightEnabled(
+			_searchResultPreferences.isHighlightEnabled());
 		_queryConfig.setQueryIndexingEnabled(isQueryIndexingEnabled());
 		_queryConfig.setQueryIndexingThreshold(getQueryIndexingThreshold());
 		_queryConfig.setQuerySuggestionEnabled(isQuerySuggestionsEnabled());
@@ -212,6 +235,10 @@ public class SearchDisplayContext {
 		}
 
 		return _queryIndexingThreshold;
+	}
+
+	public String getQueryString() {
+		return _queryString;
 	}
 
 	public int getQuerySuggestionsDisplayThreshold() {
@@ -436,6 +463,17 @@ public class SearchDisplayContext {
 		return false;
 	}
 
+	public boolean isUseAdvancedSearchSyntax() {
+		if (_useAdvancedSearchSyntax != null) {
+			return _useAdvancedSearchSyntax;
+		}
+
+		_useAdvancedSearchSyntax = GetterUtil.getBoolean(
+			_portletPreferences.getValue("useAdvancedSearchSyntax", null));
+
+		return _useAdvancedSearchSyntax;
+	}
+
 	public boolean isViewInContext() {
 		return _searchResultPreferences.isViewInContext();
 	}
@@ -458,7 +496,7 @@ public class SearchDisplayContext {
 	}
 
 	protected void contributeSearchSettings(SearchSettings searchSettings) {
-		searchSettings.setKeywords(getKeywords());
+		searchSettings.setKeywords(_keywords.getKeywords());
 
 		QueryConfig queryConfig = searchSettings.getQueryConfig();
 
@@ -466,6 +504,7 @@ public class SearchDisplayContext {
 			isCollatedSpellCheckResultEnabled());
 		queryConfig.setCollatedSpellCheckResultScoresThreshold(
 			getCollatedSpellCheckResultDisplayThreshold());
+		queryConfig.setHighlightEnabled(isHighlightEnabled());
 		queryConfig.setQueryIndexingEnabled(isQueryIndexingEnabled());
 		queryConfig.setQueryIndexingThreshold(getQueryIndexingThreshold());
 		queryConfig.setQuerySuggestionEnabled(isQuerySuggestionsEnabled());
@@ -474,6 +513,8 @@ public class SearchDisplayContext {
 		queryConfig.setQuerySuggestionsMax(getQuerySuggestionsMax());
 
 		addEnabledSearchFacets(searchSettings);
+
+		filterByThisSite(searchSettings);
 	}
 
 	protected Optional<Facet> createFacet(
@@ -491,6 +532,19 @@ public class SearchDisplayContext {
 		}
 
 		return Optional.ofNullable(searchFacet.getFacet());
+	}
+
+	protected void filterByThisSite(SearchSettings searchSettings) {
+		Optional<Long> groupIdOptional = getThisSiteGroupId();
+
+		groupIdOptional.ifPresent(
+			groupId -> {
+				searchSettings.addCondition(
+					new BooleanClauseImpl(
+						new TermQueryImpl(
+							Field.GROUP_ID, String.valueOf(groupId)),
+						BooleanClauseOccur.MUST));
+			});
 	}
 
 	protected SearchScope getSearchScope() {
@@ -524,6 +578,16 @@ public class SearchDisplayContext {
 		return _themeDisplaySupplier.getThemeDisplay();
 	}
 
+	protected Optional<Long> getThisSiteGroupId() {
+		long searchScopeGroupId = getSearchScopeGroupId();
+
+		if (searchScopeGroupId == 0) {
+			return Optional.empty();
+		}
+
+		return Optional.of(searchScopeGroupId);
+	}
+
 	private Integer _collatedSpellCheckResultDisplayThreshold;
 	private Boolean _collatedSpellCheckResultEnabled;
 	private Boolean _displayMainQuery;
@@ -533,11 +597,13 @@ public class SearchDisplayContext {
 	private final Hits _hits;
 	private Boolean _includeSystemPortlets;
 	private final IndexSearchPropsValues _indexSearchPropsValues;
+	private final Keywords _keywords;
 	private final PortletPreferences _portletPreferences;
 	private final PortletURLFactory _portletURLFactory;
 	private QueryConfig _queryConfig;
 	private Boolean _queryIndexingEnabled;
 	private Integer _queryIndexingThreshold;
+	private final String _queryString;
 	private Integer _querySuggestionsDisplayThreshold;
 	private Boolean _querySuggestionsEnabled;
 	private Integer _querySuggestionsMax;
@@ -548,5 +614,6 @@ public class SearchDisplayContext {
 	private final SearchResultPreferences _searchResultPreferences;
 	private String _searchScopePreferenceString;
 	private final ThemeDisplaySupplier _themeDisplaySupplier;
+	private Boolean _useAdvancedSearchSyntax;
 
 }

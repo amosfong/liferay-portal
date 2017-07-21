@@ -1,3 +1,6 @@
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
 buildService {
 	apiDir = "../calendar-api/src/main/java"
 	testDir = "../calendar-test/src/testIntegration/java"
@@ -9,17 +12,22 @@ dependencies {
 
 	provided group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.1.0"
 	provided group: "com.liferay", name: "com.google.ical", version: "20110304"
+	provided group: "com.liferay", name: "com.liferay.exportimport.api", version: "2.1.0"
+	provided group: "com.liferay", name: "com.liferay.exportimport.service", version: "4.0.0-20170526.230217-11"
 	provided group: "com.liferay", name: "com.liferay.petra.content", version: "1.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.dao.orm.custom.sql", version: "1.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.instance.lifecycle", version: "3.0.0"
+	provided group: "com.liferay", name: "com.liferay.portal.search", version: "3.7.0-20170719.172954-8"
 	provided group: "com.liferay", name: "com.liferay.portal.security.service.access.policy.api", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.spring.extender", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.portal.upgrade", version: "2.0.0"
 	provided group: "com.liferay", name: "com.liferay.registry.api", version: "1.0.0"
 	provided group: "com.liferay", name: "com.liferay.rss.util", version: "1.0.0"
+	provided group: "com.liferay", name: "com.liferay.subscription.api", version: "1.0.0-20170308.171906-1"
+	provided group: "com.liferay", name: "com.liferay.trash.api", version: "1.0.0-20170719.172911-2"
 	provided group: "com.liferay", name: "com.liferay.xstream.configurator.api", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "2.0.0"
-	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.6.0"
 	provided group: "com.liferay.portal", name: "com.liferay.util.java", version: "2.0.0"
 	provided group: "javax.mail", name: "mail", version: "1.4"
 	provided group: "javax.portlet", name: "portlet-api", version: "2.0"
@@ -27,8 +35,5 @@ dependencies {
 	provided group: "org.osgi", name: "org.osgi.core", version: "5.0.0"
 	provided group: "org.osgi", name: "org.osgi.service.component.annotations", version: "1.3.0"
 	provided group: "rome", name: "rome", version: "1.0"
-	provided project(":apps:collaboration:subscription:subscription-api")
 	provided project(":apps:forms-and-workflow:calendar:calendar-api")
-	provided project(":apps:web-experience:export-import:export-import-api")
-	provided project(":apps:web-experience:export-import:export-import-service")
 }

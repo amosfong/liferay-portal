@@ -1,6 +1,7 @@
 Bundle-Name: Liferay Portal Scripting BeanShell
 Bundle-SymbolicName: com.liferay.portal.scripting.beanshell
-Bundle-Version: 2.0.6
+Bundle-Version: 2.0.7
 Import-Package:\
 	!org.apache.bsf.*,\
+	\
 	*

@@ -54,6 +54,7 @@ import com.liferay.portal.search.elasticsearch.internal.facet.CompositeFacetProc
 import com.liferay.portal.search.elasticsearch.internal.facet.FacetCollectorFactory;
 import com.liferay.portal.search.elasticsearch.internal.util.DocumentTypes;
 import com.liferay.portal.search.elasticsearch.stats.StatsTranslator;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,23 +121,40 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		stopWatch.start();
 
 		try {
-			int total = (int)searchCount(searchContext, query);
-
 			int start = searchContext.getStart();
 			int end = searchContext.getEnd();
 
-			if ((end == QueryUtil.ALL_POS) && (start == QueryUtil.ALL_POS)) {
+			if (start == QueryUtil.ALL_POS) {
 				start = 0;
-				end = total;
+			}
+			else if (start < 0) {
+				throw new IllegalArgumentException("Invalid start " + start);
 			}
 
-			int[] startAndEnd = SearchPaginationUtil.calculateStartAndEnd(
-				start, end, total);
+			if (end == QueryUtil.ALL_POS) {
+				end = PropsValues.INDEX_SEARCH_LIMIT;
+			}
+			else if (end < 0) {
+				throw new IllegalArgumentException("Invalid end " + end);
+			}
 
-			start = startAndEnd[0];
-			end = startAndEnd[1];
+			Hits hits = null;
 
-			Hits hits = doSearchHits(searchContext, query, start, end);
+			while (true) {
+				hits = doSearchHits(searchContext, query, start, end);
+
+				Document[] documents = hits.getDocs();
+
+				if ((documents.length != 0) || (start == 0)) {
+					break;
+				}
+
+				int[] startAndEnd = SearchPaginationUtil.calculateStartAndEnd(
+					start, end, hits.getLength());
+
+				start = startAndEnd[0];
+				end = startAndEnd[1];
+			}
 
 			hits.setStart(stopWatch.getStartTime());
 
@@ -259,6 +277,10 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 
 	protected void addHighlights(
 		SearchRequestBuilder searchRequestBuilder, QueryConfig queryConfig) {
+
+		if (!queryConfig.isHighlightEnabled()) {
+			return;
+		}
 
 		for (String highlightFieldName : queryConfig.getHighlightFieldNames()) {
 			addHighlightedField(
@@ -489,11 +511,19 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 
 		searchRequestBuilder.setQuery(queryBuilder);
 
+		String searchRequestBuilderString = searchRequestBuilder.toString();
+
+		searchContext.setAttribute("queryString", searchRequestBuilderString);
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Search query " + searchRequestBuilderString);
+		}
+
 		SearchResponse searchResponse = searchRequestBuilder.get();
 
 		if (_log.isInfoEnabled()) {
 			_log.info(
-				"The search engine processed " + queryBuilder.toString() +
+				"The search engine processed " + searchRequestBuilderString +
 					" in " + searchResponse.getTook());
 		}
 

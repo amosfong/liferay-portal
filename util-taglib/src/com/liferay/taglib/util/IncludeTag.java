@@ -18,10 +18,10 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.LogUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.TrackedServletRequest;
 import com.liferay.portal.kernel.servlet.taglib.TagDynamicIdFactory;
@@ -134,7 +134,7 @@ public class IncludeTag extends AttributesTagSupport {
 
 	public void setPortletId(String portletId) {
 		if (Validator.isNotNull(portletId)) {
-			String rootPortletId = PortletConstants.getRootPortletId(portletId);
+			String rootPortletId = PortletIdCodec.decodePortletName(portletId);
 
 			PortletBag portletBag = PortletBagPool.get(rootPortletId);
 
@@ -322,9 +322,8 @@ public class IncludeTag extends AttributesTagSupport {
 			TagDynamicIdFactoryRegistry.getTagDynamicIdFactory(tagClassName);
 
 		if (tagDynamicIdFactory != null) {
-			httpServletResponse = new PipingServletResponse(
-				(HttpServletResponse)pageContext.getResponse(),
-				pageContext.getOut());
+			httpServletResponse =
+				PipingServletResponse.createPipingServletResponse(pageContext);
 
 			tagDynamicId = tagDynamicIdFactory.getTagDynamicId(
 				request, httpServletResponse, this);
@@ -347,9 +346,9 @@ public class IncludeTag extends AttributesTagSupport {
 				WebKeys.SERVLET_CONTEXT_INCLUDE_FILTER_STRICT, _strict);
 		}
 
-		HttpServletResponse response = new PipingServletResponse(pageContext);
-
-		includePage(page, response);
+		includePage(
+			page,
+			PipingServletResponse.createPipingServletResponse(pageContext));
 
 		if (_THEME_JSP_OVERRIDE_ENABLED) {
 			request.removeAttribute(

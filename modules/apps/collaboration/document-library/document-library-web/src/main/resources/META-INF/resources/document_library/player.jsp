@@ -49,6 +49,8 @@ for (String previewFileURL : previewFileURLs) {
 <c:choose>
 	<c:when test="<%= supportedAudio %>">
 		<aui:script use="aui-audio">
+			var playing = false;
+
 			var audio = new A.Audio(
 				{
 					contentBox: '#<portlet:namespace /><%= randomNamespace %>previewFileContent',
@@ -66,17 +68,66 @@ for (String previewFileURL : previewFileURLs) {
 					</c:if>
 				}
 			).render();
+
+			if (audio._audio) {
+				var audioNode = audio._audio.getDOMNode();
+
+				audioNode.addEventListener(
+					'pause',
+					function() {
+						playing = false;
+					}
+				);
+
+				audioNode.addEventListener(
+					'play',
+					function() {
+						window.parent.Liferay.fire('<portlet:namespace /><%= randomNamespace %>Audio:play');
+
+						playing = true;
+					}
+				);
+			}
+
+			window.parent.Liferay.on(
+				'<portlet:namespace /><%= randomNamespace %>ImageViewer:currentIndexChange',
+				function() {
+					if (playing) {
+						audio.pause();
+					}
+				}
+			);
+
+			window.parent.Liferay.on(
+				'<portlet:namespace /><%= randomNamespace %>ImageViewer:close',
+				function() {
+					audio.load();
+				}
+			);
 		</aui:script>
 	</c:when>
 	<c:when test="<%= supportedVideo %>">
 		<aui:script use="aui-base,aui-video">
-			new A.Video(
+			var playing = false;
+
+			var video = new A.Video(
 				{
 					contentBox: '#<portlet:namespace /><%= randomNamespace %>previewFileContent',
 					fixedAttributes: {
 						allowfullscreen: 'true',
 						bgColor: '#000000',
 						wmode: 'opaque'
+					},
+
+					on: {
+						'pause' : function() {
+							playing = false;
+						},
+						'play': function() {
+							window.parent.Liferay.fire('<portlet:namespace /><%= randomNamespace %>Video:play');
+
+							playing = true;
+						}
 					},
 
 					<c:if test="<%= Validator.isNotNull(ogvPreviewFileURL) %>">
@@ -90,6 +141,22 @@ for (String previewFileURL : previewFileURLs) {
 					</c:if>
 				}
 			).render();
+
+			window.parent.Liferay.on(
+				'<portlet:namespace /><%= randomNamespace %>ImageViewer:currentIndexChange',
+				function() {
+					if (playing) {
+						video.pause();
+					}
+				}
+			);
+
+			window.parent.Liferay.on(
+				'<portlet:namespace /><%= randomNamespace %>ImageViewer:close',
+				function() {
+					video.load();
+				}
+			);
 		</aui:script>
 	</c:when>
 </c:choose>

@@ -25,20 +25,21 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
  */
 @ExtendedObjectClassDefinition(category = "foundation")
 @ObjectClassDefinition(
+	description = "spa.configuration.description",
 	id = "com.liferay.frontend.js.spa.web.configuration.SPAConfiguration",
 	localization = "content/Language", name = "spa.configuration.name"
 )
 public @interface SPAConfiguration {
 
 	@Meta.AD(
-		description = "cache.expiration.time.description",
-		name = "cache.expiration.time.name", required = false
+		description = "cache-expiration-time-description",
+		name = "cache-expiration-time-name", required = false
 	)
 	public long cacheExpirationTime() default -1;
 
 	@Meta.AD(
-		description = "navigation.exception.selectors.description",
-		name = "navigation.exception.selectors.name", required = false
+		description = "navigation-exception-selectors-description",
+		name = "navigation-exception-selectors-name", required = false
 	)
 	public String[] navigationExceptionSelectors() default {
 		":not([target=\"_blank\"])", ":not([data-senna-off])",
@@ -46,14 +47,14 @@ public @interface SPAConfiguration {
 	};
 
 	@Meta.AD(
-		description = "request.timeout.description",
-		name = "request.timeout.name", required = false
+		description = "request-timeout-description",
+		name = "request-timeout-name", required = false
 	)
 	public int requestTimeout() default 0;
 
 	@Meta.AD(
-		description = "user.notification.timeout.description",
-		name = "user.notification.timeout.name", required = false
+		description = "user-notification-timeout-description",
+		name = "user-notification-timeout-name", required = false
 	)
 	public int userNotificationTimeout() default 30000;
 

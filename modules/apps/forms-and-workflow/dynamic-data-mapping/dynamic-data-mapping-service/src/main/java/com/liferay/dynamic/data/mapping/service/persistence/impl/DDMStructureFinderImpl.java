@@ -144,6 +144,16 @@ public class DDMStructureFinderImpl
 		long companyId, long[] groupIds, long classNameId, String keywords,
 		int status) {
 
+		return filterCountByKeywords(
+			companyId, groupIds, classNameId, keywords,
+			DDMStructureConstants.TYPE_DEFAULT, status);
+	}
+
+	@Override
+	public int filterCountByKeywords(
+		long companyId, long[] groupIds, long classNameId, String keywords,
+		int type, int status) {
+
 		String[] names = null;
 		String[] descriptions = null;
 		boolean andOperator = false;
@@ -201,7 +211,7 @@ public class DDMStructureFinderImpl
 	@Override
 	public List<DDMStructure> filterFindByKeywords(
 		long companyId, long[] groupIds, long classNameId, String keywords,
-		int status, int start, int end,
+		int type, int status, int start, int end,
 		OrderByComparator<DDMStructure> orderByComparator) {
 
 		String[] names = null;
@@ -217,8 +227,19 @@ public class DDMStructureFinderImpl
 		}
 
 		return filterFindByC_G_C_N_D_S_T_S(
-			companyId, groupIds, classNameId, names, descriptions, null,
-			DDMStructureConstants.TYPE_DEFAULT, status, andOperator, start, end,
+			companyId, groupIds, classNameId, names, descriptions, null, type,
+			status, andOperator, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<DDMStructure> filterFindByKeywords(
+		long companyId, long[] groupIds, long classNameId, String keywords,
+		int status, int start, int end,
+		OrderByComparator<DDMStructure> orderByComparator) {
+
+		return filterFindByKeywords(
+			companyId, groupIds, classNameId, keywords,
+			DDMStructureConstants.TYPE_DEFAULT, status, start, end,
 			orderByComparator);
 	}
 

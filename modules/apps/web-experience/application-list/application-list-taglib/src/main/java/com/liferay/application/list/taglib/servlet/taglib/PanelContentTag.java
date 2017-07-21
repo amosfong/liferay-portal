@@ -37,7 +37,8 @@ public class PanelContentTag extends BasePanelTag {
 
 		try {
 			boolean include = _panelCategory.include(
-				request, new PipingServletResponse(pageContext));
+				request,
+				PipingServletResponse.createPipingServletResponse(pageContext));
 
 			if (include) {
 				doClearTag();
@@ -46,7 +47,7 @@ public class PanelContentTag extends BasePanelTag {
 			}
 		}
 		catch (IOException ioe) {
-			_log.error(ioe);
+			_log.error("Unable to include panel category", ioe);
 		}
 
 		return super.doEndTag();

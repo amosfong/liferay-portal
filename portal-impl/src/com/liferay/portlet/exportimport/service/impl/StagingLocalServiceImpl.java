@@ -14,8 +14,6 @@
 
 package com.liferay.portlet.exportimport.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
@@ -47,6 +45,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.search.IndexStatusManagerThreadLocal;
 import com.liferay.portal.kernel.security.auth.HttpPrincipal;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.RemoteAuthException;
@@ -59,6 +58,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -90,7 +90,6 @@ import javax.portlet.PortletRequest;
  * @author Mate Thurzo
  * @author Vilmos Papp
  */
-@ProviderType
 public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 
 	@Override
@@ -152,6 +151,10 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 	public void cleanUpStagingRequest(long stagingRequestId)
 		throws PortalException {
 
+		boolean indexReadOnly = IndexStatusManagerThreadLocal.isIndexReadOnly();
+
+		IndexStatusManagerThreadLocal.setIndexReadOnly(true);
+
 		try {
 			PortletFileRepositoryUtil.deletePortletFolder(stagingRequestId);
 		}
@@ -162,23 +165,36 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 					nsfe);
 			}
 		}
+		finally {
+			IndexStatusManagerThreadLocal.setIndexReadOnly(indexReadOnly);
+		}
 	}
 
 	@Override
 	public long createStagingRequest(long userId, long groupId, String checksum)
 		throws PortalException {
 
-		ServiceContext serviceContext = new ServiceContext();
+		boolean indexReadOnly = IndexStatusManagerThreadLocal.isIndexReadOnly();
 
-		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
-			groupId, _PORTLET_REPOSITORY_ID, serviceContext);
+		IndexStatusManagerThreadLocal.setIndexReadOnly(true);
 
-		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
-			userId, repository.getRepositoryId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, checksum,
-			serviceContext);
+		try {
+			ServiceContext serviceContext = new ServiceContext();
 
-		return folder.getFolderId();
+			Repository repository =
+				PortletFileRepositoryUtil.addPortletRepository(
+					groupId, _PORTLET_REPOSITORY_ID, serviceContext);
+
+			Folder folder = PortletFileRepositoryUtil.addPortletFolder(
+				userId, repository.getRepositoryId(),
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, checksum,
+				serviceContext);
+
+			return folder.getFolderId();
+		}
+		finally {
+			IndexStatusManagerThreadLocal.setIndexReadOnly(indexReadOnly);
+		}
 	}
 
 	@Override
@@ -366,9 +382,20 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			}
 		}
 
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		User user = permissionChecker.getUser();
+
+		HttpPrincipal httpPrincipal = new HttpPrincipal(
+			remoteURL, user.getLogin(), user.getPassword(),
+			user.getPasswordEncrypted());
+
 		if (!stagedRemotely) {
-			enableRemoteStaging(remoteURL, remoteGroupId);
+			enableRemoteStaging(httpPrincipal, remoteGroupId);
 		}
+
+		Group remoteGroup = fetchRemoteGroup(httpPrincipal, remoteGroupId);
 
 		checkDefaultLayoutSetBranches(
 			userId, stagingGroup, branchingPublic, branchingPrivate, true,
@@ -381,6 +408,8 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		typeSettingsProperties.setProperty("remoteAddress", remoteAddress);
 		typeSettingsProperties.setProperty(
 			"remoteGroupId", String.valueOf(remoteGroupId));
+		typeSettingsProperties.setProperty(
+			"remoteGroupUUID", remoteGroup.getUuid());
 		typeSettingsProperties.setProperty(
 			"remotePathContext", remotePathContext);
 		typeSettingsProperties.setProperty(
@@ -464,7 +493,10 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			return missingReferences;
 		}
 		catch (IOException ioe) {
-			throw new SystemException(ioe);
+			throw new SystemException(
+				"Unable to complete remote staging publication request " +
+					stagingRequestId + " due to a file system error",
+				ioe);
 		}
 		finally {
 			ExportImportThreadLocal.setLayoutImportInProcess(false);
@@ -482,11 +514,20 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		Folder folder = PortletFileRepositoryUtil.getPortletFolder(
 			stagingRequestId);
 
-		PortletFileRepositoryUtil.addPortletFileEntry(
-			folder.getGroupId(), userId, Group.class.getName(),
-			folder.getGroupId(), _PORTLET_REPOSITORY_ID, folder.getFolderId(),
-			new UnsyncByteArrayInputStream(bytes), fileName,
-			ContentTypes.APPLICATION_ZIP, false);
+		boolean indexReadOnly = IndexStatusManagerThreadLocal.isIndexReadOnly();
+
+		IndexStatusManagerThreadLocal.setIndexReadOnly(true);
+
+		try {
+			PortletFileRepositoryUtil.addPortletFileEntry(
+				folder.getGroupId(), userId, Group.class.getName(),
+				folder.getGroupId(), _PORTLET_REPOSITORY_ID,
+				folder.getFolderId(), new UnsyncByteArrayInputStream(bytes),
+				fileName, ContentTypes.APPLICATION_ZIP, false);
+		}
+		finally {
+			IndexStatusManagerThreadLocal.setIndexReadOnly(indexReadOnly);
+		}
 	}
 
 	/**
@@ -553,19 +594,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			long userId, Group liveGroup, ServiceContext serviceContext)
 		throws PortalException {
 
-		long parentGroupId = GroupConstants.DEFAULT_PARENT_GROUP_ID;
-
-		if (liveGroup.getParentGroupId() !=
-				GroupConstants.DEFAULT_PARENT_GROUP_ID) {
-
-			Group parentGroup = liveGroup.getParentGroup();
-
-			if (parentGroup.hasStagingGroup()) {
-				parentGroup = parentGroup.getStagingGroup();
-			}
-
-			parentGroupId = parentGroup.getGroupId();
-		}
+		long parentGroupId = liveGroup.getParentGroupId();
 
 		Group stagingGroup = groupLocalService.addGroup(
 			userId, parentGroupId, liveGroup.getClassName(),
@@ -749,17 +778,9 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		}
 	}
 
-	protected void enableRemoteStaging(String remoteURL, long remoteGroupId)
+	protected void enableRemoteStaging(
+			HttpPrincipal httpPrincipal, long remoteGroupId)
 		throws PortalException {
-
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		User user = permissionChecker.getUser();
-
-		HttpPrincipal httpPrincipal = new HttpPrincipal(
-			remoteURL, user.getLogin(), user.getPassword(),
-			user.getPasswordEncrypted());
 
 		try {
 			GroupServiceHttp.enableStaging(httpPrincipal, remoteGroupId);
@@ -802,7 +823,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 				_log.debug(rae, rae);
 			}
 
-			rae.setURL(remoteURL);
+			rae.setURL(httpPrincipal.getUrl());
 
 			throw rae;
 		}
@@ -817,9 +838,27 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			RemoteExportException ree = new RemoteExportException(
 				RemoteExportException.BAD_CONNECTION);
 
-			ree.setURL(remoteURL);
+			ree.setURL(httpPrincipal.getUrl());
 
 			throw ree;
+		}
+	}
+
+	protected Group fetchRemoteGroup(HttpPrincipal httpPrincipal, long groupId)
+		throws PortalException {
+
+		Thread currentThread = Thread.currentThread();
+
+		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+
+		try {
+			currentThread.setContextClassLoader(
+				PortalClassLoaderUtil.getClassLoader());
+
+			return GroupServiceHttp.getGroup(httpPrincipal, groupId);
+		}
+		finally {
+			currentThread.setContextClassLoader(contextClassLoader);
 		}
 	}
 
@@ -860,6 +899,10 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			return stagingRequestFileEntry;
 		}
 
+		boolean indexReadOnly = IndexStatusManagerThreadLocal.isIndexReadOnly();
+
+		IndexStatusManagerThreadLocal.setIndexReadOnly(true);
+
 		FileOutputStream fileOutputStream = null;
 
 		File tempFile = null;
@@ -889,7 +932,10 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			String checksum = FileUtil.getMD5Checksum(tempFile);
 
 			if (!checksum.equals(folder.getName())) {
-				throw new SystemException("Invalid checksum for LAR file");
+				throw new SystemException(
+					"Unable to process LAR file pieces for remote staging " +
+						"publication because LAR file checksum is not " +
+							checksum);
 			}
 
 			PortletFileRepositoryUtil.addPortletFileEntry(
@@ -903,15 +949,22 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 				stagingRequestId, folder);
 
 			if (stagingRequestFileEntry == null) {
-				throw new SystemException("Unable to assemble LAR file");
+				throw new SystemException(
+					"Unable to assemble LAR file for remote staging " +
+						"publication request " + stagingRequestId);
 			}
 
 			return stagingRequestFileEntry;
 		}
 		catch (IOException ioe) {
-			throw new SystemException("Unable to reassemble LAR file", ioe);
+			throw new SystemException(
+				"Unable to reassemble LAR file for remote staging " +
+					"publication request " + stagingRequestId,
+				ioe);
 		}
 		finally {
+			IndexStatusManagerThreadLocal.setIndexReadOnly(indexReadOnly);
+
 			StreamUtil.cleanUp(fileOutputStream);
 
 			FileUtil.delete(tempFile);

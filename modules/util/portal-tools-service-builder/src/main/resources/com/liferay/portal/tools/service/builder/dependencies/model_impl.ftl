@@ -26,6 +26,10 @@ import ${apiPackagePath}.model.${entity.name}Soap;
 	</#if>
 </#list>
 
+<#if entity.localizedEntity??>
+	import ${apiPackagePath}.model.${entity.name}Localization;
+</#if>
+
 import ${apiPackagePath}.service.${entity.name}LocalServiceUtil;
 
 import aQute.bnd.annotation.ProviderType;
@@ -46,8 +50,6 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
-import com.liferay.portal.kernel.trash.TrashHandler;
-import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
@@ -59,8 +61,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.trash.kernel.model.TrashEntry;
-import com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil;
 
 import java.io.Serializable;
 
@@ -75,6 +75,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 /**
  * The base model implementation for the ${entity.name} service. Represents a row in the &quot;${entity.table}&quot; database table, with each column mapped to a property of this class.
@@ -302,14 +303,18 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 			<#compress>
 				public static final Object[][] MAPPING_TABLE_${stringUtil.upperCase(column.mappingTable)}_COLUMNS = {
-					<#list serviceBuilder.getMappingEntities(column.mappingTable) as mapColumn>
-						<#assign sqlType = serviceBuilder.getSqlType(mapColumn.getType()) />
+					<#assign mappingEntities = serviceBuilder.getMappingEntities(column.mappingTable) />
 
-						{"${mapColumn.DBName}", Types.${sqlType}}
+					<#list mappingEntities?keys as mapEntityName>
+						<#list mappingEntities[mapEntityName] as mapColumn>
+							<#assign sqlType = serviceBuilder.getSqlType(mapEntityName, mapColumn.getName(), mapColumn.getType()) />
 
-						<#if mapColumn_has_next>
-							,
-						</#if>
+							{"${mapColumn.DBName}", Types.${sqlType}}
+
+							<#if mapEntityName_has_next || mapColumn_has_next>
+								,
+							</#if>
+						</#list>
 					</#list>
 				};
 			</#compress>
@@ -442,8 +447,85 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#list>
 	}
 
+	<#if entity.localizedEntity??>
+		<#assign localizedEntity = entity.localizedEntity />
+
+		@Override
+		public String[] getAvailableLanguageIds() {
+			List<${localizedEntity.name}> ${localizedEntity.varNames} = ${entity.name}LocalServiceUtil.get${localizedEntity.names}(getPrimaryKey());
+
+			String[] availableLanguageIds = new String[${localizedEntity.varNames}.size()];
+
+			for (int i = 0; i < availableLanguageIds.length; i++) {
+				${localizedEntity.name} ${localizedEntity.varName} = ${localizedEntity.varNames}.get(i);
+
+				availableLanguageIds[i] = ${localizedEntity.varName}.getLanguageId();
+			}
+
+			return availableLanguageIds;
+		}
+
+		<#list entity.localizedColumns as column>
+			@Override
+			public String get${column.methodName}() {
+				return get${column.methodName}(getDefaultLanguageId(), false);
+			}
+
+			@Override
+			public String get${column.methodName}(String languageId) {
+				return get${column.methodName}(languageId, true);
+			}
+
+			@Override
+			public String get${column.methodName}(String languageId, boolean useDefault) {
+				if (useDefault) {
+					return LocalizationUtil.getLocalization(
+						new Function<String, String> () {
+
+							@Override
+							public String apply(String languageId) {
+								return _get${column.methodName}(languageId);
+							}
+
+						},
+						languageId, getDefaultLanguageId());
+				}
+
+				return _get${column.methodName}(languageId);
+			}
+
+			@Override
+			public String get${column.methodName}MapAsXML() {
+				return LocalizationUtil.getXml(getLanguageIdTo${column.methodName}Map(), getDefaultLanguageId(), "${column.methodName}");
+			}
+
+			@Override
+			public Map<String, String> getLanguageIdTo${column.methodName}Map() {
+				Map<String, String> languageIdTo${column.methodName}Map = new HashMap<String, String>();
+
+				List<${localizedEntity.name}> ${localizedEntity.varNames} = ${entity.name}LocalServiceUtil.get${localizedEntity.names}(getPrimaryKey());
+
+				for (${localizedEntity.name} ${localizedEntity.varName} : ${localizedEntity.varNames}) {
+					languageIdTo${column.methodName}Map.put(${localizedEntity.varName}.getLanguageId(), ${localizedEntity.varName}.get${column.methodName}());
+				}
+
+				return languageIdTo${column.methodName}Map;
+			}
+
+			private String _get${column.methodName}(String languageId) {
+				${localizedEntity.name} ${localizedEntity.varName} = ${entity.name}LocalServiceUtil.fetch${localizedEntity.name}(getPrimaryKey(), languageId);
+
+				if (${localizedEntity.varName} == null) {
+					return StringPool.BLANK;
+				}
+
+				return ${localizedEntity.varName}.get${column.methodName}();
+			}
+		</#list>
+	</#if>
+
 	<#list entity.regularColList as column>
-		<#if stringUtil.equals(column.name, "classNameId")>
+		<#if stringUtil.equals(column.name, "classNameId") && !hasClassNameCacheField>
 			@Override
 			public String getClassName() {
 				if (getClassNameId() <= 0) {
@@ -824,18 +906,18 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 
 		@Override
-		public TrashEntry getTrashEntry() throws PortalException {
+		public com.liferay.trash.kernel.model.TrashEntry getTrashEntry() throws PortalException {
 			if (!isInTrash()) {
 				return null;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return trashEntry;
 			}
 
-			TrashHandler trashHandler = getTrashHandler();
+			com.liferay.portal.kernel.trash.TrashHandler trashHandler = getTrashHandler();
 
 			if (!Validator.isNull(trashHandler.getContainerModelClassName(getPrimaryKey()))) {
 				ContainerModel containerModel = null;
@@ -854,7 +936,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 						return trashedModel.getTrashEntry();
 					}
 
-					trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName(containerModel.getContainerModelId()));
+					trashHandler = com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName(containerModel.getContainerModelId()));
 
 					if (trashHandler == null) {
 						return null;
@@ -872,9 +954,13 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			return getPrimaryKey();
 		}
 
+		/**
+		* @deprecated As of 7.0.0, with no direct replacement
+		*/
+		@Deprecated
 		@Override
-		public TrashHandler getTrashHandler() {
-			return TrashHandlerRegistryUtil.getTrashHandler(getModelClassName());
+		public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
+			return com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil.getTrashHandler(getModelClassName());
 		}
 
 		@Override
@@ -889,7 +975,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		@Override
 		public boolean isInTrashContainer() {
-			TrashHandler trashHandler = getTrashHandler();
+			com.liferay.portal.kernel.trash.TrashHandler trashHandler = getTrashHandler();
 
 			if ((trashHandler == null) || Validator.isNull(trashHandler.getContainerModelClassName(getPrimaryKey()))) {
 				return false;
@@ -918,7 +1004,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 				return false;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return true;
@@ -933,7 +1019,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 				return false;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return false;

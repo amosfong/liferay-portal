@@ -14,8 +14,10 @@
 
 package com.liferay.portal.kernel.model;
 
-import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.util.Validator;
+
+import java.util.Objects;
 
 /**
  * @author Brian Wing Shun Chan
@@ -89,17 +91,12 @@ public class PortletConstants {
 	 * @param  portletId the portlet ID
 	 * @param  userId a user ID
 	 * @return the properly assembled portlet ID
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	public static String assemblePortletId(String portletId, long userId) {
-		PortletInstance portletInstance = null;
-
-		String rootPortletId = getRootPortletId(portletId);
-		String instanceId = getInstanceId(portletId);
-
-		portletInstance = new PortletInstance(
-			rootPortletId, userId, instanceId);
-
-		return portletInstance.getPortletInstanceKey();
+		return PortletIdCodec.encode(
+			getRootPortletId(portletId), userId, getInstanceId(portletId));
 	}
 
 	/**
@@ -113,20 +110,18 @@ public class PortletConstants {
 	 * @param  instanceId an instance ID. If <code>null</code>, an instance ID
 	 *         is derived from the portlet ID.
 	 * @return the properly assembled portlet ID
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	public static String assemblePortletId(
 		String portletId, long userId, String instanceId) {
-
-		String rootPortletId = getRootPortletId(portletId);
 
 		if (Validator.isNull(instanceId)) {
 			instanceId = getInstanceId(portletId);
 		}
 
-		PortletInstance portletInstance = new PortletInstance(
-			rootPortletId, userId, instanceId);
-
-		return portletInstance.getPortletInstanceKey();
+		return PortletIdCodec.encode(
+			getRootPortletId(portletId), userId, instanceId);
 	}
 
 	/**
@@ -138,18 +133,24 @@ public class PortletConstants {
 	 * @param  portletId the portlet ID
 	 * @param  instanceId an instance ID
 	 * @return the properly assembled portlet ID
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	public static String assemblePortletId(
 		String portletId, String instanceId) {
 
-		PortletInstance portletInstance = new PortletInstance(
-			portletId, instanceId);
+		PortletIdCodec.validatePortletName(portletId);
 
-		return portletInstance.getPortletInstanceKey();
+		return PortletIdCodec.encode(portletId, instanceId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#generateInstanceId()}
+	 */
+	@Deprecated
 	public static String generateInstanceId() {
-		return StringUtil.randomString(12);
+		return PortletIdCodec.generateInstanceId();
 	}
 
 	/**
@@ -157,12 +158,12 @@ public class PortletConstants {
 	 *
 	 * @param  portletId the portlet ID
 	 * @return the instance ID of the portlet
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#decodeInstanceId(java.lang.String)}
 	 */
+	@Deprecated
 	public static String getInstanceId(String portletId) {
-		PortletInstance portletInstance =
-			PortletInstance.fromPortletInstanceKey(portletId);
-
-		return portletInstance.getInstanceId();
+		return PortletIdCodec.decodeInstanceId(portletId);
 	}
 
 	/**
@@ -170,12 +171,12 @@ public class PortletConstants {
 	 *
 	 * @param  portletId the portlet ID
 	 * @return the root portlet ID of the portlet
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#decodePortletName(java.lang.String)}
 	 */
+	@Deprecated
 	public static String getRootPortletId(String portletId) {
-		PortletInstance portletInstance =
-			PortletInstance.fromPortletInstanceKey(portletId);
-
-		return portletInstance.getPortletName();
+		return PortletIdCodec.decodePortletName(portletId);
 	}
 
 	/**
@@ -184,23 +185,24 @@ public class PortletConstants {
 	 *
 	 * @param  portletId the portlet ID
 	 * @return the user ID of the portlet
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#decodeUserId(java.lang.String)}
 	 */
+	@Deprecated
 	public static long getUserId(String portletId) {
-		PortletInstance portletInstance =
-			PortletInstance.fromPortletInstanceKey(portletId);
-
-		return portletInstance.getUserId();
+		return PortletIdCodec.decodeUserId(portletId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static boolean hasIdenticalRootPortletId(
 		String portletId1, String portletId2) {
 
-		PortletInstance portletInstance1 =
-			PortletInstance.fromPortletInstanceKey(portletId1);
-		PortletInstance portletInstance2 =
-			PortletInstance.fromPortletInstanceKey(portletId2);
-
-		return portletInstance1.hasIdenticalPortletName(portletInstance2);
+		return Objects.equals(
+			PortletIdCodec.decodePortletName(portletId1),
+			PortletIdCodec.decodePortletName(portletId2));
 	}
 
 	/**
@@ -209,12 +211,12 @@ public class PortletConstants {
 	 * @param  portletId the portlet ID
 	 * @return <code>true</code> if the portlet ID contains an instance ID;
 	 *         <code>false</code> otherwise
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#hasInstanceId(java.lang.String)}
 	 */
+	@Deprecated
 	public static boolean hasInstanceId(String portletId) {
-		PortletInstance portletInstance =
-			PortletInstance.fromPortletInstanceKey(portletId);
-
-		return portletInstance.hasInstanceId();
+		return PortletIdCodec.hasInstanceId(portletId);
 	}
 
 	/**
@@ -223,12 +225,12 @@ public class PortletConstants {
 	 * @param  portletId the portlet ID
 	 * @return <code>true</code> if the portlet ID contains a user ID;
 	 *         <code>false</code> otherwise
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             PortletIdCodec#hasUserId(java.lang.String)}
 	 */
+	@Deprecated
 	public static boolean hasUserId(String portletId) {
-		PortletInstance portletInstance =
-			PortletInstance.fromPortletInstanceKey(portletId);
-
-		return portletInstance.hasUserId();
+		return PortletIdCodec.hasUserId(portletId);
 	}
 
 }

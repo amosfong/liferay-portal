@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
@@ -56,8 +57,14 @@ public class InstallCacheTask extends DefaultTask {
 		_cacheRootDir = new File(
 			gradle.getGradleUserHomeDir(), "caches/modules-2/files-2.1");
 
-		_mavenRootDir = new File(
-			System.getProperty("user.home"), ".m2/repository");
+		_mavenRootDir = new Callable<File>() {
+
+			@Override
+			public File call() throws Exception {
+				return GradleUtil.getMavenLocalDir(getProject());
+			}
+
+		};
 	}
 
 	@Input
@@ -77,10 +84,23 @@ public class InstallCacheTask extends DefaultTask {
 
 	@OutputDirectory
 	public File getCacheDestinationDir() {
+		CacheFormat cacheFormat = getCacheFormat();
+
+		String groupDirName = getArtifactGroup();
+
+		if (cacheFormat == CacheFormat.MAVEN) {
+			groupDirName = groupDirName.replace('.', '/');
+		}
+
 		return new File(
 			getCacheRootDir(),
-			getArtifactGroup() + "/" + getArtifactName() + "/" +
+			groupDirName + "/" + getArtifactName() + "/" +
 				getArtifactVersion());
+	}
+
+	@Input
+	public CacheFormat getCacheFormat() {
+		return _cacheFormat;
 	}
 
 	@Input
@@ -121,12 +141,22 @@ public class InstallCacheTask extends DefaultTask {
 		_artifactVersion = artifactVersion;
 	}
 
+	public void setCacheFormat(CacheFormat cacheFormat) {
+		_cacheFormat = cacheFormat;
+	}
+
 	public void setCacheRootDir(Object cacheRootDir) {
 		_cacheRootDir = cacheRootDir;
 	}
 
 	public void setMavenRootDir(Object mavenRootDir) {
 		_mavenRootDir = mavenRootDir;
+	}
+
+	public enum CacheFormat {
+
+		GRADLE, MAVEN
+
 	}
 
 	private void _copy(final File file, final File destinationDir) {
@@ -145,6 +175,8 @@ public class InstallCacheTask extends DefaultTask {
 	}
 
 	private void _installCache(String extension) throws IOException {
+		CacheFormat cacheFormat = getCacheFormat();
+
 		File file = new File(
 			getMavenInputDir(),
 			getArtifactName() + "-" + getArtifactVersion() + "." + extension);
@@ -157,13 +189,19 @@ public class InstallCacheTask extends DefaultTask {
 			file = _normalizeTextFile(file);
 		}
 
-		HashValue hashValue = HashUtil.sha1(file);
+		File destinationDir = getCacheDestinationDir();
 
-		String hash = hashValue.asHexString();
+		if (cacheFormat == CacheFormat.GRADLE) {
+			HashValue hashValue = HashUtil.sha1(file);
 
-		hash = hash.replaceFirst("^0*", "");
+			String hash = hashValue.asHexString();
 
-		_copy(file, new File(getCacheDestinationDir(), hash));
+			hash = hash.replaceFirst("^0*", "");
+
+			destinationDir = new File(destinationDir, hash);
+		}
+
+		_copy(file, destinationDir);
 	}
 
 	private File _normalizeTextFile(File file) throws IOException {
@@ -201,6 +239,7 @@ public class InstallCacheTask extends DefaultTask {
 	private Object _artifactGroup;
 	private Object _artifactName;
 	private Object _artifactVersion;
+	private CacheFormat _cacheFormat = CacheFormat.GRADLE;
 	private Object _cacheRootDir;
 	private Object _mavenRootDir;
 

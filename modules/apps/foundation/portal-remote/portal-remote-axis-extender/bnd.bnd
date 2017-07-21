@@ -1,7 +1,7 @@
 Bundle-Name: Liferay Portal Remote Axis Extender
 Bundle-SymbolicName: com.liferay.portal.remote.axis.extender
-Bundle-Version: 1.0.8
-DynamicImport-Package: com.liferay.*
+Bundle-Version: 1.0.10
+DynamicImport-Package: com.liferay.portal.kernel.*
 Import-Package:\
 	!com.ibm.*,\
 	\
@@ -19,6 +19,7 @@ Import-Package:\
 	!org.omg.*,\
 	\
 	!sun.awt.image.codec,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Remote Service Engines

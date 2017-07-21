@@ -44,7 +44,7 @@
 	.form-builder-field-list-container {
 		hyphens: auto;
 		padding: 0;
-		word-break: break-all;
+		word-break: normal;
 	}
 
 	.form-builder-page-header {
@@ -58,7 +58,7 @@
 		color: #728694;
 		font-weight: 400;
 		resize: none;
-		word-break: break-all;
+		word-break: normal;
 	}
 
 	.form-builder-page-header-description.form-control,

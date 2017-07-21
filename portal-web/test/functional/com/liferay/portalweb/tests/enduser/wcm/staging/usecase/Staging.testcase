@@ -41,6 +41,8 @@
 	</tear-down>
 
 	<command name="ActivateStagingPageVersioningWithCustomDefaultLanguage" priority="5">
+		<property name="test.name.skip.portal.instance" value="Staging#ActivateStagingPageVersioningWithCustomDefaultLanguage" />
+
 		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
 		</execute>
@@ -525,8 +527,11 @@
 		</execute>
 	</command>
 
-	<command name="StagingDemoDocumentsAndMedia" priority="3">
+	<command name="StagingDemoDocumentsAndMedia" priority="5">
 		<property name="custom.properties" value="default.layout.template.id=1_column" />
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="Staging#StagingDemoDocumentsAndMedia" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Server Administration" />
@@ -883,7 +888,10 @@
 		<execute function="AssertTextEquals" locator1="Message#WORKFLOW_UNAPPROVED" value1="Web Content Title is not approved." />
 	</command>
 
-	<command name="StagingMultipleDM" priority="3">
+	<command name="StagingMultipleDM" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Staging Test Page" />
 			<var name="siteName" value="Site Name" />
@@ -956,7 +964,10 @@
 		<execute macro="DMDocument#viewStagingDetailsPG" />
 	</command>
 
-	<command name="StagingOnlyApprovedPublishToLive" priority="4">
+	<command name="StagingOnlyApprovedPublishToLive" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -1143,7 +1154,9 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="AssertTextEquals" locator1="Message#ERROR" value1="The selected web content no longer exists." />
+		<execute macro="WebContentDisplayPortlet#viewRecycleBinMessage">
+			<var name="webContentTitle" value="Web Content Title 2" />
+		</execute>
 
 		<execute macro="Staging#gotoPublishToLive" />
 
@@ -1154,11 +1167,14 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute function="AssertTextEquals" locator1="Message#ERROR" value1="The selected web content no longer exists." />
+		<execute macro="WebContentDisplayPortlet#viewRecycleBinMessage">
+			<var name="webContentTitle" value="Web Content Title 2" />
+		</execute>
 	</command>
 
 	<command name="StagingRemoteDocumentSubtypeViaAP" priority="3">
 		<property name="custom.properties" value="tunneling.servlet.shared.secret=1234567890123456${line.separator}auth.verifier.TunnelAuthVerifier.hosts.allowed=" />
+		<property name="test.name.skip.portal.instance" value="Staging#StagingRemoteDocumentSubtypeViaAP" />
 
 		<execute macro="Staging#remoteStagingSetUp">
 			<var name="siteName" value="Site Name" />
@@ -1234,6 +1250,7 @@
 
 	<command name="StagingRemoteLiveWebContent" priority="4">
 		<property name="custom.properties" value="tunneling.servlet.shared.secret=1234567890123456${line.separator}auth.verifier.TunnelAuthVerifier.hosts.allowed=" />
+		<property name="test.name.skip.portal.instance" value="Staging#StagingRemoteLiveWebContent" />
 
 		<execute macro="Staging#remoteStagingSetUp">
 			<var name="siteName" value="Site Name" />

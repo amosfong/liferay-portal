@@ -42,18 +42,20 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portlet.messageboards.util.test.MBTestUtil;
-import com.liferay.portlet.trash.test.BaseTrashHandlerTestCase;
-import com.liferay.portlet.trash.test.DefaultWhenIsAssetable;
-import com.liferay.portlet.trash.test.DefaultWhenIsIndexableBaseModel;
-import com.liferay.portlet.trash.test.WhenHasGrandParent;
-import com.liferay.portlet.trash.test.WhenHasMyBaseModel;
-import com.liferay.portlet.trash.test.WhenHasRecentBaseModelCount;
-import com.liferay.portlet.trash.test.WhenIsAssetable;
-import com.liferay.portlet.trash.test.WhenIsAssetableBaseModel;
-import com.liferay.portlet.trash.test.WhenIsIndexableBaseModel;
-import com.liferay.portlet.trash.test.WhenIsMoveableFromTrashBaseModel;
-import com.liferay.portlet.trash.test.WhenIsRestorableBaseModel;
-import com.liferay.portlet.trash.test.WhenIsUpdatableBaseModel;
+import com.liferay.trash.exception.RestoreEntryException;
+import com.liferay.trash.exception.TrashEntryException;
+import com.liferay.trash.test.util.BaseTrashHandlerTestCase;
+import com.liferay.trash.test.util.DefaultWhenIsAssetable;
+import com.liferay.trash.test.util.DefaultWhenIsIndexableBaseModel;
+import com.liferay.trash.test.util.WhenHasGrandParent;
+import com.liferay.trash.test.util.WhenHasMyBaseModel;
+import com.liferay.trash.test.util.WhenHasRecentBaseModelCount;
+import com.liferay.trash.test.util.WhenIsAssetable;
+import com.liferay.trash.test.util.WhenIsAssetableBaseModel;
+import com.liferay.trash.test.util.WhenIsIndexableBaseModel;
+import com.liferay.trash.test.util.WhenIsMoveableFromTrashBaseModel;
+import com.liferay.trash.test.util.WhenIsRestorableBaseModel;
+import com.liferay.trash.test.util.WhenIsUpdatableBaseModel;
 
 import java.io.InputStream;
 
@@ -215,6 +217,28 @@ public class MBThreadTrashHandlerTest
 		Assert.assertEquals(
 			initialBaseModelsCount + 2,
 			getMessageCount((Long)parentBaseModel.getPrimaryKeyObj()));
+	}
+
+	@Override
+	@Test(expected = TrashEntryException.class)
+	public void testTrashParentAndBaseModel() throws Exception {
+		try {
+			super.testTrashParentAndBaseModel();
+		}
+		catch (com.liferay.trash.kernel.exception.TrashEntryException tee) {
+			throw new TrashEntryException();
+		}
+	}
+
+	@Override
+	@Test(expected = RestoreEntryException.class)
+	public void testTrashParentAndRestoreParentAndBaseModel() throws Exception {
+		try {
+			super.testTrashParentAndRestoreParentAndBaseModel();
+		}
+		catch (com.liferay.trash.kernel.exception.RestoreEntryException ree) {
+			throw new RestoreEntryException();
+		}
 	}
 
 	@Override

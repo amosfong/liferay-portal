@@ -17,9 +17,11 @@
 		/>
 	<#elseif validator.isNotNull(predefinedValue)>
 		<#assign
-			predefinedDate = dateUtil.parseDate(predefinedValue, requestedLocale)
+			dateValue = predefinedValue?date["MM/dd/yyyy"]
 
-			fieldValue = calendarFactory.getCalendar(predefinedDate?long)
+			fieldValue = calendarFactory.getCalendar(requestedLocale)
+
+			void = fieldValue.setTimeInMillis(dateValue?long)
 		/>
 	<#else>
 		<#assign
@@ -58,7 +60,13 @@
 	yearValue = paramUtil.getInteger(request, "${namespacedFieldName}Year", year)
 />
 
-<@liferay_aui["field-wrapper"] cssClass="form-builder-field" data=data helpMessage=escape(fieldStructure.tip) label=escape(label) name=namespacedFieldName>
+<@liferay_aui["field-wrapper"]
+	cssClass="form-builder-field"
+	data=data
+	helpMessage=escape(fieldStructure.tip)
+	label=escape(label)
+	name=namespacedFieldName
+>
 	<div class="form-group">
 		<@liferay_ui["input-date"]
 			cssClass=cssClass

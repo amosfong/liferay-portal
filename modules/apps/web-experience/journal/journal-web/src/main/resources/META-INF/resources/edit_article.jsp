@@ -97,6 +97,8 @@ if (article != null) {
 
 boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
+boolean hideDefaultSuccessMessage = ParamUtil.getBoolean(request, "hideDefaultSuccessMessage", false);
+
 request.setAttribute("edit_article.jsp-redirect", redirect);
 
 request.setAttribute("edit_article.jsp-structure", ddmStructure);
@@ -154,7 +156,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 
 <aui:form action="<%= editArticleActionURL %>" cssClass="container-fluid-1280" enctype="multipart/form-data" method="post" name="fm1" onSubmit="event.preventDefault();">
 	<aui:input name="<%= ActionRequest.ACTION_NAME %>" type="hidden" />
-	<aui:input name="hideDefaultSuccessMessage" type="hidden" value="<%= classNameId == PortalUtil.getClassNameId(DDMStructure.class) %>" />
+	<aui:input name="hideDefaultSuccessMessage" type="hidden" value="<%= hideDefaultSuccessMessage || (classNameId == PortalUtil.getClassNameId(DDMStructure.class)) %>" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
 	<aui:input name="referringPlid" type="hidden" value="<%= referringPlid %>" />
@@ -176,13 +178,16 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 	<%
 	DDMFormValues ddmFormValues = journalDisplayContext.getDDMFormValues(ddmStructure);
 
-	Locale[] availableLocales = new Locale[] {LocaleUtil.fromLanguageId(defaultLanguageId)};
+	Set<Locale> availableLocalesSet = new HashSet<>();
+
+	availableLocalesSet.add(LocaleUtil.fromLanguageId(defaultLanguageId));
+	availableLocalesSet.addAll(journalDisplayContext.getAvailableArticleLocales());
 
 	if (ddmFormValues != null) {
-		Set<Locale> availableLocalesSet = ddmFormValues.getAvailableLocales();
-
-		availableLocales = availableLocalesSet.toArray(new Locale[availableLocalesSet.size()]);
+		availableLocalesSet.addAll(ddmFormValues.getAvailableLocales());
 	}
+
+	Locale[] availableLocales = availableLocalesSet.toArray(new Locale[availableLocalesSet.size()]);
 	%>
 
 	<div class="lfr-form-content">
@@ -195,7 +200,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 			long fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE);
 
 			if (fileMaxSize == 0) {
-				fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE);
+				fileMaxSize = UploadServletRequestConfigurationHelperUtil.getMaxSize();
 			}
 			%>
 

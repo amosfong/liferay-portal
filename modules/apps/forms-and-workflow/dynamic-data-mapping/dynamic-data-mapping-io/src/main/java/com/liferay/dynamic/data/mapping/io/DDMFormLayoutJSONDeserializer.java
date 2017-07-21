@@ -14,12 +14,15 @@
 
 package com.liferay.dynamic.data.mapping.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Marcellus Tavares
  */
+@ProviderType
 public interface DDMFormLayoutJSONDeserializer {
 
 	public DDMFormLayout deserialize(String serializedDDMFormLayout)

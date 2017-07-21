@@ -69,6 +69,14 @@ String toolbarSet = (String)request.getAttribute("liferay-ui:input-editor:toolba
 
 		<script type="text/javascript">
 			Liferay.namespace('EDITORS')['<%= editorName %>'] = true;
+
+			var destroyGlobalEditor = function() {
+				window.tinyMCE = undefined;
+
+				Liferay.detach('beforeScreenFlip', destroyGlobalEditor);
+			};
+
+			Liferay.on('beforeScreenFlip', destroyGlobalEditor);
 		</script>
 	</liferay-util:html-top>
 </c:if>
@@ -84,6 +92,12 @@ name = HtmlUtil.escapeJS(name);
 %>
 
 <aui:script use="aui-node-base">
+	var browseUrls = {
+		'file': 'filebrowserBrowseUrl',
+		'image': 'filebrowserImageBrowseUrl',
+		'media': 'filebrowserVideoBrowseUrl'
+	};
+
 	var getInitialContent = function() {
 		var data;
 
@@ -142,7 +156,43 @@ name = HtmlUtil.escapeJS(name);
 			}
 		},
 
-		fileBrowserCallback: function(field_name, url, type) {
+		filePickerCallback: function(callback, value, meta) {
+			var url = tinymce.activeEditor.settings[browseUrls[meta.filetype]];
+
+			if (url) {
+				var openItemSelectorDialog = function(itemSelectorDialog) {
+					itemSelectorDialog.set('eventName', '<%= name %>selectItem');
+					itemSelectorDialog.set('url', url);
+					itemSelectorDialog.set('zIndex', tinymce.activeEditor.windowManager.windows[0].zIndex + 10);
+
+					itemSelectorDialog.once(
+						'selectedItemChange',
+						function(event) {
+							callback(event.newVal ? event.newVal.value : value);
+						}
+					);
+
+					itemSelectorDialog.open();
+				};
+
+				var itemSelectorDialog = window['<%= name %>']._itemSelectorDialog;
+
+				if (itemSelectorDialog) {
+					openItemSelectorDialog(itemSelectorDialog);
+				}
+				else {
+					AUI().use(
+						'liferay-item-selector-dialog',
+						function(A) {
+							var itemSelectorDialog = new A.LiferayItemSelectorDialog();
+
+							window['<%= name %>']._itemSelectorDialog = itemSelectorDialog;
+
+							openItemSelectorDialog(itemSelectorDialog);
+						}
+					);
+				}
+			}
 		},
 
 		focus: function() {
@@ -194,7 +244,7 @@ name = HtmlUtil.escapeJS(name);
 			var editorConfig = <%= (editorConfigJSONObject != null) ? editorConfigJSONObject.toString() : "{}" %>;
 
 			var defaultConfig = {
-				file_browser_callback: window['<%= name %>'].fileBrowserCallback,
+				file_picker_callback: window['<%= name %>'].filePickerCallback,
 				init_instance_callback: window['<%= name %>'].initInstanceCallback
 			};
 

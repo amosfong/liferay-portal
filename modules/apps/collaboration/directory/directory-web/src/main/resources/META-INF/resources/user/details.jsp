@@ -37,7 +37,7 @@ for (int i = 1; i<organizations.size(); i++) {
 <div class="details">
 	<liferay-ui:user-portrait
 		imageCssClass="user-icon-lg"
-		userId="<%= selUser.getUserId() %>"
+		user="<%= selUser %>"
 	/>
 
 	<dl class="property-list">
@@ -50,7 +50,7 @@ for (int i = 1; i<organizations.size(); i++) {
 			</dd>
 		</c:if>
 
-		<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_BIRTHDAY) %>">
+		<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_KERNEL_MODEL_CONTACT_BIRTHDAY) %>">
 			<dt>
 				<liferay-ui:message key="birthday" />
 			</dt>
@@ -68,7 +68,7 @@ for (int i = 1; i<organizations.size(); i++) {
 			</dd>
 		</c:if>
 
-		<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_MALE) %>">
+		<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.FIELD_ENABLE_COM_LIFERAY_PORTAL_KERNEL_MODEL_CONTACT_MALE) %>">
 			<dt>
 				<liferay-ui:message key="gender" />
 			</dt>

@@ -17,8 +17,12 @@
 <%@ include file="/init.jsp" %>
 
 <%
+String refererPortletName = ParamUtil.getString(request, "refererPortletName");
+
 JournalArticle article = journalContentDisplayContext.getArticle();
 %>
+
+<aui:input id='<%= refererPortletName + "ddmTemplateKey" %>' name='<%= refererPortletName + "preferences--ddmTemplateKey--" %>' type="hidden" useNamespace="<%= false %>" value="<%= journalContentDisplayContext.getDDMTemplateKey() %>" />
 
 <div class="article-preview row">
 	<div class="col-md-3 col-sm-6 col-xs-12">
@@ -32,6 +36,10 @@ JournalArticle article = journalContentDisplayContext.getArticle();
 
 		<div class="button-holder">
 			<aui:button cssClass="web-content-selector" name="webContentSelector" value='<%= Validator.isNull(article) ? "select" : "change" %>' />
+
+			<c:if test="<%= article != null %>">
+				<aui:button cssClass="selector-button" name="removeWebContent" value="remove" />
+			</c:if>
 		</div>
 	</div>
 </div>

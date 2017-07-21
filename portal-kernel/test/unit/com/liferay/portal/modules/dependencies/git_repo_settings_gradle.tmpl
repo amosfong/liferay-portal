@@ -7,9 +7,11 @@ buildscript {
 		mavenLocal()
 
 		maven {
-			url "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
+			url "[$REPOSITORY_URL$]"
 		}
 	}
 }
 
 apply plugin: "com.liferay.settings.plugin"
+
+apply from: "settings-ext.gradle"

@@ -17,14 +17,14 @@ package com.liferay.staging.processes.web.internal.portlet.action;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationFactory;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationHelper;
-import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationService;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -43,12 +43,12 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.staging.constants.StagingProcessesPortletKeys;
 import com.liferay.taglib.ui.util.SessionTreeJSClicks;
-import com.liferay.trash.kernel.service.TrashEntryService;
-import com.liferay.trash.kernel.util.TrashUtil;
+import com.liferay.trash.service.TrashEntryService;
 
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,9 +115,11 @@ public class EditPublishConfigurationMVCActionCommand
 		}
 
 		if (moveToTrash && !trashedModels.isEmpty()) {
-			TrashUtil.addTrashSessionMessages(actionRequest, trashedModels);
+			Map<String, Object> data = new HashMap<>();
 
-			hideDefaultSuccessMessage(actionRequest);
+			data.put("trashedModels", trashedModels);
+
+			addDeleteSuccessData(actionRequest, data);
 		}
 	}
 
@@ -172,7 +174,7 @@ public class EditPublishConfigurationMVCActionCommand
 			actionRequest, BackgroundTaskConstants.BACKGROUND_TASK_ID);
 
 		BackgroundTask backgroundTask =
-			BackgroundTaskManagerUtil.getBackgroundTask(backgroundTaskId);
+			_backgroundTaskManager.getBackgroundTask(backgroundTaskId);
 
 		Map<String, Serializable> taskContextMap =
 			backgroundTask.getTaskContextMap();
@@ -188,13 +190,13 @@ public class EditPublishConfigurationMVCActionCommand
 		if (exportImportConfiguration.getType() ==
 				ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_LOCAL) {
 
-			StagingUtil.publishLayouts(userId, exportImportConfiguration);
+			_staging.publishLayouts(userId, exportImportConfiguration);
 		}
 		else if (exportImportConfiguration.getType() ==
 					ExportImportConfigurationConstants.
 						TYPE_PUBLISH_LAYOUT_REMOTE) {
 
-			StagingUtil.copyRemoteLayouts(exportImportConfiguration);
+			_staging.copyRemoteLayouts(exportImportConfiguration);
 		}
 	}
 
@@ -243,9 +245,8 @@ public class EditPublishConfigurationMVCActionCommand
 		String openNodes = SessionTreeJSClicks.getOpenNodes(
 			portletRequest, treeId + "SelectedNode");
 
-		String selectedLayoutsJSON =
-			ExportImportHelperUtil.getSelectedLayoutsJSON(
-				groupId, privateLayout, openNodes);
+		String selectedLayoutsJSON = _exportImportHelper.getSelectedLayoutsJSON(
+			groupId, privateLayout, openNodes);
 
 		actionRequest.setAttribute("layoutIdMap", selectedLayoutsJSON);
 	}
@@ -302,13 +303,23 @@ public class EditPublishConfigurationMVCActionCommand
 	private static final Log _log = LogFactoryUtil.getLog(
 		EditPublishConfigurationMVCActionCommand.class);
 
+	@Reference
+	private BackgroundTaskManager _backgroundTaskManager;
+
 	private ExportImportConfigurationLocalService
 		_exportImportConfigurationLocalService;
 	private ExportImportConfigurationService _exportImportConfigurationService;
+
+	@Reference
+	private ExportImportHelper _exportImportHelper;
+
 	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private Staging _staging;
 
 	private TrashEntryService _trashEntryService;
 

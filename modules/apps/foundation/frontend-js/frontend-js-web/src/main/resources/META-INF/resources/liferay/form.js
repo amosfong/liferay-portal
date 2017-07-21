@@ -1,6 +1,8 @@
 AUI.add(
 	'liferay-form',
 	function(A) {
+		var AArray = A.Array;
+
 		var DEFAULTS_FORM_VALIDATOR = A.config.FormValidator;
 
 		var defaultAcceptFiles = DEFAULTS_FORM_VALIDATOR.RULES.acceptFiles;
@@ -146,7 +148,9 @@ AUI.add(
 					_afterGetFieldsByName: function(fieldName) {
 						var instance = this;
 
-						if (fieldName.endsWith('Editor')) {
+						var editorString = 'Editor';
+
+						if (fieldName.lastIndexOf(editorString) === (fieldName.length - editorString.length)) {
 							var formNode = instance.formNode;
 
 							return new A.Do.AlterReturn(
@@ -180,12 +184,21 @@ AUI.add(
 					},
 
 					_findRuleIndex: function(fieldRules, fieldName, validatorName) {
-						return fieldRules.findIndex(
-							function(element) {
-								return element.fieldName === fieldName &&
-									element.validatorName === validatorName;
+						var ruleIndex = -1;
+
+						AArray.some(
+							fieldRules,
+							function(element, index) {
+								if (element.fieldName === fieldName &&
+									element.validatorName === validatorName) {
+									ruleIndex = index;
+
+									return true;
+								}
 							}
 						);
+
+						return ruleIndex;
 					},
 
 					_onEditorBlur: function(event) {

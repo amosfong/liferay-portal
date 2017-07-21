@@ -34,17 +34,17 @@ public class SoyManagerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_soyManagerTestHelper.setUp();
+		_soyTestHelper.setUp();
 	}
 
 	@After
 	public void tearDown() {
-		_soyManagerTestHelper.tearDown();
+		_soyTestHelper.tearDown();
 	}
 
 	@Test
 	public void testProcessMultiTemplateAllResources() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate(
+		Template template = _soyTestHelper.getTemplate(
 			Arrays.asList(
 				"multi.soy", "simple.soy", "context.soy", "multi-context.soy"));
 
@@ -61,14 +61,14 @@ public class SoyManagerTest {
 	public void testProcessMultiTemplateEmptyList() throws Exception {
 		List<String> list = Collections.emptyList();
 
-		Template template = _soyManagerTestHelper.getTemplate(list);
+		Template template = _soyTestHelper.getTemplate(list);
 
 		template.processTemplate(new UnsyncStringWriter());
 	}
 
 	@Test
 	public void testProcessMultiTemplateSimple() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate(
+		Template template = _soyTestHelper.getTemplate(
 			Arrays.asList("multi.soy", "simple.soy"));
 
 		template.put("namespace", "soy.multiTest.simple");
@@ -82,7 +82,7 @@ public class SoyManagerTest {
 
 	@Test
 	public void testProcessMultiTemplateWithContext() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate(
+		Template template = _soyTestHelper.getTemplate(
 			Arrays.asList("multi-context.soy", "context.soy"));
 
 		template.put("name", "Bruno Basto");
@@ -98,7 +98,7 @@ public class SoyManagerTest {
 
 	@Test(expected = TemplateException.class)
 	public void testProcessMultiTemplateWithoutNamespace() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate(
+		Template template = _soyTestHelper.getTemplate(
 			Collections.singletonList("simple.soy"));
 
 		template.processTemplate(new UnsyncStringWriter());
@@ -106,7 +106,7 @@ public class SoyManagerTest {
 
 	@Test
 	public void testProcessTemplateSimple() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate("simple.soy");
+		Template template = _soyTestHelper.getTemplate("simple.soy");
 
 		template.put("namespace", "soy.test.simple");
 
@@ -119,7 +119,7 @@ public class SoyManagerTest {
 
 	@Test
 	public void testProcessTemplateWithContext() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate("context.soy");
+		Template template = _soyTestHelper.getTemplate("context.soy");
 
 		template.put("name", "Bruno Basto");
 		template.put("namespace", "soy.test.withContext");
@@ -134,12 +134,11 @@ public class SoyManagerTest {
 
 	@Test(expected = TemplateException.class)
 	public void testProcessTemplateWithoutNamespace() throws Exception {
-		Template template = _soyManagerTestHelper.getTemplate("simple.soy");
+		Template template = _soyTestHelper.getTemplate("simple.soy");
 
 		template.processTemplate(new UnsyncStringWriter());
 	}
 
-	private final SoyManagerTestHelper _soyManagerTestHelper =
-		new SoyManagerTestHelper();
+	private final SoyTestHelper _soyTestHelper = new SoyTestHelper();
 
 }

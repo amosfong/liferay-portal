@@ -17,9 +17,9 @@ package com.liferay.site.admin.web.internal.portlet;
 import com.liferay.asset.kernel.exception.AssetCategoryException;
 import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.exportimport.kernel.exception.RemoteExportException;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManager;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.DuplicateGroupException;
 import com.liferay.portal.kernel.exception.GroupFriendlyURLException;
@@ -77,7 +77,7 @@ import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -183,7 +183,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 		long backgroundTaskId = ParamUtil.getLong(
 			actionRequest, BackgroundTaskConstants.BACKGROUND_TASK_ID);
 
-		BackgroundTaskManagerUtil.deleteBackgroundTask(backgroundTaskId);
+		backgroundTaskManager.deleteBackgroundTask(backgroundTaskId);
 	}
 
 	public void deleteGroups(
@@ -366,7 +366,7 @@ public class SiteAdminPortlet extends MVCPortlet {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-		return HttpUtil.getParameter(
+		return http.getParameter(
 			redirect, actionResponse.getNamespace() + "historyKey", false);
 	}
 
@@ -585,6 +585,8 @@ public class SiteAdminPortlet extends MVCPortlet {
 			group.isManualMembership(), group.getMembershipRestriction(),
 			group.getFriendlyURL(), group.isInheritContent(), active,
 			serviceContext);
+
+		themeDisplay.setScopeGroupId(groupId);
 	}
 
 	protected Group updateGroup(ActionRequest actionRequest) throws Exception {
@@ -911,16 +913,25 @@ public class SiteAdminPortlet extends MVCPortlet {
 		if (!privateLayoutSet.isLayoutSetPrototypeLinkActive() &&
 			!publicLayoutSet.isLayoutSetPrototypeLinkActive()) {
 
-			StagingUtil.updateStaging(actionRequest, liveGroup);
+			staging.updateStaging(actionRequest, liveGroup);
 		}
+
+		themeDisplay.setSiteGroupId(liveGroup.getGroupId());
 
 		return liveGroup;
 	}
+
+	@Reference
+	protected BackgroundTaskManager backgroundTaskManager;
 
 	protected GroupLocalService groupLocalService;
 	protected GroupSearchProvider groupSearchProvider;
 	protected GroupService groupService;
 	protected GroupURLProvider groupURLProvider;
+
+	@Reference
+	protected Http http;
+
 	protected LayoutLocalService layoutLocalService;
 	protected LayoutSetLocalService layoutSetLocalService;
 	protected LayoutSetPrototypeService layoutSetPrototypeService;
@@ -932,6 +943,10 @@ public class SiteAdminPortlet extends MVCPortlet {
 	protected Portal portal;
 
 	protected RoleLocalService roleLocalService;
+
+	@Reference
+	protected Staging staging;
+
 	protected TeamLocalService teamLocalService;
 	protected UserLocalService userLocalService;
 	protected UserService userService;

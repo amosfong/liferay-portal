@@ -31,11 +31,23 @@ public class LiferayOAuthModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(BlobCrypter.class).annotatedWith(
-			Names.named(OAuthFetcherConfig.OAUTH_STATE_CRYPTER)).toProvider(
-				OAuthCrypterProvider.class);
-		bind(OAuthRequest.class).toProvider(OAuthRequestProvider.class);
-		bind(OAuthStore.class).toProvider(LiferayOAuthStoreProvider.class);
+		bind(
+			BlobCrypter.class
+		).annotatedWith(
+			Names.named(OAuthFetcherConfig.OAUTH_STATE_CRYPTER)
+		).toProvider(
+			OAuthCrypterProvider.class
+		);
+		bind(
+			OAuthRequest.class
+		).toProvider(
+			OAuthRequestProvider.class
+		);
+		bind(
+			OAuthStore.class
+		).toProvider(
+			LiferayOAuthStoreProvider.class
+		);
 	}
 
 }

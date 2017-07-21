@@ -38,9 +38,9 @@ import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManag
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
@@ -103,7 +103,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 			if (doActionAfterLogin) {
 				LiferayPortletResponse liferayPortletResponse =
-					(LiferayPortletResponse)actionResponse;
+					_portal.getLiferayPortletResponse(actionResponse);
 
 				PortletURL renderURL = liferayPortletResponse.createRenderURL();
 
@@ -223,7 +223,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			if (Validator.isNotNull(redirect)) {
 				redirect = mainPath.concat(
 					"/portal/protected?redirect=").concat(
-						HttpUtil.encodeURL(redirect));
+						URLCodec.encodeURL(redirect));
 			}
 			else {
 				redirect = mainPath.concat("/portal/protected");
@@ -261,7 +261,8 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 		Layout layout = (Layout)actionRequest.getAttribute(WebKeys.LAYOUT);
 
 		PortletURL portletURL = PortletURLFactoryUtil.create(
-			actionRequest, portletName, layout, PortletRequest.RENDER_PHASE);
+			actionRequest, liferayPortletRequest.getPortlet(), layout,
+			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("saveLastPath", Boolean.FALSE.toString());
 
@@ -274,7 +275,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 		String login = ParamUtil.getString(actionRequest, "login");
 
 		if (Validator.isNotNull(login)) {
-			portletURL.setParameter("login", login);
+			SessionErrors.add(actionRequest, "login", login);
 		}
 
 		if (portletName.equals(LoginPortletKeys.LOGIN)) {

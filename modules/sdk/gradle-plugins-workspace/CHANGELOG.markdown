@@ -92,6 +92,31 @@ the `liferay.workspace.modules.jsp.precompile.enabled` property in
 - [LPS-67573]: Move all properties available in the `gradle.liferayWorkspace`
 extension object into the public API.
 
+## 1.4.0 - 2017-05-05
+
+### Added
+- [LPS-71724]: Add the ability to download and upgrade the Plugins SDK
+directories by executing the `upgradePluginsSDK` task in the root project.
+- [LPS-71724]: Add [Liferay CDN](https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public)
+as the default repository in the root project. This behavior can be disabled by
+setting the `liferay.workspace.default.repository.enabled` property to `false`
+in `gradle.properties`.
+
+### Changed
+- [LPS-72252]: Update the [Liferay Gradle Plugins] dependency to version 3.3.9.
+
+## 1.5.0 - 2017-07-05
+
+### Added
+- [LPS-73056]: Add the ability to download the Liferay bundle from
+[www.liferay.com](https://www.liferay.com) via authentication token. This
+behavior can be enabled by setting the `liferay.workspace.bundle.token.download`
+property to `true` in `gradle.properties`.
+
+### Changed
+- [LPS-73248]: Use Liferay 7.0.3 GA4 by default.
+- [LPS-73383]: Update the [Liferay Gradle Plugins] dependency to version 3.3.35.
+
 [Gradle Download Task]: https://github.com/michel-kraemer/gradle-download-task/
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
 [LPS-66853]: https://issues.liferay.com/browse/LPS-66853
@@ -112,3 +137,8 @@ extension object into the public API.
 [LPS-70362]: https://issues.liferay.com/browse/LPS-70362
 [LPS-70515]: https://issues.liferay.com/browse/LPS-70515
 [LPS-70677]: https://issues.liferay.com/browse/LPS-70677
+[LPS-71724]: https://issues.liferay.com/browse/LPS-71724
+[LPS-72252]: https://issues.liferay.com/browse/LPS-72252
+[LPS-73056]: https://issues.liferay.com/browse/LPS-73056
+[LPS-73248]: https://issues.liferay.com/browse/LPS-73248
+[LPS-73383]: https://issues.liferay.com/browse/LPS-73383

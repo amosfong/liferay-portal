@@ -38,7 +38,9 @@ AUI.add(
 					item.getRepeatedSiblings().forEach(addToQueue);
 				};
 
-				instance.get('fields').forEach(addSiblingsToQueue);
+				var fields = instance.get('fields') || [];
+
+				fields.forEach(addSiblingsToQueue);
 
 				while (queue.size() > 0) {
 					var field = queue.next();
@@ -164,16 +166,6 @@ AUI.add(
 
 					instance.set('fields', fields);
 				}
-			},
-
-			_afterNestedFieldsChange: function(event) {
-				var instance = this;
-
-				instance.eachField(
-					function(field) {
-						field.render();
-					}
-				);
 			},
 
 			_setFields: function(fields) {

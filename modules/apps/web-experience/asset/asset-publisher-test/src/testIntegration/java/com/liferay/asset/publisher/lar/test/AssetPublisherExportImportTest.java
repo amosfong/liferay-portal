@@ -25,7 +25,6 @@ import com.liferay.asset.publisher.test.util.AssetPublisherTestUtil;
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.web.display.context.AssetEntryResult;
 import com.liferay.asset.publisher.web.display.context.AssetPublisherDisplayContext;
-import com.liferay.asset.publisher.web.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
 import com.liferay.asset.publisher.web.util.DefaultAssetPublisherCustomizer;
 import com.liferay.document.library.kernel.model.DLFileEntry;
@@ -49,8 +48,8 @@ import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.PortletInstance;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
@@ -125,11 +124,9 @@ public class AssetPublisherExportImportTest
 
 	@Override
 	public String getPortletId() throws Exception {
-		PortletInstance portletInstance = new PortletInstance(
+		return PortletIdCodec.encode(
 			AssetPublisherPortletKeys.ASSET_PUBLISHER,
 			RandomTestUtil.randomString());
-
-		return portletInstance.getPortletInstanceKey();
 	}
 
 	@Before
@@ -1110,6 +1107,11 @@ public class AssetPublisherExportImportTest
 				ServiceContextTestUtil.getServiceContext());
 		}
 
+		DefaultAssetPublisherCustomizer defaultAssetPublisherCustomizer =
+			new DefaultAssetPublisherCustomizer();
+
+		defaultAssetPublisherCustomizer.activate(new HashMap<String, Object>());
+
 		MockPortletRequest mockPortletRequest = new MockPortletRequest();
 
 		MockHttpServletRequest mockHttpServletRequest =
@@ -1147,12 +1149,9 @@ public class AssetPublisherExportImportTest
 		mockHttpServletRequest.setAttribute(
 			JavaConstants.JAVAX_PORTLET_REQUEST, mockPortletRequest);
 
-		AssetPublisherCustomizer assetPublisherCustomizer =
-			new DefaultAssetPublisherCustomizer();
-
 		AssetPublisherDisplayContext assetPublisherDisplayContext =
 			new AssetPublisherDisplayContext(
-				assetPublisherCustomizer, mockPortletRequest,
+				defaultAssetPublisherCustomizer, mockPortletRequest,
 				new MockPortletResponse(), portletPreferences);
 
 		SearchContainer<AssetEntry> searchContainer = new SearchContainer<>();

@@ -360,9 +360,50 @@
 		</execute>
 	</command>
 
-	<command name="AddRegular" priority="5">
-		<property name="portal.acceptance" value="true" />
+	<command name="AddEventWithLargeDateRange" priority="5">
+		<description message="This is a use case for LPS-61427." />
 
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Calendar Page" />
+		</execute>
+
+		<execute macro="CalendarNavigator#gotoAddEvent" />
+
+		<execute macro="CalendarEvent#editTitle">
+			<var name="eventTitle" value="Calendar Event Title" />
+		</execute>
+
+		<execute macro="CalendarEvent#setEndDate">
+			<var name="endDate" value="01/01/200000" />
+		</execute>
+
+		<execute macro="CalendarEvent#publish" />
+
+		<var name="refreshCount" value="0" />
+
+		<while>
+			<not>
+				<equals arg1="${refreshCount}" arg2="5" />
+			</not>
+			<then>
+				<execute macro="Navigator#gotoPage">
+					<var name="pageName" value="Calendar Page" />
+				</execute>
+
+				<execute macro="CalendarEvent#view">
+					<var name="eventTitle" value="Calendar Event Title" />
+				</execute>
+
+				<execute function="Pause" locator1="1000" />
+
+				<execute function="AssertConsoleTextNotPresent" value1="OutOfMemoryError" />
+
+				<var method="MathUtil#sum('${refreshCount}', '1')" name="refreshCount" />
+			</then>
+		</while>
+	</command>
+
+	<command name="AddRegular" priority="4">
 		<execute macro="CalendarNavigator#gotoAddEvent" />
 
 		<execute macro="CalendarEvent#add">
@@ -1018,7 +1059,9 @@
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
-		<execute macro="CalendarNavigator#gotoAddEventViaAssetPublisher" />
+		<execute macro="AssetPublisherPortlet#addAsset">
+			<var name="assetType" value="Calendar Event" />
+		</execute>
 
 		<execute macro="CalendarEvent#editTitle">
 			<var name="eventTitle" value="Calendar Event Title" />
@@ -1090,11 +1133,7 @@
 
 		<execute macro="CalendarEvent#gotoRepeatConfiguration" />
 
-		<execute macro="CalendarEvent#selectRepeatFrequency">
-			<var name="frequency" value="Daily" />
-		</execute>
-
-		<execute function="KeyPress" locator1="CalendarEditEvent#REPEAT_REPEATS_DROPDOWN" value1="\ESCAPE" />
+		<execute function="KeyPress" locator1="CalendarEditEvent#REPEAT_ENDS_NEVER_RADIO" value1="\ESCAPE" />
 
 		<execute macro="CalendarEvent#viewNoRepeating" />
 
@@ -1105,7 +1144,7 @@
 		<execute macro="CalendarEvent#publish" />
 
 		<execute macro="Navigator#gotoPage">
-			<var name="pageName" value="Calendar Page" />
+			<var name="pageName" value="${pageName}" />
 		</execute>
 
 		<execute macro="CalendarNavigator#gotoAddEvent" />
@@ -1118,10 +1157,38 @@
 
 		<execute macro="CalendarEvent#gotoRepeatConfiguration" />
 
-		<execute macro="Button#clickCancel" />
+		<execute macro="CalendarEvent#selectRepeatFrequency">
+			<var name="frequency" value="Daily" />
+		</execute>
+
+		<execute function="KeyPress" locator1="CalendarEditEvent#REPEAT_ENDS_NEVER_RADIO" value1="\ESCAPE" />
+
+		<execute macro="CalendarEvent#viewNoRepeating" />
 
 		<execute macro="CalendarEvent#viewTitle">
 			<var name="eventTitle" value="Calendar Non-Repeating Event 2" />
+		</execute>
+
+		<execute macro="CalendarEvent#publish" />
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Calendar Page" />
+		</execute>
+
+		<execute macro="CalendarNavigator#gotoAddEvent" />
+
+		<execute macro="CalendarEvent#editTitle">
+			<var name="eventTitle" value="Calendar Non-Repeating Event 3" />
+		</execute>
+
+		<execute macro="CalendarEvent#viewNoRepeating" />
+
+		<execute macro="CalendarEvent#gotoRepeatConfiguration" />
+
+		<execute macro="Button#clickCancel" />
+
+		<execute macro="CalendarEvent#viewTitle">
+			<var name="eventTitle" value="Calendar Non-Repeating Event 3" />
 		</execute>
 
 		<execute macro="CalendarEvent#viewNoRepeating" />

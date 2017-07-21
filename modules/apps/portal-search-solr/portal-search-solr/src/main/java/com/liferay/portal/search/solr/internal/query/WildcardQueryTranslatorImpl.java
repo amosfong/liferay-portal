@@ -17,11 +17,10 @@ package com.liferay.portal.search.solr.internal.query;
 import com.liferay.portal.kernel.search.QueryTerm;
 import com.liferay.portal.kernel.search.WildcardQuery;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.solr.query.WildcardQueryTranslator;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -50,8 +49,35 @@ public class WildcardQueryTranslatorImpl implements WildcardQueryTranslator {
 	}
 
 	protected String escape(String value) {
-		return StringUtil.replace(
-			value, CharPool.SPACE, StringPool.BACK_SLASH + StringPool.SPACE);
+		int x = 0;
+		int y = 0;
+		int length = value.length();
+
+		StringBuilder sb = new StringBuilder(length * 2);
+
+		while (y < length) {
+			char c = value.charAt(y);
+
+			if ((c == CharPool.QUESTION) || (c == CharPool.SPACE) ||
+				(c == CharPool.STAR)) {
+
+				sb.append(QueryParser.escape(value.substring(x, y)));
+
+				if (c == CharPool.SPACE) {
+					sb.append(CharPool.BACK_SLASH);
+				}
+
+				sb.append(c);
+
+				x = y + 1;
+			}
+
+			y++;
+		}
+
+		sb.append(QueryParser.escape(value.substring(x)));
+
+		return sb.toString();
 	}
 
 }

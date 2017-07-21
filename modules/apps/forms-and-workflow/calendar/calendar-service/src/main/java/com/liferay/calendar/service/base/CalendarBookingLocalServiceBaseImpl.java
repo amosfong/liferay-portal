@@ -72,7 +72,6 @@ import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.service.persistence.WorkflowInstanceLinkPersistence;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
@@ -81,12 +80,9 @@ import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
 import com.liferay.social.kernel.service.persistence.SocialActivityCounterPersistence;
 import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
 
-import com.liferay.trash.kernel.service.persistence.TrashEntryPersistence;
-
 import java.io.Serializable;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -345,16 +341,6 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
 				@Override
 				public void addCriteria(DynamicQuery dynamicQuery) {
-					Set<Serializable> primaryKeys = portletDataContext.getRegisteredExportingClassedModelPrimaryKeys(
-							"CalendarBooking");
-
-					if (SetUtil.isNotEmpty(primaryKeys)) {
-						Property primaryKeyProperty = PropertyFactoryUtil.forName(
-								"calendarBookingId");
-
-						dynamicQuery.add(primaryKeyProperty.in(primaryKeys));
-					}
-
 					Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria(
 							"modifiedDate");
 
@@ -1184,44 +1170,6 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 		this.socialActivityCounterPersistence = socialActivityCounterPersistence;
 	}
 
-	/**
-	 * Returns the trash entry local service.
-	 *
-	 * @return the trash entry local service
-	 */
-	public com.liferay.trash.kernel.service.TrashEntryLocalService getTrashEntryLocalService() {
-		return trashEntryLocalService;
-	}
-
-	/**
-	 * Sets the trash entry local service.
-	 *
-	 * @param trashEntryLocalService the trash entry local service
-	 */
-	public void setTrashEntryLocalService(
-		com.liferay.trash.kernel.service.TrashEntryLocalService trashEntryLocalService) {
-		this.trashEntryLocalService = trashEntryLocalService;
-	}
-
-	/**
-	 * Returns the trash entry persistence.
-	 *
-	 * @return the trash entry persistence
-	 */
-	public TrashEntryPersistence getTrashEntryPersistence() {
-		return trashEntryPersistence;
-	}
-
-	/**
-	 * Sets the trash entry persistence.
-	 *
-	 * @param trashEntryPersistence the trash entry persistence
-	 */
-	public void setTrashEntryPersistence(
-		TrashEntryPersistence trashEntryPersistence) {
-		this.trashEntryPersistence = trashEntryPersistence;
-	}
-
 	public void afterPropertiesSet() {
 		persistedModelLocalServiceRegistry.register("com.liferay.calendar.model.CalendarBooking",
 			calendarBookingLocalService);
@@ -1344,10 +1292,6 @@ public abstract class CalendarBookingLocalServiceBaseImpl
 	protected com.liferay.social.kernel.service.SocialActivityCounterLocalService socialActivityCounterLocalService;
 	@ServiceReference(type = SocialActivityCounterPersistence.class)
 	protected SocialActivityCounterPersistence socialActivityCounterPersistence;
-	@ServiceReference(type = com.liferay.trash.kernel.service.TrashEntryLocalService.class)
-	protected com.liferay.trash.kernel.service.TrashEntryLocalService trashEntryLocalService;
-	@ServiceReference(type = TrashEntryPersistence.class)
-	protected TrashEntryPersistence trashEntryPersistence;
 	@ServiceReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
 }

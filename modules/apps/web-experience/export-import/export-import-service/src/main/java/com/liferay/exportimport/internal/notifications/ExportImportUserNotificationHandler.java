@@ -22,7 +22,7 @@ import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplay;
-import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplayFactoryUtil;
+import com.liferay.portal.kernel.backgroundtask.display.BackgroundTaskDisplayFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -36,9 +36,11 @@ import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.StringPool;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
@@ -69,11 +71,10 @@ public class ExportImportUserNotificationHandler
 			ServiceContext serviceContext)
 		throws Exception {
 
-		String languageId = LanguageUtil.getLanguageId(
-			serviceContext.getRequest());
+		Locale locale = _portal.getLocale(serviceContext.getRequest());
 
 		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(languageId);
+			_resourceBundleLoader.loadResourceBundle(locale);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
 			userNotificationEvent.getPayload());
@@ -87,12 +88,13 @@ public class ExportImportUserNotificationHandler
 						jsonObject.getLong("exportImportConfigurationId"));
 		}
 		catch (PortalException pe) {
-			_log.error(pe, pe);
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
 
-			return LanguageUtil.format(
-				resourceBundle, "unable-to-find-x",
-				LanguageUtil.get(
-					resourceBundle, "export-import-configuration"));
+			return LanguageUtil.get(
+				resourceBundle,
+				"the-process-referenced-by-this-notification-does-not-exist");
 		}
 
 		String message =
@@ -116,7 +118,7 @@ public class ExportImportUserNotificationHandler
 		long backgroundTaskId = jsonObject.getLong("backgroundTaskId");
 
 		BackgroundTaskDisplay backgroundTaskDisplay =
-			BackgroundTaskDisplayFactoryUtil.getBackgroundTaskDisplay(
+			_backgroundTaskDisplayFactory.getBackgroundTaskDisplay(
 				backgroundTaskId);
 
 		String processName = backgroundTaskDisplay.getDisplayName(
@@ -161,11 +163,17 @@ public class ExportImportUserNotificationHandler
 		ExportImportUserNotificationHandler.class);
 
 	@Reference
+	private BackgroundTaskDisplayFactory _backgroundTaskDisplayFactory;
+
+	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
 
 	@Reference
 	private ExportImportConfigurationLocalService
 		_exportImportConfigurationLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private PortletLocalService _portletLocalService;

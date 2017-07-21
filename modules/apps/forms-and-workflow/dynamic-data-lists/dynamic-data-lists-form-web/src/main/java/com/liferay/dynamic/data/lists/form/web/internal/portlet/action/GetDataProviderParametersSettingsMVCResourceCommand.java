@@ -29,8 +29,11 @@ import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.dynamic.data.mapping.util.DDMFormInstanceFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
@@ -143,6 +146,8 @@ public class GetDataProviderParametersSettingsMVCResourceCommand
 				ddmDataProviderInputParameterSetting :
 					ddmDataProviderInputParametersSettings) {
 
+			String label =
+				ddmDataProviderInputParameterSetting.inputParameterLabel();
 			String name =
 				ddmDataProviderInputParameterSetting.inputParameterName();
 			String type = getType(
@@ -154,12 +159,17 @@ public class GetDataProviderParametersSettingsMVCResourceCommand
 
 			JSONObject inputJSONObject = _jsonFactory.createJSONObject();
 
-			inputJSONObject.put("name", name);
+			if (Validator.isNotNull(label)) {
+				inputJSONObject.put("label", label);
+			}
+			else {
+				inputJSONObject.put("label", name);
+			}
 
+			inputJSONObject.put("name", name);
 			inputJSONObject.put(
 				"required",
 				ddmDataProviderInputParameterSetting.inputParameterRequired());
-
 			inputJSONObject.put("type", type);
 
 			inputsJSONArray.put(inputJSONObject);
@@ -181,16 +191,24 @@ public class GetDataProviderParametersSettingsMVCResourceCommand
 
 			String name =
 				ddmDataProviderOutputParameterSetting.outputParameterName();
+			String path =
+				ddmDataProviderOutputParameterSetting.outputParameterPath();
 			String type = getType(
 				ddmDataProviderOutputParameterSetting.outputParameterType());
 
-			if (Validator.isNull(name) || Validator.isNull(type)) {
+			if (Validator.isNull(path) || Validator.isNull(type)) {
 				continue;
 			}
 
 			JSONObject outputJSONObject = _jsonFactory.createJSONObject();
 
-			outputJSONObject.put("name", name);
+			if (Validator.isNotNull(name)) {
+				outputJSONObject.put("name", name);
+			}
+			else {
+				outputJSONObject.put("name", path);
+			}
+
 			outputJSONObject.put("type", type);
 
 			outputsJSONArray.put(outputJSONObject);
@@ -199,11 +217,23 @@ public class GetDataProviderParametersSettingsMVCResourceCommand
 		return outputsJSONArray;
 	}
 
-	protected String getType(String type) throws Exception {
-		JSONArray typeJSONArray = _jsonFactory.createJSONArray(type);
+	protected String getType(String type) {
+		try {
+			JSONArray typeJSONArray = _jsonFactory.createJSONArray(type);
 
-		return typeJSONArray.getString(0);
+			return typeJSONArray.getString(0);
+		}
+		catch (JSONException jsone) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(jsone);
+			}
+
+			return type;
+		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		GetDataProviderParametersSettingsMVCResourceCommand.class);
 
 	@Reference
 	private DDMDataProviderInstanceService _ddmDataProviderInstanceService;

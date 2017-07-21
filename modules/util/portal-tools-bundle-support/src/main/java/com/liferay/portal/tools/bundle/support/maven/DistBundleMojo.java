@@ -15,7 +15,7 @@
 package com.liferay.portal.tools.bundle.support.maven;
 
 import com.liferay.portal.tools.bundle.support.commands.DistBundleCommand;
-import com.liferay.portal.tools.bundle.support.commands.InitBundleCommand;
+import com.liferay.portal.tools.bundle.support.constants.BundleSupportConstants;
 import com.liferay.portal.tools.bundle.support.internal.util.BundleSupportUtil;
 import com.liferay.portal.tools.bundle.support.internal.util.FileUtil;
 import com.liferay.portal.tools.bundle.support.internal.util.MavenUtil;
@@ -33,9 +33,10 @@ import org.apache.maven.project.MavenProject;
 
 /**
  * @author David Truong
+ * @author Andrea Di Giorgi
  */
 @Mojo(name = "dist")
-public class DistBundleMojo extends AbstractBundleMojo {
+public class DistBundleMojo extends InitBundleMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -51,12 +52,12 @@ public class DistBundleMojo extends AbstractBundleMojo {
 
 		setLiferayHome(archiveLocation);
 
-		File archive = new File(archiveLocation + "." + format);
+		File archiveFile = new File(archiveLocation + "." + format);
 
 		String packaging = project.getPackaging();
 
-		if (packaging.equals("jar") || packaging.equals("war")) {
-			try {
+		try {
+			if (packaging.equals("jar") || packaging.equals("war")) {
 				String deployDirName = BundleSupportUtil.getDeployDirName(
 					deployFile.getName());
 
@@ -67,57 +68,43 @@ public class DistBundleMojo extends AbstractBundleMojo {
 				Path entryPath = Paths.get(deployDirName, outputFileName);
 
 				if (format.equals("zip")) {
-					FileUtil.appendZip(deployFile, entryPath, archive);
+					FileUtil.appendZip(deployFile, entryPath, archiveFile);
 				}
 				else if (format.equals("gz") || format.equals("tar") ||
 						 format.equals("tar.gz") || format.equals("tgz")) {
 
-					FileUtil.appendTar(deployFile, entryPath, archive);
+					FileUtil.appendTar(deployFile, entryPath, archiveFile);
 				}
 				else {
 					throw new IllegalArgumentException(
 						"Please specify either zip or tar.gz or tgz");
 				}
 			}
-			catch (Exception e) {
-				throw new MojoExecutionException(
-					"Unable to create distributable bundle", e);
-			}
-		}
-		else if (!project.hasParent()) {
-			try {
-				archive.delete();
+			else if (!project.hasParent()) {
+				archiveFile.delete();
 
 				File liferayHomeDir = getLiferayHomeDir();
 
-				InitBundleCommand initBundleCommand = new InitBundleCommand();
-
-				initBundleCommand.setConfigsDir(
-					new File(project.getBasedir(), configs));
-				initBundleCommand.setEnvironment(environment);
-				initBundleCommand.setLiferayHomeDir(liferayHomeDir);
-				initBundleCommand.setPassword(password);
-				initBundleCommand.setStripComponents(stripComponents);
-				initBundleCommand.setUrl(url);
-				initBundleCommand.setUserName(userName);
-
-				initBundleCommand.execute();
+				super.execute();
 
 				DistBundleCommand distBundleCommand = new DistBundleCommand();
 
 				distBundleCommand.setFormat(format);
 				distBundleCommand.setIncludeFolder(includeFolder);
 				distBundleCommand.setLiferayHomeDir(getLiferayHomeDir());
-				distBundleCommand.setOutputFile(archive);
+				distBundleCommand.setOutputFile(archiveFile);
 
 				distBundleCommand.execute();
 
 				FileUtil.deleteDirectory(liferayHomeDir.toPath());
 			}
-			catch (Exception e) {
-				throw new MojoExecutionException(
-					"Unable to create distributable bundle", e);
-			}
+		}
+		catch (MojoExecutionException mee) {
+			throw mee;
+		}
+		catch (Exception e) {
+			throw new MojoExecutionException(
+				"Unable to create distributable bundle", e);
 		}
 	}
 
@@ -130,10 +117,16 @@ public class DistBundleMojo extends AbstractBundleMojo {
 	)
 	protected File deployFile;
 
-	@Parameter(defaultValue = "zip", required = true)
+	@Parameter(
+		defaultValue = BundleSupportConstants.DEFAULT_BUNDLE_FORMAT,
+		required = true
+	)
 	protected String format;
 
-	@Parameter(defaultValue = "true", required = true)
+	@Parameter(
+		defaultValue = "" + BundleSupportConstants.DEFAULT_INCLUDE_FOLDER,
+		required = true
+	)
 	protected boolean includeFolder;
 
 	@Parameter(

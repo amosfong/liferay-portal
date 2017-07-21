@@ -14,17 +14,12 @@
 	margin-top: $baseline * 4;
 }
 
-.form-builder-rulles-builder-popover .popover-content {
-	padding: 0;
+.liferay-ddl-form-builder-rule-builder .form-builder-select-field {
+	min-width: 200px;
+}
 
-	.dropdown-menu {
-		border-width: 0;
-		box-shadow: none;
-		display: block;
-		float: none;
-		margin: 0;
-		position: relative;
-	}
+.liferay-ddl-form-builder-rule-builder-content .text-default {
+	font-weight: normal;
 }
 
 .ddl-form-settings-modal,
@@ -39,6 +34,31 @@
 .publish-modal-container {
 	.modal-body {
 		background-color: #FFF;
+	}
+}
+
+.ddl-form-settings-modal {
+	.ddl-form-settings-modal-content {
+		.modal-body {
+			padding: 0px;
+		}
+	}
+
+	.ddl-record-set-settings {
+		padding: 0px;
+
+		.lfr-ddm-form-page {
+			.row {
+				margin-left: 0px;
+				margin-right: 0px;
+				padding: 0px;
+			}
+		}
+	}
+
+	.navbar-nav {
+		float: none;
+		margin-right: 0px;
 	}
 }
 
@@ -302,5 +322,24 @@
 
 	.lfr-ddm-form-page .required-warning {
 		margin-top: 0;
+	}
+}
+
+.form-builder-success-page {
+	padding: 35px;
+}
+
+.progress-bar-success-item {
+	margin-bottom: 42px !important;
+
+	&:before {
+		background-color: #CAD3DB;
+		content: '';
+		display: block;
+		height: 12px;
+		margin-top: -5px;
+		position: absolute;
+		right: 0;
+		width: 12px;
 	}
 }

@@ -3,7 +3,11 @@ AUI.add(
 	function(A) {
 		var AObject = A.Object;
 
+		var Lang = A.Lang;
+
 		var Renderer = Liferay.DDM.Renderer;
+
+		var Util = Renderer.Util;
 
 		var FieldTypes = Renderer.FieldTypes;
 
@@ -73,10 +77,12 @@ AUI.add(
 				var config = A.merge(
 					context,
 					{
+						context: A.clone(context),
 						enableEvaluations: instance.get('enableEvaluations'),
 						fieldName: instance.get('fieldName'),
 						parent: instance.get('parent'),
 						portletNamespace: instance.get('portletNamespace'),
+						repeatable: instance.get('repeatable'),
 						repeatedIndex: repetitions.length,
 						repetitions: repetitions,
 						type: instance.get('type'),
@@ -84,12 +90,12 @@ AUI.add(
 					}
 				);
 
-				config.context = A.clone(context);
+				var oldInstanceId = config.instanceId;
+				var newInstanceId = Util.generateInstanceId(8);
 
-				delete config.context.name;
-				delete config.context.value;
-				delete config.name;
-				delete config.value;
+				instance._updateInstanceIdConfiguration(config, newInstanceId);
+				instance._updateNameConfiguration(config, oldInstanceId, newInstanceId);
+				instance._updateValueConfiguration(config);
 
 				return config;
 			},
@@ -228,16 +234,52 @@ AUI.add(
 			_syncRepeatableField: function(field) {
 				var instance = this;
 
-				var repeatedSiblings = instance.getRepeatedSiblings();
+				if (field.get('rendered')) {
+					var repeatedSiblings = instance.getRepeatedSiblings();
 
-				var value = field.getValue();
+					var value = field.getValue();
 
-				field.set('repeatedIndex', repeatedSiblings.indexOf(field));
-				field.set('repetitions', repeatedSiblings);
+					field.set('repeatedIndex', repeatedSiblings.indexOf(field));
+					field.set('repetitions', repeatedSiblings);
 
-				field.setValue(value);
+					field.render();
 
-				field.render();
+					field.setValue(value);
+				}
+			},
+
+			_updateInstanceIdConfiguration: function(config, newInstanceId) {
+				var instance = this;
+
+				config.instanceId = config.context.instanceId = newInstanceId;
+			},
+
+			_updateNameConfiguration: function(config, oldInstanceId, newInstanceId) {
+				var instance = this;
+
+				var name = config.name;
+
+				if (name) {
+					config.name = config.context.name = name.replace(oldInstanceId, newInstanceId);
+				}
+			},
+
+			_updateValueConfiguration: function(config) {
+				var instance = this;
+
+				var value = instance.getValue();
+
+				if (Lang.isArray(value)) {
+					value = [];
+				}
+				else if (Lang.isObject(value)) {
+					value = {};
+				}
+				else {
+					value = '';
+				}
+
+				config.value = config.context.value = value;
 			},
 
 			_valueRepetitions: function() {

@@ -35,6 +35,8 @@ public class LoadBalancerUtilTest extends BaseJenkinsResultsParserTestCase {
 	public void setUp() throws Exception {
 		downloadSample("test-1", null);
 		downloadSample("test-2", null);
+
+		LoadBalancerUtil.setUpdateInterval(0);
 	}
 
 	@After
@@ -46,7 +48,7 @@ public class LoadBalancerUtilTest extends BaseJenkinsResultsParserTestCase {
 
 	@Test
 	public void testGetMostAvailableMasterURL() throws Exception {
-		LoadBalancerUtil.RECENT_BATCH_AGE = 0;
+		JenkinsMaster.maxRecentBatchAge = 0;
 
 		assertSamples();
 	}
@@ -129,25 +131,24 @@ public class LoadBalancerUtilTest extends BaseJenkinsResultsParserTestCase {
 	protected void downloadSample(File sampleDir, URL url) throws Exception {
 		Properties properties = getDownloadProperties(sampleDir.getName());
 
-		List<String> masters = JenkinsResultsParserUtil.getMasters(
-			properties, sampleDir.getName());
+		JenkinsResultsParserUtil.setBuildProperties(properties);
 
-		for (String master : masters) {
+		List<JenkinsMaster> jenkinsMasters =
+			JenkinsResultsParserUtil.getJenkinsMasters(
+				properties, sampleDir.getName());
+
+		for (JenkinsMaster jenkinsMaster : jenkinsMasters) {
 			downloadSampleURL(
-				new File(sampleDir, master),
+				new File(sampleDir, jenkinsMaster.getMasterName()),
 				JenkinsResultsParserUtil.createURL(
-					properties.getProperty(
-						"jenkins.local.url[" + master +
-							"]")),
+					jenkinsMaster.getMasterURL()),
 				"/computer/api/json?pretty&tree=computer" +
 					"[displayName,idle,offline]");
 
 			downloadSampleURL(
-				new File(sampleDir, master),
+				new File(sampleDir, jenkinsMaster.getMasterName()),
 				JenkinsResultsParserUtil.createURL(
-					properties.getProperty(
-						"jenkins.local.url[" + master +
-							"]")),
+					jenkinsMaster.getMasterURL()),
 				"/queue/api/json");
 		}
 	}
@@ -155,6 +156,8 @@ public class LoadBalancerUtilTest extends BaseJenkinsResultsParserTestCase {
 	@Override
 	protected String getMessage(File sampleDir) throws Exception {
 		Properties properties = getTestProperties(sampleDir.getName());
+
+		JenkinsResultsParserUtil.setBuildProperties(properties);
 
 		return LoadBalancerUtil.getMostAvailableMasterURL(properties);
 	}

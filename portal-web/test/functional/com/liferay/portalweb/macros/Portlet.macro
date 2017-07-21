@@ -141,6 +141,52 @@
 		<execute function="AssertElementPresent" locator1="Portlet#LOADED" />
 	</command>
 
+	<command name="assertServerShutdown">
+		<var name="shutdownPauseCount" value="0" />
+
+		<while>
+			<and>
+				<condition function="IsElementPresent" locator1="//body" />
+				<not>
+					<equals arg1="${shutdownPauseCount}" arg2="12" />
+				</not>
+			</and>
+			<then>
+				<execute function="Refresh" />
+
+				<execute function="Pause" locator1="10000" />
+
+				<var method="MathUtil#sum('${shutdownPauseCount}', '1')" name="shutdownPauseCount" />
+
+				<echo>Shutdown pause count: ${shutdownPauseCount}</echo>
+			</then>
+		</while>
+	</command>
+
+	<command name="assertServerStartup">
+		<var name="startupPauseCount" value="0" />
+
+		<while>
+			<and>
+				<not>
+					<condition function="IsElementPresent" locator1="UserBar#USER_SIGN_IN" />
+				</not>
+				<not>
+					<equals arg1="${startupPauseCount}" arg2="12" />
+				</not>
+			</and>
+			<then>
+				<execute function="Refresh" />
+
+				<execute function="Pause" locator1="10000" />
+
+				<var method="MathUtil#sum('${startupPauseCount}', '1')" name="startupPauseCount" />
+
+				<echo>Startup pause count: ${startupPauseCount}</echo>
+			</then>
+		</while>
+	</command>
+
 	<command name="changeDisplayStyle">
 		<var method="StringUtil#upperCase('${displayStyle}')" name="displayStyle" />
 
@@ -152,6 +198,20 @@
 		</if>
 
 		<execute function="AssertElementPresent" locator1="Icon#DISPLAY_STYLE_${displayStyle}_ACTIVE" />
+	</command>
+
+	<command name="clickPortletPlusIconPG">
+		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN">
+			<var name="key_portletName" value="${portletName}" />
+		</execute>
+	</command>
+
+	<command name="configureApplicationDecoratorViaLookandfeelPG">
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="General" />
+		</execute>
+
+		<execute function="Select" locator1="Portlet#APPLICATION_DECORATOR_SELECT" value1="${applicationDecorator}" />
 	</command>
 
 	<command name="configureCustomStylesViaLookandfeelPG">
@@ -168,18 +228,16 @@
 		</execute>
 
 		<execute function="Type" locator1="Portlet#BORDER_WIDTH_TOP_INPUT" value1="20" />
-
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 	</command>
 
 	<command name="configureCustomTitleViaLookandfeelPG">
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="General" />
+		</execute>
+
 		<execute function="Check#checkToggleSwitch" locator1="ToggleSwitch#USE_CUSTOM_TITLE" />
 
-		<execute function="Type" locator1="Portlet#CONFIGURATION_CUSTOM_TITLE_FIELD" value1="${portletName} Custom" />
-
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request processed successfully." />
+		<execute function="Type" locator1="TextInput#CUSTOM_TITLE" value1="${portletName} Custom" />
 	</command>
 
 	<command name="deletePG">
@@ -199,6 +257,17 @@
 		<execute function="DragAndDrop#dragAndDropPortletToObject" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberFrom}_PORTLET_HEADER" locator2="Home#PAGE_COLUMN_${columnNumberTo}" value1="${portletName}" />
 		<execute function="AssertTextEquals" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
 		<execute function="AssertTextEquals" locator1="Home#PAGE_COLUMN_PORTLET_COLUMN_${columnNumberTo}_PORTLET_TITLE" value1="${portletName}" />
+	</command>
+
+	<command name="expandTree">
+		<while>
+			<condition function="IsElementPresent" locator1="Treeview#NODE_COLLAPSED" />
+			<then>
+				<execute function="Click" locator1="Treeview#NODE_COLLAPSED" />
+			</then>
+		</while>
+
+		<execute function="AssertElementNotPresent" locator1="Treeview#NODE_COLLAPSED" />
 	</command>
 
 	<command name="gotoPortletOptions">
@@ -228,9 +297,21 @@
 		<execute function="Open" locator1="${adminURL}" />
 	</command>
 
-	<command name="shutdownServer">
-		<description message="This will shutdown the server at ${base_branch}-bundles\tomcat." />
+	<command name="selectApplicationDecorator">
+		<execute function="Select" locator1="Select#APPLICATION_DECORATORS" value1="${decorator}" />
+	</command>
 
+	<command name="selectTreeNode">
+		<execute function="AssertClick#assertPartialTextClickAt" locator1="Treeview#NODE_UNSELECTED" value1="${nodeName}">
+			<var name="key_nodeName" value="${nodeName}" />
+		</execute>
+
+		<execute function="AssertElementPresent" locator1="Treeview#NODE_SELECTED">
+			<var name="key_nodeName" value="${nodeName}" />
+		</execute>
+	</command>
+
+	<command name="shutdownServer" summary="Shutdown the current Liferay Portal instance.">
 		<execute function="AntCommand" locator1="build-test.xml" value1="stop-app-server" />
 	</command>
 
@@ -244,9 +325,7 @@
 		<execute function="AntCommand" locator1="build-test.xml" value1="stop-app-server -Dapp.server.bundle.index=${bundleIndex}" />
 	</command>
 
-	<command name="startServer">
-		<description message="This will start the server at ${base_branch}-bundles\tomcat." />
-
+	<command name="startServer" summary="Start the current Liferay Portal instance.">
 		<if>
 			<equals arg1="${deleteLiferayHome}" arg2="false" />
 			<then>
@@ -274,6 +353,12 @@
 				<execute function="AntCommand" locator1="build-test.xml" value1="start-app-server -Dapp.server.bundle.index=${bundleIndex}" />
 			</else>
 		</if>
+	</command>
+
+	<command name="viewApplicationDecorator">
+		<execute function="AssertElementPresent" locator1="Portlet#PORTLET_BORDER_DECORATOR">
+			<var method="StringUtil#lowerCase('${decorator}')" name="key_decorator" />
+		</execute>
 	</command>
 
 	<command name="viewBody" summary="Assert that the ${portletName} portlet body has the text '${portletBody}'">

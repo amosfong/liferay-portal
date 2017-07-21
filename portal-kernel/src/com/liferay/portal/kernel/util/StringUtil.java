@@ -4057,14 +4057,13 @@ public class StringUtil {
 			return false;
 		}
 
-		String temp = s.substring(0, start.length());
+		for (int i = 0; i < start.length(); i++) {
+			if (!equalsIgnoreCase(s.charAt(i), start.charAt(i))) {
+				return false;
+			}
+		}
 
-		if (equalsIgnoreCase(temp, start)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return true;
 	}
 
 	/**
@@ -4570,45 +4569,51 @@ public class StringUtil {
 			return null;
 		}
 
-		if (s.length() == 0) {
+		int len = s.length();
+
+		if (len == 0) {
 			return s;
 		}
 
-		int len = s.length();
+		int x = 0;
 
-		int x = len;
+		while (x < len) {
+			char c = s.charAt(x);
 
-		for (int i = 0; i < len; i++) {
-			char c = s.charAt(i);
-
-			if (!Character.isWhitespace(c)) {
-				x = i;
+			if (((c > CharPool.SPACE) && (c < 128)) ||
+				!Character.isWhitespace(c)) {
 
 				break;
 			}
+
+			x++;
 		}
 
 		if (x == len) {
 			return StringPool.BLANK;
 		}
 
-		int y = x + 1;
+		int y = len - 1;
 
-		for (int i = len - 1; i > x; i--) {
-			char c = s.charAt(i);
+		while (x < y) {
+			char c = s.charAt(y);
 
-			if (!Character.isWhitespace(c)) {
-				y = i + 1;
+			if (((c > CharPool.SPACE) && (c < 128)) ||
+				!Character.isWhitespace(c)) {
 
 				break;
 			}
+
+			y--;
 		}
 
-		if ((x == 0) && (y == len)) {
-			return s;
+		y++;
+
+		if ((x > 0) || (y < len)) {
+			return s.substring(x, y);
 		}
 
-		return s.substring(x, y);
+		return s;
 	}
 
 	/**

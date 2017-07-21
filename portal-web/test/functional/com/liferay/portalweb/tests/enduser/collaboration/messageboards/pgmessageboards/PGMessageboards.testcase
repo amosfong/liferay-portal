@@ -182,7 +182,10 @@
 		</execute>
 	</command>
 
-	<command name="AddMBCategorySubcategoryThread" priority="4">
+	<command name="AddMBCategorySubcategoryThread" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
@@ -472,6 +475,8 @@
 	</command>
 
 	<command name="AddMBThreadWithInvalidAttachmentSize" priority="4">
+		<property name="test.name.skip.portal.instance" value="PGMessageboards#AddMBThreadWithInvalidAttachmentSize" />
+
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
 		</execute>
@@ -672,6 +677,8 @@
 	</command>
 
 	<command name="EditMBThreadSubjectAndBody" priority="5">
+		<property name="test.name.skip.portal.instance" value="PGMessageboards#EditMBThreadSubjectAndBody" />
+
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Message Boards Page" />
 		</execute>

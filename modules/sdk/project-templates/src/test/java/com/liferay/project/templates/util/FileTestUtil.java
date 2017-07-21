@@ -20,14 +20,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Andrea Di Giorgi
@@ -36,6 +41,38 @@ public class FileTestUtil {
 
 	public static final String PROJECT_TEMPLATE_DIR_PREFIX =
 		"project-templates-";
+
+	public static boolean containsFile(Path rootDirPath, String pattern)
+		throws IOException {
+
+		final AtomicBoolean found = new AtomicBoolean();
+
+		FileSystem fileSystem = rootDirPath.getFileSystem();
+
+		final PathMatcher pathMatcher = fileSystem.getPathMatcher(
+			"glob:" + pattern);
+
+		Files.walkFileTree(
+			rootDirPath,
+			new SimpleFileVisitor<Path>() {
+
+				@Override
+				public FileVisitResult visitFile(
+					Path path, BasicFileAttributes basicFileAttributes) {
+
+					if (pathMatcher.matches(path.getFileName())) {
+						found.set(true);
+
+						return FileVisitResult.TERMINATE;
+					}
+
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
+
+		return found.get();
+	}
 
 	public static String getExtension(String fileName) {
 		int pos = fileName.indexOf('.');
@@ -79,33 +116,21 @@ public class FileTestUtil {
 
 		ClassLoader classLoader = FileTestUtil.class.getClassLoader();
 
-		try (InputStream inputStream = classLoader.getResourceAsStream(name);
-			InputStreamReader inputStreamReader = new InputStreamReader(
-				inputStream, StandardCharsets.UTF_8);
-			BufferedReader bufferedReader = new BufferedReader(
-				inputStreamReader)) {
+		try (BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(classLoader.getResourceAsStream(name)))) {
 
 			String line = null;
 
 			while ((line = bufferedReader.readLine()) != null) {
+				if (sb.length() > 0) {
+					sb.append('\n');
+				}
+
 				sb.append(line);
-				sb.append('\n');
 			}
 		}
 
-		String content = sb.toString();
-
-		return content.trim();
-	}
-
-	public static Properties readProperties(Path path) throws IOException {
-		Properties properties = new Properties();
-
-		try (InputStream inputStream = Files.newInputStream(path)) {
-			properties.load(inputStream);
-		}
-
-		return properties;
+		return sb.toString();
 	}
 
 	public static Properties readProperties(String name) throws IOException {

@@ -17,10 +17,10 @@
 <%@ include file="/init.jsp" %>
 
 <%
-LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute("view.jsp-layoutRevision");
-LayoutSetBranch layoutSetBranch = (LayoutSetBranch)request.getAttribute("view.jsp-layoutSetBranch");
-List<LayoutSetBranch> layoutSetBranches = (List<LayoutSetBranch>)request.getAttribute("view.jsp-layoutSetBranches");
-String stagingURL = (String)request.getAttribute("view.jsp-stagingURL");
+LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute(WebKeys.LAYOUT_REVISION);
+LayoutSetBranch layoutSetBranch = (LayoutSetBranch)request.getAttribute(StagingProcessesWebKeys.LAYOUT_SET_BRANCH);
+List<LayoutSetBranch> layoutSetBranches = (List<LayoutSetBranch>)request.getAttribute(StagingProcessesWebKeys.LAYOUT_SET_BRANCHES);
+String stagingURL = (String)request.getAttribute(StagingProcessesWebKeys.STAGING_URL);
 %>
 
 <c:if test="<%= (layoutSetBranches != null) && (layoutSetBranches.size() >= 1) %>">
@@ -31,7 +31,7 @@ String stagingURL = (String)request.getAttribute("view.jsp-stagingURL");
 
 		<div class="dropdown">
 			<a class="dropdown-toggle layout-set-branch-selector staging-variation-selector" data-toggle="dropdown" href="#1">
-				<liferay-ui:message key="<%= HtmlUtil.escape(layoutSetBranch.getName()) %>" />
+				<liferay-ui:message key="<%= HtmlUtil.escape(layoutSetBranchDisplayContext.getLayoutSetBranchDisplayName(layoutSetBranch)) %>" localizeKey="<%= false %>" />
 
 				<aui:icon image="caret-double-l" markupView="lexicon" />
 			</a>
@@ -52,7 +52,7 @@ String stagingURL = (String)request.getAttribute("view.jsp-stagingURL");
 
 					<li>
 						<a class="<%= selected ? "disabled" : StringPool.BLANK %>" href="<%= selected ? "javascript:;" : "javascript:submitForm(document.hrefFm, '" + HtmlUtil.escapeJS(curLayoutSetBranchURL) + "');" %>">
-							<liferay-ui:message key="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>" />
+							<liferay-ui:message key="<%= HtmlUtil.escape(layoutSetBranchDisplayContext.getLayoutSetBranchDisplayName(curLayoutSetBranch)) %>" localizeKey="<%= false %>" />
 						</a>
 					</li>
 

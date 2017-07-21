@@ -22,12 +22,14 @@ import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
@@ -129,6 +131,54 @@ public class FileEntryStagedModelDataHandlerTest
 		Assert.assertEquals("pdf", importedFileEntry.getExtension());
 	}
 
+	@Test
+	public void testExportsTheVersionAfterDeletingOnStaging() throws Exception {
+		ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+		try {
+			FileEntry fileEntry = addStagedModel(
+				stagingGroup, addCompanyDependencies());
+
+			exportImportStagedModel(fileEntry = addVersion(fileEntry));
+			exportImportStagedModel(fileEntry = addVersion(fileEntry));
+			exportImportStagedModel(fileEntry = _deleteLastVersion(fileEntry));
+
+			FileEntry importedFileEntry = getStagedModel(
+				fileEntry.getUuid(), liveGroup);
+
+			Assert.assertEquals(
+				fileEntry.getVersion(), importedFileEntry.getVersion());
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+	}
+
+	@Test
+	public void testExportsTheVersionOnStaging() throws Exception {
+		ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+		try {
+			FileEntry fileEntry = addStagedModel(
+				stagingGroup, addCompanyDependencies());
+
+			fileEntry = addVersion(fileEntry);
+			fileEntry = addVersion(fileEntry);
+			fileEntry = addVersion(fileEntry);
+
+			exportImportStagedModel(fileEntry);
+
+			FileEntry importedFileEntry = getStagedModel(
+				fileEntry.getUuid(), liveGroup);
+
+			Assert.assertEquals(
+				fileEntry.getVersion(), importedFileEntry.getVersion());
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+	}
+
 	protected Map<String, List<StagedModel>> addCompanyDependencies()
 		throws Exception {
 
@@ -225,7 +275,7 @@ public class FileEntryStagedModelDataHandlerTest
 	}
 
 	@Override
-	protected StagedModel addStagedModel(
+	protected FileEntry addStagedModel(
 			Group group,
 			Map<String, List<StagedModel>> dependentStagedModelsMap)
 		throws Exception {
@@ -257,7 +307,7 @@ public class FileEntryStagedModelDataHandlerTest
 	}
 
 	@Override
-	protected StagedModel addVersion(StagedModel stagedModel) throws Exception {
+	protected FileEntry addVersion(StagedModel stagedModel) throws Exception {
 		FileEntry fileEntry = (FileEntry)stagedModel;
 
 		return DLAppServiceUtil.updateFileEntry(
@@ -268,7 +318,7 @@ public class FileEntryStagedModelDataHandlerTest
 	}
 
 	@Override
-	protected StagedModel getStagedModel(String uuid, Group group) {
+	protected FileEntry getStagedModel(String uuid, Group group) {
 		try {
 			return DLAppLocalServiceUtil.getFileEntryByUuidAndGroupId(
 				uuid, group.getGroupId());
@@ -435,6 +485,14 @@ public class FileEntryStagedModelDataHandlerTest
 		Assert.assertEquals(
 			latestFileVersion.getStatus(),
 			importedLatestFileVersion.getStatus());
+	}
+
+	private FileEntry _deleteLastVersion(FileEntry fileEntry) throws Exception {
+		DLFileEntryLocalServiceUtil.deleteFileVersion(
+			TestPropsValues.getUserId(), fileEntry.getFileEntryId(),
+			fileEntry.getVersion());
+
+		return DLAppLocalServiceUtil.getFileEntry(fileEntry.getFileEntryId());
 	}
 
 }

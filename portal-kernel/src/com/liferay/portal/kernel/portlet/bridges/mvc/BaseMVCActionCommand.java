@@ -17,8 +17,8 @@ package com.liferay.portal.kernel.portlet.bridges.mvc;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
@@ -70,6 +70,18 @@ public abstract class BaseMVCActionCommand implements MVCActionCommand {
 		}
 	}
 
+	protected void addDeleteSuccessData(
+		PortletRequest portletRequest, Object data) {
+
+		SessionMessages.add(
+			portletRequest,
+			PortalUtil.getPortletId(portletRequest) +
+				SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+			data);
+
+		hideDefaultSuccessMessage(portletRequest);
+	}
+
 	protected void addSuccessMessage(
 		ActionRequest actionRequest, ActionResponse actionResponse) {
 
@@ -98,7 +110,7 @@ public abstract class BaseMVCActionCommand implements MVCActionCommand {
 		String portletId = PortalUtil.getPortletId(portletRequest);
 
 		return PortletConfigFactoryUtil.get(
-			PortletConstants.getRootPortletId(portletId));
+			PortletIdCodec.decodePortletName(portletId));
 	}
 
 	protected void hideDefaultErrorMessage(PortletRequest portletRequest) {

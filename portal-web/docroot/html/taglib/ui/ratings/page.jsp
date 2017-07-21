@@ -21,6 +21,7 @@ String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_rating
 
 String className = (String)request.getAttribute("liferay-ui:ratings:className");
 long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-ui:ratings:classPK"));
+Boolean inTrash = (Boolean)request.getAttribute("liferay-ui:ratings:inTrash");
 int numberOfStars = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:ratings:numberOfStars"));
 RatingsEntry ratingsEntry = (RatingsEntry)request.getAttribute("liferay-ui:ratings:ratingsEntry");
 RatingsStats ratingsStats = (RatingsStats)request.getAttribute("liferay-ui:ratings:ratingsStats");
@@ -30,16 +31,20 @@ boolean setRatingsStats = GetterUtil.getBoolean((String)request.getAttribute("li
 String type = GetterUtil.getString((String)request.getAttribute("liferay-ui:ratings:type"));
 String url = (String)request.getAttribute("liferay-ui:ratings:url");
 
+if (inTrash == null) {
+	inTrash = TrashUtil.isInTrash(className, classPK);
+}
+
 if (numberOfStars < 1) {
 	numberOfStars = 1;
 }
 
-if (!setRatingsEntry) {
-	ratingsEntry = RatingsEntryLocalServiceUtil.fetchEntry(themeDisplay.getUserId(), className, classPK);
+if (!setRatingsStats) {
+	ratingsStats = RatingsStatsLocalServiceUtil.fetchStats(className, classPK);
 }
 
-if (!setRatingsStats) {
-	ratingsStats = RatingsStatsLocalServiceUtil.getStats(className, classPK);
+if (!setRatingsEntry && (ratingsStats != null)) {
+	ratingsEntry = RatingsEntryLocalServiceUtil.fetchEntry(themeDisplay.getUserId(), className, classPK);
 }
 
 if (Validator.isNull(url)) {
@@ -47,15 +52,21 @@ if (Validator.isNull(url)) {
 }
 
 double averageScore = 0.0;
+int totalEntries = 0;
+double totalScore = 0.0;
 
 if (ratingsStats != null) {
-	averageScore = ratingsStats.getAverageScore();
+	averageScore = ratingsStats.getAverageScore() * numberOfStars;
+	totalEntries = ratingsStats.getTotalEntries();
+	totalScore = ratingsStats.getTotalScore();
 }
 
-int averageIndex = (int)Math.round(averageScore * numberOfStars);
+double formattedAverageScore = MathUtil.format(averageScore, 1, 1);
+
+int averageIndex = (int)Math.round(formattedAverageScore);
 
 if (!round) {
-	averageIndex = (int)Math.floor(averageScore * numberOfStars);
+	averageIndex = (int)Math.floor(formattedAverageScore);
 }
 
 double yourScore = -1.0;
@@ -68,7 +79,7 @@ if (ratingsEntry != null) {
 <div class="taglib-ratings <%= type %>" id="<%= randomNamespace %>ratingContainer">
 	<c:choose>
 		<c:when test="<%= type.equals(RatingsType.STARS.getValue()) %>">
-			<c:if test="<%= themeDisplay.isSignedIn() && !TrashUtil.isInTrash(className, classPK) %>">
+			<c:if test="<%= themeDisplay.isSignedIn() && !inTrash %>">
 				<div class="liferay-rating-vote" id="<%= randomNamespace %>ratingStar">
 					<div id="<%= randomNamespace %>ratingStarContent">
 						<div class="rating-label"><liferay-ui:message key="your-rating" /></div>
@@ -104,17 +115,16 @@ if (ratingsEntry != null) {
 					<div class="rating-label">
 						<liferay-ui:message key="average" />
 
-						(<%= ratingsStats.getTotalEntries() %> <liferay-ui:message key='<%= (ratingsStats.getTotalEntries() == 1) ? "vote" : "votes" %>' />)
+						(<%= totalEntries %> <liferay-ui:message key='<%= (totalEntries == 1) ? "vote" : "votes" %>' />)
 					</div>
 
 					<liferay-util:whitespace-remover>
 
 						<%
 						for (int i = 1; i <= numberOfStars; i++) {
-							double averageNumberOfStars = averageScore * numberOfStars;
 						%>
 
-							<span class="rating-element <%= (i <= averageIndex) ? "icon-star" : "icon-star-empty" %>" title="<%= TrashUtil.isInTrash(className, classPK) ? LanguageUtil.get(resourceBundle, "ratings-are-disabled-because-this-entry-is-in-the-recycle-bin") : ((i == 1) ? LanguageUtil.format(request, ((averageNumberOfStars == 1.0) ? "the-average-rating-is-x-star-out-of-x" : "the-average-rating-is-x-stars-out-of-x"), new Object[] {averageNumberOfStars, numberOfStars}, false) : StringPool.BLANK) %>"></span>
+							<span class="rating-element <%= (i <= averageIndex) ? "icon-star" : "icon-star-empty" %>" title="<%= inTrash ? LanguageUtil.get(resourceBundle, "ratings-are-disabled-because-this-entry-is-in-the-recycle-bin") : ((i == 1) ? LanguageUtil.format(request, ((formattedAverageScore == 1.0) ? "the-average-rating-is-x-star-out-of-x" : "the-average-rating-is-x-stars-out-of-x"), new Object[] {formattedAverageScore, numberOfStars}, false) : StringPool.BLANK) %>"></span>
 
 						<%
 						}
@@ -139,21 +149,21 @@ if (ratingsEntry != null) {
 					<liferay-util:whitespace-remover>
 
 						<%
-						int positiveVotes = (int)Math.round(ratingsStats.getTotalScore());
+						int positiveVotes = (int)Math.round(totalScore);
 
-						int negativeVotes = ratingsStats.getTotalEntries() - positiveVotes;
+						int negativeVotes = totalEntries - positiveVotes;
 
 						boolean thumbUp = (yourScore != -1.0) && (yourScore >= 0.5);
 						boolean thumbDown = (yourScore != -1.0) && (yourScore < 0.5);
 						%>
 
 						<c:choose>
-							<c:when test="<%= !themeDisplay.isSignedIn() || TrashUtil.isInTrash(className, classPK) %>">
+							<c:when test="<%= !themeDisplay.isSignedIn() || inTrash %>">
 
 								<%
 								String thumbsTitle = StringPool.BLANK;
 
-								if (TrashUtil.isInTrash(className, classPK)) {
+								if (inTrash) {
 									thumbsTitle = LanguageUtil.get(resourceBundle, "ratings-are-disabled-because-this-entry-is-in-the-recycle-bin");
 								}
 								%>
@@ -210,19 +220,19 @@ if (ratingsEntry != null) {
 	</c:choose>
 </div>
 
-<c:if test="<%= !TrashUtil.isInTrash(className, classPK) %>">
-	<aui:script use="liferay-ratings">
+<c:if test="<%= !inTrash %>">
+	<aui:script position="inline" use="liferay-ratings">
 		Liferay.Ratings.register(
 			{
-				averageScore: <%= MathUtil.format(averageScore, 1, 1) %>,
+				averageScore: <%= formattedAverageScore %>,
 				className: '<%= HtmlUtil.escapeJS(className) %>',
 				classPK: '<%= classPK %>',
 				containerId: '<%= randomNamespace %>ratingContainer',
 				namespace: '<%= randomNamespace %>',
 				round: <%= round %>,
 				size: <%= numberOfStars %>,
-				totalEntries: <%= ratingsStats.getTotalEntries() %>,
-				totalScore: <%= ratingsStats.getTotalScore() %>,
+				totalEntries: <%= totalEntries %>,
+				totalScore: <%= totalScore %>,
 				type: '<%= type %>',
 				uri: '<%= url %>',
 				yourScore: <%= yourScore %>

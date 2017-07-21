@@ -15,12 +15,14 @@
 package com.liferay.friendly.url.internal.exportimport.staged.model.repository;
 
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
-import com.liferay.exportimport.staged.model.repository.base.BaseStagedModelRepository;
+import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryHelper;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.MapUtil;
 
 import java.util.List;
@@ -40,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 	service = StagedModelRepository.class
 )
 public class FriendlyURLEntryStagedModelRepository
-	extends BaseStagedModelRepository<FriendlyURLEntry> {
+	implements StagedModelRepository<FriendlyURLEntry> {
 
 	@Override
 	public FriendlyURLEntry addStagedModel(
@@ -48,10 +50,15 @@ public class FriendlyURLEntryStagedModelRepository
 			FriendlyURLEntry friendlyURLEntry)
 		throws PortalException {
 
+		ServiceContext serviceContext = portletDataContext.createServiceContext(
+			friendlyURLEntry);
+
+		serviceContext.setUuid(friendlyURLEntry.getUuid());
+
 		return _friendlyURLEntryLocalService.addFriendlyURLEntry(
-			friendlyURLEntry.getCompanyId(), friendlyURLEntry.getGroupId(),
-			friendlyURLEntry.getClassNameId(), friendlyURLEntry.getClassPK(),
-			friendlyURLEntry.getUrlTitle());
+			friendlyURLEntry.getGroupId(), friendlyURLEntry.getClassNameId(),
+			friendlyURLEntry.getClassPK(), friendlyURLEntry.getUrlTitle(),
+			serviceContext);
 	}
 
 	@Override
@@ -59,9 +66,8 @@ public class FriendlyURLEntryStagedModelRepository
 		throws PortalException {
 
 		_friendlyURLEntryLocalService.deleteFriendlyURLEntry(
-			friendlyURLEntry.getCompanyId(), friendlyURLEntry.getGroupId(),
-			friendlyURLEntry.getClassNameId(), friendlyURLEntry.getClassPK(),
-			friendlyURLEntry.getUrlTitle());
+			friendlyURLEntry.getGroupId(), friendlyURLEntry.getClassNameId(),
+			friendlyURLEntry.getClassPK(), friendlyURLEntry.getUrlTitle());
 	}
 
 	@Override
@@ -92,6 +98,21 @@ public class FriendlyURLEntryStagedModelRepository
 	}
 
 	@Override
+	public FriendlyURLEntry fetchMissingReference(String uuid, long groupId) {
+		return (FriendlyURLEntry)_stagedModelRepositoryHelper.
+			fetchMissingReference(uuid, groupId, this);
+	}
+
+	@Override
+	public FriendlyURLEntry fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return
+			_friendlyURLEntryLocalService.fetchFriendlyURLEntryByUuidAndGroupId(
+				uuid, groupId);
+	}
+
+	@Override
 	public List<FriendlyURLEntry> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
@@ -108,13 +129,18 @@ public class FriendlyURLEntryStagedModelRepository
 	}
 
 	@Override
+	public void restoreStagedModel(
+			PortletDataContext portletDataContext, FriendlyURLEntry stagedModel)
+		throws PortletDataException {
+	}
+
+	@Override
 	public FriendlyURLEntry saveStagedModel(FriendlyURLEntry friendlyURLEntry)
 		throws PortalException {
 
 		if (friendlyURLEntry.isMain()) {
 			FriendlyURLEntry mainFriendlyURLEntry =
 				_friendlyURLEntryLocalService.getMainFriendlyURLEntry(
-					friendlyURLEntry.getCompanyId(),
 					friendlyURLEntry.getGroupId(),
 					friendlyURLEntry.getClassNameId(),
 					friendlyURLEntry.getClassPK());
@@ -129,7 +155,7 @@ public class FriendlyURLEntryStagedModelRepository
 
 		friendlyURLEntry.setUrlTitle(
 			_friendlyURLEntryLocalService.getUniqueUrlTitle(
-				friendlyURLEntry.getCompanyId(), friendlyURLEntry.getGroupId(),
+				friendlyURLEntry.getGroupId(),
 				friendlyURLEntry.getClassNameId(),
 				friendlyURLEntry.getClassPK(), friendlyURLEntry.getUrlTitle()));
 
@@ -146,13 +172,10 @@ public class FriendlyURLEntryStagedModelRepository
 		return saveStagedModel(friendlyURLEntry);
 	}
 
-	@Reference(unbind = "-")
-	protected void setFriendlyURLEntryLocalService(
-		FriendlyURLEntryLocalService friendlyURLEntryLocalService) {
-
-		_friendlyURLEntryLocalService = friendlyURLEntryLocalService;
-	}
-
+	@Reference
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
+
+	@Reference
+	private StagedModelRepositoryHelper _stagedModelRepositoryHelper;
 
 }

@@ -44,8 +44,7 @@ public class AnnouncementsWebUpgrade implements UpgradeStepRegistrator {
 				@Override
 				protected String[] getPortletIds() {
 					return new String[] {
-						"1_WAR_soannouncementsportlet", "83", "84",
-						PortletKeys.ANNOUNCEMENTS
+						"1_WAR_soannouncementsportlet", "83", "84"
 					};
 				}
 
@@ -90,7 +89,7 @@ public class AnnouncementsWebUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"com.liferay.announcements.web", "1.0.1", "1.0.2",
-			new UpgradePermission());
+			new UpgradePermission(true));
 
 		// See LPS-69656
 

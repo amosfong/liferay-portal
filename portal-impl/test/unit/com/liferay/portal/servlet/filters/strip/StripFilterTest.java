@@ -14,7 +14,7 @@
 
 package com.liferay.portal.servlet.filters.strip;
 
-import com.liferay.portal.cache.key.HashCodeCacheKeyGenerator;
+import com.liferay.portal.cache.key.HashCodeHexStringCacheKeyGenerator;
 import com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil;
 import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
@@ -45,7 +45,7 @@ public class StripFilterTest {
 			new CacheKeyGeneratorUtil();
 
 		cacheKeyGeneratorUtil.setDefaultCacheKeyGenerator(
-			new HashCodeCacheKeyGenerator());
+			new HashCodeHexStringCacheKeyGenerator());
 	}
 
 	@Test

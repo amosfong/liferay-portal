@@ -14,13 +14,16 @@
 
 package com.liferay.portal.search.elasticsearch.internal.connection;
 
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration;
 import com.liferay.portal.search.elasticsearch.internal.cluster.ClusterSettingsContext;
 import com.liferay.portal.search.elasticsearch.internal.cluster.UnicastSettingsContributor;
 import com.liferay.portal.search.elasticsearch.settings.BaseSettingsContributor;
 import com.liferay.portal.search.elasticsearch.settings.ClientSettingsHelper;
+import com.liferay.portal.util.FileImpl;
 
 import java.io.File;
 
@@ -44,6 +47,8 @@ import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.common.unit.TimeValue;
 
 import org.mockito.Mockito;
+
+import org.osgi.framework.BundleContext;
 
 /**
  * @author André de Oliveira
@@ -69,6 +74,9 @@ public class ElasticsearchFixture implements IndicesAdminClientSupplier {
 		deleteTmpDir();
 
 		_embeddedElasticsearchConnection = createElasticsearchConnection();
+
+		ReflectionTestUtil.setFieldValue(
+			_embeddedElasticsearchConnection, "_file", new FileImpl());
 	}
 
 	public void destroyNode() throws Exception {
@@ -114,6 +122,10 @@ public class ElasticsearchFixture implements IndicesAdminClientSupplier {
 			clusterHealthRequest);
 
 		return health.actionGet();
+	}
+
+	public Map<String, Object> getElasticsearchConfigurationProperties() {
+		return _elasticsearchConfigurationProperties;
 	}
 
 	public EmbeddedElasticsearchConnection
@@ -248,8 +260,19 @@ public class ElasticsearchFixture implements IndicesAdminClientSupplier {
 
 		embeddedElasticsearchConnection.props = props;
 
+		BundleContext bundleContext = Mockito.mock(BundleContext.class);
+
+		Mockito.when(
+			bundleContext.getDataFile(
+				embeddedElasticsearchConnection.JNA_TMP_DIR)
+		).thenReturn(
+			new File(
+				SystemProperties.get(SystemProperties.TMP_DIR) + "/" +
+					embeddedElasticsearchConnection.JNA_TMP_DIR)
+		);
+
 		embeddedElasticsearchConnection.activate(
-			_elasticsearchConfigurationProperties);
+			bundleContext, _elasticsearchConfigurationProperties);
 
 		embeddedElasticsearchConnection.connect();
 

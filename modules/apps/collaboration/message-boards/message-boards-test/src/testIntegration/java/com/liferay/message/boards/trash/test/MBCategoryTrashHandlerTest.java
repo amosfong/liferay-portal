@@ -30,15 +30,18 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portlet.trash.test.BaseTrashHandlerTestCase;
-import com.liferay.portlet.trash.test.WhenHasGrandParent;
-import com.liferay.portlet.trash.test.WhenIsMoveableFromTrashBaseModel;
-import com.liferay.portlet.trash.test.WhenIsRestorableBaseModel;
-import com.liferay.portlet.trash.test.WhenIsUpdatableBaseModel;
+import com.liferay.trash.exception.RestoreEntryException;
+import com.liferay.trash.exception.TrashEntryException;
+import com.liferay.trash.test.util.BaseTrashHandlerTestCase;
+import com.liferay.trash.test.util.WhenHasGrandParent;
+import com.liferay.trash.test.util.WhenIsMoveableFromTrashBaseModel;
+import com.liferay.trash.test.util.WhenIsRestorableBaseModel;
+import com.liferay.trash.test.util.WhenIsUpdatableBaseModel;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -91,6 +94,28 @@ public class MBCategoryTrashHandlerTest
 		super.setUp();
 
 		ServiceTestUtil.setUser(TestPropsValues.getUser());
+	}
+
+	@Override
+	@Test(expected = TrashEntryException.class)
+	public void testTrashParentAndBaseModel() throws Exception {
+		try {
+			super.testTrashParentAndBaseModel();
+		}
+		catch (com.liferay.trash.kernel.exception.TrashEntryException tee) {
+			throw new TrashEntryException();
+		}
+	}
+
+	@Override
+	@Test(expected = RestoreEntryException.class)
+	public void testTrashParentAndRestoreParentAndBaseModel() throws Exception {
+		try {
+			super.testTrashParentAndRestoreParentAndBaseModel();
+		}
+		catch (com.liferay.trash.kernel.exception.RestoreEntryException ree) {
+			throw new RestoreEntryException();
+		}
 	}
 
 	@Override

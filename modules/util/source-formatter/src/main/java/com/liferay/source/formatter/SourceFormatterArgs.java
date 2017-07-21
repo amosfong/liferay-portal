@@ -26,8 +26,6 @@ public class SourceFormatterArgs {
 
 	public static final String BASE_DIR_NAME = "./";
 
-	public static final String COPYRIGHT_FILE_NAME = "copyright.txt";
-
 	public static final boolean FORMAT_CURRENT_BRANCH = false;
 
 	public static final boolean FORMAT_LATEST_AUTHOR = false;
@@ -47,18 +45,12 @@ public class SourceFormatterArgs {
 
 	public static final int PROCESSOR_THREAD_COUNT = 5;
 
-	public static final boolean SHOW_DOCUMENTATION = true;
+	public static final boolean SHOW_DOCUMENTATION = false;
 
 	public static final boolean THROW_EXCEPTION = false;
 
-	public static final boolean USE_PROPERTIES = false;
-
 	public String getBaseDirName() {
 		return _baseDirName;
-	}
-
-	public String getCopyrightFileName() {
-		return _copyrightFileName;
 	}
 
 	public List<String> getFileExtensions() {
@@ -117,10 +109,6 @@ public class SourceFormatterArgs {
 		return _throwException;
 	}
 
-	public boolean isUseProperties() {
-		return _useProperties;
-	}
-
 	public void setAutoFix(boolean autoFix) {
 		_autoFix = autoFix;
 	}
@@ -135,10 +123,6 @@ public class SourceFormatterArgs {
 		}
 
 		_baseDirName = baseDirName;
-	}
-
-	public void setCopyrightFileName(String copyrightFileName) {
-		_copyrightFileName = copyrightFileName;
 	}
 
 	public void setFileExtensions(List<String> fileExtensions) {
@@ -202,13 +186,8 @@ public class SourceFormatterArgs {
 		_throwException = throwException;
 	}
 
-	public void setUseProperties(boolean useProperties) {
-		_useProperties = useProperties;
-	}
-
 	private boolean _autoFix = AUTO_FIX;
 	private String _baseDirName = BASE_DIR_NAME;
-	private String _copyrightFileName = COPYRIGHT_FILE_NAME;
 	private List<String> _fileExtensions = new ArrayList<>();
 	private List<String> _fileNames;
 	private boolean _formatCurrentBranch = FORMAT_CURRENT_BRANCH;
@@ -222,6 +201,5 @@ public class SourceFormatterArgs {
 	private List<String> _recentChangesFileNames;
 	private boolean _showDocumentation = SHOW_DOCUMENTATION;
 	private boolean _throwException = THROW_EXCEPTION;
-	private boolean _useProperties = USE_PROPERTIES;
 
 }

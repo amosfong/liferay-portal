@@ -14,6 +14,13 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.DownstreamFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.GenericFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PoshiTestFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PoshiValidationFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.RebaseFailureMessageGenerator;
+
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -169,6 +176,11 @@ public class TopLevelBuild extends BaseBuild {
 	}
 
 	@Override
+	public void setCompareToUpstream(boolean compareToUpstream) {
+		_compareToUpstream = compareToUpstream;
+	}
+
+	@Override
 	public void update() {
 		long start = System.currentTimeMillis();
 
@@ -231,6 +243,26 @@ public class TopLevelBuild extends BaseBuild {
 		catch (IOException ioe) {
 			throw new RuntimeException("Unable to get build properties", ioe);
 		}
+	}
+
+	@Override
+	protected void findDownstreamBuilds() {
+		if (getParentBuild() != null) {
+			return;
+		}
+
+		super.findDownstreamBuilds();
+	}
+
+	@Override
+	protected List<String> findDownstreamBuildsInConsoleText(
+		String consoleText) {
+
+		if (getParentBuild() != null) {
+			return Collections.emptyList();
+		}
+
+		return super.findDownstreamBuildsInConsoleText(consoleText);
 	}
 
 	protected Element getBaseBranchDetailsElement() {
@@ -352,7 +384,7 @@ public class TopLevelBuild extends BaseBuild {
 		TopLevelBuild topLevelBuild = getTopLevelBuild();
 
 		return JenkinsResultsParserUtil.combine(
-			tempMapBaseURL, topLevelBuild.getMaster(), "/",
+			TEMP_MAP_BASE_URL, topLevelBuild.getMaster(), "/",
 			topLevelBuild.getJobName(), "/",
 			Integer.toString(topLevelBuild.getBuildNumber()), "/",
 			topLevelBuild.getJobName(), "/git.", repositoryType, ".properties");
@@ -408,7 +440,7 @@ public class TopLevelBuild extends BaseBuild {
 		}
 
 		return JenkinsResultsParserUtil.combine(
-			tempMapBaseURL, getMaster(), "/", getJobName(), "/",
+			TEMP_MAP_BASE_URL, getMaster(), "/", getJobName(), "/",
 			Integer.toString(getBuildNumber()), "/", getJobName(), "/",
 			"start.properties");
 	}
@@ -420,7 +452,7 @@ public class TopLevelBuild extends BaseBuild {
 		}
 
 		return JenkinsResultsParserUtil.combine(
-			tempMapBaseURL, getMaster(), "/", getJobName(), "/",
+			TEMP_MAP_BASE_URL, getMaster(), "/", getJobName(), "/",
 			Integer.toString(getBuildNumber()), "/", getJobName(), "/",
 			"stop.properties");
 	}
@@ -456,18 +488,16 @@ public class TopLevelBuild extends BaseBuild {
 		String result = getResult();
 
 		if (!result.equals("SUCCESS")) {
+			if (isCompareToUpstream()) {
+				loadUpstreamJobFailuresJSONObject();
+			}
+
 			Dom4JUtil.addToElement(
 				rootElement, Dom4JUtil.getNewElement("hr"),
 				Dom4JUtil.getNewElement("h4", null, "Failed Jobs:"));
 
-			Element failedJobsOrderedListElement = Dom4JUtil.getNewElement(
-				"ol", rootElement,
-				Dom4JUtil.getNewElement(
-					"li", null, super.getGitHubMessageElement()));
-
-			int failureCount = 1;
-
 			List<Element> failureElements = new ArrayList<>();
+			List<Element> upstreamJobFailureElements = new ArrayList<>();
 
 			for (Build downstreamBuild : getDownstreamBuilds(null)) {
 				String downstreamBuildResult = downstreamBuild.getResult();
@@ -479,28 +509,54 @@ public class TopLevelBuild extends BaseBuild {
 				Element failureElement =
 					downstreamBuild.getGitHubMessageElement();
 
-				if (isHighPriorityBuildFailureElement(failureElement)) {
-					failureElements.add(0, failureElement);
+				if (failureElement != null) {
+					if (isBuildFailingInUpstreamJob(downstreamBuild)) {
+						upstreamJobFailureElements.add(failureElement);
 
-					continue;
+						continue;
+					}
+
+					if (isHighPriorityBuildFailureElement(failureElement)) {
+						failureElements.add(0, failureElement);
+
+						continue;
+					}
+
+					failureElements.add(failureElement);
 				}
 
-				failureElements.add(downstreamBuild.getGitHubMessageElement());
+				Element upstreamJobFailureElement =
+					downstreamBuild.getGitHubMessageUpstreamJobFailureElement();
+
+				if (upstreamJobFailureElement != null) {
+					upstreamJobFailureElements.add(upstreamJobFailureElement);
+				}
 			}
 
-			for (Element failureElement : failureElements) {
-				Element failedJobsListItemElement = Dom4JUtil.getNewElement(
-					"li", failedJobsOrderedListElement);
+			failureElements.add(0, super.getGitHubMessageElement());
 
-				if (failureCount == 5) {
-					failedJobsListItemElement.addText("...");
+			int maxFailureCount = 5;
 
-					break;
-				}
+			Dom4JUtil.getOrderedListElement(
+				failureElements, rootElement, maxFailureCount);
 
-				failedJobsListItemElement.add(failureElement);
+			if ((failureElements.size() < maxFailureCount) &&
+				!upstreamJobFailureElements.isEmpty()) {
 
-				failureCount++;
+				Dom4JUtil.addToElement(
+					rootElement, Dom4JUtil.getNewElement("hr"),
+					Dom4JUtil.getNewElement(
+						"h4", null,
+						JenkinsResultsParserUtil.combine(
+							"Failures in common with upstream(",
+							getUpstreamJobFailuresSHA(), "):")));
+
+				int remainingFailureCount =
+					maxFailureCount - failureElements.size();
+
+				Dom4JUtil.getOrderedListElement(
+					upstreamJobFailureElements, rootElement,
+					remainingFailureCount);
 			}
 
 			String jobName = getJobName();
@@ -516,7 +572,7 @@ public class TopLevelBuild extends BaseBuild {
 						0);
 
 					Dom4JUtil.addToElement(
-						Dom4JUtil.getNewElement("h5", rootElement),
+						Dom4JUtil.getNewElement("h4", rootElement),
 						"For upstream results, click ",
 						Dom4JUtil.getNewAnchorElement(url, "here"), ".");
 				}
@@ -544,6 +600,11 @@ public class TopLevelBuild extends BaseBuild {
 		return upstreamBranchSHA;
 	}
 
+	@Override
+	protected boolean isCompareToUpstream() {
+		return _compareToUpstream;
+	}
+
 	protected static final Pattern gitRepositoryTempMapNamePattern =
 		Pattern.compile("git\\.(?<repositoryType>.*)\\.properties");
 
@@ -552,12 +613,16 @@ public class TopLevelBuild extends BaseBuild {
 
 	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =
 		{
+			new PoshiTestFailureMessageGenerator(),
 			new PoshiValidationFailureMessageGenerator(),
+			new RebaseFailureMessageGenerator(),
+
 			new DownstreamFailureMessageGenerator(),
 
 			new GenericFailureMessageGenerator()
 		};
 
+	private boolean _compareToUpstream = true;
 	private long _lastDownstreamBuildsListingTimestamp = -1L;
 	private long _updateDuration;
 

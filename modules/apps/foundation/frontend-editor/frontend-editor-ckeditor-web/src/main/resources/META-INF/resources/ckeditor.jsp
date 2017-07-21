@@ -91,40 +91,32 @@ if (editorOptions != null) {
 		long javaScriptLastModified = PortalWebResourcesUtil.getLastModified(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR);
 		%>
 
-		<script src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/ckeditor.js", javaScriptLastModified)) %>" type="text/javascript"></script>
+		<script data-senna-track="temporary" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/ckeditor.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 
 		<c:if test="<%= inlineEdit && Validator.isNotNull(inlineEditSaveURL) %>">
-			<script src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/main.js", javaScriptLastModified)) %>" type="text/javascript"></script>
+			<script data-senna-track="temporary" src="<%= HtmlUtil.escapeAttribute(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) + "/ckeditor/main.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 		</c:if>
 
 		<liferay-util:dynamic-include key='<%= "com.liferay.frontend.editor.ckeditor.web#" + editorName + "#additionalResources" %>' />
 
-		<script type="text/javascript">
+		<script data-senna-track="temporary" type="text/javascript">
 			Liferay.namespace('EDITORS')['<%= editorName %>'] = true;
 
 			CKEDITOR.scriptLoader.loadScripts = function(scripts, success, failure) {
-				AUI().use(
-					'aui-base',
-					function(A) {
-						scripts = scripts.filter(
-							function(item) {
-								return !A.one('script[src=' + item + ']');
-							}
-						);
-
-						if (scripts.length) {
-							CKEDITOR.scriptLoader.load(scripts, success, failure);
-						}
-						else {
-							success();
-						}
-					}
-				);
+				CKEDITOR.scriptLoader.load(scripts, success, failure);
 			};
 
 			CKEDITOR.getNextZIndex = function() {
 				return CKEDITOR.dialog._.currentZIndex ? CKEDITOR.dialog._.currentZIndex + 10 : Liferay.zIndex.WINDOW + 10;
 			};
+
+			var destroyGlobalEditor = function() {
+				window.CKEDITOR = undefined;
+
+				Liferay.detach('beforeScreenFlip', destroyGlobalEditor);
+			};
+
+			Liferay.on('beforeScreenFlip', destroyGlobalEditor);
 		</script>
 	</liferay-util:html-top>
 </c:if>
@@ -372,8 +364,10 @@ name = HtmlUtil.escapeJS(name);
 
 						var editorNode = A.one('#<%= name %>');
 
-						editorNode.removeAttribute('contenteditable');
-						editorNode.removeClass('lfr-editable');
+						if (editorNode) {
+							editorNode.removeAttribute('contenteditable');
+							editorNode.removeClass('lfr-editable');
+						}
 					}
 				}
 			}
@@ -398,11 +392,24 @@ name = HtmlUtil.escapeJS(name);
 		return toolbarSet;
 	}
 
+	var afterVal = function() {
+		return new A.Do.AlterReturn(
+			'Return editor content',
+			window['<%= name %>'].getHTML()
+		);
+	};
+
 	var createEditor = function() {
 		var editorNode = A.one('#<%= name %>');
 
-		editorNode.attr('contenteditable', true);
-		editorNode.addClass('lfr-editable');
+		if (editorNode) {
+			editorNode.attr('contenteditable', true);
+			editorNode.addClass('lfr-editable');
+
+			var eventHandles = [
+				A.Do.after(afterVal, editorNode, 'val', this)
+			];
+		}
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
@@ -599,6 +606,8 @@ name = HtmlUtil.escapeJS(name);
 						catch (e) {
 						}
 
+						(new A.EventHandle(eventHandles)).detach();
+
 						Liferay.detach('destroyPortlet', destroyInstance);
 					}
 				};
@@ -631,7 +640,7 @@ public String marshallParams(Map<String, String> params) {
 		sb.append(StringPool.AMPERSAND);
 		sb.append(configParam.getKey());
 		sb.append(StringPool.EQUAL);
-		sb.append(HttpUtil.encodeURL(configParam.getValue()));
+		sb.append(URLCodec.encodeURL(configParam.getValue()));
 	}
 
 	return sb.toString();

@@ -24,11 +24,11 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @ExtendedObjectClassDefinition(category = "foundation")
 @Meta.OCD(
 	id = "com.liferay.portal.template.xsl.configuration.XSLEngineConfiguration",
-	localization = "content/Language", name = "xsl.engine.configuration.name"
+	localization = "content/Language", name = "xsl-engine-configuration-name"
 )
 public interface XSLEngineConfiguration {
 
 	@Meta.AD(deflt = "false", required = false)
-	public boolean secureProcesingEnabled();
+	public boolean secureProcessingEnabled();
 
 }

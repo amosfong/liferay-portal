@@ -88,6 +88,7 @@ page import="com.liferay.knowledge.base.service.permission.KBFolderPermission" %
 page import="com.liferay.knowledge.base.service.permission.KBTemplatePermission" %><%@
 page import="com.liferay.knowledge.base.service.permission.SuggestionPermission" %><%@
 page import="com.liferay.knowledge.base.service.util.AdminUtil" %><%@
+page import="com.liferay.knowledge.base.service.util.KnowledgeBaseConstants" %><%@
 page import="com.liferay.knowledge.base.util.KnowledgeBaseUtil" %><%@
 page import="com.liferay.knowledge.base.util.comparator.KBArticlePriorityComparator" %><%@
 page import="com.liferay.knowledge.base.util.comparator.KBObjectsTitleComparator" %><%@
@@ -151,6 +152,7 @@ page import="com.liferay.portal.kernel.service.permission.PortletPermissionUtil"
 page import="com.liferay.portal.kernel.servlet.HttpHeaders" %><%@
 page import="com.liferay.portal.kernel.servlet.SessionMessages" %><%@
 page import="com.liferay.portal.kernel.upload.UploadRequestSizeException" %><%@
+page import="com.liferay.portal.kernel.upload.UploadServletRequestConfigurationHelperUtil" %><%@
 page import="com.liferay.portal.kernel.util.ArrayUtil" %><%@
 page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.FastDateFormatConstants" %><%@
@@ -207,7 +209,7 @@ page import="javax.portlet.WindowState" %>
 <portlet:defineObjects />
 
 <%
-String redirect = ParamUtil.getString(request, "redirect", currentURL);
+String redirect = PortalUtil.escapeRedirect(ParamUtil.getString(request, "redirect", currentURL));
 
 String rootPortletId = portletDisplay.getRootPortletId();
 

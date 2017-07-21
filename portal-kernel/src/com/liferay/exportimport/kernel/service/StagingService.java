@@ -25,8 +25,12 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.service.BaseService;
 import com.liferay.portal.kernel.transaction.Isolation;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 
+import java.io.Serializable;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +55,9 @@ public interface StagingService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link StagingServiceUtil} to access the staging remote service. Add custom service methods to {@link com.liferay.portlet.exportimport.service.impl.StagingServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasRemoteLayout(java.lang.String uuid, long groupId,
+		boolean privateLayout) throws PortalException;
 
 	/**
 	* @deprecated As of 7.0.0, with no direct replacement
@@ -86,6 +93,10 @@ public interface StagingService extends BaseService {
 		throws PortalException;
 
 	public void cleanUpStagingRequest(long stagingRequestId)
+		throws PortalException;
+
+	public void propagateExportImportLifecycleEvent(int code, int processFlag,
+		java.lang.String processId, List<Serializable> arguments)
 		throws PortalException;
 
 	public void updateStagingRequest(long stagingRequestId,

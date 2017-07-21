@@ -115,16 +115,17 @@
 			AUI().use('liferay-item-selector-dialog', (A) => {
 				var itemSelectorDialog = new A.LiferayItemSelectorDialog(
 					{
+						eventName: editor.name + 'selectDocument',
 						on: {
 							selectedItemChange: function(event) {
 								var selectedItem = event.newVal;
 
 								if (selectedItem) {
-						            instance._updateLink(selectedItem.value, linkTarget);
+						            instance._updateLink(selectedItem.value, linkTarget, selectedItem.title);
 								}
 							}
 						},
-						eventName: editor.name + 'selectDocument',
+						title: Liferay.Language.get('select-item'),
 						url: url
 					}
 				);
@@ -141,8 +142,9 @@
          * @method _updateLink
          * @param {String} linkHref href value for the link
          * @param {String} linkTarget target value for the link
+         * @param {String} linkTitle if the link is a title that points to a wiki page (only works for creole)
          */
-        _updateLink: function(linkHref, linkTarget) {
+        _updateLink: function(linkHref, linkTarget, linkTitle) {
             var editor = this.props.editor.get('nativeEditor');
             var linkUtils = new CKEDITOR.Link(editor, {appendProtocol: false});
             var linkAttrs = {
@@ -151,6 +153,10 @@
             var modifySelection = { advance: true };
 
             if (linkHref) {
+            	if (editor.plugins && editor.plugins.creole && !linkTitle) {
+            		linkHref = location.origin + linkHref;
+            	}
+
                 if (this.state.element) {
                     linkAttrs.href = linkHref;
 

@@ -14,39 +14,61 @@
 
 package com.liferay.dynamic.data.mapping.data.provider;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Leonardo Barros
  */
 public class DDMDataProviderRequest {
 
 	public DDMDataProviderRequest(
-		DDMDataProviderContext ddmDataProviderContext) {
+		String ddmDataProviderInstanceId,
+		HttpServletRequest httpServletRequest) {
 
-		_ddmDataProviderContext = ddmDataProviderContext;
+		_ddmDataProviderInstanceId = ddmDataProviderInstanceId;
+		_httpServletRequest = httpServletRequest;
 	}
 
 	public DDMDataProviderContext getDDMDataProviderContext() {
 		return _ddmDataProviderContext;
 	}
 
-	public int getPaginationEnd() {
-		return _paginationEnd;
+	public String getDDMDataProviderInstanceId() {
+		return _ddmDataProviderInstanceId;
 	}
 
-	public int getPaginationStart() {
-		return _paginationStart;
+	public HttpServletRequest getHttpServletRequest() {
+		return _httpServletRequest;
 	}
 
-	public void setPaginationEnd(int paginationEnd) {
-		_paginationEnd = paginationEnd;
+	public String getParameter(String name) {
+		return _parameters.get(name);
 	}
 
-	public void setPaginationStart(int paginationStart) {
-		_paginationStart = paginationStart;
+	public Map<String, String> getParameters() {
+		return _parameters;
 	}
 
-	private final DDMDataProviderContext _ddmDataProviderContext;
-	private int _paginationEnd;
-	private int _paginationStart;
+	public void queryString(Map<String, String> parameters) {
+		_parameters.putAll(parameters);
+	}
+
+	public void queryString(String name, String value) {
+		_parameters.put(name, value);
+	}
+
+	public void setDDMDataProviderContext(
+		DDMDataProviderContext ddmDataProviderContext) {
+
+		_ddmDataProviderContext = ddmDataProviderContext;
+	}
+
+	private DDMDataProviderContext _ddmDataProviderContext;
+	private final String _ddmDataProviderInstanceId;
+	private final HttpServletRequest _httpServletRequest;
+	private final Map<String, String> _parameters = new HashMap<>();
 
 }

@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
+<%@ include file="/html/common/init.jsp" %>
 
 <%
 boolean author = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:user-display:author"));
@@ -30,9 +30,5 @@ String userName = GetterUtil.getString((String)request.getAttribute("liferay-ui:
 
 if (author) {
 	imageCssClass += " author";
-}
-
-if (Validator.isNull(url) && (userDisplay != null)) {
-	url = userDisplay.getDisplayURL(themeDisplay);
 }
 %>

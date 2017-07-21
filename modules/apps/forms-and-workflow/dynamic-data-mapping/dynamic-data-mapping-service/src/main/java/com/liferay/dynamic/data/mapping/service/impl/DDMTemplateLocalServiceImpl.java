@@ -280,7 +280,7 @@ public class DDMTemplateLocalServiceImpl
 
 		String resourceName =
 			DDMTemplatePermission.getTemplateModelResourceName(
-				template.getResourceClassNameId());
+				template.getResourceClassName());
 
 		resourceLocalService.addResources(
 			template.getCompanyId(), template.getGroupId(),
@@ -302,7 +302,7 @@ public class DDMTemplateLocalServiceImpl
 
 		String resourceName =
 			DDMTemplatePermission.getTemplateModelResourceName(
-				template.getResourceClassNameId());
+				template.getResourceClassName());
 
 		resourceLocalService.addModelResources(
 			template.getCompanyId(), template.getGroupId(),
@@ -420,7 +420,7 @@ public class DDMTemplateLocalServiceImpl
 
 		String resourceName =
 			DDMTemplatePermission.getTemplateModelResourceName(
-				template.getResourceClassNameId());
+				template.getResourceClassName());
 
 		resourceLocalService.deleteResource(
 			template.getCompanyId(), resourceName,
@@ -522,13 +522,11 @@ public class DDMTemplateLocalServiceImpl
 	 *         search in the search
 	 * @return the matching template, or <code>null</code> if a matching
 	 *         template could not be found
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public DDMTemplate fetchTemplate(
-			long groupId, long classNameId, String templateKey,
-			boolean includeAncestorTemplates)
-		throws PortalException {
+		long groupId, long classNameId, String templateKey,
+		boolean includeAncestorTemplates) {
 
 		templateKey = StringUtil.toUpperCase(StringUtil.trim(templateKey));
 
@@ -897,6 +895,24 @@ public class DDMTemplateLocalServiceImpl
 	public int getTemplatesCount(long groupId, long classNameId, long classPK) {
 		return ddmTemplatePersistence.countByG_C_C(
 			groupId, classNameId, classPK);
+	}
+
+	/**
+	 * Returns the number of templates matching the group IDs, class name ID,
+	 * and class PK.
+	 *
+	 * @param  groupIds the primary keys of the groups
+	 * @param  classNameId the primary key of the class name for the template's
+	 *         related model
+	 * @param  classPK the primary key of the template's related entity
+	 * @return the number of matching templates
+	 */
+	@Override
+	public int getTemplatesCount(
+		long[] groupIds, long classNameId, long classPK) {
+
+		return ddmTemplatePersistence.countByG_C_C(
+			groupIds, classNameId, classPK);
 	}
 
 	@Override

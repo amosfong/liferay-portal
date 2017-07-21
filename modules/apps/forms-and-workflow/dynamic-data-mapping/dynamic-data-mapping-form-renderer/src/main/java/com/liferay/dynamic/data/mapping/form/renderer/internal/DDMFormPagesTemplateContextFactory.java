@@ -31,6 +31,8 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +58,9 @@ public class DDMFormPagesTemplateContextFactory {
 		DDMFormValues ddmFormValues =
 			ddmFormRenderingContext.getDDMFormValues();
 
-		if (ddmFormValues == null) {
+		if ((ddmFormValues == null) ||
+			ListUtil.isEmpty(ddmFormValues.getDDMFormFieldValues())) {
+
 			DefaultDDMFormValuesFactory defaultDDMFormValuesFactory =
 				new DefaultDDMFormValuesFactory(
 					ddmForm, ddmFormRenderingContext.getLocale());
@@ -150,7 +154,7 @@ public class DDMFormPagesTemplateContextFactory {
 			new DDMFormFieldTemplateContextFactory(
 				_ddmFormFieldsMap, _ddmFormEvaluationResult,
 				_ddmFormFieldValuesMap.get(ddmFormFieldName),
-				_ddmFormRenderingContext);
+				_ddmFormRenderingContext, _pageEnabled);
 
 		ddmFormFieldTemplateContextFactory.setDDMFormFieldTypeServicesTracker(
 			_ddmFormFieldTypeServicesTracker);
@@ -182,7 +186,16 @@ public class DDMFormPagesTemplateContextFactory {
 
 		pageTemplateContext.put("description", description.getString(_locale));
 
-		pageTemplateContext.put("enabled", isPageEnabled(pageIndex));
+		_pageEnabled = isPageEnabled(pageIndex);
+
+		pageTemplateContext.put("enabled", _pageEnabled);
+
+		pageTemplateContext.put(
+			"localizedDescription", getLocalizedValueMap(description));
+
+		LocalizedValue title = ddmFormLayoutPage.getTitle();
+
+		pageTemplateContext.put("localizedTitle", getLocalizedValueMap(title));
 
 		pageTemplateContext.put(
 			"rows",
@@ -194,8 +207,6 @@ public class DDMFormPagesTemplateContextFactory {
 
 		pageTemplateContext.put(
 			"showRequiredFieldsWarning", showRequiredFieldsWarning);
-
-		LocalizedValue title = ddmFormLayoutPage.getTitle();
 
 		pageTemplateContext.put("title", title.getString(_locale));
 
@@ -225,6 +236,22 @@ public class DDMFormPagesTemplateContextFactory {
 				ddFormLayoutRow.getDDMFormLayoutColumns()));
 
 		return rowTemplateContext;
+	}
+
+	protected Map<String, String> getLocalizedValueMap(
+		LocalizedValue localizedValue) {
+
+		Map<String, String> map = new HashMap<>();
+
+		Map<Locale, String> values = localizedValue.getValues();
+
+		for (Map.Entry<Locale, String> entry : values.entrySet()) {
+			String languageId = LocaleUtil.toLanguageId(entry.getKey());
+
+			map.put(languageId, entry.getValue());
+		}
+
+		return map;
 	}
 
 	protected boolean isPageEnabled(int pageIndex) {
@@ -285,6 +312,8 @@ public class DDMFormPagesTemplateContextFactory {
 				new DDMFormEvaluatorContext(_ddmForm, _ddmFormValues, _locale);
 
 			ddmFormEvaluatorContext.addProperty(
+				"groupId", _ddmFormRenderingContext.getGroupId());
+			ddmFormEvaluatorContext.addProperty(
 				"request", _ddmFormRenderingContext.getHttpServletRequest());
 
 			return _ddmFormEvaluator.evaluate(ddmFormEvaluatorContext);
@@ -310,5 +339,6 @@ public class DDMFormPagesTemplateContextFactory {
 	private final DDMFormRenderingContext _ddmFormRenderingContext;
 	private final DDMFormValues _ddmFormValues;
 	private final Locale _locale;
+	private boolean _pageEnabled;
 
 }

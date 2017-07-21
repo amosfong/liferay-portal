@@ -11,6 +11,8 @@
 }
 
 .lfr-ddm-form-container {
+	word-break: normal;
+
 	.form-control-feedback {
 		margin-left: -20px;
 	}
@@ -129,6 +131,9 @@
 	font-size: 14px;
 }
 
+.liferay-ddm-form-field-numeric {
+}
+
 .liferay-ddm-form-field-tip {
 	font-size: 11px;
 	font-weight: 400;
@@ -137,6 +142,15 @@
 .liferay-ddm-form-field-grid {
 	th, td:not(:first-child) {
 		text-align: center;
+	}
+}
+
+.radio-options {
+	.radio-inline {
+		span {
+			display: inline-block;
+			height: 28px;
+		}
 	}
 }
 
@@ -170,7 +184,6 @@
 //└──────────────┘
 
 .form-builder-select-field {
-	min-width: 200px;
 	position: relative;
 
 	.select-arrow-down-container {
@@ -215,7 +228,8 @@
 		border-bottom: 2px solid #869CAD;
 		color: #869CAD;
 		display: block;
-		padding: 10px 5px;
+		height: auto;
+		padding: 8px 5px;
 		text-decoration: none;
 
 		.option-selected-placeholder {
@@ -265,6 +279,11 @@
 				&.option-selected {
 					color: #65B3F0;
 				}
+
+				input[type='checkbox'] {
+					margin: 0;
+					margin-right: 10px;
+				}
 			}
 
 			li:last-child {
@@ -274,6 +293,54 @@
 
 			li:hover {
 				background-color: #F7FAFA;
+			}
+
+			.no-results-list {
+				color: rgba(134, 156, 173, 0.4);
+				cursor: default;
+
+				&:hover {
+					background-color: #FFF;
+				}
+			}
+		}
+	}
+
+	.multiple-badge-list {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		padding-right: 20px;
+		width: auto;
+
+		li {
+			overflow: hidden;
+		}
+
+		.multiple-badge {
+			margin-bottom: 0;
+			margin-right: 6px;
+			margin-top: 0;
+			overflow: hidden;
+			padding-bottom: 3px;
+			padding-right: 20px;
+			position: relative;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			a {
+				position: absolute;
+				right: 8px;
+				top: 4px;
+
+				.icon-monospaced.lexicon-icon {
+					margin-bottom: 1px;
+					margin-left: 5px;
+					padding: 0;
+				}
 			}
 		}
 	}

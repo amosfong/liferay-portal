@@ -14,8 +14,6 @@
 
 package com.liferay.knowledge.base.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.knowledge.base.configuration.KBGroupServiceConfiguration;
 import com.liferay.knowledge.base.constants.AdminActivityKeys;
 import com.liferay.knowledge.base.constants.KBCommentConstants;
@@ -56,7 +54,6 @@ import java.util.Locale;
 /**
  * @author Peter Shin
  */
-@ProviderType
 public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 
 	@Override
@@ -523,7 +520,7 @@ public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 			}
 		}
 		catch (Exception e) {
-			_log.error(e);
+			_log.error("Unable to put title", e);
 		}
 	}
 

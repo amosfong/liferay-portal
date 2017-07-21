@@ -15,6 +15,8 @@
 package com.liferay.dynamic.data.mapping.type.grid.internal;
 
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.json.JSONException;
@@ -23,7 +25,11 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,9 +39,8 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true, property = "ddm.form.field.type.name=grid",
-	service = {
-		DDMFormFieldValueAccessor.class, GridDDMFormFieldValueAccessor.class
-	}
+	service =
+		{DDMFormFieldValueAccessor.class, GridDDMFormFieldValueAccessor.class}
 )
 public class GridDDMFormFieldValueAccessor
 	implements DDMFormFieldValueAccessor<JSONObject> {
@@ -46,18 +51,53 @@ public class GridDDMFormFieldValueAccessor
 
 		Value value = ddmFormFieldValue.getValue();
 
-		String valueString = value.getString(locale);
+		return createJSONObject(value.getString(locale));
+	}
 
+	@Override
+	public boolean isEmpty(DDMFormFieldValue ddmFormFieldValue, Locale locale) {
+		JSONObject jsonObject = getValue(ddmFormFieldValue, locale);
+
+		Set<String> keys = getUniqueKeys(jsonObject);
+
+		Set<String> rowValues = getDDMFormFieldRowValues(
+			ddmFormFieldValue.getDDMFormField());
+
+		Stream<String> stream = rowValues.stream();
+
+		return stream.anyMatch(rowValue -> !keys.contains(rowValue));
+	}
+
+	protected JSONObject createJSONObject(String json) {
 		try {
-			return jsonFactory.createJSONObject(valueString);
+			return jsonFactory.createJSONObject(json);
 		}
 		catch (JSONException jsone) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(jsone, jsone);
+				_log.debug("Unable to parse JSON object", jsone);
 			}
 
 			return jsonFactory.createJSONObject();
 		}
+	}
+
+	protected Set<String> getDDMFormFieldRowValues(DDMFormField ddmFormField) {
+		DDMFormFieldOptions ddmFormFieldOptions =
+			(DDMFormFieldOptions)ddmFormField.getProperty("rows");
+
+		return ddmFormFieldOptions.getOptionsValues();
+	}
+
+	protected Set<String> getUniqueKeys(JSONObject jsonObject) {
+		Set<String> uniqueKeys = new HashSet<>();
+
+		Iterator<String> keys = jsonObject.keys();
+
+		while (keys.hasNext()) {
+			uniqueKeys.add(keys.next());
+		}
+
+		return uniqueKeys;
 	}
 
 	@Reference

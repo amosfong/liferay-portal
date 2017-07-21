@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.InvokerPortlet;
+import com.liferay.portal.kernel.portlet.LayoutFriendlyURLSeparatorComposite;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
@@ -378,9 +379,14 @@ public class PortalUtil {
 			canonicalURL, themeDisplay, locale, layout);
 	}
 
-	public static long[] getAncestorSiteGroupIds(long groupId)
+	public static Map<Locale, String> getAlternateURLs(
+			String canonicalURL, ThemeDisplay themeDisplay, Layout layout)
 		throws PortalException {
 
+		return getPortal().getAlternateURLs(canonicalURL, themeDisplay, layout);
+	}
+
+	public static long[] getAncestorSiteGroupIds(long groupId) {
 		return getPortal().getAncestorSiteGroupIds(groupId);
 	}
 
@@ -1129,12 +1135,35 @@ public class PortalUtil {
 		return getPortal().getLayoutFriendlyURL(layout, themeDisplay, locale);
 	}
 
+	public static String getLayoutFriendlyURL(ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		return getPortal().getLayoutFriendlyURL(themeDisplay);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getLayoutFriendlyURLSeparatorComposite(long, boolean,
+	 *             String, Map<String, String[]>, Map<String, Object>)}
+	 */
+	@Deprecated
 	public static LayoutFriendlyURLComposite getLayoutFriendlyURLComposite(
 			long groupId, boolean privateLayout, String friendlyURL,
 			Map<String, String[]> params, Map<String, Object> requestContext)
 		throws PortalException {
 
 		return getPortal().getLayoutFriendlyURLComposite(
+			groupId, privateLayout, friendlyURL, params, requestContext);
+	}
+
+	public static LayoutFriendlyURLSeparatorComposite
+			getLayoutFriendlyURLSeparatorComposite(
+				long groupId, boolean privateLayout, String friendlyURL,
+				Map<String, String[]> params,
+				Map<String, Object> requestContext)
+		throws PortalException {
+
+		return getPortal().getLayoutFriendlyURLSeparatorComposite(
 			groupId, privateLayout, friendlyURL, params, requestContext);
 	}
 
@@ -1721,6 +1750,11 @@ public class PortalUtil {
 			portletResponse, themeDisplay, portletName);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getSiteAdminURL(
+	 *             ThemeDisplay, String, Map)}
+	 */
+	@Deprecated
 	public static String getSiteAdminURL(
 			Company company, Group group, String ppid,
 			Map<String, String[]> params)
@@ -1730,8 +1764,8 @@ public class PortalUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #getSiteAdminURL(Company, Group, String, Map)}
+	 * @deprecated As of 7.0.0, replaced by {@link #getSiteAdminURL(
+	 *             ThemeDisplay, String, Map)}
 	 */
 	@Deprecated
 	public static String getSiteAdminURL(
@@ -1739,6 +1773,14 @@ public class PortalUtil {
 		throws PortalException {
 
 		return getPortal().getSiteAdminURL(group, ppid, params);
+	}
+
+	public static String getSiteAdminURL(
+			ThemeDisplay themeDisplay, String ppid,
+			Map<String, String[]> params)
+		throws PortalException {
+
+		return getPortal().getSiteAdminURL(themeDisplay, ppid, params);
 	}
 
 	/**

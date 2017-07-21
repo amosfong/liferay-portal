@@ -24,13 +24,12 @@ import com.liferay.exportimport.kernel.exception.LARFileSizeException;
 import com.liferay.exportimport.kernel.exception.LARTypeException;
 import com.liferay.exportimport.kernel.exception.LayoutImportException;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
-import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.MissingReference;
 import com.liferay.exportimport.kernel.lar.MissingReferences;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.service.ExportImportService;
-import com.liferay.exportimport.kernel.staging.StagingUtil;
+import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.portal.kernel.exception.LayoutPrototypeException;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -43,7 +42,6 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutService;
-import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadException;
@@ -286,14 +284,11 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 
 		deleteTempFileEntry(themeDisplay.getScopeGroupId(), folderName);
 
-		JSONObject jsonObject = StagingUtil.getExceptionMessagesJSONObject(
+		JSONObject jsonObject = _staging.getExceptionMessagesJSONObject(
 			themeDisplay.getLocale(), e, (ExportImportConfiguration)null);
 
 		JSONPortletResponseUtil.writeJSON(
 			actionRequest, actionResponse, jsonObject);
-
-		ServletResponseUtil.write(
-			response, String.valueOf(jsonObject.getInt("status")));
 	}
 
 	protected void importData(ActionRequest actionRequest, String folderName)
@@ -304,7 +299,7 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		FileEntry fileEntry = ExportImportHelperUtil.getTempFileEntry(
+		FileEntry fileEntry = _exportImportHelper.getTempFileEntry(
 			groupId, themeDisplay.getUserId(), folderName);
 
 		InputStream inputStream = null;
@@ -390,7 +385,7 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		FileEntry fileEntry = ExportImportHelperUtil.getTempFileEntry(
+		FileEntry fileEntry = _exportImportHelper.getTempFileEntry(
 			groupId, themeDisplay.getUserId(), folderName);
 
 		InputStream inputStream = null;
@@ -416,7 +411,7 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 
 				jsonObject.put(
 					"warningMessages",
-					StagingUtil.getWarningMessagesJSONArray(
+					_staging.getWarningMessagesJSONArray(
 						themeDisplay.getLocale(), weakMissingReferences));
 			}
 
@@ -463,10 +458,17 @@ public class ImportLayoutsMVCActionCommand extends BaseMVCActionCommand {
 	private DLFileEntryLocalService _dlFileEntryLocalService;
 	private ExportImportConfigurationLocalService
 		_exportImportConfigurationLocalService;
+
+	@Reference
+	private ExportImportHelper _exportImportHelper;
+
 	private ExportImportService _exportImportService;
 	private LayoutService _layoutService;
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private Staging _staging;
 
 }

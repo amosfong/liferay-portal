@@ -59,7 +59,7 @@ if (kbArticle != null) {
 					<liferay-ui:icon
 						iconCssClass="icon-paper-clip"
 						label="<%= true %>"
-						message='<%= fileEntry.getTitle() + " (" + TextFormatter.formatStorageSize(fileEntry.getSize(), locale) + ")" %>'
+						message='<%= HtmlUtil.escape(fileEntry.getTitle()) + " (" + TextFormatter.formatStorageSize(fileEntry.getSize(), locale) + ")" %>'
 						method="get"
 						url="<%= rowURL %>"
 					/>
@@ -102,7 +102,7 @@ Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class
 				method: Liferay.Service.bind('/kb.kbarticle/get-temp-attachment-names'),
 				params: {
 					groupId: <%= scopeGroupId %>,
-					tempFolderName: 'com.liferay.knowledge.base.admin'
+					tempFolderName: '<%= KnowledgeBaseConstants.TEMP_FOLDER_NAME %>'
 				}
 			},
 			uploadFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>" name="addTempAttachment"><portlet:param name="resourcePrimKey" value="<%= String.valueOf(resourcePrimKey) %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= KBArticle.class.getName() %>" />'

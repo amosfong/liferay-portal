@@ -14,12 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.form.renderer.internal;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluator;
-import com.liferay.dynamic.data.mapping.form.evaluator.impl.internal.DDMFormEvaluatorImpl;
+import com.liferay.dynamic.data.mapping.form.evaluator.internal.DDMFormEvaluatorImpl;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -34,9 +31,10 @@ import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.ArrayList;
@@ -44,25 +42,39 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
+import org.mockito.Mock;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Marcellus Tavares
  */
-public class DDMFormPagesTemplateContextFactoryTest {
+@PrepareForTest(ResourceBundleLoaderUtil.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor(
+	"com.liferay.portal.kernel.util.ResourceBundleLoaderUtil"
+)
+public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 
 	@Before
 	public void setUp() {
 		setUpLanguageUtil();
+		setUpResourceBundleLoaderUtil();
 	}
 
 	@Test
-	public void testDisablePages() {
+	public void testDisablePages() throws Exception {
 
 		// Dynamic data mapping form
 
@@ -169,7 +181,7 @@ public class DDMFormPagesTemplateContextFactoryTest {
 	}
 
 	@Test
-	public void testOnePageThreeRows() {
+	public void testOnePageThreeRows() throws Exception {
 
 		// Dynamic data mapping form
 
@@ -252,7 +264,8 @@ public class DDMFormPagesTemplateContextFactoryTest {
 	}
 
 	@Test
-	public void testRequiredFieldsWithoutRequiredFieldsWarning() {
+	public void testRequiredFieldsWithoutRequiredFieldsWarning()
+		throws Exception {
 
 		// Dynamic data mapping form
 
@@ -326,7 +339,7 @@ public class DDMFormPagesTemplateContextFactoryTest {
 	}
 
 	@Test
-	public void testRequiredFieldsWithRequiredFieldsWarning() {
+	public void testRequiredFieldsWithRequiredFieldsWarning() throws Exception {
 
 		// Dynamic data mapping form
 
@@ -450,10 +463,11 @@ public class DDMFormPagesTemplateContextFactoryTest {
 	}
 
 	protected DDMFormPagesTemplateContextFactory
-		createDDMFormPagesTemplateContextFactory(
-			DDMForm ddmForm, DDMFormLayout ddmFormLayout,
-			DDMFormValues ddmFormValues, boolean ddmFormReadOnly,
-			boolean showRequiredFieldsWarning) {
+			createDDMFormPagesTemplateContextFactory(
+				DDMForm ddmForm, DDMFormLayout ddmFormLayout,
+				DDMFormValues ddmFormValues, boolean ddmFormReadOnly,
+				boolean showRequiredFieldsWarning)
+		throws Exception {
 
 		DDMFormRenderingContext ddmFormRenderingContext =
 			new DDMFormRenderingContext();
@@ -472,28 +486,27 @@ public class DDMFormPagesTemplateContextFactoryTest {
 		ddmFormPagesTemplateContextFactory.setDDMFormEvaluator(
 			getDDMFormEvaluator());
 		ddmFormPagesTemplateContextFactory.setDDMFormFieldTypeServicesTracker(
-			getDDMFormFieldTypesServicesTracker());
+			_ddmFormFieldTypeServicesTracker);
 
 		return ddmFormPagesTemplateContextFactory;
 	}
 
-	protected DDMFormEvaluator getDDMFormEvaluator() {
+	protected DDMFormEvaluator getDDMFormEvaluator() throws Exception {
 		DDMFormEvaluator ddmFormEvaluator = new DDMFormEvaluatorImpl();
 
-		ReflectionTestUtil.setFieldValue(
-			ddmFormEvaluator, "_ddmExpressionFactory",
-			new DDMExpressionFactoryImpl());
+		field(
+			DDMFormEvaluatorImpl.class, "_ddmExpressionFactory"
+		).set(
+			ddmFormEvaluator, new DDMExpressionFactoryImpl()
+		);
+
+		field(
+			DDMFormEvaluatorImpl.class, "_ddmFormFieldTypeServicesTracker"
+		).set(
+			ddmFormEvaluator, _ddmFormFieldTypeServicesTracker
+		);
 
 		return ddmFormEvaluator;
-	}
-
-	protected DDMFormFieldTypeServicesTracker
-		getDDMFormFieldTypesServicesTracker() {
-
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker = mock(
-			DDMFormFieldTypeServicesTracker.class);
-
-		return ddmFormFieldTypeServicesTracker;
 	}
 
 	protected void setUpLanguageUtil() {
@@ -508,11 +521,24 @@ public class DDMFormPagesTemplateContextFactoryTest {
 		languageUtil.setLanguage(language);
 	}
 
+	protected void setUpResourceBundleLoaderUtil() {
+		mockStatic(ResourceBundleLoaderUtil.class);
+
+		ResourceBundleLoader portalResourceBundleLoader = mock(
+			ResourceBundleLoader.class);
+
+		when(
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader()
+		).thenReturn(
+			portalResourceBundleLoader
+		);
+	}
+
 	protected void whenLanguageGet(
 		Language language, Locale locale, String key, String returnValue) {
 
 		when(
-			language.get(Matchers.eq(locale), Matchers.eq(key))
+			language.get(Matchers.any(ResourceBundle.class), Matchers.eq(key))
 		).thenReturn(
 			returnValue
 		);
@@ -521,5 +547,8 @@ public class DDMFormPagesTemplateContextFactoryTest {
 	private static final Locale _LOCALE = LocaleUtil.US;
 
 	private static final String _PORTLET_NAMESPACE = StringUtil.randomString();
+
+	@Mock
+	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 
 }

@@ -15,56 +15,28 @@
 package com.liferay.portal.search.solr.internal.query;
 
 import com.liferay.portal.kernel.search.generic.MatchQuery;
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.solr.query.MatchQueryTranslator;
 
-import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.PhraseQuery;
-import org.apache.lucene.search.PrefixQuery;
+import org.apache.lucene.search.TermQuery;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Michael C. Han
+ * @author André de Oliveira
  */
 @Component(immediate = true, service = MatchQueryTranslator.class)
 public class MatchQueryTranslatorImpl implements MatchQueryTranslator {
 
 	@Override
 	public org.apache.lucene.search.Query translate(MatchQuery matchQuery) {
-		MatchQuery.Type matchQueryType = matchQuery.getType();
-
-		String value = matchQuery.getValue();
-
-		if (value.startsWith(StringPool.QUOTE) &&
-			value.endsWith(StringPool.QUOTE)) {
-
-			matchQueryType = MatchQuery.Type.PHRASE;
-
-			value = value.substring(1, value.length() - 1);
-
-			if (value.endsWith(StringPool.STAR)) {
-				matchQueryType = MatchQuery.Type.PHRASE_PREFIX;
-
-				value = value.substring(0, value.length() - 1);
-			}
-		}
-
-		if (matchQueryType == null) {
-			matchQueryType = MatchQuery.Type.BOOLEAN;
-		}
-
-		org.apache.lucene.search.Query query = createQuery(
-			matchQueryType, matchQuery.getField(), value);
-
-		if ((query instanceof PhraseQuery) && (matchQuery.getSlop() != null)) {
-			PhraseQuery phraseQuery = (PhraseQuery)query;
-
-			phraseQuery.setSlop(matchQuery.getSlop());
-		}
+		org.apache.lucene.search.Query query = translateMatchQuery(matchQuery);
 
 		if (!matchQuery.isDefaultBoost()) {
 			query.setBoost(matchQuery.getBoost());
@@ -73,48 +45,110 @@ public class MatchQueryTranslatorImpl implements MatchQueryTranslator {
 		return query;
 	}
 
-	protected org.apache.lucene.search.Query createPhraseQuery(
-		String field, String value) {
+	protected org.apache.lucene.search.Query translateMatchQuery(
+		MatchQuery matchQuery) {
 
-		PhraseQuery phraseQuery = new PhraseQuery();
+		String field = matchQuery.getField();
+		MatchQuery.Type matchQueryType = matchQuery.getType();
+		String value = matchQuery.getValue();
 
-		phraseQuery.add(new Term(field, value));
+		if (value.startsWith(StringPool.QUOTE) &&
+			value.endsWith(StringPool.QUOTE)) {
 
-		return phraseQuery;
-	}
+			matchQueryType = MatchQuery.Type.PHRASE;
 
-	protected org.apache.lucene.search.Query createPrefixQuery(
-		String field, String value) {
+			value = StringUtil.unquote(value);
 
-		return new PrefixQuery(new Term(field, value));
-	}
+			if (value.endsWith(StringPool.STAR)) {
+				matchQueryType = MatchQuery.Type.PHRASE_PREFIX;
+			}
+		}
 
-	protected org.apache.lucene.search.Query createQuery(
-		MatchQuery.Type matchQueryType, String field, String value) {
+		value = _trimStars(value);
+
+		value = QueryParser.escape(value);
+
+		value = _defuseUpperCaseLuceneBooleanOperators(value);
+
+		if (matchQueryType == null) {
+			matchQueryType = MatchQuery.Type.BOOLEAN;
+		}
 
 		if (matchQueryType == MatchQuery.Type.BOOLEAN) {
-			return parse(field, value);
+			return translateQueryTypeBoolean(field, value);
 		}
 		else if (matchQueryType == MatchQuery.Type.PHRASE) {
-			return createPhraseQuery(field, value);
+			return translateQueryTypePhrase(field, value, matchQuery.getSlop());
 		}
 		else if (matchQueryType == MatchQuery.Type.PHRASE_PREFIX) {
-			return createPrefixQuery(field, value);
+			return translateQueryTypePhrasePrefix(field, value);
 		}
 
 		throw new IllegalArgumentException(
 			"Invalid match query type: " + matchQueryType);
 	}
 
-	protected org.apache.lucene.search.Query parse(String field, String value) {
-		QueryParser queryParser = new QueryParser(field, new KeywordAnalyzer());
+	protected org.apache.lucene.search.Query translateQueryTypeBoolean(
+		String field, String value) {
 
-		try {
-			return queryParser.parse(value);
+		value = _encloseMultiword(
+			value, StringPool.OPEN_PARENTHESIS, StringPool.CLOSE_PARENTHESIS);
+
+		return new TermQuery(new Term(field, value));
+	}
+
+	protected org.apache.lucene.search.Query translateQueryTypePhrase(
+		String field, String value, Integer slop) {
+
+		PhraseQuery phraseQuery = new PhraseQuery();
+
+		phraseQuery.add(new Term(field, value));
+
+		if (slop != null) {
+			phraseQuery.setSlop(slop);
 		}
-		catch (ParseException pe) {
-			throw new IllegalArgumentException(pe);
+
+		return phraseQuery;
+	}
+
+	protected org.apache.lucene.search.Query translateQueryTypePhrasePrefix(
+		String field, String value) {
+
+		value = value.concat(StringPool.STAR);
+
+		value = _encloseMultiword(
+			value, StringPool.OPEN_PARENTHESIS + StringPool.PLUS,
+			StringPool.CLOSE_PARENTHESIS);
+
+		return new TermQuery(new Term(field, value));
+	}
+
+	private String _defuseUpperCaseLuceneBooleanOperators(String value) {
+		return StringUtil.toLowerCase(value);
+	}
+
+	private String _encloseMultiword(String value, String open, String close) {
+		if (value.indexOf(CharPool.SPACE) == -1) {
+			return value;
 		}
+
+		return open + value + close;
+	}
+
+	private String _trimStars(String value) {
+		if (value.equals(StringPool.STAR)) {
+			return value;
+		}
+
+		if (value.startsWith(StringPool.STAR)) {
+			value = value.substring(1);
+		}
+
+		if (value.endsWith(StringPool.STAR)) {
+			value = value.substring(0, value.length() - 1);
+		}
+
+		return value;
 	}
 
 }

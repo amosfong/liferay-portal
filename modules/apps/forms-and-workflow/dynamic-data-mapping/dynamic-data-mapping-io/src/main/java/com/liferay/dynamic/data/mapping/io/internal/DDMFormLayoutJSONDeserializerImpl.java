@@ -54,7 +54,7 @@ public class DDMFormLayoutJSONDeserializerImpl
 			jsonObject.getString("defaultLanguageId"), ddmFormLayout);
 		setDDMFormLayoutPages(jsonObject.getJSONArray("pages"), ddmFormLayout);
 		setDDMFormLayoutPageTitlesDefaultLocale(ddmFormLayout);
-		_setDDMFormLayoutPaginationMode(
+		setDDMFormLayoutPaginationMode(
 			jsonObject.getString("paginationMode"), ddmFormLayout);
 
 		return ddmFormLayout;
@@ -149,6 +149,26 @@ public class DDMFormLayoutJSONDeserializerImpl
 		return ddmFormLayoutRows;
 	}
 
+	protected LocalizedValue getDescription(JSONObject jsonObject) {
+		if (jsonObject == null) {
+			return null;
+		}
+
+		LocalizedValue description = new LocalizedValue();
+
+		Iterator<String> itr = jsonObject.keys();
+
+		while (itr.hasNext()) {
+			String languageId = itr.next();
+
+			description.addString(
+				LocaleUtil.fromLanguageId(languageId),
+				jsonObject.getString(languageId));
+		}
+
+		return description;
+	}
+
 	protected LocalizedValue getTitle(JSONObject jsonObject) {
 		if (jsonObject == null) {
 			return null;
@@ -189,7 +209,7 @@ public class DDMFormLayoutJSONDeserializerImpl
 	protected void setDDMFormLayoutPageDescription(
 		JSONObject jsonObject, DDMFormLayoutPage ddmFormLayoutPage) {
 
-		LocalizedValue description = _getDescription(jsonObject);
+		LocalizedValue description = getDescription(jsonObject);
 
 		if (description == null) {
 			return;
@@ -240,6 +260,12 @@ public class DDMFormLayoutJSONDeserializerImpl
 		}
 	}
 
+	protected void setDDMFormLayoutPaginationMode(
+		String paginationMode, DDMFormLayout ddmFormLayout) {
+
+		ddmFormLayout.setPaginationMode(paginationMode);
+	}
+
 	protected void setDDMFormLayoutRowColumns(
 		JSONArray jsonArray, DDMFormLayoutRow ddmFormLayoutRow) {
 
@@ -252,32 +278,6 @@ public class DDMFormLayoutJSONDeserializerImpl
 	@Reference(unbind = "-")
 	protected void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
-	}
-
-	private LocalizedValue _getDescription(JSONObject jsonObject) {
-		if (jsonObject == null) {
-			return null;
-		}
-
-		LocalizedValue description = new LocalizedValue();
-
-		Iterator<String> itr = jsonObject.keys();
-
-		while (itr.hasNext()) {
-			String languageId = itr.next();
-
-			description.addString(
-				LocaleUtil.fromLanguageId(languageId),
-				jsonObject.getString(languageId));
-		}
-
-		return description;
-	}
-
-	private void _setDDMFormLayoutPaginationMode(
-		String paginationMode, DDMFormLayout ddmFormLayout) {
-
-		ddmFormLayout.setPaginationMode(paginationMode);
 	}
 
 	private JSONFactory _jsonFactory;

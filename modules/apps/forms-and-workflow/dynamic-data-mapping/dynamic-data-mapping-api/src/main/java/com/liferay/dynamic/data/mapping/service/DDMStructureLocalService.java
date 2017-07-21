@@ -307,8 +307,7 @@ public interface DDMStructureLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DDMStructure fetchStructure(long groupId, long classNameId,
-		java.lang.String structureKey, boolean includeAncestorStructures)
-		throws PortalException;
+		java.lang.String structureKey, boolean includeAncestorStructures);
 
 	/**
 	* Returns the structure with the ID.
@@ -901,8 +900,8 @@ public interface DDMStructureLocalService extends BaseLocalService,
 		int start, int end);
 
 	/**
-	* Returns an ordered range of all the structures matching the group,
-	* class name ID, name, and description.
+	* Returns an ordered range of all the structures matching the group, class
+	* name ID, name, and description.
 	*
 	* <p>
 	* Useful when paginating results. Returns a maximum of <code>end -

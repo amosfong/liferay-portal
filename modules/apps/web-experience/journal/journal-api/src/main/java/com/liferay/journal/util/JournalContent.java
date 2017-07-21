@@ -14,6 +14,9 @@
 
 package com.liferay.journal.util;
 
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleDisplay;
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -21,12 +24,18 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 /**
  * @author Raymond Augé
  */
+@ProviderType
 public interface JournalContent {
 
 	public void clearCache();
 
 	public void clearCache(
 		long groupId, String articleId, String ddmTemplateKey);
+
+	public void clearCache(String ddmTemplateKey);
+
+	public String getContent(
+		long groupId, String articleId, String viewMode, String languageId);
 
 	public String getContent(
 		long groupId, String articleId, String viewMode, String languageId,
@@ -47,6 +56,11 @@ public interface JournalContent {
 
 	public String getContent(
 		long groupId, String articleId, String viewMode, String languageId,
+		ThemeDisplay themeDisplay);
+
+	public JournalArticleDisplay getDisplay(
+		JournalArticle article, String ddmTemplateKey, String viewMode,
+		String languageId, int page, PortletRequestModel portletRequestModel,
 		ThemeDisplay themeDisplay);
 
 	public JournalArticleDisplay getDisplay(

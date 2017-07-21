@@ -17,6 +17,8 @@ package com.liferay.portal.search.elasticsearch.internal.connection;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.SecureRandomUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -34,16 +36,35 @@ import java.io.IOException;
 
 import java.net.InetAddress;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.time.StopWatch;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.discovery.DiscoveryService;
+import org.elasticsearch.index.IndexService;
+import org.elasticsearch.index.settings.IndexSettingsService;
+import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.search.SearchService;
+import org.elasticsearch.search.action.SearchServiceTransportAction;
+import org.elasticsearch.search.internal.ShardSearchTransportRequest;
+import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.transport.TransportChannel;
+import org.elasticsearch.transport.TransportRequestHandler;
+import org.elasticsearch.transport.TransportService;
 
 import org.jboss.netty.util.internal.ByteBufferUtil;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -85,9 +106,62 @@ public class EmbeddedElasticsearchConnection
 			}
 		}
 
+		if (PortalRunMode.isTestMode()) {
+			settingsBuilder.put("index.refresh_interval", "-1");
+			settingsBuilder.put(
+				"index.translog.flush_threshold_ops", Integer.MAX_VALUE);
+			settingsBuilder.put("index.translog.interval", "1d");
+
+			Settings settings = settingsBuilder.build();
+
+			Injector injector = _node.injector();
+
+			IndicesService indicesService = injector.getInstance(
+				IndicesService.class);
+
+			Iterator<IndexService> iterator = indicesService.iterator();
+
+			while (iterator.hasNext()) {
+				IndexService indexService = iterator.next();
+
+				injector = indexService.injector();
+
+				IndexSettingsService indexSettingsService =
+					injector.getInstance(IndexSettingsService.class);
+
+				indexSettingsService.refreshSettings(settings);
+			}
+
+			ThreadPool threadPool = injector.getInstance(ThreadPool.class);
+
+			ScheduledExecutorService scheduledExecutorService =
+				threadPool.scheduler();
+
+			if (scheduledExecutorService instanceof ThreadPoolExecutor) {
+				ThreadPoolExecutor threadPoolExecutor =
+					(ThreadPoolExecutor)scheduledExecutorService;
+
+				threadPoolExecutor.setRejectedExecutionHandler(
+					_REJECTED_EXECUTION_HANDLER);
+			}
+
+			scheduledExecutorService.shutdown();
+
+			try {
+				scheduledExecutorService.awaitTermination(1, TimeUnit.HOURS);
+			}
+			catch (InterruptedException ie) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("Thread pool shutdown wait was interrupted", ie);
+				}
+			}
+		}
+
 		_node.close();
 
 		_node = null;
+
+		_file.deltree(_jnaTmpDirName);
 	}
 
 	public Node getNode() {
@@ -107,9 +181,15 @@ public class EmbeddedElasticsearchConnection
 
 	@Activate
 	@Modified
-	protected void activate(Map<String, Object> properties) {
+	protected void activate(
+		BundleContext bundleContext, Map<String, Object> properties) {
+
 		elasticsearchConfiguration = ConfigurableUtil.createConfigurable(
 			ElasticsearchConfiguration.class, properties);
+
+		java.io.File tempDir = bundleContext.getDataFile(JNA_TMP_DIR);
+
+		_jnaTmpDirName = tempDir.getAbsolutePath();
 	}
 
 	@Override
@@ -220,10 +300,7 @@ public class EmbeddedElasticsearchConnection
 
 	protected void configurePlugin(String name, Settings settings) {
 		EmbeddedElasticsearchPluginManager embeddedElasticsearchPluginManager =
-			new EmbeddedElasticsearchPluginManager(
-				name, settings.get("path.plugins"),
-				new PluginManagerFactoryImpl(settings),
-				new PluginZipFactoryImpl());
+			createEmbeddedElasticsearchPluginManager(name, settings);
 
 		try {
 			embeddedElasticsearchPluginManager.install();
@@ -241,6 +318,10 @@ public class EmbeddedElasticsearchConnection
 			"analysis-icu", "analysis-kuromoji", "analysis-smartcn",
 			"analysis-stempel"
 		};
+
+		for (String plugin : plugins) {
+			removeObsoletePlugin(plugin, settings);
+		}
 
 		for (String plugin : plugins) {
 			configurePlugin(plugin, settings);
@@ -290,6 +371,15 @@ public class EmbeddedElasticsearchConnection
 		return client;
 	}
 
+	protected EmbeddedElasticsearchPluginManager
+		createEmbeddedElasticsearchPluginManager(
+			String name, Settings settings) {
+
+		return new EmbeddedElasticsearchPluginManager(
+			name, settings.get("path.plugins"),
+			new PluginManagerFactoryImpl(settings), new PluginZipFactoryImpl());
+	}
+
 	protected Node createNode(Settings settings) {
 		Thread thread = Thread.currentThread();
 
@@ -299,11 +389,38 @@ public class EmbeddedElasticsearchConnection
 
 		thread.setContextClassLoader(clazz.getClassLoader());
 
+		String jnaTmpDir = System.getProperty("jna.tmpdir");
+
+		System.setProperty("jna.tmpdir", _jnaTmpDirName);
+
 		try {
-			return new Node(settings);
+			NodeBuilder nodeBuilder = new NodeBuilder();
+
+			nodeBuilder.settings(settings);
+
+			nodeBuilder.local(true);
+
+			Node node = nodeBuilder.build();
+
+			if (elasticsearchConfiguration.syncSearch()) {
+				Injector injector = node.injector();
+
+				_replaceTransportRequestHandler(
+					injector.getInstance(TransportService.class),
+					injector.getInstance(SearchService.class));
+			}
+
+			return node;
 		}
 		finally {
 			thread.setContextClassLoader(contextClassLoader);
+
+			if (jnaTmpDir == null) {
+				System.clearProperty("jna.tmpdir");
+			}
+			else {
+				System.setProperty("jna.tmpdir", jnaTmpDir);
+			}
 		}
 	}
 
@@ -330,7 +447,9 @@ public class EmbeddedElasticsearchConnection
 
 		settingsBuilder.put("node.client", false);
 		settingsBuilder.put("node.data", true);
-		settingsBuilder.put("node.local", true);
+		settingsBuilder.put(
+			DiscoveryService.SETTING_DISCOVERY_SEED,
+			SecureRandomUtil.nextLong());
 
 		configurePaths();
 
@@ -343,6 +462,19 @@ public class EmbeddedElasticsearchConnection
 		}
 	}
 
+	protected void removeObsoletePlugin(String name, Settings settings) {
+		EmbeddedElasticsearchPluginManager embeddedElasticsearchPluginManager =
+			createEmbeddedElasticsearchPluginManager(name, settings);
+
+		try {
+			embeddedElasticsearchPluginManager.removeObsoletePlugin();
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException(
+				"Unable to remove " + name + " plugin", ioe);
+		}
+	}
+
 	@Override
 	protected void removeSettingsContributor(
 		SettingsContributor settingsContributor) {
@@ -350,14 +482,65 @@ public class EmbeddedElasticsearchConnection
 		super.removeSettingsContributor(settingsContributor);
 	}
 
+	protected static final String JNA_TMP_DIR = "elasticSearch-tmpDir";
+
 	@Reference
 	protected ClusterSettingsContext clusterSettingsContext;
 
 	@Reference
 	protected Props props;
 
+	private void _replaceTransportRequestHandler(
+		TransportService transportService, SearchService searchService) {
+
+		String action = SearchServiceTransportAction.QUERY_FETCH_ACTION_NAME;
+
+		transportService.removeHandler(action);
+
+		transportService.registerRequestHandler(
+			action, ShardSearchTransportRequest.class, ThreadPool.Names.SAME,
+			new TransportRequestHandler<ShardSearchTransportRequest>() {
+
+				@Override
+				public void messageReceived(
+						ShardSearchTransportRequest shardSearchTransportRequest,
+						TransportChannel transportChannel)
+					throws Exception {
+
+					transportChannel.sendResponse(
+						searchService.executeFetchPhase(
+							shardSearchTransportRequest));
+				}
+
+			});
+	}
+
+	/**
+	 * Keep this as a static field to avoid the class loading failure during
+	 * Tomcat shutdown.
+	 */
+	private static final RejectedExecutionHandler _REJECTED_EXECUTION_HANDLER =
+		new RejectedExecutionHandler() {
+
+			@Override
+			public void rejectedExecution(
+				Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
+
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Discarded " + runnable + " on " + threadPoolExecutor);
+				}
+			}
+
+		};
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		EmbeddedElasticsearchConnection.class);
+
+	private static String _jnaTmpDirName;
+
+	@Reference
+	private File _file;
 
 	private Node _node;
 

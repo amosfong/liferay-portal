@@ -246,6 +246,7 @@
 		</execute>
 
 		<execute function="Close#closeWindow" locator1="title=Welcome - ${siteName}" />
+
 		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - ${siteName}" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -297,6 +298,7 @@
 		</execute>
 
 		<execute function="Close#closeWindow" locator1="title=Welcome - ${siteName}" />
+
 		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - ${siteName}" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -309,6 +311,7 @@
 		</execute>
 
 		<execute function="Close#closeWindow" locator1="title=Welcome - ${siteName}" />
+
 		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - ${siteName}" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -321,10 +324,15 @@
 		</execute>
 
 		<execute function="Close#closeWindow" locator1="title=Welcome - ${siteName}" />
+
 		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - ${siteName}" />
 	</command>
 
-	<command name="MultipleUsersandOrganizations" priority="4">
+	<command name="MultipleUsersandOrganizations" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="UsersandorganizationsUsecase#MultipleUsersandOrganizations" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -682,7 +690,10 @@
 		</execute>
 	</command>
 
-	<command name="OrganizationAdministratorActivate" priority="3">
+	<command name="OrganizationAdministratorActivate" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Roles" />
 		</execute>
@@ -861,6 +872,8 @@
 	</command>
 
 	<command name="OrganizationSiteDefaultUserAssociations" priority="3">
+		<property name="test.name.skip.portal.instance" value="UsersandorganizationsUsecase#OrganizationSiteDefaultUserAssociations" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -1151,6 +1164,8 @@
 	<command name="ViewContentInLocationOrganizationSite" priority="4">
 		<property name="custom.properties" value="organizations.types=organization,location${line.separator}organizations.rootable[location]=true${line.separator}organizations.children.types[organization]=organization,location" />
 
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Roles" />
 		</execute>
@@ -1309,7 +1324,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/canada" />
+			<var name="url" value="${portalURL}/web/canada" />
 		</execute>
 
 		<execute macro="MessageboardsPortlet#gotoInlinePermissionsPG" />
@@ -1320,7 +1335,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/canada" />
+			<var name="url" value="${portalURL}/web/canada" />
 		</execute>
 
 		<execute macro="MessageboardsPortlet#gotoInlinePermissionsPG" />
@@ -1331,7 +1346,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/canada" />
+			<var name="url" value="${portalURL}/web/canada" />
 		</execute>
 
 		<execute macro="MessageboardsThread#addPG">
@@ -1340,7 +1355,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/united-states" />
+			<var name="url" value="${portalURL}/web/united-states" />
 		</execute>
 
 		<execute macro="MessageboardsPortlet#gotoInlinePermissionsPG" />
@@ -1351,7 +1366,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/united-states" />
+			<var name="url" value="${portalURL}/web/united-states" />
 		</execute>
 
 		<execute macro="MessageboardsPortlet#gotoInlinePermissionsPG" />
@@ -1362,7 +1377,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/united-states" />
+			<var name="url" value="${portalURL}/web/united-states" />
 		</execute>
 
 		<execute macro="MessageboardsThread#addPG">
@@ -1378,7 +1393,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/united-states" />
+			<var name="url" value="${portalURL}/web/united-states" />
 		</execute>
 
 		<execute macro="MessageboardsThread#viewDoNotHaveRequiredPermissionsPG">
@@ -1393,7 +1408,7 @@
 		</execute>
 
 		<execute macro="Navigator#openSpecificURL">
-			<var name="url" value="http://localhost:8080/web/canada" />
+			<var name="url" value="${portalURL}/web/canada" />
 		</execute>
 
 		<execute macro="MessageboardsThread#viewDoNotHaveRequiredPermissionsPG">

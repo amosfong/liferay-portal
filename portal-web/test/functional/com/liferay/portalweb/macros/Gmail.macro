@@ -63,9 +63,24 @@
 
 				<execute function="Type" locator1="Gmail#LOGIN_PASSWORD_FIELD" value1="${userPassword}" />
 
-				<execute function="Check" locator1="Gmail#LOGIN_STAY_SIGNED_IN_CHECKBOX" />
+				<if>
+					<condition function="IsElementPresent" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+					<then>
+						<execute function="Check" locator1="Gmail#LOGIN_STAY_SIGNED_IN_CHECKBOX" />
 
-				<execute function="Click" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+						<execute function="Click" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+					</then>
+					<else>
+						<execute function="Click" locator1="Gmail#LOGIN_NEXT_BUTTON" />
+					</else>
+				</if>
+
+				<if>
+					<condition function="IsElementPresent" locator1="Gmail#MAIL_NAVIGATION" />
+					<then>
+						<execute function="Click" locator1="Gmail#MAIL_NAVIGATION" />
+					</then>
+				</if>
 
 				<execute function="Pause" locator1="5000" />
 			</then>
@@ -93,14 +108,14 @@
 		<if>
 			<condition function="IsElementPresent" locator1="Gmail#SIGN_IN_WITH_DIFFERENT_ACCOUNT" />
 			<then>
-				<execute function="AssertClick" locator1="Gmail#SIGN_IN_WITH_DIFFERENT_ACCOUNT" value1="Sign in with a different account" />
+				<execute function="Click" locator1="Gmail#SIGN_IN_WITH_DIFFERENT_ACCOUNT" />
 
-				<execute function="AssertClick" locator1="Gmail#ADD_ACCOUNT_BUTTON" value1="Add account" />
+				<execute function="Click" locator1="Gmail#ADD_ACCOUNT_BUTTON"  />
 			</then>
 			<elseif>
 				<condition function="IsElementPresent" locator1="Gmail#ADD_ACCOUNT_BUTTON" />
 				<then>
-					<execute function="AssertClick" locator1="Gmail#ADD_ACCOUNT_BUTTON" value1="Add account" />
+					<execute function="Click" locator1="Gmail#ADD_ACCOUNT_BUTTON" />
 				</then>
 			</elseif>
 		</if>
@@ -111,9 +126,24 @@
 
 		<execute function="Type" locator1="Gmail#LOGIN_PASSWORD_FIELD" value1="${userPassword}" />
 
-		<execute function="Check" locator1="Gmail#LOGIN_STAY_SIGNED_IN_CHECKBOX" />
+		<if>
+			<condition function="IsElementPresent" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+			<then>
+				<execute function="Check" locator1="Gmail#LOGIN_STAY_SIGNED_IN_CHECKBOX" />
 
-		<execute function="Click" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+				<execute function="Click" locator1="Gmail#LOGIN_SIGN_IN_BUTTON" />
+			</then>
+			<else>
+				<execute function="Click" locator1="Gmail#LOGIN_NEXT_BUTTON" />
+			</else>
+		</if>
+
+		<if>
+			<condition function="IsElementPresent" locator1="Gmail#MAIL_NAVIGATION" />
+			<then>
+				<execute function="Click" locator1="Gmail#MAIL_NAVIGATION" />
+			</then>
+		</if>
 
 		<execute function="Pause" locator1="5000" />
 	</command>
@@ -220,46 +250,5 @@
 		<var name="key_gmailAssetType" value="${gmailAssetType}" />
 
 		<execute function="AssertElementNotPresent" locator1="Gmail#GMAIL_HTML_MODE_MAIL_TABLE_MESSAGE_TITLE" />
-	</command>
-
-	<command name="viewSocialOfficeMessageMail">
-		<execute function="AssertClick#assertPartialTextClickAt" locator1="Gmail#GMAIL_HTML_MODE_MAIL_TABLE_MESSAGE_TITLE_SOCIAL_OFFICE_MESSAGE" value1="${senderName} sent you a message on Liferay" />
-
-		<execute function="Pause" locator1="3000" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_SOCIAL_OFFICE_MESSAGE_SUMMARY" value1="${senderName} sent you a message." />
-		<execute function="AssertTextEquals#assertPartialText" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_SOCIAL_OFFICE_MESSAGE_SUBJECT" value1="${messageSubject}" />
-		<execute function="AssertTextEquals#assertPartialText" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_SOCIAL_OFFICE_MESSAGE_BODY" value1="${messageBody}" />
-
-		<execute function="Click" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_SOCIAL_OFFICE_MESSAGE_LINK" />
-
-		<execute function="SelectWindow" locator1="SOMessages#MESSAGES_POP_UP_WINDOW" />
-
-		<if>
-			<isset var="partialMessageBody" />
-			<then>
-				<var name="key_messageBody" value="${partialMessageBody}" />
-			</then>
-			<else>
-				<var name="key_messageBody" value="${messageBody}" />
-			</else>
-		</if>
-
-		<execute function="AssertTextEquals" locator1="SOMessagesMessage#PRIVATE_MESSAGE_SUBJECT" value1="${messageSubject}" />
-
-		<execute macro="SOMessages#viewMessageConnectionDetailsView" />
-
-		<execute function="AssertTextEquals" locator1="SOMessagesMessage#PRIVATE_MESSAGE_SENDER" value1="${senderName}" />
-		<execute function="AssertTextEquals#assertPartialText" locator1="SOMessagesMessage#PRIVATE_MESSAGE_BODY" value1="${messageBody}" />
-
-		<if>
-			<isset var="messageAttachmentFile" />
-			<then>
-				<execute function="AssertElementPresent" locator1="SOMessagesMessage#PRIVATE_MESSAGE_ATTACHMENT" />
-				<execute function="AssertTextEquals#assertPartialText" locator1="SOMessagesMessage#PRIVATE_MESSAGE_ATTACHMENT_LINK" value1="${messageAttachmentFile}" />
-			</then>
-		</if>
-
-		<execute function="Close#closeWindow" locator1="SOMessages#MESSAGES_POP_UP_WINDOW" />
 	</command>
 </definition>

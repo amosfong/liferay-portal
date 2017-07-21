@@ -1,6 +1,7 @@
 <definition component-name="portal-xsl">
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
+	<property name="testray.component.names" value="XSL" />
 	<property name="testray.main.component.name" value="XSL" />
 
 	<set-up>
@@ -61,6 +62,8 @@
 	</tear-down>
 
 	<command name="AddXSL" priority="4">
+		<property name="test.name.skip.portal.instance" value="XSLContent#AddXSL" />
+
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
@@ -127,7 +130,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xmlURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xmlURL" />
 
 		<echo message="xml url ${xmlURL}" />
 
@@ -143,7 +146,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xslURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xslURL" />
 
 		<echo message="xsl url ${xslURL}" />
 
@@ -189,6 +192,7 @@
 
 	<command name="ConfigurePortletWithCorruptXML" priority="4">
 		<property name="ignore.errors" value="must be terminated by the matching end-tag" />
+		<property name="test.name.skip.portal.instance" value="XSLContent#ConfigurePortletWithCorruptXML" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
@@ -256,7 +260,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xmlURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xmlURL" />
 
 		<echo message="xml url ${xmlURL}" />
 
@@ -272,7 +276,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xslURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xslURL" />
 
 		<echo message="xsl url ${xslURL}" />
 
@@ -306,6 +310,7 @@
 
 	<command name="ConfigurePortletWithCorruptXSL" priority="4">
 		<property name="ignore.errors" value="must be terminated by the matching end-tag" />
+		<property name="test.name.skip.portal.instance" value="XSLContent#ConfigurePortletWithCorruptXSL" />
 
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
@@ -373,7 +378,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xmlURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xmlURL" />
 
 		<echo message="xml url ${xmlURL}" />
 
@@ -389,7 +394,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xslURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xslURL" />
 
 		<echo message="xsl url ${xslURL}" />
 
@@ -422,6 +427,8 @@
 	</command>
 
 	<command name="ConfigurePortletWithIncorrectVersionXmlAndXsl" priority="4">
+		<property name="test.name.skip.portal.instance" value="XSLContent#ConfigurePortletWithIncorrectVersionXmlAndXsl" />
+
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
@@ -488,7 +495,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xmlURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xmlURL" />
 
 		<echo message="xml url ${xmlURL}" />
 
@@ -504,7 +511,7 @@
 
 		<echo message="value name ${valueName}" />
 
-		<var group="2" input="${valueName}" name="xslURL" pattern="(localhost:\d+\/)(documents\/.*)" />
+		<var method="RegexUtil#replace('${valueName}', '(localhost:\d+\/)(documents\/.*)', '2')" name="xslURL" />
 
 		<echo message="xsl url ${xslURL}" />
 
@@ -541,6 +548,8 @@
 	</command>
 
 	<command name="ViewXSLDefaultContent" priority="4">
+		<property name="test.name.skip.portal.instance" value="XSLContent#ViewXSLDefaultContent" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Test Page Name" />
 			<var name="siteName" value="Site Name" />

@@ -2,10 +2,10 @@
 ; Do not manually edit this file.
 ;
 [subrepo]
-	autopull = false
+	autopull = true
 	cmdver = liferay
-	commit = c65130ec58de60bc4a77897d49a0c232da291465
+	commit = 83e8353f6a9d49c43e3cb3a87f8111bf23950244
 	mergebuttonmergecommits = false
 	mode = pull
-	parent = 00192ecda0dbd6d9418e351e2b479cb47c9e0d6d
+	parent = 8aa13da1d4fec81e48890b253b4ffab66e72fe3e
 	remote = git@github.com:liferay/com-liferay-portal-workflow.git

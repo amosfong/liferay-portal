@@ -97,7 +97,7 @@ SearchContainer userSearchContainer = new UserSearch(renderRequest, portletURL);
 
 		LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
-		if (PropsValues.ORGANIZATIONS_ASSIGNMENT_STRICT && !permissionChecker.isCompanyAdmin() && !permissionChecker.hasPermission(scopeGroupId, User.class.getName(), User.class.getName(), ActionKeys.VIEW)) {
+		if (PropsValues.ORGANIZATIONS_ASSIGNMENT_STRICT && !permissionChecker.isCompanyAdmin() && !permissionChecker.hasPermission(themeDisplay.getScopeGroup(), User.class.getName(), User.class.getName(), ActionKeys.VIEW)) {
 			userParams.put("usersOrgsTree", user.getOrganizations(true));
 		}
 		%>
@@ -116,7 +116,7 @@ SearchContainer userSearchContainer = new UserSearch(renderRequest, portletURL);
 					<liferay-ui:search-container-column-text>
 						<liferay-ui:user-portrait
 							cssClass="user-icon-lg"
-							userId="<%= user2.getUserId() %>"
+							user="<%= user2 %>"
 						/>
 					</liferay-ui:search-container-column-text>
 

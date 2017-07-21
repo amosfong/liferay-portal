@@ -87,26 +87,10 @@ MBListDisplayContext mbListDisplayContext = mbDisplayContextProvider.getMbListDi
 %>
 
 <c:if test="<%= !mbListDisplayContext.isShowRecentPosts() %>">
-	<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
-		<liferay-util:include page="/message_boards_admin/nav.jsp" servletContext="<%= application %>">
-			<liferay-util:param name="navItemSelected" value="threads" />
-		</liferay-util:include>
-
-		<liferay-portlet:renderURL varImpl="searchURL">
-			<portlet:param name="mvcRenderCommandName" value="/message_boards_admin/search" />
-		</liferay-portlet:renderURL>
-
-		<aui:nav-bar-search>
-			<aui:form action="<%= searchURL %>" name="searchFm">
-				<liferay-portlet:renderURLParams varImpl="searchURL" />
-				<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-				<aui:input name="breadcrumbsCategoryId" type="hidden" value="<%= categoryId %>" />
-				<aui:input name="searchCategoryId" type="hidden" value="<%= categoryId %>" />
-
-				<liferay-ui:input-search markupView="lexicon" />
-			</aui:form>
-		</aui:nav-bar-search>
-	</aui:nav-bar>
+	<liferay-util:include page="/message_boards_admin/nav.jsp" servletContext="<%= application %>">
+		<liferay-util:param name="navItemSelected" value="threads" />
+		<liferay-util:param name="showSearchFm" value="<%= Boolean.TRUE.toString() %>" />
+	</liferay-util:include>
 </c:if>
 
 <%
@@ -171,7 +155,7 @@ mbListDisplayContext.populateResultsAndTotal(searchContainer);
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>
-		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "deleteEntries();" %>' icon='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "trash" : "times" %>' label='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "recycle-bin" : "delete" %>' />
+		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "deleteEntries();" %>' icon='<%= trashHelper.isTrashEnabled(scopeGroupId) ? "trash" : "times" %>' label='<%= trashHelper.isTrashEnabled(scopeGroupId) ? "recycle-bin" : "delete" %>' />
 
 		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "lockEntries();" %>' icon="lock" label="lock" />
 
@@ -246,11 +230,11 @@ request.setAttribute("view.jsp-entriesSearchContainer", searchContainer);
 
 <aui:script>
 	function <portlet:namespace />deleteEntries() {
-		if (<%= TrashUtil.isTrashEnabled(scopeGroupId) %> || confirm('<%= UnicodeLanguageUtil.get(request, TrashUtil.isTrashEnabled(scopeGroupId) ? "are-you-sure-you-want-to-move-the-selected-entries-to-the-recycle-bin" : "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
+		if (<%= trashHelper.isTrashEnabled(scopeGroupId) %> || confirm('<%= UnicodeLanguageUtil.get(request, trashHelper.isTrashEnabled(scopeGroupId) ? "are-you-sure-you-want-to-move-the-selected-entries-to-the-recycle-bin" : "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
 			var form = AUI.$(document.<portlet:namespace />fm);
 
 			form.attr('method', 'post');
-			form.fm('<%= Constants.CMD %>').val('<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>');
+			form.fm('<%= Constants.CMD %>').val('<%= trashHelper.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>');
 
 			submitForm(form, '<portlet:actionURL name="/message_boards/edit_entry" />');
 		}

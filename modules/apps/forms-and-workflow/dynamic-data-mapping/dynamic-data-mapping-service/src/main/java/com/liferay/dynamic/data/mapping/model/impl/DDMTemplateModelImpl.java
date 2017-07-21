@@ -138,7 +138,7 @@ public class DDMTemplateModelImpl extends BaseModelImpl<DDMTemplate>
 		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table DDMTemplate (uuid_ VARCHAR(75) null,templateId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,versionUserId LONG,versionUserName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,resourceClassNameId LONG,templateKey VARCHAR(75) null,version VARCHAR(75) null,name TEXT null,description TEXT null,type_ VARCHAR(75) null,mode_ VARCHAR(75) null,language VARCHAR(75) null,script TEXT null,cacheable BOOLEAN,smallImage BOOLEAN,smallImageId LONG,smallImageURL VARCHAR(75) null,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table DDMTemplate (uuid_ VARCHAR(75) null,templateId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,versionUserId LONG,versionUserName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,resourceClassNameId LONG,templateKey VARCHAR(75) null,version VARCHAR(75) null,name TEXT null,description TEXT null,type_ VARCHAR(75) null,mode_ VARCHAR(75) null,language VARCHAR(75) null,script TEXT null,cacheable BOOLEAN,smallImage BOOLEAN,smallImageId LONG,smallImageURL STRING null,lastPublishDate DATE null)";
 	public static final String TABLE_SQL_DROP = "drop table DDMTemplate";
 	public static final String ORDER_BY_JPQL = " ORDER BY ddmTemplate.templateId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY DDMTemplate.templateId ASC";
@@ -1155,6 +1155,13 @@ public class DDMTemplateModelImpl extends BaseModelImpl<DDMTemplate>
 		_lastPublishDate = lastPublishDate;
 	}
 
+	public java.lang.String getResourceClassName() {
+		return null;
+	}
+
+	public void setResourceClassName(java.lang.String resourceClassName) {
+	}
+
 	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(PortalUtil.getClassNameId(
@@ -1394,6 +1401,8 @@ public class DDMTemplateModelImpl extends BaseModelImpl<DDMTemplate>
 
 		ddmTemplateModelImpl._setOriginalSmallImageId = false;
 
+		setResourceClassName(null);
+
 		ddmTemplateModelImpl._columnBitmask = 0;
 	}
 
@@ -1545,6 +1554,8 @@ public class DDMTemplateModelImpl extends BaseModelImpl<DDMTemplate>
 		else {
 			ddmTemplateCacheModel.lastPublishDate = Long.MIN_VALUE;
 		}
+
+		ddmTemplateCacheModel._resourceClassName = getResourceClassName();
 
 		return ddmTemplateCacheModel;
 	}

@@ -17,7 +17,6 @@ package com.liferay.asset.publisher.web.util;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
 import com.liferay.asset.kernel.util.AssetEntryQueryProcessor;
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
-import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfigurationValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -31,7 +30,10 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Pavel Savinov
  */
-@Component(immediate = true, service = AssetPublisherCustomizer.class)
+@Component(
+	configurationPid = "com.liferay.asset.publisher.web.configuration.AssetPublisherWebConfiguration",
+	immediate = true, service = AssetPublisherCustomizer.class
+)
 public class HighestRatedAssetPublisherCustomizer
 	extends DefaultAssetPublisherCustomizer {
 
@@ -42,9 +44,7 @@ public class HighestRatedAssetPublisherCustomizer
 
 	@Override
 	public boolean isEnablePermissions(HttpServletRequest request) {
-		if (!AssetPublisherWebConfigurationValues.
-				PERMISSION_CHECKING_CONFIGURABLE) {
-
+		if (!assetPublisherWebConfiguration.permissionCheckingConfigurable()) {
 			return true;
 		}
 
@@ -95,7 +95,7 @@ public class HighestRatedAssetPublisherCustomizer
 
 	@Override
 	public boolean isShowSubtypeFieldsFilter(HttpServletRequest request) {
-		if (!AssetPublisherWebConfigurationValues.SEARCH_WITH_INDEX) {
+		if (!assetPublisherWebConfiguration.searchWithIndex()) {
 			return false;
 		}
 

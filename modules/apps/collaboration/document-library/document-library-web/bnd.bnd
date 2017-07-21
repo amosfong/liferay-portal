@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Document Library Web
 Bundle-SymbolicName: com.liferay.document.library.web
-Bundle-Version: 1.4.0
+Bundle-Version: 1.5.0
 Export-Package:\
 	com.liferay.document.library.web.asset,\
 	com.liferay.document.library.web.constants,\
@@ -9,6 +9,7 @@ Export-Package:\
 	com.liferay.document.library.web.webdav
 Import-Package:\
 	org.apache.xerces.parsers,\
+	\
 	*
 Liferay-JS-Config: /META-INF/resources/document_library/js/config.js
 Liferay-Releng-Module-Group-Description:

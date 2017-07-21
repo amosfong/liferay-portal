@@ -126,7 +126,9 @@ public class DDMFormJSONDeserializerImpl implements DDMFormJSONDeserializer {
 			return deserializeDDMFormFieldOptions(
 				serializedDDMFormFieldProperty);
 		}
-		else if (Objects.equals(dataType, "ddm-validation")) {
+		else if (Objects.equals(
+					ddmFormFieldTypeSetting.getType(), "validation")) {
+
 			return deserializeDDMFormFieldValidation(
 				serializedDDMFormFieldProperty);
 		}
@@ -157,18 +159,16 @@ public class DDMFormJSONDeserializerImpl implements DDMFormJSONDeserializer {
 		return ddmFormFieldValidation;
 	}
 
-	protected LocalizedValue deserializeLocalizedValue(
-			String serializedDDMFormFieldProperty)
+	protected LocalizedValue deserializeLocalizedValue(String value)
 		throws PortalException {
 
 		LocalizedValue localizedValue = new LocalizedValue();
 
-		if (Validator.isNull(serializedDDMFormFieldProperty)) {
+		if (Validator.isNull(value)) {
 			return localizedValue;
 		}
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			serializedDDMFormFieldProperty);
+		JSONObject jsonObject = _jsonFactory.createJSONObject(value);
 
 		Iterator<String> itr = jsonObject.keys();
 
@@ -418,7 +418,8 @@ public class DDMFormJSONDeserializerImpl implements DDMFormJSONDeserializer {
 	}
 
 	protected void setDDMFormSuccessPageSettings(
-		JSONObject jsonObject, DDMForm ddmForm) {
+			JSONObject jsonObject, DDMForm ddmForm)
+		throws PortalException {
 
 		if (jsonObject == null) {
 			return;
@@ -426,7 +427,8 @@ public class DDMFormJSONDeserializerImpl implements DDMFormJSONDeserializer {
 
 		DDMFormSuccessPageSettings ddmFormSuccessPageSettings =
 			new DDMFormSuccessPageSettings(
-				jsonObject.getString("body"), jsonObject.getString("title"),
+				deserializeLocalizedValue(jsonObject.getString("body")),
+				deserializeLocalizedValue(jsonObject.getString("title")),
 				jsonObject.getBoolean("enabled"));
 
 		ddmForm.setDDMFormSuccessPageSettings(ddmFormSuccessPageSettings);

@@ -14,8 +14,6 @@
 
 package com.liferay.blogs.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.base.BlogsEntryServiceBaseImpl;
 import com.liferay.blogs.service.permission.BlogsEntryPermission;
@@ -71,7 +69,6 @@ import java.util.List;
  * @author Brian Wing Shun Chan
  * @author Mate Thurzo
  */
-@ProviderType
 public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 
 	/**
@@ -244,10 +241,12 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 
 	@Override
 	public BlogsEntry getEntry(long entryId) throws PortalException {
-		BlogsEntryPermission.check(
-			getPermissionChecker(), entryId, ActionKeys.VIEW);
+		BlogsEntry entry = blogsEntryLocalService.getEntry(entryId);
 
-		return blogsEntryLocalService.getEntry(entryId);
+		BlogsEntryPermission.check(
+			getPermissionChecker(), entry, ActionKeys.VIEW);
+
+		return entry;
 	}
 
 	@Override
@@ -257,7 +256,7 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 		BlogsEntry entry = blogsEntryLocalService.getEntry(groupId, urlTitle);
 
 		BlogsEntryPermission.check(
-			getPermissionChecker(), entry.getEntryId(), ActionKeys.VIEW);
+			getPermissionChecker(), entry, ActionKeys.VIEW);
 
 		return entry;
 	}

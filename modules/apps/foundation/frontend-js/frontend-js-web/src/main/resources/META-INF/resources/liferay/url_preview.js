@@ -81,6 +81,7 @@ AUI.add(
 									destroyOnHide: true,
 									draggable: false,
 									headerContent: instance._getHeader(instance.get('title')),
+									resizable: false,
 									toolbars: false,
 									width: instance.get('width')
 								},
@@ -89,7 +90,7 @@ AUI.add(
 							}
 						);
 
-						dialog.get('contentBox').addClass('container');
+						dialog.get('contentBox').addClass('container-fluid');
 
 						dialog.get('maskNode').setStyle('opacity', 1);
 

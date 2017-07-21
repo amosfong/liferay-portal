@@ -43,8 +43,6 @@ AUI.add(
 
 		var TPL_REPEATABLE_HELPER = '<div class="lfr-ddm-repeatable-helper"></div>';
 
-		var TPL_REPEATABLE_PLACEHOLDER = '<div class="lfr-ddm-repeatable-placeholder"></div>';
-
 		var TPL_REQUIRED_MARK = '<span class="icon-asterisk text-warning"><span class="hide-accessible">' + Liferay.Language.get('required') + '</span></span>';
 
 		var FieldTypes = Liferay.namespace('DDM.FieldTypes');
@@ -809,6 +807,8 @@ AUI.add(
 						}
 						else if (currentTarget.hasClass('lfr-ddm-repeatable-delete-button')) {
 							instance.remove();
+
+							instance.syncRepeatablelUI();
 						}
 
 						event.stopPropagation();
@@ -903,6 +903,79 @@ AUI.add(
 		);
 
 		FieldTypes.checkbox = CheckboxField;
+
+		var ColorField = A.Component.create(
+			{
+				EXTENDS: Field,
+
+				prototype: {
+					initializer: function() {
+						var instance = this;
+
+						var container = instance.get('container');
+
+						var selectorInput = container.one('.selector-input');
+						var valueField = container.one('.color-value');
+
+						var colorPicker = new A.ColorPickerPopover(
+							{
+								trigger: selectorInput,
+								zIndex: 65535
+							}
+						).render();
+
+						colorPicker.on(
+							'select',
+							function(event) {
+								selectorInput.setStyle('backgroundColor', event.color);
+
+								valueField.val(event.color);
+							}
+						);
+
+						colorPicker.set(
+							'color',
+							valueField.val(),
+							{
+								trigger: selectorInput
+							}
+						);
+
+						instance.set('colorPicker', colorPicker);
+					},
+
+					getValue: function() {
+						var instance = this;
+
+						var container = instance.get('container');
+						var valueField = container.one('.color-value');
+
+						return valueField.val();
+					},
+
+					setValue: function(value) {
+						var instance = this;
+
+						var container = instance.get('container');
+
+						var selectorInput = container.one('.selector-input');
+						var valueField = container.one('.color-value');
+						var colorPicker = instance.get('colorPicker');
+
+						if (!colorPicker) {
+							return;
+						}
+
+						valueField.val(value);
+						selectorInput.setStyle('backgroundColor', value);
+
+						colorPicker.set('color', value);
+					}
+				}
+			}
+		);
+
+		FieldTypes['ddm-color'] = ColorField;
 
 		var DateField = A.Component.create(
 			{
@@ -1021,7 +1094,7 @@ AUI.add(
 
 						var portletNamespace = instance.get('portletNamespace');
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setParameter('criteria', criteria);
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
@@ -1066,7 +1139,7 @@ AUI.add(
 					getUploadURL: function() {
 						var instance = this;
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setLifecycle(Liferay.PortletURL.ACTION_PHASE);
 						portletURL.setParameter('cmd', 'add_temp');
@@ -2343,7 +2416,7 @@ AUI.add(
 
 						var portletNamespace = instance.get('portletNamespace');
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setParameter('criteria', criteria);
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
@@ -2635,7 +2708,7 @@ AUI.add(
 							value = RadioField.superclass.getValue.apply(instance, arguments);
 						}
 
-						return JSON.stringify([value]);
+						return value;
 					},
 
 					setLabel: function() {
@@ -2670,14 +2743,6 @@ AUI.add(
 						var radioNodes = instance.getRadioNodes();
 
 						radioNodes.set('checked', false);
-
-						if (Lang.isString(value)) {
-							value = JSON.parse(value);
-						}
-
-						if (value.length) {
-							value = value[0];
-						}
 
 						radioNodes.filter('[value=' + value + ']').set('checked', true);
 					},
@@ -2870,15 +2935,35 @@ AUI.add(
 
 						var fieldName = field.get('name');
 
+						var fieldContainer = field.get('container');
+
+						var parentNode = fieldContainer.get('parentNode');
+
 						var repeatableInstance = instance.repeatableInstances[fieldName];
 
 						if (!repeatableInstance) {
 							repeatableInstance = new A.SortableList(
 								{
-									dropOn: field.get('container').get('parentNode'),
+									dd: {
+										plugins: [
+											{
+												cfg: {
+													constrain: '#main-content'
+												},
+												fn: A.Plugin.DDConstrained
+											},
+											{
+												cfg: {
+													horizontal: false,
+													node: '.lfr-form-content'
+												},
+												fn: A.Plugin.DDNodeScroll
+											}
+										]
+									},
+									dropOn: '#' + parentNode.attr("id"),
 									helper: A.Node.create(TPL_REPEATABLE_HELPER),
 									nodes: '[data-fieldName=' + fieldName + ']',
-									placeholder: A.Node.create(TPL_REPEATABLE_PLACEHOLDER),
 									sortCondition: function(event) {
 										var dropNode = event.drop.get('node');
 
@@ -2892,10 +2977,13 @@ AUI.add(
 							instance.repeatableInstances[fieldName] = repeatableInstance;
 						}
 						else {
-							repeatableInstance.add(field.get('container'));
+							repeatableInstance.add(fieldContainer);
 						}
 
-						A.DD.DDM.getDrag(field.get('container')).addInvalid('.alloy-editor');
+						var drag = A.DD.DDM.getDrag(fieldContainer);
+
+						drag.addInvalid('.alloy-editor');
+						drag.addInvalid('.lfr-source-editor');
 					},
 
 					toJSON: function() {
@@ -2988,7 +3076,11 @@ AUI.add(
 							else if (event.type === 'liferay-ddm-field:remove') {
 								delete validatorRules[field.getInputName()];
 
-								liferayForm.formValidator.resetField(field.getInputNode());
+								var inputNode = field.getInputNode();
+
+								if (inputNode) {
+									liferayForm.formValidator.resetField(inputNode);
+								}
 
 								if (field.get('repeatable')) {
 									instance.unregisterRepeatable(field);
@@ -3070,6 +3162,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'aui-datatable', 'aui-datatype', 'aui-image-viewer', 'aui-io-request', 'aui-parse-content', 'aui-set', 'aui-sortable-list', 'json', 'liferay-form', 'liferay-item-selector-dialog', 'liferay-layouts-tree', 'liferay-layouts-tree-radio', 'liferay-layouts-tree-selectable', 'liferay-map-base', 'liferay-notice', 'liferay-portlet-url', 'liferay-translation-manager']
+		requires: ['aui-base', 'aui-color-picker-popover', 'aui-datatable', 'aui-datatype', 'aui-image-viewer', 'aui-io-request', 'aui-parse-content', 'aui-set', 'aui-sortable-list', 'json', 'liferay-form', 'liferay-item-selector-dialog', 'liferay-layouts-tree', 'liferay-layouts-tree-radio', 'liferay-layouts-tree-selectable', 'liferay-map-base', 'liferay-notice', 'liferay-portlet-url', 'liferay-translation-manager']
 	}
 );

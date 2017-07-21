@@ -237,18 +237,6 @@
 	</command>
 
 	<command name="gotoPagePG">
-		<if>
-			<condition function="IsElementPresent" locator1="SOUserBar#USER_BAR" />
-			<then>
-				<if>
-					<condition function="IsElementNotPresent" locator1="SOUserBar#VISIBLE_PAGE_CONTROLS" />
-					<then>
-						<execute function="Click" locator1="SOUserBar#TOGGLE_DOCKBAR" />
-					</then>
-				</if>
-			</then>
-		</if>
-
 		<execute macro="SitePageNavigator#gotoEditPage">
 			<var name="page" value="${pageName}" />
 		</execute>

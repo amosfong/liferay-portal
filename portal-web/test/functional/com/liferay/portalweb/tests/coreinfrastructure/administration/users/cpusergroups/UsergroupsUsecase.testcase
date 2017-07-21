@@ -179,6 +179,8 @@
 	</command>
 
 	<command name="UserGroupSiteOwnerPermissions" priority="4">
+		<property name="test.name.skip.portal.instance" value="UsergroupsUsecase#UserGroupSiteOwnerPermissions" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Server Administration" />
 		</execute>
@@ -389,9 +391,16 @@
 			<var name="portlet" value="Roles" />
 		</execute>
 
-		<execute macro="Role#assignMembersUserGroupsCP">
+		<execute macro="RoleNavigator#gotoAssignees">
 			<var name="roleTitle" value="Test UserGroup Role" />
-			<var name="userGroupName" value="UG UserGroup Name" />
+		</execute>
+
+		<execute macro="RoleNavigator#gotoAssigneeType">
+			<var name="assigneeType" value="User Groups" />
+		</execute>
+
+		<execute macro="Role#addAssignees">
+			<var name="assigneeName" value="UG UserGroup Name" />
 		</execute>
 
 		<execute macro="User#logoutPG" />
@@ -427,6 +436,8 @@
 	</command>
 
 	<command name="UserGroupSiteTemplates" priority="4">
+		<property name="test.name.skip.portal.instance" value="UsergroupsUsecase#UserGroupSiteTemplates" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Server Administration" />
 		</execute>

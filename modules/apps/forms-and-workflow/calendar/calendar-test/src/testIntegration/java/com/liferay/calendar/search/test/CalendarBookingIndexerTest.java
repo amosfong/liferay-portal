@@ -29,9 +29,6 @@ import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
-import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -47,14 +44,13 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerTestRule;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -74,26 +70,17 @@ public class CalendarBookingIndexerTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
+			PermissionCheckerTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
-		setUpPermissionThreadLocal();
-		setUpPrincipalThreadLocal();
-
 		_group = GroupTestUtil.addGroup();
 		_user = UserTestUtil.addUser();
 
 		setUpSearchContext(_group, _user);
 
 		_indexer = new CalendarBookingIndexer();
-	}
-
-	@After
-	public void tearDown() {
-		PermissionThreadLocal.setPermissionChecker(_originalPermissionChecker);
-
-		PrincipalThreadLocal.setName(_originalName);
 	}
 
 	@Test
@@ -136,9 +123,10 @@ public class CalendarBookingIndexerTest {
 
 		Stream<String> searchTerms = Stream.of(word1, word2, prefix1, prefix2);
 
-		searchTerms.forEach(searchTerm -> {
-			assertSearchHitsLength(searchTerm, 1, LocaleUtil.JAPAN);
-		});
+		searchTerms.forEach(
+			searchTerm -> {
+				assertSearchHitsLength(searchTerm, 1, LocaleUtil.JAPAN);
+			});
 	}
 
 	@Test
@@ -151,23 +139,25 @@ public class CalendarBookingIndexerTest {
 
 		Stream<String> titles = Stream.of(full, partial1, partial2);
 
-		titles.forEach(title -> {
-			addCalendarBooking(
-				new LocalizedValuesMap() {
-					{
-						put(LocaleUtil.JAPAN, title);
-					}
-				});
-		});
+		titles.forEach(
+			title -> {
+				addCalendarBooking(
+					new LocalizedValuesMap() {
+						{
+							put(LocaleUtil.JAPAN, title);
+						}
+					});
+			});
 
 		String word1 = "新規";
 		String word2 = "作成";
 
 		Stream<String> searchTerms = Stream.of(word1, word2);
 
-		searchTerms.forEach(searchTerm -> {
-			assertSearchHitsLength(searchTerm, 1, LocaleUtil.JAPAN);
-		});
+		searchTerms.forEach(
+			searchTerm -> {
+				assertSearchHitsLength(searchTerm, 1, LocaleUtil.JAPAN);
+			});
 	}
 
 	@Test
@@ -268,33 +258,6 @@ public class CalendarBookingIndexerTest {
 		}
 	}
 
-	protected void setUpPermissionThreadLocal() throws Exception {
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		PermissionThreadLocal.setPermissionChecker(
-			new SimplePermissionChecker() {
-				{
-					init(TestPropsValues.getUser());
-				}
-
-				@Override
-				public boolean hasOwnerPermission(
-					long companyId, String name, String primKey, long ownerId,
-					String actionId) {
-
-					return true;
-				}
-
-			});
-	}
-
-	protected void setUpPrincipalThreadLocal() throws Exception {
-		_originalName = PrincipalThreadLocal.getName();
-
-		PrincipalThreadLocal.setName(TestPropsValues.getUserId());
-	}
-
 	protected void setUpSearchContext(Group group, User user) throws Exception {
 		_searchContext = getSearchContext(_group, _user);
 	}
@@ -303,8 +266,6 @@ public class CalendarBookingIndexerTest {
 	private Group _group;
 
 	private Indexer<?> _indexer;
-	private String _originalName;
-	private PermissionChecker _originalPermissionChecker;
 	private SearchContext _searchContext;
 
 	@DeleteAfterTestRun

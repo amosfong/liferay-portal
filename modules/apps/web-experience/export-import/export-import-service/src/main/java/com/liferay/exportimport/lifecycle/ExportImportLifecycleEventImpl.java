@@ -17,11 +17,11 @@ package com.liferay.exportimport.lifecycle;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.exportimport.kernel.lifecycle.ExportImportLifecycleEvent;
-import com.liferay.portal.kernel.util.ListUtil;
 
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,8 +47,13 @@ public class ExportImportLifecycleEventImpl
 	}
 
 	@Override
+	public String getProcessId() {
+		return _processId;
+	}
+
+	@Override
 	public void setAttributes(Serializable... attributes) {
-		_attributes.addAll(ListUtil.fromArray(attributes));
+		Collections.addAll(_attributes, attributes);
 	}
 
 	@Override
@@ -61,8 +66,14 @@ public class ExportImportLifecycleEventImpl
 		_processFlag = processFlag;
 	}
 
+	@Override
+	public void setProcessId(String processId) {
+		_processId = processId;
+	}
+
 	private final List<Serializable> _attributes = new ArrayList<>();
 	private int _code;
 	private int _processFlag;
+	private String _processId;
 
 }

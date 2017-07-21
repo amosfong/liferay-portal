@@ -53,7 +53,7 @@ PortletPreferencesIds portletPreferencesIds = PortletPreferencesFactoryUtil.getP
 
 PortletPreferences portletPreferences = PortletPreferencesLocalServiceUtil.getStrictPreferences(portletPreferencesIds);
 
-PortletPreferences portletSetup = PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(layout, portletId);
+PortletPreferences portletSetup = themeDisplay.getStrictLayoutPortletSetup(layout, portletId);
 
 Group group = null;
 boolean privateLayout = false;
@@ -432,7 +432,7 @@ if (doAsUserId.isEmpty()) {
 	doAsUserId = null;
 }
 else {
-	doAsUserId = HttpUtil.encodeURL(doAsUserId);
+	doAsUserId = URLCodec.encodeURL(doAsUserId);
 
 	sb.append("&doAsUserId=");
 	sb.append(doAsUserId);
@@ -455,7 +455,7 @@ if (doAsUserId != null) {
 	innerSB.append(doAsUserId);
 }
 
-sb.append(HttpUtil.encodeURL(innerSB.toString()));
+sb.append(URLCodec.encodeURL(innerSB.toString()));
 
 sb.append("&refresh=1");
 
@@ -524,7 +524,7 @@ if (urlConfiguration != null) {
 
 // URL edit
 
-LiferayPortletURL urlEdit = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEdit = PortletURLFactoryUtil.create(request, portlet, PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEdit()) {
 	urlEdit.setWindowState(WindowState.NORMAL);
@@ -547,7 +547,7 @@ portletDisplay.setURLEdit(urlEdit.toString());
 
 // URL edit defaults
 
-LiferayPortletURL urlEditDefaults = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEditDefaults = PortletURLFactoryUtil.create(request, portlet, PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEditDefaults()) {
 	urlEditDefaults.setWindowState(WindowState.NORMAL);
@@ -570,7 +570,7 @@ portletDisplay.setURLEditDefaults(urlEditDefaults.toString());
 
 // URL edit guest
 
-LiferayPortletURL urlEditGuest = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEditGuest = PortletURLFactoryUtil.create(request, portlet, PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEditGuest()) {
 	urlEditGuest.setWindowState(WindowState.NORMAL);
@@ -608,7 +608,7 @@ portletDisplay.setURLExportImport(urlExportImport.toString() + "&" + PortalUtil.
 
 // URL help
 
-LiferayPortletURL urlHelp = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlHelp = PortletURLFactoryUtil.create(request, portlet, PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeHelp()) {
 	urlHelp.setWindowState(WindowState.NORMAL);
@@ -637,7 +637,7 @@ if (!portletDisplay.isRestoreCurrentView()) {
 	lifecycle = PortletRequest.ACTION_PHASE;
 }
 
-LiferayPortletURL urlMax = PortletURLFactoryUtil.create(request, portletDisplay.getId(), lifecycle);
+LiferayPortletURL urlMax = PortletURLFactoryUtil.create(request, portlet, lifecycle);
 
 if (portletDisplay.isStateMax()) {
 	urlMax.setWindowState(WindowState.NORMAL);
@@ -704,7 +704,7 @@ sb.append(themeDisplay.getSiteGroupId());
 
 if (doAsUserId != null) {
 	sb.append("&doAsUserId=");
-	sb.append(HttpUtil.encodeURL(doAsUserId));
+	sb.append(URLCodec.encodeURL(doAsUserId));
 }
 
 sb.append("&");
@@ -724,21 +724,15 @@ if (doAsUserId != null) {
 	innerSB.append(doAsUserId);
 }
 
-sb.append(HttpUtil.encodeURL(innerSB.toString()));
+sb.append(URLCodec.encodeURL(innerSB.toString()));
 
 sb.append("&refresh=1");
 
 portletDisplay.setURLMin(sb.toString());
 
-// URL portlet css
-
-String urlPortletCss = "javascript:;";
-
-portletDisplay.setURLPortletCss(urlPortletCss.toString());
-
 // URL print
 
-LiferayPortletURL urlPrint = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlPrint = PortletURLFactoryUtil.create(request, portlet, PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModePrint()) {
 	urlPrint.setWindowState(WindowState.NORMAL);

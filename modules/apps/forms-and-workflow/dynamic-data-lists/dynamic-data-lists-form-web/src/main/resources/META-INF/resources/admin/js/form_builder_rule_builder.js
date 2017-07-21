@@ -1,13 +1,15 @@
 AUI.add(
 	'liferay-ddl-form-builder-rule-builder',
 	function(A) {
+		var Settings = Liferay.DDL.Settings;
+
 		var SoyTemplateUtil = Liferay.DDM.SoyTemplateUtil;
 
 		var MAP_ACTION_DESCRIPTIONS = {
 			'auto-fill': 'auto-fill',
 			calculate: 'calculate-field',
 			enable: 'enable-field',
-			'jump-to-page': 'jump-from-page-to-page',
+			'jump-to-page': 'jump-to-page',
 			require: 'require-field',
 			show: 'show-field'
 		};
@@ -19,41 +21,40 @@ AUI.add(
 						value: null
 					},
 
-					functionsMetadata: {
+					roles: {
 						value: []
 					},
 
-					getDataProviderInstancesURL: {
-						value: ''
-					},
-
-					getDataProviderParametersSettingsURL: {
-						value: ''
-					},
-
-					portletNamespace: {
-						value: ''
-					},
-
 					rules: {
+						setter: '_setRules',
 						value: []
 					},
 
 					strings: {
 						value: {
+							and: Liferay.Language.get('and'),
 							'auto-fill': Liferay.Language.get('autofill-x-from-data-provider-x'),
+							'belongs-to': Liferay.Language.get('belongs-to'),
 							'calculate-field': Liferay.Language.get('calculate-field-x-as-x'),
+							constant: Liferay.Language.get('constant'),
 							contains: Liferay.Language.get('contains'),
 							delete: Liferay.Language.get('delete'),
 							edit: Liferay.Language.get('edit'),
 							emptyListText: Liferay.Language.get('there-are-no-rules-yet-click-on-plus-icon-below-to-add-the-first'),
 							'enable-field': Liferay.Language.get('enable-x'),
 							'equals-to': Liferay.Language.get('is-equal-to'),
+							field: Liferay.Language.get('field'),
+							'greater-than': Liferay.Language.get('is-greater-than'),
+							'greater-than-equals': Liferay.Language.get('is-greater-than-or-equal-to'),
+							if: Liferay.Language.get('if'),
 							'is-empty': Liferay.Language.get('is-empty'),
-							'jump-from-page-to-page': Liferay.Language.get('jump-from-x-to-x'),
+							'jump-to-page': Liferay.Language.get('jump-to-page-x'),
+							'less-than': Liferay.Language.get('is-less-than'),
+							'less-than-equals': Liferay.Language.get('is-less-than-or-equal-to'),
 							'not-contains': Liferay.Language.get('does-not-contain'),
 							'not-equals-to': Liferay.Language.get('is-not-equal-to'),
 							'not-is-empty': Liferay.Language.get('is-not-empty'),
+							or: Liferay.Language.get('or'),
 							'require-field': Liferay.Language.get('require-x'),
 							ruleBuilder: Liferay.Language.get('rule-builder'),
 							'show-field': Liferay.Language.get('show-x')
@@ -64,6 +65,12 @@ AUI.add(
 				NAME: 'liferay-ddl-form-builder-rule-builder',
 
 				prototype: {
+					initializer: function() {
+						var instance = this;
+
+						instance._getUserRoles();
+					},
+
 					bindUI: function() {
 						var instance = this;
 
@@ -137,6 +144,7 @@ AUI.add(
 										dataType: field.get('dataType'),
 										label: field.get('label') || field.get('fieldName'),
 										options: field.get('options'),
+										pageIndex: instance.getPageIndex(field),
 										type: field.get('type'),
 										value: field.get('fieldName')
 									}
@@ -145,6 +153,36 @@ AUI.add(
 						);
 
 						return fields;
+					},
+
+					getPageIndex: function(field) {
+						var instance = this;
+
+						var formBuilder = instance.get('formBuilder');
+
+						var layouts = formBuilder.get('layouts');
+
+						for (var h = 0; h < layouts.length; h++) {
+							var rows = layouts[h].get('rows');
+
+							for (var i = 0; i < rows.length; i++) {
+								var cols = rows[i].get('cols');
+
+								for (var j = 0; j < cols.length; j++) {
+									var fieldList = cols[j].get('value');
+
+									if (fieldList) {
+										var fields = fieldList.get('fields');
+
+										for (var k = 0; k < fields.length; k++) {
+											if (fields[k].get('label') === field.get('label')) {
+												return h;
+											}
+										}
+									}
+								}
+							}
+						}
 					},
 
 					getPages: function() {
@@ -180,11 +218,9 @@ AUI.add(
 									bubbleTargets: [instance],
 									contentBox: instance.get('contentBox'),
 									fields: instance.getFields(),
-									functionsMetadata: instance.get('functionsMetadata'),
-									getDataProviderParametersSettingsURL: instance.get('getDataProviderParametersSettingsURL'),
 									getDataProviders: instance._dataProviders,
 									pages: instance.getPages(),
-									portletNamespace: instance.get('portletNamespace')
+									roles: instance.get('roles')
 								}
 							);
 						}
@@ -212,7 +248,7 @@ AUI.add(
 						var instance = this;
 
 						A.io.request(
-							instance.get('getDataProviderInstancesURL'),
+							Settings.getDataProviderInstancesURL,
 							{
 								method: 'GET',
 								on: {
@@ -246,11 +282,6 @@ AUI.add(
 
 							if (type === 'jump-to-page') {
 								data = [
-									badgeTemplate(
-										{
-											content: pages[action.source].label
-										}
-									),
 									badgeTemplate(
 										{
 											content: pages[action.target].label
@@ -287,12 +318,12 @@ AUI.add(
 								data = [
 									badgeTemplate(
 										{
-											content: instance._getFieldLabel(action.target)
+											content: action.expression.replace(/\[|\]/g, '')
 										}
 									),
 									badgeTemplate(
 										{
-											content: action.expression
+											content: instance._getFieldLabel(action.target)
 										}
 									)
 								];
@@ -344,6 +375,10 @@ AUI.add(
 					_getFieldLabel: function(fieldValue) {
 						var instance = this;
 
+						if (fieldValue === 'user') {
+							return Liferay.Language.get('user');
+						}
+
 						var fields = instance.getFields();
 
 						var fieldLabel;
@@ -366,12 +401,35 @@ AUI.add(
 							rulesDescription.push(
 								{
 									actions: instance._getActionsDescription(rules[i].actions),
-									conditions: rules[i].conditions
+									conditions: rules[i].conditions,
+									logicOperator: rules[i]['logical-operator'].toLowerCase()
 								}
 							);
 						}
 
 						return rulesDescription;
+					},
+
+					_getUserRoles: function() {
+						var instance = this;
+
+						var roles = instance.get('roles');
+
+						if (!roles.length) {
+							A.io.request(
+								Settings.getRolesURL,
+								{
+									method: 'GET',
+									on: {
+										success: function(event, id, xhr) {
+											var result = JSON.parse(xhr.responseText);
+
+											instance._parseDataUserRoles(result);
+										}
+									}
+								}
+							);
+						}
 					},
 
 					_handleAddRuleClick: function() {
@@ -415,7 +473,7 @@ AUI.add(
 
 						var rule = {
 							actions: event.actions,
-							conditions: event.condition,
+							conditions: event.conditions,
 							'logical-operator': event['logical-operator']
 						};
 
@@ -437,6 +495,23 @@ AUI.add(
 						instance._renderCards(val.newVal);
 					},
 
+					_parseDataUserRoles: function(result) {
+						var instance = this;
+
+						var roles = [];
+
+						for (var i = 0; i < result.length; i++) {
+							roles.push(
+								{
+									label: result[i].name,
+									value: result[i].name
+								}
+							);
+						}
+
+						instance.set('roles', roles);
+					},
+
 					_renderCards: function(rules) {
 						var instance = this;
 
@@ -455,6 +530,28 @@ AUI.add(
 								}
 							)
 						);
+					},
+
+					_setRules: function(rules) {
+						rules.forEach(
+							function(rule) {
+								rule.conditions.forEach(
+									function(condition) {
+										if (condition.operator === 'belongs-to') {
+											condition.operands.unshift(
+												{
+													label: 'User',
+													type: 'user',
+													value: 'user'
+												}
+											);
+										}
+									}
+								);
+							}
+						);
+
+						return rules;
 					}
 				}
 			}

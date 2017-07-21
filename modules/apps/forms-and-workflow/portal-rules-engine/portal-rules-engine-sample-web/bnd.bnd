@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Rules Engine Sample Web
 Bundle-SymbolicName: com.liferay.portal.rules.engine.sample.web
-Bundle-Version: 2.0.7
+Bundle-Version: 2.0.10
 Import-Package:\
 	!javax.accessibility.*,\
 	\
@@ -12,6 +12,7 @@ Import-Package:\
 	org.apache.commons.chain,\
 	org.apache.commons.chain.generic,\
 	org.apache.commons.chain.impl,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Rules Engine

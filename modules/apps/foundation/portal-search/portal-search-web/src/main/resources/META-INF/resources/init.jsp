@@ -45,7 +45,6 @@ page import="com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil" %>
 page import="com.liferay.portal.kernel.search.Field" %><%@
 page import="com.liferay.portal.kernel.search.Hits" %><%@
 page import="com.liferay.portal.kernel.search.HitsOpenSearchImpl" %><%@
-page import="com.liferay.portal.kernel.search.IndexSearcherHelperUtil" %><%@
 page import="com.liferay.portal.kernel.search.Indexer" %><%@
 page import="com.liferay.portal.kernel.search.OpenSearch" %><%@
 page import="com.liferay.portal.kernel.search.facet.Facet" %><%@
@@ -56,7 +55,6 @@ page import="com.liferay.portal.kernel.search.highlight.HighlightUtil" %><%@
 page import="com.liferay.portal.kernel.search.suggest.KeywordsSuggestionHolder" %><%@
 page import="com.liferay.portal.kernel.security.permission.ActionKeys" %><%@
 page import="com.liferay.portal.kernel.security.permission.ResourceActionsUtil" %><%@
-page import="com.liferay.portal.kernel.security.permission.comparator.ModelResourceComparator" %><%@
 page import="com.liferay.portal.kernel.service.GroupLocalServiceUtil" %><%@
 page import="com.liferay.portal.kernel.util.ArrayUtil" %><%@
 page import="com.liferay.portal.kernel.util.CalendarFactoryUtil" %><%@
@@ -69,7 +67,6 @@ page import="com.liferay.portal.kernel.util.KeyValuePair" %><%@
 page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.PortalUtil" %><%@
-page import="com.liferay.portal.kernel.util.SortedArrayList" %><%@
 page import="com.liferay.portal.kernel.util.StringPool" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Tuple" %><%@
@@ -83,6 +80,7 @@ page import="com.liferay.portal.search.web.facet.util.comparator.SearchFacetComp
 page import="com.liferay.portal.search.web.internal.display.context.SearchDisplayContext" %><%@
 page import="com.liferay.portal.search.web.internal.display.context.SearchDisplayContextFactoryUtil" %><%@
 page import="com.liferay.portal.search.web.internal.facet.AssetEntriesSearchFacet" %><%@
+page import="com.liferay.portal.search.web.internal.result.display.context.SearchResultFieldDisplayContext" %><%@
 page import="com.liferay.portlet.asset.service.permission.AssetCategoryPermission" %><%@
 page import="com.liferay.taglib.aui.AUIUtil" %><%@
 page import="com.liferay.taglib.servlet.PipingServletResponse" %>
@@ -109,7 +107,11 @@ page import="javax.portlet.WindowState" %>
 <%
 PortalPreferences portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(request);
 
-SearchDisplayContext searchDisplayContext = SearchDisplayContextFactoryUtil.create(renderRequest, renderResponse, portletPreferences);
+SearchDisplayContext searchDisplayContext = (SearchDisplayContext)request.getAttribute(SearchDisplayContext.class.getName());
+
+if (searchDisplayContext == null) {
+	searchDisplayContext = SearchDisplayContextFactoryUtil.create(renderRequest, renderResponse, portletPreferences);
+}
 %>
 
 <%@ include file="/init-ext.jsp" %>

@@ -46,6 +46,7 @@ import freemarker.debug.impl.DebuggerService;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.ext.jsp.TaglibFactory;
+import freemarker.ext.jsp.internal.WriterFactoryUtil;
 import freemarker.ext.servlet.HttpRequestHashModel;
 import freemarker.ext.servlet.ServletContextHashModel;
 
@@ -270,7 +271,7 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 		}
 		catch (Exception e) {
 			throw new TemplateException(
-				"Unable to Initialize FreeMarker manager");
+				"Unable to Initialize FreeMarker manager", e);
 		}
 
 		_configuration.setDefaultEncoding(StringPool.UTF8);
@@ -339,6 +340,8 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 			bundleContext, stateMask, new TaglibBundleTrackerCustomizer());
 
 		_bundleTracker.open();
+
+		WriterFactoryUtil.setWriterFactory(new UnsyncStringWriterFactory());
 	}
 
 	@Deactivate

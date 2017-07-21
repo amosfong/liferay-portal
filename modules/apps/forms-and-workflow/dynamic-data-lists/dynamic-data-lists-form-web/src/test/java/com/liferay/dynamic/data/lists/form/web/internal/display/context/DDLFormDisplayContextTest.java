@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.lists.form.web.internal.display.context;
 
 import com.liferay.dynamic.data.lists.service.DDLRecordSetService;
+import com.liferay.dynamic.data.lists.service.DDLRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -52,14 +53,14 @@ public class DDLFormDisplayContextTest extends PowerMockito {
 	}
 
 	@Test
-	public void testDDMFormRenderingContextLocaleIsSiteLocale() {
+	public void testDDMFormRenderingContextLocaleIsThemeDisplayLocale() {
 		DDMForm ddmForm = createDDMForm(LocaleUtil.BRAZIL);
 
 		DDMFormRenderingContext ddmFormRenderingContext =
 			_ddlFormDisplayContext.createDDMFormRenderingContext(ddmForm);
 
 		Assert.assertEquals(
-			LocaleUtil.BRAZIL, ddmFormRenderingContext.getLocale());
+			LocaleUtil.SPAIN, ddmFormRenderingContext.getLocale());
 	}
 
 	protected DDMForm createDDMForm(Locale locale) {
@@ -73,7 +74,11 @@ public class DDLFormDisplayContextTest extends PowerMockito {
 	protected RenderRequest mockRenderRequest() {
 		RenderRequest renderRequest = new MockRenderRequest();
 
-		renderRequest.setAttribute(WebKeys.THEME_DISPLAY, new ThemeDisplay());
+		ThemeDisplay themeDisplay = new ThemeDisplay();
+
+		themeDisplay.setLocale(LocaleUtil.SPAIN);
+
+		renderRequest.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
 
 		return renderRequest;
 	}
@@ -81,8 +86,9 @@ public class DDLFormDisplayContextTest extends PowerMockito {
 	protected void setUpDDLFormDisplayContext() throws PortalException {
 		_ddlFormDisplayContext = new DDLFormDisplayContext(
 			mockRenderRequest(), new MockRenderResponse(),
-			mock(DDLRecordSetService.class), mock(DDMFormRenderer.class),
-			mock(DDMFormValuesFactory.class),
+			mock(DDLRecordSetService.class),
+			mock(DDLRecordVersionLocalService.class),
+			mock(DDMFormRenderer.class), mock(DDMFormValuesFactory.class),
 			mock(WorkflowDefinitionLinkLocalService.class));
 	}
 

@@ -16,7 +16,6 @@ package com.liferay.portal.action;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.util.MathUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.struts.JSONAction;
 import com.liferay.ratings.kernel.model.RatingsStats;
@@ -51,19 +50,27 @@ public class RateEntryAction extends JSONAction {
 			RatingsEntryServiceUtil.updateEntry(className, classPK, score);
 		}
 
-		RatingsStats stats = RatingsStatsLocalServiceUtil.getStats(
+		RatingsStats stats = RatingsStatsLocalServiceUtil.fetchStats(
 			className, classPK);
 
-		double averageScore = MathUtil.format(stats.getAverageScore(), 1, 1);
+		double averageScore = 0.0;
+		int totalEntries = 0;
+		double totalScore = 0.0;
 
-		JSONObject jsonObj = JSONFactoryUtil.createJSONObject();
+		if (stats != null) {
+			averageScore = stats.getAverageScore();
+			totalEntries = stats.getTotalEntries();
+			totalScore = stats.getTotalScore();
+		}
 
-		jsonObj.put("averageScore", averageScore);
-		jsonObj.put("score", score);
-		jsonObj.put("totalEntries", stats.getTotalEntries());
-		jsonObj.put("totalScore", stats.getTotalScore());
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		return jsonObj.toString();
+		jsonObject.put("averageScore", averageScore);
+		jsonObject.put("score", score);
+		jsonObject.put("totalEntries", totalEntries);
+		jsonObject.put("totalScore", totalScore);
+
+		return jsonObject.toString();
 	}
 
 	protected String getClassName(HttpServletRequest request) {

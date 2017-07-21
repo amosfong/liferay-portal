@@ -33,6 +33,99 @@
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
+	<command name="addContractCP">
+		<execute macro="DMNavigator#gotoAddDocumentType">
+			<var name="dmDocumentTypeName" value="Contract" />
+		</execute>
+
+		<if>
+			<isset var="dmContractFile" />
+			<then>
+				<execute function="UploadCommonFile" locator1="TextInput#FILE" value1="${dmContractFile}" />
+			</then>
+		</if>
+
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${dmContractTitle}" />
+		</execute>
+
+		<if>
+			<isset var="dmContractDescription" />
+			<then>
+				<execute macro="PortletEntry#inputDescription">
+					<var name="description" value="${dmContractDescription}" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="effectiveDate" />
+			<then>
+				<execute function="Type#clickAtType" locator1="TextInput#GENERIC_TEXT_INPUT" value1="${effectiveDate}">
+					<var name="key_fieldLabel" value="Effective Date" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="expirationDate" />
+			<then>
+				<execute function="Type#clickAtType" locator1="TextInput#GENERIC_TEXT_INPUT" value1="${expirationDate}">
+					<var name="key_fieldLabel" value="Expiration Date" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="contractType" />
+			<then>
+				<execute function="Select" locator1="Select#GENERIC_SELECT_FIELD" value1="${contractType}">
+					<var name="key_fieldLabel" value="Contract Type" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="status" />
+			<then>
+				<execute function="Select" locator1="Select#GENERIC_SELECT_FIELD" value1="${status}">
+					<var name="key_fieldLabel" value="Status" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="dmContractLegalReviewer" />
+			<then>
+				<execute function="Type" locator1="TextInput#GENERIC_TEXT_INPUT" value1="${dmContractLegalReviewer}">
+					<var name="key_fieldLabel" value="Legal Reviewer" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="dmContractSigningAuthority" />
+			<then>
+				<execute function="Type" locator1="TextInput#GENERIC_TEXT_INPUT" value1="${dmContractSigningAuthority}">
+					<var name="key_fieldLabel" value="Signing Authority" />
+				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="dmContractDealName" />
+			<then>
+				<execute function="Type" locator1="TextInput#GENERIC_TEXT_INPUT" value1="${dmContractDealName}">
+					<var name="key_fieldLabel" value="Deal Name" />
+				</execute>
+			</then>
+		</if>
+
+		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
 	<command name="addCP">
 		<execute macro="DMNavigator#gotoAddDocumentType">
 			<var name="dmDocumentTypeName" value="${dmDocumentTypeName}" />
@@ -238,7 +331,9 @@
 	<command name="addDocumentTypePG">
 		<var name="key_dmDocumentTypeName" value="${dmDocumentTypeName}" />
 
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#DOCUMENT_TYPE" value1="${dmDocumentTypeName}" />
 
@@ -305,7 +400,9 @@
 	</command>
 
 	<command name="addGoogleDoc">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#GOOGLE_DOCS" value1="Google Docs" />
 
@@ -317,7 +414,9 @@
 	</command>
 
 	<command name="addMultiplePG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#MULTIPLE_DOCUMENTS" value1="Multiple Documents" />
 
@@ -361,7 +460,9 @@
 			</then>
 		</if>
 
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<if>
 			<isset var="dmDocumentTypeName" />
@@ -446,11 +547,9 @@
 	</command>
 
 	<command name="addPGViaAP">
-		<execute function="Click#makeVisibleClickAt" locator1="AP#ADD_ASSET_PLUS_ICON" />
-
-		<execute function="AssertClick" locator1="MenuItem#BASIC_DOCUMENT" value1="Basic Document" />
-
-		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+		<execute macro="AssetPublisherPortlet#addAsset">
+			<var name="assetType" value="Basic Document" />
+		</execute>
 
 		<execute macro="DMDocument#editDocument">
 			<var name="dmDocumentDescription" value="${dmDocumentDescription}" />
@@ -471,7 +570,9 @@
 			</then>
 		</if>
 
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#MULTIPLE_DOCUMENTS" value1="Multiple Documents" />
 
@@ -524,7 +625,9 @@
 	</command>
 
 	<command name="addPGViaMG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Media Gallery" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#BASIC_DOCUMENT" value1="Basic Document" />
 
@@ -562,7 +665,9 @@
 	</command>
 
 	<command name="addShortcutPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertClick" locator1="MenuItem#SHORTCUT" value1="Shortcut" />
 
@@ -862,7 +967,7 @@
 	<command name="deleteCP">
 		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
 
-		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_ACTIONS" />
+		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
 
 		<if>
 			<isset var="recycleBinDisabled" />
@@ -944,9 +1049,9 @@
 
 		<execute function="MouseOver" locator1="DocumentsAndMedia#ICON_DOCUMENT" />
 
-		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT_ACTIONS" />
+		<execute function="AssertElementPresent" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
 
-		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_ACTIONS" />
+		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_VERTICAL_ELLIPSIS" />
 
 		<execute function="AssertClick" locator1="MenuItem#DOWNLOAD" value1="Download (${dmDocumentSize})" />
 	</command>
@@ -1607,15 +1712,7 @@
 
 		<execute function="Click" locator1="DocumentsAndMedia#ICON_DOCUMENT_THUMBNAIL" />
 
-		<if>
-			<equals arg1="${soDocument}" arg2="true" />
-			<then>
-				<execute function="SikuliClick" locator1="DocumentsAndMediaDocument#SOCIAL_OFFICE_AVERAGE_RATING_STAR_ICON_PNG" />
-			</then>
-			<else>
-				<execute function="SikuliClick" locator1="Ratings#AVERAGE_RATING_STAR_ICON_PNG" />
-			</else>
-		</if>
+		<execute function="SikuliClick" locator1="Ratings#AVERAGE_RATING_STAR_ICON_PNG" />
 
 		<execute function="SikuliClick" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_WORKFLOW_PNG" />
 	</command>
@@ -1791,15 +1888,7 @@
 			<var name="tagNameList" value="${tagNameList}" />
 		</execute>
 
-		<if>
-			<condition function="IsElementPresent" locator1="SODocuments#DOCUMENT_BREADCRUMBS" />
-			<then>
-				<execute function="AssertElementPresent" locator1="SODocuments#DOCUMENT_BREADCRUMBS" />
-			</then>
-			<else>
-				<execute function="AssertElementPresent" locator1="Icon#ANGLE_LEFT_BACK" />
-			</else>
-		</if>
+		<execute function="AssertElementPresent" locator1="Icon#ANGLE_LEFT_BACK" />
 
 		<execute macro="DMDocument#viewDocumentToolbarCmdPG" />
 
@@ -1827,7 +1916,9 @@
 	</command>
 
 	<command name="viewCannotAddRepository">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertElementNotPresent" locator1="HOME_MENULIST_ADD_REPOSITORY" />
 	</command>
@@ -2109,7 +2200,7 @@
 			<then>
 				<var name="key_selectOption" value="${selectOption}" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMediaDocument#METADATA_PANEL_SELECT" value1="Select ${selectOption}" />
+				<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMediaDocument#METADATA_PANEL_SELECT" value1="${selectOption}" />
 			</then>
 		</if>
 
@@ -2137,6 +2228,15 @@
 				<var name="key_numberValue" value="${numberValue}" />
 
 				<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMediaDocument#METADATA_PANEL_NUMBER" value1="${numberValue}" />
+			</then>
+		</if>
+
+		<if>
+			<isset var="dateValue" />
+			<then>
+				<var name="key_dateValue" value="${dateValue}" />
+
+				<execute function="AssertTextEquals#assertPartialText" locator1="DocumentsAndMediaDocument#METADATA_PANEL_DATE" value1="${dateValue}" />
 			</then>
 		</if>
 	</command>
@@ -2207,51 +2307,6 @@
 		<execute function="AssertClick" locator1="DocumentsAndMedia#ICON_DOCUMENT_TITLE_LINK" value1="${dmDocumentTitleEdit}" />
 
 		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_TITLE" value1="${dmDocumentTitleEdit}" />
-	</command>
-
-	<command name="viewEditedDraftPG">
-		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
-		<var name="key_dmDocumentVersionNumber" value="${dmDocumentVersionNumberEdit}" />
-
-		<execute function="AssertTextPresent" locator1="DocumentsAndMedia#BREADCRUMB_HOME" value1="Home" />
-
-		<execute function="Type" locator1="Search#SEARCH_FIELD" value1="${dmDocumentTitle}" />
-
-		<execute function="Click" locator1="Search#SEARCH_BUTTON" />
-
-		<execute function="AssertClick#assertPartialTextClickAt" locator1="DocumentsAndMedia#SEARCH_TITLE" value1="${dmDocumentTitle} Draft" />
-
-		<execute macro="DMDocument#viewDocumentToolbarCmdPG" />
-
-		<execute macro="DMDocument#viewDocumentTitleCmdPG">
-			<var name="dmDocumentTitle" value="${dmDocumentTitleEdit}" />
-		</execute>
-
-		<execute function="AssertElementPresent" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_THUMBNAIL" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_UPLOADED_BY" value1="${dmDocumentUploader}" />
-		<execute function="AssertElementPresent" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_RATING" value1="Ratings" />
-
-		<if>
-			<condition function="IsElementPresent" locator1="SODocuments#VERSION_HISTORY_TITLE" />
-			<then>
-				<execute function="AssertTextEquals" locator1="SODocuments#VERSION_HISTORY_TITLE" value1="Version History" />
-				<execute function="AssertTextEquals" locator1="SODocuments#VERSION_HISTORY_NUMBER" value1="Version ${dmDocumentVersionNumberEdit}" />
-				<execute function="AssertTextEquals" locator1="SODocuments#VERSION_HISTORY_UPLOADER_NAME" value1="By: ${dmDocumentUploader}" />
-				<execute function="AssertElementPresent" locator1="SODocuments#VERSION_HISTORY_DATE" />
-				<execute function="AssertTextEquals" locator1="SODocuments#VERSION_HISTORY_SIZE" value1="Size: ${dmDocumentSizeSO}" />
-			</then>
-		</if>
-
-		<execute function="AssertTextEquals" locator1="Comments#SUBSCRIBE_TO_COMMENTS_LINK" value1="Subscribe to Comments" />
-
-		<var name="key_dmDocumentVersionNumber" value="${dmDocumentVersionNumberEdit}" />
-
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_VERSION" value1="Version ${dmDocumentVersionNumberEdit}" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_UPLOADER" value1="Last Updated by ${dmDocumentUploader}" />
-		<execute function="AssertElementPresent" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_DATE" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_WORKFLOW" value1="Status: Draft" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_DOWNLOAD" value1="Download (${dmDocumentSize2})" />
-		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_DETAILS_URL" value1="Get URL or WebDAV URL." />
 	</command>
 
 	<command name="viewFolderViewPermissionsPG">
@@ -2427,46 +2482,6 @@
 		<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_DESCRIPTION" value1="${dmDocumentDescription}" />
 	</command>
 
-	<command name="viewPGNonAuthor">
-		<execute macro="DMDocument#viewPG">
-			<var name="categoryName" value="${categoryName}" />
-			<var name="dmDocumentDescription" value="${dmDocumentDescription}" />
-			<var name="dmDocumentTitle" value="${dmDocumentTitle}" />
-			<var name="tagName" value="${tagName}" />
-			<var name="tagNameList" value="${tagNameList}" />
-		</execute>
-
-		<if>
-			<condition function="IsElementPresent" locator1="SODocuments#DOCUMENT_BREADCRUMBS" />
-			<then>
-				<execute function="AssertElementPresent" locator1="SODocuments#DOCUMENT_BREADCRUMBS" />
-			</then>
-			<else>
-				<execute function="AssertTextEquals" locator1="Button#BACK" value1="Back" />
-			</else>
-		</if>
-
-		<execute function="AssertTextEquals" locator1="Button#DOWNLOAD" value1="Download" />
-
-		<execute macro="DMDocument#viewDocumentAuthorCmdPG">
-			<var name="dmDocumentAuthor" value="${dmDocumentAuthor}" />
-		</execute>
-
-		<execute macro="DMDocument#viewDocumentNoCommentsCmdPG" />
-
-		<if>
-			<isset var="dmDocumentVersionNumber" />
-			<then>
-				<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_VERSION" value1="Version ${dmDocumentVersionNumber}" />
-			</then>
-			<else>
-				<execute function="AssertTextEquals" locator1="DocumentsAndMediaDocument#DOCUMENT_INFO_VERSION" value1="Version 1.0" />
-			</else>
-		</if>
-
-		<execute macro="DMDocument#viewDocumentDetailsCmdPG" />
-	</command>
-
 	<command name="viewPGRating">
 		<execute function="AssertTextEquals" locator1="Ratings#AVERAGE_LABEL" value1="Average (1 Vote)" />
 
@@ -2559,7 +2574,9 @@
 	</command>
 
 	<command name="viewStagingDetailsPG">
-		<execute function="Click#makeVisibleClickAt" locator1="Portlet#ICON_PLUS_SIGN" />
+		<execute macro="Portlet#clickPortletPlusIconPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
 
 		<execute function="AssertTextEquals" locator1="MenuItem#FOLDER" value1="Folder" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SHORTCUT" value1="Shortcut" />

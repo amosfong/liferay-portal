@@ -108,6 +108,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -729,6 +730,8 @@ public class ServiceBuilder {
 			}
 
 			if (build) {
+				Collections.sort(_ejbList);
+
 				for (int x = 0; x < _ejbList.size(); x++) {
 					Entity entity = _ejbList.get(x);
 
@@ -1178,7 +1181,8 @@ public class ServiceBuilder {
 			catch (IOException ioe) {
 				throw new ServiceBuilderException(
 					"Unable to find " + refEntity + " in " +
-						ListUtil.toString(_ejbList, Entity.NAME_ACCESSOR));
+						ListUtil.toString(_ejbList, Entity.NAME_ACCESSOR),
+					ioe);
 			}
 
 			_write(refFile, refContent);
@@ -1288,10 +1292,11 @@ public class ServiceBuilder {
 		return sb.toString();
 	}
 
-	public List<EntityColumn> getMappingEntities(String mappingTable)
+	public Map<String, List<EntityColumn>> getMappingEntities(
+			String mappingTable)
 		throws Exception {
 
-		List<EntityColumn> mappingEntitiesPKList = new ArrayList<>();
+		Map<String, List<EntityColumn>> mappingEntities = new LinkedHashMap<>();
 
 		EntityMapping entityMapping = _entityMappings.get(mappingTable);
 
@@ -1302,10 +1307,10 @@ public class ServiceBuilder {
 				return null;
 			}
 
-			mappingEntitiesPKList.addAll(entity.getPKList());
+			mappingEntities.put(entity.getName(), entity.getPKList());
 		}
 
-		return mappingEntitiesPKList;
+		return mappingEntities;
 	}
 
 	public int getMaxLength(String model, String field) {
@@ -1509,6 +1514,9 @@ public class ServiceBuilder {
 		else if (type.equals("Date")) {
 			return "TIMESTAMP";
 		}
+		else if (type.equals("String")) {
+			return "VARCHAR";
+		}
 		else {
 			return null;
 		}
@@ -1559,23 +1567,25 @@ public class ServiceBuilder {
 	public String getTypeGenericsName(Type type) {
 		StringBundler sb = new StringBundler();
 
-		sb.append(type.getValue());
-
 		Type[] actualTypeArguments = type.getActualTypeArguments();
 
-		if (actualTypeArguments != null) {
-			sb.append(StringPool.LESS_THAN);
-
-			for (Type actualTypeArgument : actualTypeArguments) {
-				sb.append(getTypeGenericsName(actualTypeArgument));
-
-				sb.append(StringPool.COMMA_AND_SPACE);
-			}
-
-			sb.setIndex(sb.index() - 1);
-
-			sb.append(StringPool.GREATER_THAN);
+		if (actualTypeArguments == null) {
+			return type.getGenericValue();
 		}
+
+		sb.append(type.getValue());
+
+		sb.append(StringPool.LESS_THAN);
+
+		for (Type actualTypeArgument : actualTypeArguments) {
+			sb.append(getTypeGenericsName(actualTypeArgument));
+
+			sb.append(StringPool.COMMA_AND_SPACE);
+		}
+
+		sb.setIndex(sb.index() - 1);
+
+		sb.append(StringPool.GREATER_THAN);
 
 		sb.append(getDimensions(type.getDimensions()));
 
@@ -1668,9 +1678,13 @@ public class ServiceBuilder {
 		String methodName = method.getName();
 
 		if (methodName.equals("afterPropertiesSet") ||
+			methodName.equals("clearService") ||
 			methodName.equals("destroy") || methodName.equals("equals") ||
-			methodName.equals("getClass") || methodName.equals("hashCode") ||
-			methodName.equals("notify") || methodName.equals("notifyAll") ||
+			methodName.equals("getClass") || methodName.equals("getService") ||
+			methodName.equals("getWrappedService") ||
+			methodName.equals("hashCode") || methodName.equals("notify") ||
+			methodName.equals("notifyAll") ||
+			methodName.equals("setWrappedService") ||
 			methodName.equals("toString") || methodName.equals("wait")) {
 
 			return false;
@@ -1688,27 +1702,59 @@ public class ServiceBuilder {
 
 			return false;
 		}
-		else if (methodName.endsWith("Finder") &&
-				 (methodName.startsWith("get") ||
-				  methodName.startsWith("set"))) {
 
-			return false;
-		}
-		else if (methodName.endsWith("Persistence") &&
-				 (methodName.startsWith("get") ||
-				  methodName.startsWith("set"))) {
+		JavaClass javaClass = method.getParentClass();
 
-			return false;
-		}
-		else if (methodName.endsWith("Service") &&
-				 (methodName.startsWith("get") ||
-				  methodName.startsWith("set"))) {
+		String packageName = javaClass.getPackageName();
 
-			return false;
-		}
-		else {
+		if (!packageName.endsWith(".service.base")) {
 			return true;
 		}
+
+		if (!methodName.endsWith("Finder") &&
+			!methodName.endsWith("Persistence") &&
+			!methodName.endsWith("Service")) {
+
+			return true;
+		}
+
+		Type type = null;
+
+		Type[] parameterTypes = method.getParameterTypes(true);
+		Type returnType = method.getReturnType(true);
+
+		if (methodName.startsWith("get")) {
+			if (ArrayUtil.isEmpty(parameterTypes)) {
+				type = returnType;
+			}
+		}
+		else if (methodName.startsWith("set")) {
+			if ((parameterTypes != null) && (parameterTypes.length == 1)) {
+				type = parameterTypes[0];
+			}
+		}
+
+		if (type == null) {
+			return true;
+		}
+
+		String typeClassName = type.getFullyQualifiedName();
+
+		int index = typeClassName.lastIndexOf(CharPool.PERIOD);
+
+		if (index == -1) {
+			return true;
+		}
+
+		String typePackageName = typeClassName.substring(0, index);
+
+		if (typePackageName.endsWith(".persistence") ||
+			typePackageName.endsWith(".service")) {
+
+			return false;
+		}
+
+		return true;
 	}
 
 	public boolean isHBMCamelCasePropertyAccessor(String propertyName) {
@@ -2706,8 +2752,21 @@ public class ServiceBuilder {
 
 		Map<String, Object> context = _getContext();
 
+		boolean hasClassNameCacheField = false;
+
+		JavaField[] cacheFields = _getCacheFields(modelImplJavaClass);
+
+		for (JavaField javaField : cacheFields) {
+			if ("_className".equals(javaField.getName())) {
+				hasClassNameCacheField = true;
+
+				break;
+			}
+		}
+
 		context.put("cacheFields", _getCacheFields(modelImplJavaClass));
 		context.put("entity", entity);
+		context.put("hasClassNameCacheField", hasClassNameCacheField);
 
 		context = _putDeprecatedKeys(context, modelImplJavaClass);
 
@@ -2983,7 +3042,7 @@ public class ServiceBuilder {
 
 		JavaSource javaSource = javaClass.getSource();
 
-		imports.addAll(Arrays.asList(javaSource.getImports()));
+		Collections.addAll(imports, javaSource.getImports());
 
 		JavaMethod[] methods = _getMethods(javaClass);
 
@@ -3001,7 +3060,7 @@ public class ServiceBuilder {
 
 			JavaSource parentJavaSource = parentJavaClass.getSource();
 
-			imports.addAll(Arrays.asList(parentJavaSource.getImports()));
+			Collections.addAll(imports, parentJavaSource.getImports());
 
 			methods = _mergeMethods(
 				methods, parentJavaClass.getMethods(), true);
@@ -4981,7 +5040,7 @@ public class ServiceBuilder {
 		return new ArrayList<>(set);
 	}
 
-	private void _parseEntity(Element entityElement) throws Exception {
+	private Entity _parseEntity(Element entityElement) throws Exception {
 		String ejbName = entityElement.attributeValue("name");
 		String humanName = entityElement.attributeValue("human-name");
 
@@ -5104,6 +5163,18 @@ public class ServiceBuilder {
 			columnElements.add(0, columnElement);
 		}
 
+		Element localizedEntityElement = entityElement.element(
+			"localized-entity");
+
+		if (localizedEntityElement != null) {
+			Element columnElement = DocumentHelper.createElement("column");
+
+			columnElement.addAttribute("name", "defaultLanguageId");
+			columnElement.addAttribute("type", "String");
+
+			columnElements.add(columnElement);
+		}
+
 		for (Element columnElement : columnElements) {
 			String columnName = columnElement.attributeValue("name");
 
@@ -5195,6 +5266,12 @@ public class ServiceBuilder {
 			}
 		}
 
+		if (uuid && pkList.isEmpty()) {
+			throw new ServiceBuilderException(
+				"Unable to create entity \"" + ejbName +
+					"\" with a UUID without a primary key");
+		}
+
 		EntityOrder order = null;
 
 		Element orderElement = entityElement.element("order");
@@ -5232,7 +5309,14 @@ public class ServiceBuilder {
 					orderColByAscending = false;
 				}
 
-				EntityColumn col = Entity.getColumn(orderColName, columnList);
+				int index = columnList.indexOf(new EntityColumn(orderColName));
+
+				if (index < 0) {
+					throw new IllegalArgumentException(
+						"Invalid order by column " + orderColName);
+				}
+
+				EntityColumn col = columnList.get(index);
 
 				col.setOrderColumn(true);
 
@@ -5434,25 +5518,292 @@ public class ServiceBuilder {
 		List<Element> txRequiredElements = entityElement.elements(
 			"tx-required");
 
-		for (Element txRequiredEl : txRequiredElements) {
-			String txRequired = txRequiredEl.getText();
+		if (!txRequiredElements.isEmpty()) {
+			System.err.println(
+				"The tx-required attribute is deprecated in favor annotating " +
+					"the service impl method with " +
+						"com.liferay.portal.kernel.transaction.Transactional");
 
-			txRequiredList.add(txRequired);
+			for (Element txRequiredEl : txRequiredElements) {
+				String txRequired = txRequiredEl.getText();
+
+				txRequiredList.add(txRequired);
+			}
 		}
 
 		boolean resourceActionModel = _resourceActionModels.contains(
 			_apiPackagePath + ".model." + ejbName);
 
-		_ejbList.add(
-			new Entity(
-				_packagePath, _apiPackagePath, _portletName, _portletShortName,
-				ejbName, humanName, table, alias, uuid, uuidAccessor,
-				localService, remoteService, persistenceClass, finderClass,
-				dataSource, sessionFactory, txManager, cacheEnabled,
-				dynamicUpdateEnabled, jsonEnabled, mvccEnabled, trashEnabled,
-				deprecated, pkList, regularColList, blobList, collectionList,
-				columnList, order, finderList, referenceList,
-				unresolvedReferenceList, txRequiredList, resourceActionModel));
+		Entity entity = new Entity(
+			_packagePath, _apiPackagePath, _portletName, _portletShortName,
+			ejbName, humanName, table, alias, uuid, uuidAccessor, localService,
+			remoteService, persistenceClass, finderClass, dataSource,
+			sessionFactory, txManager, cacheEnabled, dynamicUpdateEnabled,
+			jsonEnabled, mvccEnabled, trashEnabled, deprecated, pkList,
+			regularColList, blobList, collectionList, columnList, order,
+			finderList, referenceList, unresolvedReferenceList, txRequiredList,
+			resourceActionModel);
+
+		_ejbList.add(entity);
+
+		if (localizedEntityElement != null) {
+			_parseLocalizedEntity(entity, localizedEntityElement);
+		}
+
+		return entity;
+	}
+
+	private void _parseLocalizedEntity(
+			Entity entity, Element localizedEntityElement)
+		throws Exception {
+
+		if (!entity.hasLocalService()) {
+			throw new IllegalArgumentException(
+				entity.getName() +
+					" must have a local service to use localized entity");
+		}
+
+		for (EntityColumn entityColumn : entity.getColumnList()) {
+			if (entityColumn.isLocalized()) {
+				throw new IllegalArgumentException(
+					"Unable to use localized entity with localized column " +
+						entityColumn.getName() + " in " + entity.getName());
+			}
+		}
+
+		// Localized entity
+
+		Element newLocalizedEntityElement = DocumentHelper.createElement(
+			"entity");
+
+		if (Validator.isNotNull(entity.getDataSource())) {
+			newLocalizedEntityElement.addAttribute(
+				"data-source", entity.getDataSource());
+		}
+
+		if (entity.isDeprecated()) {
+			newLocalizedEntityElement.addAttribute("deprecated", "true");
+		}
+
+		newLocalizedEntityElement.addAttribute("local-service", "false");
+		newLocalizedEntityElement.addAttribute("mvcc-enabled", "true");
+
+		newLocalizedEntityElement.addAttribute(
+			"name", entity.getName() + "Localization");
+
+		newLocalizedEntityElement.addAttribute("remote-service", "false");
+
+		if (Validator.isNotNull(entity.getSessionFactory())) {
+			newLocalizedEntityElement.addAttribute(
+				"session-factory", entity.getSessionFactory());
+		}
+
+		if (Validator.isNotNull(entity.getTXManager())) {
+			newLocalizedEntityElement.addAttribute(
+				"tx-manager", entity.getTXManager());
+		}
+
+		newLocalizedEntityElement.addAttribute("uuid", "false");
+
+		// Auto generated columns
+
+		Element newLocalizedColumnElement =
+			newLocalizedEntityElement.addElement("column");
+
+		newLocalizedColumnElement.addAttribute(
+			"name", entity.getVarName() + "LocalizationId");
+		newLocalizedColumnElement.addAttribute("primary", "true");
+		newLocalizedColumnElement.addAttribute("type", "long");
+
+		if (entity.hasColumn("companyId")) {
+			newLocalizedColumnElement = newLocalizedEntityElement.addElement(
+				"column");
+
+			newLocalizedColumnElement.addAttribute("name", "companyId");
+			newLocalizedColumnElement.addAttribute("type", "long");
+		}
+
+		List<EntityColumn> pkList = entity.getPKList();
+
+		if (pkList.size() > 1) {
+			throw new IllegalArgumentException(
+				"Unable to use localized entity with compound primary key");
+		}
+
+		EntityColumn pkColumn = pkList.get(0);
+
+		newLocalizedColumnElement = newLocalizedEntityElement.addElement(
+			"column");
+
+		newLocalizedColumnElement.addAttribute("name", pkColumn.getName());
+		newLocalizedColumnElement.addAttribute("type", pkColumn.getType());
+
+		newLocalizedColumnElement = newLocalizedEntityElement.addElement(
+			"column");
+
+		newLocalizedColumnElement.addAttribute("name", "languageId");
+		newLocalizedColumnElement.addAttribute("type", "String");
+
+		// Localized columns
+
+		List<Element> localizedColumnElements = localizedEntityElement.elements(
+			"localized-column");
+
+		if (localizedColumnElements.isEmpty()) {
+			throw new IllegalArgumentException(
+				"Unable to use localized entity table without localized " +
+					"columns");
+		}
+
+		List<EntityColumn> localizedColumns = new ArrayList<>(
+			localizedColumnElements.size());
+
+		for (Element localizedColumnElement : localizedColumnElements) {
+			String columnName = localizedColumnElement.attributeValue("name");
+
+			String columnDBName = localizedColumnElement.attributeValue(
+				"db-name");
+
+			if (Validator.isNull(columnDBName)) {
+				columnDBName = columnName;
+
+				if (_badColumnNames.contains(columnName)) {
+					columnDBName += StringPool.UNDERLINE;
+				}
+			}
+
+			localizedColumns.add(new EntityColumn(columnName, columnDBName));
+
+			newLocalizedColumnElement = newLocalizedEntityElement.addElement(
+				"column");
+
+			newLocalizedColumnElement.addAttribute("name", columnName);
+			newLocalizedColumnElement.addAttribute("db-name", columnDBName);
+			newLocalizedColumnElement.addAttribute("type", "String");
+		}
+
+		// Auto generated finders
+
+		Element newLocalizedFinderElement =
+			newLocalizedEntityElement.addElement("finder");
+
+		String finderName = TextFormatter.format(
+			pkColumn.getName(), TextFormatter.G);
+
+		newLocalizedFinderElement.addAttribute("name", finderName);
+
+		newLocalizedFinderElement.addAttribute("return-type", "Collection");
+
+		Element newLocalizedFinderColumnElement =
+			newLocalizedFinderElement.addElement("finder-column");
+
+		newLocalizedFinderColumnElement.addAttribute(
+			"name", pkColumn.getName());
+
+		newLocalizedFinderElement = newLocalizedEntityElement.addElement(
+			"finder");
+
+		newLocalizedFinderElement.addAttribute(
+			"name", finderName + "_LanguageId");
+
+		newLocalizedFinderElement.addAttribute(
+			"return-type", entity.getName() + "Localization");
+
+		newLocalizedFinderElement.addAttribute("unique", "true");
+
+		newLocalizedFinderColumnElement = newLocalizedFinderElement.addElement(
+			"finder-column");
+
+		newLocalizedFinderColumnElement.addAttribute(
+			"name", pkColumn.getName());
+
+		newLocalizedFinderColumnElement = newLocalizedFinderElement.addElement(
+			"finder-column");
+
+		newLocalizedFinderColumnElement.addAttribute("name", "languageId");
+
+		// Manual columns
+
+		List<Element> columnElements = localizedEntityElement.elements(
+			"column");
+
+		for (Element columnElement : columnElements) {
+			String localized = columnElement.attributeValue("localized");
+
+			if (localized != null) {
+				throw new IllegalArgumentException(
+					"Unable to have localized columns in localized table for " +
+						"entity " + entity.getName());
+			}
+
+			Element newColumnElement = newLocalizedEntityElement.addElement(
+				"column", columnElement.getStringValue());
+
+			List<Attribute> columnAttributes = columnElement.attributes();
+
+			for (Attribute columnAttribute : columnAttributes) {
+				newColumnElement.addAttribute(
+					columnAttribute.getName(),
+					columnAttribute.getStringValue());
+			}
+		}
+
+		// Manual Order
+
+		Element orderElement = localizedEntityElement.element("order");
+
+		if (orderElement != null) {
+			Element newOrderElement = newLocalizedEntityElement.addElement(
+				"order", orderElement.getStringValue());
+
+			List<Attribute> orderAttributes = orderElement.attributes();
+
+			for (Attribute orderAttribute : orderAttributes) {
+				newOrderElement.addAttribute(
+					orderAttribute.getName(), orderAttribute.getStringValue());
+			}
+		}
+
+		// Manual finders
+
+		List<Element> finderElements = localizedEntityElement.elements(
+			"finder");
+
+		for (Element finderElement : finderElements) {
+			Element newFinderElement = newLocalizedEntityElement.addElement(
+				"finder", finderElement.getStringValue());
+
+			List<Attribute> finderElementAttributes =
+				finderElement.attributes();
+
+			for (Attribute finderElementAttribute : finderElementAttributes) {
+				newFinderElement.addAttribute(
+					finderElementAttribute.getName(),
+					finderElementAttribute.getStringValue());
+			}
+
+			List<Element> finderColumnElements = finderElement.elements(
+				"finder-column");
+
+			for (Element finderColumnElement : finderColumnElements) {
+				List<Attribute> finderColumnAttributes =
+					finderColumnElement.attributes();
+
+				Element newFinderColumnElement = newFinderElement.addElement(
+					"finder-column", finderColumnElement.getStringValue());
+
+				for (Attribute finderColumnAttribute : finderColumnAttributes) {
+					newFinderColumnElement.addAttribute(
+						finderColumnAttribute.getName(),
+						finderColumnAttribute.getStringValue());
+				}
+			}
+		}
+
+		Entity localizedEntity = _parseEntity(newLocalizedEntityElement);
+
+		entity.setLocalizedColumns(localizedColumns);
+		entity.setLocalizedEntity(localizedEntity);
 	}
 
 	private String _processTemplate(String name, Map<String, Object> context)

@@ -30,10 +30,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.VirtualLayoutConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
@@ -544,6 +546,10 @@ public class BaseTextExportImportContentProcessor
 
 			String url = content.substring(beginPos + offset, endPos);
 
+			if (url.endsWith(StringPool.SLASH)) {
+				url = url.substring(0, url.length() - 1);
+			}
+
 			StringBundler urlSB = new StringBundler(6);
 
 			try {
@@ -678,59 +684,64 @@ public class BaseTextExportImportContentProcessor
 					continue;
 				}
 
-				String groupFriendlyURL = group.getFriendlyURL();
-
-				if (url.equals(groupFriendlyURL) ||
-					url.startsWith(groupFriendlyURL + StringPool.SLASH)) {
-
-					urlSB.append(DATA_HANDLER_GROUP_FRIENDLY_URL);
-
-					url = url.substring(groupFriendlyURL.length());
-				}
-
 				long groupId = group.getGroupId();
-
-				while (true) {
-					pos = url.indexOf(StringPool.SLASH, 1);
-
-					if (pos == -1) {
-						break;
-					}
-
-					String groupName = url.substring(1, pos);
-
-					groupFriendlyURL = StringPool.SLASH + groupName;
-
-					Group urlGroup =
-						GroupLocalServiceUtil.fetchFriendlyURLGroup(
-							group.getCompanyId(), groupFriendlyURL);
-
-					if (urlGroup != null) {
-						group = urlGroup;
-						groupId = urlGroup.getGroupId();
-
-						if (!DATA_HANDLER_GROUP_FRIENDLY_URL.equals(
-								urlSB.stringAt(urlSB.index() - 1))) {
-
-							urlSB.append(DATA_HANDLER_GROUP_FRIENDLY_URL);
-						}
-
-						url = url.substring(groupFriendlyURL.length());
-					}
-					else {
-						throw new NoSuchLayoutException();
-					}
-				}
-
-				if (Validator.isNull(url)) {
-					continue;
-				}
-
-				Element entityElement = portletDataContext.getExportDataElement(
-					stagedModel);
 
 				Layout layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
 					groupId, privateLayout, url);
+
+				if (layout != null) {
+					Element entityElement =
+						portletDataContext.getExportDataElement(stagedModel);
+
+					portletDataContext.addReferenceElement(
+						stagedModel, entityElement, layout,
+						PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
+
+					continue;
+				}
+
+				pos = url.indexOf(StringPool.SLASH, 1);
+
+				String groupFriendlyURL = url;
+
+				if (pos != -1) {
+					groupFriendlyURL = url.substring(0, pos);
+				}
+
+				Group urlGroup = GroupLocalServiceUtil.fetchFriendlyURLGroup(
+					group.getCompanyId(), groupFriendlyURL);
+
+				if (urlGroup == null) {
+					throw new NoSuchLayoutException();
+				}
+
+				urlSB.append(DATA_HANDLER_GROUP_FRIENDLY_URL);
+
+				String siteAdminURL =
+					GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
+						PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
+
+				if (url.endsWith(siteAdminURL)) {
+					urlSB.append(DATA_HANDLER_SITE_ADMIN_URL);
+
+					url = StringPool.BLANK;
+
+					continue;
+				}
+
+				if (pos == -1) {
+					url = StringPool.BLANK;
+
+					continue;
+				}
+
+				url = url.substring(pos);
+
+				layout = LayoutLocalServiceUtil.getFriendlyURLLayout(
+					urlGroup.getGroupId(), privateLayout, url);
+
+				Element entityElement = portletDataContext.getExportDataElement(
+					stagedModel);
 
 				portletDataContext.addReferenceElement(
 					stagedModel, entityElement, layout,
@@ -994,6 +1005,12 @@ public class BaseTextExportImportContentProcessor
 			}
 		}
 
+		StringBundler siteAdminURL = new StringBundler(3);
+
+		siteAdminURL.append(VirtualLayoutConstants.CANONICAL_URL_SEPARATOR);
+		siteAdminURL.append(GroupConstants.CONTROL_PANEL_FRIENDLY_URL);
+		siteAdminURL.append(PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL);
+
 		content = StringUtil.replace(
 			content, DATA_HANDLER_COMPANY_SECURE_URL, companySecurePortalURL);
 		content = StringUtil.replace(
@@ -1023,6 +1040,8 @@ public class BaseTextExportImportContentProcessor
 		content = StringUtil.replace(
 			content, DATA_HANDLER_PUBLIC_SERVLET_MAPPING,
 			PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING);
+		content = StringUtil.replace(
+			content, DATA_HANDLER_SITE_ADMIN_URL, siteAdminURL.toString());
 
 		return content;
 	}
@@ -1135,47 +1154,47 @@ public class BaseTextExportImportContentProcessor
 			portalURL.concat("/image/image_gallery?")
 		};
 
+		String[] completePatterns = new String[patterns.length];
+
 		long[] companyIds = PortalUtil.getCompanyIds();
-
-		String[] completePatterns =
-			new String[patterns.length * companyIds.length];
-
-		int i = 0;
 
 		for (long companyId : companyIds) {
 			Company company = CompanyLocalServiceUtil.getCompany(companyId);
 
 			String webId = company.getWebId();
 
+			int i = 0;
+
 			for (String pattern : patterns) {
 				completePatterns[i] = webId.concat(pattern);
 
 				i++;
 			}
-		}
 
-		int beginPos = -1;
-		int endPos = content.length();
+			int beginPos = -1;
+			int endPos = content.length();
 
-		while (true) {
-			beginPos = StringUtil.lastIndexOfAny(
-				content, completePatterns, endPos);
+			while (true) {
+				beginPos = StringUtil.lastIndexOfAny(
+					content, completePatterns, endPos);
 
-			if (beginPos == -1) {
-				break;
+				if (beginPos == -1) {
+					break;
+				}
+
+				Map<String, String[]> dlReferenceParameters =
+					getDLReferenceParameters(
+						groupId, content,
+						beginPos + portalURL.length() + webId.length(), endPos);
+
+				FileEntry fileEntry = getFileEntry(dlReferenceParameters);
+
+				if (fileEntry == null) {
+					throw new NoSuchFileEntryException();
+				}
+
+				endPos = beginPos - 1;
 			}
-
-			Map<String, String[]> dlReferenceParameters =
-				getDLReferenceParameters(
-					groupId, content, beginPos + portalURL.length(), endPos);
-
-			FileEntry fileEntry = getFileEntry(dlReferenceParameters);
-
-			if (fileEntry == null) {
-				throw new NoSuchFileEntryException();
-			}
-
-			endPos = beginPos - 1;
 		}
 	}
 
@@ -1228,6 +1247,10 @@ public class BaseTextExportImportContentProcessor
 
 			if (endPos != -1) {
 				url = url.substring(0, endPos);
+			}
+
+			if (url.endsWith(StringPool.SLASH)) {
+				url = url.substring(0, url.length() - 1);
 			}
 
 			StringBundler urlSB = new StringBundler(1);
@@ -1318,55 +1341,50 @@ public class BaseTextExportImportContentProcessor
 				privateLayout = layoutSet.isPrivateLayout();
 			}
 
-			String groupFriendlyURL = group.getFriendlyURL();
-
-			if (url.equals(groupFriendlyURL)) {
-				continue;
-			}
-
-			if (url.startsWith(groupFriendlyURL + StringPool.SLASH)) {
-				url = url.substring(groupFriendlyURL.length());
-			}
-
-			while (true) {
-				pos = url.indexOf(StringPool.SLASH, 1);
-
-				if (pos == -1) {
-					break;
-				}
-
-				String groupName = url.substring(1, pos);
-
-				groupFriendlyURL = StringPool.SLASH + groupName;
-
-				Group urlGroup = GroupLocalServiceUtil.fetchFriendlyURLGroup(
-					group.getCompanyId(), groupFriendlyURL);
-
-				if (urlGroup != null) {
-					group = urlGroup;
-					groupId = urlGroup.getGroupId();
-
-					url = url.substring(groupFriendlyURL.length());
-				}
-				else {
-					throw new NoSuchLayoutException();
-				}
-			}
-
-			if (Validator.isNull(url)) {
-				continue;
-			}
-
 			Layout layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
 				groupId, privateLayout, url);
 
-			if (layout == null) {
-				group = GroupLocalServiceUtil.fetchFriendlyURLGroup(
-					group.getCompanyId(), url);
+			if (layout != null) {
+				continue;
+			}
 
-				if (group == null) {
-					throw new NoSuchLayoutException();
-				}
+			String siteAdminURL =
+				GroupConstants.CONTROL_PANEL_FRIENDLY_URL +
+					PropsValues.CONTROL_PANEL_LAYOUT_FRIENDLY_URL;
+
+			if (url.endsWith(
+					VirtualLayoutConstants.CANONICAL_URL_SEPARATOR +
+						siteAdminURL)) {
+
+				url = url.substring(url.indexOf(siteAdminURL));
+			}
+
+			pos = url.indexOf(StringPool.SLASH, 1);
+
+			String groupFriendlyURL = url;
+
+			if (pos != -1) {
+				groupFriendlyURL = url.substring(0, pos);
+			}
+
+			Group urlGroup = GroupLocalServiceUtil.fetchFriendlyURLGroup(
+				group.getCompanyId(), groupFriendlyURL);
+
+			if (urlGroup == null) {
+				throw new NoSuchLayoutException();
+			}
+
+			if (pos == -1) {
+				continue;
+			}
+
+			url = url.substring(pos);
+
+			layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
+				urlGroup.getGroupId(), privateLayout, url);
+
+			if (layout == null) {
+				throw new NoSuchLayoutException();
 			}
 		}
 	}
@@ -1427,6 +1445,9 @@ public class BaseTextExportImportContentProcessor
 	protected static final String DATA_HANDLER_PUBLIC_SERVLET_MAPPING =
 		"@data_handler_public_servlet_mapping@";
 
+	protected static final String DATA_HANDLER_SITE_ADMIN_URL =
+		"@data_handler_site_admin_url@";
+
 	protected static final char[] DL_REFERENCE_LEGACY_STOP_CHARS = {
 		CharPool.APOSTROPHE, CharPool.CLOSE_BRACKET, CharPool.CLOSE_CURLY_BRACE,
 		CharPool.CLOSE_PARENTHESIS, CharPool.GREATER_THAN, CharPool.LESS_THAN,
@@ -1442,7 +1463,8 @@ public class BaseTextExportImportContentProcessor
 	protected static final char[] LAYOUT_REFERENCE_STOP_CHARS = {
 		CharPool.APOSTROPHE, CharPool.CLOSE_BRACKET, CharPool.CLOSE_CURLY_BRACE,
 		CharPool.CLOSE_PARENTHESIS, CharPool.GREATER_THAN, CharPool.LESS_THAN,
-		CharPool.PIPE, CharPool.QUESTION, CharPool.QUOTE, CharPool.SPACE
+		CharPool.PIPE, CharPool.POUND, CharPool.QUESTION, CharPool.QUOTE,
+		CharPool.SPACE
 	};
 
 	protected static final String PRIVATE_GROUP_SERVLET_MAPPING =

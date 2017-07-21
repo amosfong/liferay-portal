@@ -49,6 +49,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CUSTOM_TITLE</td>
+	<td>//input[contains(@id,'customTitle')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DATA_DEFINITION</td>
 	<td>//div[label[contains(.,'Data Definition')]]/input[@type='text']</td>
 	<td></td>
@@ -164,8 +169,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>GENERIC_TEXT_INPUT</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]]//input[@type='text']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>GOOGLE_ANALYTICS_ID</td>
 	<td>//input[contains(@id,'googleAnalyticsId')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>IMAGE_ID</td>
+	<td>//input[contains(@id,'newUuid')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -234,8 +249,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MAX_HEIGHT</td>
+	<td>//input[contains(@id,'maxHeight')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MAX_USERS</td>
 	<td>//input[contains(@id,'maxUsers') and contains(@class,'input-text')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MAX_WIDTH</td>
+	<td>//input[contains(@id,'maxWidth')]</td>
 	<td></td>
 </tr>
 <tr>

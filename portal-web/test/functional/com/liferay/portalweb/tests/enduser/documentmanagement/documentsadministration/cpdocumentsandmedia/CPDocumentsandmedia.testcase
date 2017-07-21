@@ -27,51 +27,50 @@
 		</if>
 	</tear-down>
 
-	<command name="AddDocument" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="Navigator#openURL" />
+	<command name="AddContract" priority="4">
+		<description message="This is a use case for LPS-42515" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="DMDocument#addCP">
-			<var name="dmDocumentDescription" value="DM Document Description1" />
-			<var name="dmDocumentFile" value="Document_1.txt" />
-			<var name="dmDocumentTitle" value="DM Document Title" />
+		<execute macro="DMDocument#addContractCP">
+			<var name="dmContractDealName" value="DM Contract Deal Name" />
+			<var name="dmContractDescription" value="DM Contract Description" />
+			<var name="dmContractFile" value="Document_1.pdf" />
+			<var name="dmContractLegalReviewer" value="DM Contract Legal Reviewer" />
+			<var name="dmContractSigningAuthority" value="DM Contract Signing Authority" />
+			<var name="dmContractTitle" value="DM Contract Title" />
+			<var name="effectiveDate" value="06/01/2017" />
+			<var name="expirationDate" value="06/15/2017" />
 		</execute>
 
 		<execute macro="DMNavigator#gotoDocumentCP">
-			<var name="dmDocumentTitle" value="DM Document Title" />
+			<var name="dmDocumentTitle" value="DM Contract Title" />
 		</execute>
 
-		<execute macro="DMDocument#viewCP">
-			<var name="dmDocumentSize" value="0KB" />
-			<var name="dmDocumentTitle" value="DM Document Title" />
-		</execute>
-	</command>
-
-	<command name="AddFolder" priority="5">
-		<property name="portal.acceptance" value="true" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Documents and Media" />
+		<execute macro="DMDocument#viewDocumentTypePG">
+			<var name="dateValue" value="6/1/17" />
+			<var name="documentType" value="Contract" />
+			<var name="selectOption" value="NDA" />
+			<var name="textContent" value="DM Contract Legal Reviewer" />
 		</execute>
 
-		<execute macro="DMFolder#addCP">
-			<var name="dmFolderDescription" value="DM Folder Description" />
-			<var name="dmFolderName" value="DM Folder Name" />
+		<execute macro="DMDocument#viewDocumentTypePG">
+			<var name="dateValue" value="6/15/17" />
+			<var name="selectOption" value="Draft" />
+			<var name="textContent" value="DM Contract Signing Authority" />
 		</execute>
 
-		<execute macro="DMFolder#viewCP">
-			<var name="dmFolderName" value="DM Folder Name" />
+		<execute macro="DMDocument#viewDocumentTypePG">
+			<var name="textContent" value="DM Contract Deal Name" />
 		</execute>
 	</command>
 
-	<command name="AddShortcutToSiteDocument" priority="3">
+	<command name="AddShortcutToSiteDocument" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -169,6 +168,7 @@
 
 	<command name="EditFolder" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -321,6 +321,10 @@
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
 
+		<execute macro="DMFolder#viewCP">
+			<var name="dmFolderName" value="DM Folder Name" />
+		</execute>
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -352,7 +356,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute function="AssertVisible" locator1="ControlMenu#HEADER_TITLE" value1="Documents and Media" />
+		<execute function="AssertVisible" locator1="Portlet#HEADER" value1="Documents and Media" />
 
 		<execute macro="ImageEditor#gotoImageEditorViaDM">
 			<var name="dmDocumentTitle" value="Document_2.jpg" />

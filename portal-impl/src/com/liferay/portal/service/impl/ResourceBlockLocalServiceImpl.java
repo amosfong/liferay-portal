@@ -310,7 +310,7 @@ public class ResourceBlockLocalServiceImpl
 			return (PermissionedModel)persistedModel;
 		}
 		catch (ClassCastException cce) {
-			throw new ResourceBlocksNotSupportedException();
+			throw new ResourceBlocksNotSupportedException(cce);
 		}
 	}
 
@@ -477,7 +477,10 @@ public class ResourceBlockLocalServiceImpl
 
 						qPos.add(resourceBlockId);
 
-						sqlQuery.executeUpdate();
+						if (sqlQuery.executeUpdate() > 0) {
+							resourceBlockPermissionLocalService.
+								deleteResourceBlockPermissions(resourceBlockId);
+						}
 
 						PermissionCacheUtil.clearResourceBlockCache(
 							resourceBlock.getCompanyId(),

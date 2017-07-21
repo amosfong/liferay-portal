@@ -15,8 +15,11 @@
 package com.liferay.portal.security.sso.openid.connect.internal;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.security.sso.openid.connect.OpenIdConnectMetadataFactory;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectProvider;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectProviderRegistry;
+import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException;
 import com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectProviderConfiguration;
 
 import java.net.URL;
@@ -25,7 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Constants;
@@ -35,6 +37,7 @@ import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Thuong Dinh
+ * @author Edward C. Han
  */
 @Component(
 	immediate = true,
@@ -46,13 +49,22 @@ public class OpenIdConnectProviderRegistryImpl
 
 	@Override
 	public void deleted(String factoryPid) {
-		_openIdConnectProvidersPerFactory.computeIfPresent(
-			factoryPid,
-			(pid, openIdConnectProvider) -> {
-				removeOpenConnectIdProvider(openIdConnectProvider);
+		removeOpenConnectIdProvider(factoryPid);
+	}
 
-				return null;
-			});
+	@Override
+	public OpenIdConnectProvider findOpenIdConnectProvider(String name)
+		throws OpenIdConnectServiceException.ProviderException {
+
+		OpenIdConnectProvider openIdConnectProvider = getOpenIdConnectProvider(
+			name);
+
+		if (openIdConnectProvider == null) {
+			throw new OpenIdConnectServiceException.ProviderException(
+				"Unable to get OpenId Connect provider with name " + name);
+		}
+
+		return openIdConnectProvider;
 	}
 
 	@Override
@@ -63,23 +75,6 @@ public class OpenIdConnectProviderRegistryImpl
 	@Override
 	public OpenIdConnectProvider getOpenIdConnectProvider(String name) {
 		return _openIdConnectProvidersPerName.get(name);
-	}
-
-	@Override
-	public OpenIdConnectProvider getOpenIdConnectProvider(URL issuerURL) {
-		for (OpenIdConnectProvider openIdConnectProvider :
-				_openIdConnectProvidersPerName.values()) {
-
-			if (Objects.equals(
-					openIdConnectProvider.getIssuerURL(),
-					issuerURL.getHost())) {
-
-				return openIdConnectProvider;
-			}
-		}
-
-		return _openIdConnectProvidersPerName.get(
-			OPEN_ID_CONNECT_PROVIDER_NAME_DEFAULT);
 	}
 
 	@Override
@@ -100,72 +95,89 @@ public class OpenIdConnectProviderRegistryImpl
 			ConfigurableUtil.createConfigurable(
 				OpenIdConnectProviderConfiguration.class, properties);
 
-		_openIdConnectProvidersPerFactory.computeIfPresent(
-			factoryPid,
-			(oldFactoryPid, oldOpenIdConnectIdProvider) -> {
-				removeOpenConnectIdProvider(oldOpenIdConnectIdProvider);
+		synchronized (_openIdConnectProvidersPerFactory) {
+			OpenIdConnectProvider openIdConnectProvider =
+				createOpenIdConnectProvider(openIdConnectProviderConfiguration);
 
-				OpenIdConnectProvider openIdConnectProvider =
-					createOpenIdConnectProvider(
-						openIdConnectProviderConfiguration);
+			removeOpenConnectIdProvider(factoryPid);
 
-				addOpenConnectIdConnectProvider(openIdConnectProvider);
-
-				return openIdConnectProvider;
-			});
-
-		_openIdConnectProvidersPerFactory.computeIfAbsent(
-			factoryPid,
-			newFactoryPid -> {
-				OpenIdConnectProvider openIdConnectProvider =
-					createOpenIdConnectProvider(
-						openIdConnectProviderConfiguration);
-
-				addOpenConnectIdConnectProvider(openIdConnectProvider);
-
-				return openIdConnectProvider;
-			});
+			addOpenConnectIdConnectProvider(factoryPid, openIdConnectProvider);
+		}
 	}
 
 	protected void addOpenConnectIdConnectProvider(
-		OpenIdConnectProvider openIdConnectProvider) {
+		String factoryPid, OpenIdConnectProvider openIdConnectProvider) {
 
-		_openIdConnectProvidersPerName.put(
-			openIdConnectProvider.getName(), openIdConnectProvider);
+		synchronized (_openIdConnectProvidersPerFactory) {
+			_openIdConnectProvidersPerFactory.put(
+				factoryPid, openIdConnectProvider);
+
+			_openIdConnectProvidersPerName.put(
+				openIdConnectProvider.getName(), openIdConnectProvider);
+		}
 	}
 
 	protected OpenIdConnectProvider createOpenIdConnectProvider(
-		OpenIdConnectProviderConfiguration openIdConnectProviderConfiguration) {
+			OpenIdConnectProviderConfiguration
+				openIdConnectProviderConfiguration)
+		throws ConfigurationException {
+
+		OpenIdConnectMetadataFactory openIdConnectMetadataFactory = null;
+
+		try {
+			if (Validator.isNotNull(
+					openIdConnectProviderConfiguration.discoveryEndPoint())) {
+
+				openIdConnectMetadataFactory =
+					new OpenIdConnectMetadataFactoryImpl(
+						openIdConnectProviderConfiguration.providerName(),
+						new URL(
+							openIdConnectProviderConfiguration.
+								discoveryEndPoint()),
+						openIdConnectProviderConfiguration.
+							discoveryEndPointCacheInMillis());
+			}
+			else {
+				openIdConnectMetadataFactory =
+					new OpenIdConnectMetadataFactoryImpl(
+						openIdConnectProviderConfiguration.providerName(),
+						openIdConnectProviderConfiguration.issuerURL(),
+						openIdConnectProviderConfiguration.subjectTypes(),
+						openIdConnectProviderConfiguration.jwksURI(),
+						openIdConnectProviderConfiguration.
+							authorizationEndPoint(),
+						openIdConnectProviderConfiguration.tokenEndPoint(),
+						openIdConnectProviderConfiguration.userInfoEndPoint());
+			}
+		}
+		catch (Exception e) {
+			throw new ConfigurationException(
+				null,
+				"Unable to instantiate provider metadata factory for " +
+					openIdConnectProviderConfiguration.providerName(),
+				e);
+		}
 
 		OpenIdConnectProvider openIdConnectProvider = new OpenIdConnectProvider(
-			openIdConnectProviderConfiguration.providerName());
-
-		openIdConnectProvider.setAuthorizationEndPoint(
-			openIdConnectProviderConfiguration.authorizationEndPoint());
-		openIdConnectProvider.setClientId(
-			openIdConnectProviderConfiguration.openIdConnectClientId());
-		openIdConnectProvider.setClientSecret(
-			openIdConnectProviderConfiguration.openIdConnectClientSecret());
-		openIdConnectProvider.setDiscoveryEndPoint(
-			openIdConnectProviderConfiguration.discoveryEndPoint());
-		openIdConnectProvider.setIssuerURL(
-			openIdConnectProviderConfiguration.issuerURL());
-		openIdConnectProvider.setJWKSURI(
-			openIdConnectProviderConfiguration.jwksURI());
-		openIdConnectProvider.setSubjectTypes(
-			openIdConnectProviderConfiguration.subjectTypes());
-		openIdConnectProvider.setTokenEndPoint(
-			openIdConnectProviderConfiguration.tokenEndPoint());
-		openIdConnectProvider.setUserInfoEndPoint(
-			openIdConnectProviderConfiguration.userInfoEndPoint());
+			openIdConnectProviderConfiguration.providerName(),
+			openIdConnectProviderConfiguration.openIdConnectClientId(),
+			openIdConnectProviderConfiguration.openIdConnectClientSecret(),
+			openIdConnectProviderConfiguration.scopes(),
+			openIdConnectMetadataFactory);
 
 		return openIdConnectProvider;
 	}
 
-	protected void removeOpenConnectIdProvider(
-		OpenIdConnectProvider openIdConnectProvider) {
+	protected void removeOpenConnectIdProvider(String factoryPid) {
+		synchronized (_openIdConnectProvidersPerFactory) {
+			OpenIdConnectProvider openIdConnectProvider =
+				_openIdConnectProvidersPerFactory.remove(factoryPid);
 
-		_openIdConnectProvidersPerName.remove(openIdConnectProvider.getName());
+			if (openIdConnectProvider != null) {
+				_openIdConnectProvidersPerName.remove(
+					openIdConnectProvider.getName());
+			}
+		}
 	}
 
 	private final Map<String, OpenIdConnectProvider>

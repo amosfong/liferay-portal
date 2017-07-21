@@ -15,11 +15,13 @@
 package com.liferay.portal.security.sso.openid.connect.internal;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.PwdGenerator;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException;
@@ -43,7 +45,7 @@ public class OpenIdConnectUserInfoProcessorImpl
 	implements OpenIdConnectUserInfoProcessor {
 
 	@Override
-	public long processUserInfo(UserInfo userInfo, ThemeDisplay themeDisplay)
+	public long processUserInfo(UserInfo userInfo, long companyId)
 		throws PortalException {
 
 		String firstName = userInfo.getGivenName();
@@ -54,7 +56,7 @@ public class OpenIdConnectUserInfoProcessorImpl
 		String emailAddress = internetAddress.getAddress();
 
 		User user = _userLocalService.fetchUserByEmailAddress(
-			themeDisplay.getCompanyId(), emailAddress);
+			companyId, emailAddress);
 
 		if (user != null) {
 			return user.getUserId();
@@ -63,12 +65,23 @@ public class OpenIdConnectUserInfoProcessorImpl
 		if (Validator.isNull(firstName) || Validator.isNull(lastName) ||
 			Validator.isNull(emailAddress)) {
 
-			throw new OpenIdConnectServiceException.UserInfoMissingException(
-				"User information has missing fields");
+			StringBundler sb = new StringBundler(9);
+
+			sb.append("Unable to map OpenId Connect user to the portal, ");
+			sb.append("missing or invalid profile information: ");
+			sb.append("{emailAddresss=");
+			sb.append(emailAddress);
+			sb.append(", firstName=");
+			sb.append(firstName);
+			sb.append(", lastName=");
+			sb.append(lastName);
+			sb.append("}");
+
+			throw new OpenIdConnectServiceException.UserMappingException(
+				sb.toString());
 		}
 
 		long creatorUserId = 0;
-		long companyId = themeDisplay.getCompanyId();
 		boolean autoPassword = false;
 
 		String password1 = PwdGenerator.getPassword();
@@ -78,7 +91,11 @@ public class OpenIdConnectUserInfoProcessorImpl
 		boolean autoScreenName = true;
 		String screenName = StringPool.BLANK;
 		long facebookId = 0;
-		Locale locale = themeDisplay.getLocale();
+
+		Company company = _companyLocalService.getCompany(companyId);
+
+		Locale locale = company.getLocale();
+
 		String middleName = userInfo.getMiddleName();
 		long prefixId = 0;
 		long suffixId = 0;
@@ -106,6 +123,9 @@ public class OpenIdConnectUserInfoProcessorImpl
 
 		return user.getUserId();
 	}
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

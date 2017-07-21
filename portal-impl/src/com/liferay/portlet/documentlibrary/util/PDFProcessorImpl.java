@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.documentlibrary.util;
 
+import com.liferay.document.library.kernel.document.conversion.DocumentConversionUtil;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.document.library.kernel.model.DLProcessorConstants;
 import com.liferay.document.library.kernel.store.DLStoreUtil;
@@ -92,6 +93,11 @@ public class PDFProcessorImpl
 		FileUtil.mkdirs(DECRYPT_TMP_PATH);
 		FileUtil.mkdirs(PREVIEW_TMP_PATH);
 		FileUtil.mkdirs(THUMBNAIL_TMP_PATH);
+	}
+
+	@Override
+	public void destroy() {
+		FileUtil.deltree(TMP_PATH);
 	}
 
 	@Override

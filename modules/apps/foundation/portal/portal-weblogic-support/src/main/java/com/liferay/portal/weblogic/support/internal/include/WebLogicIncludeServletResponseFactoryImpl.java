@@ -14,11 +14,9 @@
 
 package com.liferay.portal.weblogic.support.internal.include;
 
-import com.liferay.portal.kernel.servlet.MetaInfoCacheServletResponse;
 import com.liferay.portal.servlet.filters.weblogic.WebLogicIncludeServletResponseFactory;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * @author Shuyang Zhou
@@ -28,40 +26,11 @@ public class WebLogicIncludeServletResponseFactoryImpl
 
 	@Override
 	public HttpServletResponse create(HttpServletResponse response) {
-		if (isWrap(response)) {
-			return new WebLogicIncludeServletResponse(response);
-		}
-
-		return response;
-	}
-
-	protected boolean isWrap(HttpServletResponse response) {
 		if (response instanceof WebLogicIncludeServletResponse) {
-			return false;
+			return response;
 		}
 
-		boolean wrap = false;
-
-		HttpServletResponseWrapper previousResponseWrapper = null;
-
-		while (response instanceof HttpServletResponseWrapper) {
-			if (!wrap && (response instanceof MetaInfoCacheServletResponse)) {
-				wrap = true;
-			}
-
-			HttpServletResponseWrapper responseWrapper =
-				(HttpServletResponseWrapper)response;
-
-			response = (HttpServletResponse)responseWrapper.getResponse();
-
-			if (responseWrapper instanceof WebLogicIncludeServletResponse) {
-				previousResponseWrapper.setResponse(response);
-			}
-
-			previousResponseWrapper = responseWrapper;
-		}
-
-		return wrap;
+		return new WebLogicIncludeServletResponse(response);
 	}
 
 }

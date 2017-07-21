@@ -17,6 +17,7 @@ package com.liferay.portal.search.facet.faceted.searcher.test;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.facet.Facet;
@@ -24,18 +25,24 @@ import com.liferay.portal.kernel.search.facet.collector.FacetCollector;
 import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcher;
 import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcherManager;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
+import com.liferay.portal.search.test.internal.util.UserSearchFixture;
 import com.liferay.portal.search.test.util.AssertUtils;
 import com.liferay.portal.search.test.util.TermCollectorUtil;
-import com.liferay.portal.search.test.util.UserSearchFixture;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * @author André de Oliveira
@@ -53,6 +60,36 @@ public abstract class BaseFacetedSearcherTestCase {
 	@After
 	public void tearDown() throws Exception {
 		userSearchFixture.tearDown();
+	}
+
+	@Rule
+	public TestName testName = new TestName();
+
+	protected User addUser(Group group, String... assetTagNames)
+		throws Exception {
+
+		String screenName = testName.getMethodName();
+
+		int size = _users.size();
+
+		if (size > 0) {
+			screenName = screenName.concat(String.valueOf(size));
+		}
+
+		return userSearchFixture.addUser(screenName, group, assetTagNames);
+	}
+
+	protected void assertAllHitsAreUsers(String keywords, Hits hits) {
+		Stream<Document> documentsStream = Stream.of(hits.getDocs());
+
+		List<Document> documents = documentsStream.filter(
+			this::isMissingScreenName
+		).collect(
+			Collectors.toList()
+		);
+
+		Assert.assertTrue(
+			keywords + "->" + documents.toString(), documents.isEmpty());
 	}
 
 	protected void assertFrequencies(
@@ -73,12 +110,22 @@ public abstract class BaseFacetedSearcherTestCase {
 	protected void assertTags(
 		String keywords, Hits hits, Map<String, String> expected) {
 
+		assertAllHitsAreUsers(keywords, hits);
+
 		AssertUtils.assertEquals(
 			keywords, expected, userSearchFixture.toMap(hits.toList()));
 	}
 
 	protected FacetedSearcher createFacetedSearcher() {
 		return _facetedSearcherManager.createFacetedSearcher();
+	}
+
+	protected SearchContext getSearchContext(String keywords) throws Exception {
+		return userSearchFixture.getSearchContext(keywords);
+	}
+
+	protected boolean isMissingScreenName(Document document) {
+		return Validator.isNull(document.get("screenName"));
 	}
 
 	protected Hits search(SearchContext searchContext) throws Exception {

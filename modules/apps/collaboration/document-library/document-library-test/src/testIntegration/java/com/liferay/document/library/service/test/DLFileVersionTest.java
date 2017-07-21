@@ -40,10 +40,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -58,8 +55,8 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerTestRule;
 
 import java.io.Serializable;
 
@@ -86,13 +83,11 @@ public class DLFileVersionTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
+			PermissionCheckerTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
-		setUpPermissionThreadLocal();
-		setUpPrincipalThreadLocal();
-
 		_group = GroupTestUtil.addGroup();
 
 		setUpParentFolder();
@@ -141,8 +136,6 @@ public class DLFileVersionTest {
 
 		ExpandoTableLocalServiceUtil.deleteTable(expandoTable);
 
-		tearDownPermissionThreadLocal();
-		tearDownPrincipalThreadLocal();
 		tearDownResourcePermission();
 	}
 
@@ -337,7 +330,8 @@ public class DLFileVersionTest {
 			}
 
 			serviceContext.setAttribute(
-				DDMFormValues.class.getName() + ddmStructure.getStructureId(),
+				DDMFormValues.class.getName() + StringPool.POUND +
+					ddmStructure.getStructureId(),
 				ddmFormValues);
 		}
 
@@ -362,55 +356,11 @@ public class DLFileVersionTest {
 			"Test Folder", RandomTestUtil.randomString(), serviceContext);
 	}
 
-	protected void setUpPermissionThreadLocal() throws Exception {
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		PermissionThreadLocal.setPermissionChecker(
-			new SimplePermissionChecker() {
-
-				{
-					init(TestPropsValues.getUser());
-				}
-
-				@Override
-				public boolean hasOwnerPermission(
-					long companyId, String name, String primKey, long ownerId,
-					String actionId) {
-
-					return true;
-				}
-
-				@Override
-				public boolean hasPermission(
-					long groupId, String name, String primKey,
-					String actionId) {
-
-					return true;
-				}
-
-			});
-	}
-
-	protected void setUpPrincipalThreadLocal() throws Exception {
-		_originalName = PrincipalThreadLocal.getName();
-
-		PrincipalThreadLocal.setName(TestPropsValues.getUserId());
-	}
-
 	protected void setUpResourcePermission() throws Exception {
 		RoleTestUtil.addResourcePermission(
 			RoleConstants.GUEST, "com.liferay.document.library",
 			ResourceConstants.SCOPE_GROUP, String.valueOf(_group.getGroupId()),
 			ActionKeys.VIEW);
-	}
-
-	protected void tearDownPermissionThreadLocal() {
-		PermissionThreadLocal.setPermissionChecker(_originalPermissionChecker);
-	}
-
-	protected void tearDownPrincipalThreadLocal() {
-		PrincipalThreadLocal.setName(_originalName);
 	}
 
 	protected void tearDownResourcePermission() throws Exception {
@@ -445,7 +395,7 @@ public class DLFileVersionTest {
 		for (DDMStructure ddmStructure : ddmStructures) {
 			DDMFormValues ddmFormValues =
 				(DDMFormValues)_serviceContext.getAttribute(
-					DDMFormValues.class.getName() +
+					DDMFormValues.class.getName() + StringPool.POUND +
 						ddmStructure.getStructureId());
 
 			for (DDMFormFieldValue ddmFormFieldValue :
@@ -465,7 +415,8 @@ public class DLFileVersionTest {
 			}
 
 			_serviceContext.setAttribute(
-				DDMFormValues.class.getName() + ddmStructure.getStructureId(),
+				DDMFormValues.class.getName() + StringPool.POUND +
+					ddmStructure.getStructureId(),
 				ddmFormValues);
 		}
 	}
@@ -505,8 +456,6 @@ public class DLFileVersionTest {
 	@DeleteAfterTestRun
 	private Group _group;
 
-	private String _originalName;
-	private PermissionChecker _originalPermissionChecker;
 	private Folder _parentFolder;
 	private ServiceContext _serviceContext;
 

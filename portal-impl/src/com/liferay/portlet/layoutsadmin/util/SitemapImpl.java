@@ -18,7 +18,6 @@ import com.liferay.layouts.admin.kernel.util.Sitemap;
 import com.liferay.layouts.admin.kernel.util.SitemapURLProvider;
 import com.liferay.layouts.admin.kernel.util.SitemapURLProviderRegistryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypeController;
@@ -43,7 +42,6 @@ import com.liferay.portal.util.PropsValues;
 import java.text.DateFormat;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -165,18 +163,7 @@ public class SitemapImpl implements Sitemap {
 			String canonicalURL, ThemeDisplay themeDisplay, Layout layout)
 		throws PortalException {
 
-		Map<Locale, String> alternateURLs = new HashMap<>();
-
-		for (Locale availableLocale : LanguageUtil.getAvailableLocales(
-				layout.getGroupId())) {
-
-			String alternateURL = PortalUtil.getAlternateURL(
-				canonicalURL, themeDisplay, availableLocale, layout);
-
-			alternateURLs.put(availableLocale, alternateURL);
-		}
-
-		return alternateURLs;
+		return PortalUtil.getAlternateURLs(canonicalURL, themeDisplay, layout);
 	}
 
 	@Override
@@ -199,7 +186,9 @@ public class SitemapImpl implements Sitemap {
 
 		Element rootElement = null;
 
-		if (Validator.isNull(layoutUuid)) {
+		if (Validator.isNull(layoutUuid) &&
+			PropsValues.XML_SITEMAP_INDEX_ENABLED) {
+
 			rootElement = document.addElement(
 				"sitemapindex", "http://www.sitemaps.org/schemas/sitemap/0.9");
 		}
@@ -213,7 +202,9 @@ public class SitemapImpl implements Sitemap {
 		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
 			groupId, privateLayout);
 
-		if (Validator.isNull(layoutUuid)) {
+		if (Validator.isNull(layoutUuid) &&
+			PropsValues.XML_SITEMAP_INDEX_ENABLED) {
+
 			visitLayoutSet(rootElement, layoutSet, themeDisplay);
 
 			return document.asXML();
@@ -223,8 +214,14 @@ public class SitemapImpl implements Sitemap {
 			SitemapURLProviderRegistryUtil.getSitemapURLProviders();
 
 		for (SitemapURLProvider sitemapURLProvider : sitemapURLProviders) {
-			sitemapURLProvider.visitLayout(
-				rootElement, layoutUuid, layoutSet, themeDisplay);
+			if (Validator.isNull(layoutUuid)) {
+				sitemapURLProvider.visitLayoutSet(
+					rootElement, layoutSet, themeDisplay);
+			}
+			else {
+				sitemapURLProvider.visitLayout(
+					rootElement, layoutUuid, layoutSet, themeDisplay);
+			}
 		}
 
 		return document.asXML();
@@ -260,9 +257,10 @@ public class SitemapImpl implements Sitemap {
 
 				Element locationElement = sitemapElement.addElement("loc");
 
-				StringBundler sb = new StringBundler(7);
+				StringBundler sb = new StringBundler(8);
 
 				sb.append(portalURL);
+				sb.append(PortalUtil.getPathContext());
 				sb.append("/sitemap.xml?layoutUuid=");
 				sb.append(layout.getUuid());
 				sb.append("&groupId=");

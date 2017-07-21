@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.model.Website;
 import com.liferay.portal.kernel.security.auth.EmailAddressGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.AddressLocalServiceUtil;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.ContactLocalServiceUtil;
@@ -792,6 +793,13 @@ public class UserImpl extends UserBaseImpl {
 			return false;
 		}
 
+		if ((PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED ||
+			 PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) &&
+			(getUserId() == PrincipalThreadLocal.getUserId())) {
+
+			return true;
+		}
+
 		List<Group> groups = getMySiteGroups(1);
 
 		return !groups.isEmpty();
@@ -985,8 +993,8 @@ public class UserImpl extends UserBaseImpl {
 
 	private static final Log _log = LogFactoryUtil.getLog(UserImpl.class);
 
-	private static final boolean _hasUsersProfileFriendlyURL = Validator.isNull(
-		PropsValues.USERS_PROFILE_FRIENDLY_URL);
+	private static final boolean _hasUsersProfileFriendlyURL =
+		Validator.isNotNull(PropsValues.USERS_PROFILE_FRIENDLY_URL);
 
 	private Contact _contact;
 	private Locale _locale;

@@ -14,12 +14,25 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.CompileFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.GenericFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.IntegrationTestTimeoutFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.LocalGitMirrorFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.ModulesCompilationFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PluginFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.PluginGitIDFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.SemanticVersioningFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.SourceFormatFailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.StartupFailureMessageGenerator;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +106,7 @@ public class AxisBuild extends BaseBuild {
 		return parentBuild.getBrowser();
 	}
 
-	public String getBuildDescriptionTestRayReports() {
+	public String getBuildDescriptionTestrayReports() {
 		Element unorderedListElement = Dom4JUtil.getNewElement("ul");
 
 		for (TestResult testResult : getTestResults(null)) {
@@ -102,6 +115,8 @@ public class AxisBuild extends BaseBuild {
 			if (displayName.contains("JenkinsLogAsserterTest")) {
 				continue;
 			}
+
+			String testrayLogsURL = getTestrayLogsURL();
 
 			Element listItemElement = Dom4JUtil.getNewElement(
 				"li", unorderedListElement);
@@ -115,15 +130,15 @@ public class AxisBuild extends BaseBuild {
 				"li", reportLinksUnorderedListElement);
 
 			Dom4JUtil.getNewAnchorElement(
-				testResult.getPoshiReportURL(), poshiReportListItemElement,
-				"Poshi Report");
+				testResult.getPoshiReportURL(testrayLogsURL),
+				poshiReportListItemElement, "Poshi Report");
 
 			Element poshiSummaryListItemElement = Dom4JUtil.getNewElement(
 				"li", reportLinksUnorderedListElement);
 
 			Dom4JUtil.getNewAnchorElement(
-				testResult.getPoshiSummaryURL(), poshiSummaryListItemElement,
-				"Poshi Summary");
+				testResult.getPoshiSummaryURL(testrayLogsURL),
+				poshiSummaryListItemElement, "Poshi Summary");
 		}
 
 		Dom4JUtil.addToElement(
@@ -245,12 +260,8 @@ public class AxisBuild extends BaseBuild {
 		}
 
 		if (result.equals("UNSTABLE")) {
-			String jobVariant = getParameterValue("JOB_VARIANT");
-
-			Element downstreamBuildOrderedListElement = Dom4JUtil.getNewElement(
-				"ol", messageElement);
-
-			int failureCount = 0;
+			List<Element> failureElements = new ArrayList<>();
+			List<Element> upstreamJobFailureElements = new ArrayList<>();
 
 			for (TestResult testResult : getTestResults(null)) {
 				String testStatus = testResult.getStatus();
@@ -261,47 +272,29 @@ public class AxisBuild extends BaseBuild {
 					continue;
 				}
 
-				Element downstreamBuildListItemElement =
-					Dom4JUtil.getNewElement(
-						"li", downstreamBuildOrderedListElement);
-
-				if (failureCount < 3) {
-					downstreamBuildListItemElement.add(
-						Dom4JUtil.getNewAnchorElement(
-							testResult.getTestReportURL(),
-							testResult.getDisplayName()));
-
-					if (jobVariant.contains("functional")) {
-						Dom4JUtil.addToElement(
-							downstreamBuildListItemElement, " - ",
-							Dom4JUtil.getNewAnchorElement(
-								testResult.getPoshiReportURL(), "Poshi Report"),
-							" - ",
-							Dom4JUtil.getNewAnchorElement(
-								testResult.getPoshiSummaryURL(),
-								"Poshi Summary"),
-							" - ",
-							Dom4JUtil.getNewAnchorElement(
-								testResult.getConsoleOutputURL(),
-								"Console Output"));
-
-						if (testResult.hasLiferayLog()) {
-							Dom4JUtil.addToElement(
-								downstreamBuildListItemElement, " - ",
-								Dom4JUtil.getNewAnchorElement(
-									testResult.getLiferayLogURL(),
-									"Liferay Log"));
-						}
-					}
-
-					failureCount++;
+				if (isTestFailingInUpstreamJob(testResult)) {
+					upstreamJobFailureElements.add(
+						testResult.getGitHubElement(getTestrayLogsURL()));
 
 					continue;
 				}
 
-				downstreamBuildListItemElement.addText("...");
+				failureElements.add(
+					testResult.getGitHubElement(getTestrayLogsURL()));
+			}
 
-				break;
+			if (!upstreamJobFailureElements.isEmpty()) {
+				upstreamJobFailureMessageElement = messageElement.createCopy();
+
+				Dom4JUtil.getOrderedListElement(
+					upstreamJobFailureElements,
+					upstreamJobFailureMessageElement, 3);
+			}
+
+			Dom4JUtil.getOrderedListElement(failureElements, messageElement, 3);
+
+			if (failureElements.isEmpty()) {
+				return null;
 			}
 		}
 
@@ -322,7 +315,7 @@ public class AxisBuild extends BaseBuild {
 		return parentBuild.getOperatingSystem();
 	}
 
-	public String getTestRayLogsURL() {
+	public String getTestrayLogsURL() {
 		Properties buildProperties = null;
 
 		try {
@@ -482,12 +475,16 @@ public class AxisBuild extends BaseBuild {
 
 	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =
 		{
+			new ModulesCompilationFailureMessageGenerator(),
+
+			new CompileFailureMessageGenerator(),
 			new IntegrationTestTimeoutFailureMessageGenerator(),
 			new LocalGitMirrorFailureMessageGenerator(),
 			new PluginFailureMessageGenerator(),
 			new PluginGitIDFailureMessageGenerator(),
 			new SemanticVersioningFailureMessageGenerator(),
 			new SourceFormatFailureMessageGenerator(),
+			new StartupFailureMessageGenerator(),
 
 			new GenericFailureMessageGenerator()
 		};

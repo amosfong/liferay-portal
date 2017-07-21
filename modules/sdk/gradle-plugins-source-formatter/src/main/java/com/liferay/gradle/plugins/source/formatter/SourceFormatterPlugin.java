@@ -20,8 +20,13 @@ import com.liferay.gradle.util.Validator;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.invocation.Gradle;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
@@ -41,63 +46,63 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		Configuration sourceFormatterConfiguration =
-			addConfigurationSourceFormatter(project);
+			_addConfigurationSourceFormatter(project);
 
-		addTaskCheckSourceFormatting(project);
-		addTaskFormatSource(project);
+		_addTaskCheckSourceFormatting(project);
+		_addTaskFormatSource(project);
 
-		configureTasksFormatSource(project, sourceFormatterConfiguration);
+		_configureTasksFormatSource(project, sourceFormatterConfiguration);
 	}
 
-	protected Configuration addConfigurationSourceFormatter(
+	private Configuration _addConfigurationSourceFormatter(
 		final Project project) {
 
 		Configuration configuration = GradleUtil.addConfiguration(
 			project, CONFIGURATION_NAME);
 
-		configuration.setDescription(
-			"Configures Liferay Source Formatter for this project.");
-		configuration.setVisible(false);
-
-		GradleUtil.executeIfEmpty(
-			configuration,
-			new Action<Configuration>() {
+		configuration.defaultDependencies(
+			new Action<DependencySet>() {
 
 				@Override
-				public void execute(Configuration configuration) {
-					addDependenciesSourceFormatter(project);
+				public void execute(DependencySet dependencySet) {
+					_addDependenciesSourceFormatter(project);
 				}
 
 			});
 
+		configuration.setDescription(
+			"Configures Liferay Source Formatter for this project.");
+		configuration.setVisible(false);
+
 		return configuration;
 	}
 
-	protected void addDependenciesSourceFormatter(Project project) {
+	private void _addDependenciesSourceFormatter(Project project) {
 		GradleUtil.addDependency(
 			project, CONFIGURATION_NAME, "com.liferay",
 			"com.liferay.source.formatter", "latest.release");
 	}
 
-	protected FormatSourceTask addTaskCheckSourceFormatting(Project project) {
+	private FormatSourceTask _addTaskCheckSourceFormatting(Project project) {
 		FormatSourceTask formatSourceTask = GradleUtil.addTask(
 			project, CHECK_SOURCE_FORMATTING_TASK_NAME, FormatSourceTask.class);
 
+		formatSourceTask.onlyIf(_skipIfExecutingParentTaskSpec);
 		formatSourceTask.setAutoFix(false);
 		formatSourceTask.setDescription(
 			"Checks the source formatting of this project.");
 		formatSourceTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
 		formatSourceTask.setPrintErrors(true);
 		formatSourceTask.setThrowException(true);
-		formatSourceTask.setUseProperties(false);
 
 		return formatSourceTask;
 	}
 
-	protected FormatSourceTask addTaskFormatSource(Project project) {
+	private FormatSourceTask _addTaskFormatSource(Project project) {
 		FormatSourceTask formatSourceTask = GradleUtil.addTask(
 			project, FORMAT_SOURCE_TASK_NAME, FormatSourceTask.class);
 
+		formatSourceTask.onlyIf(_skipIfExecutingParentTaskSpec);
 		formatSourceTask.setDescription(
 			"Runs Liferay Source Formatter to format the project files.");
 		formatSourceTask.setGroup("formatting");
@@ -105,7 +110,7 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 		return formatSourceTask;
 	}
 
-	protected void configureTaskFormatSource(
+	private void _configureTaskFormatSource(
 		FormatSourceTask formatSourceTask, FileCollection classpath) {
 
 		formatSourceTask.setClasspath(classpath);
@@ -135,7 +140,7 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 		}
 	}
 
-	protected void configureTasksFormatSource(
+	private void _configureTasksFormatSource(
 		Project project, final FileCollection classpath) {
 
 		TaskContainer taskContainer = project.getTasks();
@@ -146,10 +151,42 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 
 				@Override
 				public void execute(FormatSourceTask formatSourceTask) {
-					configureTaskFormatSource(formatSourceTask, classpath);
+					_configureTaskFormatSource(formatSourceTask, classpath);
 				}
 
 			});
 	}
+
+	private static final Spec<Task> _skipIfExecutingParentTaskSpec =
+		new Spec<Task>() {
+
+			@Override
+			public boolean isSatisfiedBy(Task task) {
+				Project project = task.getProject();
+
+				Gradle gradle = project.getGradle();
+
+				TaskExecutionGraph taskExecutionGraph = gradle.getTaskGraph();
+
+				Project parentProject = project;
+
+				while ((parentProject = parentProject.getParent()) != null) {
+					TaskContainer parentProjectTaskContainer =
+						parentProject.getTasks();
+
+					Task parentProjectTask =
+						parentProjectTaskContainer.findByName(task.getName());
+
+					if ((parentProjectTask != null) &&
+						taskExecutionGraph.hasTask(parentProjectTask)) {
+
+						return false;
+					}
+				}
+
+				return true;
+			}
+
+		};
 
 }

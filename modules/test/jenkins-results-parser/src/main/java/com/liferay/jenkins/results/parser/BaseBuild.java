@@ -14,9 +14,15 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.failure.message.generator.FailureMessageGenerator;
+import com.liferay.jenkins.results.parser.failure.message.generator.GenericFailureMessageGenerator;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +40,7 @@ import java.util.regex.Pattern;
 import org.dom4j.Element;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -237,24 +244,28 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public String getBuildURL() {
+		String jobURL = getJobURL();
+
+		if ((jobURL == null) || (_buildNumber == -1)) {
+			return null;
+		}
+
+		if (fromArchive) {
+			return jobURL + "/" + _buildNumber + "/";
+		}
+
 		try {
-			String jobURL = getJobURL();
-
-			if ((jobURL == null) || (_buildNumber == -1)) {
-				return null;
-			}
-
-			if (fromArchive) {
-				return jobURL + "/" + _buildNumber + "/";
-			}
-
 			jobURL = JenkinsResultsParserUtil.decode(jobURL);
 
 			return JenkinsResultsParserUtil.encode(
 				jobURL + "/" + _buildNumber + "/");
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (MalformedURLException | URISyntaxException e) {
+			throw new RuntimeException("Unable to encode build URL", e);
+		}
+		catch (UnsupportedEncodingException uee) {
+			throw new RuntimeException(
+				"Unable to decode job URL " + jobURL, uee);
 		}
 	}
 
@@ -374,6 +385,24 @@ public abstract class BaseBuild implements Build {
 	public Element getGitHubMessageBuildAnchorElement() {
 		getResult();
 
+		int i = 0;
+
+		while (result == null) {
+			if (i == 20) {
+				throw new RuntimeException(
+					JenkinsResultsParserUtil.combine(
+						"Unable to create build anchor element. The process ",
+						"timed out while waiting for a build result for ",
+						getBuildURL(), "."));
+			}
+
+			JenkinsResultsParserUtil.sleep(1000 * 30);
+
+			getResult();
+
+			i++;
+		}
+
 		if (result.equals("SUCCESS")) {
 			return Dom4JUtil.getNewAnchorElement(
 				getBuildURL(), getDisplayName());
@@ -388,6 +417,10 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public Element getGitHubMessageElement() {
+		return getGitHubMessageElement(false);
+	}
+
+	public Element getGitHubMessageElement(boolean showCommonFailuresCount) {
 		String status = getStatus();
 
 		if (!status.equals("completed") && (getParentBuild() != null)) {
@@ -406,8 +439,18 @@ public abstract class BaseBuild implements Build {
 			messageElement,
 			Dom4JUtil.getNewElement(
 				"h5", null,
-				Dom4JUtil.getNewAnchorElement(getBuildURL(), getDisplayName())),
-			getGitHubMessageJobResultsElement());
+				Dom4JUtil.getNewAnchorElement(
+					getBuildURL(), getDisplayName())));
+
+		if (showCommonFailuresCount) {
+			Dom4JUtil.addToElement(
+				messageElement,
+				getGitHubMessageJobResultsElement(showCommonFailuresCount));
+		}
+		else {
+			Dom4JUtil.addToElement(
+				messageElement, getGitHubMessageJobResultsElement());
+		}
 
 		if (result.equals("ABORTED") && (getDownstreamBuildCount(null) == 0)) {
 			messageElement.add(
@@ -423,6 +466,11 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return messageElement;
+	}
+
+	@Override
+	public Element getGitHubMessageUpstreamJobFailureElement() {
+		return upstreamJobFailureMessageElement;
 	}
 
 	@Override
@@ -457,8 +505,9 @@ public abstract class BaseBuild implements Build {
 		try {
 			return JenkinsResultsParserUtil.encode(sb.toString());
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (MalformedURLException | URISyntaxException e) {
+			throw new RuntimeException(
+				"Unable to encode URL " + sb.toString(), e);
 		}
 	}
 
@@ -483,13 +532,14 @@ public abstract class BaseBuild implements Build {
 				jobName;
 		}
 
+		String jobURL = JenkinsResultsParserUtil.combine(
+			"https://", master, ".liferay.com/job/", jobName);
+
 		try {
-			return JenkinsResultsParserUtil.encode(
-				JenkinsResultsParserUtil.combine(
-					"https://", master, ".liferay.com/job/", jobName));
+			return JenkinsResultsParserUtil.encode(jobURL);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (MalformedURLException | URISyntaxException e) {
+			throw new RuntimeException("Unable to encode job URL " + jobURL, e);
 		}
 	}
 
@@ -502,6 +552,30 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return batchName;
+	}
+
+	@Override
+	public Long getLatestStartTimestamp() {
+		Long latestStartTimestamp = getStartTimestamp();
+
+		if (latestStartTimestamp == null) {
+			return null;
+		}
+
+		for (Build downstreamBuild : getDownstreamBuilds(null)) {
+			Long downstreamBuildLatestStartTimestamp =
+				downstreamBuild.getLatestStartTimestamp();
+
+			if (downstreamBuildLatestStartTimestamp == null) {
+				return null;
+			}
+
+			latestStartTimestamp = Math.max(
+				latestStartTimestamp,
+				downstreamBuild.getLatestStartTimestamp());
+		}
+
+		return latestStartTimestamp;
 	}
 
 	@Override
@@ -532,17 +606,12 @@ public abstract class BaseBuild implements Build {
 	@Override
 	public String getResult() {
 		if ((result == null) && (getBuildURL() != null)) {
-			try {
-				JSONObject resultJSONObject = getBuildJSONObject("result");
+			JSONObject resultJSONObject = getBuildJSONObject("result");
 
-				result = resultJSONObject.optString("result");
+			result = resultJSONObject.optString("result");
 
-				if (result.equals("")) {
-					result = null;
-				}
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
+			if (result.equals("")) {
+				result = null;
 			}
 		}
 
@@ -552,6 +621,23 @@ public abstract class BaseBuild implements Build {
 	@Override
 	public Map<String, String> getStartPropertiesTempMap() {
 		return getTempMap("start.properties");
+	}
+
+	@Override
+	public Long getStartTimestamp() {
+		JSONObject buildJSONObject = getBuildJSONObject("timestamp");
+
+		if (buildJSONObject == null) {
+			return null;
+		}
+
+		long timestamp = buildJSONObject.getLong("timestamp");
+
+		if (timestamp == 0) {
+			return null;
+		}
+
+		return timestamp;
 	}
 
 	@Override
@@ -712,16 +798,20 @@ public abstract class BaseBuild implements Build {
 		try {
 			buildURL = JenkinsResultsParserUtil.decode(buildURL);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (UnsupportedEncodingException uee) {
+			throw new RuntimeException("Unable to decode " + buildURL, uee);
 		}
 
 		buildURL = JenkinsResultsParserUtil.getLocalURL(buildURL);
 
 		String thisBuildURL = getBuildURL();
 
-		if ((thisBuildURL != null) && thisBuildURL.equals(buildURL)) {
-			return true;
+		if (thisBuildURL != null) {
+			thisBuildURL = JenkinsResultsParserUtil.getLocalURL(thisBuildURL);
+
+			if (thisBuildURL.equals(buildURL)) {
+				return true;
+			}
 		}
 
 		for (Build downstreamBuild : downstreamBuilds) {
@@ -735,24 +825,52 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public void reinvoke() {
+		reinvoke(null);
+	}
+
+	@Override
+	public void reinvoke(ReinvokeRule reinvokeRule) {
 		String hostName = JenkinsResultsParserUtil.getHostName("");
 
 		Build parentBuild = getParentBuild();
 
 		String parentBuildStatus = parentBuild.getStatus();
 
-		if (!parentBuildStatus.equals("running")) {
-			System.out.println(
-				"Parent build is no longer running. Reinvocation has been " +
-					"aborted.");
+		if (!parentBuildStatus.equals("running") ||
+			!hostName.startsWith("cloud-10-0")) {
 
 			return;
 		}
 
-		if (!hostName.startsWith("cloud-10-0")) {
-			System.out.println("A build may not be reinvoked by " + hostName);
+		if ((reinvokeRule != null) && !fromArchive) {
+			String message = JenkinsResultsParserUtil.combine(
+				reinvokeRule.getName(), " failure detected at ", getBuildURL(),
+				". This build will be reinvoked.\n\n", reinvokeRule.toString(),
+				"\n\n");
 
-			return;
+			System.out.println(message);
+
+			TopLevelBuild topLevelBuild = getTopLevelBuild();
+
+			if (topLevelBuild != null) {
+				message = JenkinsResultsParserUtil.combine(
+					message, "Top Level Build URL: ",
+					topLevelBuild.getBuildURL());
+			}
+
+			String notificationList = reinvokeRule.getNotificationList();
+
+			if ((notificationList != null) && !notificationList.isEmpty()) {
+				try {
+					JenkinsResultsParserUtil.sendEmail(
+						message, "jenkins", "Build Reinvoked",
+						reinvokeRule.notificationList);
+				}
+				catch (InterruptedException | IOException e) {
+					throw new RuntimeException(
+						"Unable to send reinvoke notification", e);
+				}
+			}
 		}
 
 		String invocationURL = getInvocationURL();
@@ -761,8 +879,8 @@ public abstract class BaseBuild implements Build {
 			JenkinsResultsParserUtil.toString(
 				JenkinsResultsParserUtil.getLocalURL(invocationURL));
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (IOException ioe) {
+			throw new RuntimeException(ioe);
 		}
 
 		System.out.println(getReinvokedMessage());
@@ -801,6 +919,10 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return text;
+	}
+
+	@Override
+	public void setCompareToUpstream(boolean compareToUpstream) {
 	}
 
 	@Override
@@ -874,13 +996,33 @@ public abstract class BaseBuild implements Build {
 
 						setStatus("completed");
 					}
+
+					findDownstreamBuilds();
+
+					if (this instanceof AxisBuild ||
+						this instanceof BatchBuild ||
+						this instanceof TopLevelBuild || fromArchive ||
+						(badBuildNumbers.size() >= MAX_REINVOCATIONS)) {
+
+						return;
+					}
+
+					if ((result != null) && !result.equals("SUCCESS")) {
+						for (ReinvokeRule reinvokeRule : reinvokeRules) {
+							if (!reinvokeRule.matches(this)) {
+								continue;
+							}
+
+							reinvoke(reinvokeRule);
+
+							break;
+						}
+					}
 				}
 			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
+			catch (IOException ioe) {
+				throw new RuntimeException(ioe);
 			}
-
-			findDownstreamBuilds();
 		}
 	}
 
@@ -895,6 +1037,91 @@ public abstract class BaseBuild implements Build {
 			return displayName1.compareTo(displayName2);
 		}
 
+	}
+
+	protected static List<String> getUpstreamJobFailures(String type) {
+		List<String> upstreamFailures = new ArrayList<>();
+
+		JSONArray failedBatchesJSONArray =
+			upstreamFailuresJobJSONObject.getJSONArray("failedBatches");
+
+		for (int i = 0; i < failedBatchesJSONArray.length(); i++) {
+			JSONObject failedBatchJSONObject =
+				failedBatchesJSONArray.getJSONObject(i);
+
+			JSONArray failedTestsJSONArray = failedBatchJSONObject.getJSONArray(
+				"failedTests");
+
+			String jobVariant = failedBatchJSONObject.getString("jobVariant");
+
+			if (type.equals("build")) {
+				if (failedTestsJSONArray.length() == 0) {
+					upstreamFailures.add(
+						JenkinsResultsParserUtil.combine(
+							jobVariant, ",",
+							failedBatchJSONObject.getString("result")));
+				}
+			}
+			else if (type.equals("test")) {
+				for (int j = 0; j < failedTestsJSONArray.length(); j++) {
+					Object object = failedTestsJSONArray.get(j);
+
+					upstreamFailures.add(
+						JenkinsResultsParserUtil.combine(
+							object.toString(), ",", jobVariant));
+				}
+			}
+		}
+
+		return upstreamFailures;
+	}
+
+	protected static String getUpstreamJobFailuresSHA() {
+		try {
+			return upstreamFailuresJobJSONObject.getString("SHA");
+		}
+		catch (JSONException jsone) {
+			System.out.println(
+				"Unable to get upstream acceptance failure data");
+
+			jsone.printStackTrace();
+
+			return "";
+		}
+	}
+
+	protected static boolean isBuildFailingInUpstreamJob(Build build) {
+		try {
+			String jobVariant = build.getJobVariant();
+			String result = build.getResult();
+
+			List<TestResult> testResults = new ArrayList<>();
+
+			testResults.addAll(build.getTestResults("FAILED"));
+			testResults.addAll(build.getTestResults("REGRESSION"));
+
+			if (testResults.isEmpty()) {
+				for (String upstreamJobFailure :
+						getUpstreamJobFailures("build")) {
+
+					if (upstreamJobFailure.contains(jobVariant) &&
+						upstreamJobFailure.contains(result)) {
+
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+		catch (Exception e) {
+			System.out.println(
+				"Unable to get upstream acceptance failure data.");
+
+			e.printStackTrace();
+
+			return false;
+		}
 	}
 
 	protected static boolean isHighPriorityBuildFailureElement(
@@ -916,6 +1143,30 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return false;
+	}
+
+	protected static boolean isTestFailingInUpstreamJob(TestResult testResult) {
+		try {
+			for (String failure : getUpstreamJobFailures("test")) {
+				Build axisBuild = testResult.getAxisBuild();
+
+				if (failure.contains(axisBuild.getJobVariant()) &&
+					failure.contains(testResult.getDisplayName())) {
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+		catch (Exception e) {
+			System.out.println(
+				"Unable to get upstream acceptance failure data.");
+
+			e.printStackTrace();
+
+			return false;
+		}
 	}
 
 	protected BaseBuild(String url) {
@@ -1040,12 +1291,7 @@ public abstract class BaseBuild implements Build {
 
 		JSONObject buildJSONObject;
 
-		try {
-			buildJSONObject = getBuildJSONObject("runs[number,url]");
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		buildJSONObject = getBuildJSONObject("runs[number,url]");
 
 		if ((buildJSONObject != null) && buildJSONObject.has("runs")) {
 			JSONArray runsJSONArray = buildJSONObject.getJSONArray("runs");
@@ -1114,7 +1360,7 @@ public abstract class BaseBuild implements Build {
 				String url = downstreamBuildURLMatcher.group("url");
 
 				Pattern reinvocationPattern = Pattern.compile(
-					Pattern.quote(url) + " restarted at (?<url>[^\\n]*)\\.\\n");
+					Pattern.quote(url) + " restarted at (?<url>[^\\s]*)\\.");
 
 				Matcher reinvocationMatcher = reinvocationPattern.matcher(
 					consoleText);
@@ -1223,7 +1469,7 @@ public abstract class BaseBuild implements Build {
 				}
 
 				sb.append(getBuildURL());
-				sb.append(".");
+				sb.append(".\n");
 
 				return sb.toString();
 			}
@@ -1242,7 +1488,7 @@ public abstract class BaseBuild implements Build {
 		return "";
 	}
 
-	protected JSONArray getBuildsJSONArray() throws Exception {
+	protected JSONArray getBuildsJSONArray() throws IOException {
 		JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
 			JenkinsResultsParserUtil.getLocalURL(
 				JenkinsResultsParserUtil.combine(
@@ -1298,6 +1544,12 @@ public abstract class BaseBuild implements Build {
 
 	protected abstract Element getGitHubMessageJobResultsElement();
 
+	protected Element getGitHubMessageJobResultsElement(
+		boolean showCommonFailuresCount) {
+
+		return getGitHubMessageJobResultsElement();
+	}
+
 	protected Set<String> getJobParameterNames() {
 		JSONObject jsonObject;
 
@@ -1337,9 +1589,7 @@ public abstract class BaseBuild implements Build {
 		return parameterNames;
 	}
 
-	protected Map<String, String> getParameters(JSONArray jsonArray)
-		throws Exception {
-
+	protected Map<String, String> getParameters(JSONArray jsonArray) {
 		Map<String, String> parameters = new HashMap<>(jsonArray.length());
 
 		for (int i = 0; i < jsonArray.length(); i++) {
@@ -1358,9 +1608,7 @@ public abstract class BaseBuild implements Build {
 		return parameters;
 	}
 
-	protected Map<String, String> getParameters(JSONObject buildJSONObject)
-		throws Exception {
-
+	protected Map<String, String> getParameters(JSONObject buildJSONObject) {
 		JSONArray actionsJSONArray = buildJSONObject.getJSONArray("actions");
 
 		if (actionsJSONArray.length() == 0) {
@@ -1379,7 +1627,7 @@ public abstract class BaseBuild implements Build {
 		return new HashMap<>();
 	}
 
-	protected JSONObject getQueueItemJSONObject() throws Exception {
+	protected JSONObject getQueueItemJSONObject() throws IOException {
 		JSONArray queueItemsJSONArray = getQueueItemsJSONArray();
 
 		for (int i = 0; i < queueItemsJSONArray.length(); i++) {
@@ -1403,7 +1651,7 @@ public abstract class BaseBuild implements Build {
 		return null;
 	}
 
-	protected JSONArray getQueueItemsJSONArray() throws Exception {
+	protected JSONArray getQueueItemsJSONArray() throws IOException {
 		JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
 			"http://" + master +
 				"/queue/api/json?tree=items[actions[parameters" +
@@ -1424,7 +1672,7 @@ public abstract class BaseBuild implements Build {
 		return sb.toString();
 	}
 
-	protected JSONObject getRunningBuildJSONObject() throws Exception {
+	protected JSONObject getRunningBuildJSONObject() throws IOException {
 		JSONArray buildsJSONArray = getBuildsJSONArray();
 
 		for (int i = 0; i < buildsJSONArray.length(); i++) {
@@ -1510,6 +1758,12 @@ public abstract class BaseBuild implements Build {
 		return null;
 	}
 
+	protected boolean isCompareToUpstream() {
+		TopLevelBuild topLevelBuild = getTopLevelBuild();
+
+		return topLevelBuild.isCompareToUpstream();
+	}
+
 	protected boolean isParentBuildRoot() {
 		if (_parentBuild == null) {
 			return false;
@@ -1583,6 +1837,26 @@ public abstract class BaseBuild implements Build {
 		}
 	}
 
+	protected void loadUpstreamJobFailuresJSONObject() {
+		try {
+			if (getJobName().contains("pullrequest")) {
+				String upstreamJobName =
+					getJobName().replace("pullrequest", "upstream");
+
+				upstreamFailuresJobJSONObject =
+					JenkinsResultsParserUtil.toJSONObject(
+						UPSTREAM_FAILURES_JOB_BASE_URL + upstreamJobName +
+							"/builds/latest/test.results.json");
+			}
+		}
+		catch (IOException ioe) {
+			System.out.println(
+				"Unable to set upstream acceptance failure data.");
+
+			ioe.printStackTrace();
+		}
+	}
+
 	protected void reset() {
 		result = null;
 
@@ -1591,17 +1865,21 @@ public abstract class BaseBuild implements Build {
 		setBuildNumber(-1);
 
 		downstreamBuilds.clear();
-
-		_consoleReadCursor = 0;
-
-		setStatus("starting");
 	}
 
 	protected void setBuildNumber(int buildNumber) {
-		_buildNumber = buildNumber;
+		if (_buildNumber != buildNumber) {
+			_buildNumber = buildNumber;
 
-		if (_buildNumber != -1) {
-			setStatus("running");
+			_consoleReadCursor = 0;
+			_consoleText = null;
+
+			if (_buildNumber == -1) {
+				setStatus("starting");
+			}
+			else {
+				setStatus("running");
+			}
 		}
 	}
 
@@ -1624,7 +1902,8 @@ public abstract class BaseBuild implements Build {
 				String archiveMarkerContent = JenkinsResultsParserUtil.toString(
 					buildURL + "/archive-marker", false, 0, 0, 0);
 
-				fromArchive = (archiveMarkerContent != null) &&
+				fromArchive =
+					(archiveMarkerContent != null) &&
 					!archiveMarkerContent.isEmpty();
 			}
 		}
@@ -1719,8 +1998,16 @@ public abstract class BaseBuild implements Build {
 				JenkinsResultsParserUtil.DEPENDENCIES_URL_FILE.substring(
 					"file:".length()),
 				"/", path),
-			replaceBuildURL(content));
+			JenkinsResultsParserUtil.redact(replaceBuildURL(content)));
 	}
+
+	protected static final int MAX_REINVOCATIONS = 1;
+
+	protected static final String TEMP_MAP_BASE_URL =
+		"http://cloud-10-0-0-31.lax.liferay.com/osb-jenkins-web/map/";
+
+	protected static final String UPSTREAM_FAILURES_JOB_BASE_URL =
+		"https://test-1-0.liferay.com/userContent/testResults/";
 
 	protected static final Pattern archiveBuildURLPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(
@@ -1741,8 +2028,8 @@ public abstract class BaseBuild implements Build {
 			"buildWithParameters\\?(?<queryString>.*)"));
 	protected static final Pattern jobNamePattern = Pattern.compile(
 		"(?<baseJob>[^\\(]+)\\((?<branchName>[^\\)]+)\\)");
-	protected static final String tempMapBaseURL =
-		"http://cloud-10-0-0-31.lax.liferay.com/osb-jenkins-web/map/";
+	protected static JSONObject upstreamFailuresJobJSONObject = new JSONObject(
+		"{\"SHA\":\"\",\"failedBatches\":[]}");
 
 	protected String archiveName;
 	protected List<Integer> badBuildNumbers = new ArrayList<>();
@@ -1751,9 +2038,12 @@ public abstract class BaseBuild implements Build {
 	protected boolean fromArchive;
 	protected String jobName;
 	protected String master;
+	protected List<ReinvokeRule> reinvokeRules =
+		ReinvokeRule.getReinvokeRules();
 	protected String repositoryName;
 	protected String result;
 	protected long statusModifiedTime;
+	protected Element upstreamJobFailureMessageElement;
 
 	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =
 		{

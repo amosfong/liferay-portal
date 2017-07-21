@@ -81,6 +81,36 @@ public class StagingServiceSoap {
 		}
 	}
 
+	public static boolean hasRemoteLayout(java.lang.String uuid, long groupId,
+		boolean privateLayout) throws RemoteException {
+		try {
+			boolean returnValue = StagingServiceUtil.hasRemoteLayout(uuid,
+					groupId, privateLayout);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void propagateExportImportLifecycleEvent(int code,
+		int processFlag, java.lang.String processId,
+		java.util.List<java.io.Serializable> arguments)
+		throws RemoteException {
+		try {
+			StagingServiceUtil.propagateExportImportLifecycleEvent(code,
+				processFlag, processId, arguments);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static com.liferay.exportimport.kernel.lar.MissingReferences publishStagingRequest(
 		long stagingRequestId,
 		com.liferay.exportimport.kernel.model.ExportImportConfigurationSoap exportImportConfiguration)

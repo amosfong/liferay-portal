@@ -110,7 +110,7 @@
 </tr>
 <tr>
 	<td>TAG_CHECKBOX</td>
-	<td>//div[contains(.,'${key_tagName}')]//input[@type='checkbox']</td>
+	<td>//tr[contains(.,'${key_tagName}')]//input[@type='checkbox']</td>
 	<td></td>
 </tr>
 <tr>
@@ -142,6 +142,11 @@
 	<td>TAGS_ADD_BUTTON</td>
 	<td>//button[@title='Add Tags']</td>
 	<td></td>
+</tr>
+<tr>
+	<td>TAGS_DUPLICATE_WARNING</td>
+	<td>//div[contains(@class,'help-block')]</td>
+	<td>q</td>
 </tr>
 <tr>
 	<td>TAGS_SELECT_BUTTON</td>

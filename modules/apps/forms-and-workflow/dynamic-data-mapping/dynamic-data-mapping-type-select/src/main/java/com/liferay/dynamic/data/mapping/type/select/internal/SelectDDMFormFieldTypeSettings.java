@@ -32,9 +32,9 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 	rules = {
 		@DDMFormRule(
 			actions = {
-				"call('getDataProviderInstanceOutputParameters', 'dataProviderInstanceId=ddmDataProviderInstanceId', 'ddmDataProviderInstanceOutput={key: outputParameterName, value: outputParameterName}')"
+				"call('getDataProviderInstanceOutputParameters', concat('dataProviderInstanceId=', getValue('ddmDataProviderInstanceId')), 'ddmDataProviderInstanceOutput=outputParameterNames')"
 			},
-			condition = "not(equals(getValue('ddmDataProviderInstanceId'), 0))"
+			condition = "not(equals(getValue('ddmDataProviderInstanceId'), ''))"
 		)
 	}
 )
@@ -42,7 +42,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 	paginationMode = com.liferay.dynamic.data.mapping.model.DDMFormLayout.TABBED_MODE,
 	value = {
 		@DDMFormLayoutPage(
-			title = "basic",
+			title = "%basic",
 			value = {
 				@DDMFormLayoutRow(
 					{
@@ -59,7 +59,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 			}
 		),
 		@DDMFormLayoutPage(
-			title = "properties",
+			title = "%properties",
 			value = {
 				@DDMFormLayoutRow(
 					{
@@ -90,7 +90,12 @@ public interface SelectDDMFormFieldTypeSettings
 	public String dataSourceType();
 
 	@DDMFormField(
-		label = "%choose-a-data-provider", required = true, type = "select",
+		label = "%choose-a-data-provider",
+		properties = {
+			"dataSourceType=data-provider",
+			"ddmDataProviderInstanceId=getDataProviderInstances"
+		},
+		required = true, type = "select",
 		visibilityExpression = "equals(dataSourceType, \"data-provider\")"
 	)
 	public long ddmDataProviderInstanceId();
@@ -107,7 +112,7 @@ public interface SelectDDMFormFieldTypeSettings
 
 	@DDMFormField(
 		label = "%allow-multiple-selections",
-		properties = {"showAsSwitcher=true"}, visibilityExpression = "FALSE"
+		properties = {"showAsSwitcher=true"}
 	)
 	public boolean multiple();
 

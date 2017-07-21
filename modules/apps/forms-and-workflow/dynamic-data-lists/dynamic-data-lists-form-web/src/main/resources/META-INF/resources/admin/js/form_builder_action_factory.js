@@ -1,6 +1,8 @@
 AUI.add(
 	'liferay-ddl-form-builder-action-factory',
 	function(A) {
+		var Settings = Liferay.DDL.Settings;
+
 		var FormBuilderActionFactory = A.Component.create(
 			{
 				ATTRS: {
@@ -12,20 +14,12 @@ AUI.add(
 						value: []
 					},
 
-					getDataProviderParametersSettingsURL: {
-						value: ''
-					},
-
 					getDataProviders: {
 						value: []
 					},
 
 					pages: {
 						value: []
-					},
-
-					portletNamespace: {
-						value: ''
 					}
 				},
 
@@ -67,12 +61,11 @@ AUI.add(
 								{
 									action: act,
 									boundingBox: container,
+									bubbleTargets: [instance],
 									fields: instance.get('fields'),
-									getDataProviderParametersSettingsURL: instance.get('getDataProviderParametersSettingsURL'),
 									getDataProviders: instance.get('getDataProviders'),
 									index: index,
-									options: instance.get('dataProviders'),
-									portletNamespace: instance.get('portletNamespace')
+									options: instance.get('dataProviders')
 								}
 							);
 						}
@@ -81,9 +74,9 @@ AUI.add(
 								{
 									action: act,
 									boundingBox: container,
+									bubbleTargets: [instance],
 									index: index,
-									options: instance.get('fields'),
-									portletNamespace: instance.get('portletNamespace')
+									options: instance.get('fields')
 								}
 							);
 						}

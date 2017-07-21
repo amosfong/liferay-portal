@@ -24,8 +24,7 @@
 		</fileSet>
 	</fileSets>
 	<requiredProperties>
-		<requiredProperty key="buildType">
-			<defaultValue>maven</defaultValue>
+		<requiredProperty key="author">
 		</requiredProperty>
 		<requiredProperty key="className">
 		</requiredProperty>

@@ -14,8 +14,6 @@
 
 package com.liferay.server.admin.web.internal.portlet.action;
 
-import com.liferay.captcha.recaptcha.ReCaptchaImpl;
-import com.liferay.captcha.simplecaptcha.SimpleCaptchaImpl;
 import com.liferay.document.library.kernel.util.DLPreviewableProcessor;
 import com.liferay.mail.kernel.model.Account;
 import com.liferay.mail.kernel.service.MailService;
@@ -74,12 +72,10 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThreadUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnsyncPrintWriterPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.uuid.PortalUUID;
 import com.liferay.portal.kernel.xuggler.XugglerInstallException;
 import com.liferay.portal.kernel.xuggler.XugglerUtil;
-import com.liferay.portal.upload.UploadServletRequestImpl;
 import com.liferay.portal.util.MaintenanceUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.ShutdownUtil;
@@ -87,7 +83,6 @@ import com.liferay.portlet.ActionResponseImpl;
 import com.liferay.portlet.admin.util.CleanUpPermissionsUtil;
 import com.liferay.portlet.admin.util.CleanUpPortletPreferencesUtil;
 
-import java.io.File;
 import java.io.Serializable;
 
 import java.util.Enumeration;
@@ -206,9 +201,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		}
 		else if (cmd.equals("threadDump")) {
 			threadDump();
-		}
-		else if (cmd.equals("updateCaptcha")) {
-			updateCaptcha(actionRequest, portletPreferences);
 		}
 		else if (cmd.equals("updateExternalServices")) {
 			updateExternalServices(actionRequest, portletPreferences);
@@ -510,43 +502,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		}
 	}
 
-	protected void updateCaptcha(
-			ActionRequest actionRequest, PortletPreferences portletPreferences)
-		throws Exception {
-
-		boolean reCaptchaEnabled = ParamUtil.getBoolean(
-			actionRequest, "reCaptchaEnabled");
-		String reCaptchaPrivateKey = ParamUtil.getString(
-			actionRequest, "reCaptchaPrivateKey");
-		String reCaptchaPublicKey = ParamUtil.getString(
-			actionRequest, "reCaptchaPublicKey");
-
-		String captchaClassName = StringPool.BLANK;
-
-		if (reCaptchaEnabled) {
-			captchaClassName = ReCaptchaImpl.class.getName();
-		}
-		else {
-			captchaClassName = SimpleCaptchaImpl.class.getName();
-		}
-
-		validateCaptcha(actionRequest);
-
-		if (SessionErrors.isEmpty(actionRequest)) {
-			portletPreferences.setValue(
-				PropsKeys.CAPTCHA_ENGINE_IMPL, captchaClassName);
-
-			portletPreferences.setValue(
-				PropsKeys.CAPTCHA_ENGINE_RECAPTCHA_KEY_PRIVATE,
-				reCaptchaPrivateKey);
-			portletPreferences.setValue(
-				PropsKeys.CAPTCHA_ENGINE_RECAPTCHA_KEY_PUBLIC,
-				reCaptchaPublicKey);
-
-			portletPreferences.store();
-		}
-	}
-
 	protected void updateExternalServices(
 			ActionRequest actionRequest, PortletPreferences portletPreferences)
 		throws Exception {
@@ -555,10 +510,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, "imageMagickEnabled");
 		String imageMagickPath = ParamUtil.getString(
 			actionRequest, "imageMagickPath");
-		boolean openOfficeEnabled = ParamUtil.getBoolean(
-			actionRequest, "openOfficeEnabled");
-		int openOfficePort = ParamUtil.getInteger(
-			actionRequest, "openOfficePort");
 		boolean xugglerEnabled = ParamUtil.getBoolean(
 			actionRequest, "xugglerEnabled");
 
@@ -566,11 +517,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			PropsKeys.IMAGEMAGICK_ENABLED, String.valueOf(imageMagickEnabled));
 		portletPreferences.setValue(
 			PropsKeys.IMAGEMAGICK_GLOBAL_SEARCH_PATH, imageMagickPath);
-		portletPreferences.setValue(
-			PropsKeys.OPENOFFICE_SERVER_ENABLED,
-			String.valueOf(openOfficeEnabled));
-		portletPreferences.setValue(
-			PropsKeys.OPENOFFICE_SERVER_PORT, String.valueOf(openOfficePort));
 		portletPreferences.setValue(
 			PropsKeys.XUGGLER_ENABLED, String.valueOf(xugglerEnabled));
 
@@ -608,10 +554,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		String dlFileExtensions = getFileExtensions(
 			actionRequest, "dlFileExtensions");
 		long dlFileMaxSize = ParamUtil.getLong(actionRequest, "dlFileMaxSize");
-		long uploadServletRequestImplMaxSize = ParamUtil.getLong(
-			actionRequest, "uploadServletRequestImplMaxSize");
-		String uploadServletRequestImplTempDir = ParamUtil.getString(
-			actionRequest, "uploadServletRequestImplTempDir");
 
 		portletPreferences.setValue(
 			PropsKeys.DL_FILE_ENTRY_PREVIEWABLE_PROCESSOR_MAX_SIZE,
@@ -626,18 +568,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			PropsKeys.DL_FILE_EXTENSIONS, dlFileExtensions);
 		portletPreferences.setValue(
 			PropsKeys.DL_FILE_MAX_SIZE, String.valueOf(dlFileMaxSize));
-		portletPreferences.setValue(
-			PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE,
-			String.valueOf(uploadServletRequestImplMaxSize));
-
-		if (Validator.isNotNull(uploadServletRequestImplTempDir)) {
-			portletPreferences.setValue(
-				PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_TEMP_DIR,
-				uploadServletRequestImplTempDir);
-
-			UploadServletRequestImpl.setTempDir(
-				new File(uploadServletRequestImplTempDir));
-		}
 
 		portletPreferences.store();
 	}
@@ -728,29 +658,6 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		portletPreferences.store();
 
 		_mailService.clearSession();
-	}
-
-	protected void validateCaptcha(ActionRequest actionRequest)
-		throws Exception {
-
-		boolean reCaptchaEnabled = ParamUtil.getBoolean(
-			actionRequest, "reCaptchaEnabled");
-
-		if (!reCaptchaEnabled) {
-			return;
-		}
-
-		String reCaptchaPrivateKey = ParamUtil.getString(
-			actionRequest, "reCaptchaPrivateKey");
-		String reCaptchaPublicKey = ParamUtil.getString(
-			actionRequest, "reCaptchaPublicKey");
-
-		if (Validator.isNull(reCaptchaPublicKey)) {
-			SessionErrors.add(actionRequest, "reCaptchaPublicKey");
-		}
-		else if (Validator.isNull(reCaptchaPrivateKey)) {
-			SessionErrors.add(actionRequest, "reCaptchaPrivateKey");
-		}
 	}
 
 	protected void verifyMembershipPolicies() throws Exception {

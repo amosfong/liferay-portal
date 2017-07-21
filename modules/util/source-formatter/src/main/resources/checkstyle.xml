@@ -89,10 +89,12 @@
 			<message key="assert.add.information" value="Add ''{0}'' as extra parameter at the beginning of the ''Assert.assertEquals'' call to provide more information to the test. See LPS-70411." />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.Chaining">
-			<property name="chainingAllowedFormat" value="(^|.*\.)(bind|stream)\..*" />
-			<message key="chaining.avoid" value="Avoid chaining on method ''{0}'" />
-			<message key="chaining.avoid.multiple" value="Avoid multiple chaining on method ''{0}'" />
+			<property name="allowedClassNames" value="^(?!String).+Builder,Optional,Stream" />
+			<property name="allowedMethodNames" value="bind" />
+			<message key="chaining.avoid" value="Avoid chaining on method ''{0}''. See https://github.com/liferay/liferay-portal/blob/master/modules/util/source-formatter/documentation/chaining.markdown" />
+			<message key="chaining.avoid.multiple" value="Avoid multiple chaining on method ''{0}''. See https://github.com/liferay/liferay-portal/blob/master/modules/util/source-formatter/documentation/chaining.markdown" />
 			<message key="concat.avoid.too.many" value="Use StringBundler instead of chaining concat when there is more than 3 parts" />
+			<message key="styling.incorrect" value="Chaining on method ''{0}'' is allowed, but follow the styling described here: https://github.com/liferay/liferay-portal/blob/master/modules/util/source-formatter/documentation/chaining.markdown" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.ConstantName">
 			<message key="name.invalidPrivatePattern" value="Private constant ''{0}'' must match pattern ''{1}''" />
@@ -105,6 +107,7 @@
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.Indentation">
 			<message key="indentation.incorrect" value="Line starts with ''{0}'' tabs, but ''{1}'' tabs are expected" />
+			<message key="indentation.inside.chain.incorrect" value="Incorrect indentation inside chain. See https://github.com/liferay/liferay-portal/blob/master/modules/util/source-formatter/documentation/chaining.markdown" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.InstanceofOrder">
 			<message key="instanceof.order" value="''{0}'' should come before ''{1}''" />
@@ -116,8 +119,8 @@
 			<message key="javadoc.multiple" value="''{0}'' has multiple javadocs" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.JSONNaming">
-			<message key="variable.name.reserved" value="Variable name ending with ''{0}'' is reserved for object ''{1}''" />
-			<message key="variable.rename" value="Rename variable ''{0}'' to ''{1}''" />
+			<message key="variable.name.reserved" value="{0} name ending with ''{1}'' is reserved for object ''{2}''" />
+			<message key="variable.rename" value="Rename {0} ''{1}'' to ''{2}''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.LocalPattern">
 			<message key="pattern.local" value="Create a global variable for Pattern ''{0}''" />
@@ -200,6 +203,9 @@
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.UnusedParameter">
 			<message key="parameter.unused" value="Parameter ''{0}'' is unused" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.UnwrappedVariableInfo">
+			<message key="variable.info.unwrapped" value="Wrap the variable ''{0}'' into an inner class ''Concealer'' in order to defer array elements initialization, see LPS-72768" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.ValidatorIsNull">
 			<message key="method.invalidName" value="Avoid using method ''{0}''" />

@@ -17,7 +17,10 @@ package com.liferay.dynamic.data.mapping.validator.internal;
 import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionException;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidator;
+import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
@@ -131,6 +134,19 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 		}
 	}
 
+	protected DDMFormFieldValueAccessor<?> getDDMFormFieldValueAccessor(
+		String type) {
+
+		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
+			_ddmFormFieldTypeServicesTracker.getDDMFormFieldValueAccessor(type);
+
+		if (ddmFormFieldValueAccessor != null) {
+			return ddmFormFieldValueAccessor;
+		}
+
+		return _defaultDDMFormFieldValueAccessor;
+	}
+
 	protected List<DDMFormFieldValue> getDDMFormFieldValuesByFieldName(
 		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap,
 		String fieldName) {
@@ -158,20 +174,29 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 
 		try {
 			ddmFormFieldValueValidator.validate(
-				ddmFormField, ddmFormFieldValue);
+				ddmFormField, ddmFormFieldValue.getValue());
 		}
 		catch (Exception e) {
 			throw new MustSetValidValue(ddmFormField.getName(), e);
 		}
 	}
 
-	protected boolean isNull(Value value) {
+	protected boolean isNull(
+		DDMFormField ddmFormField, DDMFormFieldValue ddmFormFieldValue) {
+
+		Value value = ddmFormFieldValue.getValue();
+
 		if (value == null) {
 			return true;
 		}
 
+		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
+			getDDMFormFieldValueAccessor(ddmFormField.getType());
+
 		for (Locale availableLocale : value.getAvailableLocales()) {
-			if (Validator.isNull(value.getString(availableLocale))) {
+			if (ddmFormFieldValueAccessor.isEmpty(
+					ddmFormFieldValue, availableLocale)) {
+
 				return true;
 			}
 		}
@@ -193,6 +218,13 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 		DDMExpressionFactory ddmExpressionFactory) {
 
 		_ddmExpressionFactory = ddmExpressionFactory;
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormFieldTypeServicesTracker(
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
+
+		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
 	}
 
 	@Reference(unbind = "-")
@@ -281,7 +313,7 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 
 		validateDDMFormFieldValue(
 			ddmFormField, ddmFormValues.getAvailableLocales(),
-			ddmFormValues.getDefaultLocale(), ddmFormFieldValue.getValue());
+			ddmFormValues.getDefaultLocale(), ddmFormFieldValue);
 
 		invokeDDMFormFieldValueValidator(ddmFormField, ddmFormFieldValue);
 
@@ -292,8 +324,10 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 
 	protected void validateDDMFormFieldValue(
 			DDMFormField ddmFormField, Set<Locale> availableLocales,
-			Locale defaultLocale, Value value)
+			Locale defaultLocale, DDMFormFieldValue ddmFormFieldValue)
 		throws DDMFormValuesValidationException {
+
+		Value value = ddmFormFieldValue.getValue();
 
 		if (Validator.isNull(ddmFormField.getDataType())) {
 			if (value != null) {
@@ -302,7 +336,8 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 		}
 		else {
 			if ((value == null) ||
-				(ddmFormField.isRequired() && isNull(value))) {
+				(ddmFormField.isRequired() &&
+				 isNull(ddmFormField, ddmFormFieldValue))) {
 
 				throw new RequiredValue(ddmFormField.getName());
 			}
@@ -353,8 +388,12 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 	}
 
 	private DDMExpressionFactory _ddmExpressionFactory;
+	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 	private final Map<String, DDMFormFieldValueValidator>
 		_ddmFormFieldValueValidators = new ConcurrentHashMap<>();
+	private final DDMFormFieldValueAccessor<String>
+		_defaultDDMFormFieldValueAccessor =
+			new DefaultDDMFormFieldValueAccessor();
 	private JSONFactory _jsonFactory;
 
 }

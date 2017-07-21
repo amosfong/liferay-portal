@@ -46,7 +46,7 @@ public class MailboxDatagramReceiveHandlerTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
+			AspectJNewEnvTestRule.INSTANCE, CodeCoverageAssertor.INSTANCE);
 
 	@Before
 	public void setUp() {
@@ -54,9 +54,8 @@ public class MailboxDatagramReceiveHandlerTest {
 	}
 
 	@AdviseWith(
-		adviceClasses = {
-			PropsUtilAdvice.class, PortalExecutorManagerUtilAdvice.class
-		}
+		adviceClasses =
+			{PropsUtilAdvice.class, PortalExecutorManagerUtilAdvice.class}
 	)
 	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test

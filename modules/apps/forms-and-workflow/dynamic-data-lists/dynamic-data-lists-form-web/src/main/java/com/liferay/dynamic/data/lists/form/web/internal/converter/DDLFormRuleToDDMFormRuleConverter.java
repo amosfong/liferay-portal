@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.lists.form.web.internal.converter;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.model.DDLFormRule;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.model.DDLFormRuleAction;
 import com.liferay.dynamic.data.lists.form.web.internal.converter.model.DDLFormRuleCondition;
+import com.liferay.dynamic.data.lists.form.web.internal.converter.serializer.DDLFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -27,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -39,11 +43,15 @@ import org.osgi.service.component.annotations.Component;
 @Component(immediate = true, service = DDLFormRuleToDDMFormRuleConverter.class)
 public class DDLFormRuleToDDMFormRuleConverter {
 
-	public List<DDMFormRule> convert(List<DDLFormRule> ddlFormRules) {
+	public List<DDMFormRule> convert(
+		List<DDLFormRule> ddlFormRules,
+		DDLFormRuleSerializerContext ddlFormRuleSerializerContext) {
+
 		List<DDMFormRule> ddmFormRules = new ArrayList<>();
 
 		for (DDLFormRule ddlFormRule : ddlFormRules) {
-			ddmFormRules.add(convertRule(ddlFormRule));
+			ddmFormRules.add(
+				convertRule(ddlFormRule, ddlFormRuleSerializerContext));
 		}
 
 		return ddmFormRules;
@@ -65,15 +73,13 @@ public class DDLFormRuleToDDMFormRuleConverter {
 				_operatorMap.get(operator), convertOperand(operands.get(1)));
 		}
 
-		String action = String.format(
-			_functionCallUnaryExpressionFormat, functionName,
-			convertOperands(operands));
+		String condition = createCondition(functionName, operands);
 
 		if (operator.startsWith("not")) {
-			return String.format(_notExpressionFormat, action);
+			return String.format(_notExpressionFormat, condition);
 		}
 
-		return action;
+		return condition;
 	}
 
 	protected String convertConditions(
@@ -113,7 +119,18 @@ public class DDLFormRuleToDDMFormRuleConverter {
 			return value;
 		}
 
-		return StringUtil.quote(value);
+		String[] values = StringUtil.split(value);
+
+		UnaryOperator<String> quoteOperation = StringUtil::quote;
+		UnaryOperator<String> trimOperation = StringUtil::trim;
+
+		Stream<String> valuesStream = Stream.of(values);
+
+		Stream<String> valueStream = valuesStream.map(
+			trimOperation.andThen(quoteOperation));
+
+		return valueStream.collect(
+			Collectors.joining(StringPool.COMMA_AND_SPACE));
 	}
 
 	protected String convertOperands(
@@ -131,7 +148,10 @@ public class DDLFormRuleToDDMFormRuleConverter {
 		return sb.toString();
 	}
 
-	protected DDMFormRule convertRule(DDLFormRule ddlFormRule) {
+	protected DDMFormRule convertRule(
+		DDLFormRule ddlFormRule,
+		DDLFormRuleSerializerContext ddlFormRuleSerializerContext) {
+
 		String condition = convertConditions(
 			ddlFormRule.getLogicalOperator(),
 			ddlFormRule.getDDLFormRuleConditions());
@@ -141,10 +161,23 @@ public class DDLFormRuleToDDMFormRuleConverter {
 		for (DDLFormRuleAction ddlFormRuleAction :
 				ddlFormRule.getDDLFormRuleActions()) {
 
-			actions.add(ddlFormRuleAction.serialize());
+			actions.add(
+				ddlFormRuleAction.serialize(ddlFormRuleSerializerContext));
 		}
 
 		return new DDMFormRule(condition, actions);
+	}
+
+	protected String createCondition(
+		String functionName, List<DDLFormRuleCondition.Operand> operands) {
+
+		if (Objects.equals(functionName, "belongsTo")) {
+			operands.remove(0);
+		}
+
+		return String.format(
+			_functionCallUnaryExpressionFormat, functionName,
+			convertOperands(operands));
 	}
 
 	private static final String _comparisonExpressionFormat = "%s %s %s";

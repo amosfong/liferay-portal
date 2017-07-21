@@ -37,9 +37,8 @@ import com.liferay.portal.kernel.util.StringPool;
 					{
 						@DDMFormLayoutColumn(
 							size = 12,
-							value = {
-								"label", "predefinedValue", "required", "tip"
-							}
+							value =
+								{"label", "predefinedValue", "required", "tip"}
 						)
 					}
 				)
@@ -75,7 +74,7 @@ public interface DefaultDDMFormFieldTypeSettings
 			"%not-indexable", "%indexable-keyword", "%indexable-text"
 		},
 		optionValues = {StringPool.BLANK, "keyword", "text"},
-		predefinedValue = "keyword", type = "select",
+		predefinedValue = "keyword", type = "radio",
 		visibilityExpression = "FALSE"
 	)
 	public String indexType();
@@ -83,7 +82,7 @@ public interface DefaultDDMFormFieldTypeSettings
 	@DDMFormField(
 		label = "%label",
 		properties = {
-			"placeholder=%enter-a-field-label",
+			"autoFocus=true", "placeholder=%enter-a-field-label",
 			"tooltip=%enter-a-descriptive-field-label-that-guides-users-to-enter-the-information-you-want"
 		},
 		type = "key_value"
@@ -131,7 +130,7 @@ public interface DefaultDDMFormFieldTypeSettings
 	public LocalizedValue tip();
 
 	@DDMFormField(
-		dataType = "ddm-validation", label = "%validation", type = "validation"
+		dataType = "string", label = "%validation", type = "validation"
 	)
 	public DDMFormFieldValidation validation();
 

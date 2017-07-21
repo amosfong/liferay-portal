@@ -30,12 +30,27 @@
 			<var name="fieldValue" value="${username}" />
 		</execute>
 
-		<execute macro="FormFields#editText">
-			<var name="fieldName" value="$password" />
-			<var name="fieldValue" value="${password}" />
-		</execute>
+		<var name="key_fieldName" value="$password" />
+
+		<if>
+			<condition function="IsElementPresent" locator1="FormFields#PASSWORD_FIELD" />
+			<then>
+				<execute macro="FormFields#editPassword">
+					<var name="fieldName" value="$password" />
+					<var name="fieldValue" value="${password}" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="FormFields#editText">
+					<var name="fieldName" value="$password" />
+					<var name="fieldValue" value="${password}" />
+				</execute>
+			</else>
+		</if>
 
 		<execute macro="FormsAdmin#editDataProviderOutputParameter">
+			<var name="outputParameterLabel" value="${outputParameterLabel}" />
+			<var name="outputParameterLabel2" value="${outputParameterLabel2}" />
 			<var name="outputParameterName" value="${outputParameterName}" />
 			<var name="outputParameterName2" value="${outputParameterName2}" />
 			<var name="outputParameterPath" value="${outputParameterPath}" />
@@ -47,7 +62,8 @@
 
 	<command name="editDataProviderOutputParameter">
 		<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_PATH_FIELD" value1="${outputParameterPath}" />
-		<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_NAME_FIELD" value1="${outputParameterName}" />
+
+		<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_LABEL_FIELD" value1="${outputParameterLabel}" />
 
 		<execute macro="FormFields#selectDataProviderOutputType">
 			<var name="outputParameterType" value="${outputParameterType}" />
@@ -59,7 +75,8 @@
 				<execute function="Click" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_REPEAT_ICON" />
 
 				<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_PATH_FIELD_2" value1="${outputParameterPath2}" />
-				<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_NAME_FIELD_2" value1="${outputParameterName2}" />
+
+				<execute function="Type" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_LABEL_FIELD_2" value1="${outputParameterLabel2}" />
 
 				<execute function="Click" locator1="Form#DATA_PROVIDER_OUTPUT_PARAMETER_TYPE_FIELD_2" />
 

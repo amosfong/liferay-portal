@@ -552,6 +552,37 @@ public class DDMStructureLocalServiceTest extends BaseDDMServiceTestCase {
 	}
 
 	@Test
+	public void testSearchByType() throws Exception {
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_DEFAULT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		List<DDMStructure> structures = DDMStructureLocalServiceUtil.search(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_DEFAULT,
+			WorkflowConstants.STATUS_APPROVED, true, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+
+		Assert.assertEquals(structures.toString(), 1, structures.size());
+
+		structures = DDMStructureLocalServiceUtil.search(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED, true, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+
+		Assert.assertEquals(structures.toString(), 1, structures.size());
+	}
+
+	@Test
 	public void testSearchCount() throws Exception {
 		int initialCount = DDMStructureLocalServiceUtil.searchCount(
 			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
@@ -581,6 +612,27 @@ public class DDMStructureLocalServiceTest extends BaseDDMServiceTestCase {
 		int count = DDMStructureLocalServiceUtil.searchCount(
 			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
 			_classNameId, null, WorkflowConstants.STATUS_APPROVED);
+
+		Assert.assertEquals(initialCount + 1, count);
+	}
+
+	@Test
+	public void testSearchCountByType() throws Exception {
+		int initialCount = DDMStructureLocalServiceUtil.searchCount(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_ANY, true);
+
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		int count = DDMStructureLocalServiceUtil.searchCount(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_ANY, true);
 
 		Assert.assertEquals(initialCount + 1, count);
 	}

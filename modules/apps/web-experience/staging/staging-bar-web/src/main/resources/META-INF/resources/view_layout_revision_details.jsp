@@ -17,13 +17,13 @@
 <%@ include file="/init.jsp" %>
 
 <%
-LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute("view.jsp-layoutRevision");
+LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute(WebKeys.LAYOUT_REVISION);
 
 if ((layoutRevision == null) && (layout != null)) {
 	layoutRevision = LayoutStagingUtil.getLayoutRevision(layout);
 }
 
-LayoutSetBranch layoutSetBranch = (LayoutSetBranch)request.getAttribute("view.jsp-layoutSetBranch");
+LayoutSetBranch layoutSetBranch = (LayoutSetBranch)request.getAttribute(StagingProcessesWebKeys.LAYOUT_SET_BRANCH);
 
 if (layoutSetBranch == null) {
 	layoutSetBranch = LayoutSetBranchLocalServiceUtil.getLayoutSetBranch(layoutRevision.getLayoutSetBranchId());
@@ -39,8 +39,10 @@ if (workflowEnabled) {
 
 String taglibHelpMessage = null;
 
+String layoutSetBranchName = HtmlUtil.escape(layoutSetBranchDisplayContext.getLayoutSetBranchDisplayName(layoutSetBranch));
+
 if (layoutRevision.isHead()) {
-	taglibHelpMessage = LanguageUtil.format(request, "this-version-will-be-published-when-x-is-published-to-live", HtmlUtil.escape(layoutSetBranch.getName()), false);
+	taglibHelpMessage = LanguageUtil.format(request, "this-version-will-be-published-when-x-is-published-to-live", layoutSetBranchName, false);
 }
 else if (hasWorkflowTask) {
 	taglibHelpMessage = "you-are-currently-reviewing-this-page.-you-can-make-changes-and-send-them-to-the-next-step-in-the-workflow-when-ready";
@@ -56,7 +58,7 @@ else {
 			<li class="control-menu-nav-item">
 				<c:if test="<%= layoutRevision.isIncomplete() %>">
 					<p>
-						<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(layoutRevision.getName(locale)), HtmlUtil.escape(layoutSetBranch.getName())} %>" key="the-page-x-is-not-enabled-in-x,-but-is-available-in-other-pages-variations" translateArguments="<%= false %>" />
+						<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(layoutRevision.getName(locale)), layoutSetBranchName} %>" key="the-page-x-is-not-enabled-in-x,-but-is-available-in-other-pages-variations" translateArguments="<%= false %>" />
 					</p>
 				</c:if>
 
@@ -104,7 +106,7 @@ else {
 						String label = null;
 
 						if (layoutRevision.isIncomplete()) {
-							label = LanguageUtil.format(request, "enable-in-x", layoutSetBranch.getName(), false);
+							label = LanguageUtil.format(request, "enable-in-x", layoutSetBranchName, false);
 						}
 						else if (workflowEnabled) {
 							label = "submit-for-publication";

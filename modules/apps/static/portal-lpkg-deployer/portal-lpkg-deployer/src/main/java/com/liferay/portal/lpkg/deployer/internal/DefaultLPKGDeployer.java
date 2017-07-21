@@ -60,6 +60,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -98,6 +100,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	@Override
 	public List<Bundle> deploy(BundleContext bundleContext, File lpkgFile)
 		throws IOException {
+
+		lpkgFile = lpkgFile.getCanonicalFile();
 
 		Path lpkgFilePath = lpkgFile.toPath();
 
@@ -151,6 +155,15 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 			lpkgBundle = bundleContext.installBundle(
 				location, toBundle(lpkgFile));
+
+			if (lpkgBundle.getState() == Bundle.UNINSTALLED) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Skipped deployment of outdated LPKG " + lpkgFile);
+				}
+
+				return bundles;
+			}
 
 			BundleStartLevel bundleStartLevel = lpkgBundle.adapt(
 				BundleStartLevel.class);
@@ -238,11 +251,11 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 		Path overrideDirPath = _deploymentDirPath.resolve("override");
 
-		List<File> jarFiles = _scanFiles(overrideDirPath, ".jar");
+		List<File> jarFiles = _scanFiles(overrideDirPath, ".jar", true);
 
 		_uninstallOrphanOverridingJars(bundleContext, jarFiles);
 
-		List<File> warFiles = _scanFiles(overrideDirPath, ".war");
+		List<File> warFiles = _scanFiles(overrideDirPath, ".war", true);
 
 		_uninstallOrphanOverridingWars(bundleContext, warFiles);
 
@@ -253,7 +266,7 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 		_lpkgBundleTracker.open();
 
-		List<File> lpkgFiles = _scanFiles(_deploymentDirPath, ".lpkg");
+		List<File> lpkgFiles = _scanFiles(_deploymentDirPath, ".lpkg", false);
 
 		_lpkgIndexValidator.setLPKGDeployer(this);
 		_lpkgIndexValidator.setJarFiles(jarFiles);
@@ -284,11 +297,14 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 	private Path _getDeploymentDirPath(BundleContext bundleContext)
 		throws IOException {
 
-		String deploymentDir = GetterUtil.getString(
-			bundleContext.getProperty("lpkg.deployer.dir"),
-			PropsValues.MODULE_FRAMEWORK_MARKETPLACE_DIR);
+		File deploymentDir = new File(
+			GetterUtil.getString(
+				bundleContext.getProperty("lpkg.deployer.dir"),
+				PropsValues.MODULE_FRAMEWORK_MARKETPLACE_DIR));
 
-		Path deploymentDirPath = Paths.get(deploymentDir);
+		deploymentDir = deploymentDir.getCanonicalFile();
+
+		Path deploymentDirPath = deploymentDir.toPath();
 
 		Files.createDirectories(deploymentDirPath);
 
@@ -485,7 +501,8 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 		}
 	}
 
-	private List<File> _scanFiles(Path dirPath, String extension)
+	private List<File> _scanFiles(
+			Path dirPath, String extension, boolean checkFileName)
 		throws IOException {
 
 		if (Files.notExists(dirPath)) {
@@ -501,9 +518,25 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 				String pathName = StringUtil.toLowerCase(
 					String.valueOf(path.getFileName()));
 
-				if (pathName.endsWith(extension)) {
-					files.add(path.toFile());
+				if (!pathName.endsWith(extension)) {
+					continue;
 				}
+
+				if (checkFileName) {
+					Matcher matcher = _pattern.matcher(pathName);
+
+					if (matcher.matches()) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(
+								"Override file " + path +
+									" has an invalid name and will be ignored");
+						}
+
+						continue;
+					}
+				}
+
+				files.add(path.toFile());
 			}
 		}
 
@@ -636,6 +669,9 @@ public class DefaultLPKGDeployer implements LPKGDeployer {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DefaultLPKGDeployer.class);
+
+	private static final Pattern _pattern = Pattern.compile(
+		"/?(.*?)(-\\d+\\.\\d+\\.\\d+)(\\..+)?(\\.[jw]ar)");
 
 	private Path _deploymentDirPath;
 	private BundleTracker<List<Bundle>> _lpkgBundleTracker;

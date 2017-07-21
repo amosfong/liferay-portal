@@ -80,9 +80,7 @@ AUI.add(
 
 						var field = instance.get('field');
 
-						var settingsForm = instance.settingsForm;
-
-						return field.getSettings(settingsForm);
+						return field.getSettings();
 					},
 
 					getPreviousContext: function() {
@@ -172,14 +170,14 @@ AUI.add(
 							'render',
 							function() {
 								settingsFormContainer.one('.navbar-nav').wrap(TPL_NAVBAR_WRAPER);
+
+								settingsForm.getFirstPageField().focus();
+
+								instance._bindSettingsFormEvents();
 							}
 						);
 
-						instance._bindSettingsFormEvents();
-
 						settingsForm.render();
-
-						settingsForm.getFirstPageField().focus();
 					},
 
 					_containsNode: function(node) {
@@ -218,10 +216,16 @@ AUI.add(
 								settingsForm.evaluate(
 									function() {
 										instance._removeLoading();
+
+										instance._setFocusToFirstPageField(settingsForm);
 									}
 								);
 
-								field.setAttrs(field.getSettings(settingsForm));
+								var settingsFormContext = settingsForm.get('context');
+
+								field.set('context.settingsContext', settingsFormContext);
+
+								field.saveSettings();
 
 								instance._saveCurrentContext();
 
@@ -269,6 +273,18 @@ AUI.add(
 
 						if (content) {
 							instance.get('boundingBox').one('.sidebar-body').setHTML(content);
+						}
+					},
+
+					_setFocusToFirstPageField: function(settingsForm) {
+						var field = settingsForm.getFirstPageField();
+
+						var container = field.get('container');
+
+						var input = container.one('input');
+
+						if (input) {
+							input.focus();
 						}
 					},
 

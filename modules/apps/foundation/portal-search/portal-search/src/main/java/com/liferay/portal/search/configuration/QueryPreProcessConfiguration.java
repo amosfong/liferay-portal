@@ -26,13 +26,13 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @Meta.OCD(
 	id = "com.liferay.portal.search.configuration.QueryPreProcessConfiguration",
 	localization = "content/Language",
-	name = "query.pre.process.configuration.name"
+	name = "query-pre-process-configuration-name"
 )
 @ProviderType
 public interface QueryPreProcessConfiguration {
 
 	@Meta.AD(
-		deflt = "assetCategoryTitles?(_.+)?|assetTagNames|emailAddress|license|path|screenName|tag|treePath|userName",
+		deflt = "assetCategoryTitles?(_.+)?|emailAddress|license|path|screenName|tag|treePath|userName",
 		required = false
 	)
 	public String[] fieldNamePatterns();

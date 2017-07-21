@@ -324,6 +324,8 @@ public interface PortletDataContext extends Serializable {
 
 	public Element getExportDataRootElement();
 
+	public String getExportImportProcessId();
+
 	public long getGroupId();
 
 	public Element getImportDataElement(StagedModel stagedModel);
@@ -345,6 +347,8 @@ public interface PortletDataContext extends Serializable {
 	public Map<String, Lock> getLocks();
 
 	public ManifestSummary getManifestSummary();
+
+	public Element getMissingReferenceElement(ClassedModel classedModel);
 
 	public Element getMissingReferencesElement();
 
@@ -458,18 +462,6 @@ public interface PortletDataContext extends Serializable {
 
 	public List<Element> getReferenceElements(
 		StagedModel parentStagedModel, Class<?> clazz);
-
-	/**
-	 * Returns the registered primary keys for the model class name. The model
-	 * class name's entities are registered for the export process in {@link
-	 * #registerExportingClassedModel(ClassedModel)}.
-	 *
-	 * @param  modelClassName the model class name of the entities for which to
-	 *         get the primary keys
-	 * @return the primary keys for the model class name
-	 */
-	public Set<Serializable> getRegisteredExportingClassedModelPrimaryKeys(
-		String modelClassName);
 
 	public String getRootPortletId();
 
@@ -634,15 +626,6 @@ public interface PortletDataContext extends Serializable {
 
 	public void putNotUniquePerLayout(String dataKey);
 
-	/**
-	 * Registers the entity to be exported or published during the process. This
-	 * method is useful when using single asset publication.
-	 *
-	 * @param classedModel the classed model entity to register for the export
-	 *        process
-	 */
-	public void registerExportingClassedModel(ClassedModel classedModel);
-
 	public void setClassLoader(ClassLoader classLoader);
 
 	public void setCompanyGroupId(long companyGroupId);
@@ -654,6 +637,8 @@ public interface PortletDataContext extends Serializable {
 	public void setEndDate(Date endDate);
 
 	public void setExportDataRootElement(Element exportDataRootElement);
+
+	public void setExportImportProcessId(String exportImportProcessId);
 
 	public void setGroupId(long groupId);
 

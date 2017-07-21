@@ -48,7 +48,7 @@ AUI.add(
 
 					TPL_ALERTS_CONTAINER: '<div class="lfr-alert-container"></div>',
 
-					TPL_CONTENT: '<strong class="lead"><svg class="lexicon-icon"><use xlink:href="{pathThemeImages}/lexicon/icons.svg#{icon}" /></svg> {title}</strong>{message}',
+					TPL_CONTENT: '<strong class="lead"><svg class="lexicon-icon" focusable="false"><use data-href="{pathThemeImages}/lexicon/icons.svg#{icon}" /></svg> {title}</strong>{message}',
 
 					bindUI: function() {
 						var instance = this;
@@ -96,7 +96,7 @@ AUI.add(
 						var alertsContainer = instance._alertsContainer;
 
 						if (!alertsContainer) {
-							var rootNode = targetNode || instance.get('rootNode') || A;
+							var rootNode = targetNode || instance.get('rootNode') || A.getBody();
 
 							alertsContainer = (targetNode && targetNode.one('.lfr-alert-container')) || rootNode.one('.lfr-alert-container');
 
@@ -194,27 +194,31 @@ AUI.add(
 						var parentNode = instance._getParentNode();
 
 						if (!visible || !parentNode.test('.in')) {
-							parentNode.transition(
-								{
-									duration: instance.get('duration') / 1000,
-									easing: 'ease-out',
-									height: visible ? instance.get('boundingBox').outerHeight() + 'px' : 0
-								},
-								function() {
-									parentNode.toggleClass('in', visible);
+							try {
+								parentNode.transition(
+									{
+										duration: instance.get('duration') / 1000,
+										easing: 'ease-out',
+										height: visible ? instance.get('boundingBox').outerHeight() + 'px' : 0
+									},
+									function() {
+										parentNode.toggleClass('in', visible);
 
-									instance._uiSetVisibleHost(visible);
+										instance._uiSetVisibleHost(visible);
 
-									var delay = instance.get('delay');
+										var delay = instance.get('delay');
 
-									if (visible && delay.hide) {
-										instance.hide();
+										if (visible && delay.hide) {
+											instance.hide();
+										}
+										else if (instance.get('destroyOnHide')) {
+											A.soon(A.bind('destroy', instance));
+										}
 									}
-									else if (instance.get('destroyOnHide')) {
-										A.soon(A.bind('destroy', instance));
-									}
-								}
-							);
+								);
+							}
+							catch (error) {
+							}
 						}
 					},
 

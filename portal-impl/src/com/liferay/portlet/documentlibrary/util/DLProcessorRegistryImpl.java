@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.UnsafeConsumer;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -40,9 +41,16 @@ import com.liferay.registry.collections.ServiceTrackerMap;
 import com.liferay.registry.collections.StringServiceRegistrationMap;
 import com.liferay.registry.collections.StringServiceRegistrationMapImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Mika Koivisto
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.document.library.internal.util.
+ *             DLProcessorRegistryImpl}
  */
+@Deprecated
 @DoPrivileged
 public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 
@@ -56,6 +64,8 @@ public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 			dlProcessor.afterPropertiesSet();
 
 			register(dlProcessor);
+
+			_dlProcessors.add(dlProcessor);
 		}
 	}
 
@@ -95,6 +105,11 @@ public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 				dlProcessor.cleanUp(fileVersion);
 			}
 		}
+	}
+
+	public void destroy() throws Exception {
+		UnsafeConsumer.accept(
+			_dlProcessors, DLProcessor::destroy, Exception.class);
 	}
 
 	@Override
@@ -269,6 +284,8 @@ public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DLProcessorRegistryImpl.class);
+
+	private final List<DLProcessor> _dlProcessors = new ArrayList<>();
 
 	private final ServiceTrackerMap<String, DLProcessor>
 		_dlProcessorServiceTrackerMap =

@@ -20,18 +20,19 @@ import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.service.CalendarBookingLocalService;
 import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
+import com.liferay.exportimport.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.message.boards.kernel.model.MBMessage;
 import com.liferay.message.boards.kernel.service.MBMessageLocalService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -39,6 +40,8 @@ import com.liferay.portal.kernel.xml.Element;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -125,6 +128,15 @@ public class CalendarBookingStagedModelDataHandler
 			StagedModelDataHandlerUtil.exportReferenceStagedModel(
 				portletDataContext, calendarBooking,
 				calendarBooking.getParentCalendarBooking(),
+				PortletDataContext.REFERENCE_TYPE_PARENT);
+		}
+
+		for (CalendarBooking childCalendarBooking :
+				calendarBooking.getChildCalendarBookings()) {
+
+			StagedModelDataHandlerUtil.exportReferenceStagedModel(
+				portletDataContext, calendarBooking,
+				childCalendarBooking.getCalendar(),
 				PortletDataContext.REFERENCE_TYPE_STRONG);
 		}
 
@@ -178,6 +190,8 @@ public class CalendarBookingStagedModelDataHandler
 		long parentCalendarBookingId =
 			CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT;
 
+		long[] childCalendarIds = new long[0];
+
 		if (!calendarBooking.isMasterBooking()) {
 			Map<Long, Long> calendarBookingIds =
 				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -187,6 +201,10 @@ public class CalendarBookingStagedModelDataHandler
 				calendarBookingIds,
 				calendarBooking.getParentCalendarBookingId(),
 				calendarBooking.getParentCalendarBookingId());
+		}
+		else {
+			childCalendarIds = filterChildCalendarIds(
+				calendarIds.keySet(), calendarBooking.getCalendarId());
 		}
 
 		long recurringCalendarBookingId =
@@ -213,7 +231,7 @@ public class CalendarBookingStagedModelDataHandler
 
 				importedCalendarBooking =
 					_calendarBookingLocalService.addCalendarBooking(
-						userId, calendarId, new long[0],
+						userId, calendarId, childCalendarIds,
 						parentCalendarBookingId, recurringCalendarBookingId,
 						calendarBooking.getTitleMap(),
 						calendarBooking.getDescriptionMap(),
@@ -232,7 +250,8 @@ public class CalendarBookingStagedModelDataHandler
 				importedCalendarBooking =
 					_calendarBookingLocalService.updateCalendarBooking(
 						userId, existingCalendarBooking.getCalendarBookingId(),
-						calendarId, calendarBooking.getTitleMap(),
+						calendarId, childCalendarIds,
+						calendarBooking.getTitleMap(),
 						calendarBooking.getDescriptionMap(),
 						calendarBooking.getLocation(),
 						calendarBooking.getStartTime(),
@@ -249,8 +268,9 @@ public class CalendarBookingStagedModelDataHandler
 		else {
 			importedCalendarBooking =
 				_calendarBookingLocalService.addCalendarBooking(
-					userId, calendarId, new long[0], parentCalendarBookingId,
-					recurringCalendarBookingId, calendarBooking.getTitleMap(),
+					userId, calendarId, childCalendarIds,
+					parentCalendarBookingId, recurringCalendarBookingId,
+					calendarBooking.getTitleMap(),
 					calendarBooking.getDescriptionMap(),
 					calendarBooking.getLocation(),
 					calendarBooking.getStartTime(),
@@ -298,12 +318,27 @@ public class CalendarBookingStagedModelDataHandler
 			return;
 		}
 
-		TrashHandler trashHandler = existingBooking.getTrashHandler();
+		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
+			CalendarBooking.class.getName());
 
 		if (trashHandler.isRestorable(existingBooking.getCalendarBookingId())) {
 			trashHandler.restoreTrashEntry(
 				userId, existingBooking.getCalendarBookingId());
 		}
+	}
+
+	protected long[] filterChildCalendarIds(
+		Set<Long> calendarIds, long masterCalendarId) {
+
+		Stream<Long> calendarIdsStream = calendarIds.stream();
+
+		long[] childCalendarIds = calendarIdsStream.filter(
+			calendarId -> calendarId != masterCalendarId
+		).mapToLong(
+			Long::longValue
+		).toArray();
+
+		return childCalendarIds;
 	}
 
 	@Reference(unbind = "-")

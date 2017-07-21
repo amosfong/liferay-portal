@@ -20,7 +20,7 @@
 	<c:if test="<%= ddmForm != null %>">
 
 		<%
-		pageContext.setAttribute("checkRequired", checkRequired);
+		request.setAttribute("checkRequired", checkRequired);
 
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext = new DDMFormFieldRenderingContext();
 
@@ -59,7 +59,7 @@
 			);
 
 			var onDestroyPortlet = function(event) {
-				if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+				if (event.portletId === '<%= portletDisplay.getId() %>') {
 					liferayDDMForm.destroy();
 
 					Liferay.detach('destroyPortlet', onDestroyPortlet);

@@ -504,6 +504,8 @@ public abstract class BaseDB implements DB {
 		}
 
 		_supportsStringCaseSensitiveQuery = supportsStringCaseSensitiveQuery;
+
+		SQLTransformer.reloadSQLTransformer();
 	}
 
 	@Override
@@ -1151,13 +1153,11 @@ public abstract class BaseDB implements DB {
 
 	protected static final String DROP_PRIMARY_KEY = "drop primary key";
 
-	protected static final String[] RENAME_TABLE_TEMPLATE = {
-		"@old-table@", "@new-table@"
-	};
+	protected static final String[] RENAME_TABLE_TEMPLATE =
+		{"@old-table@", "@new-table@"};
 
-	protected static final String[] REWORD_TEMPLATE = {
-		"@table@", "@old-column@", "@new-column@", "@type@", "@nullable@"
-	};
+	protected static final String[] REWORD_TEMPLATE =
+		{"@table@", "@old-column@", "@new-column@", "@type@", "@nullable@"};
 
 	protected static final String[] TEMPLATE = {
 		"##", "TRUE", "FALSE", "'01/01/1970'", "CURRENT_TIMESTAMP", " BLOB",
@@ -1213,7 +1213,7 @@ public abstract class BaseDB implements DB {
 	private final DBType _dbType;
 	private final int _majorVersion;
 	private final int _minorVersion;
-	private boolean _supportsStringCaseSensitiveQuery;
+	private boolean _supportsStringCaseSensitiveQuery = true;
 	private final Map<String, String> _templateMap = new HashMap<>();
 
 }

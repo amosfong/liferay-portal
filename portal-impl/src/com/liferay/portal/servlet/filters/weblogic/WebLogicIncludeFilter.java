@@ -15,10 +15,8 @@
 package com.liferay.portal.servlet.filters.weblogic;
 
 import com.liferay.portal.kernel.servlet.WrapHttpServletResponseFilter;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.ServiceTracker;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,29 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 public class WebLogicIncludeFilter
 	extends BasePortalFilter implements WrapHttpServletResponseFilter {
 
-	public WebLogicIncludeFilter() {
-		Registry registry = RegistryUtil.getRegistry();
-
-		_serviceTracker = registry.trackServices(
-			WebLogicIncludeServletResponseFactory.class);
-
-		_serviceTracker.open();
-	}
-
-	@Override
-	public void destroy() {
-		_serviceTracker.close();
-
-		super.destroy();
-	}
-
 	@Override
 	public HttpServletResponse getWrappedHttpServletResponse(
 		HttpServletRequest request, HttpServletResponse response) {
 
 		WebLogicIncludeServletResponseFactory
 			webLogicIncludeServletResponseFactory =
-				_serviceTracker.getService();
+				_webLogicIncludeServletResponseFactory;
 
 		if (webLogicIncludeServletResponseFactory != null) {
 			return webLogicIncludeServletResponseFactory.create(response);
@@ -62,11 +44,18 @@ public class WebLogicIncludeFilter
 
 	@Override
 	public boolean isFilterEnabled() {
-		return !_serviceTracker.isEmpty();
+		if (_webLogicIncludeServletResponseFactory == null) {
+			return false;
+		}
+
+		return true;
 	}
 
-	private final ServiceTracker
-		<WebLogicIncludeServletResponseFactory,
-			WebLogicIncludeServletResponseFactory> _serviceTracker;
+	private static volatile WebLogicIncludeServletResponseFactory
+		_webLogicIncludeServletResponseFactory =
+			ServiceProxyFactory.newServiceTrackedInstance(
+				WebLogicIncludeServletResponseFactory.class,
+				WebLogicIncludeFilter.class,
+				"_webLogicIncludeServletResponseFactory", false, true);
 
 }

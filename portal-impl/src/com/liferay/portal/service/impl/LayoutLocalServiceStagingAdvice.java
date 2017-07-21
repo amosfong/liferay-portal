@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -275,6 +276,11 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 				titleMap, descriptionMap, keywordsMap, robotsMap, type, hidden,
 				friendlyURLMap, iconImage, iconBytes, serviceContext);
 		}
+
+		layoutLocalService.updateAsset(
+			serviceContext.getUserId(), layout,
+			serviceContext.getAssetCategoryIds(),
+			serviceContext.getAssetTagNames());
 
 		if (parentLayoutId != layout.getParentLayoutId()) {
 			int priority = layoutLocalServiceHelper.getNextPriority(
@@ -513,20 +519,45 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 	}
 
 	protected Layout getProxiedLayout(Layout layout) {
-		Map<Layout, Object> proxiedLayouts =
+		ObjectValuePair<ServiceContext, Map<Layout, Object>> objectValuePair =
 			ProxiedLayoutsThreadLocal.getProxiedLayouts();
 
-		Object proxiedLayout = proxiedLayouts.get(layout);
+		ServiceContext currentServiceContext =
+			ServiceContextThreadLocal.getServiceContext();
 
-		if (proxiedLayout != null) {
-			return (Layout)proxiedLayout;
+		if (objectValuePair != null) {
+			ServiceContext serviceContext = objectValuePair.getKey();
+
+			if (serviceContext == currentServiceContext) {
+				Map<Layout, Object> proxiedLayouts = objectValuePair.getValue();
+
+				Object proxiedLayout = proxiedLayouts.get(layout);
+
+				if (proxiedLayout != null) {
+					return (Layout)proxiedLayout;
+				}
+
+				proxiedLayout = ProxyUtil.newProxyInstance(
+					ClassLoaderUtil.getPortalClassLoader(),
+					new Class<?>[] {Layout.class},
+					new LayoutStagingHandler(layout));
+
+				proxiedLayouts.put(layout, proxiedLayout);
+
+				return (Layout)proxiedLayout;
+			}
 		}
 
-		proxiedLayout = ProxyUtil.newProxyInstance(
+		Object proxiedLayout = ProxyUtil.newProxyInstance(
 			ClassLoaderUtil.getPortalClassLoader(),
 			new Class<?>[] {Layout.class}, new LayoutStagingHandler(layout));
 
+		Map<Layout, Object> proxiedLayouts = new HashMap<>();
+
 		proxiedLayouts.put(layout, proxiedLayout);
+
+		ProxiedLayoutsThreadLocal.setProxiedLayouts(
+			new ObjectValuePair<>(currentServiceContext, proxiedLayouts));
 
 		return (Layout)proxiedLayout;
 	}
@@ -636,9 +667,8 @@ public class LayoutLocalServiceStagingAdvice implements MethodInterceptor {
 	@BeanReference(type = LayoutLocalServiceHelper.class)
 	protected LayoutLocalServiceHelper layoutLocalServiceHelper;
 
-	private static final Class<?>[] _GET_LAYOUTS_TYPES = {
-		Long.TYPE, Boolean.TYPE, Long.TYPE
-	};
+	private static final Class<?>[] _GET_LAYOUTS_TYPES =
+		{Long.TYPE, Boolean.TYPE, Long.TYPE};
 
 	private static final Class<?>[] _UPDATE_LAYOUT_PARAMETER_TYPES = {
 		long.class, boolean.class, long.class, long.class, Map.class, Map.class,

@@ -46,14 +46,15 @@ import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistryUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.sql.DataSource;
 import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
@@ -72,6 +73,10 @@ import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
 	</#list>
 
 	import ${packagePath}.model.impl.${entity.name}Impl;
+</#if>
+
+<#if entity.localizedEntity??>
+	import ${apiPackagePath}.model.${entity.name}Localization;
 </#if>
 
 <#list referenceList as tempEntity>
@@ -489,15 +494,6 @@ import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
 
 							@Override
 							public void addCriteria(DynamicQuery dynamicQuery) {
-
-								Set<Serializable> primaryKeys = portletDataContext.getRegisteredExportingClassedModelPrimaryKeys("${entity.name}");
-
-								if (SetUtil.isNotEmpty(primaryKeys)) {
-									Property primaryKeyProperty = PropertyFactoryUtil.forName("${entity.PKVarName}");
-
-									dynamicQuery.add(primaryKeyProperty.in(primaryKeys));
-								}
-
 								<#if entity.isWorkflowEnabled()>
 									Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria("modifiedDate");
 
@@ -972,6 +968,142 @@ import ${apiPackagePath}.service.${entity.name}${sessionTypeName}Service;
 				}
 			</#if>
 		</#list>
+	</#if>
+
+	<#if stringUtil.equals(sessionTypeName, "Local") && (entity.localizedEntity??)>
+		<#assign
+			localizedEntity = entity.localizedEntity
+			localizedColumns = entity.localizedColumns
+			pkColumn = entity.getPKList()?first
+		/>
+
+		@Override
+		public ${localizedEntity.name} fetch${localizedEntity.name}(${entity.PKClassName} ${entity.PKVarName}, String languageId) {
+			return ${localizedEntity.varName}Persistence.fetchBy${pkColumn.methodName}_LanguageId(${entity.PKVarName}, languageId);
+		}
+
+		@Override
+		public ${localizedEntity.name} get${localizedEntity.name}(${entity.PKClassName} ${entity.PKVarName}, String languageId) throws PortalException {
+			return ${localizedEntity.varName}Persistence.findBy${pkColumn.methodName}_LanguageId(${entity.PKVarName}, languageId);
+		}
+
+		@Override
+		public List<${localizedEntity.name}> get${localizedEntity.names}(${entity.PKClassName} ${entity.PKVarName}) {
+			return ${localizedEntity.varName}Persistence.findBy${pkColumn.methodName}(${entity.PKVarName});
+		}
+
+		protected ${localizedEntity.name} update${localizedEntity.name}(
+			${entity.name} ${entity.varName}, String languageId,
+			<#list localizedColumns as column>
+				String ${column.name}
+
+				<#if column?has_next>
+					,
+				</#if>
+			</#list>
+			) throws PortalException {
+
+			${localizedEntity.name} ${localizedEntity.varName} = ${localizedEntity.varName}Persistence.fetchBy${pkColumn.methodName}_LanguageId(${entity.varName}.get${pkColumn.methodName}(), languageId);
+
+			if (${localizedEntity.varName} == null) {
+				long ${localizedEntity.varName}Id = counterLocalService.increment();
+
+				${localizedEntity.varName} = ${localizedEntity.varName}Persistence.create(${localizedEntity.varName}Id);
+
+				${localizedEntity.varName}.set${pkColumn.methodName}(${entity.varName}.get${pkColumn.methodName}());
+				${localizedEntity.varName}.setLanguageId(languageId);
+			}
+
+			<#list entity.columnList as entityColumn>
+				<#if localizedEntity.hasColumn(entityColumn.name) && !stringUtil.equals(entityColumn.name, "mvccVersion") && !stringUtil.equals(entityColumn.name, pkColumn.name)>
+					${localizedEntity.varName}.set${entityColumn.methodName}(${entity.varName}.get${entityColumn.methodName}());
+				</#if>
+			</#list>
+
+			<#list localizedColumns as column>
+				${localizedEntity.varName}.set${column.methodName}(${column.name});
+			</#list>
+
+			return ${localizedEntity.varName}Persistence.update(${localizedEntity.varName});
+		}
+
+		protected List<${localizedEntity.name}> update${localizedEntity.names}(
+			${entity.name} ${entity.varName},
+			<#list localizedColumns as column>
+				Map<String, String> ${column.name}Map
+
+				<#if column?has_next>
+					,
+				</#if>
+			</#list>
+			) throws PortalException {
+
+			Map<String, String[]> localizedValuesMap = new HashMap<String, String[]>();
+
+			<#list localizedColumns as column>
+				for (Map.Entry<String, String> entry : ${column.name}Map.entrySet()) {
+					String languageId = entry.getKey();
+
+					String[] localizedValues = localizedValuesMap.get(languageId);
+
+					if (localizedValues == null) {
+						localizedValues = new String[${localizedColumns?size}];
+
+						localizedValuesMap.put(languageId, localizedValues);
+					}
+
+					localizedValues[${column?index}] = entry.getValue();
+				}
+			</#list>
+
+			List<${localizedEntity.name}> ${localizedEntity.varNames} = new ArrayList<${localizedEntity.name}>(localizedValuesMap.size());
+
+			for (${localizedEntity.name} ${localizedEntity.varName} : ${localizedEntity.varName}Persistence.findBy${pkColumn.methodName}(${entity.varName}.get${pkColumn.methodName}())) {
+				String[] localizedValues = localizedValuesMap.remove(${localizedEntity.varName}.getLanguageId());
+
+				if (localizedValues == null) {
+					${localizedEntity.varName}Persistence.remove(${localizedEntity.varName});
+				}
+				else {
+					<#list entity.columnList as entityColumn>
+						<#if localizedEntity.hasColumn(entityColumn.name) && !stringUtil.equals(entityColumn.name, "mvccVersion") && !stringUtil.equals(entityColumn.name, pkColumn.name)>
+							${localizedEntity.varName}.set${entityColumn.methodName}(${entity.varName}.get${entityColumn.methodName}());
+						</#if>
+					</#list>
+
+					<#list localizedColumns as column>
+						${localizedEntity.varName}.set${column.methodName}(localizedValues[${column?index}]);
+					</#list>
+
+					${localizedEntity.varNames}.add(${localizedEntity.varName}Persistence.update(${localizedEntity.varName}));
+				}
+			}
+
+			for (Map.Entry<String, String[]> entry : localizedValuesMap.entrySet()) {
+				String languageId = entry.getKey();
+				String[] localizedValues = entry.getValue();
+
+				long ${localizedEntity.PKVarName} = counterLocalService.increment();
+
+				${localizedEntity.name} ${localizedEntity.varName} = ${localizedEntity.varName}Persistence.create(${localizedEntity.PKVarName});
+
+				<#list entity.columnList as entityColumn>
+					<#if localizedEntity.hasColumn(entityColumn.name) && !stringUtil.equals(entityColumn.name, "mvccVersion")>
+						${localizedEntity.varName}.set${entityColumn.methodName}(${entity.varName}.get${entityColumn.methodName}());
+					</#if>
+				</#list>
+
+				${localizedEntity.varName}.setLanguageId(languageId);
+
+				<#list localizedColumns as column>
+					${localizedEntity.varName}.set${column.methodName}(localizedValues[${column?index}]);
+				</#list>
+
+				${localizedEntity.varNames}.add(${localizedEntity.varName}Persistence.update(${localizedEntity.varName}));
+			}
+
+			return ${localizedEntity.varNames};
+		}
 	</#if>
 
 	<#list referenceList as tempEntity>

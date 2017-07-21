@@ -28,7 +28,6 @@ import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
-import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
@@ -41,7 +40,6 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
-import com.liferay.portal.service.http.LayoutServiceHttp;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.exportimport.service.http.StagingServiceHttp;
 
@@ -104,6 +102,8 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				EVENT_PUBLICATION_LAYOUT_REMOTE_STARTED,
 				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
 				exportImportConfiguration);
 
 			Map<String, Serializable> settingsMap =
@@ -146,6 +146,8 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				EVENT_PUBLICATION_LAYOUT_REMOTE_SUCCEEDED,
 				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
 				exportImportConfiguration);
 		}
 		catch (Throwable t) {
@@ -154,6 +156,8 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
 				EVENT_PUBLICATION_LAYOUT_REMOTE_FAILED,
 				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
+				String.valueOf(
+					exportImportConfiguration.getExportImportConfigurationId()),
 				exportImportConfiguration);
 
 			if (_log.isDebugEnabled()) {
@@ -176,7 +180,10 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 						httpPrincipal, stagingRequestId);
 				}
 				catch (PortalException pe) {
-					_log.warn("Unable to clean up the remote live site", pe);
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to clean up the remote live site", pe);
+					}
 				}
 			}
 		}
@@ -254,23 +261,15 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			Layout parentLayout = LayoutLocalServiceUtil.getLayout(
 				layout.getGroupId(), layout.isPrivateLayout(), parentLayoutId);
 
-			try {
-				LayoutServiceHttp.getLayoutByUuidAndGroupId(
+			if (StagingServiceHttp.hasRemoteLayout(
 					httpPrincipal, parentLayout.getUuid(), remoteGroupId,
-					parentLayout.getPrivateLayout());
+					parentLayout.getPrivateLayout())) {
 
 				// If one parent is found, all others are assumed to exist
 
 				break;
 			}
-			catch (NoSuchLayoutException nsle) {
-
-				// LPS-52675
-
-				if (_log.isDebugEnabled()) {
-					_log.debug(nsle, nsle);
-				}
-
+			else {
 				missingRemoteParentLayouts.add(parentLayout);
 
 				parentLayoutId = parentLayout.getParentLayoutId();

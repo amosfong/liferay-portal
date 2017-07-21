@@ -102,8 +102,11 @@ public class StagedLayoutSetStagedModelRepository
 
 		Stream<Layout> layoutsStream = layouts.stream();
 
-		return layoutsStream.map((layout) -> (StagedModel)layout).collect(
-			Collectors.toList());
+		return layoutsStream.map(
+			(layout) -> (StagedModel)layout
+		).collect(
+			Collectors.toList()
+		);
 	}
 
 	public Optional<StagedLayoutSet> fetchExistingLayoutSet(
@@ -177,9 +180,8 @@ public class StagedLayoutSetStagedModelRepository
 		Stream<LayoutSet> layoutSetsStream = layoutSets.stream();
 
 		Stream<StagedLayoutSet> stagedLayoutSetsStream = layoutSetsStream.map(
-			(layoutSet) ->
-				ModelAdapterUtil.adapt(
-					layoutSet, LayoutSet.class, StagedLayoutSet.class));
+			(layoutSet) -> ModelAdapterUtil.adapt(
+				layoutSet, LayoutSet.class, StagedLayoutSet.class));
 
 		return stagedLayoutSetsStream.collect(Collectors.toList());
 	}

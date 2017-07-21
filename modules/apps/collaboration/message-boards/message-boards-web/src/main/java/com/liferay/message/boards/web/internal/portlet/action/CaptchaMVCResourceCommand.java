@@ -14,8 +14,8 @@
 
 package com.liferay.message.boards.web.internal.portlet.action;
 
+import com.liferay.captcha.util.CaptchaUtil;
 import com.liferay.message.boards.web.constants.MBPortletKeys;
-import com.liferay.portal.kernel.captcha.CaptchaUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
@@ -48,7 +48,7 @@ public class CaptchaMVCResourceCommand implements MVCResourceCommand {
 			return false;
 		}
 		catch (Exception e) {
-			_log.error(e);
+			_log.error("Unable to serve captcha image", e);
 
 			return true;
 		}

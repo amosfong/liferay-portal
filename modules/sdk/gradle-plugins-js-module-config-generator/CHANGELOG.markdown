@@ -94,12 +94,12 @@ with if preceded by spaces or tabs.
 ## 2.1.9 - 2017-03-08
 
 ### Changed
-- [LPS-68405]: Change the default value of the `customDefine` property of
-`ConfigJSModulesTask` to `Liferay.Loader`.
+- [LPS-68405]: Change the default value of the `ConfigJSModulesTask`'s
+`customDefine` property to `Liferay.Loader`.
 - [LPS-68405]: Leverage the new `--namespace` argument to replace the
 `define(...)` calls.
 - [LPS-68405]: Update the default version of `liferay-module-config-generator`
-to `1.2.1`.
+to 1.2.1.
 
 ## 2.1.10 - 2017-03-09
 
@@ -112,6 +112,36 @@ to `1.2.1`.
 ### Changed
 - [LPS-71222]: Update the [Liferay Gradle Plugins Node] dependency to version
 2.0.2.
+
+## 2.1.12 - 2017-04-11
+
+### Changed
+- [LPS-71826]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.1.0.
+
+## 2.1.13 - 2017-04-25
+
+### Changed
+- [LPS-72152]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.2.0.
+
+## 2.1.14 - 2017-05-03
+
+### Changed
+- [LPS-72340]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.2.1.
+
+## 2.1.15 - 2017-07-07
+
+### Changed
+- [LPS-73472]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.3.0.
+
+## 2.1.16 - 2017-07-17
+
+### Changed
+- [LPS-73472]: Update the [Liferay Gradle Plugins Node] dependency to version
+3.0.0.
 
 [Liferay Gradle Plugins Node]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-node
 [LPS-66906]: https://issues.liferay.com/browse/LPS-66906
@@ -129,3 +159,7 @@ to `1.2.1`.
 [LPS-70634]: https://issues.liferay.com/browse/LPS-70634
 [LPS-70870]: https://issues.liferay.com/browse/LPS-70870
 [LPS-71222]: https://issues.liferay.com/browse/LPS-71222
+[LPS-71826]: https://issues.liferay.com/browse/LPS-71826
+[LPS-72152]: https://issues.liferay.com/browse/LPS-72152
+[LPS-72340]: https://issues.liferay.com/browse/LPS-72340
+[LPS-73472]: https://issues.liferay.com/browse/LPS-73472

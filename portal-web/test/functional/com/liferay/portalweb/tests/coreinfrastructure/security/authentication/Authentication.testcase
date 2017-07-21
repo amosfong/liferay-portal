@@ -27,6 +27,7 @@
 
 	<command name="TestLDAPConnectionAndEntries" priority="3">
 		<property name="apacheds.enabled" value="true" />
+		<property name="test.name.skip.portal.instance" value="Authentication#TestLDAPConnectionAndEntries" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
@@ -48,6 +49,8 @@
 	</command>
 
 	<command name="ViewAuthenticationCAS" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationCAS" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -56,6 +59,8 @@
 	</command>
 
 	<command name="ViewAuthenticationGeneral" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationGeneral" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -63,7 +68,11 @@
 		<execute macro="PortalSettings#viewAuthenticationGeneralCP" />
 	</command>
 
-	<command name="ViewAuthenticationLDAP" priority="3">
+	<command name="ViewAuthenticationLDAP" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationLDAP" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -72,6 +81,8 @@
 	</command>
 
 	<command name="ViewAuthenticationNTLM" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationNTLM" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -80,6 +91,8 @@
 	</command>
 
 	<command name="ViewAuthenticationOpenID" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationOpenID" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -88,6 +101,8 @@
 	</command>
 
 	<command name="ViewAuthenticationOpenSSO" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewAuthenticationOpenSSO" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Instance Settings" />
 		</execute>
@@ -96,6 +111,8 @@
 	</command>
 
 	<command name="ViewInstanceSettingEnableLDAPAuthNotAffectSystemSetting" priority="3">
+		<property name="test.name.skip.portal.instance" value="Authentication#ViewInstanceSettingEnableLDAPAuthNotAffectSystemSetting" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="System Settings" />
 		</execute>

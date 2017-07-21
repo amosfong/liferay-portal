@@ -1,6 +1,7 @@
 <definition component-name="portal-categories">
 	<property name="portal.release" value="true" />
 	<property name="portal.upstream" value="true" />
+	<property name="testray.component.names" value="Categories" />
 	<property name="testray.main.component.name" value="Categories" />
 
 	<set-up>
@@ -101,8 +102,8 @@
 		</execute>
 	</command>
 
-	<command description="Ensure that a user can add a category." name="AddCategory" priority="5">
-		<property name="portal.acceptance" value="true" />
+	<command name="AddCategory" priority="4">
+		<description message="Ensure that a user can add a category." />
 
 		<execute macro="Navigator#openURL" />
 
@@ -142,12 +143,16 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Category#addCategoryPropertyCP">
+		<execute macro="Category#addCP">
+			<var name="categoryName" value="Category Name" />
+			<var name="vocabularyName" value="Vocabulary Name" />
+		</execute>
+
+		<execute macro="Category#addPropertyCP">
 			<var name="categoryName" value="Category Name" />
 			<var name="propertiesKeyField" value="Category Property" />
 			<var name="propertiesValueField" value="Category Property" />
 			<var name="propertyNumber" value="2" />
-			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -190,12 +195,16 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Category#addCategoryPropertyCP">
+		<execute macro="Category#addCP">
+			<var name="categoryName" value="Category Name" />
+			<var name="vocabularyName" value="Vocabulary Name" />
+		</execute>
+
+		<execute macro="Category#addPropertyCP">
 			<var name="categoryName" value="Category Name" />
 			<var name="propertiesKeyField" value="Category Property" />
 			<var name="propertiesValueField" value="Category Property" />
 			<var name="propertyNumber" value="0" />
-			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -392,9 +401,7 @@
 		</execute>
 	</command>
 
-	<command name="AddSubcategory" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="AddSubcategory" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -473,9 +480,7 @@
 		</execute>
 	</command>
 
-	<command name="AddVocabulary" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="AddVocabulary" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -935,12 +940,16 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Category#addCategoryPropertyCP">
+		<execute macro="Category#addCP">
+			<var name="categoryName" value="Category Name" />
+			<var name="vocabularyName" value="Vocabulary Name" />
+		</execute>
+
+		<execute macro="Category#addPropertyCP">
 			<var name="categoryName" value="Category Name" />
 			<var name="propertiesKeyField" value="Category Property" />
 			<var name="propertiesValueField" value="Category Property" />
 			<var name="propertyNumber" value="2" />
-			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -1128,8 +1137,6 @@
 	</command>
 
 	<command name="EditCategoryProperty" priority="4">
-		<execute macro="Navigator#openURL" />
-
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Categories" />
 		</execute>
@@ -1138,15 +1145,17 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Category#addCategoryPropertyCP">
+		<execute macro="Category#addCP">
+			<var name="categoryName" value="Category Name" />
+			<var name="vocabularyName" value="Vocabulary Name" />
+		</execute>
+
+		<execute macro="Category#addPropertyCP">
 			<var name="categoryName" value="Category Name" />
 			<var name="propertiesKeyField" value="Category Key" />
 			<var name="propertiesValueField" value="Category Value" />
 			<var name="propertyNumber" value="1" />
-			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
-
-		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Categories" />
@@ -1160,21 +1169,26 @@
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
 
-		<execute macro="Navigator#openURL" />
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Categories" />
+		</execute>
+
+		<execute macro="Category#editCP">
+			<var name="categoryName" value="Category Name" />
+			<var name="categoryNameEdit" value="Category Name Edit" />
+			<var name="vocabularyName" value="Vocabulary Name" />
+		</execute>
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Categories" />
 		</execute>
 
-		<execute macro="Category#editCategoryPropertyCP">
-			<var name="categoryName" value="Category Name" />
-			<var name="categoryNameEdit" value="Category Name Edit" />
+		<execute macro="Category#editPropertyCP">
+			<var name="categoryName" value="Category Name Edit" />
 			<var name="propertiesKeyFieldEdit" value="Category Key Edit 1" />
 			<var name="propertiesValueFieldEdit" value="Category Value Edit 1" />
 			<var name="vocabularyName" value="Vocabulary Name" />
 		</execute>
-
-		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Categories" />
@@ -1191,6 +1205,7 @@
 
 	<command name="EditSubcategory" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 

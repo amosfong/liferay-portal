@@ -23,6 +23,8 @@ AUI.add(
 
 				AUGMENTS: [],
 
+				EXTENDS: Liferay.DDL.FormBuilderAction,
+
 				NAME: 'liferay-ddl-form-builder-action-property',
 
 				prototype: {
@@ -42,7 +44,7 @@ AUI.add(
 						var instance = this;
 
 						return {
-							target: instance._field.getValue()
+							target: instance._field.getValue()[0] || ''
 						};
 					},
 
@@ -59,17 +61,16 @@ AUI.add(
 					_createField: function() {
 						var instance = this;
 
-						var value;
+						var value = [];
 
 						var action = instance.get('action');
 
 						if (action && action.target) {
-							value = action.target;
+							value = [action.target];
 						}
 
-						instance._field = new Liferay.DDM.Field.Select(
+						instance._field = instance.createSelectField(
 							{
-								bubbleTargets: [instance],
 								fieldName: instance.get('index') + '-action',
 								label: Liferay.Language.get('the'),
 								options: instance.get('options'),

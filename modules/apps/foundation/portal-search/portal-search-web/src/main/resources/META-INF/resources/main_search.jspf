@@ -30,7 +30,7 @@ Hits hits = searchDisplayContext.getHits();
 
 				request.setAttribute("search.jsp-facet", searchFacet.getFacet());
 
-				searchFacet.includeView(request, new PipingServletResponse(pageContext));
+				searchFacet.includeView(request, PipingServletResponse.createPipingServletResponse(pageContext));
 			}
 			%>
 
@@ -118,18 +118,12 @@ Hits hits = searchDisplayContext.getHits();
 
 			<liferay-ui:search-iterator displayStyle="descriptive" markupView="lexicon" type="more" />
 
-			<c:if test="<%= searchDisplayContext.isDisplayMainQuery() && (hits.getQuery() != null) %>">
-				<table class="full-query">
-					<tr>
-						<td valign="top">
-							<div class="container">
-								<code>
-									<%= HtmlUtil.escape(IndexSearcherHelperUtil.getQueryString(searchDisplayContext.getSearchContext(), hits.getQuery())) %>
-								</code>
-							</div>
-						</td>
-					</tr>
-				</table>
+			<c:if test="<%= searchDisplayContext.isDisplayMainQuery() && (searchDisplayContext.getQueryString() != null) %>">
+				<div class="full-query">
+					<code>
+						<%= HtmlUtil.escape(searchDisplayContext.getQueryString()) %>
+					</code>
+				</div>
 			</c:if>
 		</liferay-ui:search-container>
 	</aui:col>

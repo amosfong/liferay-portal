@@ -38,14 +38,17 @@ import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.lar.test.BaseWorkflowedStagedModelDataHandlerTestCase;
@@ -137,7 +140,21 @@ public class JournalArticleStagedModelDataHandlerTest
 
 		Assert.assertNotNull(importJournalArticle);
 		Assert.assertEquals(
-			journalArticle.getVersion(), importJournalArticle.getVersion(), 0d);
+			journalArticle.getVersion(), importJournalArticle.getVersion(), 0D);
+	}
+
+	@Test
+	public void testArticleWithSmallImageURL() throws Exception {
+		JournalArticle journalArticle = JournalTestUtil.addArticle(
+			stagingGroup.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		journalArticle.setSmallImage(true);
+		journalArticle.setSmallImageURL(RandomTestUtil.randomString());
+
+		journalArticle = JournalTestUtil.updateArticle(journalArticle);
+
+		exportImportStagedModel(journalArticle);
 	}
 
 	@Test
@@ -163,6 +180,69 @@ public class JournalArticleStagedModelDataHandlerTest
 			portletDataContext, exportedStagedModel);
 
 		validateCompanyDependenciesImport(dependentStagedModelsMap, liveGroup);
+	}
+
+	@Test
+	public void testPreloadedArticlesWithDifferentResourceUUID()
+		throws Exception {
+
+		initExport();
+
+		User defaultUser = UserLocalServiceUtil.getDefaultUser(
+			TestPropsValues.getCompanyId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				stagingGroup.getGroupId(), defaultUser.getUserId());
+
+		serviceContext.setCommand(Constants.ADD);
+		serviceContext.setLayoutFullURL("http://localhost");
+
+		JournalArticle journalArticle = JournalTestUtil.addArticle(
+			stagingGroup.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), false, serviceContext);
+
+		JournalTestUtil.addArticle(
+			liveGroup.getGroupId(), journalArticle.getFolderId(),
+			journalArticle.getArticleId(), false);
+
+		User user = UserTestUtil.addUser();
+
+		journalArticle.setUserId(user.getUserId());
+
+		journalArticle = JournalTestUtil.updateArticle(journalArticle);
+
+		StagedModelDataHandlerUtil.exportStagedModel(
+			portletDataContext, journalArticle);
+
+		initImport();
+
+		StagedModel exportedStagedModel = readExportedStagedModel(
+			journalArticle);
+
+		Assert.assertNotNull(exportedStagedModel);
+
+		ExportImportThreadLocal.setPortletImportInProcess(true);
+
+		try {
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, exportedStagedModel);
+		}
+		finally {
+			ExportImportThreadLocal.setPortletImportInProcess(false);
+		}
+
+		JournalArticle importJournalArticle =
+			JournalArticleLocalServiceUtil.fetchJournalArticleByUuidAndGroupId(
+				journalArticle.getUuid(), liveGroup.getGroupId());
+
+		Assert.assertNotNull(importJournalArticle);
+		Assert.assertEquals(
+			journalArticle.getArticleId(), importJournalArticle.getArticleId());
+		Assert.assertNotEquals(
+			journalArticle.getArticleResourceUuid(),
+			importJournalArticle.getArticleResourceUuid());
 	}
 
 	protected Map<String, List<StagedModel>> addCompanyDependencies()

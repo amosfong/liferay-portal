@@ -45,9 +45,6 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -64,9 +61,9 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.search.test.BaseSearchTestCase;
-import com.liferay.portal.security.permission.SimplePermissionChecker;
+import com.liferay.portal.search.test.util.BaseSearchTestCase;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerTestRule;
 import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -74,7 +71,6 @@ import com.liferay.registry.RegistryUtil;
 import java.io.File;
 import java.io.InputStream;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -94,6 +90,7 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
+			PermissionCheckerTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -101,16 +98,7 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		setUpPermissionThreadLocal();
-		setUpPrincipalThreadLocal();
 		setUpDDMIndexer();
-	}
-
-	@After
-	public void tearDown() {
-		PermissionThreadLocal.setPermissionChecker(_originalPermissionChecker);
-
-		PrincipalThreadLocal.setName(_originalName);
 	}
 
 	@Ignore
@@ -290,7 +278,8 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 			serviceContext, dlFileEntryType.getFileEntryTypeId());
 
 		serviceContext.setAttribute(
-			DDMFormValues.class.getName() + ddmStructure.getStructureId(),
+			DDMFormValues.class.getName() + StringPool.POUND +
+				ddmStructure.getStructureId(),
 			ddmFormValues);
 
 		FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
@@ -470,34 +459,6 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 		_ddmIndexer = registry.getService(DDMIndexer.class);
 	}
 
-	protected void setUpPermissionThreadLocal() throws Exception {
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		PermissionThreadLocal.setPermissionChecker(
-			new SimplePermissionChecker() {
-
-				{
-					init(TestPropsValues.getUser());
-				}
-
-				@Override
-				public boolean hasOwnerPermission(
-					long companyId, String name, String primKey, long ownerId,
-					String actionId) {
-
-					return true;
-				}
-
-			});
-	}
-
-	protected void setUpPrincipalThreadLocal() throws Exception {
-		_originalName = PrincipalThreadLocal.getName();
-
-		PrincipalThreadLocal.setName(TestPropsValues.getUserId());
-	}
-
 	@Override
 	protected BaseModel<?> updateBaseModel(
 			BaseModel<?> baseModel, String keywords,
@@ -594,7 +555,5 @@ public class DLFileEntrySearchTest extends BaseSearchTestCase {
 
 	private DDMIndexer _ddmIndexer;
 	private DDMStructure _ddmStructure;
-	private String _originalName;
-	private PermissionChecker _originalPermissionChecker;
 
 }

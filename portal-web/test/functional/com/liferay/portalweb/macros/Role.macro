@@ -29,6 +29,28 @@
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
+	<command name="addAssignees">
+		<execute function="Click" locator1="Button#PLUS" />
+
+		<execute function="SelectFrame" locator1="IFrame#SELECT_ASSIGNEES" />
+
+		<execute macro="Search#searchCP">
+			<var name="searchTerm" value="${assigneeName}" />
+		</execute>
+
+		<var name="key_assigneeName" value="${assigneeName}" />
+
+		<execute function="AssertTextEquals" locator1="RolesAssignMembers#ADD_ASSIGNEE_TABLE_NAME" value1="${assigneeName}" />
+
+		<execute function="Check" locator1="RolesAssignMembers#ADD_ASSIGNEE_TABLE_CHECKBOX" />
+
+		<execute function="SelectFrameTop" value1="relative=top" />
+
+		<execute function="AssertClick" locator1="Button#ADD" value1="Add" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
 	<command name="addCP">
 		<if>
 			<equals arg1="${roleType}" arg2="Organization" />

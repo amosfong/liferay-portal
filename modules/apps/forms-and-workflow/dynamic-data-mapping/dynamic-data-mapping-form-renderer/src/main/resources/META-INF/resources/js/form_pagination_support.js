@@ -9,7 +9,7 @@ AUI.add(
 		FormPaginationSupport.ATTRS = {
 			pagesState: {
 				setter: '_setPagesSate',
-				value: []
+				valueFn: '_valuePagesState'
 			}
 		};
 
@@ -98,21 +98,23 @@ AUI.add(
 
 				var pages = instance.get('pagesState');
 
-				if (!pages.length) {
-					pagination.next();
-					return;
-				}
-
 				var page;
 
-				var nextPage = pagination.get('page');
+				var pageIndex = pagination.get('page');
 
-				do {
-					page = pages[nextPage];
-					nextPage++;
-				} while (!page.enabled);
+				instance.validatePage(
+					instance.getPageNode(pageIndex),
+					function(hasErrors) {
+						if (!hasErrors) {
+							do {
+								page = pages[pageIndex];
+								pageIndex++;
+							} while (!page.enabled);
 
-				pagination.set('page', nextPage);
+							pagination.set('page', pageIndex);
+						}
+					}
+				);
 			},
 
 			prevPage: function() {
@@ -166,6 +168,17 @@ AUI.add(
 
 				var container = instance.get('container');
 
+				var paginatedNode = container.one('.lfr-ddm-form-paginated');
+
+				if (container.inDoc() && paginatedNode) {
+					instance.paginated = new Renderer.Paginated(
+						{
+							boundingBox: paginatedNode,
+							srcNode: paginatedNode.one('> ul')
+						}
+					).render();
+				}
+
 				var wizardNode = container.one('.lfr-ddm-form-wizard');
 
 				if (container.inDoc() && wizardNode) {
@@ -190,6 +203,8 @@ AUI.add(
 
 				if (controls) {
 					instance._syncPaginationControlsUI();
+
+					instance._syncPaginatedUI(event.prevVal, event.newVal);
 					instance._syncWizardUI(event.prevVal, event.newVal);
 				}
 
@@ -257,16 +272,7 @@ AUI.add(
 				if (nextPage > currentPage) {
 					event.preventDefault();
 
-					var pages = instance._getPaginationNodes();
-
-					instance.validatePage(
-						pages.item(currentPage - 1),
-						function(hasErrors) {
-							if (!hasErrors) {
-								pagination.set('page', nextPage);
-							}
-						}
-					);
+					pagination.set('page', nextPage);
 				}
 				else {
 					pagination.set('page', nextPage);
@@ -277,9 +283,16 @@ AUI.add(
 				var pagesState = [];
 
 				for (var i = 0; i < pages.length; i++) {
-					pagesState[i] = {
-						enabled: pages[i].enabled
-					};
+					if (pages[i].enabled === undefined) {
+						pagesState[i] = {
+							enabled: true
+						};
+					}
+					else {
+						pagesState[i] = {
+							enabled: pages[i].enabled
+						};
+					}
 				}
 
 				return pagesState;
@@ -320,6 +333,23 @@ AUI.add(
 				}
 			},
 
+			_syncPaginatedUI: function(prevPage, currentPage) {
+				var instance = this;
+
+				var paginated = instance.paginated;
+
+				if (paginated) {
+					if (currentPage > prevPage) {
+						paginated.complete(prevPage - 1);
+					}
+					else {
+						paginated.clear(prevPage - 1);
+					}
+
+					paginated.activate(currentPage - 1);
+				}
+			},
+
 			_syncWizardUI: function(prevPage, currentPage) {
 				var instance = this;
 
@@ -335,6 +365,12 @@ AUI.add(
 
 					wizard.activate(currentPage - 1);
 				}
+			},
+
+			_valuePagesState: function() {
+				var instance = this;
+
+				return instance.get('context').pages;
 			}
 		};
 
@@ -342,6 +378,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-pagination', 'liferay-ddm-form-renderer-wizard']
+		requires: ['aui-pagination', 'liferay-ddm-form-renderer-paginated', 'liferay-ddm-form-renderer-wizard']
 	}
 );

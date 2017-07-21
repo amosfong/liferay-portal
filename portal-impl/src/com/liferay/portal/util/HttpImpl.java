@@ -256,7 +256,7 @@ public class HttpImpl implements Http {
 
 		sb.append(name);
 		sb.append(StringPool.EQUAL);
-		sb.append(encodeURL(value));
+		sb.append(URLCodec.encodeURL(value));
 		sb.append(anchor);
 
 		String result = sb.toString();
@@ -365,17 +365,26 @@ public class HttpImpl implements Http {
 		}
 
 		path = StringUtil.replace(path, CharPool.SLASH, _TEMP_SLASH);
-		path = encodeURL(path, true);
+		path = URLCodec.encodeURL(path, true);
 		path = StringUtil.replace(path, _TEMP_SLASH, StringPool.SLASH);
 
 		return path;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link URLCodec#encodeURL(String)}
+	 */
+	@Deprecated
 	@Override
 	public String encodeURL(String url) {
 		return encodeURL(url, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by
+	 *     {@link URLCodec#encodeURL(String, boolean)}
+	 */
+	@Deprecated
 	@Override
 	public String encodeURL(String url, boolean escapeSpaces) {
 		return URLCodec.encodeURL(url, StringPool.UTF8, escapeSpaces);
@@ -821,8 +830,6 @@ public class HttpImpl implements Http {
 			return parameterMap;
 		}
 
-		Map<String, List<String>> tempParameterMap = new LinkedHashMap<>();
-
 		String[] parameters = StringUtil.split(queryString, CharPool.AMPERSAND);
 
 		for (String parameter : parameters) {
@@ -853,25 +860,15 @@ public class HttpImpl implements Http {
 					}
 				}
 
-				List<String> values = tempParameterMap.get(key);
+				String[] values = parameterMap.get(key);
 
 				if (values == null) {
-					values = new ArrayList<>();
-
-					tempParameterMap.put(key, values);
+					parameterMap.put(key, new String[] {value});
 				}
-
-				values.add(value);
+				else {
+					parameterMap.put(key, ArrayUtil.append(values, value));
+				}
 			}
-		}
-
-		for (Map.Entry<String, List<String>> entry :
-				tempParameterMap.entrySet()) {
-
-			String key = entry.getKey();
-			List<String> values = entry.getValue();
-
-			parameterMap.put(key, values.toArray(new String[values.size()]));
 		}
 
 		return parameterMap;
@@ -903,7 +900,7 @@ public class HttpImpl implements Http {
 			for (String value : values) {
 				sb.append(name);
 				sb.append(StringPool.EQUAL);
-				sb.append(encodeURL(value));
+				sb.append(URLCodec.encodeURL(value));
 				sb.append(StringPool.AMPERSAND);
 			}
 		}
@@ -1260,7 +1257,7 @@ public class HttpImpl implements Http {
 				String newURL = shortenURL(redirect, count - 1);
 
 				if (newURL != null) {
-					newURL = encodeURL(newURL);
+					newURL = URLCodec.encodeURL(newURL);
 
 					sb.append(qName);
 					sb.append(StringPool.EQUAL);

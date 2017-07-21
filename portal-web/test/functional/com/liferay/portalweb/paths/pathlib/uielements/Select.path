@@ -9,8 +9,18 @@
 </thead>
 <tbody>
 <tr>
+	<td>APPLICATION_DECORATORS</td>
+	<td>//div[label[contains(.,'Application Decorators')]]/select[contains(@id,'portletDecorator')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PERMISSIONS_VIEW_ROLE</td>
 	<td>//select[contains(.,'${key_permissionsViewRole}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSET_SUBTYPE</td>
+	<td>//div[not(contains(@class,'hide'))]/select[contains(@id,'subtype')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -91,6 +101,11 @@
 <tr>
 	<td>GENDER</td>
 	<td>//div[label[contains(.,'Gender')]]/select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GENERIC_SELECT_FIELD</td>
+	<td>//div[label[contains(.,'${key_fieldLabel}')]//select</td>
 	<td></td>
 </tr>
 <tr>

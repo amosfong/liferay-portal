@@ -60,7 +60,7 @@
 	<command name="addCustomAbstract">
 		<execute function="Click" locator1="Radio#CUSTOM_ABSTRACT" />
 
-		<execute function="Type#typeEditor" locator1="AlloyEditor#DESCRIPTION_FIELD" value1="${entryAbstractDescription}" />
+		<execute function="Type" locator1="TextInput#DESCRIPTION" value1="${entryAbstractDescription}" />
 	</command>
 
 	<command name="addCustomURL">
@@ -326,7 +326,7 @@
 	<command name="flagPG">
 		<var name="key_entryTitle" value="${entryTitle}" />
 
-		<execute function="AssertClick" locator1="BlogsEntry#FLAG_LINK" value1="Flag" />
+		<execute function="Click" locator1="BlogsEntry#FLAG_LINK" />
 
 		<execute function="AssertElementPresent#assertVisible" locator1="BlogsEntry#FLAG_MODAL" />
 		<execute function="AssertTextEquals" locator1="ReportContent#WARNING" value1="You are about to report a violation of our Terms of Use. All reports are strictly confidential." />
@@ -399,17 +399,14 @@
 	<command name="publishWithInvalidContent">
 		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
 
-		<execute macro="Alert#viewRequestFailedToComplete" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_ENTER_VALID_CONTENT" value1="Please enter valid content." />
+		<execute function="AssertTextEquals#assertPartialText" locator1="BlogsEntry#CONTENT_FIELD_HELPER" value1="This field is required." />
 		<execute function="AssertElementNotPresent" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 	</command>
 
 	<command name="publishWithInvalidTitle">
 		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
 
-		<execute macro="Alert#viewRequestFailedToComplete" />
-
+		<execute function="AssertTextEquals#assertPartialText" locator1="BlogsEntry#TITLE_FIELD_HELPER" value1="This field is required to publish the entry." />
 		<execute function="AssertElementNotPresent" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 	</command>
 
@@ -564,17 +561,8 @@
 
 		<execute function="AssertTextEquals" locator1="Message#INFO" value1="No entries were found that matched the keywords: ${entrySearchTerm}." />
 
-		<if>
-			<equals arg1="${soPage}" arg2="true" />
-			<then>
-				<execute function="AssertElementNotPresent" locator1="SOBlogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
-				<execute function="AssertElementNotPresent" locator1="SOBlogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
-			</then>
-			<else>
-				<execute function="AssertElementNotPresent" locator1="Blogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
-				<execute function="AssertElementNotPresent" locator1="Blogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
-			</else>
-		</if>
+		<execute function="AssertElementNotPresent" locator1="Blogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
+		<execute function="AssertElementNotPresent" locator1="Blogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
 	</command>
 
 	<command name="searchNoResultsCP">
@@ -597,17 +585,8 @@
 		<execute function="Type" locator1="TextInput#SEARCH" value1="${entrySearchTerm}" />
 		<execute function="AssertClick" locator1="Button#SEARCH" value1="Search" />
 
-		<if>
-			<equals arg1="${soPage}" arg2="true" />
-			<then>
-				<execute function="AssertTextEquals" locator1="SOBlogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
-				<execute function="AssertTextEquals" locator1="SOBlogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
-			</then>
-			<else>
-				<execute function="AssertTextEquals" locator1="Blogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
-				<execute function="AssertTextEquals" locator1="Blogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
-			</else>
-		</if>
+		<execute function="AssertTextEquals" locator1="Blogs#SEARCH_RESULTS_ENTRY_TITLE" value1="${entryTitle}" />
+		<execute function="AssertTextEquals" locator1="Blogs#SEARCH_RESULTS_ENTRY_DESCRIPTION" value1="${entryContent}" />
 	</command>
 
 	<command name="subscribePG">
@@ -1029,8 +1008,9 @@
 
 		<execute function="Pause" locator1="3000" />
 
-		<execute function="SelectWindow" locator1="title=${siteName}" />
+		<execute function="SelectWindow#selectPopUp" locator1="null" />
 
+		<execute function="AssertLocation#assertPartialLocation" value1="blogs/rss" />
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_FEED_TITLE" value1="${siteName}" />
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_FEED_SUBTITLE" value1="${siteName}" />
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_ENTRY_TITLE" value1="${entryTitle}" />
@@ -1126,6 +1106,8 @@
 	</command>
 
 	<command name="viewTitle">
+		<var name="key_entryTitle" value="${entryTitle}" />
+
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
 	</command>
 
@@ -1236,7 +1218,7 @@
 
 		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="${entryTitle}" />
 		<execute function="AssertTextEquals" locator1="BlogsEntry#CONTENT" value1="${entryContent}" />
-		<execute function="AssertTextEquals" locator1="Comments#ENTRY_COUNT_PANEL" value1="1 Comments" />
+		<execute function="AssertTextEquals" locator1="Comments#ENTRY_COUNT_PANEL" value1="1 Comment" />
 		<execute function="AssertTextEquals" locator1="Comments#COMMENT_BODY" value1="[...] ${entryContent2} [...] Read More" />
 
 		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />

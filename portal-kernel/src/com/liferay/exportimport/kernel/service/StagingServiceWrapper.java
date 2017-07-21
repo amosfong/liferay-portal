@@ -32,6 +32,13 @@ public class StagingServiceWrapper implements StagingService,
 		_stagingService = stagingService;
 	}
 
+	@Override
+	public boolean hasRemoteLayout(java.lang.String uuid, long groupId,
+		boolean privateLayout)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _stagingService.hasRemoteLayout(uuid, groupId, privateLayout);
+	}
+
 	/**
 	* @deprecated As of 7.0.0, with no direct replacement
 	*/
@@ -88,6 +95,15 @@ public class StagingServiceWrapper implements StagingService,
 	public void cleanUpStagingRequest(long stagingRequestId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_stagingService.cleanUpStagingRequest(stagingRequestId);
+	}
+
+	@Override
+	public void propagateExportImportLifecycleEvent(int code, int processFlag,
+		java.lang.String processId,
+		java.util.List<java.io.Serializable> arguments)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_stagingService.propagateExportImportLifecycleEvent(code, processFlag,
+			processId, arguments);
 	}
 
 	@Override

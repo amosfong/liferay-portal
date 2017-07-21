@@ -14,6 +14,7 @@
 
 package com.liferay.portal.osgi.web.wab.generator.internal.connection;
 
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -71,17 +72,33 @@ public class WabURLConnection extends URLConnection {
 					"Web-ContextPath");
 		}
 
-		File file = transferToTempFile(new URL(url.getPath()));
+		String[] protocols = parameters.get("protocol");
 
-		try {
-			File processedFile = _wabGenerator.generate(
-				_classLoader, file, parameters);
+		if (ArrayUtil.isEmpty(protocols)) {
+			throw new IllegalArgumentException(
+				"The parameter map does not contain the required parameter " +
+					"protocol");
+		}
 
-			return new FileInputStream(processedFile);
-		}
-		finally {
-			FileUtil.deltree(file.getParentFile());
-		}
+		final File file = transferToTempFile(
+			new URL(protocols[0], null, url.getPath()));
+
+		File processedFile = _wabGenerator.generate(
+			_classLoader, file, parameters);
+
+		return new FileInputStream(processedFile) {
+
+			@Override
+			public void close() throws IOException {
+				try {
+					super.close();
+				}
+				finally {
+					FileUtil.deltree(file.getParentFile());
+				}
+			}
+
+		};
 	}
 
 	protected File transferToTempFile(URL url) throws IOException {

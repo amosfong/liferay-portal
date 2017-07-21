@@ -25,7 +25,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @Meta.OCD(
 	id = "com.liferay.portal.template.velocity.configuration.VelocityEngineConfiguration",
 	localization = "content/Language",
-	name = "velocity.engine.configuration.name"
+	name = "velocity-engine-configuration-name"
 )
 public interface VelocityEngineConfiguration {
 
@@ -44,7 +44,9 @@ public interface VelocityEngineConfiguration {
 	@Meta.AD(deflt = "", required = false)
 	public String[] restrictedPackages();
 
-	@Meta.AD(deflt = "serviceLocator|utilLocator", required = false)
+	@Meta.AD(
+		deflt = "serviceLocator|staticFieldGetter|utilLocator", required = false
+	)
 	public String[] restrictedVariables();
 
 	@Meta.AD(deflt = "VM_global_library.vm|VM_liferay.vm", required = false)

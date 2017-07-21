@@ -23,6 +23,7 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 
 /**
@@ -32,9 +33,9 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 	rules = {
 		@DDMFormRule(
 			actions = {
-				"call('getDataProviderInstanceOutputParameters', 'dataProviderInstanceId=ddmDataProviderInstanceId', 'ddmDataProviderInstanceOutput={key: outputParameterName, value: outputParameterName}')"
+				"call('getDataProviderInstanceOutputParameters', concat('dataProviderInstanceId=', getValue('ddmDataProviderInstanceId')), 'ddmDataProviderInstanceOutput=outputParameterNames')"
 			},
-			condition = "not(equals(getValue('ddmDataProviderInstanceId'), 0))"
+			condition = "not(equals(getValue('ddmDataProviderInstanceId'), ''))"
 		)
 	}
 )
@@ -42,7 +43,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 	paginationMode = com.liferay.dynamic.data.mapping.model.DDMFormLayout.TABBED_MODE,
 	value = {
 		@DDMFormLayoutPage(
-			title = "basic",
+			title = "%basic",
 			value = {
 				@DDMFormLayoutRow(
 					{
@@ -55,7 +56,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 			}
 		),
 		@DDMFormLayoutPage(
-			title = "properties",
+			title = "%properties",
 			value = {
 				@DDMFormLayoutRow(
 					{
@@ -83,14 +84,19 @@ public interface TextDDMFormFieldTypeSettings
 	@DDMFormField(
 		label = "%create-list",
 		optionLabels = {"%manually", "%from-data-provider"},
-		optionValues = {"manual", "data-provider"}, predefinedValue = "manual",
+		optionValues = {"manual", "data-provider"},
 		properties = {"showLabel=false"}, type = "radio",
 		visibilityExpression = "TRUE"
 	)
 	public String dataSourceType();
 
 	@DDMFormField(
-		label = "%choose-a-data-provider", type = "select",
+		label = "%choose-a-data-provider",
+		properties = {
+			"dataSourceType=data-provider",
+			"ddmDataProviderInstanceId=getDataProviderInstances"
+		},
+		type = "select",
 		visibilityExpression = "equals(dataSourceType, \"data-provider\")"
 	)
 	public long ddmDataProviderInstanceId();
@@ -134,5 +140,11 @@ public interface TextDDMFormFieldTypeSettings
 
 	@DDMFormField(visibilityExpression = "FALSE")
 	public LocalizedValue tooltip();
+
+	@DDMFormField(
+		dataType = "string", label = "%validation", type = "validation"
+	)
+	@Override
+	public DDMFormFieldValidation validation();
 
 }

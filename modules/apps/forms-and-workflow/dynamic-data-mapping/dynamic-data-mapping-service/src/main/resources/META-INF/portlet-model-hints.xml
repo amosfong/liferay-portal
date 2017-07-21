@@ -170,7 +170,9 @@
 		<field name="cacheable" type="boolean" />
 		<field name="smallImage" type="boolean" />
 		<field name="smallImageId" type="long" />
-		<field name="smallImageURL" type="String" />
+		<field name="smallImageURL" type="String">
+			<hint-collection name="URL" />
+		</field>
 		<field name="lastPublishDate" type="Date" />
 	</model>
 	<model name="com.liferay.dynamic.data.mapping.model.DDMTemplateLink">

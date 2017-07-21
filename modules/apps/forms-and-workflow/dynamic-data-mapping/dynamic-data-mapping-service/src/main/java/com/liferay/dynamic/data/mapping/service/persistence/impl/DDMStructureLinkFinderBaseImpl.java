@@ -25,6 +25,10 @@ import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
  * @generated
  */
 public class DDMStructureLinkFinderBaseImpl extends BasePersistenceImpl<DDMStructureLink> {
+	public DDMStructureLinkFinderBaseImpl() {
+		setModelClass(DDMStructureLink.class);
+	}
+
 	/**
 	 * Returns the ddm structure link persistence.
 	 *

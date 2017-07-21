@@ -162,10 +162,10 @@
 			/>
 
 			<@liferay_ui.icon
-				image = "edit"
-				label = true
-				message = "edit"
-				url = taglibEditURL
+				image="edit"
+				label=true
+				message="edit"
+				url=taglibEditURL
 			/>
 		</#if>
 
@@ -175,7 +175,7 @@
 			</div>
 		</#if>
 
-		<#assign assetURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, asset) />
+		<#assign assetURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, assetRenderer, asset, false) />
 
 		<div class="asset-entry-abstract-content">
 			<h3><a href="${assetURL}">${assetRenderer.getTitle(locale)}</a></h3>

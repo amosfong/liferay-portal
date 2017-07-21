@@ -382,6 +382,20 @@
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
 
+	<command name="addPGViaAP">
+		<execute macro="AssetPublisherPortlet#addAsset">
+			<var name="assetType" value="Calendar Event" />
+		</execute>
+
+		<execute macro="CalendarEvent#_viewNewEventIframe" />
+
+		<execute macro="CalendarEvent#editTitle">
+			<var name="eventTitle" value="${eventTitle}" />
+		</execute>
+
+		<execute macro="CalendarEvent#publish" />
+	</command>
+
 	<command name="addRegular">
 		<execute macro="CalendarEvent#editTitle">
 			<var name="eventTitle" value="${eventTitle}" />
@@ -602,20 +616,10 @@
 			</then>
 		</if>
 
-		<if>
-			<equals arg1="${rsvp}" arg2="No" />
-			<then>
-				<execute macro="CalendarScheduler#viewSpecificEventNotPresent">
-					<var name="eventTitle" value="${eventTitle}" />
-				</execute>
-			</then>
-			<else>
-				<execute macro="CalendarScheduler#viewRSVP">
-					<var name="eventTitle" value="${eventTitle}" />
-					<var name="rsvp"  value="${rsvp}" />
-				</execute>
-			</else>
-		</if>
+		<execute macro="CalendarScheduler#viewRSVP">
+			<var name="eventTitle" value="${eventTitle}" />
+			<var name="rsvp" value="${rsvp}" />
+		</execute>
 	</command>
 
 	<command name="addSetTime">
@@ -885,19 +889,9 @@
 
 		<var name="key_eventComment" value="${eventComment}" />
 
-		<if>
-			<equals arg1="${soPage}" arg2="true" />
-			<then>
-				<execute function="AssertClickNoError" locator1="CalendarViewEventDetails#COMMENTS_COMMENT_DELETE" value1="Delete" />
+		<execute function="AssertClickNoError" locator1="CalendarViewEventDetails#COMMENTS_COMMENT_DELETE" value1="Delete" />
 
-				<execute function="Confirm" value1="Are you sure you want to delete the selected comment?" />
-			</then>
-			<else>
-				<execute function="AssertClickNoError" locator1="CalendarViewEventDetails#COMMENTS_COMMENT_DELETE" value1="Delete" />
-
-				<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
-			</else>
-		</if>
+		<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
 
 		<execute function="AssertTextEquals" locator1="CalendarViewEventDetails#COMMENTS_SUCCESS" value1="Your request completed successfully." />
 
@@ -991,8 +985,8 @@
 			</else>
 		</if>
 
-		<var method="selenium#getCurrentDayName()" name="currentDay" />
-		<var method="selenium#getCurrentHour()" name="currentHour" />
+		<var method="DateUtil#getCurrentDayOfWeek()" name="currentDay" />
+		<var method="DateUtil#getCurrentHour()" name="currentHour" />
 
 		<if>
 			<and>
@@ -1470,6 +1464,10 @@
 	<command name="setDatesToday">
 		<var locator="CalendarEditEvent#START_DATE" name="endDate" />
 
+		<execute function="Type" locator1="CalendarEditEvent#END_DATE" value1="${endDate}" />
+	</command>
+
+	<command name="setEndDate">
 		<execute function="Type" locator1="CalendarEditEvent#END_DATE" value1="${endDate}" />
 	</command>
 
@@ -2052,7 +2050,7 @@
 			<elseif>
 				<equals arg1="${frequency}" arg2="Weekly" />
 				<then>
-					<var method="selenium#getCurrentHour()" name="currentHour" />
+					<var method="DateUtil#getCurrentHour()" name="currentHour" />
 
 					<if>
 						<equals arg1="${currentHour}" arg2="23" />
@@ -2061,7 +2059,7 @@
 							<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1=", ${numberOfOccurrences} Times" />
 						</then>
 						<else>
-							<var method="selenium#getCurrentDayName()" name="today" />
+							<var method="DateUtil#getCurrentDayOfWeek()" name="today" />
 
 							<execute function="AssertTextEquals" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1="Weekly, on ${today}, ${numberOfOccurrences} Times" />
 						</else>
@@ -2077,11 +2075,11 @@
 			<elseif>
 				<equals arg1="${frequency}" arg2="Monthly" />
 				<then>
-					<var method="selenium#getCurrentDayName()" name="today" />
+					<var method="DateUtil#getCurrentDayOfWeek()" name="today" />
 
 					<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1="Monthly" />
 					<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1="${numberOfOccurrences} Times" />
-					<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1="${today} " />
+					<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#REPEAT_OCCURRENCE_SUMMARY" value1="${today}" />
 				</then>
 			</elseif>
 		</if>

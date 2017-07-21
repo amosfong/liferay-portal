@@ -60,7 +60,7 @@
 </tr>
 <tr>
 	<td>ENABLE_SOCIAL_BOOKMARKS</td>
-	<td>//label[contains(.,'Enable Social Bookmarks')]/input[@type='checkbox']/../span[2]/span</td>
+	<td>//label[contains(@for,'enableSocialBookmarks')]/input/../span/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -76,6 +76,11 @@
 <tr>
 	<td>SET_AS_THE_DEFAULT_ASSET_PUBLISHER_FOR_THIS_PAGE</td>
 	<td>//label[contains(.,'Set as the Default Asset Publisher for This Page')]/input[@type='checkbox']/../span[2]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INHERIT_MOBILE_DEVICE_RULES_FROM_PAGE</td>
+	<td>//label[contains(.,'mobile device rules')]/input[@type='checkbox']/../span[2]/span</td>
 	<td></td>
 </tr>
 <tr>

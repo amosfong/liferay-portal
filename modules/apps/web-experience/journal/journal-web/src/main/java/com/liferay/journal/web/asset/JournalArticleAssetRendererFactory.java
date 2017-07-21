@@ -81,6 +81,19 @@ public class JournalArticleAssetRendererFactory
 
 	@Override
 	public AssetRenderer<JournalArticle> getAssetRenderer(
+			JournalArticle journalArticle, int type)
+		throws PortalException {
+
+		JournalArticleAssetRenderer journalArticleAssetRenderer =
+			getJournalArticleAssetRenderer(journalArticle);
+
+		journalArticleAssetRenderer.setAssetRendererType(type);
+
+		return journalArticleAssetRenderer;
+	}
+
+	@Override
+	public AssetRenderer<JournalArticle> getAssetRenderer(
 			long classPK, int type)
 		throws PortalException {
 
@@ -177,6 +190,8 @@ public class JournalArticleAssetRendererFactory
 			liferayPortletRequest, getGroup(liferayPortletRequest),
 			JournalPortletKeys.JOURNAL, 0, 0, PortletRequest.RENDER_PHASE);
 
+		portletURL.setParameter(
+			"hideDefaultSuccessMessage", Boolean.TRUE.toString());
 		portletURL.setParameter("mvcPath", "/edit_article.jsp");
 
 		if (classTypeId > 0) {

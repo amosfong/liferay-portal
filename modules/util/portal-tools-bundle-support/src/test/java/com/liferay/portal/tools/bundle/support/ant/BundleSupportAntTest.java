@@ -65,6 +65,24 @@ public class BundleSupportAntTest extends BundleSupportCommandsTest {
 	}
 
 	@Override
+	protected void createToken(
+			String emailAddress, boolean force, String password, File tokenFile,
+			URL tokenUrl)
+		throws Exception {
+
+		Project project = buildFileRule.getProject();
+
+		project.setProperty("bundle.support.email.address", emailAddress);
+		project.setProperty("bundle.support.force", String.valueOf(force));
+		project.setProperty("bundle.support.password", password);
+		project.setProperty(
+			"bundle.support.token.file", _getAbsolutePath(tokenFile));
+		project.setProperty("bundle.support.token.url", tokenUrl.toString());
+
+		project.executeTarget("create-token");
+	}
+
+	@Override
 	protected void deploy(File file, File liferayHomeDir, String outputFileName)
 		throws Exception {
 
@@ -99,8 +117,9 @@ public class BundleSupportAntTest extends BundleSupportCommandsTest {
 
 	@Override
 	protected void initBundle(
-			File cacheDir, File configsDir, File liferayHomeDir,
-			String password, URL url, String userName)
+			File cacheDir, File configsDir, String environment,
+			File liferayHomeDir, String password, int stripComponents, URL url,
+			String userName)
 		throws Exception {
 
 		Project project = buildFileRule.getProject();
@@ -109,12 +128,13 @@ public class BundleSupportAntTest extends BundleSupportCommandsTest {
 			"bundle.support.cache.dir", _getAbsolutePath(cacheDir));
 		project.setProperty(
 			"bundle.support.configs.dir", _getAbsolutePath(configsDir));
-		project.setProperty("bundle.support.environment", "local");
+		project.setProperty("bundle.support.environment", environment);
 		project.setProperty(
 			"bundle.support.liferay.home.dir",
 			_getAbsolutePath(liferayHomeDir));
 		project.setProperty("bundle.support.password", password);
-		project.setProperty("bundle.support.strip.components", "0");
+		project.setProperty(
+			"bundle.support.strip.components", String.valueOf(stripComponents));
 		project.setProperty("bundle.support.url", url.toString());
 		project.setProperty("bundle.support.username", userName);
 

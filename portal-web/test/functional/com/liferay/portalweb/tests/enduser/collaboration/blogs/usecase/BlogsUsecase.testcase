@@ -308,9 +308,7 @@
 		</execute>
 	</command>
 
-	<command name="DeleteBlogsEntry" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="DeleteBlogsEntry" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -425,6 +423,7 @@
 
 	<command name="DemoTrackbackURL" priority="4">
 		<property name="custom.properties" value="blogs.trackback.enabled=true" />
+		<property name="test.name.skip.portal.instance" value="BlogsUsecase#DemoTrackbackURL" />
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />
@@ -509,7 +508,7 @@
 			<var name="entryTitle" value="Blogs Entry3 Title" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
 
 		<execute macro="Navigator#gotoSpecificURLPage">
 			<var name="pageName" value="Blogs Page" />
@@ -545,7 +544,7 @@
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
 
 		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />
 
@@ -579,7 +578,7 @@
 			<var name="entryTitle" value="Blogs Entry5 Title" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 
 		<execute macro="Navigator#gotoSpecificURLPage">
 			<var name="pageName" value="Blogs Page" />
@@ -612,7 +611,7 @@
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 
 		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />
 
@@ -1142,6 +1141,8 @@
 	</command>
 
 	<command name="ViewBlogsEntriesWithSpecialCharactersOnPublicAndPrivateVirtualHostPages" priority="3">
+		<property name="test.name.skip.portal.instance" value="BlogsUsecase#ViewBlogsEntriesWithSpecialCharactersOnPublicAndPrivateVirtualHostPages" />
+
 		<var name="entryTitleSpecialCharacter" value="true" />
 		<var name="privatePageVirtualHostURL" value="www.baker.com" />
 
@@ -1364,6 +1365,8 @@
 	</command>
 
 	<command name="ViewBlogsEntryFriendlyURLViaBlogsPortletAndRecentBloggers" priority="3">
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
 		<var name="entryAuthor" value="Test Test" />
 		<var name="entryContent" value="Blogs Entry Content" />
 		<var name="entryTitle" value="Blogs Entry Title" />
@@ -1376,7 +1379,7 @@
 
 		<var method="StringUtil#lowerCase('${pageNameURL}')" name="pageNameURL" />
 
-		<var name="friendlyURL" value="http://localhost:8080/web/guest/${pageNameURL}/-/blogs/${entryTitleURL}" />
+		<var name="friendlyURL" value="${portalURL}/web/guest/${pageNameURL}/-/blogs/${entryTitleURL}" />
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Blogs Page" />

@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Serializable;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class QueryConfig implements Serializable {
 		Set<String> highlightFieldNamesSet = SetUtil.fromArray(
 			(String[])_attributes.get(_HIGHLIGHT_FIELD_NAMES));
 
-		highlightFieldNamesSet.addAll(Arrays.asList(highlightFieldNames));
+		Collections.addAll(highlightFieldNamesSet, highlightFieldNames);
 
 		_attributes.put(
 			_HIGHLIGHT_FIELD_NAMES,
@@ -55,7 +55,7 @@ public class QueryConfig implements Serializable {
 		Set<String> selectedFieldNamesSet = SetUtil.fromArray(
 			(String[])_attributes.get(_SELECTED_FIELD_NAMES));
 
-		selectedFieldNamesSet.addAll(Arrays.asList(selectedFieldNames));
+		Collections.addAll(selectedFieldNamesSet, selectedFieldNames);
 
 		_attributes.put(
 			_SELECTED_FIELD_NAMES,
@@ -259,13 +259,8 @@ public class QueryConfig implements Serializable {
 	}
 
 	public void setHighlightEnabled(boolean highlightEnabled) {
-		if (_INDEX_SEARCH_HIGHLIGHT_ENABLED) {
-			_attributes.put(
-				PropsKeys.INDEX_SEARCH_HIGHLIGHT_ENABLED, highlightEnabled);
-		}
-		else {
-			_attributes.put(PropsKeys.INDEX_SEARCH_HIGHLIGHT_ENABLED, false);
-		}
+		_attributes.put(
+			PropsKeys.INDEX_SEARCH_HIGHLIGHT_ENABLED, highlightEnabled);
 	}
 
 	public void setHighlightFieldNames(String... highlightFieldNames) {

@@ -179,7 +179,8 @@ public class JournalArticleStagedModelDataHandler
 		catch (Exception e) {
 			throw new IllegalStateException(
 				"Unable to find article resource for article " +
-					article.getArticleId());
+					article.getArticleId(),
+				e);
 		}
 
 		referenceAttributes.put("article-resource-uuid", articleResourceUuid);
@@ -196,11 +197,7 @@ public class JournalArticleStagedModelDataHandler
 			return referenceAttributes;
 		}
 
-		boolean preloaded = false;
-
-		if (defaultUserId == article.getUserId()) {
-			preloaded = true;
-		}
+		boolean preloaded = isPreloadedArticle(defaultUserId, article);
 
 		referenceAttributes.put("preloaded", String.valueOf(preloaded));
 
@@ -380,7 +377,7 @@ public class JournalArticleStagedModelDataHandler
 		long defaultUserId = _userLocalService.getDefaultUserId(
 			article.getCompanyId());
 
-		if (defaultUserId == article.getUserId()) {
+		if (isPreloadedArticle(defaultUserId, article)) {
 			articleElement.addAttribute("preloaded", "true");
 		}
 
@@ -945,6 +942,26 @@ public class JournalArticleStagedModelDataHandler
 
 		return _journalArticleLocalService.fetchArticle(
 			groupId, articleId, version);
+	}
+
+	protected boolean isPreloadedArticle(
+		long defaultUserId, JournalArticle article) {
+
+		if (defaultUserId == article.getUserId()) {
+			return true;
+		}
+
+		JournalArticle firstArticle = _journalArticleLocalService.fetchArticle(
+			article.getGroupId(), article.getArticleId(),
+			JournalArticleConstants.VERSION_DEFAULT);
+
+		if ((firstArticle != null) &&
+			(defaultUserId == firstArticle.getUserId())) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Reference(unbind = "-")

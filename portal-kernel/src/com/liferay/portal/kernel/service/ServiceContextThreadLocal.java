@@ -38,11 +38,7 @@ public class ServiceContextThreadLocal {
 			return null;
 		}
 
-		ServiceContext serviceContext = serviceContextStack.pop();
-
-		ServiceContextCallbackUtil.runPopCallbacks();
-
-		return serviceContext;
+		return serviceContextStack.pop();
 	}
 
 	public static void pushServiceContext(ServiceContext serviceContext) {
@@ -50,15 +46,13 @@ public class ServiceContextThreadLocal {
 			_serviceContextThreadLocal.get();
 
 		serviceContextStack.push(serviceContext);
-
-		ServiceContextCallbackUtil.runPushCallbacks();
 	}
 
 	private static final ThreadLocal<LinkedList<ServiceContext>>
 		_serviceContextThreadLocal =
 			new AutoResetThreadLocal<LinkedList<ServiceContext>>(
 				ServiceContextThreadLocal.class + "._serviceContextThreadLocal",
-				new LinkedList<>()) {
+				LinkedList::new) {
 
 				@Override
 				protected LinkedList<ServiceContext> copy(

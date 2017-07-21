@@ -74,7 +74,7 @@ public class NettyRepositoryTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
+			AspectJNewEnvTestRule.INSTANCE, CodeCoverageAssertor.INSTANCE);
 
 	@Before
 	public void setUp() throws IOException {
@@ -559,9 +559,8 @@ public class NettyRepositoryTest {
 	}
 
 	@AdviseWith(
-		adviceClasses = {
-			NettyUtilAdvice.class, DefaultNoticeableFutureAdvice.class
-		}
+		adviceClasses =
+			{NettyUtilAdvice.class, DefaultNoticeableFutureAdvice.class}
 	)
 	@Test
 	public void testGetFilesCovertCausedException() throws Exception {

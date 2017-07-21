@@ -1775,6 +1775,12 @@
 			<type>boolean</type>
 		</attribute>
 		<attribute>
+			<description>Whether to display the checkbox that disables the input field.</description>
+			<name>showDisableCheckbox</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>A variable name to refer to the year of the component.</description>
 			<name>yearParam</name>
 			<required>false</required>
@@ -3038,6 +3044,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>inTrash</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>numberOfStars</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -3065,26 +3076,6 @@
 		<attribute>
 			<name>url</name>
 			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-	</tag>
-	<tag>
-		<name>restore-entry</name>
-		<tag-class>com.liferay.taglib.ui.RestoreEntryTag</tag-class>
-		<body-content>JSP</body-content>
-		<attribute>
-			<name>overrideMessage</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>renameMessage</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-		<attribute>
-			<name>restoreURL</name>
-			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>

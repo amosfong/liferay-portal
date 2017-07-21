@@ -93,11 +93,9 @@
 			<var name="entrySubtitle" value="${entrySubtitle}" />
 		</execute>
 
-		<execute function="Click" locator1="AlloyEditor#CONTENT_FIELD" />
-
-		<execute function="Click" locator1="Button#EDITOR_SWITCH" />
-
-		<execute function="Type#sendKeysAceEditor" locator1="TextArea#ACE_EDITOR" value1="${entryContent}" />
+		<execute macro="AlloyEditor#addSourceContent">
+			<var name="content" value="${entryContent}" />
+		</execute>
 
 		<execute macro="PortletEntry#publish" />
 	</command>
@@ -139,6 +137,8 @@
 			<var name="tagName" value="${tagName}" />
 		</execute>
 
+		<execute function="SelectFrameTop" value1="relative=top" />
+
 		<execute macro="PortletEntry#publish" />
 	</command>
 
@@ -160,6 +160,8 @@
 				<var name="tagName" value="${tagName}" />
 			</execute>
 		</for>
+
+		<execute function="SelectFrameTop" value1="relative=top" />
 
 		<execute macro="PortletEntry#publish" />
 	</command>
@@ -256,11 +258,9 @@
 			<var name="panelHeading" value="Configuration" />
 		</execute>
 
-		<execute function="Click" locator1="Radio#CUSTOM_ABSTRACT" />
-
-		<execute function="Click" locator1="AlloyEditor#DESCRIPTION_FIELD" />
-
-		<execute function="Type#typeEditor" locator1="AlloyEditor#DESCRIPTION_FIELD" value1="${entryAbstractDescription}" />
+		<execute macro="BlogsEntry#addCustomAbstract">
+			<var name="entryAbstractDescription" value="${entryAbstractDescription}" />
+		</execute>
 
 		<execute macro="PortletEntry#publish" />
 	</command>

@@ -133,7 +133,7 @@ create table DDMTemplate (
 	cacheable BOOLEAN,
 	smallImage BOOLEAN,
 	smallImageId LONG,
-	smallImageURL VARCHAR(75) null,
+	smallImageURL STRING null,
 	lastPublishDate DATE null
 );
 

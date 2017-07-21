@@ -66,7 +66,7 @@ import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -327,9 +327,7 @@ public class DDMImpl implements DDM {
 
 			fieldValue = _portal.getLayoutFriendlyURL(layout, themeDisplay);
 		}
-		else if (type.equals(DDMImpl.TYPE_RADIO) ||
-				 type.equals(DDMImpl.TYPE_SELECT)) {
-
+		else if (type.equals(DDMImpl.TYPE_SELECT)) {
 			String valueString = String.valueOf(fieldValue);
 
 			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(valueString);
@@ -458,9 +456,7 @@ public class DDMImpl implements DDM {
 
 			fieldValue = dateFormat.format(valueDate);
 		}
-		else if (type.equals(DDMImpl.TYPE_RADIO) ||
-				 type.equals(DDMImpl.TYPE_SELECT)) {
-
+		else if (type.equals(DDMImpl.TYPE_SELECT)) {
 			String valueString = (String)fieldValue;
 
 			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(valueString);
@@ -611,9 +607,7 @@ public class DDMImpl implements DDM {
 			propertyValue = localizedValue.getString(defaultLocale);
 		}
 
-		if (type.equals(DDMImpl.TYPE_RADIO) ||
-			type.equals(DDMImpl.TYPE_SELECT)) {
-
+		if (type.equals(DDMImpl.TYPE_SELECT)) {
 			if (propertyName.equals("predefinedValue")) {
 				try {
 					jsonObject.put(
@@ -1046,9 +1040,7 @@ public class DDMImpl implements DDM {
 				return null;
 			}
 
-			if (DDMImpl.TYPE_RADIO.equals(fieldType) ||
-				DDMImpl.TYPE_SELECT.equals(fieldType)) {
-
+			if (DDMImpl.TYPE_SELECT.equals(fieldType)) {
 				String predefinedValueString = predefinedValue.getString(
 					serviceContext.getLocale());
 
@@ -1092,7 +1084,7 @@ public class DDMImpl implements DDM {
 		String url = uploadRequest.getParameter(fieldNameValue + "URL");
 
 		long imageId = GetterUtil.getLong(
-			HttpUtil.getParameter(url, "img_id", false));
+			_http.getParameter(url, "img_id", false));
 
 		Image image = _imageLocalService.fetchImage(imageId);
 
@@ -1333,6 +1325,10 @@ public class DDMImpl implements DDM {
 	private DDMFormValuesToFieldsConverter _ddmFormValuesToFieldsConverter;
 	private DLAppLocalService _dlAppLocalService;
 	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
+
+	@Reference
+	private Http _http;
+
 	private ImageLocalService _imageLocalService;
 	private LayoutLocalService _layoutLocalService;
 

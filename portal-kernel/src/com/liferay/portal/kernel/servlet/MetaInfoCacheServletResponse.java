@@ -192,14 +192,16 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		return _metaData._headers.containsKey(name);
 	}
 
-	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #finishResponse(boolean)}}
-	 */
-	@Deprecated
 	public void finishResponse() throws IOException {
-		finishResponse(false);
+		finishResponse(_metaData, (HttpServletResponse)getResponse());
+
+		_committed = true;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #finishResponse()}}
+	 */
+	@Deprecated
 	public void finishResponse(boolean reapplyMetaData) throws IOException {
 		HttpServletResponse response = (HttpServletResponse)getResponse();
 
@@ -439,17 +441,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 			return;
 		}
 
-		if (calledGetWriter) {
-			return;
-		}
-
-		if (charsetName == null) {
-			return;
-		}
-
-		_metaData._charsetName = charsetName;
-
-		super.setCharacterEncoding(charsetName);
+		_setCharacterEncoding(charsetName);
 	}
 
 	@Override
@@ -487,7 +479,7 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 				charsetName = charsetName.trim();
 
-				setCharacterEncoding(charsetName);
+				_setCharacterEncoding(charsetName);
 			}
 			else {
 				_metaData._charsetName = null;
@@ -656,6 +648,20 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 
 	protected boolean calledGetOutputStream;
 	protected boolean calledGetWriter;
+
+	private void _setCharacterEncoding(String charsetName) {
+		if (calledGetWriter) {
+			return;
+		}
+
+		if (charsetName == null) {
+			return;
+		}
+
+		_metaData._charsetName = charsetName;
+
+		super.setCharacterEncoding(charsetName);
+	}
 
 	private boolean _committed;
 	private final MetaData _metaData = new MetaData();

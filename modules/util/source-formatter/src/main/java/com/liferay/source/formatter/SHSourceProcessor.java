@@ -14,22 +14,12 @@
 
 package com.liferay.source.formatter;
 
-import java.io.File;
-
 import java.util.List;
 
 /**
  * @author Hugo Huijser
  */
 public class SHSourceProcessor extends BaseSourceProcessor {
-
-	@Override
-	protected String doFormat(
-			File file, String fileName, String absolutePath, String content)
-		throws Exception {
-
-		return content;
-	}
 
 	@Override
 	protected List<String> doGetFileNames() throws Exception {

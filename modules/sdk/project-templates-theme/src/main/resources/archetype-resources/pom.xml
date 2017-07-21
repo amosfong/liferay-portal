@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 
 <project
 	xmlns="http://maven.apache.org/POM/4.0.0"
@@ -45,7 +45,6 @@
 				<version>@com.liferay.css.builder.version@</version>
 				<executions>
 					<execution>
-						<id>default-build</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>build</goal>

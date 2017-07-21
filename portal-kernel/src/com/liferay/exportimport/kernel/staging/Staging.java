@@ -51,6 +51,9 @@ import javax.servlet.http.HttpServletRequest;
 public interface Staging {
 
 	public String buildRemoteURL(
+		ExportImportConfiguration exportImportConfiguration);
+
+	public String buildRemoteURL(
 		String remoteAddress, int remotePort, String remotePathContext,
 		boolean secureConnection);
 
@@ -174,6 +177,8 @@ public interface Staging {
 	@Deprecated
 	public JSONObject getExceptionMessagesJSONObject(
 		Locale locale, Exception e, Map<String, Serializable> contextMap);
+
+	public Group getLiveGroup(Group group);
 
 	public Group getLiveGroup(long groupId);
 

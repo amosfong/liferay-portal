@@ -68,6 +68,8 @@ public interface Build {
 
 	public Element getGitHubMessageElement();
 
+	public Element getGitHubMessageUpstreamJobFailureElement();
+
 	public String getInvocationURL();
 
 	public String getJDK();
@@ -77,6 +79,8 @@ public interface Build {
 	public String getJobURL();
 
 	public String getJobVariant();
+
+	public Long getLatestStartTimestamp();
 
 	public String getMaster();
 
@@ -91,6 +95,8 @@ public interface Build {
 	public String getResult();
 
 	public Map<String, String> getStartPropertiesTempMap();
+
+	public Long getStartTimestamp();
 
 	public String getStatus();
 
@@ -114,7 +120,11 @@ public interface Build {
 
 	public void reinvoke();
 
+	public void reinvoke(ReinvokeRule reinvokeRule);
+
 	public String replaceBuildURL(String text);
+
+	public void setCompareToUpstream(boolean compareToUpstream);
 
 	public void update();
 

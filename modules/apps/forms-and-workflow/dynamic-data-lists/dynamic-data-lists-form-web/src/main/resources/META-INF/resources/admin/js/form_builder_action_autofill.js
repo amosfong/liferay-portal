@@ -1,13 +1,19 @@
 AUI.add(
 	'liferay-ddl-form-builder-action-autofill',
 	function(A) {
+		var AObject = A.Object;
+
 		var Lang = A.Lang;
+
+		var Settings = Liferay.DDL.Settings;
 
 		var TPL_CONTAINER_INPUT_OUTPUT_COMPONENT = '<div class="col-md-9 container-input-field container-input-field-{index}"></div>';
 
-		var TPL_CONTAINER_INPUT_OUTPUT_FIELD = '<div class="col-md-3 container-input-label">{field}</div>';
+		var TPL_CONTAINER_INPUT_OUTPUT_FIELD = '<div class="col-md-3 container-input-label">{field}{required}</div>';
 
 		var TPL_LABEL_ACTION = '<h4>{message}</h4>';
+
+		var TPL_REQUIRED_ACTION = '<span class="icon-asterisk text-warning"></span>';
 
 		var FormBuilderActionAutofill = A.Component.create(
 			{
@@ -20,10 +26,6 @@ AUI.add(
 						value: []
 					},
 
-					getDataProviderParametersSettingsURL: {
-						value: ''
-					},
-
 					getDataProviders: {
 						value: []
 					},
@@ -34,10 +36,6 @@ AUI.add(
 
 					options: {
 						value: []
-					},
-
-					portletNamespace: {
-						value: ''
 					},
 
 					strings: {
@@ -69,11 +67,14 @@ AUI.add(
 					getValue: function() {
 						var instance = this;
 
+						var selectedDataProviderInstance = instance._dataProvidersList.getValue();
+
 						return {
 							action: 'auto-fill',
-							ddmDataProviderInstanceUUID: instance._getUUId(instance._dataProvidersList.getValue()),
+							ddmDataProviderInstanceUUID: instance._getUUId(selectedDataProviderInstance[0]),
 							inputs: instance._getInputValue(),
-							outputs: instance._getOutputValue()
+							outputs: instance._getOutputValue(),
+							requiredInputs: instance._getRequiredInputs()
 						};
 					},
 
@@ -101,13 +102,11 @@ AUI.add(
 					},
 
 					_afterDataProviderChange: function(event) {
-						var instance = this;
-
-						var ddmDataProviderInstanceId = event.newVal[0];
-
-						if (!ddmDataProviderInstanceId) {
+						if (!event.newVal || !event.newVal[0]) {
 							return;
 						}
+
+						var instance = this;
 
 						var boundingBox = instance.get('boundingBox');
 
@@ -116,9 +115,9 @@ AUI.add(
 						boundingBox.one('.additional-info-' + index).empty();
 
 						A.io.request(
-							instance.get('getDataProviderParametersSettingsURL'),
+							Settings.getDataProviderParametersSettingsURL,
 							{
-								data: instance._getDataProviderPayload(ddmDataProviderInstanceId),
+								data: instance._getDataProviderPayload(event.newVal[0]),
 								method: 'GET',
 								on: {
 									success: function(event, id, xhr) {
@@ -149,15 +148,18 @@ AUI.add(
 						var action = instance.get('action');
 
 						for (var i = 0; i < inputParameters.length; i++) {
+							var label = inputParameters[i].label;
 							var name = inputParameters[i].name;
+							var requiredField = inputParameters[i].required;
 
-							value = null;
+							value = [];
 
 							inputParametersContainer.append(
 								Lang.sub(
 									TPL_CONTAINER_INPUT_OUTPUT_FIELD,
 									{
-										field: name
+										field: label,
+										required: requiredField ? TPL_REQUIRED_ACTION : ''
 									}
 								)
 							);
@@ -172,10 +174,10 @@ AUI.add(
 							);
 
 							if (action && action.inputs && action.inputs[name]) {
-								value = action.inputs[name];
+								value = [action.inputs[name]];
 							}
 
-							inputParameterField = new Liferay.DDM.Field.Select(
+							inputParameterField = instance.createSelectField(
 								{
 									fieldName: instance.get('index') + '-action',
 									options: instance.getFieldsByType(inputParameters[i].type),
@@ -188,7 +190,8 @@ AUI.add(
 							instance._inputParameters.push(
 								{
 									field: inputParameterField,
-									parameter: name
+									parameter: name,
+									required: requiredField
 								}
 							);
 						}
@@ -197,9 +200,10 @@ AUI.add(
 					_createDataProviderList: function() {
 						var instance = this;
 
-						instance._dataProvidersList = new Liferay.DDM.Field.Select(
+						instance._dataProvidersList = instance.createSelectField(
 							{
 								fieldName: instance.get('index') + '-action',
+								options: [],
 								showLabel: false,
 								visible: true
 							}
@@ -230,13 +234,14 @@ AUI.add(
 						for (var i = 0; i < outputParameters.length; i++) {
 							var name = outputParameters[i].name;
 
-							value = null;
+							value = [];
 
 							outputParametersContainer.append(
 								Lang.sub(
 									TPL_CONTAINER_INPUT_OUTPUT_FIELD,
 									{
-										field: name
+										field: name,
+										required: ''
 									}
 								)
 							);
@@ -251,16 +256,15 @@ AUI.add(
 							);
 
 							if (action && action.outputs && action.outputs[name]) {
-								value = action.outputs[name];
+								value = [action.outputs[name]];
 							}
 
-							outputParameterField = new Liferay.DDM.Field.Select(
+							outputParameterField = instance.createSelectField(
 								{
 									fieldName: instance.get('index') + '-action',
 									label: outputParameters[i],
 									options: instance.getFieldsByType(outputParameters[i].type),
 									showLabel: false,
-									value: value,
 									visible: true
 								}
 							).render(outputParametersContainer.one('.container-input-field-' + i));
@@ -271,6 +275,8 @@ AUI.add(
 									parameter: name
 								}
 							);
+
+							outputParameterField.setValue(value);
 						}
 					},
 
@@ -281,7 +287,9 @@ AUI.add(
 
 						var dataProviderParametersContainer = instance.get('boundingBox').one('.additional-info-' + index);
 
-						dataProviderParametersContainer.setHTML(instance._getRuleContainerTemplate());
+						instance._retriveRequiredInputs(dataProviderParametersSettings.inputs);
+
+						dataProviderParametersContainer.setHTML(instance._getRuleContainerTemplate(dataProviderParametersSettings.inputs));
 
 						instance._createDataProviderInputParametersSettings(dataProviderParametersSettings.inputs);
 
@@ -297,10 +305,8 @@ AUI.add(
 					_getDataProviderPayload: function(ddmDataProviderInstanceId) {
 						var instance = this;
 
-						var portletNamespace = instance.get('portletNamespace');
-
 						var payload = Liferay.Util.ns(
-							portletNamespace,
+							Settings.portletNamespace,
 							{
 								ddmDataProviderInstanceId: ddmDataProviderInstanceId
 							}
@@ -320,7 +326,7 @@ AUI.add(
 							var value = inputParameters[i].field.getValue();
 
 							if (inputParameters[i].parameter && value) {
-								inputParameterValues[inputParameters[i].parameter] = value;
+								inputParameterValues[inputParameters[i].parameter] = value[0];
 							}
 						}
 
@@ -338,14 +344,20 @@ AUI.add(
 							var value = outputParameters[i].field.getValue();
 
 							if (outputParameters[i].parameter && value) {
-								outputParameterValues[outputParameters[i].parameter] = value;
+								outputParameterValues[outputParameters[i].parameter] = value[0];
 							}
 						}
 
 						return outputParameterValues;
 					},
 
-					_getRuleContainerTemplate: function() {
+					_getRequiredInputs: function() {
+						var instance = this;
+
+						return instance._requiredInputs;
+					},
+
+					_getRuleContainerTemplate: function(inputs) {
 						var instance = this;
 
 						var strings = instance.get('strings');
@@ -354,6 +366,8 @@ AUI.add(
 
 						return dataProviderParametersTemplateRenderer(
 							{
+								hasInputs: inputs.length > 0,
+								hasRequiredInputs: !AObject.isEmpty(instance._getRequiredInputs()),
 								strings: strings
 							}
 						);
@@ -364,11 +378,17 @@ AUI.add(
 
 						var dataProviderList = instance._dataProvidersList.get('options');
 
+						var uuid;
+
 						for (var i = 0; i < dataProviderList.length; i++) {
 							if (dataProviderList[i].value === id) {
-								return dataProviderList[i].uuid;
+								uuid = dataProviderList[i].uuid;
+
+								break;
 							}
 						}
+
+						return uuid;
 					},
 
 					_renderDataProvidersList: function(result) {
@@ -402,7 +422,19 @@ AUI.add(
 
 						instance._dataProvidersList.set('options', dataProvidersList);
 
-						instance._dataProvidersList.setValue(value);
+						instance._dataProvidersList.setValue([value]);
+					},
+
+					_retriveRequiredInputs: function(inputs) {
+						var instance = this;
+
+						instance._requiredInputs = {};
+
+						for (var i = 0; i < inputs.length; i++) {
+							if (inputs[i].required) {
+								instance._requiredInputs[inputs[i].name] = true;
+							}
+						}
 					}
 				}
 			}

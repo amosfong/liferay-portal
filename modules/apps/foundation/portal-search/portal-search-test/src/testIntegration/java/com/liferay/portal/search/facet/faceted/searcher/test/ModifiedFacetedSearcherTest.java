@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.SearchContextTestUtil;
 import com.liferay.portal.search.test.util.SearchMapUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.registry.Registry;
@@ -72,7 +71,7 @@ public class ModifiedFacetedSearcherTest extends BaseFacetedSearcherTestCase {
 
 		String keyword = RandomTestUtil.randomString();
 
-		userSearchFixture.addUser(group, keyword);
+		addUser(group, keyword);
 
 		SearchContext searchContext = getSearchContext(keyword);
 
@@ -115,16 +114,6 @@ public class ModifiedFacetedSearcherTest extends BaseFacetedSearcherTestCase {
 		dataJSONObject.put("ranges", jsonArray);
 
 		return dataJSONObject;
-	}
-
-	protected static SearchContext getSearchContext(String keywords)
-		throws Exception {
-
-		SearchContext searchContext = SearchContextTestUtil.getSearchContext();
-
-		searchContext.setKeywords(keywords);
-
-		return searchContext;
 	}
 
 	protected static void setConfigurationRanges(Facet facet, String... ranges)

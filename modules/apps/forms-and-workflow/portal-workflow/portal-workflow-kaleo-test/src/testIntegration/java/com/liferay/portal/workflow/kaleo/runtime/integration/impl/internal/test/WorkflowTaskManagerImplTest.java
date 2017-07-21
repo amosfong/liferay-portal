@@ -17,6 +17,12 @@ package com.liferay.portal.workflow.kaleo.runtime.integration.impl.internal.test
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordVersion;
@@ -28,13 +34,26 @@ import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -58,6 +77,218 @@ public class WorkflowTaskManagerImplTest
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Test
+	public void testApproveDLFileEntryInDLFolderWhenHomeDLFolderHasWorkflow()
+		throws Exception {
+
+		activateSingleApproverWorkflow(DLFolder.class.getName(), 0, -1);
+
+		Folder folder = addFolder();
+
+		FileVersion fileVersion1 = addFileVersion(folder.getFolderId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion1.getStatus());
+
+		FileVersion fileVersion2 = addFileVersion(folder.getFolderId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion2.getStatus());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.APPROVE, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.APPROVE, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		fileVersion1 = DLAppServiceUtil.getFileVersion(
+			fileVersion1.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion1.getStatus());
+
+		fileVersion2 = DLAppServiceUtil.getFileVersion(
+			fileVersion2.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion2.getStatus());
+
+		deactivateWorkflow(DLFolder.class.getName(), 0, -1);
+	}
+
+	@Test
+	public void testApproveDLFileEntryInDLFolderWithoutWorkflowWhenHomeDLFolderHasWorkflow()
+		throws Exception {
+
+		activateSingleApproverWorkflow(DLFolder.class.getName(), 0, -1);
+
+		Folder folder = addFolder();
+
+		folder = updateFolder(
+			folder, DLFolderConstants.RESTRICTION_TYPE_WORKFLOW);
+
+		FileVersion fileVersion1 = addFileVersion(folder.getFolderId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion1.getStatus());
+
+		FileVersion fileVersion2 = addFileVersion(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion2.getStatus());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.APPROVE, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		fileVersion2 = DLAppServiceUtil.getFileVersion(
+			fileVersion2.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion2.getStatus());
+
+		deactivateWorkflow(DLFolder.class.getName(), 0, -1);
+	}
+
+	@Test
+	public void testApproveDLFileEntryInDLFolderWithSpecificType()
+		throws Exception {
+
+		Map<String, String> dlFileEntryTypeMap = new HashMap<>();
+
+		DLFileEntryType fileEntryType = addFileEntryType();
+
+		dlFileEntryTypeMap.put(
+			StringUtil.valueOf(fileEntryType.getFileEntryTypeId()),
+			"Single Approver@1");
+
+		DLFileEntryType basicFileEntryType = getBasicFileEntryType();
+
+		dlFileEntryTypeMap.put(
+			StringUtil.valueOf(basicFileEntryType.getFileEntryTypeId()),
+			StringPool.BLANK);
+
+		Folder folder = addFolder();
+
+		folder = updateFolder(
+			folder,
+			DLFolderConstants.RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW,
+			fileEntryType.getFileEntryTypeId(), dlFileEntryTypeMap);
+
+		FileVersion fileVersion1 = addFileVersion(
+			folder.getFolderId(), fileEntryType.getFileEntryTypeId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion1.getStatus());
+
+		FileVersion fileVersion2 = addFileVersion(folder.getFolderId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion2.getStatus());
+
+		FileVersion fileVersion3 = addFileVersion(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion3.getStatus());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.APPROVE, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		fileVersion1 = DLAppServiceUtil.getFileVersion(
+			fileVersion1.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion1.getStatus());
+	}
+
+	@Test
+	public void testApproveDLFileEntryInDLFolderWithWorkflow()
+		throws Exception {
+
+		Folder folder = addFolder();
+
+		Map<String, String> dlFileEntryTypeMap = new HashMap<>();
+
+		dlFileEntryTypeMap.put(
+			StringUtil.valueOf(DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL),
+			"Single Approver@1");
+
+		folder = updateFolder(
+			folder, DLFolderConstants.RESTRICTION_TYPE_WORKFLOW,
+			dlFileEntryTypeMap);
+
+		FileVersion fileVersion1 = addFileVersion(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion1.getStatus());
+
+		FileVersion fileVersion2 = addFileVersion(folder.getFolderId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion2.getStatus());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.APPROVE, REVIEW, DLFileEntry.class.getName(),
+			fileVersion2.getFileVersionId());
+
+		fileVersion2 = DLAppServiceUtil.getFileVersion(
+			fileVersion2.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion2.getStatus());
+	}
+
+	@Test
+	public void testApproveJoinXorWorkflow() throws Exception {
+		activateWorkflow(BlogsEntry.class.getName(), 0, 0, JOIN_XOR, 1);
+
+		BlogsEntry blogsEntry = addBlogsEntry();
+
+		assignWorkflowTaskToUser(siteAdminUser, siteAdminUser, "task1");
+
+		completeWorkflowTask(siteAdminUser, "join-xor", "task1");
+
+		WorkflowTask workflowTask2 = getWorkflowTask(
+			siteAdminUser, "task2", true, BlogsEntry.class.getName(),
+			blogsEntry.getEntryId());
+
+		Assert.assertTrue(workflowTask2.isCompleted());
+
+		blogsEntry = BlogsEntryLocalServiceUtil.getBlogsEntry(
+			blogsEntry.getEntryId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, blogsEntry.getStatus());
+
+		deactivateWorkflow(BlogsEntry.class.getName(), 0, 0);
+	}
+
+	@Test
 	public void testApproveJournalArticleAsAdmin() throws Exception {
 		activateSingleApproverWorkflow(
 			JournalFolder.class.getName(),
@@ -77,7 +308,7 @@ public class WorkflowTaskManagerImplTest
 
 		completeWorkflowTask(adminUser, Constants.APPROVE);
 
-		checkWorkflowInstance(JournalArticle.class.getName(), article.getId());
+		getWorkflowInstance(JournalArticle.class.getName(), article.getId());
 
 		article = JournalArticleLocalServiceUtil.getArticle(article.getId());
 
@@ -113,7 +344,7 @@ public class WorkflowTaskManagerImplTest
 
 		completeWorkflowTask(adminUser, Constants.APPROVE);
 
-		checkWorkflowInstance(JournalArticle.class.getName(), article.getId());
+		getWorkflowInstance(JournalArticle.class.getName(), article.getId());
 
 		article = JournalArticleLocalServiceUtil.getArticle(article.getId());
 
@@ -155,7 +386,7 @@ public class WorkflowTaskManagerImplTest
 
 		completeWorkflowTask(adminUser, Constants.APPROVE);
 
-		checkWorkflowInstance(JournalArticle.class.getName(), article.getId());
+		getWorkflowInstance(JournalArticle.class.getName(), article.getId());
 
 		article = JournalArticleLocalServiceUtil.getArticle(article.getId());
 
@@ -190,7 +421,7 @@ public class WorkflowTaskManagerImplTest
 
 		completeWorkflowTask(adminUser, Constants.APPROVE);
 
-		checkWorkflowInstance(JournalArticle.class.getName(), article.getId());
+		getWorkflowInstance(JournalArticle.class.getName(), article.getId());
 
 		article = JournalArticleLocalServiceUtil.getArticle(article.getId());
 
@@ -200,6 +431,147 @@ public class WorkflowTaskManagerImplTest
 		deactivateWorkflow(
 			JournalFolder.class.getName(), folder.getFolderId(),
 			JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
+	}
+
+	@Test
+	public void testApproveOrganizationParentReviewer() throws Exception {
+		Organization parentOrganization = createOrganization(true);
+
+		User reviewerUser = createUser(
+			ORGANIZATION_CONTENT_REVIEWER, parentOrganization.getGroup());
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			reviewerUser.getUserId(), parentOrganization);
+
+		Organization childOrganization = createOrganization(
+			parentOrganization.getOrganizationId(), true);
+
+		User memberUser = createUser(
+			RoleConstants.ORGANIZATION_ADMINISTRATOR,
+			childOrganization.getGroup());
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			memberUser.getUserId(), childOrganization);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			childOrganization.getGroupId());
+
+		activateSingleApproverWorkflow(
+			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
+
+		BlogsEntry blogsEntry = addBlogsEntry(memberUser);
+
+		checkUserNotificationEventsByUsers(reviewerUser);
+
+		assignWorkflowTaskToUser(reviewerUser, reviewerUser);
+
+		completeWorkflowTask(reviewerUser, Constants.APPROVE);
+
+		blogsEntry = BlogsEntryLocalServiceUtil.getBlogsEntry(
+			blogsEntry.getEntryId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, blogsEntry.getStatus());
+
+		deactivateWorkflow(
+			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			group.getGroupId());
+	}
+
+	@Test
+	public void testApproveOrganizationParentReviewerWithoutSite()
+		throws Exception {
+
+		Organization parentOrganization = createOrganization(false);
+
+		User reviewerUser = createUser(
+			ORGANIZATION_CONTENT_REVIEWER, parentOrganization.getGroup());
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			reviewerUser.getUserId(), parentOrganization);
+
+		Organization childOrganization = createOrganization(
+			parentOrganization.getOrganizationId(), true);
+
+		User memberUser = createUser(
+			RoleConstants.ORGANIZATION_ADMINISTRATOR,
+			childOrganization.getGroup());
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			memberUser.getUserId(), childOrganization);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			childOrganization.getGroupId());
+
+		activateSingleApproverWorkflow(
+			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
+
+		BlogsEntry blogsEntry = addBlogsEntry(memberUser);
+
+		checkUserNotificationEventsByUsers(reviewerUser);
+
+		assignWorkflowTaskToUser(reviewerUser, reviewerUser);
+
+		completeWorkflowTask(reviewerUser, Constants.APPROVE);
+
+		blogsEntry = BlogsEntryLocalServiceUtil.getBlogsEntry(
+			blogsEntry.getEntryId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, blogsEntry.getStatus());
+
+		deactivateWorkflow(
+			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			group.getGroupId());
+	}
+
+	@Test
+	public void testApproveScriptAssignmentOrganizationAndSiteReviewer()
+		throws Exception {
+
+		Organization organization = createOrganization(true);
+
+		User organizationReviewerUser = createUser(
+			ORGANIZATION_CONTENT_REVIEWER, organization.getGroup());
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			organizationReviewerUser.getUserId(), organization);
+
+		User siteAdministratorUser = createUser(
+			RoleConstants.SITE_ADMINISTRATOR);
+
+		OrganizationLocalServiceUtil.addUserOrganization(
+			siteAdministratorUser.getUserId(), organization);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			organization.getGroupId());
+
+		activateWorkflow(
+			organization.getGroupId(), BlogsEntry.class.getName(), 0, 0,
+			SCRIPTED_SINGLE_APPROVER, 1);
+
+		BlogsEntry blogsEntry = addBlogsEntry(siteAdministratorUser);
+
+		assignWorkflowTaskToUser(
+			organizationReviewerUser, organizationReviewerUser);
+
+		completeWorkflowTask(organizationReviewerUser, Constants.APPROVE);
+
+		blogsEntry = BlogsEntryLocalServiceUtil.getBlogsEntry(
+			blogsEntry.getEntryId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, blogsEntry.getStatus());
+
+		deactivateWorkflow(
+			organization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
+
+		serviceContext = ServiceContextTestUtil.getServiceContext(
+			group.getGroupId());
 	}
 
 	@Test
@@ -245,7 +617,7 @@ public class WorkflowTaskManagerImplTest
 
 		DDLRecordVersion recordVersion = record.getRecordVersion();
 
-		checkWorkflowInstance(
+		getWorkflowInstance(
 			DDLRecord.class.getName(), recordVersion.getRecordVersionId());
 
 		record = DDLRecordLocalServiceUtil.getRecord(record.getRecordId());
@@ -288,6 +660,37 @@ public class WorkflowTaskManagerImplTest
 	}
 
 	@Test
+	public void testRejectDLFileEntry() throws Exception {
+		activateSingleApproverWorkflow(DLFolder.class.getName(), 0, -1);
+
+		FileVersion fileVersion1 = addFileVersion(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion1.getStatus());
+
+		assignWorkflowTaskToUser(
+			adminUser, adminUser, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		completeWorkflowTask(
+			adminUser, Constants.REJECT, REVIEW, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		fileVersion1 = DLAppServiceUtil.getFileVersion(
+			fileVersion1.getFileVersionId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion1.getStatus());
+
+		getWorkflowTask(
+			adminUser, Constants.UPDATE, false, DLFileEntry.class.getName(),
+			fileVersion1.getFileVersionId());
+
+		deactivateWorkflow(DLFolder.class.getName(), 0, -1);
+	}
+
+	@Test
 	public void testRejectWorkflowBlogsEntryAndViewAssignee() throws Exception {
 		activateSingleApproverWorkflow(BlogsEntry.class.getName(), 0, 0);
 
@@ -314,6 +717,23 @@ public class WorkflowTaskManagerImplTest
 
 		Assert.assertEquals(
 			adminUser.getUserId(), workflowTask.getAssigneeUserId());
+
+		deactivateWorkflow(BlogsEntry.class.getName(), 0, 0);
+	}
+
+	@Test
+	public void testSearchWorkflowTaskByAssetTitle() throws Exception {
+		activateSingleApproverWorkflow(BlogsEntry.class.getName(), 0, 0);
+
+		BlogsEntry blogsEntry = addBlogsEntry();
+
+		int total = searchCount(blogsEntry.getTitle());
+
+		Assert.assertEquals(1, total);
+
+		total = searchCount(RandomTestUtil.randomString());
+
+		Assert.assertEquals(0, total);
 
 		deactivateWorkflow(BlogsEntry.class.getName(), 0, 0);
 	}

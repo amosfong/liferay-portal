@@ -177,6 +177,21 @@ public class DDMExpressionImpl<T> implements DDMExpression<T> {
 	}
 
 	@Override
+	public void setObjectVariableValue(
+		String variableName, Object variableValue) {
+
+		Variable variable = _variables.get(variableName);
+
+		if (variable == null) {
+			return;
+		}
+
+		variable.setValue(variableValue);
+
+		_variableValues.put(variableName, variableValue);
+	}
+
+	@Override
 	public void setStringVariableValue(
 			String variableName, String variableValue)
 		throws DDMExpressionException {

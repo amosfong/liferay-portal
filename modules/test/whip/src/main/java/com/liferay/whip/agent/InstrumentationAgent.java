@@ -59,7 +59,7 @@ public class InstrumentationAgent {
 
 				ClassData classData = projectData.getClassData(clazz.getName());
 
-				_assertClassDataCoverage(assertionErrors, clazz, classData);
+				_assertClassDataCoverage(assertionErrors, classData);
 
 				if (includeInnerClasses) {
 					Class<?>[] declaredClasses = clazz.getDeclaredClasses();
@@ -79,8 +79,7 @@ public class InstrumentationAgent {
 						classData = projectData.getClassData(
 							declaredClass.getName());
 
-						_assertClassDataCoverage(
-							assertionErrors, declaredClass, classData);
+						_assertClassDataCoverage(assertionErrors, classData);
 					}
 				}
 			}
@@ -302,12 +301,7 @@ public class InstrumentationAgent {
 	}
 
 	private static void _assertClassDataCoverage(
-		List<AssertionError> assertionErrors, Class<?> clazz,
-		ClassData classData) {
-
-		if (clazz.isInterface()) {
-			return;
-		}
+		List<AssertionError> assertionErrors, ClassData classData) {
 
 		if ((classData.getBranchCoverageRate() != 1.0) ||
 			(classData.getLineCoverageRate() != 1.0)) {
@@ -316,8 +310,7 @@ public class InstrumentationAgent {
 
 			sb.append("%n[Whip] %s is not fully covered.%n[Whip]Branch ");
 			sb.append("coverage rate : %.2f, line coverage rate : ");
-			sb.append("%.2f.%n[Whip]Please rerun test with ");
-			sb.append("-Djunit.code.coverage=true to see coverage report.%n");
+			sb.append("%.2f.%n");
 
 			System.out.printf(
 				sb.toString(), classData.getName(),

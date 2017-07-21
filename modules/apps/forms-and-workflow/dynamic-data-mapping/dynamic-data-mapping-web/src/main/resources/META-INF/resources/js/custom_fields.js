@@ -3,6 +3,8 @@ AUI.add(
 	function(A) {
 		var AArray = A.Array;
 
+		var AEscape = A.Escape;
+
 		var FormBuilderTextField = A.FormBuilderTextField;
 		var FormBuilderTypes = A.FormBuilderField.types;
 
@@ -29,6 +31,8 @@ AUI.add(
 		var STR_DASH = '-';
 
 		var STR_SPACE = ' ';
+
+		var TPL_COLOR = '<input class="field form-control" type="text" value="' + A.Escape.html(Liferay.Language.get('color')) + '" readonly="readonly">';
 
 		var TPL_GEOLOCATION = '<div class="field-labels-inline">' +
 				'<img src="' + themeDisplay.getPathThemeImages() + '/common/geolocation.png" title="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
@@ -59,6 +63,20 @@ AUI.add(
 				'<label class="control-label">' + A.Escape.html(Liferay.Language.get('image-description')) + '</label>' +
 				'<input class="field form-control" type="text" value="" disabled>' +
 			'</div>';
+
+		CSS_RADIO = A.getClassName('radio'),
+		CSS_FIELD = A.getClassName('field'),
+		CSS_FIELD_CHOICE = A.getClassName('field', 'choice'),
+		CSS_FIELD_RADIO = A.getClassName('field', 'radio'),
+		CSS_FORM_BUILDER_FIELD = A.getClassName('form-builder-field'),
+		CSS_FORM_BUILDER_FIELD_NODE = A.getClassName('form-builder-field', 'node'),
+		CSS_FORM_BUILDER_FIELD_OPTIONS_CONTAINER = A.getClassName('form-builder-field', 'options', 'container'),
+
+		TPL_OPTIONS_CONTAINER = '<div class="' + CSS_FORM_BUILDER_FIELD_OPTIONS_CONTAINER + '"></div>',
+		TPL_RADIO =
+			'<div class="' + CSS_RADIO + '"><label class="radio-inline" for="{id}"><input id="{id}" class="' +
+			[CSS_FIELD, CSS_FIELD_CHOICE, CSS_FIELD_RADIO, CSS_FORM_BUILDER_FIELD_NODE].join(' ') +
+			'" name="{name}" type="radio" value="{value}" {checked} {disabled} />{label}</label></div>';
 
 		var UNIQUE_FIELD_NAMES_MAP = Liferay.FormBuilder.UNIQUE_FIELD_NAMES_MAP;
 
@@ -107,6 +125,88 @@ AUI.add(
 			);
 		};
 
+		var ColorCellEditor = A.Component.create(
+			{
+				EXTENDS: A.BaseCellEditor,
+
+				NAME: 'color-cell-editor',
+
+				prototype: {
+					ELEMENT_TEMPLATE: '<input type="text" />',
+
+					getElementsValue: function() {
+						var instance = this;
+
+						var colorPicker = instance.get('colorPicker');
+
+						var input = instance.get('boundingBox').one('input');
+
+						if (/\#[A-F\d]{6}/.test(input.val())) {
+							return input.val();
+						}
+					},
+
+					renderUI: function() {
+						var instance = this;
+
+						ColorCellEditor.superclass.renderUI.apply(instance, arguments);
+
+						var input = instance.get('boundingBox').one('input');
+
+						var colorPicker = new A.ColorPickerPopover(
+							{
+								trigger: input,
+								zIndex: 65535
+							}
+						).render();
+
+						colorPicker.on(
+							'select',
+							function(event) {
+								input.setStyle('color', event.color);
+								input.val(event.color);
+
+								instance.fire('save', {
+									newVal: instance.getValue(),
+									prevVal: event.color
+								});
+							}
+						);
+
+						instance.set('colorPicker', colorPicker);
+					},
+
+					_defSaveFn: function() {
+						var instance = this;
+
+						var colorPicker = instance.get('colorPicker');
+
+						var input = instance.get('boundingBox').one('input');
+
+						if (/\#[A-F\d]{6}/.test(input.val())) {
+							ColorCellEditor.superclass._defSaveFn.apply(instance, arguments);
+						}
+						else {
+							colorPicker.show();
+						}
+					},
+
+					_uiSetValue: function(val) {
+						var instance = this;
+
+						var input = instance.get('boundingBox').one('input');
+
+						input.setStyle('color', val);
+						input.val(val);
+
+						instance.elements.val(val);
+					}
+
+				}
+
+			}
+		);
+
 		var DLFileEntryCellEditor = A.Component.create(
 			{
 				EXTENDS: A.BaseCellEditor,
@@ -153,11 +253,10 @@ AUI.add(
 
 						var portletNamespace = instance.get('portletNamespace');
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setParameter('criteria', 'com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion');
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
-						portletURL.setParameter('p_p_auth', container.getData('itemSelectorAuthToken'));
 
 						var criterionJSON = {
 							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType'
@@ -182,7 +281,7 @@ AUI.add(
 					_getUploadURL: function() {
 						var instance = this;
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setLifecycle(Liferay.PortletURL.ACTION_PHASE);
 						portletURL.setParameter('cmd', 'add_temp');
@@ -467,6 +566,7 @@ AUI.add(
 		Liferay.FormBuilder.CUSTOM_CELL_EDITORS = {};
 
 		var customCellEditors = [
+			ColorCellEditor,
 			DLFileEntryCellEditor,
 			LinkToPageCellEditor
 		];
@@ -922,7 +1022,7 @@ AUI.add(
 				'keyword': Liferay.Language.get('yes')
 			};
 
-			if (type == 'text') {
+			if (type == 'ddm-image' || type == 'text') {
 				indexTypeOptions = {
 					'': Liferay.Language.get('not-indexable'),
 					'keyword': Liferay.Language.get('indexable-keyword'),
@@ -1004,6 +1104,56 @@ AUI.add(
 			);
 		};
 
+		var DDMColorField = A.Component.create(
+			{
+				ATTRS: {
+					dataType: {
+						value: 'color'
+					},
+
+					fieldNamespace: {
+						value: 'ddm'
+					},
+
+					showLabel: {
+						value: false
+					}
+				},
+
+				EXTENDS: A.FormBuilderField,
+
+				NAME: 'ddm-color',
+
+				prototype: {
+					getPropertyModel: function() {
+						var instance = this;
+
+						var model = DDMColorField.superclass.getPropertyModel.apply(instance, arguments);
+
+						model.forEach(
+							function(item, index, collection) {
+								var attributeName = item.attributeName;
+
+								if (attributeName === 'predefinedValue') {
+									collection[index] = {
+										attributeName: attributeName,
+										editor: new ColorCellEditor(),
+										name: Liferay.Language.get('predefined-value')
+									};
+								}
+							}
+						);
+
+						return model;
+					},
+
+					getHTML: function() {
+						return TPL_COLOR;
+					}
+				}
+			}
+		);
+
 		var DDMDateField = A.Component.create(
 			{
 				ATTRS: {
@@ -1073,11 +1223,23 @@ AUI.add(
 
 													var value = STR_BLANK;
 
-													if (val && val.length) {
+													if (Array.isArray(val)) {
 														value = instance.formatDate(val[0]);
 													}
 
 													return value;
+												},
+
+												outputFormatter: function(val) {
+													var instance = this;
+
+													if (Array.isArray(val)) {
+														var formattedValue = A.DataType.Date.parse(instance.get('dateFormat'), val[0]);
+
+														return [formattedValue];
+													}
+
+													return val;
 												}
 											}
 										),
@@ -1230,6 +1392,10 @@ AUI.add(
 
 					fieldNamespace: {
 						value: 'ddm'
+					},
+
+					indexType: {
+						value: 'text'
 					}
 				},
 
@@ -1347,6 +1513,72 @@ AUI.add(
 						var templateNode = instance.get('templateNode');
 
 						applyStyles(templateNode, val);
+					}
+				}
+			}
+		);
+
+		var DDMRadioField = A.Component.create(
+			{
+				ATTRS: {
+					dataType: {
+						value: 'radio'
+					},
+
+					predefinedValue: {
+						setter: function(val) {
+							return val;
+						}
+					}
+				},
+
+				EXTENDS: A.FormBuilderRadioField,
+
+				NAME: 'ddm-radio',
+
+				OVERRIDE_TYPE: 'radio',
+
+				prototype: {
+					_uiSetPredefinedValue: function(val) {
+						var instance = this,
+							optionNodes = instance.optionNodes;
+
+						if (!optionNodes) {
+							return;
+						}
+
+						optionNodes.set('checked', false);
+
+						optionNodes.all('input[value="' + AEscape.html(val) + '"]').set('checked', true);
+					},
+
+					_uiSetOptions: function(val) {
+						var instance = this,
+							buffer = [],
+							counter = 0,
+							predefinedValue = instance.get('predefinedValue'),
+							templateNode = instance.get('templateNode');
+
+						A.each(val, function(item) {
+							var checked = predefinedValue === item.value;
+
+							buffer.push(
+								Lang.sub(
+									TPL_RADIO, {
+										checked: checked ? 'checked="checked"' : '',
+										disabled: instance.get('disabled') ? 'disabled="disabled"' : '',
+										id: AEscape.html(instance.get('id') + counter++),
+										label: AEscape.html(item.label),
+										name: AEscape.html(instance.get('name')),
+										value: AEscape.html(item.value)
+									}
+								)
+							);
+						});
+
+						instance.optionNodes = A.NodeList.create(buffer.join(''));
+
+						templateNode.setContent(instance.optionNodes);
 					}
 				}
 			}
@@ -1517,6 +1749,7 @@ AUI.add(
 		);
 
 		var plugins = [
+			DDMColorField,
 			DDMDateField,
 			DDMDecimalField,
 			DDMDocumentLibraryField,
@@ -1527,6 +1760,7 @@ AUI.add(
 			DDMLinkToPageField,
 			DDMNumberField,
 			DDMParagraphField,
+			DDMRadioField,
 			DDMSeparatorField,
 			DDMHTMLTextField,
 			DDMTextAreaField
@@ -1534,12 +1768,12 @@ AUI.add(
 
 		plugins.forEach(
 			function(item, index) {
-				FormBuilderTypes[item.NAME] = item;
+				FormBuilderTypes[item.OVERRIDE_TYPE || item.NAME] = item;
 			}
 		);
 	},
 	'',
 	{
-		requires: ['liferay-item-selector-dialog', 'liferay-portlet-dynamic-data-mapping']
+		requires: ['aui-color-picker-popover', 'liferay-item-selector-dialog', 'liferay-portlet-dynamic-data-mapping']
 	}
 );

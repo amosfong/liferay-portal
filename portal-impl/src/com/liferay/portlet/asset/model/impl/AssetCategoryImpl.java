@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,6 +57,13 @@ public class AssetCategoryImpl extends AssetCategoryBaseImpl {
 
 	@Override
 	public String getPath(Locale locale) throws PortalException {
+		return getPath(locale, false);
+	}
+
+	@Override
+	public String getPath(Locale locale, boolean reverse)
+		throws PortalException {
+
 		List<AssetCategory> categories = getAncestors();
 
 		StringBundler sb = new StringBundler((categories.size() * 4) + 1);
@@ -64,6 +72,10 @@ public class AssetCategoryImpl extends AssetCategoryBaseImpl {
 			AssetVocabularyLocalServiceUtil.getVocabulary(getVocabularyId());
 
 		sb.append(vocabulary.getTitle(locale));
+
+		if (reverse) {
+			Collections.reverse(categories);
+		}
 
 		for (AssetCategory category : categories) {
 			sb.append(StringPool.SPACE);

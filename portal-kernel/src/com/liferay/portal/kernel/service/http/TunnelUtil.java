@@ -17,10 +17,10 @@ package com.liferay.portal.kernel.service.http;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.HttpPrincipal;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.tunnel.TunnelAuthenticationManagerUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.HttpMethods;
+import com.liferay.portal.kernel.util.AggregateClassLoader;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -69,26 +69,15 @@ public class TunnelUtil {
 		try (ObjectInputStream objectInputStream =
 				new ProtectedClassLoaderObjectInputStream(
 					httpURLConnection.getInputStream(),
-					thread.getContextClassLoader())) {
+					AggregateClassLoader.getAggregateClassLoader(
+						TunnelUtil.class.getClassLoader(),
+						thread.getContextClassLoader()))) {
 
 			returnObject = objectInputStream.readObject();
 		}
 		catch (EOFException eofe) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Unable to read object", eofe);
-			}
-		}
-		catch (IOException ioe) {
-			String ioeMessage = ioe.getMessage();
-
-			if ((ioeMessage != null) &&
-				ioeMessage.contains("HTTP response code: 401")) {
-
-				throw new PrincipalException.MustBeAuthenticated(
-					httpPrincipal.getLogin());
-			}
-			else {
-				throw ioe;
 			}
 		}
 

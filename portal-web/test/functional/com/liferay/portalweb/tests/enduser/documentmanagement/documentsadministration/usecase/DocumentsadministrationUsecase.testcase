@@ -78,7 +78,10 @@
 		</execute>
 	</command>
 
-	<command name="AddDocumentTypeAndMetadata" priority="3">
+	<command name="AddDocumentTypeAndMetadata" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Documents and Media" />
 		</execute>
@@ -195,6 +198,8 @@
 
 	<command name="AssertFileSizeValidation">
 		<description message="This is a use case for LPS-50760." />
+
+		<property name="test.name.skip.portal.instance" value="DocumentsadministrationUsecase#AssertFileSizeValidation" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -653,26 +658,7 @@
 
 	<command name="ConfigureXugglerVideoPreviewSizePG" priority="3">
 		<property name="custom.properties" value="xuggler.enabled=true${line.separator}dl.file.entry.preview.video.width=0${line.separator}dl.file.entry.preview.video.height=0" />
-
-		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Server Administration" />
-		</execute>
-
-		<execute macro="ServerAdministration#configureExternalServices">
-			<var name="installXuggler" value="true" />
-			<var name="xugglerJarFile" value="Linux 32-bit JVM (with GNU libc v6) (xuggle-xuggler-arch-i686-pc-linux-gnu.jar)" />
-		</execute>
-
-		<execute macro="Portlet#shutdownServer" />
-
-		<execute macro="Portlet#startServer" />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="User#loginPG">
-			<var name="password" value="test" />
-			<var name="userEmailAddress" value="test@liferay.com" />
-		</execute>
+		<property name="test.name.skip.portal.instance" value="DocumentsadministrationUsecase#ConfigureXugglerVideoPreviewSizePG" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Server Administration" />
@@ -897,7 +883,11 @@
 		<execute macro="DMDocument#viewDefaultCP" />
 	</command>
 
-	<command name="UpdateDocumentTypeWithPermissions" priority="3">
+	<command name="UpdateDocumentTypeWithPermissions" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="DocumentsadministrationUsecase#UpdateDocumentTypeWithPermissions" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -1097,7 +1087,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute function="AssertVisible" locator1="ControlMenu#HEADER_TITLE" value1="Documents and Media" />
+		<execute function="AssertVisible" locator1="Portlet#HEADER" value1="Documents and Media" />
 
 		<execute macro="DMNavigator#gotoDocumentType" />
 
@@ -1126,7 +1116,10 @@
 		<execute macro="DMDocumentType#viewNoAvailableActionsViaDocumentTypesPG" />
 	</command>
 
-	<command name="ViewDocumentWithGlobalScope" priority="4">
+	<command name="ViewDocumentWithGlobalScope" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>
@@ -1311,7 +1304,10 @@
 		</execute>
 	</command>
 
-	<command name="ViewFileCategoryAndTags" priority="4">
+	<command name="ViewFileCategoryAndTags" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Page#add">
 			<var name="pageName" value="Documents and Media Page" />
 		</execute>

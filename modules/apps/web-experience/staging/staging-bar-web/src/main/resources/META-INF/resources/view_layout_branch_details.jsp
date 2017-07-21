@@ -17,9 +17,9 @@
 <%@ include file="/init.jsp" %>
 
 <%
-LayoutBranch layoutBranch = (LayoutBranch)request.getAttribute("view.jsp-layoutBranch");
-LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute("view.jsp-layoutRevision");
-String stagingURL = (String)request.getAttribute("view.jsp-stagingURL");
+LayoutBranch layoutBranch = (LayoutBranch)request.getAttribute(StagingProcessesWebKeys.LAYOUT_BRANCH);
+LayoutRevision layoutRevision = (LayoutRevision)request.getAttribute(WebKeys.LAYOUT_REVISION);
+String stagingURL = (String)request.getAttribute(StagingProcessesWebKeys.STAGING_URL);
 %>
 
 <%
@@ -33,7 +33,7 @@ List<LayoutRevision> layoutRevisions = LayoutRevisionLocalServiceUtil.getChildLa
 
 	<div class="dropdown">
 		<a class="dropdown-toggle layout-branch-selector staging-variation-selector" data-toggle="dropdown" href="#1">
-			<liferay-ui:message key="<%= HtmlUtil.escape(layoutBranch.getName()) %>" />
+			<liferay-ui:message key="<%= HtmlUtil.escape(layoutBranchDisplayContext.getLayoutBranchDisplayName(layoutBranch)) %>" localizeKey="<%= false %>" />
 
 			<aui:icon image="caret-double-l" markupView="lexicon" />
 		</a>
@@ -56,7 +56,7 @@ List<LayoutRevision> layoutRevisions = LayoutRevisionLocalServiceUtil.getChildLa
 
 				<li>
 					<a class="<%= selected ? "disabled" : StringPool.BLANK %>" href="<%= selected ? "javascript:;" : curLayoutBranchURL %>">
-						<liferay-ui:message key="<%= HtmlUtil.escape(curLayoutBranch.getName()) %>" />
+						<liferay-ui:message key="<%= HtmlUtil.escape(layoutBranchDisplayContext.getLayoutBranchDisplayName(curLayoutBranch)) %>" localizeKey="<%= false %>" />
 					</a>
 				</li>
 

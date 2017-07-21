@@ -137,6 +137,7 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 								<liferay-ui:ratings
 									className="<%= MBMessage.class.getName() %>"
 									classPK="<%= message.getMessageId() %>"
+									inTrash="<%= message.isInTrash() %>"
 								/>
 							</div>
 						</c:if>
@@ -146,7 +147,8 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 								className="<%= MBMessage.class.getName() %>"
 								classPK="<%= message.getMessageId() %>"
 								contentTitle="<%= message.getSubject() %>"
-								message=""
+								enabled="<%= !message.isInTrash() %>"
+								message='<%= message.isInTrash() ? "flags-are-disabled-because-this-entry-is-in-the-recycle-bin" : StringPool.BLANK %>'
 								reportedUserId="<%= message.getUserId() %>"
 							/>
 						</c:if>
@@ -384,7 +386,7 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 			<div class="card-row card-row-padded custom-attributes">
 				<liferay-expando:custom-attribute-list
 					className="<%= MBMessage.class.getName() %>"
-					classPK="<%= (message != null) ? message.getMessageId() : 0 %>"
+					classPK="<%= message.getMessageId() %>"
 					editable="<%= false %>"
 					label="<%= true %>"
 				/>
@@ -405,7 +407,7 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 			int deletedAttachmentsFileEntriesCount = message.getDeletedAttachmentsFileEntriesCount();
 			%>
 
-			<c:if test="<%= (attachmentsFileEntriesCount > 0) || ((deletedAttachmentsFileEntriesCount > 0) && TrashUtil.isTrashEnabled(scopeGroupId) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE)) %>">
+			<c:if test="<%= (attachmentsFileEntriesCount > 0) || ((deletedAttachmentsFileEntriesCount > 0) && trashHelper.isTrashEnabled(scopeGroupId) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE)) %>">
 				<div class="card-row card-row-padded message-attachments">
 					<h3><liferay-ui:message key="attachments" />:</h3>
 
@@ -445,7 +447,7 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 						}
 						%>
 
-						<c:if test="<%= showDeletedAttachmentsFileEntries && (deletedAttachmentsFileEntriesCount > 0) && TrashUtil.isTrashEnabled(scopeGroupId) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE) %>">
+						<c:if test="<%= showDeletedAttachmentsFileEntries && (deletedAttachmentsFileEntriesCount > 0) && trashHelper.isTrashEnabled(scopeGroupId) && MBMessagePermission.contains(permissionChecker, message, ActionKeys.UPDATE) %>">
 							<li class="message-attachment">
 								<portlet:renderURL var="viewTrashAttachmentsURL">
 									<portlet:param name="mvcRenderCommandName" value="/message_boards/view_deleted_message_attachments" />

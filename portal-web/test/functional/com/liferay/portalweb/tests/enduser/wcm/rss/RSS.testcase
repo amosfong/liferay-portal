@@ -44,6 +44,8 @@
 	</tear-down>
 
 	<command name="AddFeedBetweenFeeds" priority="3">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
 			<var name="siteName" value="Site Name" />
@@ -61,7 +63,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Technology" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="Technology.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -80,7 +83,8 @@
 			<var name="buttonRowIndexNumber" value="1" />
 			<var name="feedRowIndexNumber" value="2" />
 			<var name="feedTitle" value="Latimes > Technology News" />
-			<var name="feedUrlLink" value="http://www.latimes.com/business/technology/rss2.0.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="rss2.0.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -99,7 +103,8 @@
 			<var name="buttonRowIndexNumber" value="1" />
 			<var name="feedRowIndexNumber" value="3" />
 			<var name="feedTitle" value="Reuters > Sports News" />
-			<var name="feedUrlLink" value="http://feeds.reuters.com/reuters/sportsNews" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="reuters_sports_news.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -117,6 +122,8 @@
 	</command>
 
 	<command name="AddFeedWithWrongUrl" priority="4">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
 			<var name="siteName" value="Site Name" />
@@ -158,7 +165,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="General Announcement" />
-			<var name="feedUrlLink" value="http://www.theverge.com/rss/index.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="theverge.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -175,6 +183,7 @@
 
 	<command name="AddRSSFeed" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="RSS" />
 
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
@@ -195,7 +204,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Latimes > Technology News" />
-			<var name="feedUrlLink" value="http://www.latimes.com/business/technology/rss2.0.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="rss2.0.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -211,6 +221,8 @@
 	</command>
 
 	<command name="AddWebContentFeed" priority="3">
+		<property name="testray.component.names" value="Asset Publisher,RSS" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -289,6 +301,8 @@
 	</command>
 
 	<command name="ChangeDefaultToNavigationDisplay" priority="3">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
 			<var name="siteName" value="Site Name" />
@@ -306,7 +320,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Technology" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="Technology.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -338,6 +353,8 @@
 	</command>
 
 	<command name="ChangeOrderOfRSSFeeds" priority="3">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
 			<var name="siteName" value="Site Name" />
@@ -355,7 +372,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Technology" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="Technology.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -374,7 +392,8 @@
 			<var name="buttonRowIndexNumber" value="1" />
 			<var name="feedRowIndexNumber" value="2" />
 			<var name="feedTitle" value="NBA" />
-			<var name="feedUrlLink" value="http://sports.espn.go.com/espn/rss/nba/news" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="nba.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -391,13 +410,13 @@
 
 		<execute macro="RSS#viewPG">
 			<var name="feedRowIndexNumber" value="0" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedTitle" value="Technology" />
 			<var name="rowIndexNumber" value="1" />
 		</execute>
 
 		<execute macro="RSS#viewPG">
 			<var name="feedRowIndexNumber" value="1" />
-			<var name="feedUrlLink" value="http://sports.espn.go.com/espn/rss/nba/news" />
+			<var name="feedTitle" value="NBA" />
 			<var name="rowIndexNumber" value="2" />
 		</execute>
 
@@ -421,18 +440,20 @@
 
 		<execute macro="RSS#viewPG">
 			<var name="feedRowIndexNumber" value="0" />
-			<var name="feedUrlLink" value="http://sports.espn.go.com/espn/rss/nba/news" />
+			<var name="feedTitle" value="NBA" />
 			<var name="rowIndexNumber" value="1" />
 		</execute>
 
 		<execute macro="RSS#viewPG">
 			<var name="feedRowIndexNumber" value="1" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedTitle" value="Technology" />
 			<var name="rowIndexNumber" value="2" />
 		</execute>
 	</command>
 
 	<command name="DeleteFeedFromRSS" priority="4">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Welcome" />
 		</execute>
@@ -453,7 +474,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Latimes > Technology News" />
-			<var name="feedUrlLink" value="http://www.latimes.com/business/technology/rss2.0.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="rss2.0.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -487,6 +509,8 @@
 	</command>
 
 	<command name="DisabledFeedTitle" priority="3">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page Name" />
 			<var name="siteName" value="Site Name" />
@@ -508,7 +532,8 @@
 		<execute macro="RSS#addFeed">
 			<var name="feedRowIndexNumber" value="0" />
 			<var name="feedTitle" value="Technology" />
-			<var name="feedUrlLink" value="http://rss.nytimes.com/services/xml/rss/nyt/Technology.xml" />
+			<var name="feedType" value="file" />
+			<var name="feedUrlLink" value="Technology.xml" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -542,6 +567,8 @@
 	</command>
 
 	<command name="EnableRSSFeedFromAssetpublisher" priority="3">
+		<property name="testray.component.names" value="Asset Publisher,RSS" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -636,6 +663,8 @@
 	</command>
 
 	<command name="RemoveRSSPortlet" priority="4">
+		<property name="testray.component.names" value="RSS" />
+
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Welcome" />
 		</execute>
@@ -668,6 +697,9 @@
 	</command>
 
 	<command name="UpdateRSSFeedViaAssetpublisher" priority="4">
+		<property name="test.name.skip.portal.instance" value="RSS#UpdateRSSFeedViaAssetpublisher" />
+		<property name="testray.component.names" value="Asset Publisher,RSS" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />

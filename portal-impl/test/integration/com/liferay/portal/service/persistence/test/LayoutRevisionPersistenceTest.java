@@ -318,11 +318,29 @@ public class LayoutRevisionPersistenceTest {
 	}
 
 	@Test
+	public void testCountByL_H_P_Collection() throws Exception {
+		_persistence.countByL_H_P_Collection(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong());
+
+		_persistence.countByL_H_P_Collection(0L,
+			RandomTestUtil.randomBoolean(), 0L);
+	}
+
+	@Test
 	public void testCountByL_P_S() throws Exception {
 		_persistence.countByL_P_S(RandomTestUtil.nextLong(),
 			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 		_persistence.countByL_P_S(0L, 0L, 0);
+	}
+
+	@Test
+	public void testCountByL_L_H_P() throws Exception {
+		_persistence.countByL_L_H_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean(),
+			RandomTestUtil.nextLong());
+
+		_persistence.countByL_L_H_P(0L, 0L, RandomTestUtil.randomBoolean(), 0L);
 	}
 
 	@Test
@@ -566,6 +584,21 @@ public class LayoutRevisionPersistenceTest {
 				existingLayoutRevision.getLayoutSetBranchId()),
 			ReflectionTestUtil.<Long>invoke(existingLayoutRevision,
 				"getOriginalLayoutSetBranchId", new Class<?>[0]));
+		Assert.assertEquals(Boolean.valueOf(existingLayoutRevision.getHead()),
+			ReflectionTestUtil.<Boolean>invoke(existingLayoutRevision,
+				"getOriginalHead", new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingLayoutRevision.getPlid()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutRevision,
+				"getOriginalPlid", new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(
+				existingLayoutRevision.getLayoutSetBranchId()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutRevision,
+				"getOriginalLayoutSetBranchId", new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(
+				existingLayoutRevision.getLayoutBranchId()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutRevision,
+				"getOriginalLayoutBranchId", new Class<?>[0]));
 		Assert.assertEquals(Boolean.valueOf(existingLayoutRevision.getHead()),
 			ReflectionTestUtil.<Boolean>invoke(existingLayoutRevision,
 				"getOriginalHead", new Class<?>[0]));

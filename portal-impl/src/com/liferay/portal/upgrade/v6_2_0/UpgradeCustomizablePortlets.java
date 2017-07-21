@@ -14,9 +14,9 @@
 
 package com.liferay.portal.upgrade.v6_2_0;
 
-import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
-import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.layouts.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.model.PortletPreferences;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -154,7 +154,7 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			long plid = GetterUtil.getLong(parts[0]);
 			String key = GetterUtil.getString(parts[1]);
 
-			if (key.startsWith(LayoutTypePortletConstants.COLUMN_PREFIX)) {
+			if (LayoutTypePortletConstants.isLayoutTemplateColumnName(key)) {
 				String value = portalPreferencesImpl.getValue(
 					namespacePlid(plid), key);
 
@@ -173,15 +173,17 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 					for (String customPortletId : StringUtil.split(value)) {
 						String newPortletId = null;
 
-						if (!PortletConstants.hasInstanceId(customPortletId)) {
+						if (!PortletIdCodec.hasInstanceId(customPortletId)) {
 							newPortletIds.add(customPortletId);
 						}
 						else {
-							String instanceId = PortletConstants.getInstanceId(
+							String instanceId = PortletIdCodec.decodeInstanceId(
 								customPortletId);
 
-							newPortletId = PortletConstants.assemblePortletId(
-								customPortletId, ownerId, instanceId);
+							newPortletId = PortletIdCodec.encode(
+								PortletIdCodec.decodePortletName(
+									customPortletId),
+								ownerId, instanceId);
 
 							ps.setLong(1, ownerId);
 							ps.setInt(2, PortletKeys.PREFS_OWNER_TYPE_USER);

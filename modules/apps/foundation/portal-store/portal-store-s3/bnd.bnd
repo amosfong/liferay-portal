@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Store S3
 Bundle-SymbolicName: com.liferay.portal.store.s3
-Bundle-Version: 2.0.8
+Bundle-Version: 2.0.12
 Import-Package:\
 	!com.sun.org.apache.xerces.internal.jaxp,\
 	!com.sun.org.apache.xml.internal.dtm,\
@@ -14,6 +14,7 @@ Import-Package:\
 	!org.ietf.jgss,\
 	\
 	!org.joda.convert,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title: Data Stores

@@ -115,7 +115,10 @@
 		<execute function="AssertElementNotPresent" locator1="Button#ADD" />
 	</command>
 
-	<command name="SearchPermissions" priority="4">
+	<command name="SearchPermissions" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Roles" />
 		</execute>
@@ -398,7 +401,7 @@
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="Child SiteName2" />
 
-		<execute function="AssertTextEquals" locator1="ControlMenu#HEADER_TITLE" value1="Public Pages" />
+		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Public Pages" />
 
 		<execute macro="Permissions#definePermissionLoginUserCP">
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_PAGES_SITE_PAGES_RESOURCE_PERMISSIONS_SITE_MANAGE_SUBSITES_CHECKBOX" />
@@ -419,7 +422,7 @@
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="Child SiteName1" />
 
-		<execute function="AssertTextEquals" locator1="ControlMenu#HEADER_TITLE" value1="Public Pages" />
+		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Public Pages" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -431,7 +434,7 @@
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="Child SiteName2" />
 
-		<execute function="AssertTextEquals" locator1="ControlMenu#HEADER_TITLE" value1="Public Pages" />
+		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Public Pages" />
 
 		<execute macro="Permissions#removePermissionLoginUserCP">
 			<var name="permissionDefinitionKey" value="SITE_ADMIN_PAGES_SITE_PAGES_RESOURCE_PERMISSIONS_SITE_MANAGE_SUBSITES_CHECKBOX" />
@@ -459,10 +462,15 @@
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="Child SiteName2" />
 
-		<execute function="AssertTextEquals" locator1="ControlMenu#HEADER_TITLE" value1="Public Pages" />
+		<execute function="AssertTextEquals" locator1="Portlet#HEADER" value1="Public Pages" />
 	</command>
 
 	<command name="ViewSiteManagePagesRegRole" priority="4">
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
 		<execute macro="Permissions#setUpRegRoleLoginUserCP">
 			<var name="portletName" value="Sites" />
 			<var name="roleTitle" value="Regrole Name" />
@@ -529,13 +537,13 @@
 			<var name="portlet" value="Sites" />
 		</execute>
 
-		<var name="key_site" value="Liferay" />
+		<var name="key_site" value="${siteName}" />
 
-		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="Liferay" />
+		<execute function="AssertClick#assertPartialTextClickAt" locator1="ContentRow#ENTRY_CONTENT_ROW_TD_1_SITE_LINK" value1="${siteName}" />
 
-		<var name="key_siteName" value="Liferay" />
+		<var name="key_siteName" value="${siteName}" />
 
-		<execute function="AssertElementPresent" locator1="SitePages#SITE_NAME" value1="Liferay" />
+		<execute function="AssertElementPresent" locator1="SitePages#SITE_NAME" value1="${siteName}" />
 
 		<execute macro="Navigator#openURL" />
 

@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.security.permission.AdvancedPermissionChecker;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.List;
@@ -161,6 +160,37 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 	}
 
 	@Test
+	public void testSearchByType() throws Exception {
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_DEFAULT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		List<DDMStructure> structures = DDMStructureServiceUtil.search(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_DEFAULT,
+			WorkflowConstants.STATUS_APPROVED, true, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+
+		Assert.assertEquals(structures.toString(), 1, structures.size());
+
+		structures = DDMStructureServiceUtil.search(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED, true, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+
+		Assert.assertEquals(structures.toString(), 1, structures.size());
+	}
+
+	@Test
 	public void testSearchCount() throws Exception {
 		addStructure(_classNameId, StringUtil.randomString());
 		addStructure(_classNameId, StringUtil.randomString());
@@ -215,6 +245,27 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 			false);
 
 		Assert.assertEquals(3, count);
+	}
+
+	@Test
+	public void testSearchCountByType() throws Exception {
+		int initialCount = DDMStructureServiceUtil.searchCount(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_ANY, true);
+
+		addStructure(
+			0, _classNameId, null, StringUtil.randomString(), StringPool.BLANK,
+			read("test-structure.xsd"), StorageType.JSON.getValue(),
+			DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		int count = DDMStructureServiceUtil.searchCount(
+			TestPropsValues.getCompanyId(), new long[] {group.getGroupId()},
+			_classNameId, null, null, null, DDMStructureConstants.TYPE_FRAGMENT,
+			WorkflowConstants.STATUS_ANY, true);
+
+		Assert.assertEquals(initialCount + 1, count);
 	}
 
 	@Test
@@ -294,11 +345,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 			PermissionThreadLocal.getPermissionChecker();
 
 		PermissionThreadLocal.setPermissionChecker(
-			new AdvancedPermissionChecker() {
-				{
-					init(_siteAdminUser);
-				}
-			});
+			PermissionCheckerFactoryUtil.create(_siteAdminUser));
 	}
 
 	protected void setUpPrincipalThreadLocal() throws Exception {

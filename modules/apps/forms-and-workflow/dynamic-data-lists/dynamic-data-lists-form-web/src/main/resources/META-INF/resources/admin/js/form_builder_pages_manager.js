@@ -1,21 +1,31 @@
 AUI.add(
 	'liferay-ddl-form-builder-pages-manager',
 	function(A) {
-		var Renderer = Liferay.DDM.Renderer;
-
 		var CSS_FORM_BUILDER_CONTROLS_TRIGGER = A.getClassName('form', 'builder', 'controls', 'trigger');
 
 		var CSS_FORM_BUILDER_PAGE_MANAGER_ADD_PAGE_LAST_POSITION = A.getClassName('form', 'builder', 'page', 'manager', 'add', 'last', 'position');
+
+		var CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE = A.getClassName('form', 'builder', 'page', 'manager', 'add', 'success', 'page');
 
 		var CSS_FORM_BUILDER_PAGE_MANAGER_DELETE_PAGE = A.getClassName('form', 'builder', 'page', 'manager', 'delete', 'page');
 
 		var CSS_FORM_BUILDER_PAGE_MANAGER_SWITCH_MODE = A.getClassName('form', 'builder', 'page', 'manager', 'switch', 'mode');
 
+		var CSS_FORM_BUILDER_PAGE_POPOVER_CONTENT = A.getClassName('form', 'builder', 'pages', 'popover', 'content');
+
 		var CSS_FORM_BUILDER_PAGES_CONTENT = A.getClassName('form', 'builder', 'page', 'manager', 'content');
 
 		var CSS_FORM_BUILDER_PAGINATION = A.getClassName('form', 'builder', 'pagination');
 
+		var CSS_FORM_BUILDER_SUCCESS_PAGE = A.getClassName('form', 'builder', 'success', 'page');
+
+		var CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT = A.getClassName('form', 'builder', 'success', 'page', 'content');
+
+		var CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE = A.getClassName('form', 'builder', 'success', 'page', 'title');
+
 		var CSS_FORM_BUILDER_TABVIEW = A.getClassName('form', 'builder', 'tabview');
+
+		var CSS_LAYOUT = A.getClassName('form', 'builder', 'layout');
 
 		var CSS_PAGE_HEADER = A.getClassName('form', 'builder', 'page', 'header');
 
@@ -33,21 +43,58 @@ AUI.add(
 					builder: {
 					},
 
+					defaultLanguageId: {
+						value: themeDisplay.getDefaultLanguageId()
+					},
+
+					descriptions: {
+						getter: '_getDescriptions'
+					},
+
+					editingLanguageId: {
+						value: themeDisplay.getDefaultLanguageId()
+					},
+
+					localizedDescriptions: {
+						value: []
+					},
+
+					localizedTitles: {
+						value: []
+					},
+
 					mode: {
 						validator: '_validateMode',
-						value: 'pagination'
+						value: 'wizard'
 					},
 
 					strings: {
 						value: {
 							addPageLastPosition: Liferay.Language.get('add-new-page'),
+							addSuccessPage: Liferay.Language.get('add-success-page'),
 							aditionalInfo: Liferay.Language.get('add-a-short-description-for-this-page'),
+							content: Liferay.Language.get('content'),
+							defaultContent: Liferay.Language.get('your-information-was-successfully-received-thanks-for-fill-out'),
+							defaultTitle: Liferay.Language.get('done'),
 							deleteCurrentPage: Liferay.Language.get('delete-current-page'),
 							resetPage: Liferay.Language.get('reset-page'),
 							switchMode: Liferay.Language.get('switch-pagination-mode'),
+							title: Liferay.Language.get('title'),
 							untitledPage: Liferay.Language.get('untitled-page-x-of-x')
 						},
 						writeOnce: true
+					},
+
+					successPageSettings: {
+						value: {
+							body: {},
+							enabled: false,
+							title: {}
+						}
+					},
+
+					titles: {
+						getter: '_getTitles'
 					}
 				},
 
@@ -74,13 +121,54 @@ AUI.add(
 						CSS_PAGE_HEADER_DESCRIPTION_HIDE_BORDER + ' form-control"></textarea>' +
 					'</div>',
 
+					TPL_POPOVER_CONTENT: '<ul class="' + CSS_FORM_BUILDER_PAGE_POPOVER_CONTENT + '">' +
+					'<li class="' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_PAGE_LAST_POSITION + '">{addPageLastPosition}</li>' +
+					'<li class="' + CSS_FORM_BUILDER_PAGE_MANAGER_DELETE_PAGE + '">{deleteCurrentPage}</li>' +
+					'<li class="' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE + '">{addSuccessPage}</li>' +
+					'<li class="' + CSS_FORM_BUILDER_PAGE_MANAGER_SWITCH_MODE + '">{switchMode}</li>' +
+					'</ul>',
+
+					TPL_SUCCESS_PAGE: '<div class="' + CSS_FORM_BUILDER_SUCCESS_PAGE + '">' +
+					'<label class="control-label">{title}</label><input class="' + CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE + ' form-control" type="text"><br>' +
+					'<label class="control-label">{content}</label><input class="' + CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT + ' form-control" type="text">' +
+					'</div>',
+
 					initializer: function() {
 						var instance = this;
 
+						var boundingBox = instance.get('builder').get('boundingBox');
+
+						var content = boundingBox.one('.form-builder-content');
+
+						var strings = instance.get('strings');
+
+						var successPage = A.Node.create(
+							A.Lang.sub(
+								instance.TPL_SUCCESS_PAGE,
+								{
+									content: strings.content,
+									title: strings.title
+								}
+							)
+						);
+
+						successPage.hide();
+
+						content.append(successPage);
+
+						var successPageTitle = successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE);
+
+						var successPageContent = successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT);
+
 						instance._eventHandlers = [
 							A.on('windowresize', A.bind('_syncPageInformationHeight', instance)),
-							instance.after('titlesChange', A.bind('_afterTitlesChange', instance))
+							instance.after('editingLanguageIdChange', A.bind('_afterEditingLanguageIdChange', instance)),
+							instance.after('titlesChange', A.bind('_afterTitlesChange', instance)),
+							successPageContent.after('valueChange', A.bind('_afterSuccessPageContentChange', instance), instance),
+							successPageTitle.after('valueChange', A.bind('_afterSuccessPageTitleChange', instance), instance)
 						];
+
+						instance._createTitleForEditingLanguageId();
 					},
 
 					destructor: function() {
@@ -103,6 +191,46 @@ AUI.add(
 						FormBuilderPagesManager.superclass.enablePaginations.apply(instance, arguments);
 
 						instance._toggleWizardDisabled(false);
+					},
+
+					getSuccessPageDefinition: function() {
+						var instance = this;
+
+						return instance.get('successPageSettings');
+					},
+
+					setSuccessPage: function(successPageSettings) {
+						var instance = this;
+
+						var builder = instance.get('builder');
+
+						var boundingBox = builder.get('boundingBox');
+
+						var successPage = boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE);
+
+						var wizard = instance._getWizard();
+
+						if (successPageSettings && successPageSettings.enabled) {
+							instance.set('successPageSettings', successPageSettings);
+
+							wizard.set('successPage', successPageSettings.enabled);
+
+							var editingLanguageId = instance.get('editingLanguageId');
+
+							successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE).val(successPageSettings.title[editingLanguageId]);
+
+							successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT).val(successPageSettings.body[editingLanguageId]);
+
+							instance._uiSetMode(instance.get('mode'));
+
+							instance._syncControlTriggersUI();
+
+							var popoverBoundingBox = instance._getPopover().get('boundingBox');
+
+							popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE).hide();
+						}
+
+						instance._syncPopoverContent();
 					},
 
 					toggleControlsTriggerDisabled: function(disabled) {
@@ -141,6 +269,27 @@ AUI.add(
 						wizard.set('selected', activePageNumber - 1);
 					},
 
+					_afterEditingLanguageIdChange: function(event) {
+						var instance = this;
+
+						instance.set('editingLanguageId', event.newVal);
+
+						var wizard = instance._getWizard();
+
+						var selectedWizard = wizard.get('selected');
+
+						var pagesQuantity = wizard.get('items').length;
+
+						if (wizard.get('successPage') && selectedWizard === pagesQuantity) {
+							instance._syncSuccessPage();
+						}
+						else {
+							instance._syncTitle();
+						}
+
+						instance._syncWizardItems();
+					},
+
 					_afterPagesQuantityChange: function(event) {
 						var instance = this;
 
@@ -159,6 +308,26 @@ AUI.add(
 						switchModeNode.toggle(event.newVal > 1);
 					},
 
+					_afterSuccessPageContentChange: function(event) {
+						var instance = this;
+
+						var editingLanguageId = instance.get('editingLanguageId');
+
+						var successPageSettings = instance.get('successPageSettings');
+
+						successPageSettings.body[editingLanguageId] = event.newVal;
+					},
+
+					_afterSuccessPageTitleChange: function(event) {
+						var instance = this;
+
+						var editingLanguageId = instance.get('editingLanguageId');
+
+						var successPageSettings = instance.get('successPageSettings');
+
+						successPageSettings.title[editingLanguageId] = event.newVal;
+					},
+
 					_afterTitlesChange: function(event) {
 						var instance = this;
 
@@ -168,14 +337,24 @@ AUI.add(
 					_afterWizardSelectionChange: function() {
 						var instance = this;
 
-						var selectedWizard = instance._getWizard().get('selected');
+						var wizard = instance._getWizard();
 
-						if (selectedWizard > -1) {
+						var selectedWizard = wizard.get('selected');
+
+						var pagesQuantity = wizard.get('items').length;
+
+						if (wizard.get('successPage') && selectedWizard === pagesQuantity) {
+							instance._showSuccessPage();
+						}
+						else if (selectedWizard > -1) {
+							instance._showLayout();
 							var pagination = instance._getPagination();
 
 							pagination.set('page', selectedWizard + 1);
 
 							instance.set('activePageNumber', selectedWizard + 1);
+
+							instance._syncTitle();
 						}
 					},
 
@@ -191,6 +370,7 @@ AUI.add(
 									{
 										addPageLastPosition: strings.addPageLastPosition,
 										addPageNextPosition: strings.addPageNextPosition,
+										addSuccessPage: strings.addSuccessPage,
 										deleteCurrentPage: this._getDeleteButtonString(),
 										switchMode: strings.switchMode
 									}
@@ -206,6 +386,7 @@ AUI.add(
 
 						popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_PAGE_LAST_POSITION).on('click', A.bind('_onAddLastPageClick', instance));
 						popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_DELETE_PAGE).on('click', A.bind('_onRemovePageClick', instance));
+						popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE).on('click', A.bind('_onAddSuccessClick', instance));
 
 						var switchModeNode = popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_SWITCH_MODE);
 
@@ -216,6 +397,35 @@ AUI.add(
 						instance._syncControlTriggersUI();
 
 						return popover;
+					},
+
+					_createTitleForEditingLanguageId: function() {
+						var instance = this;
+
+						var activePageNumber = instance.get('activePageNumber');
+						var editingLanguageId = instance.get('editingLanguageId');
+						var defaultLanguageId = instance.get('defaultLanguageId');
+
+						var localizedTitles = instance.get('localizedTitles');
+						var localizedDescriptions = instance.get('localizedDescriptions');
+
+						var activePageIndex = activePageNumber - 1;
+
+						if (!localizedTitles[activePageIndex]) {
+							localizedTitles[activePageIndex] = {};
+						}
+
+						if (!localizedDescriptions[activePageIndex]) {
+							localizedDescriptions[activePageIndex] = {};
+						}
+
+						if (!localizedTitles[activePageIndex][editingLanguageId]) {
+							localizedTitles[activePageIndex][editingLanguageId] = localizedTitles[activePageIndex][defaultLanguageId] || '';
+						}
+
+						if (!localizedDescriptions[activePageIndex][editingLanguageId]) {
+							localizedDescriptions[activePageIndex][editingLanguageId] = localizedDescriptions[activePageIndex][defaultLanguageId] || '';
+						}
 					},
 
 					_createUntitledPageLabel: function(activePageNumber, pagesQuantity) {
@@ -240,12 +450,24 @@ AUI.add(
 
 						var activePageNumber = instance.get('activePageNumber');
 						var pagesQuantity = instance.get('pagesQuantity');
-						var titles = instance.get('titles');
+
+						instance._createTitleForEditingLanguageId();
+
+						var editingLanguageId = instance.get('editingLanguageId');
+						var defaultLanguageId = instance.get('defaultLanguageId');
+
+						var localizedTitles = instance.get('localizedTitles');
 
 						var items = [];
 
 						for (var i = 1; i <= pagesQuantity; i++) {
-							var title = titles[i - 1];
+							var index = i - 1;
+
+							if (!localizedTitles[index]) {
+								localizedTitles[index] = {};
+							}
+
+							var title = localizedTitles[index][editingLanguageId] || localizedTitles[index][defaultLanguageId];
 
 							if (!title) {
 								title = instance._createUntitledPageLabel(i, pagesQuantity);
@@ -262,15 +484,56 @@ AUI.add(
 						return items;
 					},
 
+					_getDeleteButtonString: function() {
+						var instance = this;
+
+						var deleteButtonString;
+
+						var wizard = instance._getWizard();
+
+						if (instance.get('pagesQuantity') > 1 || wizard.get('successPage')) {
+							deleteButtonString = instance.get('strings').deleteCurrentPage;
+						}
+						else {
+							deleteButtonString = instance.get('strings').resetPage;
+						}
+
+						return deleteButtonString;
+					},
+
+					_getDescriptions: function() {
+						var instance = this;
+
+						var editingLanguageId = instance.get('editingLanguageId');
+
+						return instance.get('localizedDescriptions').map(
+							function(localizedDescription) {
+								return localizedDescription[editingLanguageId];
+							}
+						);
+					},
+
+					_getTitles: function() {
+						var instance = this;
+
+						var editingLanguageId = instance.get('editingLanguageId');
+
+						return instance.get('localizedTitles').map(
+							function(localizedTitle) {
+								return localizedTitle[editingLanguageId];
+							}
+						);
+					},
+
 					_getWizard: function() {
 						var instance = this;
 
-						if (!instance.wizard) {
+						if (!instance._wizard) {
 							var builder = instance.get('builder');
 
 							var wizardNode = builder.get('boundingBox').one('.' + CSS_FORM_BUILDER_TABVIEW);
 
-							instance.wizard = new Renderer.Wizard(
+							instance._wizard = new Liferay.DDL.FormBuilderWizard(
 								{
 									after: {
 										selectedChange: A.bind(instance._afterWizardSelectionChange, instance)
@@ -283,7 +546,9 @@ AUI.add(
 							);
 						}
 
-						return instance.wizard;
+						instance._wizard.get('boundingBox').delegate('click', A.bind(instance._onClickItemWizard, instance), 'li');
+
+						return instance._wizard;
 					},
 
 					_onAddLastPageClick: function() {
@@ -295,11 +560,63 @@ AUI.add(
 						instance._getPopover().hide();
 					},
 
-					_onAddPageClick: function() {
+					_onAddSuccessClick: function() {
 						var instance = this;
 
-						instance._addPage();
-						instance._addWizardPage();
+						var wizard = instance._getWizard();
+
+						wizard.set('successPage', true);
+
+						instance._uiSetMode(instance.get('mode'));
+
+						instance._showSuccessPage();
+
+						instance._syncControlTriggersUI();
+
+						var pagesQuantity = instance.get('pagesQuantity');
+
+						wizard.clearAll();
+
+						wizard.activate(pagesQuantity);
+
+						instance._syncPopoverContent();
+
+						var popoverBoundingBox = instance._getPopover().get('boundingBox');
+
+						popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE).hide();
+
+						instance._resetSuccessPage();
+
+						instance._getPopover().hide();
+					},
+
+					_onClickItemWizard: function(event) {
+						var instance = this;
+
+						var currentTarget = event.currentTarget;
+
+						var attrSuccessPage = currentTarget.getData('success-page');
+
+						if (!attrSuccessPage) {
+							instance._showLayout();
+						}
+					},
+
+					_onDescriptionInputValueChange: function(event) {
+						var instance = this;
+
+						var activePageNumber = instance.get('activePageNumber');
+						var editingLanguageId = instance.get('editingLanguageId');
+						var descriptions = instance.get('descriptions');
+						var localizedDescriptions = instance.get('localizedDescriptions');
+
+						var description = event.newVal.trim();
+
+						descriptions[activePageNumber - 1] = description;
+						localizedDescriptions[activePageNumber - 1][editingLanguageId] = description;
+
+						instance.set('descriptions', descriptions);
+						instance.set('localizedDescriptions', localizedDescriptions);
 					},
 
 					_onPageControlOptionClick: function(event) {
@@ -325,40 +642,72 @@ AUI.add(
 					_onRemovePageClick: function() {
 						var instance = this;
 
-						var activePageNumber = instance.get('activePageNumber');
+						var wizard = instance._getWizard();
 
-						var pagination = instance._getPagination();
+						if (!wizard.isSuccessPageSelected()) {
+							var activePageNumber = instance.get('activePageNumber');
 
-						pagination.prev();
+							var pagination = instance._getPagination();
 
-						instance.set('pagesQuantity', instance.get('pagesQuantity') - 1);
+							pagination.prev();
 
-						instance.fire(
-							'remove',
-							{
-								removedIndex: activePageNumber - 1
+							instance.set('pagesQuantity', instance.get('pagesQuantity') - 1);
+
+							instance.fire(
+								'remove',
+								{
+									removedIndex: activePageNumber - 1
+								}
+							);
+
+							var page = Math.max(1, activePageNumber - 1);
+
+							pagination.getItem(page).addClass('active');
+
+							var titles = instance.get('titles');
+
+							titles.splice(activePageNumber - 1, 1);
+
+							instance.set('titles', titles);
+
+							var descriptions = instance.get('descriptions');
+
+							descriptions.splice(activePageNumber - 1, 1);
+
+							instance.set('descriptions', descriptions);
+
+							var localizedTitles = instance.get('localizedTitles');
+
+							localizedTitles.splice(activePageNumber - 1, 1);
+
+							instance.set('localizedTitles', localizedTitles);
+
+							var localizedDescriptions = instance.get('localizedDescriptions');
+
+							localizedDescriptions.splice(activePageNumber - 1, 1);
+
+							instance.set('localizedDescriptions', localizedDescriptions);
+
+							instance.set('activePageNumber', page);
+
+							instance._removeWizardPage(activePageNumber - 1);
+
+							if (!instance.get('pagesQuantity')) {
+								instance._addPage();
+								instance._addWizardPage();
+
+								wizard.activate(0);
 							}
-						);
-
-						var page = Math.max(1, activePageNumber - 1);
-
-						pagination.getItem(page).addClass('active');
-
-						var titles = instance.get('titles');
-
-						titles.splice(activePageNumber - 1, 1);
-
-						instance.set('titles', titles);
-						instance.set('activePageNumber', page);
-
-						instance._removeWizardPage(activePageNumber - 1);
-
-						if (!instance.get('pagesQuantity')) {
-							instance._addPage();
-							instance._addWizardPage();
-
-							instance._getWizard().activate(0);
 						}
+						else {
+							instance._removeSuccessPage();
+						}
+					},
+
+					_onRemoveSuccessPageClick: function() {
+						var instance = this;
+
+						instance._removeSuccessPage();
 					},
 
 					_onSwitchViewClick: function() {
@@ -378,11 +727,11 @@ AUI.add(
 						var instance = this;
 
 						var activePageNumber = instance.get('activePageNumber');
+						var editingLanguageId = instance.get('editingLanguageId');
 						var titles = instance.get('titles');
+						var localizedTitles = instance.get('localizedTitles');
 
 						var title = event.newVal.trim();
-
-						titles[activePageNumber - 1] = title;
 
 						if (!title) {
 							var pagesQuantity = instance.get('pagesQuantity');
@@ -390,7 +739,11 @@ AUI.add(
 							title = instance._createUntitledPageLabel(activePageNumber, pagesQuantity);
 						}
 
+						titles[activePageNumber - 1] = title;
+						localizedTitles[activePageNumber - 1][editingLanguageId] = title;
+
 						instance.set('titles', titles);
+						instance.set('localizedTitles', localizedTitles);
 					},
 
 					_plugAutoSize: function(node) {
@@ -404,6 +757,28 @@ AUI.add(
 						}
 
 						node.autosize._uiAutoSize();
+					},
+
+					_removeSuccessPage: function() {
+						var instance = this;
+
+						var wizard = instance._getWizard();
+
+						wizard.set('successPage', false);
+
+						instance._uiSetMode(instance.get('mode'));
+
+						instance._syncControlTriggersUI();
+
+						var popoverBoundingBox = instance._getPopover().get('boundingBox');
+
+						instance._resetSuccessPage();
+
+						popoverBoundingBox.one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_ADD_SUCCESS_PAGE).show();
+
+						instance._syncPopoverContent();
+
+						instance._showLayout();
 					},
 
 					_removeWizardPage: function(index) {
@@ -460,6 +835,35 @@ AUI.add(
 						wizard.render();
 					},
 
+					_resetSuccessPage: function() {
+						var instance = this;
+
+						var builder = instance.get('builder');
+
+						var boundingBox = builder.get('boundingBox');
+
+						var successPage = boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE);
+
+						var strings = instance.get('strings');
+
+						var successPageSettings = {
+							body: {},
+							enabled: instance._getWizard().get('successPage'),
+							title: {}
+						};
+
+						var defaultLanguageId = instance.get('defaultLanguageId');
+
+						successPageSettings.body[defaultLanguageId] = strings.defaultContent;
+						successPageSettings.title[defaultLanguageId] = strings.defaultTitle;
+
+						instance.set('successPageSettings', successPageSettings);
+
+						successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE).val(strings.defaultTitle);
+
+						successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT).val(strings.defaultContent);
+					},
+
 					_setCharacterLimitToPageDescription: function(maxLength) {
 						var instance = this;
 
@@ -496,6 +900,32 @@ AUI.add(
 						}
 					},
 
+					_showLayout: function() {
+						var instance = this;
+
+						var boundingBox = instance.get('builder').get('boundingBox');
+
+						boundingBox.one('.' + CSS_LAYOUT).show();
+						boundingBox.one('.' + CSS_PAGE_HEADER).show();
+
+						instance._syncSuccessPage();
+
+						boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE).hide();
+					},
+
+					_showSuccessPage: function() {
+						var instance = this;
+
+						var boundingBox = instance.get('builder').get('boundingBox');
+
+						boundingBox.one('.' + CSS_LAYOUT).hide();
+						boundingBox.one('.' + CSS_PAGE_HEADER).hide();
+
+						boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE).show();
+
+						instance._syncSuccessPage();
+					},
+
 					_syncControlTriggersUI: function() {
 						var instance = this;
 
@@ -505,8 +935,10 @@ AUI.add(
 
 						var boundingBox = builder.get('boundingBox');
 
-						boundingBox.all('.' + CSS_FORM_BUILDER_CONTROLS_TRIGGER).toggle(pagesQuantity > 1);
-						pageHeader.one('.' + CSS_FORM_BUILDER_CONTROLS_TRIGGER).toggle(pagesQuantity <= 1);
+						var wizard = instance._getWizard();
+
+						boundingBox.all('.' + CSS_FORM_BUILDER_CONTROLS_TRIGGER).toggle(pagesQuantity > 1 || wizard.get('successPage'));
+						pageHeader.one('.' + CSS_FORM_BUILDER_CONTROLS_TRIGGER).toggle(pagesQuantity <= 1 && !wizard.get('successPage'));
 					},
 
 					_syncPageInformationHeight: function() {
@@ -519,6 +951,76 @@ AUI.add(
 
 						instance._plugAutoSize(pageDescription);
 						instance._plugAutoSize(pageTitle);
+					},
+
+					_syncPopoverContent: function() {
+						var instance = this;
+
+						var deletePageButton = instance._getPopover().get('boundingBox').one('.' + CSS_FORM_BUILDER_PAGE_MANAGER_DELETE_PAGE);
+
+						deletePageButton.text(instance._getDeleteButtonString());
+					},
+
+					_syncSuccessPage: function() {
+						var instance = this;
+
+						var builder = instance.get('builder');
+
+						var boundingBox = builder.get('boundingBox');
+
+						var successPage = boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE);
+
+						var editingLanguageId = instance.get('editingLanguageId');
+						var defaultLanguageId = instance.get('defaultLanguageId');
+
+						var successPageSettings = instance.get('successPageSettings');
+
+						if (!successPageSettings.body[editingLanguageId]) {
+							var strings = instance.get('strings');
+
+							if (successPageSettings.body[defaultLanguageId]) {
+								successPageSettings.body[editingLanguageId] = A.clone(successPageSettings.body[defaultLanguageId]);
+							}
+							else {
+								successPageSettings.body[editingLanguageId] = strings.defaultContent;
+							}
+
+							if (successPageSettings.title[defaultLanguageId]) {
+								successPageSettings.title[editingLanguageId] = A.clone(successPageSettings.title[defaultLanguageId]);
+							}
+							else {
+								successPageSettings.title[editingLanguageId] = strings.defaultTitle;
+							}
+
+							instance.set('successPageSettings', successPageSettings);
+						}
+
+						successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_TITLE).val(successPageSettings.title[editingLanguageId]);
+						successPage.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE_CONTENT).val(successPageSettings.body[editingLanguageId]);
+					},
+
+					_syncTitle: function() {
+						var instance = this;
+
+						instance._createTitleForEditingLanguageId();
+
+						var editingLanguageId = instance.get('editingLanguageId');
+						var defaultLanguageId = instance.get('defaultLanguageId');
+
+						var titles = instance.get('localizedTitles');
+						var descriptions = instance.get('localizedDescriptions');
+
+						var pageHeader = instance.get('pageHeader');
+
+						var activePageNumber = instance.get('activePageNumber');
+
+						var titleNode = pageHeader.one('.' + CSS_PAGE_HEADER_TITLE);
+
+						titleNode.val(titles[activePageNumber - 1][editingLanguageId] || titles[activePageNumber - 1][defaultLanguageId] || '');
+
+						var descriptionNode = pageHeader.one('.' + CSS_PAGE_HEADER_DESCRIPTION);
+
+						descriptionNode.val(descriptions[activePageNumber - 1][editingLanguageId] || descriptions[activePageNumber - 1][defaultLanguageId] || '');
 					},
 
 					_syncWizardItems: function() {
@@ -562,7 +1064,7 @@ AUI.add(
 						var paginationBoundingBox = pagination.get('boundingBox').get('parentNode');
 						var wizardBoundingBox = wizard.get('boundingBox');
 
-						if (instance.get('pagesQuantity') > 1) {
+						if (instance.get('pagesQuantity') > 1 || wizard.get('successPage')) {
 							if (type === 'wizard') {
 								paginationBoundingBox.hide();
 								wizardBoundingBox.show();
@@ -593,6 +1095,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-autosize-deprecated', 'aui-char-counter', 'aui-form-builder-page-manager', 'liferay-ddm-form-renderer-wizard']
+		requires: ['aui-autosize-deprecated', 'aui-char-counter', 'aui-form-builder-page-manager', 'liferay-ddl-form-builder-wizard']
 	}
 );

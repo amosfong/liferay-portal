@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Users Admin Web
 Bundle-SymbolicName: com.liferay.users.admin.web
-Bundle-Version: 2.1.0
+Bundle-Version: 2.4.0
 Export-Package:\
 	com.liferay.users.admin.web.application.list,\
 	com.liferay.users.admin.web.constants,\
@@ -14,6 +14,7 @@ Export-Package:\
 	com.liferay.users.admin.web.util.comparator
 Import-Package:\
 	javax.net.ssl,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title:

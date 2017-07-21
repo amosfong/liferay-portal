@@ -26,13 +26,12 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,8 +49,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true, property = "ddm.form.field.type.name=select",
 	service = {
-		SelectDDMFormFieldTemplateContextContributor.class,
-		DDMFormFieldTemplateContextContributor.class
+		DDMFormFieldTemplateContextContributor.class,
+		SelectDDMFormFieldTemplateContextContributor.class
 	}
 )
 public class SelectDDMFormFieldTemplateContextContributor
@@ -64,6 +63,10 @@ public class SelectDDMFormFieldTemplateContextContributor
 
 		Map<String, Object> parameters = new HashMap<>();
 
+		parameters.put(
+			"dataSourceType",
+			GetterUtil.getString(
+				ddmFormField.getProperty("dataSourceType"), "manual"));
 		parameters.put(
 			"multiple",
 			ddmFormField.isMultiple() ? "multiple" : StringPool.BLANK);
@@ -85,10 +88,20 @@ public class SelectDDMFormFieldTemplateContextContributor
 		stringsMap.put(
 			"chooseAnOption",
 			LanguageUtil.get(resourceBundle, "choose-an-option"));
+		stringsMap.put(
+			"dynamicallyLoadedData",
+			LanguageUtil.get(resourceBundle, "dynamically-loaded-data"));
+		stringsMap.put(
+			"emptyList", LanguageUtil.get(resourceBundle, "empty-list"));
+		stringsMap.put("search", LanguageUtil.get(resourceBundle, "search"));
 
 		parameters.put("strings", stringsMap);
+
 		parameters.put(
-			"value", getValue(ddmFormFieldRenderingContext.getValue()));
+			"value",
+			getValue(
+				GetterUtil.getString(
+					ddmFormFieldRenderingContext.getValue(), "[]")));
 
 		return parameters;
 	}
@@ -117,36 +130,40 @@ public class SelectDDMFormFieldTemplateContextContributor
 	protected ResourceBundle getResourceBundle(Locale locale) {
 		Class<?> clazz = getClass();
 
-		return ResourceBundleUtil.getBundle(
+		ResourceBundleLoader portalResourceBundleLoader =
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
+
+		ResourceBundle portalResourceBundle =
+			portalResourceBundleLoader.loadResourceBundle(locale);
+
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
 			"content.Language", locale, clazz.getClassLoader());
+
+		return new AggregateResourceBundle(
+			resourceBundle, portalResourceBundle);
 	}
 
 	protected List<String> getValue(String valueString) {
-		String[] valuesStringArray = toStringArray(valueString);
-
-		return ListUtil.toList(valuesStringArray);
-	}
-
-	protected String[] toStringArray(String value) {
-		if (Validator.isNull(value)) {
-			return GetterUtil.DEFAULT_STRING_VALUES;
-		}
+		JSONArray jsonArray = null;
 
 		try {
-			JSONArray jsonArray = jsonFactory.createJSONArray(value);
-
-			return ArrayUtil.toStringArray(jsonArray);
+			jsonArray = jsonFactory.createJSONArray(valueString);
 		}
 		catch (JSONException jsone) {
-
-			// LPS-52675
-
 			if (_log.isDebugEnabled()) {
 				_log.debug(jsone, jsone);
 			}
 
-			return StringUtil.split(value);
+			jsonArray = jsonFactory.createJSONArray();
 		}
+
+		List<String> values = new ArrayList<>(jsonArray.length());
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			values.add(String.valueOf(jsonArray.get(i)));
+		}
+
+		return values;
 	}
 
 	@Reference

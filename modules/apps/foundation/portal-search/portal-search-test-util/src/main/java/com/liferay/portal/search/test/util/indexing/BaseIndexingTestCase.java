@@ -74,7 +74,6 @@ public abstract class BaseIndexingTestCase {
 		SearchContext searchContext = new SearchContext();
 
 		searchContext.setCompanyId(COMPANY_ID);
-		searchContext.setEnd(QueryUtil.ALL_POS);
 		searchContext.setGroupIds(new long[] {GROUP_ID});
 
 		QueryConfig queryConfig = new QueryConfig();
@@ -105,6 +104,10 @@ public abstract class BaseIndexingTestCase {
 
 	protected Query getDefaultQuery() {
 		return new TermQueryImpl(Field.ENTRY_CLASS_NAME, _entryClassName);
+	}
+
+	protected IndexSearcher getIndexSearcher() {
+		return _indexSearcher;
 	}
 
 	protected Hits search(SearchContext searchContext) throws Exception {

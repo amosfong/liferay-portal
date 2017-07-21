@@ -78,6 +78,31 @@ CKEDITOR.dialog.add(
 
 										return func.apply(instance);
 									}
+								},
+								{
+									id: 'linkBrowse',
+									label: LANG_COMMON.browseServer,
+									required: true,
+									type: 'button',
+									onClick: function(event) {
+										var dialog = event.data.dialog;
+
+										var editor = dialog.getParentEditor();
+
+										var urlField = dialog.getContentElement('info', 'linkAddress');
+
+										editor.execCommand(
+											'linkselector',
+											function(newVal, selectedItem) {
+												if (selectedItem && selectedItem.title) {
+													urlField.setValue(selectedItem.title);
+												}
+												else {
+													urlField.setValue(location.origin + newVal);
+												}
+											}
+										);
+									}
 								}
 							],
 							id: 'linkOptions',

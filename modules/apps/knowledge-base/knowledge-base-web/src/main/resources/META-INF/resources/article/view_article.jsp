@@ -16,11 +16,11 @@
 
 <%@ include file="/article/init.jsp" %>
 
-<div id="<portlet:namespace/>message-container"></div>
+<div id="<portlet:namespace />message-container"></div>
 
 <c:if test="<%= Objects.equals(portletDisplay.getId(), KBPortletKeys.KNOWLEDGE_BASE_ARTICLE_DEFAULT_INSTANCE) && PortletPermissionUtil.contains(permissionChecker, plid, portletDisplay.getId(), KBActionKeys.CONFIGURATION) %>">
 	<div class="alert alert-info portlet-configuration">
-		<aui:a href="<%= portletDisplay.getURLConfiguration() %>" label='<%= LanguageUtil.format(request, "portlet-configuration-page-x-instance-id-x", new String[] {layout.getName(locale), portletDisplay.getInstanceId()}, false) %>' onClick="<%= portletDisplay.getURLConfigurationJS() %>" />
+		<aui:a href="<%= portletDisplay.getURLConfiguration() %>" label='<%= LanguageUtil.format(request, "portlet-configuration-page-x-instance-id-x", new String[] {HtmlUtil.escape(layout.getName(locale)), portletDisplay.getInstanceId()}, false) %>' onClick="<%= portletDisplay.getURLConfigurationJS() %>" />
 	</div>
 </c:if>
 

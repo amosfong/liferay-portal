@@ -20,50 +20,29 @@ import com.liferay.dynamic.data.mapping.util.DDMFormInstanceFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author Marcellus Tavares
  */
 public class DDMDataProviderContext {
 
 	public DDMDataProviderContext(DDMFormValues ddmFormValues) {
-		this(null, null, ddmFormValues);
-	}
-
-	public DDMDataProviderContext(
-		String type, String ddmDataProviderInstanceId,
-		DDMFormValues ddmFormValues) {
-
-		_type = type;
-		_ddmDataProviderInstanceId = ddmDataProviderInstanceId;
 		_ddmFormValues = ddmFormValues;
 	}
 
-	public void addParameter(String key, String value) {
-		_parameters.put(key, value);
-	}
-
+	/**
+	 * @deprecated As of 2.1.0, replaced by {@link
+	 *             DDMDataProviderRequest#queryString(Map)}
+	 */
+	@Deprecated
 	public void addParameters(Map<String, String> parameters) {
 		_parameters.putAll(parameters);
 	}
 
-	public String getDDMDataProviderInstanceId() {
-		return _ddmDataProviderInstanceId;
-	}
-
-	public DDMFormValues getDDMFormValues() {
-		return _ddmFormValues;
-	}
-
-	public HttpServletRequest getHttpServletRequest() {
-		return _httpServletRequest;
-	}
-
-	public String getParameter(String key) {
-		return _parameters.get(key);
-	}
-
+	/**
+	 * @deprecated As of 2.1.0, replaced by {@link
+	 *             DDMDataProviderRequest#getParameters()}
+	 */
+	@Deprecated
 	public Map<String, String> getParameters() {
 		return _parameters;
 	}
@@ -72,18 +51,7 @@ public class DDMDataProviderContext {
 		return DDMFormInstanceFactory.create(clazz, _ddmFormValues);
 	}
 
-	public String getType() {
-		return _type;
-	}
-
-	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
-		_httpServletRequest = httpServletRequest;
-	}
-
-	private final String _ddmDataProviderInstanceId;
 	private final DDMFormValues _ddmFormValues;
-	private HttpServletRequest _httpServletRequest;
 	private final Map<String, String> _parameters = new HashMap<>();
-	private final String _type;
 
 }

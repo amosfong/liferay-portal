@@ -19,20 +19,12 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidat
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.Value;
-import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactory;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcellus Tavares
@@ -45,8 +37,7 @@ public class RadioDDMFormFieldValueValidator
 	implements DDMFormFieldValueValidator {
 
 	@Override
-	public void validate(
-			DDMFormField ddmFormField, DDMFormFieldValue ddmFormFieldValue)
+	public void validate(DDMFormField ddmFormField, Value value)
 		throws DDMFormFieldValueValidationException {
 
 		DDMFormFieldOptions ddmFormFieldOptions =
@@ -66,61 +57,16 @@ public class RadioDDMFormFieldValueValidator
 				"Options must contain at least one alternative");
 		}
 
-		Value value = ddmFormFieldValue.getValue();
-
 		Map<Locale, String> selectedValues = value.getValues();
 
 		for (String selectedValue : selectedValues.values()) {
-			validateSelectedValue(ddmFormField, optionValues, selectedValue);
-		}
-	}
-
-	protected JSONArray createJSONArray(String fieldName, String json) {
-		try {
-			return jsonFactory.createJSONArray(json);
-		}
-		catch (JSONException jsone) {
-
-			// LPS-52675
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(jsone, jsone);
-			}
-
-			throw new IllegalStateException(
-				String.format(
-					"Invalid data stored for radio field \"%s\"", fieldName));
-		}
-	}
-
-	protected void validateSelectedValue(
-			DDMFormField ddmFormField, Set<String> optionValues,
-			String selectedValue)
-		throws DDMFormFieldValueValidationException {
-
-		JSONArray jsonArray = createJSONArray(
-			ddmFormField.getName(), selectedValue);
-
-		for (int i = 0; i < jsonArray.length(); i++) {
-			if (Validator.isNull(jsonArray.getString(i)) &&
-				!ddmFormField.isRequired()) {
-
-				continue;
-			}
-
-			if (!optionValues.contains(jsonArray.getString(i))) {
+			if (!optionValues.contains(selectedValue)) {
 				throw new DDMFormFieldValueValidationException(
 					String.format(
 						"The selected option \"%s\" is not a valid alternative",
-						jsonArray.getString(i)));
+						selectedValue));
 			}
 		}
 	}
-
-	@Reference
-	protected JSONFactory jsonFactory;
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		RadioDDMFormFieldValueValidator.class);
 
 }

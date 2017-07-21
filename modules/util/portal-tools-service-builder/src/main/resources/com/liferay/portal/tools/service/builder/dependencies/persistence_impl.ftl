@@ -65,6 +65,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -74,6 +75,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Field;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -206,6 +209,25 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 	public ${entity.name}PersistenceImpl() {
 		setModelClass(${entity.name}.class);
+
+		<#if entity.badNamedColumnsList?size != 0>
+			try {
+				Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class, "_dbColumnNames");
+
+				Map<String, String> dbColumnNames = new HashMap<String, String>();
+
+				<#list entity.badNamedColumnsList as column>
+					dbColumnNames.put("${column.name}", "${column.DBName}");
+				</#list>
+
+				field.set(this, dbColumnNames);
+			}
+			catch (Exception e) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(e, e);
+				}
+			}
+		</#if>
 	}
 
 	/**
@@ -924,25 +946,23 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				return map;
 			}
 
-			<#if stringUtil.equals(entity.PKClassName, "String")>
-				StringBundler query = new StringBundler(uncachedPrimaryKeys.size() * 4 + 1);
-			<#else>
-				StringBundler query = new StringBundler(uncachedPrimaryKeys.size() * 2 + 1);
-			</#if>
+			StringBundler query = new StringBundler(uncachedPrimaryKeys.size() * 2 + 1);
 
 			query.append(_SQL_SELECT_${entity.alias?upper_case}_WHERE_PKS_IN);
 
-			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				<#if stringUtil.equals(entity.PKClassName, "String")>
-					query.append(StringPool.APOSTROPHE);
-					query.append((String)primaryKey);
-					query.append(StringPool.APOSTROPHE);
-				<#else>
-					query.append(String.valueOf(primaryKey));
-				</#if>
+			<#if stringUtil.equals(entity.PKClassName, "String")>
+				for (int i = 0; i < uncachedPrimaryKeys.size(); i++) {
+					query.append(StringPool.QUESTION);
 
-				query.append(StringPool.COMMA);
-			}
+					query.append(StringPool.COMMA);
+				}
+			<#else>
+				for (Serializable primaryKey : uncachedPrimaryKeys) {
+					query.append((${entity.PKClassName})primaryKey);
+
+					query.append(StringPool.COMMA);
+				}
+			</#if>
 
 			query.setIndex(query.index() - 1);
 
@@ -956,6 +976,14 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				session = openSession();
 
 				Query q = session.createQuery(sql);
+
+				<#if stringUtil.equals(entity.PKClassName, "String")>
+					QueryPos qPos = QueryPos.getInstance(q);
+
+					for (Serializable primaryKey : uncachedPrimaryKeys) {
+						qPos.add((String)primaryKey);
+					}
+				</#if>
 
 				for (${entity.name} ${entity.varName} : (List<${entity.name}>)q.list()) {
 					map.put(${entity.varName}.getPrimaryKeyObj(), ${entity.varName});

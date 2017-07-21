@@ -51,6 +51,19 @@ public class AssetPublisherHelper {
 		LiferayPortletResponse liferayPortletResponse, AssetEntry assetEntry,
 		boolean viewInContext) {
 
+		AssetRenderer<?> assetRenderer = assetEntry.getAssetRenderer();
+
+		return getAssetViewURL(
+			liferayPortletRequest, liferayPortletResponse, assetRenderer,
+			assetEntry, viewInContext);
+	}
+
+	public static String getAssetViewURL(
+		LiferayPortletRequest liferayPortletRequest,
+		LiferayPortletResponse liferayPortletResponse,
+		AssetRenderer<?> assetRenderer, AssetEntry assetEntry,
+		boolean viewInContext) {
+
 		PortletURL viewFullContentURL =
 			liferayPortletResponse.createRenderURL();
 
@@ -66,7 +79,11 @@ public class AssetPublisherHelper {
 			liferayPortletRequest, "resetCur");
 
 		redirectURL.setParameter("cur", String.valueOf(cur));
-		redirectURL.setParameter("delta", String.valueOf(delta));
+
+		if (delta > 0) {
+			redirectURL.setParameter("delta", String.valueOf(delta));
+		}
+
 		redirectURL.setParameter("resetCur", String.valueOf(resetCur));
 		redirectURL.setParameter(
 			"assetEntryId", String.valueOf(assetEntry.getEntryId()));
@@ -74,9 +91,7 @@ public class AssetPublisherHelper {
 		viewFullContentURL.setParameter("redirect", redirectURL.toString());
 
 		AssetRendererFactory<?> assetRendererFactory =
-			assetEntry.getAssetRendererFactory();
-
-		AssetRenderer<?> assetRenderer = assetEntry.getAssetRenderer();
+			assetRenderer.getAssetRendererFactory();
 
 		viewFullContentURL.setParameter("type", assetRendererFactory.getType());
 
@@ -107,8 +122,6 @@ public class AssetPublisherHelper {
 				if (Validator.isNotNull(viewURL) &&
 					!Objects.equals(viewURL, noSuchEntryRedirect)) {
 
-					viewURL = HttpUtil.setParameter(
-						viewURL, "inheritRedirect", Boolean.TRUE);
 					viewURL = HttpUtil.setParameter(
 						viewURL, "redirect",
 						PortalUtil.getCurrentURL(liferayPortletRequest));

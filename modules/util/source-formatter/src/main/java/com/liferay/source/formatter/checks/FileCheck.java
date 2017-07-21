@@ -14,14 +14,12 @@
 
 package com.liferay.source.formatter.checks;
 
-import com.liferay.portal.kernel.util.Tuple;
-
 /**
  * @author Hugo Huijser
  */
-public interface FileCheck {
+public interface FileCheck extends SourceCheck {
 
-	public Tuple process(String fileName, String absolutePath, String content)
+	public String process(String fileName, String absolutePath, String content)
 		throws Exception;
 
 }

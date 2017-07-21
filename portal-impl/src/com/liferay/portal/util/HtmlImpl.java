@@ -17,10 +17,10 @@ package com.liferay.portal.util;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Html;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
@@ -222,7 +222,7 @@ public class HtmlImpl implements Html {
 			prefix = "\\x";
 		}
 		else if (mode == ESCAPE_MODE_URL) {
-			return HttpUtil.encodeURL(text, true);
+			return URLCodec.encodeURL(text, true);
 		}
 		else {
 			return escape(text);
@@ -282,6 +282,25 @@ public class HtmlImpl implements Html {
 
 				lastReplacementIndex = i + 1;
 			}
+			else if ((mode == ESCAPE_MODE_JS) &&
+					 ((c == '\u2028') || (c == '\u2029'))) {
+
+				if (sb == null) {
+					sb = new StringBuilder(text.length() + 64);
+				}
+
+				if (i > lastReplacementIndex) {
+					sb.append(text, lastReplacementIndex, i);
+				}
+
+				sb.append("\\u");
+
+				_appendHexChars(sb, hexBuffer, c);
+
+				sb.append(postfix);
+
+				lastReplacementIndex = i + 1;
+			}
 		}
 
 		if (sb == null) {
@@ -338,21 +357,25 @@ public class HtmlImpl implements Html {
 			return StringPool.BLANK;
 		}
 
+		char c = href.charAt(0);
+
+		if ((c == CharPool.BACK_SLASH) || (c == CharPool.SLASH)) {
+			return escapeAttribute(href);
+		}
+
+		c = Character.toLowerCase(c);
+
+		if ((c >= CharPool.LOWER_CASE_A) && (c <= CharPool.LOWER_CASE_Z) &&
+			(c != CharPool.LOWER_CASE_D) && (c != CharPool.LOWER_CASE_J)) {
+
+			return escapeAttribute(href);
+		}
+
 		int index = href.indexOf(StringPool.COLON);
 
-		if (index == 4) {
-			String protocol = StringUtil.toLowerCase(href.substring(0, 4));
-
-			if (protocol.equals("data")) {
-				href = StringUtil.replaceFirst(href, CharPool.COLON, "%3a");
-			}
-		}
-		else if (index == 10) {
-			String protocol = StringUtil.toLowerCase(href.substring(0, 10));
-
-			if (protocol.equals("javascript")) {
-				href = StringUtil.replaceFirst(href, CharPool.COLON, "%3a");
-			}
+		if (index > -1) {
+			href = StringUtil.replaceFirst(
+				href, StringPool.COLON, "%3a", index);
 		}
 
 		return escapeAttribute(href);

@@ -64,6 +64,7 @@
 
 	<command name="AddAndEditAssetsViaVirtualHostOrganizations" priority="4">
 		<property name="custom.properties" value="virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com,www.baker.com" />
+		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AddAndEditAssetsViaVirtualHostOrganizations" />
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
 			<var name="portlet" value="Users and Organizations" />
@@ -336,6 +337,8 @@
 	</command>
 
 	<command name="AssetPublisherCategoriesLocalization" priority="3">
+		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AssetPublisherCategoriesLocalization" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -517,7 +520,10 @@
 		</execute>
 	</command>
 
-	<command name="AssetPublisherCategoriesNavigation" priority="3">
+	<command name="AssetPublisherCategoriesNavigation" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="testray.component.names" value="Training" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -683,7 +689,6 @@
 		<execute macro="AssetPublisherPortlet#configurePaginationPG">
 			<var name="paginationNumber" value="3" />
 			<var name="paginationType" value="Regular" />
-			<var name="portletName" value="Asset Publisher Portlet" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -711,7 +716,6 @@
 
 		<execute macro="AssetPublisherPortlet#configureAssetDisplayOrderPG">
 			<var name="fieldNameOrder" value="Modified Date" />
-			<var name="sortOrder" value="Ascending" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">
@@ -1092,13 +1096,25 @@
 	</command>
 
 	<command name="AssetPublisherHasOpenOfficeFileTypeLinks" priority="3">
+		<property name="test.name.skip.portal.instance" value="WebcontentpublicationUsecase#AssetPublisherHasOpenOfficeFileTypeLinks" />
+
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Server Administration" />
+			<var name="portlet" value="System Settings" />
 		</execute>
 
-		<execute macro="ServerAdministration#configureExternalServices">
-			<var name="enableOpenOfficeIntegration" value="true" />
+		<execute macro="Navigator#gotoNavItem">
+			<var name="navItem" value="Other" />
 		</execute>
+
+		<execute macro="SystemSettings#editConfiguration">
+			<var name="configurationName" value="OpenOffice Integration" />
+		</execute>
+
+		<execute macro="SystemSettings#enableSetting">
+			<var name="checkboxSetting" value="SERVER_ENABLED" />
+		</execute>
+
+		<execute macro="SystemSettings#saveConfiguration" />
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Asset Publisher Page" />
@@ -1256,6 +1272,11 @@
 				<var name="assetTitle" value="${siteName} WC Title" />
 			</execute>
 		</for>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="Liferay WC Content" />
+			<var name="assetTitle" value="Liferay WC Title" />
+		</execute>
 	</command>
 
 	<command name="AssetPublisherTogglingBetweenSites" priority="4">
@@ -1555,6 +1576,90 @@
 		</execute>
 	</command>
 
+	<command name="ViewAssetPaginationAndShowContentAddButtonViaAP" priority="5">
+		<property name="testray.component.names" value="Training" />
+
+		<execute macro="AssetPublisherPortlet#configureAssetLinkBehaviorPG">
+			<var name="assetLinkBehavior" value="View in Context" />
+			<var name="disableConfiguration" value="Show Add Content Button" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Asset Publisher Page" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#configurePaginationPG">
+			<var name="paginationNumber" value="5" />
+			<var name="paginationType" value="Regular" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Asset Publisher Page" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewPlusIconNotPresentPG" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
+		</execute>
+
+		<execute macro="WebContent#addMultipleArticlesCP">
+			<var name="articleCount" value="7" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Asset Publisher Page" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 1" />
+			<var name="assetTitle" value="WC Title 1" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 2" />
+			<var name="assetTitle" value="WC Title 2" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewPaginatedAssetsPG">
+			<var name="nextPageClick" value="true" />
+			<var name="pageMod" value="1 - 5 of 7" />
+			<var name="pageNumber" value="1 of 2" />
+			<var name="paginationNumber" value="5" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewPaginatedAssetsPG">
+			<var name="pageMod" value="6 - 7 of 7" />
+			<var name="pageNumber" value="2 of 2" />
+			<var name="paginationNumber" value="5" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 3" />
+			<var name="assetTitle" value="WC Title 3" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 4" />
+			<var name="assetTitle" value="WC Title 4" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 5" />
+			<var name="assetTitle" value="WC Title 5" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 6" />
+			<var name="assetTitle" value="WC Title 6" />
+		</execute>
+
+		<execute macro="AssetPublisherPortlet#viewAssetNotPresentPG">
+			<var name="assetContent" value="WC Content 7" />
+			<var name="assetTitle" value="WC Title 7" />
+		</execute>
+	</command>
+
 	<command name="ViewAuthorChangeViaAP" priority="3">
 		<execute macro="AssetPublisherPortlet#configureShowMetadataFieldsPG">
 			<var name="addMetadata" value="true" />
@@ -1845,7 +1950,7 @@
 			<var name="pageName" value="Web Content Display Page" />
 		</execute>
 
-		<execute macro="WebContent#viewNoContentPGViaWCD" />
+		<execute macro="WebContentDisplayPortlet#viewDeletedArticle" />
 
 		<execute macro="User#logoutPG" />
 
@@ -2113,9 +2218,8 @@
 			<var name="pageName" value="Asset Publisher Page 2" />
 		</execute>
 
-		<execute macro="AssetPublisherPortlet#configureFlaggableDisplaySettingsPG">
-			<var name="portletName" value="Asset Publisher" />
-			<var name="setAsDefaultPage" value="true" />
+		<execute macro="AssetPublisherPortlet#configureDisplaySettings">
+			<var name="displaySettings" value="Set as the Default Asset Publisher for This Page" />
 		</execute>
 
 		<execute macro="Navigator#gotoPage">

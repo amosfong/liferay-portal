@@ -19,6 +19,8 @@ import com.liferay.portal.dao.db.MySQLDB;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.mockito.Mockito;
+
 /**
  * @author Manuel de la Peña
  */
@@ -26,7 +28,7 @@ public class MySQLSQLTransformerLogicTest
 	extends BaseSQLTransformerLogicTestCase {
 
 	public MySQLSQLTransformerLogicTest() {
-		super(new MySQLDB(5, 7));
+		super(_getCaseInsensitiveMySQLDB());
 	}
 
 	@Test
@@ -68,14 +70,12 @@ public class MySQLSQLTransformerLogicTest
 
 	@Test
 	public void testReplaceSupportsStringCaseSensitiveQuery() {
-		MySQLDB mySQLDB = new MySQLDB(5, 7);
+		String sql = "select * from foo";
 
-		mySQLDB.setSupportsStringCaseSensitiveQuery(true);
+		MySQLDB mySQLDB = _getCaseSensitiveMySQLDB();
 
 		SQLTransformer sqlTransformer = SQLTransformerFactory.getSQLTransformer(
 			mySQLDB);
-
-		String sql = "select * from foo";
 
 		Assert.assertEquals(sql, sqlTransformer.transform(sql));
 
@@ -87,6 +87,11 @@ public class MySQLSQLTransformerLogicTest
 	@Override
 	protected String getBitwiseCheckTransformedSQL() {
 		return "select (foo & bar) from Foo";
+	}
+
+	@Override
+	protected String getBooleanTransformedSQL() {
+		return "select * from Foo where foo = 0 and bar = 1";
 	}
 
 	@Override
@@ -112,6 +117,30 @@ public class MySQLSQLTransformerLogicTest
 	@Override
 	protected String getNullDateTransformedSQL() {
 		return "select NULL from Foo";
+	}
+
+	private static MySQLDB _getCaseInsensitiveMySQLDB() {
+		MySQLDB mySQLDB = Mockito.spy(new MySQLDB(5, 7));
+
+		Mockito.when(
+			mySQLDB.isSupportsStringCaseSensitiveQuery()
+		).thenReturn(
+			false
+		);
+
+		return mySQLDB;
+	}
+
+	private static MySQLDB _getCaseSensitiveMySQLDB() {
+		MySQLDB mySQLDB = Mockito.spy(new MySQLDB(5, 7));
+
+		Mockito.when(
+			mySQLDB.isSupportsStringCaseSensitiveQuery()
+		).thenReturn(
+			true
+		);
+
+		return mySQLDB;
 	}
 
 }

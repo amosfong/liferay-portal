@@ -14,8 +14,6 @@
 
 package com.liferay.portal.workflow.kaleo.service.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -37,7 +35,6 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * @author Michael C. Han
  */
-@ProviderType
 public class KaleoTaskFormInstanceLocalServiceImpl
 	extends KaleoTaskFormInstanceLocalServiceBaseImpl {
 

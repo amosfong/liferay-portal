@@ -18,8 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowDefinition;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowInstance;
@@ -34,19 +32,19 @@ import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
 import com.liferay.portal.workflow.kaleo.definition.export.DefinitionExporter;
 import com.liferay.portal.workflow.kaleo.definition.util.KaleoLogUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
-import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstanceToken;
 import com.liferay.portal.workflow.kaleo.model.KaleoLog;
-import com.liferay.portal.workflow.kaleo.model.KaleoTaskAssignmentInstance;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
+import com.liferay.portal.workflow.kaleo.runtime.integration.impl.internal.util.LazyWorkflowTaskAssigneeList;
+import com.liferay.portal.workflow.kaleo.runtime.integration.impl.internal.util.WorkflowTaskAssigneesSupplier;
 import com.liferay.portal.workflow.kaleo.runtime.util.WorkflowContextUtil;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
+import com.liferay.portal.workflow.kaleo.service.KaleoTaskAssignmentInstanceLocalService;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,24 +62,10 @@ public class KaleoWorkflowModelConverterImpl
 	public List<WorkflowTaskAssignee> getWorkflowTaskAssignees(
 		KaleoTaskInstanceToken kaleoTaskInstanceToken) {
 
-		List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances =
-			kaleoTaskInstanceToken.getKaleoTaskAssignmentInstances();
+		WorkflowTaskAssigneesSupplier workflowTaskAssigneesSupplier =
+			new WorkflowTaskAssigneesSupplier(kaleoTaskInstanceToken);
 
-		List<WorkflowTaskAssignee> workflowTaskAssignees = new ArrayList<>(
-			kaleoTaskAssignmentInstances.size());
-
-		for (KaleoTaskAssignmentInstance kaleoTaskAssignmentInstance :
-				kaleoTaskAssignmentInstances) {
-
-			WorkflowTaskAssignee workflowTaskAssignee =
-				new WorkflowTaskAssignee(
-					kaleoTaskAssignmentInstance.getAssigneeClassName(),
-					kaleoTaskAssignmentInstance.getAssigneeClassPK());
-
-			workflowTaskAssignees.add(workflowTaskAssignee);
-		}
-
-		return workflowTaskAssignees;
+		return workflowTaskAssigneesSupplier.get();
 	}
 
 	@Override
@@ -117,57 +101,6 @@ public class KaleoWorkflowModelConverterImpl
 		defaultWorkflowDefinition.setName(kaleoDefinition.getName());
 		defaultWorkflowDefinition.setTitle(kaleoDefinition.getTitle());
 		defaultWorkflowDefinition.setVersion(kaleoDefinition.getVersion());
-
-		return defaultWorkflowDefinition;
-	}
-
-	@Override
-	public WorkflowDefinition toWorkflowDefinition(
-		KaleoDefinitionVersion kaleoDefinitionVersion) {
-
-		DefaultWorkflowDefinition defaultWorkflowDefinition =
-			new DefaultWorkflowDefinition();
-
-		defaultWorkflowDefinition.setActive(kaleoDefinitionVersion.getActive());
-
-		String content = kaleoDefinitionVersion.getContent();
-
-		if (Validator.isNull(content)) {
-			try {
-				KaleoDefinition kaleoDefinition =
-					_kaleoDefinitionLocalService.fetchKaleoDefinition(
-						kaleoDefinitionVersion.getCompanyId(),
-						kaleoDefinitionVersion.getName(),
-						getVersion(kaleoDefinitionVersion.getVersion()));
-
-				if (kaleoDefinition != null) {
-					content = _definitionExporter.export(
-						kaleoDefinition.getKaleoDefinitionId());
-
-					kaleoDefinition.setContent(content);
-
-					_kaleoDefinitionLocalService.updateKaleoDefinition(
-						kaleoDefinition);
-
-					kaleoDefinitionVersion.setContent(content);
-
-					_kaleoDefinitionVersionLocalService.
-						updateKaleoDefinitionVersion(kaleoDefinitionVersion);
-				}
-			}
-			catch (Exception e) {
-				if (_log.isWarnEnabled()) {
-					_log.warn("Unable to export definition to string", e);
-				}
-			}
-		}
-
-		defaultWorkflowDefinition.setContent(content);
-
-		defaultWorkflowDefinition.setName(kaleoDefinitionVersion.getName());
-		defaultWorkflowDefinition.setTitle(kaleoDefinitionVersion.getTitle());
-		defaultWorkflowDefinition.setVersion(
-			getVersion(kaleoDefinitionVersion.getVersion()));
 
 		return defaultWorkflowDefinition;
 	}
@@ -302,7 +235,9 @@ public class KaleoWorkflowModelConverterImpl
 			kaleoInstance.getKaleoInstanceId());
 
 		List<WorkflowTaskAssignee> workflowTaskAssignees =
-			getWorkflowTaskAssignees(kaleoTaskInstanceToken);
+			new LazyWorkflowTaskAssigneeList(
+				kaleoTaskInstanceToken,
+				_kaleoTaskAssignmentInstanceLocalService);
 
 		defaultWorkflowTask.setWorkflowTaskAssignees(workflowTaskAssignees);
 
@@ -310,12 +245,6 @@ public class KaleoWorkflowModelConverterImpl
 			kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
 
 		return defaultWorkflowTask;
-	}
-
-	protected int getVersion(String version) {
-		int[] versionParts = StringUtil.split(version, StringPool.PERIOD, 0);
-
-		return versionParts[0];
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -330,5 +259,9 @@ public class KaleoWorkflowModelConverterImpl
 	@Reference
 	private KaleoDefinitionVersionLocalService
 		_kaleoDefinitionVersionLocalService;
+
+	@Reference
+	private KaleoTaskAssignmentInstanceLocalService
+		_kaleoTaskAssignmentInstanceLocalService;
 
 }

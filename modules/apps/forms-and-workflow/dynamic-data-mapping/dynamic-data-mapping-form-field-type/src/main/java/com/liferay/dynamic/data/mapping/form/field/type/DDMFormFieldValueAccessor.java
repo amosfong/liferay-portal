@@ -14,7 +14,10 @@
 
 package com.liferay.dynamic.data.mapping.form.field.type;
 
+import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Locale;
 
@@ -24,5 +27,23 @@ import java.util.Locale;
 public interface DDMFormFieldValueAccessor<T> {
 
 	public T getValue(DDMFormFieldValue ddmFormFieldValue, Locale locale);
+
+	public default boolean isEmpty(
+		DDMFormFieldValue ddmFormFieldValue, Locale locale) {
+
+		Value value = ddmFormFieldValue.getValue();
+
+		if (value == null) {
+			return true;
+		}
+
+		String valueString = StringUtil.trim(value.getString(locale));
+
+		return Validator.isNull(valueString);
+	}
+
+	public default Object map(Object value) {
+		return value;
+	}
 
 }

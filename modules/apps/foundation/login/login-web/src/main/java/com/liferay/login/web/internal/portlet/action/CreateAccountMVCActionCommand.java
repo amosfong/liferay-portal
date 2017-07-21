@@ -14,11 +14,12 @@
 
 package com.liferay.login.web.internal.portlet.action;
 
+import com.liferay.captcha.configuration.CaptchaConfiguration;
+import com.liferay.captcha.util.CaptchaUtil;
 import com.liferay.login.web.constants.LoginPortletKeys;
 import com.liferay.login.web.internal.portlet.util.LoginUtil;
 import com.liferay.portal.kernel.captcha.CaptchaConfigurationException;
 import com.liferay.portal.kernel.captcha.CaptchaTextException;
-import com.liferay.portal.kernel.captcha.CaptchaUtil;
 import com.liferay.portal.kernel.exception.AddressCityException;
 import com.liferay.portal.kernel.exception.AddressStreetException;
 import com.liferay.portal.kernel.exception.AddressZipException;
@@ -49,12 +50,17 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.ListType;
+import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.portlet.DynamicActionRequest;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManager;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.ListTypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -76,6 +82,7 @@ import com.liferay.portal.util.PropsValues;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -218,11 +225,16 @@ public class CreateAccountMVCActionCommand extends BaseMVCActionCommand {
 				company.getCompanyId(), PropsKeys.COMPANY_SECURITY_STRANGERS);
 		}
 
+		actionRequest = _wrapActionRequest(actionRequest);
+
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		try {
 			if (cmd.equals(Constants.ADD)) {
-				if (PropsValues.CAPTCHA_CHECK_PORTAL_CREATE_ACCOUNT) {
+				CaptchaConfiguration captchaConfiguration =
+					getCaptchaConfiguration();
+
+				if (captchaConfiguration.createAccountCaptchaEnabled()) {
 					CaptchaUtil.check(actionRequest);
 				}
 
@@ -311,6 +323,31 @@ public class CreateAccountMVCActionCommand extends BaseMVCActionCommand {
 				_log.debug(nsle, nsle);
 			}
 		}
+	}
+
+	protected CaptchaConfiguration getCaptchaConfiguration()
+		throws CaptchaConfigurationException {
+
+		try {
+			return _configurationProvider.getSystemConfiguration(
+				CaptchaConfiguration.class);
+		}
+		catch (Exception e) {
+			throw new CaptchaConfigurationException(e);
+		}
+	}
+
+	protected long getListTypeId(
+			PortletRequest portletRequest, String parameterName, String type)
+		throws Exception {
+
+		String parameterValue = ParamUtil.getString(
+			portletRequest, parameterName);
+
+		ListType listType = _listTypeLocalService.addListType(
+			parameterValue, type);
+
+		return listType.getListTypeId();
 	}
 
 	protected boolean isAutoScreenName() {
@@ -522,6 +559,25 @@ public class CreateAccountMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, actionResponse, themeDisplay, user, password1);
 	}
 
+	private ActionRequest _wrapActionRequest(ActionRequest actionRequest)
+		throws Exception {
+
+		DynamicActionRequest dynamicActionRequest = new DynamicActionRequest(
+			actionRequest);
+
+		long prefixId = getListTypeId(
+			actionRequest, "prefixValue", ListTypeConstants.CONTACT_PREFIX);
+
+		dynamicActionRequest.setParameter("prefixId", String.valueOf(prefixId));
+
+		long suffixId = getListTypeId(
+			actionRequest, "suffixValue", ListTypeConstants.CONTACT_SUFFIX);
+
+		dynamicActionRequest.setParameter("suffixId", String.valueOf(suffixId));
+
+		return dynamicActionRequest;
+	}
+
 	private static final boolean _AUTO_SCREEN_NAME = false;
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -530,7 +586,13 @@ public class CreateAccountMVCActionCommand extends BaseMVCActionCommand {
 	@Reference
 	private AuthenticatedSessionManager _authenticatedSessionManager;
 
+	@Reference
+	private ConfigurationProvider _configurationProvider;
+
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private ListTypeLocalService _listTypeLocalService;
 
 	@Reference
 	private Portal _portal;

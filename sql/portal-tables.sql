@@ -253,7 +253,7 @@ create table Contact_ (
 	classPK LONG,
 	accountId LONG,
 	parentContactId LONG,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	firstName VARCHAR(75) null,
 	middleName VARCHAR(75) null,
 	lastName VARCHAR(75) null,
@@ -474,7 +474,7 @@ create table EmailAddress (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
-	address VARCHAR(75) null,
+	address VARCHAR(254) null,
 	typeId LONG,
 	primary_ BOOLEAN
 );
@@ -825,7 +825,7 @@ create table MBMailingList (
 	createDate DATE null,
 	modifiedDate DATE null,
 	categoryId LONG,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	inProtocol VARCHAR(75) null,
 	inServerName VARCHAR(75) null,
 	inServerPort INTEGER,
@@ -833,7 +833,7 @@ create table MBMailingList (
 	inUserName VARCHAR(75) null,
 	inPassword VARCHAR(75) null,
 	inReadInterval INTEGER,
-	outEmailAddress VARCHAR(75) null,
+	outEmailAddress VARCHAR(254) null,
 	outCustom BOOLEAN,
 	outServerName VARCHAR(75) null,
 	outServerPort INTEGER,
@@ -1453,30 +1453,6 @@ create table Ticket (
 	expirationDate DATE null
 );
 
-create table TrashEntry (
-	entryId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	classNameId LONG,
-	classPK LONG,
-	systemEventSetKey LONG,
-	typeSettings TEXT null,
-	status INTEGER
-);
-
-create table TrashVersion (
-	versionId LONG not null primary key,
-	companyId LONG,
-	entryId LONG,
-	classNameId LONG,
-	classPK LONG,
-	typeSettings TEXT null,
-	status INTEGER
-);
-
 create table UserNotificationDelivery (
 	mvccVersion LONG default 0 not null,
 	userNotificationDeliveryId LONG not null primary key,
@@ -1507,7 +1483,7 @@ create table User_ (
 	reminderQueryAnswer VARCHAR(75) null,
 	graceLoginCount INTEGER,
 	screenName VARCHAR(75) null,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	facebookId LONG,
 	googleUserId VARCHAR(75) null,
 	ldapServerId LONG,

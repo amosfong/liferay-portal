@@ -14,6 +14,7 @@
 
 package com.liferay.wiki.web.internal.item.selector.view;
 
+import com.liferay.document.library.display.context.DLMimeTypeDisplayContext;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorReturnTypeResolverHandler;
 import com.liferay.item.selector.ItemSelectorView;
@@ -21,7 +22,9 @@ import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.wiki.item.selector.constants.WikiItemSelectorViewConstants;
 import com.liferay.wiki.item.selector.criterion.WikiAttachmentItemSelectorCriterion;
+import com.liferay.wiki.web.internal.item.selector.constants.WikiItemSelectorWebKeys;
 import com.liferay.wiki.web.internal.item.selector.view.display.context.WikiAttachmentItemSelectorViewDisplayContext;
 
 import java.io.IOException;
@@ -40,17 +43,21 @@ import javax.servlet.ServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Iván Zaera
+ * @author Roberto Díaz
  */
-@Component
+@Component(
+	property = {
+		"item.selector.view.key=" + WikiItemSelectorViewConstants.ITEM_SELECTOR_VIEW_KEY
+	}
+)
 public class WikiAttachmentItemSelectorView
 	implements ItemSelectorView<WikiAttachmentItemSelectorCriterion> {
-
-	public static final String
-		WIKI_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT =
-			"WIKI_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT";
 
 	@Override
 	public Class<WikiAttachmentItemSelectorCriterion>
@@ -99,8 +106,13 @@ public class WikiAttachmentItemSelectorView
 					itemSelectedEventName, search, portletURL);
 
 		request.setAttribute(
-			WIKI_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
+			WikiItemSelectorWebKeys.
+				WIKI_ATTACHMENT_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
 			wikiAttachmentItemSelectorViewDisplayContext);
+
+		request.setAttribute(
+			WikiItemSelectorWebKeys.DL_MIME_TYPE_DISPLAY_CONTEXT,
+			_dlMimeTypeDisplayContext);
 
 		ServletContext servletContext = getServletContext();
 
@@ -109,6 +121,17 @@ public class WikiAttachmentItemSelectorView
 				"/item/selector/wiki_page_attachments.jsp");
 
 		requestDispatcher.include(request, response);
+	}
+
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	public void setDLMimeTypeDisplayContext(
+		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
+
+		_dlMimeTypeDisplayContext = dlMimeTypeDisplayContext;
 	}
 
 	@Reference(unbind = "-")
@@ -127,6 +150,12 @@ public class WikiAttachmentItemSelectorView
 		_servletContext = servletContext;
 	}
 
+	public void unsetDLMimeTypeDisplayContext(
+		DLMimeTypeDisplayContext dlMimeTypeDisplayContext) {
+
+		_dlMimeTypeDisplayContext = null;
+	}
+
 	private static final List<ItemSelectorReturnType>
 		_supportedItemSelectorReturnTypes = Collections.unmodifiableList(
 			ListUtil.fromArray(
@@ -134,6 +163,7 @@ public class WikiAttachmentItemSelectorView
 					new FileEntryItemSelectorReturnType()
 				}));
 
+	private DLMimeTypeDisplayContext _dlMimeTypeDisplayContext;
 	private ItemSelectorReturnTypeResolverHandler
 		_itemSelectorReturnTypeResolverHandler;
 	private ServletContext _servletContext;

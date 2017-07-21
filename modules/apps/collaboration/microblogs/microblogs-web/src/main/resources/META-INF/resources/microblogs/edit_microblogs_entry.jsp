@@ -92,14 +92,14 @@ if (comment) {
 						<c:when test="<%= (receiverUser != null) && receiverUser.isActive() %>">
 							<a href="<%= receiverUser.getDisplayURL(themeDisplay) %>">
 								<liferay-ui:user-portrait
-									imageCssClass="user-icon-lg"
+									cssClass="user-icon-xs"
 									userId="<%= (microblogsEntry != null) ? microblogsEntry.getUserId() : 0 %>"
 								/>
 							</a>
 						</c:when>
 						<c:otherwise>
 							<liferay-ui:user-portrait
-								imageCssClass="user-icon-lg"
+								cssClass="user-icon-xs"
 								userId="<%= (microblogsEntry != null) ? microblogsEntry.getUserId() : 0 %>"
 							/>
 						</c:otherwise>
@@ -153,8 +153,8 @@ if (comment) {
 		<c:if test="<%= comment %>">
 			<span class="thumbnail">
 				<liferay-ui:user-portrait
-					imageCssClass="user-icon-lg"
-					userId="<%= user.getUserId() %>"
+					cssClass="user-icon-xs"
+					user="<%= user %>"
 				/>
 			</span>
 		</c:if>
@@ -255,7 +255,8 @@ if (comment) {
 
 	var REGEX_USER_NAME = /@(.*[^\s]+)$/;
 
-	var TPL_SEARCH_RESULTS = '<div class="microblogs-autocomplete">' +
+	var TPL_SEARCH_RESULTS =
+		'<div class="microblogs-autocomplete">' +
 			'<div class="thumbnail">' +
 				'<img alt="{fullName}" src="{portraitURL}" />' +
 			'</div>' +
@@ -298,12 +299,6 @@ if (comment) {
 			var highlighterContent = A.one('#<portlet:namespace />highlighterContent<%= formId %>');
 
 			var inputValue = '<%= ((microblogsEntry != null) && (edit)) ? StringUtil.replace(HtmlUtil.escapeJS(microblogsEntry.getContent()), "\'", "\\'") : StringPool.BLANK %>';
-
-			if ((autocomplete.height() < 45) || (highlighterContent.height() < 45)) {
-				autocomplete.height(45);
-
-				highlighterContent.height(45);
-			}
 
 			var textarea = new A.Textarea(
 				{
@@ -421,12 +416,6 @@ if (comment) {
 			var highlighterContent = A.one('#<portlet:namespace />highlighterContent<%= formId %>');
 
 			var contentInputHeight = contentInput.height();
-
-			if (contentInputHeight > 45) {
-				autocomplete.height(contentInputHeight);
-
-				highlighterContent.height(contentInputHeight);
-			}
 		};
 
 		var updateContentTextbox = function(event) {

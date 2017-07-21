@@ -32,7 +32,7 @@ import java.util.Set;
  * @author Brian Wing Shun Chan
  * @author Shuyang Zhou
  */
-public class Entity {
+public class Entity implements Comparable<Entity> {
 
 	public static final Accessor<Entity, String> NAME_ACCESSOR =
 		new Accessor<Entity, String>() {
@@ -194,6 +194,11 @@ public class Entity {
 	}
 
 	@Override
+	public int compareTo(Entity entity) {
+		return _name.compareToIgnoreCase(entity._name);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -315,6 +320,14 @@ public class Entity {
 
 	public String getHumanNames() {
 		return TextFormatter.formatPlural(_humanName);
+	}
+
+	public List<EntityColumn> getLocalizedColumns() {
+		return _localizedColumns;
+	}
+
+	public Entity getLocalizedEntity() {
+		return _localizedEntity;
 	}
 
 	public String getName() {
@@ -866,6 +879,16 @@ public class Entity {
 		}
 	}
 
+	public void setLocalizedColumns(List<EntityColumn> localizedColumns) {
+		_localizedColumns = localizedColumns;
+	}
+
+	public void setLocalizedEntity(Entity localizedEntity) {
+		_localizedEntity = localizedEntity;
+
+		_referenceList.add(localizedEntity);
+	}
+
 	public void setParentTransients(List<String> transients) {
 		_parentTransients = transients;
 	}
@@ -914,6 +937,8 @@ public class Entity {
 	private final List<EntityFinder> _finderList;
 	private final String _humanName;
 	private final boolean _jsonEnabled;
+	private List<EntityColumn> _localizedColumns;
+	private Entity _localizedEntity;
 	private final boolean _localService;
 	private final boolean _mvccEnabled;
 	private final String _name;

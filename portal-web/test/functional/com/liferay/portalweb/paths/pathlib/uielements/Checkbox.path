@@ -14,8 +14,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADAPTIVE_MEDIA_IMAGE</td>
+	<td>//td[contains(.,'${key_imageName}')]//..//td/input[contains(@type,'checkbox')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADD_EXPLANATION_POST</td>
 	<td>//input[contains(@id,'addExplanationPost')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD_HIGH_DENSITY_DISPLAY</td>
+	<td>//label/input[contains(@id,'addHighResolution')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -41,6 +51,11 @@
 <tr>
 	<td>ANONYMOUS</td>
 	<td>//input[contains(@id,'anonymous')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_CHECKBOX</td>
+	<td>//label[contains(.,'${checkboxName}')]/input[@type='checkbox']</td>
 	<td></td>
 </tr>
 <tr>
@@ -170,7 +185,7 @@
 </tr>
 <tr>
 	<td>ENABLE_SOCIAL_BOOKMARKS</td>
-	<td>//label[contains(.,'Enable Social Bookmarks')]/input[@type='checkbox']</td>
+	<td>//input[@type='checkbox' and contains(@name,'enableSocialBookmarks')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -279,6 +294,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PRIVATE_PAGES_ENABLE_PROPAGATION</td>
+	<td>//label[contains(.,'Enable propagation of changes')]/input[@type='checkbox' and contains(@id,'privateLayoutSetPrototype')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>RANK_BY_CONTRIBUTION</td>
 	<td>//label[contains(.,'Rank by Contribution')]/input[@type='checkbox']</td>
 	<td></td>
@@ -300,7 +320,7 @@
 </tr>
 <tr>
 	<td>SELECT_ALL</td>
-	<td>//*[@data-qa-id='selectAllCheckbox'] | //div[@class='checkbox']//input[@title='Select All'] | //input[contains(@id,'allRowIds') or contains(@name,'allRowIds') or contains(@class,'select-all-checkboxes')]</td>
+	<td>//*[@data-qa-id='selectAllCheckbox'] | //div[@class='checkbox']//input[@title='Select All'] | //input[contains(@id,'allRowIds') or contains(@name,'allRowIds') or contains(@class,'select-all-checkboxes')] | //input[contains(@id,'selectAllCheckbox')]</td>
 	<td></td>
 </tr>
 <tr>

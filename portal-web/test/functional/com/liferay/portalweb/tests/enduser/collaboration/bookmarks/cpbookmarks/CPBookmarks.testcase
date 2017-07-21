@@ -25,9 +25,7 @@
 		</if>
 	</tear-down>
 
-	<command name="AddBookmark" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="AddBookmark" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -54,6 +52,7 @@
 
 	<command name="AddBookmarks" priority="5">
 		<property name="portal.acceptance" value="true" />
+		<property name="testray.component.names" value="Training" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -102,9 +101,7 @@
 		</execute>
 	</command>
 
-	<command name="AddFolder" priority="5">
-		<property name="portal.acceptance" value="true" />
-
+	<command name="AddFolder" priority="4">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -606,7 +603,7 @@
 		<execute macro="Bookmark#addCP">
 			<var name="bookmarkDescription" value="This is another test bookmark!" />
 			<var name="bookmarkName" value="Test Bookmark 2" />
-			<var name="bookmarkURL" value="http://digg.com" />
+			<var name="bookmarkURL" value="http://www.msn.com" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -628,7 +625,7 @@
 
 		<execute macro="Bookmark#viewBookmark">
 			<var name="bookmarkName" value="Test Bookmark 2" />
-			<var name="bookmarkURL" value="http://digg.com" />
+			<var name="bookmarkURL" value="http://www.msn.com" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -682,7 +679,7 @@
 		<execute macro="Bookmark#addCP">
 			<var name="bookmarkDescription" value="This is another test bookmark!" />
 			<var name="bookmarkName" value="Test Bookmark 2" />
-			<var name="bookmarkURL" value="http://digg.com" />
+			<var name="bookmarkURL" value="http://www.msn.com" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />

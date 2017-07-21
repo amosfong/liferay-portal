@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.LayoutFriendlyURLSeparatorComposite;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
@@ -76,6 +77,7 @@ import javax.servlet.http.HttpSession;
 /**
  * @author Brian Wing Shun Chan
  * @author Eduardo Lundgren
+ * @author Marco Leo
  */
 @ProviderType
 public interface Portal {
@@ -311,7 +313,11 @@ public interface Portal {
 			Layout layout)
 		throws PortalException;
 
-	public long[] getAncestorSiteGroupIds(long groupId) throws PortalException;
+	public Map<Locale, String> getAlternateURLs(
+			String canonicalURL, ThemeDisplay themeDisplay, Layout layout)
+		throws PortalException;
+
+	public long[] getAncestorSiteGroupIds(long groupId);
 
 	/**
 	 * Returns the base model instance for the resource permission.
@@ -766,9 +772,25 @@ public interface Portal {
 			Layout layout, ThemeDisplay themeDisplay, Locale locale)
 		throws PortalException;
 
+	public String getLayoutFriendlyURL(ThemeDisplay themeDisplay)
+		throws PortalException;
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getLayoutFriendlyURLSeparatorComposite(long, boolean,
+	 *             String, Map<String, String[]>, Map<String, Object>)}
+	 */
+	@Deprecated
 	public LayoutFriendlyURLComposite getLayoutFriendlyURLComposite(
 			long groupId, boolean privateLayout, String friendlyURL,
 			Map<String, String[]> params, Map<String, Object> requestContext)
+		throws PortalException;
+
+	public LayoutFriendlyURLSeparatorComposite
+			getLayoutFriendlyURLSeparatorComposite(
+				long groupId, boolean privateLayout, String friendlyURL,
+				Map<String, String[]> params,
+				Map<String, Object> requestContext)
 		throws PortalException;
 
 	public String getLayoutFullURL(Layout layout, ThemeDisplay themeDisplay)
@@ -1060,18 +1082,28 @@ public interface Portal {
 		PortletResponse portletResponse, ThemeDisplay themeDisplay,
 		String portletName);
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getSiteAdminURL(
+	 *             ThemeDisplay, String, Map)}
+	 */
+	@Deprecated
 	public String getSiteAdminURL(
 			Company company, Group group, String ppid,
 			Map<String, String[]> params)
 		throws PortalException;
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #getSiteAdminURL(Company, Group, String, Map)}
+	 * @deprecated As of 7.0.0, replaced by {@link #getSiteAdminURL(
+	 *             ThemeDisplay, String, Map)}
 	 */
 	@Deprecated
 	public String getSiteAdminURL(
 			Group group, String ppid, Map<String, String[]> params)
+		throws PortalException;
+
+	public String getSiteAdminURL(
+			ThemeDisplay themeDisplay, String ppid,
+			Map<String, String[]> params)
 		throws PortalException;
 
 	/**

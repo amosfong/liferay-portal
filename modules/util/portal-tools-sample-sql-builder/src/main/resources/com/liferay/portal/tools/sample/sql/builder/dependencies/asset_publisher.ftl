@@ -2,16 +2,14 @@
 
 <#list pageCounts as pageCount>
 	<#assign
-		portletId = "com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_TEST_" + pageCount
+		portletId = dataFactory.getPortletId("com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_")
 
 		layoutModel = dataFactory.newLayoutModel(groupId, groupId + "_asset_publisher_" + pageCount, "", portletId)
 	/>
 
 	${dataFactory.getCSVWriter("assetPublisher").write(layoutModel.friendlyURL + "\n")}
 
-	<@insertLayout
-		_layoutModel = layoutModel
-	/>
+	<@insertLayout _layoutModel=layoutModel />
 
 	<#assign portletPreferencesModels = dataFactory.newAssetPublisherPortletPreferencesModels(layoutModel.plid) />
 

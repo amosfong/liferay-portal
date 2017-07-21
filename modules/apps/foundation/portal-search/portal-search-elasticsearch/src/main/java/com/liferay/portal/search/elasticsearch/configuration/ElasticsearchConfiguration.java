@@ -26,7 +26,7 @@ import com.liferay.portal.search.elasticsearch.connection.OperationMode;
 @Meta.OCD(
 	id = "com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration",
 	localization = "content/Language",
-	name = "elastic.search.configuration.name"
+	name = "elastic-search-configuration-name"
 )
 public interface ElasticsearchConfiguration {
 
@@ -148,5 +148,8 @@ public interface ElasticsearchConfiguration {
 
 	@Meta.AD(description = "override-type-mappings-help", required = false)
 	public String overrideTypeMappings();
+
+	@Meta.AD(deflt = "true", description = "sync-search", required = false)
+	public boolean syncSearch();
 
 }

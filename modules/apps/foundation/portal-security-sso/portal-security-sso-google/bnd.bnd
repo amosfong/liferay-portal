@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Security SSO Google
 Bundle-SymbolicName: com.liferay.portal.security.sso.google
-Bundle-Version: 2.0.6
+Bundle-Version: 2.0.10
 Export-Package:\
 	com.liferay.portal.security.sso.google,\
 	com.liferay.portal.security.sso.google.configuration,\
@@ -11,6 +11,7 @@ Import-Package:\
 	!com.google.*,\
 	\
 	!org.apache.http.*,\
+	\
 	*
 Liferay-Releng-Module-Group-Description:
 Liferay-Releng-Module-Group-Title:

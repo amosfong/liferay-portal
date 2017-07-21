@@ -34,11 +34,11 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserPersonalSite;
+import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
@@ -70,6 +70,7 @@ import com.liferay.portal.util.PropsValues;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -112,7 +113,7 @@ public class GroupImpl extends GroupBaseImpl {
 	}
 
 	@Override
-	public List<Group> getAncestors() throws PortalException {
+	public List<Group> getAncestors() {
 		Group group = null;
 
 		if (isStagingGroup()) {
@@ -122,12 +123,20 @@ public class GroupImpl extends GroupBaseImpl {
 			group = this;
 		}
 
-		List<Group> groups = new ArrayList<>();
+		List<Group> groups = null;
 
 		while (!group.isRoot()) {
 			group = group.getParentGroup();
 
+			if (groups == null) {
+				groups = new ArrayList<>();
+			}
+
 			groups.add(group);
+		}
+
+		if (groups == null) {
+			return Collections.emptyList();
 		}
 
 		return groups;
@@ -300,6 +309,11 @@ public class GroupImpl extends GroupBaseImpl {
 
 				String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
 					layoutSet, themeDisplay);
+
+				if (isUser()) {
+					return PortalUtil.addPreservedParameters(
+						themeDisplay, groupFriendlyURL, false, true);
+				}
 
 				return PortalUtil.addPreservedParameters(
 					themeDisplay, groupFriendlyURL);
@@ -475,14 +489,14 @@ public class GroupImpl extends GroupBaseImpl {
 	}
 
 	@Override
-	public Group getParentGroup() throws PortalException {
+	public Group getParentGroup() {
 		long parentGroupId = getParentGroupId();
 
 		if (parentGroupId <= 0) {
 			return null;
 		}
 
-		return GroupLocalServiceUtil.getGroup(parentGroupId);
+		return GroupLocalServiceUtil.fetchGroup(parentGroupId);
 	}
 
 	@Override
@@ -1039,7 +1053,7 @@ public class GroupImpl extends GroupBaseImpl {
 		UnicodeProperties typeSettingsProperties =
 			getParentLiveGroupTypeSettingsProperties();
 
-		portletId = PortletConstants.getRootPortletId(portletId);
+		portletId = PortletIdCodec.decodePortletName(portletId);
 
 		String typeSettingsProperty = typeSettingsProperties.getProperty(
 			StagingUtil.getStagedPortletId(portletId));

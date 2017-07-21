@@ -329,7 +329,7 @@
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="scripted-assignment" type="script-complex-type" />
-			<xs:element name="user" type="user-complex-type" />
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="user" type="user-complex-type" />
 		</xs:choice>
 	</xs:group>
 	<xs:group name="nodes-group">
@@ -443,11 +443,6 @@
 			<xs:enumeration value="freemarker" />
 			<xs:enumeration value="text" />
 			<xs:enumeration value="velocity" />
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:simpleType name="timer-execution-type">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="onTimer" />
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="time-scale-type">

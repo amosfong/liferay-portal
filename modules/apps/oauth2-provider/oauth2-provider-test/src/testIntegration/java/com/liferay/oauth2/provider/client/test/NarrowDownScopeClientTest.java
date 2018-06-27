@@ -14,6 +14,7 @@
 
 package com.liferay.oauth2.provider.client.test;
 
+import com.liferay.oauth2.provider.constants.GrantType;
 import com.liferay.oauth2.provider.test.internal.TestApplication;
 import com.liferay.oauth2.provider.test.internal.activator.BaseTestPreparatorBundleActivator;
 import com.liferay.portal.kernel.model.User;
@@ -31,12 +32,14 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Carlos Sierra Andrés
  */
+@Ignore
 @RunAsClient
 @RunWith(Arquillian.class)
 public class NarrowDownScopeClientTest extends BaseClientTestCase {
@@ -49,6 +52,13 @@ public class NarrowDownScopeClientTest extends BaseClientTestCase {
 
 	@Test
 	public void test() throws Exception {
+		Assert.assertEquals(
+			"HEAD",
+			getToken(
+				"oauthTestApplication", null,
+				getAuthorizationCode("test@liferay.com", "test", null, "HEAD"),
+				this::parseScopeString));
+
 		Assert.assertEquals(
 			"HEAD",
 			getToken(
@@ -98,6 +108,9 @@ public class NarrowDownScopeClientTest extends BaseClientTestCase {
 
 			createOAuth2Application(
 				defaultCompanyId, user, "oauthTestApplication",
+				Arrays.asList(
+					GrantType.AUTHORIZATION_CODE, GrantType.CLIENT_CREDENTIALS,
+					GrantType.RESOURCE_OWNER_PASSWORD),
 				Arrays.asList("HEAD", "GET", "OPTIONS", "POST"));
 		}
 

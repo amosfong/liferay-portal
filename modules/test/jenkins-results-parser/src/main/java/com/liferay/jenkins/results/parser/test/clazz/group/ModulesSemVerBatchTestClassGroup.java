@@ -67,6 +67,12 @@ public class ModulesSemVerBatchTestClassGroup
 								return FileVisitResult.CONTINUE;
 							}
 
+							String filePathString = filePath.toString();
+
+							if (filePathString.endsWith("-test")) {
+								return FileVisitResult.SKIP_SUBTREE;
+							}
+
 							File currentDirectory = filePath.toFile();
 
 							File bndBndFile = new File(
@@ -75,7 +81,12 @@ public class ModulesSemVerBatchTestClassGroup
 							File buildFile = new File(
 								currentDirectory, "build.gradle");
 
-							if (buildFile.exists() && bndBndFile.exists()) {
+							File lfrRelengIgnoreFile = new File(
+								currentDirectory, ".lfrbuild-releng-ignore");
+
+							if (buildFile.exists() && bndBndFile.exists() &&
+								!lfrRelengIgnoreFile.exists()) {
+
 								modulesProjectDirs.add(currentDirectory);
 
 								return FileVisitResult.SKIP_SUBTREE;

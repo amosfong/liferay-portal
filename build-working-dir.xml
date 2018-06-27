@@ -93,30 +93,6 @@
 				<arg value="--delete" />
 				<arg value="git-tag-portal-private-apps" />
 			</exec>
-
-			<local name="app.portal.build" />
-
-			<property name="app.portal.build" value="${lp.version[@{checkout.private.branch.name}]}" />
-
-			<script language="javascript">
-				<![CDATA[
-					var appPortalBuild = project.getProperty("app.portal.build");
-
-					project.setProperty("app.portal.build", appPortalBuild.replace(/\./g, ""));
-				]]>
-			</script>
-
-			<replaceregexp
-				byline="true"
-				if:set="checkout.private.apps.releng.dir"
-				match="app.portal.build=.*"
-				replace="app.portal.build=${app.portal.build}"
-			>
-				<fileset
-					dir="${checkout.private.apps.releng.dir}"
-					includes="**/app.properties"
-				/>
-			</replaceregexp>
 		</sequential>
 	</macrodef>
 

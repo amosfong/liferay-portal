@@ -179,13 +179,11 @@ public class AccountResourceImpl
 
 	@Override
 	public Account postAccount(Account account) throws Exception {
-		AccountEntry accountEntry =
-			_accountEntryLocalService.addOrUpdateAccountEntry(
-				account.getExternalReferenceCode(), contextUser.getUserId(),
-				_getParentAccountId(account), account.getName(),
-				account.getDescription(), _getDomains(account), null, null,
-				null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
-				_getStatus(account), null);
+		AccountEntry accountEntry = _accountEntryLocalService.addAccountEntry(
+			contextUser.getUserId(), _getParentAccountId(account),
+			account.getName(), account.getDescription(), _getDomains(account),
+			null, null, null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			_getStatus(account), null);
 
 		_accountEntryOrganizationRelLocalService.
 			setAccountEntryOrganizationRels(
@@ -236,10 +234,13 @@ public class AccountResourceImpl
 			String externalReferenceCode, Account account)
 		throws Exception {
 
-		return putAccount(
-			_accountResourceDTOConverter.getAccountEntryId(
-				externalReferenceCode),
-			account);
+		return _toAccount(
+			_accountEntryLocalService.addOrUpdateAccountEntry(
+				externalReferenceCode, contextUser.getUserId(),
+				_getParentAccountId(account), account.getName(),
+				account.getDescription(), _getDomains(account), null, null,
+				null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+				_getStatus(account), null));
 	}
 
 	private Map<String, Map<String, String>> _getActions(Long accountEntryId) {

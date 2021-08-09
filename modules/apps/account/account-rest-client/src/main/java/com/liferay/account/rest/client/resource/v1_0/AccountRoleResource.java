@@ -40,25 +40,63 @@ public interface AccountRoleResource {
 		return new Builder();
 	}
 
-	public void deleteAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
-			deleteAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception;
+
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception;
+
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
 				String accountExternalReferenceCode, Long accountRoleId,
 				String accountUserExternalReferenceCode)
 		throws Exception;
 
-	public void postAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
+	public HttpInvoker.HttpResponse
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
-			postAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
 				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPageHttpResponse(
+				String accountExternalReferenceCode,
 				String accountUserExternalReferenceCode)
 		throws Exception;
 
@@ -80,6 +118,16 @@ public interface AccountRoleResource {
 	public HttpInvoker.HttpResponse
 			postAccountRoleByExternalReferenceCodeHttpResponse(
 				String externalReferenceCode, AccountRole accountRole)
+		throws Exception;
+
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+				String externalReferenceCode, String emailAddress)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRoleHttpResponse(
+				String externalReferenceCode, String emailAddress)
 		throws Exception;
 
 	public Page<AccountRole> getAccountRolesPage(
@@ -187,13 +235,194 @@ public interface AccountRoleResource {
 
 	public static class AccountRoleResourceImpl implements AccountRoleResource {
 
-		public void deleteAccountRoleUserAssociationByExternalReferenceCode(
-				String accountExternalReferenceCode, Long accountRoleId,
-				String accountUserExternalReferenceCode)
+		public void
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String emailAddress)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				deleteAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+					accountExternalReferenceCode, accountRoleId, emailAddress);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String emailAddress)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.DELETE);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-email-address/{emailAddress}");
+
+			httpInvoker.path(
+				"accountExternalReferenceCode", accountExternalReferenceCode);
+			httpInvoker.path("accountRoleId", accountRoleId);
+			httpInvoker.path("emailAddress", emailAddress);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String emailAddress)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+					accountExternalReferenceCode, accountRoleId, emailAddress);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return;
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddressHttpResponse(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String emailAddress)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-email-address/{emailAddress}");
+
+			httpInvoker.path(
+				"accountExternalReferenceCode", accountExternalReferenceCode);
+			httpInvoker.path("accountRoleId", accountRoleId);
+			httpInvoker.path("emailAddress", emailAddress);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String accountUserExternalReferenceCode)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
 					accountExternalReferenceCode, accountRoleId,
 					accountUserExternalReferenceCode);
 
@@ -235,7 +464,7 @@ public interface AccountRoleResource {
 		}
 
 		public HttpInvoker.HttpResponse
-				deleteAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
 					String accountExternalReferenceCode, Long accountRoleId,
 					String accountUserExternalReferenceCode)
 			throws Exception {
@@ -264,7 +493,7 @@ public interface AccountRoleResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port +
-						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/{accountUserExternalReferenceCode}");
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}");
 
 			httpInvoker.path(
 				"accountExternalReferenceCode", accountExternalReferenceCode);
@@ -279,13 +508,14 @@ public interface AccountRoleResource {
 			return httpInvoker.invoke();
 		}
 
-		public void postAccountRoleUserAssociationByExternalReferenceCode(
-				String accountExternalReferenceCode, Long accountRoleId,
-				String accountUserExternalReferenceCode)
+		public void
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+					String accountExternalReferenceCode, Long accountRoleId,
+					String accountUserExternalReferenceCode)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				postAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
 					accountExternalReferenceCode, accountRoleId,
 					accountUserExternalReferenceCode);
 
@@ -327,7 +557,7 @@ public interface AccountRoleResource {
 		}
 
 		public HttpInvoker.HttpResponse
-				postAccountRoleUserAssociationByExternalReferenceCodeHttpResponse(
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
 					String accountExternalReferenceCode, Long accountRoleId,
 					String accountUserExternalReferenceCode)
 			throws Exception {
@@ -356,11 +586,103 @@ public interface AccountRoleResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port +
-						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/{accountUserExternalReferenceCode}");
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}");
 
 			httpInvoker.path(
 				"accountExternalReferenceCode", accountExternalReferenceCode);
 			httpInvoker.path("accountRoleId", accountRoleId);
+			httpInvoker.path(
+				"accountUserExternalReferenceCode",
+				accountUserExternalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public Page<AccountRole>
+				getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage(
+					String accountExternalReferenceCode,
+					String accountUserExternalReferenceCode)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPageHttpResponse(
+					accountExternalReferenceCode,
+					accountUserExternalReferenceCode);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return Page.of(content, AccountRoleSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPageHttpResponse(
+					String accountExternalReferenceCode,
+					String accountUserExternalReferenceCode)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}/account-roles");
+
+			httpInvoker.path(
+				"accountExternalReferenceCode", accountExternalReferenceCode);
 			httpInvoker.path(
 				"accountUserExternalReferenceCode",
 				accountUserExternalReferenceCode);
@@ -551,6 +873,92 @@ public interface AccountRoleResource {
 						"/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}/account-roles");
 
 			httpInvoker.path("externalReferenceCode", externalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public Page<AccountRole>
+				getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+					String externalReferenceCode, String emailAddress)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRoleHttpResponse(
+					externalReferenceCode, emailAddress);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return Page.of(content, AccountRoleSerDes::toDTO);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRoleHttpResponse(
+					String externalReferenceCode, String emailAddress)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}/account-users/by-email-address/{emailAddress}/account-roles");
+
+			httpInvoker.path("externalReferenceCode", externalReferenceCode);
+			httpInvoker.path("emailAddress", emailAddress);
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);

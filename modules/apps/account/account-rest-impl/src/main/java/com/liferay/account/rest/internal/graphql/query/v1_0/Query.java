@@ -139,6 +139,32 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {accountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRoles(accountExternalReferenceCode: ___, accountUserExternalReferenceCode: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(
+		description = "Gets a user's account roles by their external reference code from an account by external reference code"
+	)
+	public AccountRolePage
+			accountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRoles(
+				@GraphQLName("accountExternalReferenceCode") String
+					accountExternalReferenceCode,
+				@GraphQLName("accountUserExternalReferenceCode") String
+					accountUserExternalReferenceCode)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_accountRoleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			accountRoleResource -> new AccountRolePage(
+				accountRoleResource.
+					getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage(
+						accountExternalReferenceCode,
+						accountUserExternalReferenceCode)));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {accountRolesByExternalReferenceCode(externalReferenceCode: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField(description = "Gets the account's roles")
@@ -158,6 +184,30 @@ public class Query {
 					externalReferenceCode, keywords,
 					Pagination.of(page, pageSize),
 					_sortsBiFunction.apply(accountRoleResource, sortsString))));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {accountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(emailAddress: ___, externalReferenceCode: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(
+		description = "Gets a user's account roles by their email address from an account by external reference code"
+	)
+	public AccountRolePage
+			accountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("emailAddress") String emailAddress)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_accountRoleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			accountRoleResource -> new AccountRolePage(
+				accountRoleResource.
+					getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+						externalReferenceCode, emailAddress)));
 	}
 
 	/**
@@ -318,6 +368,38 @@ public class Query {
 		}
 
 		private AccountRole _accountRole;
+
+	}
+
+	@GraphQLTypeExtension(Account.class)
+	public class
+		GetAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRoleTypeExtension {
+
+		public GetAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRoleTypeExtension(
+			Account account) {
+
+			_account = account;
+		}
+
+		@GraphQLField(
+			description = "Gets a user's account roles by their email address from an account by external reference code"
+		)
+		public AccountRolePage
+				byExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+					@GraphQLName("emailAddress") String emailAddress)
+			throws Exception {
+
+			return _applyComponentServiceObjects(
+				_accountRoleResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				accountRoleResource -> new AccountRolePage(
+					accountRoleResource.
+						getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+							_account.getExternalReferenceCode(),
+							emailAddress)));
+		}
+
+		private Account _account;
 
 	}
 

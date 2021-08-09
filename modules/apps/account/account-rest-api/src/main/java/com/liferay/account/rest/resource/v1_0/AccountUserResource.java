@@ -50,6 +50,18 @@ public interface AccountUserResource {
 		return FactoryHolder.factory.create();
 	}
 
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
 	public Page<AccountUser> getAccountUsersByExternalReferenceCodePage(
 			String externalReferenceCode, String search, Filter filter,
 			Pagination pagination, Sort[] sorts)

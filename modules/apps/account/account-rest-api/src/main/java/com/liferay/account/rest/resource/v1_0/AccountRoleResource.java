@@ -49,14 +49,34 @@ public interface AccountRoleResource {
 		return FactoryHolder.factory.create();
 	}
 
-	public void deleteAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
 		throws Exception;
 
-	public void postAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception;
+
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception;
+
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
 		throws Exception;
 
 	public Page<AccountRole> getAccountRolesByExternalReferenceCodePage(
@@ -66,6 +86,11 @@ public interface AccountRoleResource {
 
 	public AccountRole postAccountRoleByExternalReferenceCode(
 			String externalReferenceCode, AccountRole accountRole)
+		throws Exception;
+
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+				String externalReferenceCode, String emailAddress)
 		throws Exception;
 
 	public Page<AccountRole> getAccountRolesPage(

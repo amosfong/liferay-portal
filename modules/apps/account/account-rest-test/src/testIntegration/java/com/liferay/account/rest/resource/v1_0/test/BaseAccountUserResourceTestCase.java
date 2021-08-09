@@ -213,6 +213,58 @@ public abstract class BaseAccountUserResourceTestCase {
 	}
 
 	@Test
+	public void testDeleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		AccountUser accountUser =
+			testDeleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountUserResource.
+				deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
+					null, null));
+	}
+
+	protected AccountUser
+			testDeleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPostAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		AccountUser accountUser =
+			testPostAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountUserResource.
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
+					null, null));
+
+		assertHttpResponseStatusCode(
+			404,
+			accountUserResource.
+				postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeHttpResponse(
+					null, null));
+	}
+
+	protected AccountUser
+			testPostAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testGetAccountUsersByExternalReferenceCodePage()
 		throws Exception {
 

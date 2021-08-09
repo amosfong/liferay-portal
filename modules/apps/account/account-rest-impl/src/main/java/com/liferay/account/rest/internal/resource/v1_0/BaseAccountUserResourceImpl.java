@@ -83,6 +83,78 @@ public abstract class BaseAccountUserResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}'  -u 'test@liferay.com:test'
+	 */
+	@DELETE
+	@Operation(
+		description = "Removes a user by their external reference code from an account by external reference code"
+	)
+	@Override
+	@Parameters(
+		value = {
+			@Parameter(
+				in = ParameterIn.PATH, name = "accountExternalReferenceCode"
+			),
+			@Parameter(
+				in = ParameterIn.PATH, name = "accountUserExternalReferenceCode"
+			)
+		}
+	)
+	@Path(
+		"/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}"
+	)
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "AccountUser")})
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				@NotNull @Parameter(hidden = true)
+				@PathParam("accountExternalReferenceCode")
+				String accountExternalReferenceCode,
+				@NotNull @Parameter(hidden = true)
+				@PathParam("accountUserExternalReferenceCode")
+				String accountUserExternalReferenceCode)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}'  -u 'test@liferay.com:test'
+	 */
+	@Operation(
+		description = "Assigns a user by their external reference code to an account by external reference code"
+	)
+	@Override
+	@Parameters(
+		value = {
+			@Parameter(
+				in = ParameterIn.PATH, name = "accountExternalReferenceCode"
+			),
+			@Parameter(
+				in = ParameterIn.PATH, name = "accountUserExternalReferenceCode"
+			)
+		}
+	)
+	@Path(
+		"/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}"
+	)
+	@POST
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "AccountUser")})
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				@NotNull @Parameter(hidden = true)
+				@PathParam("accountExternalReferenceCode")
+				String accountExternalReferenceCode,
+				@NotNull @Parameter(hidden = true)
+				@PathParam("accountUserExternalReferenceCode")
+				String accountUserExternalReferenceCode)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/account-rest/v1.0/accounts/by-external-reference-code/{externalReferenceCode}/account-users'  -u 'test@liferay.com:test'
 	 */
 	@GET

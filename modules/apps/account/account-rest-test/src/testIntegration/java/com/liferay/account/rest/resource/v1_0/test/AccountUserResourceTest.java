@@ -296,6 +296,14 @@ public class AccountUserResourceTest extends BaseAccountUserResourceTestCase {
 
 	@Override
 	protected AccountUser
+			testDeleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser()
+		throws Exception {
+
+		return _addAccountUser(_getAccountEntryId(), randomAccountUser());
+	}
+
+	@Override
+	protected AccountUser
 			testGetAccountUsersByExternalReferenceCodePage_addAccountUser(
 				String externalReferenceCode, AccountUser accountUser)
 		throws Exception {
@@ -326,6 +334,14 @@ public class AccountUserResourceTest extends BaseAccountUserResourceTestCase {
 
 	@Override
 	protected AccountUser testGraphQLAccountUser_addAccountUser()
+		throws Exception {
+
+		return _addAccountUser(_getAccountEntryId(), randomAccountUser());
+	}
+
+	@Override
+	protected AccountUser
+			testPostAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode_addAccountUser()
 		throws Exception {
 
 		return _addAccountUser(_getAccountEntryId(), randomAccountUser());

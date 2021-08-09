@@ -20,8 +20,10 @@ import com.liferay.account.rest.internal.dto.v1_0.converter.AccountUserResourceD
 import com.liferay.account.rest.resource.v1_0.AccountRoleResource;
 import com.liferay.account.service.AccountRoleLocalService;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.comparator.RoleDescriptionComparator;
 import com.liferay.portal.kernel.util.comparator.RoleNameComparator;
@@ -50,6 +52,37 @@ public class AccountRoleResourceImpl
 	extends BaseAccountRoleResourceImpl implements EntityModelResource {
 
 	@Override
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception {
+
+		User user = _userLocalService.getUserByEmailAddress(
+			contextCompany.getCompanyId(), emailAddress);
+
+		deleteAccountRoleUserAssociation(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			accountRoleId, user.getUserId());
+	}
+
+	@Override
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception {
+
+		deleteAccountRoleUserAssociation(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			accountRoleId,
+			_accountUserResourceDTOConverter.getUserId(
+				accountUserExternalReferenceCode));
+	}
+
+	@Override
 	public void deleteAccountRoleUserAssociation(
 			Long accountId, Long accountRoleId, Long accountUserId)
 		throws Exception {
@@ -59,17 +92,38 @@ public class AccountRoleResourceImpl
 	}
 
 	@Override
-	public void deleteAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
 		throws Exception {
 
-		deleteAccountRoleUserAssociation(
-			_accountResourceDTOConverter.getAccountEntryId(
-				accountExternalReferenceCode),
-			accountRoleId,
-			_accountUserResourceDTOConverter.getUserId(
-				accountUserExternalReferenceCode));
+		return Page.of(
+			transform(
+				_accountRoleLocalService.getAccountRoles(
+					_accountResourceDTOConverter.getAccountEntryId(
+						accountExternalReferenceCode),
+					_accountUserResourceDTOConverter.getUserId(
+						accountUserExternalReferenceCode)),
+				accountRole -> _toAccountRole(accountRole)));
+	}
+
+	@Override
+	public Page<AccountRole>
+			getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole(
+				String externalReferenceCode, String emailAddress)
+		throws Exception {
+
+		User user = _userLocalService.getUserByEmailAddress(
+			contextCompany.getCompanyId(), emailAddress);
+
+		return Page.of(
+			transform(
+				_accountRoleLocalService.getAccountRoles(
+					_accountResourceDTOConverter.getAccountEntryId(
+						externalReferenceCode),
+					user.getUserId()),
+				accountRole -> _toAccountRole(accountRole)));
 	}
 
 	@Override
@@ -106,6 +160,37 @@ public class AccountRoleResourceImpl
 	}
 
 	@Override
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String emailAddress)
+		throws Exception {
+
+		User user = _userLocalService.getUserByEmailAddress(
+			contextCompany.getCompanyId(), emailAddress);
+
+		postAccountRoleUserAssociation(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			accountRoleId, user.getUserId());
+	}
+
+	@Override
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode, Long accountRoleId,
+				String accountUserExternalReferenceCode)
+		throws Exception {
+
+		postAccountRoleUserAssociation(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			accountRoleId,
+			_accountUserResourceDTOConverter.getUserId(
+				accountUserExternalReferenceCode));
+	}
+
+	@Override
 	public AccountRole postAccountRole(Long accountId, AccountRole accountRole)
 		throws Exception {
 
@@ -138,20 +223,6 @@ public class AccountRoleResourceImpl
 
 		_accountRoleLocalService.associateUser(
 			accountId, accountRoleId, accountUserId);
-	}
-
-	@Override
-	public void postAccountRoleUserAssociationByExternalReferenceCode(
-			String accountExternalReferenceCode, Long accountRoleId,
-			String accountUserExternalReferenceCode)
-		throws Exception {
-
-		postAccountRoleUserAssociation(
-			_accountResourceDTOConverter.getAccountEntryId(
-				accountExternalReferenceCode),
-			accountRoleId,
-			_accountUserResourceDTOConverter.getUserId(
-				accountUserExternalReferenceCode));
 	}
 
 	private OrderByComparator<?> _getOrderByComparator(Sort[] sorts) {
@@ -204,5 +275,8 @@ public class AccountRoleResourceImpl
 	private AccountUserResourceDTOConverter _accountUserResourceDTOConverter;
 
 	private final EntityModel _entityModel = Collections::emptyMap;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

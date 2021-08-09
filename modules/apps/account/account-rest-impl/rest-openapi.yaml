@@ -186,12 +186,73 @@ paths:
                     description:
                         "Account successfully created"
             tags: ["Account"]
-    "/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/{accountUserExternalReferenceCode}":
+    "/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-email-address/{emailAddress}":
         delete:
             # @review
             description:
-                Unassigns account users to the account role
-            operationId: deleteAccountRoleUserAssociationByExternalReferenceCode
+                Unassigns account users by email address from the account role
+            operationId: deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress
+            parameters:
+                - in: path
+                  name: accountExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: accountRoleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: emailAddress
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["AccountRole"]
+        post:
+            # @review
+            description:
+                Assigns account users by email address to the account role
+            operationId: postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByEmailAddresEmailAddress
+            parameters:
+                - in: path
+                  name: accountExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: accountRoleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: emailAddress
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["AccountRole"]
+    "/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-roles/{accountRoleId}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}":
+        delete:
+            # @review
+            description:
+                Unassigns account users by external reference code from the account role
+            operationId: deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode
             parameters:
                 - in: path
                   name: accountExternalReferenceCode
@@ -220,8 +281,8 @@ paths:
         post:
             # @review
             description:
-                Assigns account users to the account role
-            operationId: postAccountRoleUserAssociationByExternalReferenceCode
+                Assigns account users by external reference code to the account role
+            operationId: postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountRoleAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode
             parameters:
                 - in: path
                   name: accountExternalReferenceCode
@@ -244,6 +305,88 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
+                    description:
+                        ""
+            tags: ["AccountRole"]
+    "/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}":
+        delete:
+            # @review
+            description:
+                Removes a user by their external reference code from an account by external reference code
+            operationId: deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode
+            parameters:
+                - in: path
+                  name: accountExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: accountUserExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["AccountUser"]
+        post:
+            # @review
+            description:
+                Assigns a user by their external reference code to an account by external reference code
+            operationId: postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode
+            parameters:
+                - in: path
+                  name: accountExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: accountUserExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        ""
+            tags: ["AccountUser"]
+    "/accounts/by-external-reference-code/{accountExternalReferenceCode}/account-users/by-external-reference-code/{accountUserExternalReferenceCode}/account-roles":
+        get:
+            # @review
+            description:
+                Gets a user's account roles by their external reference code from an account by external reference code
+            operationId: getAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCodeAccountRolesPage
+            parameters:
+                - in: path
+                  name: accountExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: accountUserExternalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AccountRole"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AccountRole"
+                                type: array
                     description:
                         ""
             tags: ["AccountRole"]
@@ -634,6 +777,39 @@ paths:
                     description:
                         ""
             tags: ["AccountUser"]
+    "/accounts/by-external-reference-code/{externalReferenceCode}/account-users/by-email-address/{emailAddress}/account-roles":
+        get:
+            # @review
+            description:
+                Gets a user's account roles by their email address from an account by external reference code
+            operationId: getAccountByExternalReferenceCodeAccountUserByEmailAddresEmailAddressAccountRole
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+                - in: path
+                  name: emailAddress
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AccountRole"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/AccountRole"
+                                type: array
+                    description:
+                        ""
+            tags: ["AccountRole"]
     "/accounts/{accountId}":
         delete:
             # @review

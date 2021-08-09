@@ -61,6 +61,22 @@ public class AccountUserResourceImpl
 	extends BaseAccountUserResourceImpl implements EntityModelResource {
 
 	@Override
+	public void
+			deleteAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
+		throws Exception {
+
+		User user = _accountUserResourceDTOConverter.getObject(
+			accountUserExternalReferenceCode);
+
+		_accountEntryUserRelService.deleteAccountEntryUserRelByEmailAddress(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			user.getEmailAddress());
+	}
+
+	@Override
 	public void deleteAccountUserByEmailAddress(
 			Long accountId, String emailAddress)
 		throws Exception {
@@ -146,6 +162,29 @@ public class AccountUserResourceImpl
 		throws Exception {
 
 		return _accountUserEntityModel;
+	}
+
+	@Override
+	public void
+			postAccountByExternalReferenceCodeAccountExternalReferenceCodeAccountUserByExternalReferenceCodeAccountUserExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String accountUserExternalReferenceCode)
+		throws Exception {
+
+		User user = _accountUserResourceDTOConverter.getObject(
+			accountUserExternalReferenceCode);
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(contextCompany.getCompanyId());
+		serviceContext.setLanguageId(
+			contextAcceptLanguage.getPreferredLanguageId());
+		serviceContext.setUserId(contextUser.getUserId());
+
+		_accountEntryUserRelService.addAccountEntryUserRelByEmailAddress(
+			_accountResourceDTOConverter.getAccountEntryId(
+				accountExternalReferenceCode),
+			user.getEmailAddress(), new long[0], null, serviceContext);
 	}
 
 	@Override

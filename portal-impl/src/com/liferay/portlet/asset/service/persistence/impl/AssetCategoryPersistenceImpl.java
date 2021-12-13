@@ -12004,23 +12004,6 @@ public class AssetCategoryPersistenceImpl
 					}
 				}
 				else {
-					if (list.size() > 1) {
-						Collections.sort(list, Collections.reverseOrder());
-
-						if (_log.isWarnEnabled()) {
-							if (!productionMode || !useFinderCache) {
-								finderArgs = new Object[] {
-									groupId, externalReferenceCode
-								};
-							}
-
-							_log.warn(
-								"AssetCategoryPersistenceImpl.fetchByG_ERC(long, String, boolean) with parameters (" +
-									StringUtil.merge(finderArgs) +
-										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
-						}
-					}
-
 					AssetCategory assetCategory = list.get(0);
 
 					result = assetCategory;
@@ -12985,6 +12968,9 @@ public class AssetCategoryPersistenceImpl
 
 		_uniqueIndexColumnNames.add(
 			new String[] {"parentCategoryId", "name", "vocabularyId"});
+
+		_uniqueIndexColumnNames.add(
+			new String[] {"groupId", "externalReferenceCode"});
 	}
 
 	/**

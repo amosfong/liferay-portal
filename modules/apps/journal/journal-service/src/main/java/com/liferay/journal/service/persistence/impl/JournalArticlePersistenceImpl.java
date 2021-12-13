@@ -22910,23 +22910,6 @@ public class JournalArticlePersistenceImpl
 					}
 				}
 				else {
-					if (list.size() > 1) {
-						Collections.sort(list, Collections.reverseOrder());
-
-						if (_log.isWarnEnabled()) {
-							if (!productionMode || !useFinderCache) {
-								finderArgs = new Object[] {
-									groupId, externalReferenceCode, version
-								};
-							}
-
-							_log.warn(
-								"JournalArticlePersistenceImpl.fetchByG_ERC_V(long, String, double, boolean) with parameters (" +
-									StringUtil.merge(finderArgs) +
-										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
-						}
-					}
-
 					JournalArticle journalArticle = list.get(0);
 
 					result = journalArticle;
@@ -34844,6 +34827,9 @@ public class JournalArticlePersistenceImpl
 			CTColumnResolutionType.STRICT, ctStrictColumnNames);
 
 		_uniqueIndexColumnNames.add(new String[] {"uuid_", "groupId"});
+
+		_uniqueIndexColumnNames.add(
+			new String[] {"groupId", "externalReferenceCode", "version"});
 
 		_uniqueIndexColumnNames.add(
 			new String[] {"groupId", "articleId", "version"});

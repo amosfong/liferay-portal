@@ -8045,23 +8045,6 @@ public class UserPersistenceImpl
 					}
 				}
 				else {
-					if (list.size() > 1) {
-						Collections.sort(list, Collections.reverseOrder());
-
-						if (_log.isWarnEnabled()) {
-							if (!productionMode || !useFinderCache) {
-								finderArgs = new Object[] {
-									companyId, externalReferenceCode
-								};
-							}
-
-							_log.warn(
-								"UserPersistenceImpl.fetchByC_ERC(long, String, boolean) with parameters (" +
-									StringUtil.merge(finderArgs) +
-										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
-						}
-					}
-
 					User user = list.get(0);
 
 					result = user;
@@ -10689,6 +10672,9 @@ public class UserPersistenceImpl
 		_uniqueIndexColumnNames.add(new String[] {"companyId", "screenName"});
 
 		_uniqueIndexColumnNames.add(new String[] {"companyId", "emailAddress"});
+
+		_uniqueIndexColumnNames.add(
+			new String[] {"companyId", "externalReferenceCode"});
 	}
 
 	/**

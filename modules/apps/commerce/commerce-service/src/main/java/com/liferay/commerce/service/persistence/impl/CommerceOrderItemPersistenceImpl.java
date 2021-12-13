@@ -3586,23 +3586,6 @@ public class CommerceOrderItemPersistenceImpl
 					}
 				}
 				else {
-					if (list.size() > 1) {
-						Collections.sort(list, Collections.reverseOrder());
-
-						if (_log.isWarnEnabled()) {
-							if (!useFinderCache) {
-								finderArgs = new Object[] {
-									companyId, externalReferenceCode
-								};
-							}
-
-							_log.warn(
-								"CommerceOrderItemPersistenceImpl.fetchByC_ERC(long, String, boolean) with parameters (" +
-									StringUtil.merge(finderArgs) +
-										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
-						}
-					}
-
 					CommerceOrderItem commerceOrderItem = list.get(0);
 
 					result = commerceOrderItem;

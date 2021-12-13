@@ -6357,23 +6357,6 @@ public class AssetVocabularyPersistenceImpl
 					}
 				}
 				else {
-					if (list.size() > 1) {
-						Collections.sort(list, Collections.reverseOrder());
-
-						if (_log.isWarnEnabled()) {
-							if (!productionMode || !useFinderCache) {
-								finderArgs = new Object[] {
-									groupId, externalReferenceCode
-								};
-							}
-
-							_log.warn(
-								"AssetVocabularyPersistenceImpl.fetchByG_ERC(long, String, boolean) with parameters (" +
-									StringUtil.merge(finderArgs) +
-										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
-						}
-					}
-
 					AssetVocabulary assetVocabulary = list.get(0);
 
 					result = assetVocabulary;
@@ -7342,6 +7325,9 @@ public class AssetVocabularyPersistenceImpl
 		_uniqueIndexColumnNames.add(new String[] {"uuid_", "groupId"});
 
 		_uniqueIndexColumnNames.add(new String[] {"groupId", "name"});
+
+		_uniqueIndexColumnNames.add(
+			new String[] {"groupId", "externalReferenceCode"});
 	}
 
 	/**

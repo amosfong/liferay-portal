@@ -36,7 +36,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MimeTypes;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
-
+import com.liferay.petra.string.StringPool;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
@@ -175,7 +175,7 @@ public class CPAttachmentFileEntryCreator {
 		long classPK = GetterUtil.getLong(classedModel.getPrimaryKeyObj());
 
 		return _cpAttachmentFileEntryLocalService.addCPAttachmentFileEntry(
-			_friendlyURLNormalizer.normalize(fileName),
+			StringPool.BLANK,
 			serviceContext.getUserId(), fileEntry.getGroupId(),
 			_portal.getClassNameId(classedModel.getModelClass()), classPK,
 			fileEntry.getFileEntryId(), false, null, displayDateMonth,
@@ -194,9 +194,6 @@ public class CPAttachmentFileEntryCreator {
 
 	@Reference
 	private DLAppService _dlAppService;
-
-	@Reference
-	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
 	private MimeTypes _mimeTypes;

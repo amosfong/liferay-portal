@@ -84,7 +84,7 @@ public class UpgradeExternalReferenceCode extends UpgradeProcess {
 	protected void upgradeExternalReferenceCodes(
 			String tableName, String primKeyColumnName)
 		throws Exception {
-
+System.out.println("Upgrading " + tableName + " " + primKeyColumnName);
 		if (!hasTable(tableName)) {
 			return;
 		}

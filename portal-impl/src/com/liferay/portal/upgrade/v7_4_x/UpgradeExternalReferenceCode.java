@@ -85,7 +85,11 @@ public class UpgradeExternalReferenceCode extends UpgradeProcess {
 			String tableName, String primKeyColumnName)
 		throws Exception {
 
-		if (!hasTable(tableName)) {
+		System.out.println("Upgrading " + tableName + " " + primKeyColumnName);
+
+		if (!hasTable(tableName) ||
+			!hasColumn(tableName, "externalReferenceCode")) {
+
 			return;
 		}
 
@@ -105,6 +109,9 @@ public class UpgradeExternalReferenceCode extends UpgradeProcess {
 		updateSB.append(" set externalReferenceCode = ? where ");
 		updateSB.append(primKeyColumnName);
 		updateSB.append(" = ?");
+
+		System.out.println("Query:  " + selectSB.toString());
+		System.out.println("Update: " + updateSB.toString());
 
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
 				selectSB.toString());

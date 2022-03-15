@@ -292,12 +292,18 @@ public class AccountResourceImpl
 			String externalReferenceCode, Account account)
 		throws Exception {
 
-		return _toAccount(
+		AccountEntry accountEntry =
 			_accountEntryService.addOrUpdateAccountEntry(
 				externalReferenceCode, contextUser.getUserId(),
 				_getParentAccountId(account), account.getName(),
 				account.getDescription(), _getDomains(account), null, null,
-				null, _getType(account), _getStatus(account), null));
+				null, _getType(account), _getStatus(account), null);
+
+		_accountEntryOrganizationRelLocalService.
+			setAccountEntryOrganizationRels(
+				accountEntry.getAccountEntryId(), _getOrganizationIds(account));
+
+		return _toAccount(accountEntry);
 	}
 
 	private String[] _getDomains(Account account) {

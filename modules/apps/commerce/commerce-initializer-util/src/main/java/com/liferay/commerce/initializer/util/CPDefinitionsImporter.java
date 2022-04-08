@@ -529,12 +529,6 @@ public class CPDefinitionsImporter {
 
 				cpInstance.setManufacturerPartNumber(manufacturerPartNumber);
 
-				String cpInstanceExternalReferenceCode =
-					FriendlyURLNormalizerUtil.normalize(sku);
-
-				cpInstance.setExternalReferenceCode(
-					cpInstanceExternalReferenceCode);
-
 				_cpInstanceLocalService.updateCPInstance(cpInstance);
 
 				// Commerce warehouse items
@@ -808,6 +802,8 @@ public class CPDefinitionsImporter {
 			ServiceContext serviceContext)
 		throws Exception {
 
+		String externalReferenceCode = skuJSONObject.getString(
+			"ExternalReferenceCode");
 		String sku = skuJSONObject.getString("Sku");
 		String manufacturerPartNumber = skuJSONObject.getString(
 			"ManufacturerPartNumber");
@@ -874,8 +870,6 @@ public class CPDefinitionsImporter {
 
 		CPDefinition cpDefinition = _cpDefinitionLocalService.getCPDefinition(
 			cpDefinitionId);
-
-		String externalReferenceCode = FriendlyURLNormalizerUtil.normalize(sku);
 
 		boolean overrideSubscriptionInfo = false;
 		boolean subscriptionEnabled = false;

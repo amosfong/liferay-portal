@@ -104,6 +104,62 @@ definition {
 		BlogsConfiguration.viewNoPermissionCP();
 	}
 
+	@description = "This test covers LPS-143574. It validates that a user with permissions can view and delete a Blogs image."
+	@priority = "3"
+	test CanDeleteImageWithRegRole {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONRole.addRegularRole(roleTitle = "Test Regrole Name");
+
+		JSONRole.assignRoleToUser(
+			roleTitle = "Test Regrole Name",
+			userEmailAddress = "userea@liferay.com");
+
+		for (var resourceActionIndex : list "ACCESS_IN_CONTROL_PANEL,VIEW") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceActionIndex}",
+				resourceName = "com_liferay_blogs_web_portlet_BlogsAdminPortlet",
+				roleTitle = "Test Regrole Name");
+		}
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "VIEW_SITE_ADMINISTRATION",
+			resourceName = "com.liferay.portal.kernel.model.Group",
+			roleTitle = "Test Regrole Name");
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "ADD_ENTRY",
+			resourceName = "com.liferay.blogs",
+			roleTitle = "Test Regrole Name");
+
+		JSONBlog.uploadBlogImage(
+			groupName = "Guest",
+			sourceFileName = "Document_1.jpg");
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		BlogsNavigator.openBlogsImages(siteURLKey = "guest");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Delete",
+			rowEntry = "Document_1.jpg");
+
+		LexiconEntry.viewNoEntry(rowEntry = "Document_1.jpg");
+	}
+
 	@priority = "5"
 	@refactordone
 	test CannotAddEntryAsGuestByDefault {
@@ -540,7 +596,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Blogs Page");
+		PagesAdmin.addPage(pageName = "Blogs Page");
 
 		Navigator.gotoPage(pageName = "Blogs Page");
 

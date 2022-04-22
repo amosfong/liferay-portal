@@ -41,10 +41,10 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Html;
-import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -91,7 +91,6 @@ public class DDMFormInstanceRecordExporterImplTest extends PowerMockito {
 	@Before
 	public void setUp() throws Exception {
 		_setUpFastDateFormatFactoryUtil();
-		_setUpHtmlUtil();
 		_setUpLanguageUtil();
 	}
 
@@ -354,8 +353,11 @@ public class DDMFormInstanceRecordExporterImplTest extends PowerMockito {
 			"value1"
 		);
 
+		ReflectionTestUtil.setFieldValue(
+			ddmFormInstanceRecordExporterImpl, "_html", _html);
+
 		when(
-			_html.extractText("value1")
+			_html.unescape("value1")
 		).thenReturn(
 			"value1"
 		);
@@ -380,7 +382,7 @@ public class DDMFormInstanceRecordExporterImplTest extends PowerMockito {
 
 		Mockito.verify(
 			_html, Mockito.times(1)
-		).extractText(
+		).unescape(
 			"value1"
 		);
 	}
@@ -646,11 +648,10 @@ public class DDMFormInstanceRecordExporterImplTest extends PowerMockito {
 			"approvado"
 		);
 
-		String statusMessage =
+		Assert.assertEquals(
+			"approvado",
 			ddmFormInstanceRecordExporterImpl.getStatusMessage(
-				WorkflowConstants.STATUS_APPROVED, locale);
-
-		Assert.assertEquals("approvado", statusMessage);
+				WorkflowConstants.STATUS_APPROVED, locale));
 
 		Mockito.verify(
 			_language, Mockito.times(1)
@@ -766,12 +767,6 @@ public class DDMFormInstanceRecordExporterImplTest extends PowerMockito {
 
 		fastDateFormatFactoryUtil.setFastDateFormatFactory(
 			new FastDateFormatFactoryImpl());
-	}
-
-	private void _setUpHtmlUtil() {
-		HtmlUtil htmlUtil = new HtmlUtil();
-
-		htmlUtil.setHtml(_html);
 	}
 
 	private void _setUpLanguageUtil() {

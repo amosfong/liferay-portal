@@ -122,8 +122,8 @@ public class KaleoDefinitionVersionUpgradeProcess extends UpgradeProcess {
 
 		if (kaleoDefinition == null) {
 			kaleoDefinition = _addKaleoDefinition(
-				groupId, userId, createDate, modifiedDate, name, title, content,
-				version);
+				groupId, _getValidUserId(companyId, userId), createDate,
+				modifiedDate, name, title, content, version);
 		}
 
 		_kaleoDefinitionVersionLocalService.addKaleoDefinitionVersion(

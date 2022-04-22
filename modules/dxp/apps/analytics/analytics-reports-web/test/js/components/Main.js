@@ -202,7 +202,7 @@ const mockedProps = {
 		url: '',
 	},
 	canonicalURL: 'http://localhost:8080/en/web/guest/-/basic-web-content',
-	dataProviders: [mockViewsDataProvider, mockReadsDataProvider],
+	chartDataProviders: [mockViewsDataProvider, mockReadsDataProvider],
 	onSelectedLanguageClick: () => {},
 	onTrafficSourceClick: () => {},
 	pagePublishDate: mockPublishDate,

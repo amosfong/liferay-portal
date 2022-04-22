@@ -96,7 +96,7 @@ import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
@@ -1233,7 +1233,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			visible = true;
 		}
 
-		String summary = HtmlUtil.extractText(
+		String summary = _htmlParser.extractText(
 			StringUtil.shorten(kbArticle.getContent(), 500));
 
 		AssetEntry assetEntry = _assetEntryLocalService.updateEntry(
@@ -1734,11 +1734,10 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	protected String getUniqueUrlTitle(String urlTitle, int suffix) {
 		String uniqueUrlTitle = urlTitle + StringPool.DASH + suffix;
 
-		int maxLength = ModelHintsUtil.getMaxLength(
-			KBArticle.class.getName(), "urlTitle");
-
 		return StringUtil.shorten(
-			uniqueUrlTitle, maxLength, StringPool.DASH + suffix);
+			uniqueUrlTitle,
+			ModelHintsUtil.getMaxLength(KBArticle.class.getName(), "urlTitle"),
+			StringPool.DASH + suffix);
 	}
 
 	protected void indexKBArticle(KBArticle kbArticle) {
@@ -2106,6 +2105,9 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private HtmlParser _htmlParser;
 
 	@Reference
 	private IndexerRegistry _indexerRegistry;

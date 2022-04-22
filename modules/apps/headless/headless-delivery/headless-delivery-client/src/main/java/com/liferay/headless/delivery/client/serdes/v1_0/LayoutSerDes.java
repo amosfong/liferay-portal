@@ -133,16 +133,16 @@ public class LayoutSerDes {
 			sb.append("\"");
 		}
 
-		if (layout.getHtmlTag() != null) {
+		if (layout.getFlexWrap() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"htmlTag\": ");
+			sb.append("\"flexWrap\": ");
 
 			sb.append("\"");
 
-			sb.append(layout.getHtmlTag());
+			sb.append(layout.getFlexWrap());
 
 			sb.append("\"");
 		}
@@ -350,11 +350,11 @@ public class LayoutSerDes {
 				"contentDisplay", String.valueOf(layout.getContentDisplay()));
 		}
 
-		if (layout.getHtmlTag() == null) {
-			map.put("htmlTag", null);
+		if (layout.getFlexWrap() == null) {
+			map.put("flexWrap", null);
 		}
 		else {
-			map.put("htmlTag", String.valueOf(layout.getHtmlTag()));
+			map.put("flexWrap", String.valueOf(layout.getFlexWrap()));
 		}
 
 		if (layout.getJustify() == null) {
@@ -508,10 +508,10 @@ public class LayoutSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "htmlTag")) {
+			else if (Objects.equals(jsonParserFieldName, "flexWrap")) {
 				if (jsonParserFieldValue != null) {
-					layout.setHtmlTag(
-						Layout.HtmlTag.create((String)jsonParserFieldValue));
+					layout.setFlexWrap(
+						Layout.FlexWrap.create((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "justify")) {

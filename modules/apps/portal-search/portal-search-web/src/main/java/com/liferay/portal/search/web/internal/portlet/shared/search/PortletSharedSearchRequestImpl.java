@@ -47,10 +47,10 @@ import com.liferay.portal.search.web.portlet.shared.task.PortletSharedTaskExecut
 import com.liferay.portal.search.web.search.request.SearchSettings;
 import com.liferay.portal.search.web.search.request.SearchSettingsContributor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
@@ -186,8 +186,10 @@ public class PortletSharedSearchRequestImpl
 			searchRequestBuilderFactory);
 	}
 
-	private Stream<Portlet> _getInstantiatedPortletsStream(
+	private List<Portlet> _getInstantiatedPortlets(
 		Layout layout, long companyId) {
+
+		List<Portlet> portlets = new ArrayList<>();
 
 		List<com.liferay.portal.kernel.model.PortletPreferences>
 			portletPreferencesList =
@@ -195,32 +197,59 @@ public class PortletSharedSearchRequestImpl
 					PortletKeys.PREFS_OWNER_ID_DEFAULT,
 					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid());
 
-		Stream<com.liferay.portal.kernel.model.PortletPreferences> stream =
-			portletPreferencesList.stream();
+		for (com.liferay.portal.kernel.model.PortletPreferences
+				portletPreferences : portletPreferencesList) {
 
-		return stream.map(
-			portletPreferences -> portletLocalService.getPortletById(
-				companyId, portletPreferences.getPortletId())
-		).filter(
-			portlet ->
-				portlet.isInstanceable() &&
-				Validator.isNotNull(portlet.getInstanceId())
-		);
+			Portlet portlet = portletLocalService.getPortletById(
+				companyId, portletPreferences.getPortletId());
+
+			if (portlet.isInstanceable() &&
+				Validator.isNotNull(portlet.getInstanceId())) {
+
+				portlets.add(portlet);
+			}
+		}
+
+		return portlets;
 	}
 
-	private Stream<Portlet> _getPortletsStream(Layout layout, long companyId) {
+	private List<Portlet> _getPortlets(Layout layout, long companyId) {
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
 
 		List<Portlet> portlets = layoutTypePortlet.getAllPortlets(false);
 
 		if (Objects.equals(layout.getType(), LayoutConstants.TYPE_PORTLET)) {
-			return portlets.stream();
+			return portlets;
 		}
 
-		return Stream.concat(
-			portlets.stream(), _getInstantiatedPortletsStream(layout, companyId)
-		).distinct();
+		List<Portlet> instantiatedPortlets = _getInstantiatedPortlets(
+			layout, companyId);
+
+		for (Portlet instantiatedPortlet : instantiatedPortlets) {
+			if (!portlets.contains(instantiatedPortlet)) {
+				portlets.add(instantiatedPortlet);
+			}
+		}
+
+		return portlets;
+	}
+
+	private SearchSettingsContributor _getSearchSettingsContributor(
+		Portlet portlet, ThemeDisplay themeDisplay,
+		RenderRequest renderRequest) {
+
+		PortletSharedSearchContributor portletSharedSearchContributor =
+			_portletSharedSearchContributors.getService(
+				portlet.getPortletName());
+
+		if (portletSharedSearchContributor == null) {
+			return null;
+		}
+
+		return _getSearchSettingsContributor(
+			portletSharedSearchContributor, portlet, themeDisplay,
+			renderRequest);
 	}
 
 	private SearchSettingsContributor _getSearchSettingsContributor(
@@ -238,48 +267,43 @@ public class PortletSharedSearchRequestImpl
 				renderRequest));
 	}
 
-	private Optional<SearchSettingsContributor>
-		_getSearchSettingsContributorOptional(
-			Portlet portlet, ThemeDisplay themeDisplay,
-			RenderRequest renderRequest) {
+	private List<SearchSettingsContributor> _getSearchSettingsContributors(
+		ThemeDisplay themeDisplay, RenderRequest renderRequest) {
 
-		return Optional.ofNullable(
-			_portletSharedSearchContributors.getService(
-				portlet.getPortletName())
-		).map(
-			portletSharedSearchContributor -> _getSearchSettingsContributor(
-				portletSharedSearchContributor, portlet, themeDisplay,
-				renderRequest)
-		);
-	}
+		List<SearchSettingsContributor> searchSettingsContributors =
+			new ArrayList<>();
 
-	private Stream<SearchSettingsContributor>
-		_getSearchSettingsContributorsStream(
-			ThemeDisplay themeDisplay, RenderRequest renderRequest) {
-
-		Stream<Portlet> portletsStream = _getPortletsStream(
+		List<Portlet> portlets = _getPortlets(
 			themeDisplay.getLayout(), themeDisplay.getCompanyId());
 
-		return portletsStream.map(
-			portlet -> _getSearchSettingsContributorOptional(
-				portlet, themeDisplay, renderRequest)
-		).filter(
-			Optional::isPresent
-		).map(
-			Optional::get
-		);
+		for (Portlet portlet : portlets) {
+			SearchSettingsContributor searchSettingsContributor =
+				_getSearchSettingsContributor(
+					portlet, themeDisplay, renderRequest);
+
+			if (searchSettingsContributor != null) {
+				searchSettingsContributors.add(searchSettingsContributor);
+			}
+		}
+
+		return searchSettingsContributors;
 	}
 
 	private PortletSharedSearchResponse _search(RenderRequest renderRequest) {
 		ThemeDisplay themeDisplay = getThemeDisplay(renderRequest);
 
-		Stream<SearchSettingsContributor> stream =
-			_getSearchSettingsContributorsStream(themeDisplay, renderRequest);
-
 		SearchRequestImpl searchRequestImpl = _createSearchRequestImpl(
 			themeDisplay, renderRequest);
 
-		stream.forEach(searchRequestImpl::addSearchSettingsContributor);
+		List<SearchSettingsContributor> searchSettingsContributors =
+			_getSearchSettingsContributors(themeDisplay, renderRequest);
+
+		for (SearchSettingsContributor searchSettingsContributor :
+				searchSettingsContributors) {
+
+			searchRequestImpl.addSearchSettingsContributor(
+				searchSettingsContributor);
+		}
 
 		SearchResponseImpl searchResponseImpl = searchRequestImpl.search();
 

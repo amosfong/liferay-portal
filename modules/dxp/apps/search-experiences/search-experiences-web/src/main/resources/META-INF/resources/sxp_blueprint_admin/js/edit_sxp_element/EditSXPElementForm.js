@@ -27,8 +27,11 @@ import React, {
 	useState,
 } from 'react';
 
+import sxpElementSchema from '../../schemas/sxp-query-element.schema.json';
+import useShouldConfirmBeforeNavigate from '../hooks/useShouldConfirmBeforeNavigate';
 import CodeMirrorEditor from '../shared/CodeMirrorEditor';
 import ErrorBoundary from '../shared/ErrorBoundary';
+import JSONSXPElement from '../shared/JSONSXPElement';
 import LearnMessage from '../shared/LearnMessage';
 import PreviewModal from '../shared/PreviewModal';
 import SearchInput from '../shared/SearchInput';
@@ -39,8 +42,7 @@ import SXPElement from '../shared/sxp_element/index';
 import {CONFIG_PREFIX, DEFAULT_ERROR} from '../utils/constants';
 import {sub} from '../utils/language';
 import {openErrorToast, setInitialSuccessToast} from '../utils/toasts';
-import useShouldConfirmBeforeNavigate from '../utils/useShouldConfirmBeforeNavigate';
-import {getUIConfigurationValues} from '../utils/utils';
+import {getUIConfigurationValues, isCustomJSONSXPElement} from '../utils/utils';
 import SidebarPanel from './SidebarPanel';
 
 /**
@@ -76,7 +78,7 @@ const validateConfigKeys = (
 		...JSON.stringify(configurationJSONObject).matchAll(regex),
 	].map((item) => item[1]);
 
-	const uiConfigKeys = uiConfigurationJSONObject.fieldSets
+	const uiConfigKeys = uiConfigurationJSONObject?.fieldSets
 		? uiConfigurationJSONObject.fieldSets.reduce((acc, curr) => {
 
 				// Find names within each fields array
@@ -332,9 +334,14 @@ function EditSXPElementForm({
 
 	function _renderPreviewBody() {
 		let previewSXPElementJSON = {};
+		let uiConfigurationValues = {};
 
 		try {
 			previewSXPElementJSON = JSON.parse(elementJSONEditorValue);
+
+			uiConfigurationValues = getUIConfigurationValues(
+				previewSXPElementJSON
+			);
 		}
 		catch (error) {
 			return (
@@ -351,13 +358,20 @@ function EditSXPElementForm({
 		return (
 			<div className="portlet-sxp-blueprint-admin">
 				<ErrorBoundary>
-					<SXPElement
-						collapseAll={false}
-						sxpElement={previewSXPElementJSON}
-						uiConfigurationValues={getUIConfigurationValues(
-							previewSXPElementJSON
-						)}
-					/>
+					{isCustomJSONSXPElement(uiConfigurationValues) ? (
+						<JSONSXPElement
+							collapseAll={false}
+							readOnly={true}
+							sxpElement={previewSXPElementJSON}
+							uiConfigurationValues={uiConfigurationValues}
+						/>
+					) : (
+						<SXPElement
+							collapseAll={false}
+							sxpElement={previewSXPElementJSON}
+							uiConfigurationValues={uiConfigurationValues}
+						/>
+					)}
 				</ErrorBoundary>
 			</div>
 		);
@@ -617,6 +631,7 @@ function EditSXPElementForm({
 									size={showVariablesSidebar ? 9 : 12}
 								>
 									<CodeMirrorEditor
+										autocompleteSchema={sxpElementSchema}
 										onChange={(value) =>
 											setElementJSONEditorValue(value)
 										}

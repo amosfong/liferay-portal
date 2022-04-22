@@ -43,7 +43,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test PageLocationCardShowsViewsByExpectedLocation {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9268

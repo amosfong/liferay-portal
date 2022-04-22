@@ -3,26 +3,15 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Order Management";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
+		CommerceConfiguration.commerceSetUp();
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-5839. As a system admin i want to be able to create / update and delete a new currency"
@@ -122,7 +111,11 @@ definition {
 
 		Button.clickSave();
 
-		AssertElementPresent(locator1 = "CommerceEntry#LAST_CURRENCY_ELEMENT");
+		WaitForPageLoad();
+
+		AssertElementPresent(
+			key_entryName = "US Dollar",
+			locator1 = "CommerceEntry#LAST_CURRENCY_ELEMENT");
 	}
 
 	test ViewInstanceCurrenciesAvailable {

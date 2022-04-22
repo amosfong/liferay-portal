@@ -16,7 +16,6 @@ package com.liferay.journal.web.internal.asset.model;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
-import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.asset.kernel.model.DDMFormValuesReader;
@@ -57,8 +56,9 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -97,8 +97,11 @@ public class JournalArticleAssetRenderer
 		return article.getResourcePrimKey();
 	}
 
-	public JournalArticleAssetRenderer(JournalArticle article) {
+	public JournalArticleAssetRenderer(
+		JournalArticle article, HtmlParser htmlParser) {
+
 		_article = article;
+		_htmlParser = htmlParser;
 	}
 
 	public JournalArticle getArticle() {
@@ -210,7 +213,7 @@ public class JournalArticleAssetRenderer
 		String summary = _article.getDescription(getLocale(portletRequest));
 
 		if (Validator.isNotNull(summary)) {
-			return HtmlUtil.render(HtmlUtil.stripHtml(summary));
+			return _htmlParser.render(HtmlUtil.stripHtml(summary));
 		}
 
 		return summary;
@@ -366,12 +369,6 @@ public class JournalArticleAssetRenderer
 			(ThemeDisplay)liferayPortletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		Layout layout = _article.getLayout();
-
-		if (layout == null) {
-			layout = themeDisplay.getLayout();
-		}
-
 		if (!_isShowDisplayPage(themeDisplay.getScopeGroupId(), _article)) {
 			return _getHitLayoutURL(noSuchEntryRedirect, themeDisplay);
 		}
@@ -384,7 +381,7 @@ public class JournalArticleAssetRenderer
 
 			if (Validator.isNotNull(friendlyURL)) {
 				if (!_article.isApproved()) {
-					friendlyURL = HttpUtil.addParameter(
+					friendlyURL = HttpComponentsUtil.addParameter(
 						friendlyURL, "version", _article.getId());
 				}
 
@@ -392,17 +389,22 @@ public class JournalArticleAssetRenderer
 			}
 		}
 
-		String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
-			LayoutSetLocalServiceUtil.getLayoutSet(
-				_article.getGroupId(), layout.isPrivateLayout()),
-			themeDisplay, false, false);
+		Layout layout = _article.getLayout();
+
+		if (layout == null) {
+			return noSuchEntryRedirect;
+		}
 
 		String friendlyURL = StringBundler.concat(
-			groupFriendlyURL, JournalArticleConstants.CANONICAL_URL_SEPARATOR,
+			PortalUtil.getGroupFriendlyURL(
+				LayoutSetLocalServiceUtil.getLayoutSet(
+					_article.getGroupId(), layout.isPrivateLayout()),
+				themeDisplay, false, false),
+			JournalArticleConstants.CANONICAL_URL_SEPARATOR,
 			_article.getUrlTitle(themeDisplay.getLocale()));
 
 		if (!_article.isApproved()) {
-			friendlyURL = HttpUtil.addParameter(
+			friendlyURL = HttpComponentsUtil.addParameter(
 				friendlyURL, "version", _article.getId());
 		}
 
@@ -616,11 +618,12 @@ public class JournalArticleAssetRenderer
 		AssetRendererFactory<JournalArticle> assetRendererFactory =
 			getAssetRendererFactory();
 
-		AssetEntry assetEntry = assetRendererFactory.getAssetEntry(
-			JournalArticle.class.getName(), article.getResourcePrimKey());
-
 		if (Validator.isNull(article.getLayoutUuid()) &&
-			!AssetDisplayPageUtil.hasAssetDisplayPage(groupId, assetEntry)) {
+			!AssetDisplayPageUtil.hasAssetDisplayPage(
+				groupId,
+				assetRendererFactory.getAssetEntry(
+					JournalArticle.class.getName(),
+					article.getResourcePrimKey()))) {
 
 			return false;
 		}
@@ -635,6 +638,7 @@ public class JournalArticleAssetRenderer
 	private AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
 	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
+	private final HtmlParser _htmlParser;
 	private JournalContent _journalContent;
 	private JournalConverter _journalConverter;
 	private JournalServiceConfiguration _journalServiceConfiguration;

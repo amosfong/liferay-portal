@@ -43,14 +43,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
-import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
+import com.liferay.portal.kernel.uuid.PortalUUID;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Date;
@@ -111,7 +110,7 @@ public class MemberRequestLocalServiceImpl
 		memberRequest.setUserName(user.getFullName());
 		memberRequest.setCreateDate(date);
 		memberRequest.setModifiedDate(date);
-		memberRequest.setKey(PortalUUIDUtil.generate());
+		memberRequest.setKey(_portalUUID.generate());
 		memberRequest.setReceiverUserId(receiverUserId);
 		memberRequest.setInvitedRoleId(invitedRoleId);
 		memberRequest.setInvitedTeamId(invitedTeamId);
@@ -283,13 +282,14 @@ public class MemberRequestLocalServiceImpl
 	protected static String addParameterWithPortletNamespace(
 		String url, String name, String value) {
 
-		String portletId = HttpUtil.getParameter(url, "p_p_id", false);
+		String portletId = HttpComponentsUtil.getParameter(
+			url, "p_p_id", false);
 
 		if (Validator.isNotNull(portletId)) {
 			name = PortalUtil.getPortletNamespace(portletId) + name;
 		}
 
-		return HttpUtil.addParameter(url, name, value);
+		return HttpComponentsUtil.addParameter(url, name, value);
 	}
 
 	protected String getCreateAccountURL(
@@ -337,7 +337,8 @@ public class MemberRequestLocalServiceImpl
 		redirectURL = addParameterWithPortletNamespace(
 			redirectURL, "key", memberRequest.getKey());
 
-		return _http.addParameter(loginURL, "redirect", redirectURL);
+		return HttpComponentsUtil.addParameter(
+			loginURL, "redirect", redirectURL);
 	}
 
 	protected String getRedirectURL(ServiceContext serviceContext) {
@@ -483,10 +484,10 @@ public class MemberRequestLocalServiceImpl
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private Http _http;
+	private MailService _mailService;
 
 	@Reference
-	private MailService _mailService;
+	private PortalUUID _portalUUID;
 
 	@Reference
 	private UserGroupRoleLocalService _userGroupRoleLocalService;

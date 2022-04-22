@@ -129,7 +129,9 @@ if ((cpDefinition != null) && (cpDefinition.getExpirationDate() != null)) {
 						defaultLanguageId="<%= defaultLanguageId %>"
 						inputAddon="<%= StringUtil.shorten(friendlyURLBase, 40) %>"
 						name="urlTitleMapAsXML"
-						xml="<%= HttpUtil.decodeURL(cpDefinitionsDisplayContext.getUrlTitleMapAsXML()) %>"
+						xml="<%=
+							HttpComponentsUtil.decodeURL(cpDefinitionsDisplayContext.getUrlTitleMapAsXML())
+						%>"
 					/>
 				</div>
 

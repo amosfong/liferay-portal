@@ -43,8 +43,13 @@ definition {
 	}
 
 	@description = "Feature ID: LRAC-6433 | Automation ID: LRAC-10166 | Test Summary: Search Events Blocked List"
+	@ignore = "true"
 	@priority = "3"
 	test BlockedEventsListSearchable {
+
+		// AC Quarantine Reason: The data in the event analysis taking a while to appear
+		// AC Refactor ticket: LRAC-10599
+
 		task ("Add a Web Content Display to page and display the custom event") {
 			ACCustomEvents.createWCWithCustomEventAndAddToPage();
 		}
@@ -130,6 +135,8 @@ definition {
 	@description = "Bug: LRAC-10359 | Automation ID: LRAC-10360 | Test Summary: Sort blocked events by Event Name and Last Seen"
 	@priority = "4"
 	test CanSortBlockedEventsByNameAndLastSeen {
+		property test.name.skip.portal.instance = "CustomEventsBlockedEventsList#CanSortBlockedEventsByNameAndLastSeen";
+
 		task ("Add a Web Content Display to page and display the custom event") {
 			var customEventName = ACCustomEvents.generateCustomEventName();
 
@@ -213,6 +220,8 @@ definition {
 	@description = "Feature ID: LRAC-6433 | Automation ID: LRAC-10164 | Test Summary: Check custom event list and blocked event list when more than 100 events are created"
 	@priority = "5"
 	test CheckBlockedEventsListWhenMore100EventsCreated {
+		property test.name.skip.portal.instance = "CustomEventsBlockedEventsList#CheckBlockedEventsListWhenMore100EventsCreated";
+
 		task ("Add a Web Content Display to page and display the custom event") {
 			var customEventName = ACCustomEvents.generateCustomEventName();
 

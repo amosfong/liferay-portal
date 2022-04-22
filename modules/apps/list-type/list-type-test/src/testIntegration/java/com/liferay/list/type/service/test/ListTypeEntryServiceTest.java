@@ -60,16 +60,15 @@ public class ListTypeEntryServiceTest {
 	public void setUp() throws Exception {
 		_defaultUser = _userLocalService.getDefaultUser(
 			TestPropsValues.getCompanyId());
-		_originalName = PrincipalThreadLocal.getName();
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-		_user = TestPropsValues.getUser();
-
 		_listTypeDefinition =
 			_listTypeDefinitionLocalService.addListTypeDefinition(
 				TestPropsValues.getUserId(),
 				Collections.singletonMap(
 					LocaleUtil.getDefault(), RandomTestUtil.randomString()));
+		_originalName = PrincipalThreadLocal.getName();
+		_originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		_user = TestPropsValues.getUser();
 	}
 
 	@After

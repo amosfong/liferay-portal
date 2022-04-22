@@ -151,6 +151,15 @@ definition {
 			entryContent = "Blogs Entry Content Edited");
 	}
 
+	@description = "This is a test for LPS-99922. It checks that XSS will not be executed when adding a blog entry with the card display template."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CannotExecuteXSSWithCardDisplayTemplate {
+
+		// TODO LPS-129154 CannotExecuteXSSWithCardDisplayTemplate pending implementation
+
+	}
+
 	@description = "This checks that a guest cannot view a blog entry in the AP when permissions are removed."
 	@priority = "4"
 	@refactordone
@@ -445,6 +454,31 @@ definition {
 			entryTitle = "Blogs Entry Title");
 	}
 
+	@description = "This is a test for LPS-90983. It checks that the custom abstract can be viewed in card display template."
+	@priority = "4"
+	test CanViewCustomAbstractInCardDisplayTemplate {
+		JSONBlog.addEntry(
+			entryAbstractDescription = "Blogs Entry Abstract Description",
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		Portlet.gotoPortletOptions(
+			portletName = "Blogs",
+			portletOption = "Configuration");
+
+		BlogsConfiguration.selectConfigurationIFrame();
+
+		BlogsConfiguration.selectDisplayTemplate(displayTemplate = "Card");
+
+		IFrame.saveConfiguration();
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		BlogsEntry.viewWithAbstractDisplayTemplatePG(
+			entryAbstractDescription = "Blogs Entry Abstract Description",
+			entryTitle = "Blogs Entry Title");
+	}
+
 	@description = "This checks that a blog entry can be added, edited, saved as a draft and published via AP."
 	@priority = "4"
 	@refactordone
@@ -634,6 +668,15 @@ definition {
 		BlogsEntry.viewEntryPG(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
+	}
+
+	@description = "This is a test for LPS-78189. It ensures that a user can view the blog entry via Blogs Aggregator after configuring the organization."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewEntryWithOrganizationViaBlogsAggregator {
+
+		// TODO LPS-149577 CanViewEntryWithOrganizationViaBlogsAggregator pending implementation
+
 	}
 
 	@description = "This is a test for LPS-141740. It checks that a user can view the details of latest blogs entry via recent bloggers."

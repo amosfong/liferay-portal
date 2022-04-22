@@ -206,6 +206,12 @@ definition {
 	}
 
 	macro addChildPage {
+		if (IsTextNotEqual(locator1 = "ControlMenu#HEADING", value1 = "Pages")) {
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
+		}
+
 		MouseOver(
 			key_itemName = "${parentPageName}",
 			locator1 = "PagesAdmin#LIST_GROUP_ITEM");
@@ -376,6 +382,31 @@ definition {
 			vocabularyName = "${vocabularyName}");
 	}
 
+	macro addPageUnderSitePagesVariation {
+		LexiconEntry.gotoAddMenuItem(menuItem = "Page");
+
+		PagesAdmin._selectPageType(
+			collectionName = "${collectionName}",
+			pageTemplateName = "${pageTemplateName}",
+			sitePageType = "${sitePageType}");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		PortletEntry.inputName(name = "${pageName}");
+
+		Button.clickAdd();
+
+		SelectFrame.selectFrameTop();
+
+		VerifyElementPresent(locator1 = "Message#SUCCESS");
+
+		AssertVisible(locator1 = "TextInput#NAME");
+
+		Button.click(button = "Save");
+
+		WaitForSPARefresh();
+	}
+
 	macro addPrivateChildPage {
 		if (IsTextNotEqual(locator1 = "ControlMenu#HEADING", value1 = "Pages")) {
 			ProductMenu.gotoPortlet(
@@ -525,7 +556,7 @@ definition {
 		PortletEntry.selectAll();
 
 		AssertElementPresent(
-			key_text = "times-circle",
+			key_text = "trash",
 			locator1 = "Icon#ANY_DISABLED");
 	}
 
@@ -546,11 +577,18 @@ definition {
 	}
 
 	macro changeSiteCurrentTheme {
-		PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		if (IsElementPresent(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS")) {
+			Click(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
 
-		Click(
-			key_pageName = "${privacy}",
-			locator1 = "Icon#COG_PAGE");
+			MenuItem.click(menuItem = "Configuration");
+		}
+		else {
+			PagesAdmin.togglePrivacy(privacy = "${privacy}");
+
+			Click(
+				key_pageName = "${privacy}",
+				locator1 = "Icon#COG_PAGE");
+		}
 
 		Navigator.gotoNavTab(navTab = "Look and Feel");
 
@@ -620,6 +658,18 @@ definition {
 			sitePageType = "${sitePageType}");
 
 		PortletEntry.save();
+	}
+
+	macro convertToContentPageByIcon {
+		for (var pageName : list "${pageNameList}") {
+			PagesAdmin.selectPageItem(pageName = "${pageName}");
+		}
+
+		ClickNoError(
+			key_text = "page",
+			locator1 = "ManagementBar#ANY_ICON");
+
+		AssertConfirm(value1 = "Are you sure you want to convert the selected pages?");
 	}
 
 	macro deleteFriendlyURL {
@@ -1116,7 +1166,9 @@ definition {
 				portlet = "Pages");
 		}
 
-		PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		if (isSet(privacy)) {
+			PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		}
 
 		AssertElementNotPresent(
 			key_pageName = "${pageName}",
@@ -1130,7 +1182,9 @@ definition {
 				portlet = "Pages");
 		}
 
-		PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		if (isSet(privacy)) {
+			PagesAdmin.togglePrivacy(privacy = "${privacy}");
+		}
 
 		if (isSet(depth)) {
 			PagesAdmin.expandPageTree(depth = "${depth}");

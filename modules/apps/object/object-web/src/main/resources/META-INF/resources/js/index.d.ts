@@ -12,19 +12,22 @@
  * details.
  */
 
+type ObjectFieldBusinessType = 'Attachment' | 'LongText' | 'Picklist' | 'Text';
+
 interface ObjectFieldType {
-	businessType: string;
+	businessType: ObjectFieldBusinessType;
 	dbType: string;
 	description: string;
 	label: string;
 }
-
 interface ObjectField {
 	DBType: string;
-	businessType: string;
+	businessType: ObjectFieldBusinessType;
+	id?: number;
 	indexed: boolean;
 	indexedAsKeyword: boolean;
-	label: {[key in Liferay.Language.Locale]?: string};
+	indexedLanguageId: Locale | null;
+	label: LocalizedValue<string>;
 	listTypeDefinitionId: number;
 	name?: string;
 	objectFieldSettings?: ObjectFieldSetting[];
@@ -34,11 +37,28 @@ interface ObjectField {
 
 interface ObjectFieldSetting {
 	name: ObjectFieldSettingName;
-	required: boolean;
-	value: unknown;
+	value: string | number | boolean;
 }
 
 type ObjectFieldSettingName =
 	| 'acceptedFileExtensions'
 	| 'fileSource'
-	| 'maximumFileSize';
+	| 'maximumFileSize'
+	| 'maxLength'
+	| 'showCounter'
+	| 'showFilesInDocumentsAndMedia'
+	| 'storageDLFolderPath';
+
+interface ObjectValidation {
+	active: boolean;
+	description?: string;
+	engine: ObjectValidationType;
+	errorLabel: LocalizedValue<string>;
+	id: number;
+	name: any;
+	script: string;
+}
+
+interface ObjectValidationType {
+	label: string;
+}

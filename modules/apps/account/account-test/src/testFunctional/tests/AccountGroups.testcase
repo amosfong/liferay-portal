@@ -22,6 +22,188 @@ definition {
 		}
 	}
 
+	@description = "This test asserts the account group name not clickable when user only have the update permission."
+	@priority = "3"
+	test AccountGroupNameLinkNotClickableWithOnlyUpdatePermission {
+		task ("Given A new User and a new Account Group exists") {
+			JSONUser.addUser(
+				userEmailAddress = "userea1@liferay.com",
+				userFirstName = "userfn1",
+				userLastName = "userln1",
+				userScreenName = "usersn1");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea1@liferay.com");
+
+			task ("And A new Account Group exists") {
+				JSONAccountGroup.addAccountGroup(
+					accountGroupDescription = "This is an Account Group.",
+					accountGroupName = "AG Name not Clickable");
+			}
+
+			task ("And A new Regular role with Update permission exists") {
+				JSONRole.addRegularRole(roleTitle = "Only Update Permission");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "VIEW_CONTROL_PANEL",
+					resourceName = "90",
+					roleTitle = "Only Update Permission");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "ACCESS_IN_CONTROL_PANEL",
+					resourceName = "com_liferay_account_admin_web_internal_portlet_AccountGroupsAdminPortlet",
+					roleTitle = "Only Update Permission");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "UPDATE",
+					resourceName = "com.liferay.account.model.AccountGroup",
+					roleTitle = "Only Update Permission");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "VIEW",
+					resourceName = "com.liferay.account.model.AccountGroup",
+					roleTitle = "Only Update Permission");
+			}
+		}
+
+		task ("When assign the user with regular role only have update Account Group permission") {
+			JSONRole.assignRoleToUser(
+				roleTitle = "Only Update Permission",
+				userEmailAddress = "userea1@liferay.com");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea1@liferay.com",
+				userLoginFullName = "userfn1 userln1");
+		}
+
+		task ("Then filter the accounts assigned to account group by Status returns proper results") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			AssertVisible(
+				key_rowEntry = "AG Name not Clickable",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
+
+			AssertElementNotPresent(
+				key_rowEntry = "AG Name not Clickable",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME_LINK");
+		}
+	}
+
+	@description = "This test asserts the user with Access in Control Panel permission can acess account group via Control Panel."
+	@priority = "3"
+	test CanAccessAccountGroupsInControlPanelWithPermissions {
+		task ("Given A new User exists") {
+			JSONUser.addUser(
+				userEmailAddress = "userea1@liferay.com",
+				userFirstName = "userfn1",
+				userLastName = "userln1",
+				userScreenName = "usersn1");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea1@liferay.com");
+
+			task ("And A new Regular role with Access in Control Panel permission exists") {
+				JSONRole.addRegularRole(roleTitle = "View AG Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "VIEW_CONTROL_PANEL",
+					resourceName = "90",
+					roleTitle = "View AG Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "ACCESS_IN_CONTROL_PANEL",
+					resourceName = "com_liferay_account_admin_web_internal_portlet_AccountGroupsAdminPortlet",
+					roleTitle = "View AG Reg Role");
+			}
+		}
+
+		task ("When Assign the user with regular role") {
+			JSONRole.assignRoleToUser(
+				roleTitle = "View AG Reg Role",
+				userEmailAddress = "userea1@liferay.com");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea1@liferay.com",
+				userLoginFullName = "userfn1 userln1");
+		}
+
+		task ("Then The new User can access the Account Group via Control Panel") {
+			AccountGroups.openAccountGroupsAdmin();
+		}
+	}
+
+	@description = "This test asserts the user with Assign Account permission can assign account to account group."
+	@priority = "3"
+	test CanAssignAccountFromAccountGroupWithPermissions {
+		task ("Given A new User/Accounts/Account Groups exists") {
+			JSONUser.addUser(
+				userEmailAddress = "userea1@liferay.com",
+				userFirstName = "userfn1",
+				userLastName = "userln1",
+				userScreenName = "usersn1");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea1@liferay.com");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account for Account Group",
+				accountEntryType = "Business");
+
+			JSONAccountGroup.addAccountGroup(
+				accountGroupDescription = "This is an Account Group assigned with Accounts.",
+				accountGroupName = "AG Name with Accounts");
+
+			task ("And A new Regular role with assign account permission exists") {
+				JSONRole.addRegularRole(roleTitle = "Assign Account Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "VIEW_CONTROL_PANEL",
+					resourceName = "90",
+					roleTitle = "Assign Account Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "ACCESS_IN_CONTROL_PANEL",
+					resourceName = "com_liferay_account_admin_web_internal_portlet_AccountGroupsAdminPortlet",
+					roleTitle = "Assign Account Reg Role");
+
+				for (var resourceAction : list "VIEW,VIEW_ACCOUNTS,ASSIGN_ACCOUNTS") {
+					Permissions.definePermissionViaJSONAPI(
+						resourceAction = "${resourceAction}",
+						resourceName = "com.liferay.account.model.AccountGroup",
+						roleTitle = "Assign Account Reg Role");
+				}
+			}
+		}
+
+		task ("When Assign the user with regular role") {
+			JSONRole.assignRoleToUser(
+				roleTitle = "Assign Account Reg Role",
+				userEmailAddress = "userea1@liferay.com");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea1@liferay.com",
+				userLoginFullName = "userfn1 userln1");
+		}
+
+		task ("Then The new User can assign Account to Account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AG Name with Accounts");
+
+			AccountGroups.viewDefault(tabName = "Accounts");
+
+			AccountGroups.addAssignee(
+				accountGroupName = "AG Name with Accounts",
+				assigneeNames = "Account for Account Group");
+		}
+	}
+
 	@description = "This test deletes an account group."
 	@priority = "4"
 	test CanDeleteAnAccountGroup {
@@ -74,6 +256,170 @@ definition {
 		AccountGroups.viewEntry(
 			accountGroupDescription = "Edited Description",
 			accountGroupName = "Edited Account Group Name");
+	}
+
+	@description = "This test assert user can filter the assigned accounts in Account Group by name."
+	@priority = "3"
+	test CanFilterAccountsBelongToAccountGroupByName {
+		task ("Given Add a new Account Group and Accounts with different name not in alphabetical order") {
+			JSONAccountGroup.addAccountGroup(
+				accountGroupDescription = "Filter the assigned Accounts by .",
+				accountGroupName = "AG Filter by Name");
+
+			for (var accountEntryName : list "Liferay Account,Account Name for Test,Filter By Name,Banana Account") {
+				JSONAccountEntry.addAccountEntry(
+					accountEntryName = "${accountEntryName}",
+					accountEntryType = "Business");
+			}
+		}
+
+		task ("When assign the accounts to account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AG Filter by Name");
+
+			AccountGroups.viewDefault(tabName = "Accounts");
+
+			AccountGroups.addAssignee(
+				accountGroupName = "AG Filter by Name",
+				assigneeAll = "true");
+
+			for (var assigneeName : list "Liferay Account,Account Name for Test,Filter By Name,Banana Account") {
+				AccountGroups.viewAssignee(assigneeName = "${assigneeName}");
+			}
+		}
+
+		task ("Then filter the accounts assigned to account group by Name returns proper results") {
+			ManagementBar.viewFilterAndOrderSelectedItem(menuItem = "Name");
+
+			var index = "1";
+
+			for (var assigneeName : list "Account Name for Test,Banana Account,Filter By Name,Liferay Account") {
+				AssertTextEquals.assertPartialText(
+					key_rowNumber = "${index}",
+					locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
+					value1 = "${assigneeName}");
+
+				var index = ${index} + 1;
+			}
+		}
+	}
+
+	@description = "This test assert user can filter the assigned accounts in Account Group by status."
+	@priority = "3"
+	test CanFilterAccountsBelongToAccountGroupByStatus {
+		task ("Given Add a new Account Group and Accounts with different status") {
+			JSONAccountGroup.addAccountGroup(
+				accountGroupDescription = "Filter the assigned Accounts by Status.",
+				accountGroupName = "AG Filter by Status");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Inactive Business Account",
+				accountEntryStatus = "Inactive",
+				accountEntryType = "Business");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Active Person Account",
+				accountEntryType = "Person");
+		}
+
+		task ("When assign the active account to account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AG Filter by Status");
+
+			AccountGroups.viewDefault(tabName = "Accounts");
+
+			AccountGroups.addAssignee(
+				accountGroupName = "AG Filter by Status",
+				assigneeNames = "Active Person Account");
+
+			AccountGroups.viewAssignee(assigneeName = "Active Person Account");
+
+			task ("And assign the inactive account to account group") {
+				LexiconEntry.gotoAdd();
+
+				Pause(locator1 = "3000");
+
+				SelectFrame(
+					key_title = "Assign Accounts to AG Filter by Status",
+					locator1 = "IFrame#MODAL_ANY");
+
+				ManagementBar.setFilterAndOrder(filterBy = "Inactive");
+
+				Check(
+					key_tableEntry = "Inactive Business Account",
+					locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
+
+				SelectFrameTop();
+
+				Button.click(button = "Assign");
+
+				Alert.viewSuccessMessage();
+			}
+		}
+
+		task ("Then filter the accounts assigned to account group by Status returns proper results") {
+			ManagementBar.setFilterAndOrder(filterBy = "Inactive");
+
+			AccountGroups.viewAssignee(assigneeName = "Inactive Business Account");
+
+			ManagementBar.setFilterAndOrder(filterBy = "Active");
+
+			AccountGroups.viewAssignee(assigneeName = "Active Person Account");
+		}
+	}
+
+	@description = "This test assert user can filter the assigned accounts in Account Group by type."
+	@priority = "3"
+	test CanFilterAccountsBelongToAccountGroupByType {
+		task ("Given Add a new Account Group and Accounts with different type") {
+			JSONAccountGroup.addAccountGroup(
+				accountGroupDescription = "Filter the assigned Accounts by Type.",
+				accountGroupName = "AG Filter by Type");
+
+			for (var accountNum : list "1,2") {
+				JSONAccountEntry.addAccountEntry(
+					accountEntryName = "Business Account ${accountNum} for Account Group",
+					accountEntryType = "Business");
+			}
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Person Account for Account Group",
+				accountEntryType = "Person");
+		}
+
+		task ("When assign the accounts to account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AG Filter by Type");
+
+			AccountGroups.viewDefault(tabName = "Accounts");
+
+			AccountGroups.addAssignee(
+				accountGroupName = "AG Filter by Type",
+				assigneeAll = "true");
+
+			for (var assigneeName : list "Business Account 1 for Account Group,Business Account 2 for Account Group,Person Account for Account Group") {
+				AccountGroups.viewAssignee(assigneeName = "${assigneeName}");
+			}
+		}
+
+		task ("Then filter the accounts assigned to account group by Type returns proper results") {
+			ManagementBar.setFilterAndOrder(filterBy = "Business");
+
+			for (var assigneeNameNum : list "1,2") {
+				AccountGroups.viewAssignee(assigneeName = "Business Account ${assigneeNameNum} for Account Group");
+			}
+
+			ManagementBar.setFilterAndOrder(filterBy = "Person");
+
+			AccountGroups.viewAssignee(assigneeName = "Person Account for Account Group");
+
+			ManagementBar.setFilterAndOrder(filterBy = "Guest");
+
+			AccountGroups.viewDefault(tabName = "Accounts");
+		}
 	}
 
 	@description = "This test assigns an account to Account Group"
@@ -144,9 +490,7 @@ definition {
 
 		AccountGroups.addAssignee(
 			accountGroupName = "Multiple Accounts AG",
-			assigneeAll = "true",
-			assigneeNames = "Accounts ${accountNumber} for AG",
-			assigneeType = "Accounts");
+			assigneeAll = "true");
 
 		AccountGroups.openAccountGroupsAdmin();
 
@@ -179,9 +523,11 @@ definition {
 
 		AccountGroups.addAssignee(
 			accountGroupName = "Remove Account AG",
-			assigneeAll = "All",
-			assigneeNames = "Delete Accounts 1 from AG,Delete Accounts 2 from AG,Delete Accounts 3 from AG",
-			assigneeType = "Accounts");
+			assigneeAll = "All");
+
+		for (var assigneeName : list "Delete Accounts 1 from AG,Delete Accounts 2 from AG,Delete Accounts 3 from AG") {
+			AccountGroups.viewAssignee(assigneeName = "${assigneeName}");
+		}
 
 		AccountGroups.openAccountGroupsAdmin();
 
@@ -227,6 +573,82 @@ definition {
 
 		for (var rowEntry : list "Delete Accounts 1 from AG,Delete Accounts 2 from AG,Delete Accounts 3 from AG") {
 			LexiconEntry.viewEntryName(rowEntry = "${rowEntry}");
+		}
+	}
+
+	@description = "This test asserts the user with View Account permission can view account in account group."
+	@priority = "3"
+	test CanViewAccountsAssignedToAccountGroupWithPermissions {
+		task ("Given A new User/Accounts/Account Groups exists") {
+			JSONUser.addUser(
+				userEmailAddress = "userea1@liferay.com",
+				userFirstName = "userfn1",
+				userLastName = "userln1",
+				userScreenName = "usersn1");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea1@liferay.com");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account for Account Group",
+				accountEntryType = "Business");
+
+			JSONAccountGroup.addAccountGroup(
+				accountGroupDescription = "This is an Account Group assigned with Accounts.",
+				accountGroupName = "AG Name with Accounts");
+
+			task ("And A new Regular role with view account permission exists") {
+				JSONRole.addRegularRole(roleTitle = "View Account Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "VIEW_CONTROL_PANEL",
+					resourceName = "90",
+					roleTitle = "View Account Reg Role");
+
+				Permissions.definePermissionViaJSONAPI(
+					resourceAction = "ACCESS_IN_CONTROL_PANEL",
+					resourceName = "com_liferay_account_admin_web_internal_portlet_AccountGroupsAdminPortlet",
+					roleTitle = "View Account Reg Role");
+
+				for (var resourceAction : list "VIEW,VIEW_ACCOUNTS") {
+					Permissions.definePermissionViaJSONAPI(
+						resourceAction = "${resourceAction}",
+						resourceName = "com.liferay.account.model.AccountGroup",
+						roleTitle = "View Account Reg Role");
+				}
+			}
+		}
+
+		task ("When Assign the user with regular role") {
+			JSONRole.assignRoleToUser(
+				roleTitle = "View Account Reg Role",
+				userEmailAddress = "userea1@liferay.com");
+
+			task ("And Assign the account to account group") {
+				AccountGroups.openAccountGroupsAdmin();
+
+				LexiconEntry.gotoEntry(rowEntry = "AG Name with Accounts");
+
+				AccountGroups.viewDefault(tabName = "Accounts");
+
+				AccountGroups.addAssignee(
+					accountGroupName = "AG Name with Accounts",
+					assigneeNames = "Account for Account Group");
+			}
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea1@liferay.com",
+				userLoginFullName = "userfn1 userln1");
+		}
+
+		task ("Then The new User can view the Account assigned to Account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AG Name with Accounts");
+
+			LexiconEntry.viewEntryName(rowEntry = "Account for Account Group");
 		}
 	}
 

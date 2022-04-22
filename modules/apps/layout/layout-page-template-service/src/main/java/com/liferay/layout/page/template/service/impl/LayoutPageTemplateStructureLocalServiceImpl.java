@@ -39,7 +39,8 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.model.SegmentsExperience;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.Date;
 import java.util.List;
@@ -192,9 +193,23 @@ public class LayoutPageTemplateStructureLocalServiceImpl
 				_generateContentLayoutStructureData(groupId, plid));
 		}
 
+		long defaultSegmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				plid);
+
+		if (defaultSegmentsExperienceId <= 0) {
+			SegmentsExperience defaultSegmentsExperience =
+				_segmentsExperienceLocalService.addDefaultSegmentsExperience(
+					PrincipalThreadLocal.getUserId(), plid,
+					ServiceContextThreadLocal.getServiceContext());
+
+			defaultSegmentsExperienceId =
+				defaultSegmentsExperience.getSegmentsExperienceId();
+		}
+
 		return addLayoutPageTemplateStructure(
 			PrincipalThreadLocal.getUserId(), groupId, plid,
-			SegmentsExperienceConstants.ID_DEFAULT,
+			defaultSegmentsExperienceId,
 			_generateContentLayoutStructureData(groupId, plid),
 			ServiceContextThreadLocal.getServiceContext());
 	}
@@ -252,9 +267,13 @@ public class LayoutPageTemplateStructureLocalServiceImpl
 			long groupId, long plid, String data)
 		throws PortalException {
 
+		long defaultSegmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				plid);
+
 		return layoutPageTemplateStructureLocalService.
 			updateLayoutPageTemplateStructureData(
-				groupId, plid, SegmentsExperienceConstants.ID_DEFAULT, data);
+				groupId, plid, defaultSegmentsExperienceId, data);
 	}
 
 	private String _generateContentLayoutStructureData(long groupId, long plid)
@@ -358,6 +377,9 @@ public class LayoutPageTemplateStructureLocalServiceImpl
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

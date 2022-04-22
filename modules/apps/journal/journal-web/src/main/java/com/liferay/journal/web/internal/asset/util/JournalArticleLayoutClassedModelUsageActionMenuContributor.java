@@ -29,12 +29,11 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -150,20 +149,20 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 		if (layoutClassedModelUsage.getContainerType() ==
 				_portal.getClassNameId(FragmentEntryLink.class)) {
 
-			Layout layout = _layoutLocalService.fetchLayout(
-				layoutClassedModelUsage.getPlid());
+			layoutURL = _portal.getLayoutFriendlyURL(
+				_layoutLocalService.fetchLayout(
+					layoutClassedModelUsage.getPlid()),
+				themeDisplay);
 
-			layoutURL = _portal.getLayoutFriendlyURL(layout, themeDisplay);
-
-			layoutURL = _http.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewClassNameId",
 				String.valueOf(layoutClassedModelUsage.getClassNameId()));
-			layoutURL = _http.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewClassPK",
 				String.valueOf(layoutClassedModelUsage.getClassPK()));
-			layoutURL = _http.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewType", String.valueOf(previewType));
-			layoutURL = _http.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewVersion", previewVersion);
 		}
 		else {
@@ -184,7 +183,7 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 			).buildString();
 		}
 
-		String portletURLString = _http.setParameter(
+		String portletURLString = HttpComponentsUtil.setParameter(
 			layoutURL, "p_l_back_url", themeDisplay.getURLCurrent());
 
 		return portletURLString + "#portlet_" +
@@ -193,9 +192,6 @@ public class JournalArticleLayoutClassedModelUsageActionMenuContributor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalArticleLayoutClassedModelUsageActionMenuContributor.class);
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;

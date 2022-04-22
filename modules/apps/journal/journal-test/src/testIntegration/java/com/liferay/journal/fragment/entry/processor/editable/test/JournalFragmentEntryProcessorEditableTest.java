@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -85,10 +86,13 @@ public class JournalFragmentEntryProcessorEditableTest {
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				TestPropsValues.getUserId(), _group.getGroupId(), 0,
-				RandomTestUtil.randomLong(), 0, _layout.getPlid(),
+				RandomTestUtil.randomLong(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid()),
+				_layout.getPlid(), StringPool.BLANK, StringPool.BLANK,
 				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 0,
-				StringPool.BLANK, ServiceContextTestUtil.getServiceContext());
+				StringPool.BLANK, 0, StringPool.BLANK,
+				ServiceContextTestUtil.getServiceContext());
 
 		String editableValues = _readJSONFileToString(
 			"fragment_entry_link_mapped_ddm.json");
@@ -108,10 +112,9 @@ public class JournalFragmentEntryProcessorEditableTest {
 		_fragmentEntryLinkLocalService.deleteFragmentEntryLink(
 			fragmentEntryLink);
 
-		ddmTemplateLink = _ddmTemplateLinkLocalService.fetchDDMTemplateLink(
-			ddmTemplateLink.getTemplateLinkId());
-
-		Assert.assertNull(ddmTemplateLink);
+		Assert.assertNull(
+			_ddmTemplateLinkLocalService.fetchDDMTemplateLink(
+				ddmTemplateLink.getTemplateLinkId()));
 	}
 
 	private long _getClassNameId(String editableKey) {
@@ -152,5 +155,8 @@ public class JournalFragmentEntryProcessorEditableTest {
 
 	@Inject
 	private Portal _portal;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

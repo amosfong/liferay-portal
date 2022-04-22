@@ -19,10 +19,12 @@ import {useCallback, useContext, useEffect, useMemo} from 'react';
 import ListViewContextProvider, {
 	ListViewContext,
 	ListViewContextProviderProps,
+	ListViewTypes,
 } from '../../context/ListViewContext';
 import i18n from '../../i18n';
 import {PAGINATION} from '../../util/constants';
 import EmptyState from '../EmptyState';
+import Loading from '../Loading';
 import ManagementToolbar, {ManagementToolbarProps} from '../ManagementToolbar';
 import Table, {TableProps} from '../Table';
 
@@ -38,7 +40,10 @@ type ListViewProps<T = any> = {
 	forceRefetch?: number;
 	managementToolbarProps?: {
 		visible?: boolean;
-	} & Omit<ManagementToolbarProps, 'tableProps' | 'totalItems'>;
+	} & Omit<
+		ManagementToolbarProps,
+		'tableProps' | 'totalItems' | 'onSelectAllRows'
+	>;
 	query: TypedDocumentNode;
 	tableProps: Omit<TableProps, 'items'>;
 	transformData: (data: T) => LiferayQueryResponse<T>;
@@ -56,24 +61,11 @@ const ListView: React.FC<ListViewProps> = ({
 	transformData,
 	variables,
 }) => {
-	const [{filters}] = useContext(ListViewContext);
+	const [{filters, selectedRows}, dispatch] = useContext(ListViewContext);
 
 	const {data, error, loading, refetch} = useQuery(query, {
 		variables,
 	});
-
-	const onRefetch = useCallback(
-		(newVariables: any) => {
-			refetch({...variables, ...newVariables});
-		},
-		[refetch, variables]
-	);
-
-	useEffect(() => {
-		if (forceRefetch) {
-			onRefetch({});
-		}
-	}, [forceRefetch, onRefetch]);
 
 	const {items = [], page, pageSize, totalCount} = transformData(data) || {};
 
@@ -93,16 +85,36 @@ const ListView: React.FC<ListViewProps> = ({
 		[filters.columns, tableProps.columns]
 	);
 
+	const onRefetch = useCallback(
+		(newVariables: any) => {
+			refetch({...variables, ...newVariables});
+		},
+		[refetch, variables]
+	);
+
+	const onSelectRow = useCallback(
+		(row: any) => {
+			dispatch({payload: row?.id, type: ListViewTypes.SET_CHECKED_ROW});
+		},
+		[dispatch]
+	);
+
+	const onSelectAllRows = useCallback(() => {
+		items.forEach(onSelectRow);
+	}, [items, onSelectRow]);
+
+	useEffect(() => {
+		if (forceRefetch) {
+			onRefetch({});
+		}
+	}, [forceRefetch, onRefetch]);
+
 	if (error) {
 		return <span>{error.message}</span>;
 	}
 
 	if (loading) {
-		return <span>{i18n.translate('loading')}...</span>;
-	}
-
-	if (!items.length) {
-		return <EmptyState />;
+		return <Loading />;
 	}
 
 	return (
@@ -110,27 +122,42 @@ const ListView: React.FC<ListViewProps> = ({
 			{managementToolbarVisible && (
 				<ManagementToolbar
 					{...managementToolbarProps}
+					onSelectAllRows={onSelectAllRows}
 					tableProps={tableProps}
 					totalItems={items.length}
 				/>
 			)}
 
-			<Table {...tableProps} columns={columns} items={items} />
+			{!items.length && <EmptyState />}
 
-			<ClayPaginationBarWithBasicItems
-				activeDelta={pageSize}
-				activePage={page}
-				deltas={deltas}
-				ellipsisBuffer={PAGINATION.ellipsisBuffer}
-				labels={{
-					paginationResults: i18n.translate('showing-x-to-x-of-x'),
-					perPageItems: i18n.translate('x-items'),
-					selectPerPageItems: i18n.translate('x-items'),
-				}}
-				onDeltaChange={(delta) => onRefetch({pageSize: delta})}
-				onPageChange={(page) => onRefetch({page})}
-				totalItems={totalCount}
-			/>
+			{!!items.length && (
+				<>
+					<Table
+						{...tableProps}
+						columns={columns}
+						items={items}
+						onSelectRow={onSelectRow}
+						selectedRows={selectedRows}
+					/>
+
+					<ClayPaginationBarWithBasicItems
+						activeDelta={pageSize}
+						activePage={page}
+						deltas={deltas}
+						ellipsisBuffer={PAGINATION.ellipsisBuffer}
+						labels={{
+							paginationResults: i18n.translate(
+								'showing-x-to-x-of-x'
+							),
+							perPageItems: i18n.translate('x-items'),
+							selectPerPageItems: i18n.translate('x-items'),
+						}}
+						onDeltaChange={(delta) => onRefetch({pageSize: delta})}
+						onPageChange={(page) => onRefetch({page})}
+						totalItems={totalCount}
+					/>
+				</>
+			)}
 		</>
 	);
 };

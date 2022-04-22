@@ -399,6 +399,8 @@ public interface Layout extends LayoutModel, PersistedModel {
 	 */
 	public boolean isPublicLayout();
 
+	public boolean isPublished();
+
 	/**
 	 * Returns <code>true</code> if the current layout is the root layout.
 	 *

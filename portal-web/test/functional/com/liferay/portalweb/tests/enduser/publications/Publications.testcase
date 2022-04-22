@@ -1,7 +1,6 @@
 @component-name = "portal-publications"
 definition {
 
-	property app.server.types = "jboss,tomcat,weblogic,websphere,wildfly";
 	property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver";
 	property portal.release = "true";
 	property portal.upstream = "true";
@@ -482,7 +481,7 @@ definition {
 			changeType = "Added",
 			contentValueInPublication = "Web Content");
 
-		PublicationsNavigator.gotoChangeDetailsNavbar(navBarTitle = "Data");
+		PublicationsNavigator.gotoNavbar(navBarTitle = "Data");
 
 		PublicationsChangeDetails.viewChangeDetailsInData(
 			changeType = "Added",
@@ -502,7 +501,7 @@ definition {
 			columnName = "名称",
 			columnValueInPublication = "网页内容标题");
 
-		PublicationsNavigator.gotoChangeDetailsNavbar(navBarTitle = "Display");
+		PublicationsNavigator.gotoNavbar(navBarTitle = "Display");
 
 		PublicationsChangeDetails.viewChangeDetailsInDisplay(
 			changeType = "Added",
@@ -650,6 +649,7 @@ definition {
 	@priority = "4"
 	test IsBrowserHistoryPreserved {
 		property test.assert.warning.exceptions = "true";
+		property test.name.skip.portal.instance = "Publications#IsBrowserHistoryPreserved";
 
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
@@ -720,6 +720,27 @@ definition {
 			key_tableEntry = "En progreso",
 			locator1 = "LexiconTable#TABLE_ENTRY_INFO",
 			value1 = "En progreso");
+	}
+
+	@priority = "4"
+	test NoChangesShouldDisplayAfterNavigatingPersonalAppLayouts {
+		JSONPublications.addPublication(publicationName = "Publication Name");
+
+		JSONPublications.selectPublication(publicationName = "Publication Name");
+
+		PublicationsNavigator.gotoReviewChanges(
+			gotoPublicationsAdmin = "true",
+			publicationName = "Publication Name");
+
+		AssertVisible(locator1 = "Message#EMPTY_INFO_TAGLIB");
+
+		UserBar.gotoDropdownItem(dropdownItem = "Account Settings");
+
+		PublicationsNavigator.gotoReviewChanges(
+			gotoPublicationsAdmin = "true",
+			publicationName = "Publication Name");
+
+		AssertVisible(locator1 = "Message#EMPTY_INFO_TAGLIB");
 	}
 
 	@description = "Assert publications changes can search and sort"
@@ -1045,7 +1066,7 @@ definition {
 			contentValueInPublication = "WC WebContent Content Edited",
 			diffAddedValue = "Edited");
 
-		PublicationsNavigator.gotoChangeDetailsNavbar(navBarTitle = "Data");
+		PublicationsNavigator.gotoNavbar(navBarTitle = "Data");
 
 		PublicationsChangeDetails.viewChangeDetailsInData(
 			changeType = "Modified",
@@ -1054,13 +1075,13 @@ definition {
 			columnValueInPublication = "WC WebContent Title Edited",
 			diffAddedValue = "Edited");
 
-		PublicationsNavigator.gotoChangeDetailsNavbar(navBarTitle = "Parents");
+		PublicationsNavigator.gotoNavbar(navBarTitle = "Parents");
 
 		PublicationsChangeDetails.viewChangeDetailsInParents(
 			changeParentsCategory = "Dynamic Data Mapping Template",
 			changeParentsTitle = "Basic Web Content");
 
-		PublicationsNavigator.gotoChangeDetailsNavbar(navBarTitle = "Children");
+		PublicationsNavigator.gotoNavbar(navBarTitle = "Children");
 
 		PublicationsChangeDetails.viewChangeDetailsInChildren(
 			changeChildrenCategory = "Web Content Translation",

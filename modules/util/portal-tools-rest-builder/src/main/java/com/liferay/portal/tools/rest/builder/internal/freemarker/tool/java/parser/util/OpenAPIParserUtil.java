@@ -26,6 +26,7 @@ import com.liferay.portal.tools.rest.builder.internal.yaml.YAMLUtil;
 import com.liferay.portal.tools.rest.builder.internal.yaml.config.ConfigYAML;
 import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.Components;
 import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.Content;
+import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.Info;
 import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.Items;
 import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.OpenAPIYAML;
 import com.liferay.portal.tools.rest.builder.internal.yaml.openapi.Operation;
@@ -152,13 +153,10 @@ public class OpenAPIParserUtil {
 	}
 
 	public static List<String> getExternalReferences(OpenAPIYAML openAPIYAML) {
+		Set<String> externalReferences = new HashSet<>();
+
 		Map<String, PathItem> pathItems = openAPIYAML.getPathItems();
 
-		if (pathItems == null) {
-			return Collections.emptyList();
-		}
-
-		Set<String> externalReferences = new HashSet<>();
 		Map<String, Schema> schemas = Optional.ofNullable(
 			openAPIYAML.getComponents()
 		).map(
@@ -167,28 +165,44 @@ public class OpenAPIParserUtil {
 			new HashMap<>()
 		);
 
-		for (Map.Entry<String, PathItem> entry1 : pathItems.entrySet()) {
-			List<Operation> operations = getOperations(entry1.getValue());
+		if (pathItems != null) {
+			for (PathItem pathItem : pathItems.values()) {
+				List<Operation> operations = getOperations(pathItem);
 
-			for (Operation operation : operations) {
-				RequestBody requestBody = operation.getRequestBody();
+				for (Operation operation : operations) {
+					RequestBody requestBody = operation.getRequestBody();
 
-				if (requestBody != null) {
-					_getExternalReferences(
-						requestBody.getContent(), externalReferences, schemas);
-				}
-
-				Map<ResponseCode, Response> responses =
-					operation.getResponses();
-
-				for (Response response : responses.values()) {
-					if (response == null) {
-						continue;
+					if (requestBody != null) {
+						_addExternalReferences(
+							requestBody.getContent(), externalReferences,
+							schemas);
 					}
 
-					_getExternalReferences(
-						response.getContent(), externalReferences, schemas);
+					Map<ResponseCode, Response> responses =
+						operation.getResponses();
+
+					for (Response response : responses.values()) {
+						if (response == null) {
+							continue;
+						}
+
+						_addExternalReferences(
+							response.getContent(), externalReferences, schemas);
+					}
 				}
+			}
+		}
+
+		for (Schema schema : schemas.values()) {
+			Map<String, Schema> propertySchemas = schema.getPropertySchemas();
+
+			if (propertySchemas == null) {
+				continue;
+			}
+
+			for (Schema propertySchema : propertySchemas.values()) {
+				_addExternalReferences(
+					externalReferences, propertySchema, schemas);
 			}
 		}
 
@@ -488,6 +502,12 @@ public class OpenAPIParserUtil {
 		return TextFormatter.format(schemaName, TextFormatter.I);
 	}
 
+	public static String getVersion(OpenAPIYAML openAPIYAML) {
+		Info info = openAPIYAML.getInfo();
+
+		return info.getVersion();
+	}
+
 	public static boolean hasHTTPMethod(
 		JavaMethodSignature javaMethodSignature, String... httpMethods) {
 
@@ -502,7 +522,7 @@ public class OpenAPIParserUtil {
 		return false;
 	}
 
-	private static void _getExternalReferences(
+	private static void _addExternalReferences(
 		Map<String, Content> contents, Set<String> externalReferences,
 		Map<String, Schema> schemas) {
 
@@ -511,59 +531,65 @@ public class OpenAPIParserUtil {
 		}
 
 		for (Content content : contents.values()) {
-			Schema contentSchema = content.getSchema();
+			_addExternalReferences(
+				externalReferences, content.getSchema(), schemas);
+		}
+	}
 
-			if (contentSchema == null) {
-				continue;
-			}
+	private static void _addExternalReferences(
+		Set<String> externalReferences, Schema schema,
+		Map<String, Schema> schemas) {
 
-			Queue<Map<String, Schema>> queue = new LinkedList<>();
+		if (schema == null) {
+			return;
+		}
 
-			queue.add(Collections.singletonMap("content", contentSchema));
+		Queue<Map<String, Schema>> queue = new LinkedList<>();
 
-			Map<String, Schema> map = null;
-			Set<String> visited = new HashSet<>();
+		queue.add(Collections.singletonMap("content", schema));
 
-			while ((map = queue.poll()) != null) {
-				for (Map.Entry<String, Schema> entry : map.entrySet()) {
-					if (visited.contains(entry.getKey())) {
-						continue;
-					}
+		Map<String, Schema> map = null;
+		Set<String> visited = new HashSet<>();
 
-					Schema schema = entry.getValue();
+		while ((map = queue.poll()) != null) {
+			for (Map.Entry<String, Schema> entry : map.entrySet()) {
+				if (visited.contains(entry.getKey())) {
+					continue;
+				}
 
-					String reference = _getReference(schema);
+				Schema currentSchema = entry.getValue();
 
-					if (reference != null) {
-						if (reference.contains("#/components/schemas/")) {
-							String referenceName = getReferenceName(reference);
+				String reference = _getReference(currentSchema);
 
-							Schema referenceSchema = schemas.get(referenceName);
+				if (reference != null) {
+					if (reference.contains("#/components/schemas/")) {
+						String referenceName = getReferenceName(reference);
 
-							if (referenceSchema != null) {
-								queue.add(
-									Collections.singletonMap(
-										referenceName, referenceSchema));
-								visited.add(entry.getKey());
-							}
+						Schema referenceSchema = schemas.get(referenceName);
+
+						if (referenceSchema != null) {
+							queue.add(
+								Collections.singletonMap(
+									referenceName, referenceSchema));
+							visited.add(entry.getKey());
 						}
-						else {
-							externalReferences.add(reference);
-						}
 					}
-					else if (schema.getAllOfSchemas() != null) {
-						List<Schema> allOfSchemas = schema.getAllOfSchemas();
+					else {
+						externalReferences.add(reference);
+					}
+				}
+				else if (currentSchema.getAllOfSchemas() != null) {
+					List<Schema> allOfSchemas = currentSchema.getAllOfSchemas();
 
-						queue.add(
-							Collections.singletonMap(
-								"allOf" + entry.getKey(), allOfSchemas.get(0)));
+					queue.add(
+						Collections.singletonMap(
+							"allOf" + entry.getKey(), allOfSchemas.get(0)));
 
-						visited.add(entry.getKey());
-					}
-					else if (schema.getPropertySchemas() != null) {
-						queue.add(schema.getPropertySchemas());
-						visited.add(entry.getKey());
-					}
+					visited.add(entry.getKey());
+				}
+				else if (currentSchema.getPropertySchemas() != null) {
+					queue.add(currentSchema.getPropertySchemas());
+					visited.add(entry.getKey());
 				}
 			}
 		}

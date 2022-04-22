@@ -53,6 +53,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocal
 import com.liferay.layout.page.template.validator.DisplayPageTemplateValidator;
 import com.liferay.layout.page.template.validator.MasterPageValidator;
 import com.liferay.layout.page.template.validator.PageDefinitionValidator;
+import com.liferay.layout.page.template.validator.PageTemplateCollectionValidator;
 import com.liferay.layout.page.template.validator.PageTemplateValidator;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.layout.util.constants.LayoutStructureConstants;
@@ -91,7 +92,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.service.StyleBookEntryLocalService;
 
@@ -590,6 +591,9 @@ public class LayoutPageTemplatesImporterImpl
 
 			String content = StringUtil.read(zipFile.getInputStream(zipEntry));
 
+			PageTemplateCollectionValidator.validatePageTemplateCollection(
+				content);
+
 			PageTemplateCollection pageTemplateCollection =
 				_objectMapper.readValue(content, PageTemplateCollection.class);
 
@@ -647,11 +651,9 @@ public class LayoutPageTemplatesImporterImpl
 				continue;
 			}
 
-			String pageTemplateCollectionKey = _getPageTemplateCollectionKey(
-				zipEntry.getName(), zipFile);
-
 			PageTemplateCollectionEntry pageTemplateCollectionEntry =
-				pageTemplateCollectionMap.get(pageTemplateCollectionKey);
+				pageTemplateCollectionMap.get(
+					_getPageTemplateCollectionKey(zipEntry.getName(), zipFile));
 
 			try {
 				String pageDefinitionJSON = _getPageDefinitionJSON(
@@ -1285,7 +1287,9 @@ public class LayoutPageTemplatesImporterImpl
 
 		_layoutPageTemplateStructureLocalService.addLayoutPageTemplateStructure(
 			layout.getUserId(), layout.getGroupId(), layout.getPlid(),
-			SegmentsExperienceConstants.ID_DEFAULT, jsonObject.toString(),
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				layout.getPlid()),
+			jsonObject.toString(),
 			ServiceContextThreadLocal.getServiceContext());
 	}
 
@@ -1464,6 +1468,9 @@ public class LayoutPageTemplatesImporterImpl
 
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Reference
 	private StyleBookEntryLocalService _styleBookEntryLocalService;

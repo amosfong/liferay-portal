@@ -17,6 +17,7 @@ import React, {useContext, useState} from 'react';
 
 import {BuilderScreen} from '../BuilderScreen/BuilderScreen';
 import ModalAddColumnsObjectCustomView from '../ModalAddColumns/ModalAddColumnsObjectCustomView';
+import {ModalEditViewColumn} from '../ModalEditViewColumn/ModalEditViewColumn';
 import ViewContext from '../context';
 
 const ViewBuilderScreen: React.FC<{}> = () => {
@@ -28,8 +29,14 @@ const ViewBuilderScreen: React.FC<{}> = () => {
 
 	const [visibleModal, setVisibleModal] = useState(false);
 
+	const [visibleEditModal, setVisibleEditModal] = useState(false);
+	const [editingObjectFieldName, setEditingObjectFieldName] = useState('');
+
 	const {observer, onClose} = useModal({
-		onClose: () => setVisibleModal(false),
+		onClose: () =>
+			visibleEditModal
+				? setVisibleEditModal(false)
+				: setVisibleModal(false),
 	});
 
 	return (
@@ -42,13 +49,26 @@ const ViewBuilderScreen: React.FC<{}> = () => {
 					),
 					title: Liferay.Language.get('no-columns-added-yet'),
 				}}
+				firstColumnHeader={Liferay.Language.get('name')}
+				hasDragAndDrop
 				objectColumns={objectViewColumns ?? []}
+				onEditingObjectFieldName={setEditingObjectFieldName}
+				onVisibleEditModal={setVisibleEditModal}
 				onVisibleModal={setVisibleModal}
+				secondColumnHeader={Liferay.Language.get('column-label')}
 				title={Liferay.Language.get('columns')}
 			/>
 
 			{visibleModal && (
 				<ModalAddColumnsObjectCustomView
+					observer={observer}
+					onClose={onClose}
+				/>
+			)}
+
+			{visibleEditModal && (
+				<ModalEditViewColumn
+					editingObjectFieldName={editingObjectFieldName}
 					observer={observer}
 					onClose={onClose}
 				/>

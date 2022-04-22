@@ -11,6 +11,7 @@
 
 import {useMutation} from '@apollo/client';
 import ClayForm from '@clayui/form';
+import classNames from 'classnames';
 import {FieldArray, Formik} from 'formik';
 import {useEffect, useState} from 'react';
 import {Badge, Button} from '../../../components';
@@ -129,26 +130,12 @@ const InviteTeamMembersPage = ({
 				},
 				0
 			);
+
 			const remainingAdmins = availableAdministratorAssets - totalAdmins;
-
-			setAccountRolesOptions((previousAccountRoles) =>
-				previousAccountRoles.map((previousAccountRole) => {
-					const isAdministratorOrRequestorRole =
-						previousAccountRole.label ===
-							ROLE_TYPES.requester.name ||
-						previousAccountRole.label === ROLE_TYPES.admin.name;
-
-					return {
-						...previousAccountRole,
-						disabled:
-							isAdministratorOrRequestorRole &&
-							remainingAdmins === 0,
-					};
-				})
-			);
 
 			setAvailableAdminsRoles(remainingAdmins);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [values, project, accountRoles, availableAdministratorAssets]);
 
 	useEffect(() => {
@@ -276,7 +263,11 @@ const InviteTeamMembersPage = ({
 				name="invites"
 				render={({pop, push}) => (
 					<>
-						<div className="invites-form overflow-auto px-3">
+						<div
+							className={classNames('overflow-auto px-3', {
+								'invites-form': project.maxRequestors > 0,
+							})}
+						>
 							<div className="px-3">
 								<label>Project Name</label>
 
@@ -288,6 +279,9 @@ const InviteTeamMembersPage = ({
 							<ClayForm.Group className="m-0">
 								{values?.invites?.map((invite, index) => (
 									<TeamMemberInputs
+										administratorsAssetsAvailable={
+											availableAdminsRoles
+										}
 										disableError={hasInitialError}
 										id={index}
 										invite={invite}
@@ -369,36 +363,39 @@ const InviteTeamMembersPage = ({
 								)}
 							</div>
 						</div>
-						<div className="invites-helper px-3">
-							<div className="mx-3 pt-3">
-								<h5 className="text-neutral-7">
-									{`${
-										projectHasSLAGoldPlatinum
-											? ROLE_TYPES.requester.name
-											: ROLE_TYPES.admin.name
-									}	roles available: ${availableAdminsRoles} of ${
-										project.maxRequestors
-									}`}
-								</h5>
+						{project.maxRequestors > 0 && (
+							<div className="invites-helper px-3">
+								<div className="mx-3 pt-3">
+									<h5 className="text-neutral-7">
+										{`${
+											projectHasSLAGoldPlatinum
+												? 'Support Seats'
+												: `${ROLE_TYPES.admin.name} roles`
+										}   available: ${availableAdminsRoles} of ${
+											project.maxRequestors
+										}`}
+									</h5>
 
-								<p className="mb-0 text-neutral-7 text-paragraph-sm">
-									{`Only ${project.maxRequestors} member${
-										project.maxRequestors > 1 ? 's' : ''
-									} per project (including yourself) have
-								 role permissions (Admins & Requestors) to open Support
-								 tickets. `}
+									<p className="mb-0 text-neutral-7 text-paragraph-sm">
+										{`Only ${project.maxRequestors} member${
+											project.maxRequestors > 1 ? 's' : ''
+										} per project (including yourself) have
+								   role permissions (Admins & Support Seats) to open Support
+								   tickets. `}
 
-									<a
-										className="font-weight-bold text-neutral-9"
-										href={supportLink}
-										rel="noreferrer"
-										target="_blank"
-									>
-										Learn more about Customer Portal roles
-									</a>
-								</p>
+										<a
+											className="font-weight-bold text-neutral-9"
+											href={supportLink}
+											rel="noreferrer"
+											target="_blank"
+										>
+											Learn more about Customer Portal
+											roles
+										</a>
+									</p>
+								</div>
 							</div>
-						</div>
+						)}
 					</>
 				)}
 			/>

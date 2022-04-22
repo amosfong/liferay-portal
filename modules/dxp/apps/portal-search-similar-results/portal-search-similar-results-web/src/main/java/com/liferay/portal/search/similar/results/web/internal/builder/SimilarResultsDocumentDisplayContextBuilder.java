@@ -39,12 +39,13 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FastDateFormatConstants;
 import com.liferay.portal.kernel.util.FastDateFormatFactory;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.legacy.document.DocumentBuilderFactory;
 import com.liferay.portal.search.similar.results.web.internal.display.context.SimilarResultsDocumentDisplayContext;
+import com.liferay.portal.search.similar.results.web.internal.portlet.SimilarResultsPortletPreferences;
+import com.liferay.portal.search.similar.results.web.internal.portlet.SimilarResultsPortletPreferencesImpl;
 import com.liferay.portal.search.similar.results.web.internal.util.SearchStringUtil;
 import com.liferay.portal.search.similar.results.web.spi.contributor.SimilarResultsContributor;
 import com.liferay.portal.search.similar.results.web.spi.contributor.helper.DestinationHelper;
@@ -59,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.portlet.RenderRequest;
@@ -144,12 +146,6 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 		boolean highlightEnabled) {
 
 		_highlightEnabled = highlightEnabled;
-
-		return this;
-	}
-
-	public SimilarResultsDocumentDisplayContextBuilder setHttp(Http http) {
-		_http = http;
 
 		return this;
 	}
@@ -596,18 +592,27 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 		AssetEntry assetEntry, AssetRenderer<?> assetRenderer, String className,
 		long classPK) {
 
-		try {
-			String url = assetRenderer.getURLViewInContext(
-				_portal.getLiferayPortletRequest(_renderRequest),
-				_portal.getLiferayPortletResponse(_renderResponse), null);
+		SimilarResultsPortletPreferences similarResultsPortletPreferences =
+			new SimilarResultsPortletPreferencesImpl(
+				Optional.of(_renderRequest.getPreferences()));
 
-			if (url != null) {
-				return url;
+		if (Objects.equals(
+				similarResultsPortletPreferences.getLinkBehavior(),
+				"view-in-context")) {
+
+			try {
+				String url = assetRenderer.getURLViewInContext(
+					_portal.getLiferayPortletRequest(_renderRequest),
+					_portal.getLiferayPortletResponse(_renderResponse), null);
+
+				if (!Validator.isBlank(url)) {
+					return url;
+				}
 			}
-		}
-		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
+			catch (Exception exception) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(exception);
+				}
 			}
 		}
 
@@ -621,7 +626,7 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 			_similarResultsRoute.getContributor();
 
 		DestinationBuilderImpl destinationBuilderImpl =
-			new DestinationBuilderImpl(currentURL, _http);
+			new DestinationBuilderImpl(currentURL);
 
 		DestinationHelper destinationHelper = new DestinationHelper() {
 
@@ -633,6 +638,22 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 			@Override
 			public AssetRenderer<?> getAssetRenderer() {
 				return assetRenderer;
+			}
+
+			@Override
+			public String getAssetViewURL() {
+				try {
+					return assetRenderer.getURLView(
+						_portal.getLiferayPortletResponse(_renderResponse),
+						_renderRequest.getWindowState());
+				}
+				catch (Exception exception) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(exception);
+					}
+				}
+
+				return null;
 			}
 
 			@Override
@@ -648,6 +669,11 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 			@Override
 			public Object getRouteParameter(String name) {
 				return _similarResultsRoute.getRouteParameter(name);
+			}
+
+			@Override
+			public long getScopeGroupId() {
+				return _themeDisplay.getScopeGroupId();
 			}
 
 			@Override
@@ -684,7 +710,6 @@ public class SimilarResultsDocumentDisplayContextBuilder {
 	private DocumentBuilderFactory _documentBuilderFactory;
 	private FastDateFormatFactory _fastDateFormatFactory;
 	private boolean _highlightEnabled;
-	private Http _http;
 	private IndexerRegistry _indexerRegistry;
 	private com.liferay.portal.kernel.search.Document _legacyDocument;
 	private Locale _locale;

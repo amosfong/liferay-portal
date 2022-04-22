@@ -48,7 +48,6 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +124,9 @@ public class DDMFormBuilderContextFactoryHelper {
 			new DDMFormRenderingContext();
 
 		ddmFormRenderingContext.setContainerId("settings");
+		ddmFormRenderingContext.setDDMFormValues(
+			_createDDMFormFieldSettingContextDDMFormValues(
+				ddmForm, ddmFormField));
 
 		if (_ddmStructureVersionOptional.isPresent()) {
 			DDMStructureVersion ddmStructureVersion =
@@ -138,12 +140,6 @@ public class DDMFormBuilderContextFactoryHelper {
 		ddmFormRenderingContext.setHttpServletResponse(_httpServletResponse);
 		ddmFormRenderingContext.setLocale(_locale);
 		ddmFormRenderingContext.setPortletNamespace(_portletNamespace);
-
-		DDMFormValues ddmFormValues =
-			_createDDMFormFieldSettingContextDDMFormValues(
-				ddmForm, ddmFormField);
-
-		ddmFormRenderingContext.setDDMFormValues(ddmFormValues);
 
 		return _ddmFormTemplateContextFactory.create(
 			ddmForm, ddmFormLayout, ddmFormRenderingContext);
@@ -172,12 +168,11 @@ public class DDMFormBuilderContextFactoryHelper {
 
 			DDMForm ddmForm = ddmFormField.getDDMForm();
 
-			Value value = _createDDMFormFieldValue(
-				ddmFormFieldTypeSetting,
-				ddmFormFieldProperties.get(propertyName),
-				ddmForm.getAvailableLocales());
-
-			ddmFormFieldValue.setValue(value);
+			ddmFormFieldValue.setValue(
+				_createDDMFormFieldValue(
+					ddmFormFieldTypeSetting,
+					ddmFormFieldProperties.get(propertyName),
+					ddmForm.getAvailableLocales()));
 
 			ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
 		}
@@ -420,11 +415,7 @@ public class DDMFormBuilderContextFactoryHelper {
 			).put(
 				"isLink", false
 			).put(
-				"label",
-				LanguageUtil.get(
-					ResourceBundleUtil.getBundle(
-						"content.Language", _locale, getClass()),
-					"builder")
+				"label", LanguageUtil.get(_httpServletRequest, "builder")
 			).put(
 				"pluginEntryPoint",
 				_npmResolver.resolveModuleName(

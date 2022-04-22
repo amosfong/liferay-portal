@@ -34,6 +34,7 @@ import com.liferay.headless.delivery.dto.v1_0.FragmentLink;
 import com.liferay.headless.delivery.dto.v1_0.PageElement;
 import com.liferay.layout.page.template.admin.web.internal.headless.delivery.dto.v1_0.structure.importer.helper.PortletConfigurationImporterHelper;
 import com.liferay.layout.page.template.admin.web.internal.headless.delivery.dto.v1_0.structure.importer.helper.PortletPermissionsImporterHelper;
+import com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.StringPool;
@@ -62,6 +63,7 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -101,77 +103,84 @@ public class FragmentLayoutStructureItemImporter
 			return null;
 		}
 
-		LayoutStructureItem layoutStructureItem =
-			layoutStructure.addFragmentStyledLayoutStructureItem(
-				fragmentEntryLink.getFragmentEntryLinkId(),
-				layoutStructureItemImporterContext.getParentItemId(),
-				layoutStructureItemImporterContext.getPosition());
+		FragmentStyledLayoutStructureItem fragmentStyledLayoutStructureItem =
+			(FragmentStyledLayoutStructureItem)
+				layoutStructure.addFragmentStyledLayoutStructureItem(
+					fragmentEntryLink.getFragmentEntryLinkId(),
+					layoutStructureItemImporterContext.getParentItemId(),
+					layoutStructureItemImporterContext.getPosition());
 
 		Map<String, Object> definitionMap = getDefinitionMap(
 			pageElement.getDefinition());
 
-		if (definitionMap != null) {
-			Map<String, Object> fragmentStyleMap =
-				(Map<String, Object>)definitionMap.get("fragmentStyle");
+		if (definitionMap == null) {
+			return fragmentStyledLayoutStructureItem;
+		}
 
-			int oldVersionCompareValue = Double.compare(
-				layoutStructureItemImporterContext.getPageDefinitionVersion(),
-				1.1);
+		Map<String, Object> fragmentStyleMap =
+			(Map<String, Object>)definitionMap.get("fragmentStyle");
 
-			if (oldVersionCompareValue < 0) {
-				Map<String, Object> fragmentConfigMap =
-					(Map<String, Object>)definitionMap.get("fragmentConfig");
+		int oldVersionCompareValue = Double.compare(
+			layoutStructureItemImporterContext.getPageDefinitionVersion(), 1.1);
 
-				if (MapUtil.isNotEmpty(fragmentConfigMap) ||
-					MapUtil.isNotEmpty(fragmentStyleMap)) {
+		if (oldVersionCompareValue < 0) {
+			Map<String, Object> fragmentConfigMap =
+				(Map<String, Object>)definitionMap.get("fragmentConfig");
 
-					JSONObject commonStylesJSONObject = toStylesJSONObject(
-						layoutStructureItemImporterContext, fragmentStyleMap);
-					JSONObject configStylesJSONObject = toStylesJSONObject(
-						layoutStructureItemImporterContext, fragmentConfigMap);
+			if (MapUtil.isNotEmpty(fragmentConfigMap) ||
+				MapUtil.isNotEmpty(fragmentStyleMap)) {
 
-					for (String key : commonStylesJSONObject.keySet()) {
-						if (Validator.isNull(
-								configStylesJSONObject.getString(key))) {
+				JSONObject commonStylesJSONObject = toStylesJSONObject(
+					layoutStructureItemImporterContext, fragmentStyleMap);
+				JSONObject configStylesJSONObject = toStylesJSONObject(
+					layoutStructureItemImporterContext, fragmentConfigMap);
 
-							configStylesJSONObject.put(
-								key, commonStylesJSONObject.get(key));
-						}
+				for (String key : commonStylesJSONObject.keySet()) {
+					if (Validator.isNull(
+							configStylesJSONObject.getString(key))) {
+
+						configStylesJSONObject.put(
+							key, commonStylesJSONObject.get(key));
 					}
-
-					JSONObject jsonObject = JSONUtil.put(
-						"styles",
-						JSONUtil.merge(
-							commonStylesJSONObject, configStylesJSONObject));
-
-					layoutStructureItem.updateItemConfig(jsonObject);
 				}
-			}
-			else if (fragmentStyleMap != null) {
+
 				JSONObject jsonObject = JSONUtil.put(
 					"styles",
-					toStylesJSONObject(
-						layoutStructureItemImporterContext, fragmentStyleMap));
+					JSONUtil.merge(
+						commonStylesJSONObject, configStylesJSONObject));
 
-				layoutStructureItem.updateItemConfig(jsonObject);
+				fragmentStyledLayoutStructureItem.updateItemConfig(jsonObject);
 			}
+		}
+		else if (fragmentStyleMap != null) {
+			JSONObject jsonObject = JSONUtil.put(
+				"styles",
+				toStylesJSONObject(
+					layoutStructureItemImporterContext, fragmentStyleMap));
 
-			if (definitionMap.containsKey("fragmentViewports")) {
-				List<Map<String, Object>> fragmentViewports =
-					(List<Map<String, Object>>)definitionMap.get(
-						"fragmentViewports");
+			fragmentStyledLayoutStructureItem.updateItemConfig(jsonObject);
+		}
 
-				for (Map<String, Object> fragmentViewport : fragmentViewports) {
-					JSONObject jsonObject = JSONUtil.put(
-						(String)fragmentViewport.get("id"),
-						toFragmentViewportStylesJSONObject(fragmentViewport));
+		if (definitionMap.containsKey("fragmentViewports")) {
+			List<Map<String, Object>> fragmentViewports =
+				(List<Map<String, Object>>)definitionMap.get(
+					"fragmentViewports");
 
-					layoutStructureItem.updateItemConfig(jsonObject);
-				}
+			for (Map<String, Object> fragmentViewport : fragmentViewports) {
+				JSONObject jsonObject = JSONUtil.put(
+					(String)fragmentViewport.get("id"),
+					toFragmentViewportStylesJSONObject(fragmentViewport));
+
+				fragmentStyledLayoutStructureItem.updateItemConfig(jsonObject);
 			}
 		}
 
-		return layoutStructureItem;
+		if (definitionMap.containsKey("indexed")) {
+			fragmentStyledLayoutStructureItem.setIndexed(
+				GetterUtil.getBoolean(definitionMap.get("indexed")));
+		}
+
+		return fragmentStyledLayoutStructureItem;
 	}
 
 	@Override
@@ -295,7 +304,9 @@ public class FragmentLayoutStructureItemImporter
 
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
-				layout.getUserId(), layout.getGroupId(), 0, fragmentEntryId, 0,
+				layout.getUserId(), layout.getGroupId(), 0, fragmentEntryId,
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(layout.getPlid()),
 				layout.getPlid(), css, html, js, configuration,
 				jsonObject.toString(), StringUtil.randomId(), position,
 				fragmentKey, ServiceContextThreadLocal.getServiceContext());
@@ -1073,5 +1084,8 @@ public class FragmentLayoutStructureItemImporter
 
 	@Reference
 	private PortletPermissionsImporterHelper _portletPermissionsImporterHelper;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

@@ -1,5 +1,75 @@
 # Poshi Runner Change Log
 
+## 1.0.346
+
+### Core
+
+* [POSHI-325](https://issues.liferay.com/browse/POSHI-325) - Expose a way to get poshi directories for a given poshi project
+
+### Functions
+
+* [POSHI-326](https://issues.liferay.com/browse/POSHI-326) - Missing functions in Poshi standalone
+
+### Other
+
+* [LPS-148445](https://issues.liferay.com/browse/LPS-148445) - Explore the options to avoid processing JS dependencies in DXP apps
+* [LPS-149663](https://issues.liferay.com/browse/LPS-149663) - StringUtil.upperCaseFirstLetter can cause ArrayIndexOutOfBoundsException
+
+### WebDriver
+
+* [POSHI-332](https://issues.liferay.com/browse/POSHI-332) - Provide improved and alternative usage of old WebDriver.get behavior
+
+## 1.0.344
+
+### Other
+
+* [LPS-147241](https://issues.liferay.com/browse/LPS-147241) - Tests Automation
+* [LPS-149663](https://issues.liferay.com/browse/LPS-149663) - StringUtil.upperCaseFirstLetter can cause ArrayIndexOutOfBoundsException
+
+### Script
+
+* [POSHI-318](https://issues.liferay.com/browse/POSHI-318) - Sort properties in Poshi Script
+
+### Utils
+
+* [POSHI-320](https://issues.liferay.com/browse/POSHI-320) - Truncate JSON responses to max 2,500 chars
+
+### WebDriver
+
+* [POSHI-312](https://issues.liferay.com/browse/POSHI-312) - Add javaScriptMouseOver method
+* [POSHI-319](https://issues.liferay.com/browse/POSHI-319) - Change baseline image folder in Ocular from "snap" to "baseline"
+
+## 1.0.342
+
+### Core
+
+* [POSHI-260](https://issues.liferay.com/browse/POSHI-260) - Add new property to grab all wanted test directories
+* [POSHI-308](https://issues.liferay.com/browse/POSHI-308) - WIndows Issue: Poshi Validation error when using poshi resource function
+
+### Prose
+
+* [POSHI-292](https://issues.liferay.com/browse/POSHI-292) - Fix Poshi Prose parsing to work after Validation refactors
+
+### Runner
+
+* [POSHI-303](https://issues.liferay.com/browse/POSHI-303) - As a test writer, I should be able to set a match percentage for Ocular images
+
+### Script
+
+* [POSHI-253](https://issues.liferay.com/browse/POSHI-253) - Investigate CDATA usage in Poshi
+
+### Standalone
+
+* [POSHI-306](https://issues.liferay.com/browse/POSHI-306) - Add install.sh file to poshi-standalone
+
+### Utils
+
+* [POSHI-305](https://issues.liferay.com/browse/POSHI-305) - Add StringUtils.center method
+
+### Validation
+
+* [POSHI-307](https://issues.liferay.com/browse/POSHI-307) - Throw correct error when the test name cannot be found
+
 ## 1.0.337
 
 ### Documentation

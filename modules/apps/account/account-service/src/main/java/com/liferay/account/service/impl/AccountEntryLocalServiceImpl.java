@@ -36,6 +36,7 @@ import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.sql.dsl.query.JoinStep;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
@@ -1060,13 +1061,17 @@ public class AccountEntryLocalServiceImpl
 
 	private void _validateName(String name) throws PortalException {
 		if (Validator.isNull(name)) {
-			throw new AccountEntryNameException();
+			throw new AccountEntryNameException("Name is null");
 		}
 	}
 
 	private void _validateType(String type) throws PortalException {
 		if (!ArrayUtil.contains(AccountConstants.ACCOUNT_ENTRY_TYPES, type)) {
-			throw new AccountEntryTypeException();
+			throw new AccountEntryTypeException(
+				StringBundler.concat(
+					"Type \"", type, "\" is not among allowed types: ",
+					StringUtil.merge(
+						AccountConstants.ACCOUNT_ENTRY_TYPES, ", ")));
 		}
 	}
 

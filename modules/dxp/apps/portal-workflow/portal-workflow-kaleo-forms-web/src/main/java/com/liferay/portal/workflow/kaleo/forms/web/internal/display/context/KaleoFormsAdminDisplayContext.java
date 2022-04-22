@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -82,20 +83,21 @@ import javax.servlet.http.HttpServletRequest;
 public class KaleoFormsAdminDisplayContext {
 
 	public KaleoFormsAdminDisplayContext(
-		RenderRequest renderRequest, RenderResponse renderResponse,
 		DDLRecordLocalService ddlRecordLocalService,
-		DDMDisplayRegistry ddmDisplayRegistry,
+		DDMDisplayRegistry ddmDisplayRegistry, HtmlParser htmlParser,
 		KaleoDefinitionVersionLocalService kaleoDefinitionVersionLocalService,
 		KaleoFormsWebConfiguration kaleoFormsWebConfiguration,
+		RenderRequest renderRequest, RenderResponse renderResponse,
 		StorageEngine storageEngine) {
 
-		_renderRequest = renderRequest;
-		_renderResponse = renderResponse;
 		_ddlRecordLocalService = ddlRecordLocalService;
 		_ddmDisplayRegistry = ddmDisplayRegistry;
+		_htmlParser = htmlParser;
 		_kaleoDefinitionVersionLocalService =
 			kaleoDefinitionVersionLocalService;
 		_kaleoFormsWebConfiguration = kaleoFormsWebConfiguration;
+		_renderRequest = renderRequest;
+		_renderResponse = renderResponse;
 		_storageEngine = storageEngine;
 
 		_httpServletRequest = PortalUtil.getHttpServletRequest(renderRequest);
@@ -221,7 +223,8 @@ public class KaleoFormsAdminDisplayContext {
 		throws PortalException {
 
 		return new KaleoFormsViewRecordsDisplayContext(
-			_renderRequest, _renderResponse, _ddlRecordLocalService);
+			_ddlRecordLocalService, _htmlParser, _renderRequest,
+			_renderResponse);
 	}
 
 	public long getKaleoProcessId() {
@@ -622,6 +625,7 @@ public class KaleoFormsAdminDisplayContext {
 
 	private final DDLRecordLocalService _ddlRecordLocalService;
 	private final DDMDisplayRegistry _ddmDisplayRegistry;
+	private final HtmlParser _htmlParser;
 	private final HttpServletRequest _httpServletRequest;
 	private final KaleoDefinitionVersionLocalService
 		_kaleoDefinitionVersionLocalService;

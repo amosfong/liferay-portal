@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.List;
 
@@ -71,27 +72,32 @@ public class GroupModelListenerTest {
 
 		_groupLocalService.deleteGroup(group);
 
-		fragmentCollection =
+		Assert.assertNull(
 			_fragmentCollectionLocalService.fetchFragmentCollection(
-				fragmentCollection.getFragmentCollectionId());
-
-		Assert.assertNull(fragmentCollection);
+				fragmentCollection.getFragmentCollectionId()));
 	}
 
 	@Test
 	public void testDeletingGroupDeletesFragmentEntryLinks() throws Exception {
 		Group group = GroupTestUtil.addGroup();
 
+		LayoutPageTemplateCollection layoutPageTemplateCollection =
+			_addLayoutPageTemplateCollection(group.getGroupId());
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_addLayoutPageTemplateEntry(
+				layoutPageTemplateCollection.
+					getLayoutPageTemplateCollectionId(),
+				group.getGroupId());
+
 		FragmentEntryLink fragmentEntryLink = _addFragmentEntryLink(
-			group.getGroupId());
+			group.getGroupId(), layoutPageTemplateEntry.getPlid());
 
 		_groupLocalService.deleteGroup(group);
 
-		fragmentEntryLink =
+		Assert.assertNull(
 			_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
-				fragmentEntryLink.getFragmentEntryLinkId());
-
-		Assert.assertNull(fragmentEntryLink);
+				fragmentEntryLink.getFragmentEntryLinkId()));
 	}
 
 	@Test
@@ -105,13 +111,11 @@ public class GroupModelListenerTest {
 
 		_groupLocalService.deleteGroup(group);
 
-		layoutPageTemplateCollection =
+		Assert.assertNull(
 			_layoutPageTemplateCollectionLocalService.
 				fetchLayoutPageTemplateCollection(
 					layoutPageTemplateCollection.
-						getLayoutPageTemplateCollectionId());
-
-		Assert.assertNull(layoutPageTemplateCollection);
+						getLayoutPageTemplateCollectionId()));
 	}
 
 	@Test
@@ -160,7 +164,7 @@ public class GroupModelListenerTest {
 			StringPool.BLANK, serviceContext);
 	}
 
-	private FragmentEntryLink _addFragmentEntryLink(long groupId)
+	private FragmentEntryLink _addFragmentEntryLink(long groupId, long plid)
 		throws Exception {
 
 		ServiceContext serviceContext =
@@ -180,8 +184,10 @@ public class GroupModelListenerTest {
 
 		return _fragmentEntryLinkLocalService.addFragmentEntryLink(
 			TestPropsValues.getUserId(), groupId, 0,
-			fragmentEntry.getFragmentEntryId(), 0, RandomTestUtil.randomLong(),
-			fragmentEntry.getCss(), fragmentEntry.getHtml(),
+			fragmentEntry.getFragmentEntryId(),
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				plid),
+			plid, fragmentEntry.getCss(), fragmentEntry.getHtml(),
 			fragmentEntry.getJs(), fragmentEntry.getConfiguration(),
 			StringPool.BLANK, StringPool.BLANK, 0, null, serviceContext);
 	}
@@ -235,5 +241,8 @@ public class GroupModelListenerTest {
 	@Inject
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

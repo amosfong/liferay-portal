@@ -9,12 +9,33 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import React, {useContext} from 'react';
 
+import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import BaseUser from '../shared-components/BaseUser';
 
-const User = (props) => {
-	return <BaseUser {...props} />;
+const User = ({notificationIndex, updateSelectedItem: _, ...restProps}) => {
+	const {setSelectedItem} = useContext(DiagramBuilderContext);
+
+	const updateSelectedItem = (values) => {
+		setSelectedItem((previousItem) => {
+			previousItem.data.notifications.recipients[notificationIndex] = {
+				assignmentType: ['user'],
+				emailAddress: values.map(({emailAddress}) => emailAddress),
+				sectionsData: values.map((values) => values),
+			};
+
+			return previousItem;
+		});
+	};
+
+	return (
+		<BaseUser
+			notificationIndex={notificationIndex}
+			updateSelectedItem={updateSelectedItem}
+			{...restProps}
+		/>
+	);
 };
 
 export default User;

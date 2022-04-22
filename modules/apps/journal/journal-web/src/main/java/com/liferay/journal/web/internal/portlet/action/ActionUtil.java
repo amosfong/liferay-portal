@@ -331,7 +331,6 @@ public class ActionUtil {
 
 				article.setNew(true);
 				article.setId(0);
-				article.setResourcePrimKey(0);
 				article.setGroupId(groupId);
 				article.setClassNameId(
 					JournalArticleConstants.CLASS_NAME_ID_DEFAULT);
@@ -373,10 +372,8 @@ public class ActionUtil {
 		List<JournalArticle> articles = new ArrayList<>();
 
 		for (String articleId : articleIds) {
-			JournalArticle article = JournalArticleServiceUtil.getArticle(
-				groupId, articleId);
-
-			articles.add(article);
+			articles.add(
+				JournalArticleServiceUtil.getArticle(groupId, articleId));
 		}
 
 		return articles;

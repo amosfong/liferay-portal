@@ -402,6 +402,10 @@ public abstract class BaseDiscountCategoryResourceImpl
 		return null;
 	}
 
+	public String getVersion() {
+		return "v2.0";
+	}
+
 	@Override
 	public Page<DiscountCategory> read(
 			Filter filter, Pagination pagination, Sort[] sorts,
@@ -511,6 +515,14 @@ public abstract class BaseDiscountCategoryResourceImpl
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource) {
+
+		this.vulcanBatchEngineImportTaskResource =
+			vulcanBatchEngineImportTaskResource;
 	}
 
 	@Override

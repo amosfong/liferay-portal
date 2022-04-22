@@ -44,12 +44,14 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9018 | Test Summary: Search an Individual's Activities List with a query that won't return results"
 	@priority = "3"
 	test AssertNoIndividualsActivitiesResults {
+		property test.name.skip.portal.instance = "KnownIndividualsSearch#AssertNoIndividualsActivitiesResults";
+
 		task ("Add DM to AC Page") {
 			ACUtils.createDMAndAddToPage();
 		}
 
 		task ("Get site assigned property name") {
-			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 		}
 
 		task ("Add a new user in DXP") {
@@ -81,7 +83,7 @@ definition {
 
 			ACUtils.launchAC();
 
-			ACProperties.switchProperty(propertyName = "${propertyName}");
+			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 		}
 
 		task ("Navigate to the Individual Activity Overview") {
@@ -107,13 +109,15 @@ definition {
 		}
 
 		task ("Assert there are no activities found") {
-			AssertElementPresent(locator1 = "ACIndividualsDashboard#NO_EVENTS_FOUND");
+			ACUtils.viewGenericText(textValueList = "No Events Found,Try a different date range or search term.");
 		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9020 | Test Summary: Search associated segment will not return results in the individual List"
 	@priority = "3"
 	test AssertNoIndividualsAssociatedSegmentsResults {
+		property test.name.skip.portal.instance = "KnownIndividualsSearch#AssertNoIndividualsAssociatedSegmentsResults";
+
 		task ("Get site assigned property name") {
 			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 		}
@@ -183,7 +187,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertNoIndividualsInterestsResults {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: The interest list data takes a long time to appear.
 		// AC Refactor ticket: LRAC-9645
@@ -314,10 +317,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9033 | Test Summary: Case Insensitive Search"
 	@priority = "5"
 	test CanCaseInsensitiveSearch {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9707
-
 		var emailList = "randy.smith@liferay.com,maria.rau@liferay.com";
 
 		task ("Get site assigned property name") {
@@ -381,8 +380,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9032 | Test Summary: Search and Clear Field"
 	@priority = "1"
 	test SearchAndClearField {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2";
 		var emailList = "user1@liferay.com,user2@liferay.com";
 		var nameList = "user1 user1,user2 user2";
@@ -445,7 +442,7 @@ definition {
 	@priority = "4"
 	test SearchIndividualDetails {
 		task ("Get site assigned property name") {
-			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 			var dataSource = StringUtil.extractFirst("${propertyName}", " ");
 		}
@@ -476,7 +473,7 @@ definition {
 
 			ACUtils.launchAC();
 
-			ACProperties.switchProperty(propertyName = "${propertyName}");
+			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 		}
 
 		task ("Go to the Individual > KnownIndividual > Details") {
@@ -502,7 +499,7 @@ definition {
 				ACIndividualsDashboard.assertIndividualAttribute(key_individualAttribute = "${individualAttribute}");
 			}
 
-			for (var individualAttribute : list "createDate,givenName,modifiedDate,timeZoneId,userId,uuid") {
+			for (var individualAttribute : list "birthDate,classPK,contactId,createDate,givenName,modifiedDate") {
 				ACIndividualsDashboard.assertIndividualAttributeNotPresent(key_individualAttribute = "${individualAttribute}");
 			}
 		}
@@ -514,7 +511,7 @@ definition {
 				ACIndividualsDashboard.assertIndividualAttribute(key_individualAttribute = "${individualAttribute}");
 			}
 
-			for (var individualAttribute : list "createDate,familyName,modifiedDate,timeZoneId,userId,uuid") {
+			for (var individualAttribute : list "birthDate,classPK,contactId,createDate,familyName,modifiedDate") {
 				ACIndividualsDashboard.assertIndividualAttributeNotPresent(key_individualAttribute = "${individualAttribute}");
 			}
 		}
@@ -524,7 +521,7 @@ definition {
 
 			ACIndividualsDashboard.assertIndividualAttribute(key_individualAttribute = "createDate");
 
-			for (var individualAttribute : list "email,familyName,givenName,modifiedDate,timeZoneId,userId,uuid") {
+			for (var individualAttribute : list "birthDate,classPK,contactId,email,familyName,givenName,modifiedDate") {
 				ACIndividualsDashboard.assertIndividualAttributeNotPresent(key_individualAttribute = "${individualAttribute}");
 			}
 		}
@@ -532,7 +529,7 @@ definition {
 		task ("Search for data source") {
 			ACUtils.searchBar(searchItem = "${dataSource}");
 
-			for (var individualAttribute : list "createDate,email,familyName,givenName,modifiedDate,timeZoneId,userId,uuid") {
+			for (var individualAttribute : list "birthDate,classPK,contactId,createDate,email,familyName,givenName,modifiedDate") {
 				ACIndividualsDashboard.assertIndividualAttribute(key_individualAttribute = "${individualAttribute}");
 			}
 		}
@@ -544,7 +541,7 @@ definition {
 				ACIndividualsDashboard.assertIndividualAttribute(key_individualAttribute = "familyName");
 			}
 
-			for (var individualAttribute : list "createDate,email,givenName,modifiedDate,timeZoneId,userId,uuid") {
+			for (var individualAttribute : list "birthDate,classPK,contactId,createDate,email,givenName,modifiedDate") {
 				ACIndividualsDashboard.assertIndividualAttributeNotPresent(key_individualAttribute = "${individualAttribute}");
 			}
 		}
@@ -553,8 +550,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9026 | Test Summary: Search for an Individual in the individual List"
 	@priority = "4"
 	test SearchIndividualList {
-		property portal.upstream = "quarantine";
-
 		var emailList = "randy.smith@liferay.com,maria.rau@liferay.com";
 
 		task ("Get site assigned property name") {
@@ -646,8 +641,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9022 | Test Summary: Search an Individual's Activities List"
 	@priority = "4"
 	test SearchIndividualsActivitiesList {
-		property portal.upstream = "quarantine";
-
 		task ("Create a Document And Media") {
 			ACUtils.createDMAndAddToPage();
 		}
@@ -701,9 +694,13 @@ definition {
 
 			ACUtils.searchBar(searchItem = "pageViewed");
 
-			ACIndividualsDashboard.viewTimelineItem(activityNameList = "pageViewed");
+			ACIndividualsDashboard.viewTimelineItem(
+				activityNameList = "pageViewed",
+				positionList = "1");
 
-			ACIndividualsDashboard.viewTimelineItemNotPresent(activityNameList = "documentPreviewed");
+			ACIndividualsDashboard.viewTimelineItemNotPresent(
+				activityNameList = "documentPreviewed",
+				positionList = "1");
 		}
 	}
 
@@ -711,7 +708,6 @@ definition {
 	@ignore = "true"
 	@priority = "4"
 	test SearchIndividualsInterests {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9184
@@ -786,8 +782,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9029 | Test Summary: Sort Individuals List"
 	@priority = "3"
 	test SortIndividualList {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2,user3";
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 
@@ -846,8 +840,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9030 | Test Summary: Sorting a List Returns a User to the First Page"
 	@priority = "3"
 	test SortingReturnsUserToFirstPage {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2,user3,user4,user5,user6,user7";
 
 		task ("Get site assigned property name") {
@@ -925,8 +917,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9031 | Test Summary: Table Pagination"
 	@priority = "4"
 	test TablePagination {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2,user3,user4,user5,user6";
 
 		task ("Get site assigned property name") {

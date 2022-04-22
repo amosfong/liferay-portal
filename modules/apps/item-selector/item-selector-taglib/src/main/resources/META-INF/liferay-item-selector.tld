@@ -155,6 +155,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>mimeTypeRestriction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>The URL of the dialog. This is used as a base URL in order to be populated with needed parameters.</description>
 			<name>portletURL</name>
 			<required>true</required>

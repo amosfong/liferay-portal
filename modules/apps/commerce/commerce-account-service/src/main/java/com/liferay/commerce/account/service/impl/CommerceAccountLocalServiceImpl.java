@@ -252,7 +252,7 @@ public class CommerceAccountLocalServiceImpl
 
 		// Resources
 
-		//	TODO Check permissions
+		// TODO Check permissions
 
 		resourceLocalService.deleteResource(
 			commerceAccount.getCompanyId(), CommerceAccount.class.getName(),
@@ -281,10 +281,9 @@ public class CommerceAccountLocalServiceImpl
 
 	@Override
 	public void deleteLogo(long commerceAccountId) throws PortalException {
-		AccountEntry accountEntry = _accountEntryLocalService.getAccountEntry(
-			commerceAccountId);
-
-		_portal.updateImageId(accountEntry, false, null, "logoId", 0, 0, 0);
+		_portal.updateImageId(
+			_accountEntryLocalService.getAccountEntry(commerceAccountId), false,
+			null, "logoId", 0, 0, 0);
 	}
 
 	@Override

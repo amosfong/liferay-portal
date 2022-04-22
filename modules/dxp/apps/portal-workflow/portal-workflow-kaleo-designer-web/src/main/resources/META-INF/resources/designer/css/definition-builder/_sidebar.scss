@@ -4,6 +4,30 @@
 	max-width: 850px;
 	min-width: 510px;
 
+	.tab-pane {
+		padding: 10px;
+	}
+
+	.info-group {
+		display: grid;
+		margin-top: 25px;
+
+		button {
+			height: 32px;
+			width: 32px;
+		}
+
+		button:hover {
+			background-color: #2728330a;
+		}
+
+		.version-row {
+			align-items: center;
+			display: flex;
+			justify-content: space-between;
+		}
+	}
+
 	.node {
 		border: none;
 		cursor: grab;
@@ -53,10 +77,6 @@
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-
-			.delete-button {
-				align-items: flex-end;
-			}
 		}
 
 		#timers-buttons-area {

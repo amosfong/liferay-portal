@@ -411,6 +411,18 @@ public class CommerceShippingFixedOptionQualifierLocalServiceWrapper
 				commerceShippingFixedOptionId, start, end, orderByComparator);
 	}
 
+	@Override
+	public java.util.List
+		<com.liferay.commerce.shipping.engine.fixed.model.
+			CommerceShippingFixedOptionQualifier>
+				getCommerceShippingFixedOptionQualifiers(
+					String className, long commerceShippingFixedOptionId) {
+
+		return _commerceShippingFixedOptionQualifierLocalService.
+			getCommerceShippingFixedOptionQualifiers(
+				className, commerceShippingFixedOptionId);
+	}
+
 	/**
 	 * Returns the number of commerce shipping fixed option qualifiers.
 	 *

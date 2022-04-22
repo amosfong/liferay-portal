@@ -87,7 +87,7 @@ public class FileEntryInfoItemFieldValuesProviderTest {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(),
 			MimeTypes.MIME_APPLICATION_OCTET_STREAM,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), null, RandomTestUtil.randomString(),
 			StringPool.BLANK, (byte[])null, null, null,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
@@ -112,7 +112,7 @@ public class FileEntryInfoItemFieldValuesProviderTest {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(),
 			MimeTypes.MIME_APPLICATION_OCTET_STREAM,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), null, RandomTestUtil.randomString(),
 			StringPool.BLANK, (byte[])null, null, null,
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
@@ -155,6 +155,8 @@ public class FileEntryInfoItemFieldValuesProviderTest {
 			return InfoField.builder(
 			).infoFieldType(
 				TextInfoFieldType.INSTANCE
+			).namespace(
+				FileEntry.class.getSimpleName()
 			).name(
 				_INFO_FIELD_NAME
 			).labelInfoLocalizedValue(

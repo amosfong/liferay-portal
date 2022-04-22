@@ -18,14 +18,13 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Calendar Page",
 			sitePageType = "Widget Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Calendar Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoPage(pageName = "Calendar Page");
@@ -277,8 +276,8 @@ definition {
 		CalendarExportImport.gotoImportTab(subTab = "New Import Process");
 
 		CalendarExportImport.importCalendarFile(
-			calendarFile = "Calendar-empty-file.portlet.lar.portlet.lar",
-			importValidationErrorMessage = "The file Calendar-empty-file.portlet.lar.portlet.lar cannot be imported.");
+			calendarFile = "Calendar-empty.lar",
+			importValidationErrorMessage = "The file Calendar-empty.lar cannot be imported.");
 	}
 
 	@description = "LRQA-71361 - Verify that user can view the new exported process status in the Current and Previous tab"

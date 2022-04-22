@@ -23,6 +23,8 @@ import React, {
 	useState,
 } from 'react';
 
+import useFetchData from '../hooks/useFetchData';
+import useShouldConfirmBeforeNavigate from '../hooks/useShouldConfirmBeforeNavigate';
 import LearnMessage from '../shared/LearnMessage';
 import PageToolbar from '../shared/PageToolbar';
 import Sidebar from '../shared/Sidebar';
@@ -39,7 +41,6 @@ import {
 	openSuccessToast,
 	setInitialSuccessToast,
 } from '../utils/toasts';
-import useShouldConfirmBeforeNavigate from '../utils/useShouldConfirmBeforeNavigate';
 import {
 	cleanUIConfiguration,
 	filterAndSortClassNames,
@@ -87,6 +88,8 @@ function EditSXPBlueprintForm({
 		initialSXPElementInstances.length || 0
 	);
 
+	const controllerRef = useRef();
+
 	const [errors, setErrors] = useState([]);
 	const [previewInfo, setPreviewInfo] = useState(() => ({
 		loading: false,
@@ -97,18 +100,39 @@ function EditSXPBlueprintForm({
 	const [tab, setTab] = useState('query-builder');
 
 	const [indexFields, setIndexFields] = useState(null);
-	const [keywordQueryContributors, setKeywordQueryContributors] = useState(
-		null
-	);
-	const [
-		modelPrefilterContributors,
-		setModelPrefilterContributors,
-	] = useState(null);
-	const [
-		queryPrefilterContributors,
-		setQueryPrefilterContributors,
-	] = useState(null);
-	const [searchableTypes, setSearchableTypes] = useState(null);
+
+	const {
+		data: searchableTypes,
+		refetch: refetchSearchableTypes,
+	} = useFetchData({
+		resource: `/o/search-experiences-rest/v1.0/searchable-asset-names/${locale}`,
+	});
+
+	const {
+		data: keywordQueryContributors,
+		refetch: refetchKeywordQueryContributors,
+	} = useFetchData({
+		getData: (response) => filterAndSortClassNames(response?.items),
+		resource: '/o/search-experiences-rest/v1.0/keyword-query-contributors',
+	});
+
+	const {
+		data: modelPrefilterContributors,
+		refetch: refetchModelPrefilterContributors,
+	} = useFetchData({
+		getData: (response) => filterAndSortClassNames(response?.items),
+		resource:
+			'/o/search-experiences-rest/v1.0/model-prefilter-contributors',
+	});
+
+	const {
+		data: queryPrefilterContributors,
+		refetch: refetchQueryPrefilterContributors,
+	} = useFetchData({
+		getData: (response) => filterAndSortClassNames(response?.items),
+		resource:
+			'/o/search-experiences-rest/v1.0/query-prefilter-contributors',
+	});
 
 	/**
 	 * This method must go before the useFormik hook.
@@ -379,41 +403,9 @@ function EditSXPBlueprintForm({
 	useShouldConfirmBeforeNavigate(formik.dirty && !formik.isSubmitting);
 
 	useEffect(() => {
-		fetchData(
-			`/o/search-experiences-rest/v1.0/searchable-asset-names/${locale}`
-		)
-			.then((responseContent) =>
-				setSearchableTypes(responseContent.items)
-			)
-			.catch(() => setSearchableTypes([]));
-
 		fetchData(`/o/search-experiences-rest/v1.0/field-mapping-infos`)
 			.then((responseContent) => setIndexFields(responseContent.items))
 			.catch(() => setIndexFields([]));
-
-		[
-			{
-				setProperty: setKeywordQueryContributors,
-				url:
-					'/o/search-experiences-rest/v1.0/keyword-query-contributors',
-			},
-			{
-				setProperty: setModelPrefilterContributors,
-				url:
-					'/o/search-experiences-rest/v1.0/model-prefilter-contributors',
-			},
-			{
-				setProperty: setQueryPrefilterContributors,
-				url:
-					'/o/search-experiences-rest/v1.0/query-prefilter-contributors',
-			},
-		].forEach(({setProperty, url}) =>
-			fetchData(url)
-				.then((responseContent) =>
-					setProperty(filterAndSortClassNames(responseContent.items))
-				)
-				.catch(() => setProperty([]))
-		);
 
 		setStorageAddSXPElementSidebar('open');
 	}, []); //eslint-disable-line
@@ -548,6 +540,13 @@ function EditSXPBlueprintForm({
 	};
 
 	/**
+	 * Used by the preview sidebar to cancel any unexpectedly slow search.
+	 */
+	const _handleFetchPreviewCancel = () => {
+		controllerRef.current.abort();
+	};
+
+	/**
 	 * Used by the preview sidebar to perform searches.
 	 * @param {string} query The keyword search query
 	 * @param {number} delta The number of results to return
@@ -560,6 +559,8 @@ function EditSXPBlueprintForm({
 		page,
 		attributes
 	) => {
+		controllerRef.current = new AbortController();
+
 		setPreviewInfo((previewInfo) => ({
 			...previewInfo,
 			loading: true,
@@ -682,32 +683,36 @@ function EditSXPBlueprintForm({
 					},
 					elementInstances,
 				}),
+				signal: controllerRef.current.signal,
 			}
 		)
-			.then((response) => {
-				if (!response.ok) {
-					if (response.status === 400) {
-						return response.json().then((json) => {
-							return getResultsError({msg: json.title});
-						});
-					}
-				}
+			.then((response) =>
+				response.json().then((data) => ({
+					ok: response.ok,
+					responseContent: data,
+					status: response.status,
+				}))
+			)
+			.then(({ok, responseContent, status}) => {
+				const errorResponse = getResultsError(
+					status === 400 ? {msg: responseContent.title} : {}
+				);
 
-				return response.json();
-			})
-			.then((responseContent) => {
 				setPreviewInfo({
 					loading: false,
-					results: parseResponseContent(responseContent),
+					results: parseResponseContent(
+						ok ? responseContent : errorResponse
+					),
 				});
 			})
-			.catch(() => {
-				setTimeout(() => {
-					setPreviewInfo({
-						loading: false,
-						results: getResultsError(),
-					});
-				}, 100);
+			.catch((error) => {
+				setPreviewInfo({
+					loading: false,
+					results:
+						error.name === 'AbortError'
+							? previewInfo.results
+							: getResultsError({}),
+				});
 			});
 	};
 
@@ -806,6 +811,11 @@ function EditSXPBlueprintForm({
 								},
 							]}
 							onClose={_handleCloseSidebar}
+							onFetchContributors={() => {
+								refetchKeywordQueryContributors();
+								refetchModelPrefilterContributors();
+								refetchQueryPrefilterContributors();
+							}}
 							onFrameworkConfigChange={
 								_handleFrameworkConfigChange
 							}
@@ -869,11 +879,12 @@ function EditSXPBlueprintForm({
 								onBlur={formik.handleBlur}
 								onChange={formik.handleChange}
 								onDeleteSXPElement={_handleDeleteSXPElement}
+								onFetchSearchableTypes={refetchSearchableTypes}
 								onFrameworkConfigChange={
 									_handleFrameworkConfigChange
 								}
 								openSidebar={openSidebar}
-								searchableTypes={searchableTypes}
+								searchableTypes={searchableTypes?.items}
 								setFieldTouched={formik.setFieldTouched}
 								setFieldValue={formik.setFieldValue}
 								setOpenSidebar={setOpenSidebar}
@@ -885,13 +896,7 @@ function EditSXPBlueprintForm({
 		}
 	};
 
-	if (
-		!indexFields ||
-		!keywordQueryContributors ||
-		!modelPrefilterContributors ||
-		!queryPrefilterContributors ||
-		!searchableTypes
-	) {
+	if (!indexFields) {
 		return null;
 	}
 
@@ -940,6 +945,7 @@ function EditSXPBlueprintForm({
 				hits={transformToSearchPreviewHits(previewInfo.results)}
 				loading={previewInfo.loading}
 				onClose={_handleCloseSidebar}
+				onFetchCancel={_handleFetchPreviewCancel}
 				onFetchResults={_handleFetchPreviewSearch}
 				onFocusSXPElement={_handleFocusSXPElement}
 				responseString={previewInfo.results.responseString}

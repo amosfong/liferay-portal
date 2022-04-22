@@ -153,6 +153,10 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 				_itemSelectorCriterion, _dlItemSelectorView, FileEntry.class);
 	}
 
+	public String getMimeTypeRestriction() {
+		return _itemSelectorCriterion.getMimeTypeRestriction();
+	}
+
 	public PortletURL getPortletURL(
 			LiferayPortletResponse liferayPortletResponse)
 		throws PortletException {
@@ -327,14 +331,11 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			_showDragAndDropZone = false;
 		}
 		else {
-			long defaultFileEntryTypeId =
-				DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
-					_getFolderId());
-
 			if (DLUtil.hasWorkflowDefinitionLink(
 					_themeDisplay.getCompanyId(),
 					_themeDisplay.getScopeGroupId(), _getFolderId(),
-					defaultFileEntryTypeId)) {
+					DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
+						_getFolderId()))) {
 
 				_showDragAndDropZone = false;
 			}

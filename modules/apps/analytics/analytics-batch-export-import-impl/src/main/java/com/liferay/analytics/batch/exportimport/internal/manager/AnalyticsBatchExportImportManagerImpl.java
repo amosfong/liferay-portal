@@ -23,6 +23,7 @@ import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineTaskContentType;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
@@ -95,7 +97,7 @@ public class AnalyticsBatchExportImportManagerImpl
 
 		BatchEngineExportTask batchEngineExportTask =
 			_batchEngineExportTaskLocalService.addBatchEngineExportTask(
-				companyId, userId, null, resourceName,
+				null, companyId, userId, null, resourceName,
 				BatchEngineTaskContentType.JSONL.name(),
 				BatchEngineTaskExecuteStatus.INITIAL.name(), fieldNamesList,
 				parameters, batchEngineExportTaskItemDelegateName);
@@ -177,10 +179,11 @@ public class AnalyticsBatchExportImportManagerImpl
 
 		BatchEngineImportTask batchEngineImportTask =
 			_batchEngineImportTaskLocalService.addBatchEngineImportTask(
-				companyId, userId, 50, null, resourceName,
+				null, companyId, userId, 50, null, resourceName,
 				Files.readAllBytes(resourceFile.toPath()),
 				BatchEngineTaskContentType.JSONL.name(),
 				BatchEngineTaskExecuteStatus.INITIAL.name(), fieldMapping,
+				BatchEngineImportTaskConstants.IMPORT_STRATEGY_ON_ERROR_FAIL,
 				BatchEngineTaskOperation.CREATE.name(), null,
 				batchEngineImportTaskItemDelegateName);
 
@@ -253,14 +256,12 @@ public class AnalyticsBatchExportImportManagerImpl
 			_analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
 
 		options.setLocation(
-			_http.addParameter(
+			HttpComponentsUtil.addParameter(
 				analyticsConfiguration.liferayAnalyticsEndpointURL() +
 					"/dxp-batch-entities",
 				"resourceName", resourceName));
 
-		try {
-			InputStream inputStream = _http.URLtoInputStream(options);
-
+		try (InputStream inputStream = _http.URLtoInputStream(options)) {
 			Http.Response response = options.getResponse();
 
 			if (response.getResponseCode() ==
@@ -414,9 +415,7 @@ public class AnalyticsBatchExportImportManagerImpl
 
 		options.setPost(true);
 
-		try {
-			InputStream inputStream = _http.URLtoInputStream(options);
-
+		try (InputStream inputStream = _http.URLtoInputStream(options)) {
 			Http.Response response = options.getResponse();
 
 			if (response.getResponseCode() ==

@@ -34,14 +34,12 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -126,16 +124,12 @@ public class CommerceOrderCommerceDefinitionTermContributor
 
 	@Override
 	public String getLabel(String term, Locale locale) {
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			"content.Language", locale, getClass());
-
-		return LanguageUtil.get(
-			resourceBundle, _commerceOrderDefinitionTermsMap.get(term));
+		return LanguageUtil.get(locale, _languageKeys.get(term));
 	}
 
 	@Override
 	public List<String> getTerms() {
-		return new ArrayList<>(_commerceOrderDefinitionTermsMap.keySet());
+		return new ArrayList<>(_languageKeys.keySet());
 	}
 
 	private String _formatAddressTerm(
@@ -143,13 +137,11 @@ public class CommerceOrderCommerceDefinitionTermContributor
 
 		if (commerceAddress == null) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("The commerce address is null");
+				_log.debug("Commerce address is null");
 			}
 
 			return StringPool.BLANK;
 		}
-
-		// Build the address string
 
 		StringBundler addressSB = new StringBundler(commerceAddress.getName());
 
@@ -212,24 +204,20 @@ public class CommerceOrderCommerceDefinitionTermContributor
 			_log.debug("Processing order items term");
 		}
 
-		// Check if we have commerceOrder
-
 		if (commerceOrder == null) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					"Trying to get the item list for an order without an " +
-						"order object!");
+						"order object");
 			}
 
 			return StringPool.BLANK;
 		}
 
-		// Get the order items list
-
-		List<CommerceOrderItem> orderItemsList =
+		List<CommerceOrderItem> commerceOrderItems =
 			commerceOrder.getCommerceOrderItems();
 
-		if (ListUtil.isEmpty(orderItemsList)) {
+		if (ListUtil.isEmpty(commerceOrderItems)) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(
 					"This order has no linked order items to be included in " +
@@ -238,8 +226,6 @@ public class CommerceOrderCommerceDefinitionTermContributor
 
 			return StringPool.BLANK;
 		}
-
-		// Build the items html table (Header)
 
 		StringBundler orderItemsTableSB = new StringBundler(
 			"<table style=\"border: 1px solid black;\">");
@@ -254,9 +240,7 @@ public class CommerceOrderCommerceDefinitionTermContributor
 		orderItemsTableSB.append(LanguageUtil.get(locale, "quantity"));
 		orderItemsTableSB.append("</th></tr>");
 
-		// And add the order items
-
-		for (CommerceOrderItem commerceOrderItem : orderItemsList) {
+		for (CommerceOrderItem commerceOrderItem : commerceOrderItems) {
 			orderItemsTableSB.append(
 				"<tr><td style=\"border: 1px solid black;\">");
 			orderItemsTableSB.append(commerceOrderItem.getName(locale));
@@ -295,18 +279,17 @@ public class CommerceOrderCommerceDefinitionTermContributor
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceOrderCommerceDefinitionTermContributor.class);
 
-	private static final Map<String, String> _commerceOrderDefinitionTermsMap =
-		HashMapBuilder.put(
-			_ORDER_BILLING_ADDRESS, "order-billing-address-definition-term"
-		).put(
-			_ORDER_CREATOR, "order-creator-definition-term"
-		).put(
-			_ORDER_ID, "order-id-definition-term"
-		).put(
-			_ORDER_ITEMS, "order-items-definition-term"
-		).put(
-			_ORDER_SHIPPING_ADDRESS, "order-shipping-address-definition-term"
-		).build();
+	private static final Map<String, String> _languageKeys = HashMapBuilder.put(
+		_ORDER_BILLING_ADDRESS, "order-billing-address-definition-term"
+	).put(
+		_ORDER_CREATOR, "order-creator-definition-term"
+	).put(
+		_ORDER_ID, "order-id-definition-term"
+	).put(
+		_ORDER_ITEMS, "order-items-definition-term"
+	).put(
+		_ORDER_SHIPPING_ADDRESS, "order-shipping-address-definition-term"
+	).build();
 
 	@Reference
 	private UserLocalService _userLocalService;

@@ -30,13 +30,16 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.service.base.ObjectFieldLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.object.service.persistence.ObjectEntryPersistence;
+import com.liferay.object.service.persistence.ObjectFieldPersistence;
 import com.liferay.object.service.persistence.ObjectFieldSettingPersistence;
 import com.liferay.object.service.persistence.ObjectLayoutColumnPersistence;
+import com.liferay.object.service.persistence.ObjectRelationshipPersistence;
 import com.liferay.object.service.persistence.ObjectViewColumnPersistence;
 import com.liferay.object.service.persistence.ObjectViewPersistence;
 import com.liferay.object.service.persistence.ObjectViewSortColumnPersistence;
@@ -60,11 +63,14 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -112,12 +118,7 @@ public class ObjectFieldLocalServiceImpl
 					dbTableName, objectField.getDBColumnName(), dbType));
 		}
 
-		for (ObjectFieldSetting objectFieldSetting : objectFieldSettings) {
-			_objectFieldSettingLocalService.addObjectFieldSetting(
-				userId, objectField.getObjectFieldId(),
-				objectFieldSetting.getName(), objectFieldSetting.isRequired(),
-				objectFieldSetting.getValue());
-		}
+		_addOrUpdateObjectFieldSettings(objectField, objectFieldSettings);
 
 		return objectField;
 	}
@@ -172,6 +173,25 @@ public class ObjectFieldLocalServiceImpl
 		return _deleteObjectField(objectField);
 	}
 
+	@Override
+	public void deleteObjectFieldByObjectDefinitionId(Long objectDefinitionId)
+		throws PortalException {
+
+		for (ObjectField objectField :
+				_objectFieldPersistence.findByObjectDefinitionId(
+					objectDefinitionId)) {
+
+			if (Validator.isNotNull(objectField.getRelationshipType())) {
+				continue;
+			}
+
+			objectFieldPersistence.remove(objectField);
+
+			_objectFieldSettingPersistence.removeByObjectFieldId(
+				objectField.getObjectFieldId());
+		}
+	}
+
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public ObjectField deleteRelationshipTypeObjectField(long objectFieldId)
@@ -192,6 +212,35 @@ public class ObjectFieldLocalServiceImpl
 	@Override
 	public ObjectField fetchObjectField(long objectDefinitionId, String name) {
 		return objectFieldPersistence.fetchByODI_N(objectDefinitionId, name);
+	}
+
+	@Override
+	public List<ObjectField> getActiveObjectFields(
+			List<ObjectField> objectFields)
+		throws PortalException {
+
+		List<ObjectField> activeObjectFields = new ArrayList<>();
+
+		for (ObjectField objectField : objectFields) {
+			if (Validator.isNotNull(objectField.getRelationshipType())) {
+				ObjectRelationship objectRelationship =
+					_objectRelationshipPersistence.fetchByObjectFieldId2(
+						objectField.getObjectFieldId());
+
+				ObjectDefinition objectDefinition =
+					_objectDefinitionPersistence.findByPrimaryKey(
+						objectRelationship.getObjectDefinitionId1());
+
+				if (objectDefinition.isActive()) {
+					activeObjectFields.add(objectField);
+				}
+			}
+			else {
+				activeObjectFields.add(objectField);
+			}
+		}
+
+		return activeObjectFields;
 	}
 
 	@Override
@@ -267,10 +316,15 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
 
 		if (objectDefinition.isApproved()) {
-			return objectFieldPersistence.update(objectField);
+			objectField = objectFieldPersistence.update(objectField);
+
+			_addOrUpdateObjectFieldSettings(objectField, objectFieldSettings);
+
+			return objectField;
 		}
 
-		_validateIndexed(dbType, indexed, indexedAsKeyword, indexedLanguageId);
+		_validateIndexed(
+			businessType, dbType, indexed, indexedAsKeyword, indexedLanguageId);
 
 		if (Validator.isNotNull(objectField.getRelationshipType())) {
 			if (!Objects.equals(objectField.getDBType(), dbType) ||
@@ -297,9 +351,7 @@ public class ObjectFieldLocalServiceImpl
 
 		objectField = objectFieldPersistence.update(objectField);
 
-		_addObjectFieldSettings(
-			objectField.getUserId(), objectField.getObjectFieldId(),
-			objectFieldSettings);
+		_addOrUpdateObjectFieldSettings(objectField, objectFieldSettings);
 
 		return objectField;
 	}
@@ -315,7 +367,8 @@ public class ObjectFieldLocalServiceImpl
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		_validateIndexed(dbType, indexed, indexedAsKeyword, indexedLanguageId);
+		_validateIndexed(
+			businessType, dbType, indexed, indexedAsKeyword, indexedLanguageId);
 		_validateLabel(labelMap);
 		_validateName(0, objectDefinition, name);
 
@@ -345,48 +398,49 @@ public class ObjectFieldLocalServiceImpl
 		return objectFieldPersistence.update(objectField);
 	}
 
-	private void _addObjectFieldSettings(
-			long userId, long objectFieldId,
-			List<ObjectFieldSetting> newObjectFieldSettings)
+	private void _addOrUpdateObjectFieldSettings(
+			ObjectField objectField,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
+		ObjectFieldBusinessType objectFieldBusinessType =
+			_objectFieldBusinessTypeServicesTracker.getObjectFieldBusinessType(
+				objectField.getBusinessType());
+
+		objectFieldBusinessType.validateObjectFieldSettings(
+			objectField.getName(), objectFieldSettings);
+
 		List<ObjectFieldSetting> oldObjectFieldSettings =
-			_objectFieldSettingPersistence.findByObjectFieldId(objectFieldId);
+			_objectFieldSettingPersistence.findByObjectFieldId(
+				objectField.getObjectFieldId());
 
 		for (ObjectFieldSetting oldObjectFieldSetting :
 				oldObjectFieldSettings) {
 
-			boolean removeOldObjectFieldSetting = true;
+			Stream<ObjectFieldSetting> stream = objectFieldSettings.stream();
 
-			for (ObjectFieldSetting newObjectFieldSetting :
-					newObjectFieldSettings) {
-
-				if (Objects.equals(
+			Optional<ObjectFieldSetting> objectFieldSettingOptional =
+				stream.filter(
+					newObjectFieldSetting -> Objects.equals(
 						newObjectFieldSetting.getName(),
-						oldObjectFieldSetting.getName())) {
+						oldObjectFieldSetting.getName())
+				).findFirst();
 
-					removeOldObjectFieldSetting = false;
-
-					break;
-				}
-			}
-
-			if (removeOldObjectFieldSetting) {
+			if (!objectFieldSettingOptional.isPresent()) {
 				_objectFieldSettingPersistence.remove(oldObjectFieldSetting);
 			}
 		}
 
-		for (ObjectFieldSetting newObjectFieldSetting :
-				newObjectFieldSettings) {
-
+		for (ObjectFieldSetting newObjectFieldSetting : objectFieldSettings) {
 			ObjectFieldSetting oldObjectFieldSetting =
 				_objectFieldSettingPersistence.fetchByOFI_N(
-					objectFieldId, newObjectFieldSetting.getName());
+					objectField.getObjectFieldId(),
+					newObjectFieldSetting.getName());
 
 			if (oldObjectFieldSetting == null) {
 				_objectFieldSettingLocalService.addObjectFieldSetting(
-					userId, objectFieldId, newObjectFieldSetting.getName(),
-					newObjectFieldSetting.isRequired(),
+					objectField.getUserId(), objectField.getObjectFieldId(),
+					newObjectFieldSetting.getName(),
 					newObjectFieldSetting.getValue());
 			}
 			else {
@@ -436,6 +490,19 @@ public class ObjectFieldLocalServiceImpl
 
 		objectField = objectFieldPersistence.remove(objectField);
 
+		String objectFieldSettingFileSource = StringPool.BLANK;
+
+		if (Objects.equals(
+				objectField.getBusinessType(),
+				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
+
+			ObjectFieldSetting objectFieldSetting =
+				_objectFieldSettingPersistence.fetchByOFI_N(
+					objectField.getObjectFieldId(), "fileSource");
+
+			objectFieldSettingFileSource = objectFieldSetting.getValue();
+		}
+
 		_objectFieldSettingPersistence.removeByObjectFieldId(
 			objectField.getObjectFieldId());
 
@@ -448,10 +515,7 @@ public class ObjectFieldLocalServiceImpl
 				objectDefinition.getExtensionDBTableName(),
 				objectField.getDBTableName())) {
 
-			if (Objects.equals(
-					objectField.getBusinessType(),
-					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
-
+			if (Objects.equals(objectFieldSettingFileSource, "userComputer")) {
 				_deleteFileEntries(
 					objectField.getObjectDefinitionId(), objectField.getName());
 			}
@@ -497,20 +561,26 @@ public class ObjectFieldLocalServiceImpl
 	}
 
 	private void _validateIndexed(
-			String dbType, boolean indexed, boolean indexedAsKeyword,
-			String indexedLanguageId)
+			String businessType, String dbType, boolean indexed,
+			boolean indexedAsKeyword, String indexedLanguageId)
 		throws PortalException {
 
-		if (indexed && Objects.equals(dbType, "Blob")) {
+		if (indexed &&
+			Objects.equals(dbType, ObjectFieldConstants.DB_TYPE_BLOB)) {
+
 			throw new ObjectFieldDBTypeException("Blob type is not indexable");
 		}
 
-		if ((!Objects.equals(dbType, "String") || indexedAsKeyword) &&
+		if (((!Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) &&
+			  !Objects.equals(dbType, ObjectFieldConstants.DB_TYPE_CLOB) &&
+			  !Objects.equals(dbType, ObjectFieldConstants.DB_TYPE_STRING)) ||
+			 indexedAsKeyword) &&
 			!Validator.isBlank(indexedLanguageId)) {
 
 			throw new ObjectFieldDBTypeException(
-				"Indexed language ID can only be applied with type " +
-					"\"String\" that is not indexed as a keyword");
+				"Indexed language ID can only be applied with type \"Clob\" " +
+					"or \"String\" that is not indexed as a keyword");
 		}
 	}
 
@@ -604,6 +674,9 @@ public class ObjectFieldLocalServiceImpl
 		_objectFieldBusinessTypeServicesTracker;
 
 	@Reference
+	private ObjectFieldPersistence _objectFieldPersistence;
+
+	@Reference
 	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
 
 	@Reference
@@ -611,6 +684,9 @@ public class ObjectFieldLocalServiceImpl
 
 	@Reference
 	private ObjectLayoutColumnPersistence _objectLayoutColumnPersistence;
+
+	@Reference
+	private ObjectRelationshipPersistence _objectRelationshipPersistence;
 
 	@Reference
 	private ObjectViewColumnPersistence _objectViewColumnPersistence;

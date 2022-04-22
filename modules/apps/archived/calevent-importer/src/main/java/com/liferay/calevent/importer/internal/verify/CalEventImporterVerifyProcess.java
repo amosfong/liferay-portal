@@ -82,7 +82,7 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
+import com.liferay.portal.kernel.uuid.PortalUUID;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.verify.VerifyProcess;
 import com.liferay.ratings.kernel.model.RatingsEntry;
@@ -1135,7 +1135,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 			mbDiscussion.getThreadId(), calendarBookingId);
 
 		_addMBDiscussion(
-			PortalUUIDUtil.generate(), _counterLocalService.increment(),
+			_portalUUID.generate(), _counterLocalService.increment(),
 			mbDiscussion.getGroupId(), mbDiscussion.getCompanyId(),
 			mbDiscussion.getUserId(), mbDiscussion.getUserName(),
 			mbDiscussion.getCreateDate(), mbDiscussion.getModifiedDate(),
@@ -1168,7 +1168,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 		messageId = _counterLocalService.increment();
 
 		_addMBMessage(
-			PortalUUIDUtil.generate(), messageId, mbMessage.getGroupId(),
+			_portalUUID.generate(), messageId, mbMessage.getGroupId(),
 			mbMessage.getCompanyId(), mbMessage.getUserId(),
 			mbMessage.getUserName(), mbMessage.getCreateDate(),
 			mbMessage.getModifiedDate(),
@@ -1195,9 +1195,8 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 	private long _importMBThread(long threadId, long calendarBookingId)
 		throws Exception {
 
-		MBThread mbThread = _mbThreadLocalService.fetchMBThread(threadId);
-
-		return _importMBThread(mbThread, calendarBookingId);
+		return _importMBThread(
+			_mbThreadLocalService.fetchMBThread(threadId), calendarBookingId);
 	}
 
 	private long _importMBThread(MBThread mbThread, long calendarBookingId)
@@ -1206,7 +1205,7 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 		long threadId = _counterLocalService.increment();
 
 		_addMBThread(
-			PortalUUIDUtil.generate(), threadId, mbThread.getGroupId(),
+			_portalUUID.generate(), threadId, mbThread.getGroupId(),
 			mbThread.getCompanyId(), mbThread.getUserId(),
 			mbThread.getUserName(), mbThread.getCreateDate(),
 			mbThread.getModifiedDate(), mbThread.getCategoryId(), 0,
@@ -1439,6 +1438,9 @@ public class CalEventImporterVerifyProcess extends VerifyProcess {
 
 	@Reference
 	private MBThreadLocalService _mbThreadLocalService;
+
+	@Reference
+	private PortalUUID _portalUUID;
 
 	@Reference
 	private RatingsEntryLocalService _ratingsEntryLocalService;

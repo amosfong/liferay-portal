@@ -1,0 +1,204 @@
+@component-name = "portal-user-tracker"
+definition {
+
+	property custom.properties = "live.users.enabled=true";
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "User Tracker";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+	}
+
+	@priority = "3"
+	test CanConvertTrackedPathToFriendlyURL {
+		property custom.properties = "live.users.enabled=true${line.separator}session.tracker.friendly.paths.enabled=true";
+		property test.name.skip.portal.instance = "UserTracker#CanConvertTrackedPathToFriendlyURL";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		UserTracker.viewAccessedURL(friendlyURL = "http://localhost:8080/web/guest/home");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "Virtual Instances");
+
+		PortalInstances.addCP(
+			mailDomain = "www.able.com",
+			virtualHost = "www.able.com",
+			webId = "www.able.com");
+
+		PortalInstances.viewCP(virtualHost = "www.able.com");
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://www.able.com:8080",
+			userEmailAddress = "test@www.able.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		UserTracker.viewAccessedURL(friendlyURL = "http://www.able.com:8080/web/guest/home");
+	}
+
+	@priority = "4"
+	test CanTrackUserClicks {
+		property test.name.skip.portal.instance = "UserTracker#CanTrackUserClicks";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		AssertTextEquals(
+			locator1 = "LexiconTable#TABLE_HITS_COUNT",
+			value1 = "5");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "Virtual Instances");
+
+		PortalInstances.addCP(
+			mailDomain = "www.able.com",
+			virtualHost = "www.able.com",
+			webId = "www.able.com");
+
+		PortalInstances.viewCP(virtualHost = "www.able.com");
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://www.able.com:8080",
+			userEmailAddress = "test@www.able.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		AssertTextEquals(
+			locator1 = "LexiconTable#TABLE_HITS_COUNT",
+			value1 = "7");
+
+		SignOut.signOut();
+
+		User.firstLoginPG();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "Virtual Instances");
+
+		PortalInstances.addCP(
+			mailDomain = "www.baker.com",
+			virtualHost = "www.baker.com",
+			webId = "www.baker.com");
+
+		PortalInstances.viewCP(virtualHost = "www.baker.com");
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://www.baker.com:8080",
+			userEmailAddress = "test@www.baker.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		AssertTextEquals(
+			locator1 = "LexiconTable#TABLE_HITS_COUNT",
+			value1 = "7");
+
+		Navigator.openSpecificURL(url = "http://www.able.com:8080");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Monitoring");
+
+		AssertTextEquals(
+			locator1 = "LexiconTable#TABLE_HITS_COUNT",
+			value1 = "12");
+	}
+
+	@priority = "3"
+	test CanTrackUserSessionInDatabase {
+		property custom.properties = "live.users.enabled=true${line.separator}session.tracker.persistence.enabled=true";
+		property test.name.skip.portal.instance = "UserTracker#CanTrackUserSessionInDatabase";
+
+		var emptyTable = SQL.executeMySQLStatement(mysqlStatement = "SELECT * FROM lportal.UserTracker;");
+
+		SignOut.signOut();
+
+		var afterLoginUserTrackerTable = SQL.executeMySQLStatement(mysqlStatement = "SELECT * FROM lportal.UserTracker;");
+
+		var companyId = JSONCompany.getCompanyId();
+
+		echo("UserTracker table: ${afterLoginUserTrackerTable}");
+
+		if ("${emptyUserTrackerTable}" == "${afterLoginUserTrackerTable}") {
+			fail("User session is not persisted. UserTracker Table is still empty.");
+		}
+		else if (!(contains("${afterLoginUserTrackerTable}", "${companyId}"))) {
+			fail("User session is not persisted. UserTracker Table is missing companyId.");
+		}
+		else {
+			echo("User session is in persistence.");
+		}
+
+		User.firstLoginPG();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "Virtual Instances");
+
+		PortalInstances.addCP(
+			mailDomain = "www.able.com",
+			virtualHost = "www.able.com",
+			webId = "www.able.com");
+
+		PortalInstances.viewCP(virtualHost = "www.able.com");
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://www.able.com:8080",
+			userEmailAddress = "test@www.able.com");
+
+		UserBar.signOut();
+
+		var afterVirutalInstanceUserTrackerTable = SQL.executeMySQLStatement(mysqlStatement = "SELECT * FROM lportal.UserTracker;");
+
+		var virutalInstanceCompanyId = JSONCompany.getCompanyId(portalInstanceName = "www.able.com");
+
+		echo("UserTracker table: ${afterVirutalInstanceUserTrackerTable}");
+
+		if ("${afterLoginUserTrackerTable}" == "${afterVirutalInstanceUserTrackerTable}") {
+			fail("User session is not persisted. UserTracker Table remains unmodified after new virutal instance is created.");
+		}
+		else if (!(contains("${afterVirutalInstanceUserTrackerTable}", "${virutalInstanceCompanyId}"))) {
+			fail("User session is not persisted. UserTracker Table does not have new virtual instance companyId.");
+		}
+		else {
+			echo("User session from virtual instance is added in persistence.");
+		}
+	}
+
+}

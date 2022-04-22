@@ -48,15 +48,6 @@ public class SXPBlueprintSearchResultTestUtil {
 		"content_${context.language_id}^1"
 	};
 
-	public static final String JSON_QUERY_CONFIGURATION = JSONUtil.put(
-		"generalConfiguration",
-		JSONUtil.put(
-			"searchableAssetTypes",
-			JSONUtil.put("com.liferay.journal.model.JournalArticle"))
-	).put(
-		"queryConfiguration", JSONUtil.put("applyIndexerClauses", true)
-	).toString();
-
 	public static String getElementInstancesJSON(
 			Object[] configurationValuesArray, String[] sxpElementNames,
 			List<SXPElement> sxpElements)
@@ -79,9 +70,8 @@ public class SXPBlueprintSearchResultTestUtil {
 			).findFirst(
 			).get();
 
-			ElementDefinition elementDefinition =
-				ElementDefinitionUtil.toElementDefinition(
-					sxpElement.getElementDefinitionJSON());
+			ElementDefinition elementDefinition = ElementDefinitionUtil.unpack(
+				ElementDefinition.toDTO(sxpElement.getElementDefinitionJSON()));
 
 			String configurationJSON = String.valueOf(
 				elementDefinition.getConfiguration());

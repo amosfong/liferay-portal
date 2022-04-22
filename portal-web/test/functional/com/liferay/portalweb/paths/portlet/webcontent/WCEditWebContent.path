@@ -47,12 +47,12 @@
 </tr>
 <tr>
 	<td>HELP_TEXT</td>
-	<td>//div[contains(@class,'form-group')]//span[contains(@class,'form-text') and contains(text(),'${value1}')] | //div[contains(@data-field-name,'${key_fieldName}')]//p[@class='liferay-ddm-form-field-tip'] | //div[contains(@data-field-name,'${key_fieldName}')]//span[contains(@class, 'form-text')]</td>
+	<td>//div[contains(@class,'form-group')]//div[contains(@class,'form-feedback-group') and contains(.,'${value1}')] | //div[contains(@data-field-name,'${key_fieldName}')]//p[@class='liferay-ddm-form-field-tip'] | //div[contains(@data-field-name,'${key_fieldName}')]//div[contains(@class,'form-feedback-group')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FIELD_REQUIRED_ALERT</td>
-	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']/following-sibling::span[contains(@class,'form-feedback-group')]//div[contains(@class,'form-feedback-item')] | //legend[normalize-space(text())='${key_fieldFieldLabel}']/following-sibling::span[contains(@class,'form-feedback-group')]//div[contains(@class,'form-feedback-item')]</td>
+	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']/following-sibling::div[contains(@class,'form-feedback-group')]//div[contains(@class,'form-feedback-item')] | //fieldset[legend[normalize-space(text())='${key_fieldFieldLabel}']]/following-sibling::span[contains(@class,'form-feedback-group')]//div[contains(@class,'form-feedback-item')] | //div[text()='This field is required.']</td>
 	<td></td>
 </tr>
 <tr>
@@ -89,6 +89,16 @@
 <tr>
 	<td>IMAGE_DESCRIPTION</td>
 	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']/following-sibling::div[contains(@class,'form-group')]//input[contains(@name,'description')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MARKER</td>
+	<td>//img[contains(@class,'marker-icon')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MARKER_POSITION</td>
+	<td>//img[contains(@class,'marker-icon')][contains(@style,'translate3d("${position}")')]</td>
 	<td></td>
 </tr>
 <tr>

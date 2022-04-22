@@ -14,7 +14,7 @@
 
 package com.liferay.commerce.internal.servlet.filter;
 
-import com.liferay.commerce.internal.context.CommerceGroupThreadLocal;
+import com.liferay.commerce.context.CommerceGroupThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 	enabled = false, immediate = true,
 	property = {
 		"servlet-context-name=", "servlet-filter-name=Commerce Context Filter",
+		"url-pattern=/o/frontend-taglib-clay/app/*",
 		"url-pattern=/o/headless-batch-engine/*",
 		"url-pattern=/o/headless-commerce-admin-account/*",
 		"url-pattern=/o/headless-commerce-admin-catalog/*",

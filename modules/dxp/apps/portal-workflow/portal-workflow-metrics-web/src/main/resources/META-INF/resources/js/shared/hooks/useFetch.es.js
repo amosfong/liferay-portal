@@ -28,7 +28,7 @@ const useFetch = ({
 	fetchURL = new URL(fetchURL, Liferay.ThemeDisplay.getPortalURL());
 
 	Object.entries(params).map(([key, value]) => {
-		if (value) {
+		if (value !== null && value !== undefined) {
 			fetchURL.searchParams.append(key, value);
 		}
 	});

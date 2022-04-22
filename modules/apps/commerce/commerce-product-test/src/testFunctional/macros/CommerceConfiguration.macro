@@ -1,222 +1,133 @@
 definition {
 
-	macro accountGroupsTearDown {
-		var accountGroupsList = "";
-		var count = "1";
-
-		while (IsElementPresent(key_rowNumber = "${count}", locator1 = "CommerceNavigation#ENTRY_NAME_N")) {
-			var key_rowNumber = "${count}";
-			var entryName = selenium.getText("CommerceNavigation#ENTRY_NAME_N");
-
-			if ("${entryName}" != "Guest") {
-				var accountGroupsList = StringUtil.add("${accountGroupsList}", "${entryName}");
-			}
-
-			var count = ${count} + 1;
-		}
-
-		if ("${accountGroupsList}" != "") {
-			for (var accountGroupName : list "${accountGroupsList}") {
-				ClickNoError(
-					key_entryName = "${accountGroupName}",
-					locator1 = "CommerceEntry#ENTRY_NAME_BODY_VERTICAL_ELLIPSIS_2");
-
-				CommerceEntry.clickNoError(menuItem = "Delete");
-
-				AssertElementPresent(locator1 = "Message#SUCCESS");
-
-				AssertElementNotPresent(locator1 = "Message#ERROR");
-			}
-		}
-	}
-
-	macro commerceAdminSetUp {
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.addCP(
-			userEmailAddress = "commerceuser@liferay.com",
-			userFirstName = "Commerce",
-			userLastName = "User",
-			userScreenName = "commerceuser");
-
-		CommerceEntry.createNewCurrenciesEntry(
-			code = "NCU",
-			entryName = "New Currency");
-
-		CommerceNavigator.gotoPortlet(
-			category = "Store Management",
-			portlet = "Channels");
-
-		Click(locator1 = "Button#PLUS");
-
-		CommerceEntry.addNewChannelsEntry(
-			channelCurrency = "US Dollar",
-			channelName = "Test Channel",
-			channelType = "Site",
-			siteName = "Guest");
-
-		Button.clickSave();
-
-		AssertElementPresent(locator1 = "Message#SUCCESS");
-	}
-
 	macro commerceAdminTearDown {
+		var emptyCount = "0";
+
 		Navigator.openURL();
-
-		CommerceJSONOrdersAPI._deleteAllCommerceOrders();
-
-		CommerceNavigator.gotoPortlet(
-			category = "Order Management",
-			portlet = "Orders");
-
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
 
 		CommerceJSONShipmentsAPI._deleteAllCommerceShipments();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Order Management",
-			portlet = "Shipments");
+		var shipmentsCount = CommerceJSONShipmentsAPI._getCommerceShipmentsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${shipmentsCount}",
+			expected = "${emptyCount}");
 
 		JSONUser.tearDownNonAdminUsers();
 
 		CommerceJSONAccountsAPI._deleteAllCommerceAccounts();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Control Panel",
-			portlet = "Accounts");
+		var accountsCount = CommerceJSONAccountsAPI._getCommerceAccountsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${accountsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONAccountGroupsAPI._deleteAllCommerceAccountGroups();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Control Panel",
-			portlet = "Account Groups");
+		var accountGroupsCount = CommerceJSONAccountGroupsAPI._getCommerceAccountGroupsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${accountGroupsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONProductsAPI._deleteAllCommerceProducts();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			portlet = "Products");
+		var productsCount = CommerceJSONProductsAPI._getCommerceProductsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${productsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONOptionsAPI._deleteAllCommerceOptions();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			portlet = "Options");
+		var optionsCount = CommerceJSONOptionsAPI._getCommerceOptionsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${optionsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONSpecificationGroupsAPI._deleteAllCommerceSpecificationGroups();
 
+		var specificationGroupsCount = CommerceJSONSpecificationGroupsAPI._getCommerceSpecificationGroupsCount();
+
+		TestUtils.assertEquals(
+			actual = "${specificationGroupsCount}",
+			expected = "${emptyCount}");
+
 		CommerceJSONSpecificationsAPI._deleteAllCommerceSpecifications();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			portlet = "Specifications");
+		var specificationsCount = CommerceJSONSpecificationsAPI._getCommerceSpecificationsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
-
-		CommerceNavigator.gotoCommercePortletNavItem(navItem = "Specification Groups");
-
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${specificationsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONChannelsAPI._deleteAllCommerceChannels();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Store Management",
-			portlet = "Channels");
+		var channelsCount = CommerceJSONChannelsAPI._getCommerceChannelsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${channelsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONCatalogsAPI._deleteAllNoSystemCommerceCatalogs();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			portlet = "Catalogs");
+		var noSystemCatalogIds = CommerceJSONCatalogsAPI._getCommerceNoSystemCatalogIds();
 
-		IsElementPresent(
-			key_rowNumber = "1",
-			locator1 = "CommerceNavigation#ENTRY_NAME_N");
+		TestUtils.assertEquals(
+			actual = "${noSystemCatalogIds}",
+			expected = "");
 
 		CommerceJSONPriceListsAndPromotionsAPI._deleteAllNoMasterPriceListsAndPromotions();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Pricing",
-			portlet = "Price Lists");
+		var priceListAndPromotionIds = CommerceJSONPriceListsAndPromotionsAPI._getCommerceNoMasterPriceListsAndPromotions();
 
-		IsElementPresent(
-			key_rowNumber = "1",
-			locator1 = "CommerceNavigation#ENTRY_NAME_N");
-
-		CommerceNavigator.gotoPortlet(
-			category = "Pricing",
-			portlet = "Promotions");
-
-		IsElementPresent(
-			key_rowNumber = "1",
-			locator1 = "CommerceNavigation#ENTRY_NAME_N");
+		TestUtils.assertEquals(
+			actual = "${priceListAndPromotionIds}",
+			expected = "");
 
 		CommerceJSONDiscountsAPI._deleteAllCommerceDiscounts();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Pricing",
-			portlet = "Discounts");
+		var discountsCount = CommerceJSONDiscountsAPI._getCommerceDiscountsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${discountsCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONAvailableEstimatesAPI._deleteCommerceAvailableEstimates();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Settings",
-			portlet = "Availability Estimates");
+		var availableEstimatesCount = CommerceJSONAvailableEstimatesAPI._getAvailableEstimatesCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${availableEstimatesCount}",
+			expected = "${emptyCount}");
 
 		CommerceJSONMeasurementUnitsAPI._deleteCommerceMeasurementUnits();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Settings",
-			portlet = "Measurement Units");
+		var availableMeasurementUnits = CommerceJSONMeasurementUnitsAPI._getCommerceAvailableMeasurementUnitsCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
-
-		CommerceNavigator.gotoCommercePortletNavItem(navItem = "Weight");
-
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${availableMeasurementUnits}",
+			expected = "${emptyCount}");
 
 		CommerceJSONTaxCategoriesAPI._deleteCommerceTaxCategories();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Pricing",
-			portlet = "Tax Categories");
+		var commerceTaxCategoriesIds = CommerceJSONTaxCategoriesAPI._getCommereTaxCategoriesCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${commerceTaxCategoriesIds}",
+			expected = "${emptyCount}");
 
 		CommerceJSONWarehousesAndInventoriesAPI._deleteAllWarehouseItems();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Inventory Management",
-			portlet = "Inventory");
+		var warehousesCount = CommerceJSONWarehousesAndInventoriesAPI._getCommerceWarehousesCount();
 
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		TestUtils.assertEquals(
+			actual = "${warehousesCount}",
+			expected = "${emptyCount}");
 
-		CommerceNavigator.gotoPortlet(
-			category = "Inventory Management",
-			portlet = "Warehouses");
-
-		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	macro commerceInitializersTearDown {
@@ -226,6 +137,20 @@ definition {
 			portlet = "Sites");
 
 		CommerceJSONSitesAPI._deleteCommerceSites();
+	}
+
+	macro commerceSetUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		if (isSet(storeFront)) {
+			CommerceConfiguration.commerceStoreFrontSetUp();
+		}
+
+		if (isSet(minium)) {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
 	}
 
 	macro commerceStoreFrontSetUp {
@@ -277,84 +202,29 @@ definition {
 		}
 	}
 
-	macro commerceStoreFrontTearDown {
-		Navigator.openURL();
+	macro commerceTearDown {
+		CommerceJSONOrdersAPI._deleteAllCommerceOrdersAndCheck();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			portlet = "Catalog");
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
-		if (IsElementNotPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER")) {
-			CommerceProducts.moveCatalogEntriesToRecycleBin();
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
 		}
+		else {
+			Navigator.openURL();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Settings",
-			portlet = "Options");
-
-		Pause(locator1 = "3000");
-
-		CommerceOptions.deleteOptionsEntries();
-
-		User.logoutPG();
-	}
-
-	@summary = "Deletes if present, catalogs, price lists or promotions, excluding Master occurrencies"
-	macro commerceTearDownExcludingMaster {
-		var elementsList = "";
-		var count = "1";
-
-		while (IsElementPresent(key_rowNumber = "${count}", locator1 = "CommerceNavigation#ENTRY_NAME_N")) {
-			var key_rowNumber = "${count}";
-			var entryName = selenium.getText("CommerceNavigation#ENTRY_NAME_N");
-
-			if (("${entryName}" != "Master") && ("${entryName}" != "Master Base Price List") && ("${entryName}" != "Master Base Promotion")) {
-				var elementsList = StringUtil.add("${elementsList}", "${entryName}");
+			if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+				User.logoutPG();
 			}
 
-			var count = ${count} + 1;
-		}
+			User.firstLoginPG();
 
-		if ("${elementsList}" != "") {
-			for (var catalogName : list "${elementsList}") {
-				ClickNoError(
-					key_entryName = "${catalogName}",
-					locator1 = "CommerceEntry#ENTRY_NAME_BODY_VERTICAL_ELLIPSIS");
+			CommerceConfiguration.commerceAdminTearDown();
 
-				CommerceEntry.clickNoError(menuItem = "Delete");
-
-				AssertElementPresent(locator1 = "Message#SUCCESS");
-
-				AssertElementNotPresent(locator1 = "Message#ERROR");
+			if (isSet(doLogout)) {
+				User.logoutPG();
 			}
 		}
-	}
-
-	macro enableDiagramFeature {
-		ApplicationsMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "System Settings");
-
-		Click(
-			key_text = "Catalog",
-			locator1 = "Link#ANY");
-
-		Click(
-			key_text = "Diagram Product Type",
-			locator1 = "Link#ANY");
-
-		Click.clickAtNotVisible(
-			checkboxName = "Enabled",
-			locator1 = "Checkbox#ANY_CHECKBOX");
-
-		Button.clickSave();
-
-		AssertElementPresent(locator1 = "Message#SUCCESS");
-	}
-
-	macro reindexAllSearchIndexes {
-		SearchAdministration.executeReindex();
 	}
 
 }

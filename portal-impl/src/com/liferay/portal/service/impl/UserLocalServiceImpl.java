@@ -251,6 +251,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		long creatorUserId = 0;
+		boolean autoPassword = false;
 
 		String password1 = PropsValues.DEFAULT_ADMIN_PASSWORD;
 
@@ -297,6 +298,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		long[] roleIds = {adminRole.getRoleId(), powerUserRole.getRoleId()};
 
 		long[] userGroupIds = null;
+		boolean sendEmail = false;
 		ServiceContext serviceContext = new ServiceContext();
 
 		Company company = _companyLocalService.getCompany(companyId);
@@ -305,12 +307,11 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		serviceContext.setPortalURL(company.getPortalURL(0));
 
 		User defaultAdminUser = addUser(
-			creatorUserId, companyId, Validator.isNull(password1), password1,
-			password2, autoScreenName, screenName, emailAddress, facebookId,
-			openId, locale, firstName, middleName, lastName, prefixId, suffixId,
-			male, birthdayMonth, birthdayDay, birthdayYear, jobTitle, groupIds,
-			organizationIds, roleIds, userGroupIds, Validator.isNull(password1),
-			serviceContext);
+			creatorUserId, companyId, autoPassword, password1, password2,
+			autoScreenName, screenName, emailAddress, facebookId, openId,
+			locale, firstName, middleName, lastName, prefixId, suffixId, male,
+			birthdayMonth, birthdayDay, birthdayYear, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupIds, sendEmail, serviceContext);
 
 		updateEmailAddressVerified(defaultAdminUser.getUserId(), true);
 
@@ -318,8 +319,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			defaultAdminUser.getUserId(), defaultAdminUser.getLoginIP());
 
 		updatePasswordReset(
-			defaultAdminUser.getUserId(),
-			Validator.isNull(password1) ? true : _isPasswordReset(companyId));
+			defaultAdminUser.getUserId(), _isPasswordReset(companyId));
 
 		return defaultAdminUser;
 	}
@@ -4897,6 +4897,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @return the user
 	 */
 	@CTAware(onProduction = true)
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public User updateLastLogin(long userId, String loginIP)
 		throws PortalException {
@@ -6451,6 +6452,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			}
 			else if (!key.equals(Field.GROUP_ID) &&
 					 !key.equals("accountEntryIds") &&
+					 !key.equals("emailAddressDomains") &&
 					 !key.equals("usersGroups") && !key.equals("usersOrgs") &&
 					 !key.equals("usersOrgsCount") &&
 					 !key.equals("usersRoles") && !key.equals("usersTeams") &&

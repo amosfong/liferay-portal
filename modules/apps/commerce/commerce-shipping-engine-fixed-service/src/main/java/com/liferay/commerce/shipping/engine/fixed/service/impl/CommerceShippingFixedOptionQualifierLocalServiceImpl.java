@@ -190,6 +190,16 @@ public class CommerceShippingFixedOptionQualifierLocalServiceImpl
 	}
 
 	@Override
+	public List<CommerceShippingFixedOptionQualifier>
+		getCommerceShippingFixedOptionQualifiers(
+			String className, long commerceShippingFixedOptionId) {
+
+		return commerceShippingFixedOptionQualifierPersistence.findByC_C(
+			classNameLocalService.getClassNameId(className),
+			commerceShippingFixedOptionId);
+	}
+
+	@Override
 	public int getCommerceShippingFixedOptionQualifiersCount(
 		long commerceShippingFixedOptionId) {
 

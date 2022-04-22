@@ -55,12 +55,12 @@ import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
+import com.liferay.portal.kernel.util.ColorSchemeFactory;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.ThemeFactoryUtil;
+import com.liferay.portal.kernel.util.ThemeFactory;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
@@ -532,10 +532,10 @@ public class StagedLayoutSetStagedModelDataHandler
 
 		if (!exportThemeSettings) {
 			layoutSet.setThemeId(
-				ThemeFactoryUtil.getDefaultRegularThemeId(
+				_themeFactory.getDefaultRegularThemeId(
 					stagedLayoutSet.getCompanyId()));
 			layoutSet.setColorSchemeId(
-				ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId());
+				_colorSchemeFactory.getDefaultRegularColorSchemeId());
 			layoutSet.setCss(StringPool.BLANK);
 
 			return;
@@ -968,6 +968,9 @@ public class StagedLayoutSetStagedModelDataHandler
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagedLayoutSetStagedModelDataHandler.class);
 
+	@Reference
+	private ColorSchemeFactory _colorSchemeFactory;
+
 	@Reference(target = "(content.processor.type=DLReferences)")
 	private ExportImportContentProcessor<String>
 		_dlReferencesExportImportContentProcessor;
@@ -1006,6 +1009,9 @@ public class StagedLayoutSetStagedModelDataHandler
 
 	@Reference
 	private ThemeExporter _themeExporter;
+
+	@Reference
+	private ThemeFactory _themeFactory;
 
 	@Reference
 	private ThemeImporter _themeImporter;

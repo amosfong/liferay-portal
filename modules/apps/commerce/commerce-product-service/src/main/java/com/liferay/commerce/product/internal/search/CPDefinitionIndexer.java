@@ -48,6 +48,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.search.facet.util.RangeParserUtil;
@@ -66,10 +68,14 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.filter.RangeTermFilter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.search.filter.TermsFilter;
+import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
+import com.liferay.portal.kernel.search.generic.MultiMatchQuery;
+import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -338,6 +344,38 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 				addSearchExpando(searchQuery, searchContext, expandoAttributes);
 			}
 		}
+
+		String keywords = searchContext.getKeywords();
+
+		if (Validator.isNotNull(keywords)) {
+			try {
+				keywords = StringUtil.toLowerCase(keywords);
+
+				BooleanQuery booleanQuery = new BooleanQueryImpl();
+
+				booleanQuery.add(
+					new TermQueryImpl(CPField.SKUS + ".1_10_ngram", keywords),
+					BooleanClauseOccur.SHOULD);
+
+				MultiMatchQuery multiMatchQuery = new MultiMatchQuery(keywords);
+
+				multiMatchQuery.addFields(
+					CPField.SKUS, CPField.SKUS + ".reverse");
+				multiMatchQuery.setType(MultiMatchQuery.Type.PHRASE_PREFIX);
+
+				booleanQuery.add(multiMatchQuery, BooleanClauseOccur.SHOULD);
+
+				if (searchContext.isAndSearch()) {
+					searchQuery.add(booleanQuery, BooleanClauseOccur.MUST);
+				}
+				else {
+					searchQuery.add(booleanQuery, BooleanClauseOccur.SHOULD);
+				}
+			}
+			catch (ParseException parseException) {
+				throw new SystemException(parseException);
+			}
+		}
 	}
 
 	@Override
@@ -384,36 +422,15 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 
 		for (String languageId : languageIds) {
 			String description = cpDefinition.getDescription(languageId);
-			String name = cpDefinition.getName(languageId);
-			String urlTitle = languageIdToUrlTitleMap.get(languageId);
 			String metaDescription = cpDefinition.getMetaDescription(
 				languageId);
 			String metaKeywords = cpDefinition.getMetaKeywords(languageId);
 			String metaTitle = cpDefinition.getMetaTitle(languageId);
+			String name = cpDefinition.getName(languageId);
 			String shortDescription = cpDefinition.getShortDescription(
 				languageId);
+			String urlTitle = languageIdToUrlTitleMap.get(languageId);
 
-			if (languageId.equals(cpDefinitionDefaultLanguageId)) {
-				document.addText(Field.DESCRIPTION, description);
-				document.addText(Field.NAME, name);
-				document.addText(Field.URL, urlTitle);
-				document.addText(CPField.META_DESCRIPTION, metaDescription);
-				document.addText(CPField.META_KEYWORDS, metaKeywords);
-				document.addText(CPField.META_TITLE, metaTitle);
-				document.addText(CPField.SHORT_DESCRIPTION, shortDescription);
-				document.addText("defaultLanguageId", languageId);
-			}
-
-			document.addText(
-				LocalizationUtil.getLocalizedName(Field.NAME, languageId),
-				name);
-			document.addText(
-				LocalizationUtil.getLocalizedName(
-					Field.DESCRIPTION, languageId),
-				description);
-			document.addText(
-				LocalizationUtil.getLocalizedName(Field.URL, languageId),
-				urlTitle);
 			document.addText(
 				LocalizationUtil.getLocalizedName(
 					CPField.META_DESCRIPTION, languageId),
@@ -430,21 +447,41 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 				LocalizationUtil.getLocalizedName(
 					CPField.SHORT_DESCRIPTION, languageId),
 				shortDescription);
+			document.addText(
+				LocalizationUtil.getLocalizedName(
+					Field.DESCRIPTION, languageId),
+				description);
+			document.addText(
+				LocalizationUtil.getLocalizedName(Field.NAME, languageId),
+				name);
+			document.addText(
+				LocalizationUtil.getLocalizedName(Field.URL, languageId),
+				urlTitle);
 
 			document.addText(Field.CONTENT, description);
 		}
 
 		document.addText(
+			CPField.META_DESCRIPTION,
+			cpDefinition.getMetaDescription(cpDefinitionDefaultLanguageId));
+		document.addText(
+			CPField.META_KEYWORDS,
+			cpDefinition.getMetaKeywords(cpDefinitionDefaultLanguageId));
+		document.addText(
+			CPField.META_TITLE,
+			cpDefinition.getMetaTitle(cpDefinitionDefaultLanguageId));
+		document.addText(
 			Field.NAME, cpDefinition.getName(cpDefinitionDefaultLanguageId));
+		document.addText(
+			CPField.SHORT_DESCRIPTION,
+			cpDefinition.getShortDescription(cpDefinitionDefaultLanguageId));
 		document.addText(
 			Field.DESCRIPTION,
 			cpDefinition.getDescription(cpDefinitionDefaultLanguageId));
 		document.addText(
 			Field.URL,
 			languageIdToUrlTitleMap.get(cpDefinitionDefaultLanguageId));
-		document.addText(
-			CPField.SHORT_DESCRIPTION,
-			cpDefinition.getShortDescription(cpDefinitionDefaultLanguageId));
+		document.addText("defaultLanguageId", cpDefinitionDefaultLanguageId);
 
 		List<Long> commerceChannelGroupIds = new ArrayList<>();
 
@@ -561,22 +598,17 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 		document.addKeyword(
 			CPField.CHANNEL_FILTER_ENABLED,
 			cpDefinition.isChannelFilterEnabled());
-
 		document.addKeyword(
 			CPField.IS_IGNORE_SKU_COMBINATIONS,
 			cpDefinition.isIgnoreSKUCombinations());
-
 		document.addKeyword(CPField.PRODUCT_ID, cpDefinition.getCProductId());
-
 		document.addText(
 			CPField.OPTION_NAMES, ArrayUtil.toStringArray(optionNames));
 		document.addNumber(
 			CPField.OPTION_IDS, ArrayUtil.toLongArray(optionIds));
-
-		String[] skus = _cpInstanceLocalService.getSKUs(
-			cpDefinition.getCPDefinitionId());
-
-		document.addText(CPField.SKUS, skus);
+		document.addText(
+			CPField.SKUS,
+			_cpInstanceLocalService.getSKUs(cpDefinition.getCPDefinitionId()));
 
 		List<String> specificationOptionNames = new ArrayList<>();
 		List<Long> specificationOptionIds = new ArrayList<>();
@@ -802,6 +834,10 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 						getInstanceBaseCommercePriceEntry(
 							cpInstance.getCPInstanceUuid(),
 							CommercePriceListConstants.TYPE_PRICE_LIST);
+
+				if (commercePriceEntry == null) {
+					continue;
+				}
 
 				BigDecimal price = commercePriceEntry.getPrice();
 

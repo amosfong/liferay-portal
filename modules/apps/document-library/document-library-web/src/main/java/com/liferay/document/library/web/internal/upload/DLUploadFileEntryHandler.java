@@ -92,7 +92,8 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 		throws PortalException {
 
 		_dlValidator.validateFileSize(
-			fileName, uploadPortletRequest.getContentType(parameterName),
+			themeDisplay.getScopeGroupId(), fileName,
+			uploadPortletRequest.getContentType(parameterName),
 			uploadPortletRequest.getSize(parameterName));
 
 		String uniqueFileName = _uniqueFileNameProvider.provide(
@@ -103,9 +104,10 @@ public class DLUploadFileEntryHandler implements UploadFileEntryHandler {
 		return _dlAppService.addFileEntry(
 			null, themeDisplay.getScopeGroupId(), folderId, uniqueFileName,
 			uploadPortletRequest.getContentType(parameterName), uniqueFileName,
-			_getDescription(uploadPortletRequest), StringPool.BLANK,
-			inputStream, uploadPortletRequest.getSize(parameterName), null,
-			null, _getServiceContext(uploadPortletRequest));
+			uniqueFileName, _getDescription(uploadPortletRequest),
+			StringPool.BLANK, inputStream,
+			uploadPortletRequest.getSize(parameterName), null, null,
+			_getServiceContext(uploadPortletRequest));
 	}
 
 	private FileEntry _editImageFileEntry(

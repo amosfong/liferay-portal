@@ -24,6 +24,7 @@ import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.search.similar.results.web.internal.helper.HttpHelper;
 import com.liferay.portal.search.similar.results.web.internal.util.SearchStringUtil;
 import com.liferay.portal.search.similar.results.web.spi.contributor.SimilarResultsContributor;
@@ -53,7 +54,7 @@ public class DocumentLibrarySimilarResultsContributor
 		RouteBuilder routeBuilder, RouteHelper routeHelper) {
 
 		String[] parameters = _httpHelper.getFriendlyURLParameters(
-			routeHelper.getURLString());
+			HttpComponentsUtil.decodePath(routeHelper.getURLString()));
 
 		SearchStringUtil.requireEquals("document_library", parameters[0]);
 

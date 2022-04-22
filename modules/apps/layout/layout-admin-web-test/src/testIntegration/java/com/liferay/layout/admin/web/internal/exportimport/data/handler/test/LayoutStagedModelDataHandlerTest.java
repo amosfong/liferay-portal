@@ -46,7 +46,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -163,16 +163,14 @@ public class LayoutStagedModelDataHandlerTest
 
 		String fileName = "PDF_Test.pdf";
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				liveGroup.getGroupId(), TestPropsValues.getUserId());
-
 		FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
 			null, TestPropsValues.getUserId(), stagingGroup.getGroupId(),
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, fileName,
 			ContentTypes.APPLICATION_PDF,
 			FileUtil.getBytes(getClass(), "dependencies/" + fileName), null,
-			null, serviceContext);
+			null,
+			ServiceContextTestUtil.getServiceContext(
+				liveGroup.getGroupId(), TestPropsValues.getUserId()));
 
 		String stagingPreviewURL = DLURLHelperUtil.getPreviewURL(
 			fileEntry, fileEntry.getFileVersion(), null, StringPool.BLANK);
@@ -237,8 +235,8 @@ public class LayoutStagedModelDataHandlerTest
 			typeSettingsUnicodeProperties.getProperty("url"));
 
 		Assert.assertEquals(
-			HttpUtil.removeParameter(livePreviewURL, "t"),
-			HttpUtil.removeParameter(liveLinkedURL, "t"));
+			HttpComponentsUtil.removeParameter(livePreviewURL, "t"),
+			HttpComponentsUtil.removeParameter(liveLinkedURL, "t"));
 	}
 
 	@Override

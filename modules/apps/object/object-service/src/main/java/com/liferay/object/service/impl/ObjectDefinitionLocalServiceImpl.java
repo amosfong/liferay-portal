@@ -30,22 +30,24 @@ import com.liferay.object.exception.ObjectDefinitionVersionException;
 import com.liferay.object.exception.ObjectFieldRelationshipTypeException;
 import com.liferay.object.exception.RequiredObjectDefinitionException;
 import com.liferay.object.exception.RequiredObjectFieldException;
-import com.liferay.object.internal.configuration.activator.FFSearchAndSortMetadataColumnsConfigurationActivator;
 import com.liferay.object.internal.deployer.ObjectDefinitionDeployerImpl;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTable;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.impl.ObjectDefinitionImpl;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.object.service.ObjectValidationRuleLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.service.base.ObjectDefinitionLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectEntryPersistence;
 import com.liferay.object.service.persistence.ObjectFieldPersistence;
+import com.liferay.object.service.persistence.ObjectRelationshipPersistence;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
@@ -290,11 +292,27 @@ public class ObjectDefinitionLocalServiceImpl
 			}
 		}
 
-		_objectFieldPersistence.removeByObjectDefinitionId(
+		_objectFieldLocalService.deleteObjectFieldByObjectDefinitionId(
 			objectDefinition.getObjectDefinitionId());
 
-		// TODO Deleting an object definition should delete related object
-		// relationships
+		for (ObjectRelationship objectRelationship :
+				_objectRelationshipPersistence.findByObjectDefinitionId1(
+					objectDefinition.getObjectDefinitionId())) {
+
+			_objectRelationshipLocalService.deleteObjectRelationship(
+				objectRelationship);
+		}
+
+		for (ObjectRelationship objectRelationship :
+				_objectRelationshipPersistence.findByObjectDefinitionId2(
+					objectDefinition.getObjectDefinitionId())) {
+
+			_objectRelationshipLocalService.deleteObjectRelationship(
+				objectRelationship);
+		}
+
+		_objectValidationRuleLocalService.deleteObjectValidationRules(
+			objectDefinition.getObjectDefinitionId());
 
 		objectDefinitionPersistence.remove(objectDefinition);
 
@@ -403,6 +421,14 @@ public class ObjectDefinitionLocalServiceImpl
 	}
 
 	@Override
+	public List<ObjectDefinition> getObjectDefinitions(
+		long companyId, boolean active, int status) {
+
+		return objectDefinitionPersistence.findByC_A_S(
+			companyId, active, status);
+	}
+
+	@Override
 	public int getObjectDefinitionsCount(long companyId)
 		throws PortalException {
 
@@ -457,7 +483,6 @@ public class ObjectDefinitionLocalServiceImpl
 		_addingObjectDefinitionDeployer(
 			new ObjectDefinitionDeployerImpl(
 				_bundleContext, _dynamicQueryBatchIndexingActionableFactory,
-				_ffSearchAndSortMetadataColumnsConfigurationActivator,
 				_listTypeEntryLocalService, _modelSearchRegistrarHelper, this,
 				_objectEntryLocalService, _objectFieldLocalService,
 				_objectRelationshipLocalService, _objectScopeProviderRegistry,
@@ -711,7 +736,8 @@ public class ObjectDefinitionLocalServiceImpl
 						objectField.isIndexedAsKeyword(),
 						objectField.getIndexedLanguageId(),
 						objectField.getLabelMap(), objectField.getName(),
-						objectField.isRequired(), Collections.emptyList());
+						objectField.isRequired(),
+						objectField.getObjectFieldSettings());
 				}
 			}
 		}
@@ -1168,10 +1194,6 @@ public class ObjectDefinitionLocalServiceImpl
 		_dynamicQueryBatchIndexingActionableFactory;
 
 	@Reference
-	private FFSearchAndSortMetadataColumnsConfigurationActivator
-		_ffSearchAndSortMetadataColumnsConfigurationActivator;
-
-	@Reference
 	private LayoutClassedModelUsageLocalService
 		_layoutClassedModelUsageLocalService;
 
@@ -1203,7 +1225,13 @@ public class ObjectDefinitionLocalServiceImpl
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;
 
 	@Reference
+	private ObjectRelationshipPersistence _objectRelationshipPersistence;
+
+	@Reference
 	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+
+	@Reference
+	private ObjectValidationRuleLocalService _objectValidationRuleLocalService;
 
 	@Reference
 	private ObjectViewLocalService _objectViewLocalService;

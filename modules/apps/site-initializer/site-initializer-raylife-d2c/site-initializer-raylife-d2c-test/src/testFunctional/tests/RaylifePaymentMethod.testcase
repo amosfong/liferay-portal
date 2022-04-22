@@ -3,6 +3,7 @@ definition {
 
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Raylife";
 
 	setUp {
@@ -26,7 +27,7 @@ definition {
 		}
 	}
 
-	@description = "LPS-144582 - Check if I am redirected to the payment confirmation page, after successful payment by PayPal"
+	@description = "LPS-144582 - Check if I am redirected to the payment confirmation page, after selected payment by PayPal"
 	@priority = "5"
 	test CanViewConfirmSuccessfulPayment {
 		RaylifePaymentMethod.enablePayPalPayment();

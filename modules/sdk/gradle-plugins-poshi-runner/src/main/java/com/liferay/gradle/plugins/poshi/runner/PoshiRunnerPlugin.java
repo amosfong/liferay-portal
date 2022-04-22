@@ -830,9 +830,10 @@ public class PoshiRunnerPlugin implements Plugin<Project> {
 				put("97", "97.0.4692.71");
 				put("98", "98.0.4758.102");
 				put("99", "99.0.4844.51");
+				put("100", "100.0.4896.60");
 			}
 		};
 	private static final Pattern _chromeVersionPattern = Pattern.compile(
-		"[A-z=\\s]+(?<chromeMajorVersion>[0-9]{2})\\.");
+		"[A-z=\\s]+(?<chromeMajorVersion>[0-9]+)\\.");
 
 }

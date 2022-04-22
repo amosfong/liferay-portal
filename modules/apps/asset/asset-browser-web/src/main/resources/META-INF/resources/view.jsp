@@ -208,7 +208,7 @@
 
 					<%
 					if (assetRenderer == null) {
-						_log.error("Unable to get asset renderer for assetEntry with primary key " + assetEntry.getEntryId());
+						_log.error("Unable to get asset renderer for asset entry with primary key " + assetEntry.getEntryId());
 					}
 
 					row.setSkip(true);

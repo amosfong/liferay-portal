@@ -54,7 +54,7 @@ import com.liferay.portal.kernel.struts.LastPath;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -339,7 +339,7 @@ public class FriendlyURLServlet extends HttpServlet {
 				String encDoAsUserId = Encryptor.encrypt(
 					company.getKeyObj(), String.valueOf(userId));
 
-				actualURL = HttpUtil.setParameter(
+				actualURL = HttpComponentsUtil.setParameter(
 					actualURL, "doAsUserId", encDoAsUserId);
 			}
 			catch (EncryptorException encryptorException) {
@@ -357,7 +357,7 @@ public class FriendlyURLServlet extends HttpServlet {
 			Objects.equals(layout.getType(), LayoutConstants.TYPE_URL)) {
 
 			actualURL = actualURL.concat(
-				HttpUtil.parameterMapToString(
+				HttpComponentsUtil.parameterMapToString(
 					params, !actualURL.contains(StringPool.QUESTION)));
 		}
 
@@ -715,7 +715,7 @@ public class FriendlyURLServlet extends HttpServlet {
 
 		return new LastPath(
 			_friendlyURLPathPrefix, pathInfo,
-			HttpUtil.parameterMapToString(
+			HttpComponentsUtil.parameterMapToString(
 				httpServletRequest.getParameterMap()));
 	}
 

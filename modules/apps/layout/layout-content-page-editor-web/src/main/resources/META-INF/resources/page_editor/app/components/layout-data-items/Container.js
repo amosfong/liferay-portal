@@ -23,10 +23,13 @@ import {config} from '../../config/index';
 import {useGetFieldValue} from '../../contexts/CollectionItemContext';
 import {useSelector} from '../../contexts/StoreContext';
 import selectLanguageId from '../../selectors/selectLanguageId';
+import checkStylesFF from '../../utils/checkStylesFF';
 import resolveEditableValue from '../../utils/editable-value/resolveEditableValue';
 import {getCommonStyleByName} from '../../utils/getCommonStyleByName';
 import {getEditableLinkValue} from '../../utils/getEditableLinkValue';
 import {getFrontendTokenValue} from '../../utils/getFrontendTokenValue';
+import getLayoutDataItemClassName from '../../utils/getLayoutDataItemClassName';
+import getLayoutDataItemUniqueClassName from '../../utils/getLayoutDataItemUniqueClassName';
 import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
 import {isValidSpacingOption} from '../../utils/isValidSpacingOption';
 import useBackgroundImageValue from '../../utils/useBackgroundImageValue';
@@ -78,7 +81,13 @@ const Container = React.forwardRef(
 			width,
 		} = itemConfig.styles;
 
-		const {align, contentDisplay, justify, widthType} = itemConfig;
+		const {
+			align,
+			contentDisplay,
+			flexWrap,
+			justify,
+			widthType,
+		} = itemConfig;
 
 		const backgroundImageValue = useBackgroundImageValue(
 			elementId,
@@ -154,13 +163,19 @@ const Container = React.forwardRef(
 			.defaultValue;
 
 		const HTMLTag = config.fragmentAdvancedOptionsEnabled
-			? itemConfig.htmlTag
+			? itemConfig.htmlTag || 'div'
 			: 'div';
 
 		const content = (
 			<HTMLTag
 				{...(link ? {} : data)}
 				className={classNames(className, {
+					[getLayoutDataItemClassName(
+						item.type
+					)]: config.featureFlagLps132571,
+					[getLayoutDataItemUniqueClassName(
+						item.itemId
+					)]: config.featureFlagLps132571,
 					[align]: !!align,
 					[`container-fluid`]:
 						widthType === CONTAINER_WIDTH_TYPES.fixed,
@@ -173,7 +188,8 @@ const Container = React.forwardRef(
 					'empty': !item.children.length && !height,
 					[`bg-${backgroundColor}`]:
 						backgroundColor && !backgroundColor.startsWith('#'),
-					[justify]: !!justify,
+					[flexWrap]: Boolean(flexWrap),
+					[justify]: Boolean(justify),
 					[`mb-${marginBottom}`]: isValidSpacingOption(marginBottom),
 					[`mt-${marginTop}`]: isValidSpacingOption(marginTop),
 					[`pb-${paddingBottom}`]: isValidSpacingOption(
@@ -198,11 +214,12 @@ const Container = React.forwardRef(
 						? textAlign.startsWith('text-')
 							? textAlign
 							: `text-${textAlign}`
-						: `text-${textAlignDefaultValue}`]: textAlignDefaultValue,
+						: `text-${textAlignDefaultValue}`]:
+						!config.featureFlagLps132571 && textAlignDefaultValue,
 				})}
 				id={elementId}
 				ref={ref}
-				style={style}
+				style={checkStylesFF(item.itemId, style)}
 			>
 				{backgroundImageValue.mediaQueries ? (
 					<style>{backgroundImageValue.mediaQueries}</style>

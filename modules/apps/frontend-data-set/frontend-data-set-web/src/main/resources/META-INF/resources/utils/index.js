@@ -165,17 +165,6 @@ export function formatItemChanges(itemChanges) {
 	return formattedChanges;
 }
 
-export function executeAsyncAction(url, method = 'GET') {
-	return fetch(url, {
-		headers: {
-			'Accept': 'application/json',
-			'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
-			'Content-Type': 'application/json',
-		},
-		method,
-	});
-}
-
 export function formatActionURL(url, item) {
 	const replacedURL = url.replace(new RegExp('{(.*?)}', 'mg'), (matched) =>
 		getValueFromItem(
@@ -230,7 +219,7 @@ export function getFiltersString(odataFiltersStrings, providedFilters) {
 	return filtersString;
 }
 
-export function loadData(
+export async function loadData(
 	apiURL,
 	currentURL,
 	odataFiltersStrings,
@@ -266,7 +255,21 @@ export function loadData(
 		);
 	}
 
-	return executeAsyncAction(url, 'GET').then((response) => response.json());
+	const response = await fetch(url, {
+		headers: {
+			'Accept': 'application/json',
+			'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
+			'Content-Type': 'application/json',
+		},
+		method: 'GET',
+	});
+	const responseJSON = await response.json();
+
+	return {
+		data: responseJSON,
+		ok: response.ok,
+		status: response.status,
+	};
 }
 
 export function getCurrentItemUpdates(

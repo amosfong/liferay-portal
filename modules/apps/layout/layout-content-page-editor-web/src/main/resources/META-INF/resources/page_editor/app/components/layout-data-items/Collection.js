@@ -12,9 +12,9 @@
  * details.
  */
 
-import ClayAlert from '@clayui/alert';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
+import classNames from 'classnames';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import {COLUMN_SIZE_MODULE_PER_ROW_SIZES} from '../../config/constants/columnSizes';
@@ -27,14 +27,21 @@ import {
 import {useDisplayPagePreviewItem} from '../../contexts/DisplayPagePreviewItemContext';
 import {useDispatch, useSelector} from '../../contexts/StoreContext';
 import selectLanguageId from '../../selectors/selectLanguageId';
+import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
 import CollectionService from '../../services/CollectionService';
 import updateItemConfig from '../../thunks/updateItemConfig';
+import getLayoutDataItemClassName from '../../utils/getLayoutDataItemClassName';
+import getLayoutDataItemUniqueClassName from '../../utils/getLayoutDataItemUniqueClassName';
 import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
 import isNullOrUndefined from '../../utils/isNullOrUndefined';
 import UnsafeHTML from '../UnsafeHTML';
 import CollectionPagination from './CollectionPagination';
 
 const COLLECTION_ID_DIVIDER = '$';
+
+function paginationIsEnabled(collectionConfig) {
+	return collectionConfig.paginationType !== 'none';
+}
 
 function collectionIsMapped(collectionConfig) {
 	return collectionConfig.collection;
@@ -88,6 +95,19 @@ const EmptyCollectionGridMessage = () => (
 	</div>
 );
 
+const EditModeMaxItemsAlert = () => (
+	<div className="alert alert-fluid alert-info">
+		<div className="container-fluid">
+			{Liferay.Util.sub(
+				Liferay.Language.get(
+					'in-edit-mode,-the-number-of-elements-displayed-is-limited-to-x-due-to-performance'
+				),
+				config.maxNumberOfItemsInEditMode
+			)}
+		</div>
+	</div>
+);
+
 const Grid = ({
 	child,
 	collection,
@@ -101,14 +121,31 @@ const Grid = ({
 			collectionLength,
 			getNumberOfItems(collection, collectionConfig)
 		) || 1;
+
+	const numberOfItemsToDisplay = Math.min(
+		maxNumberOfItems,
+		config.maxNumberOfItemsInEditMode
+	);
+
 	const numberOfRows = Math.ceil(
-		maxNumberOfItems / collectionConfig.numberOfColumns
+		numberOfItemsToDisplay / collectionConfig.numberOfColumns
 	);
 
 	return (
 		<>
 			{Array.from({length: numberOfRows}).map((_, i) => (
-				<ClayLayout.Row key={`row-${i}`}>
+				<ClayLayout.Row
+					className={
+						config.featureFlagLps119551 &&
+						classNames(
+							`align-items-${collectionConfig.verticalAlignment}`,
+							{
+								'no-gutters': !collectionConfig.gutters,
+							}
+						)
+					}
+					key={`row-${i}`}
+				>
 					{Array.from({length: collectionConfig.numberOfColumns}).map(
 						(_, j) => {
 							const key = `col-${i}-${j}`;
@@ -124,7 +161,7 @@ const Grid = ({
 										][collectionConfig.numberOfColumns][j]
 									}
 								>
-									{index < maxNumberOfItems && (
+									{index < numberOfItemsToDisplay && (
 										<ColumnContext
 											collectionConfig={collectionConfig}
 											collectionId={collectionId}
@@ -145,19 +182,8 @@ const Grid = ({
 					)}
 				</ClayLayout.Row>
 			))}
-			{maxNumberOfItems > config.maxNumberOfItemsEditMode && (
-				<ClayAlert
-					className="border-0 mb-0"
-					displayType="info"
-					variant="stripe"
-				>
-					{Liferay.Util.sub(
-						Liferay.Language.get(
-							'in-edit-mode,-the-number-of-elements-displayed-is-limited-to-x-due-to-performance'
-						),
-						config.maxNumberOfItemsEditMode
-					)}
-				</ClayAlert>
+			{maxNumberOfItems > config.maxNumberOfItemsInEditMode && (
+				<EditModeMaxItemsAlert />
 			)}
 		</>
 	);
@@ -216,6 +242,7 @@ const Collection = React.memo(
 
 		const dispatch = useDispatch();
 		const languageId = useSelector(selectLanguageId);
+		const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 		const [activePage, setActivePage] = useState(1);
 		const [collection, setCollection] = useState(emptyCollection);
@@ -318,6 +345,7 @@ const Collection = React.memo(
 										},
 									},
 									itemId: item.itemId,
+									segmentsExperienceId,
 								})
 							);
 						}
@@ -340,6 +368,7 @@ const Collection = React.memo(
 			itemClassNameId,
 			itemClassPK,
 			languageId,
+			segmentsExperienceId,
 		]);
 
 		const selectedViewportSize = useSelector(
@@ -363,7 +392,18 @@ const Collection = React.memo(
 			collectionConfig.listStyle !== '' && collection.fakeCollection;
 
 		return (
-			<div className="page-editor__collection" ref={ref} style={style}>
+			<div
+				className={classNames('page-editor__collection', {
+					[getLayoutDataItemClassName(
+						item.type
+					)]: config.featureFlagLps132571,
+					[getLayoutDataItemUniqueClassName(
+						item.itemId
+					)]: config.featureFlagLps132571,
+				})}
+				ref={ref}
+				style={style}
+			>
 				{loading ? (
 					<ClayLoadingIndicator />
 				) : !collectionIsMapped(collectionConfig) ? (
@@ -380,7 +420,11 @@ const Collection = React.memo(
 						<Grid
 							child={child}
 							collection={collection}
-							collectionConfig={collectionConfig}
+							collectionConfig={
+								config.featureFlagLps119551
+									? responsiveConfig
+									: collectionConfig
+							}
 							collectionId={item.itemId}
 							collectionLength={collection.items.length}
 							customCollectionSelectorURL={
@@ -390,21 +434,22 @@ const Collection = React.memo(
 					</>
 				)}
 
-				{collectionConfig.paginationType && (
-					<CollectionPagination
-						activePage={activePage}
-						collectionConfig={collectionConfig}
-						collectionId={item.itemId}
-						onPageChange={setActivePage}
-						totalNumberOfItems={
-							collection.fakeCollection ? 0 : numberOfItems
-						}
-						totalPages={getNumberOfPages(
-							collection,
-							collectionConfig
-						)}
-					/>
-				)}
+				{collectionIsMapped(collectionConfig) &&
+					paginationIsEnabled(collectionConfig) && (
+						<CollectionPagination
+							activePage={activePage}
+							collectionConfig={collectionConfig}
+							collectionId={item.itemId}
+							onPageChange={setActivePage}
+							totalNumberOfItems={
+								collection.fakeCollection ? 0 : numberOfItems
+							}
+							totalPages={getNumberOfPages(
+								collection,
+								collectionConfig
+							)}
+						/>
+					)}
 			</div>
 		);
 	})
@@ -413,7 +458,7 @@ const Collection = React.memo(
 Collection.displayName = 'Collection';
 
 function getNumberOfItems(collection, collectionConfig) {
-	if (collectionConfig.paginationType) {
+	if (paginationIsEnabled(collectionConfig)) {
 		const itemsPerPage = Math.min(
 			collectionConfig.numberOfItemsPerPage,
 			config.searchContainerPageMaxDelta

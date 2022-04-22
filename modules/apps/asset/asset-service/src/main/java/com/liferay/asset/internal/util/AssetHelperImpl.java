@@ -34,7 +34,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -58,7 +57,7 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -143,10 +142,9 @@ public class AssetHelperImpl implements AssetHelper {
 		}
 
 		if (groupId > 0) {
-			Group group = _groupLocalService.fetchGroup(groupId);
-
 			liferayPortletRequest.setAttribute(
-				WebKeys.ASSET_RENDERER_FACTORY_GROUP, group);
+				WebKeys.ASSET_RENDERER_FACTORY_GROUP,
+				_groupLocalService.fetchGroup(groupId));
 		}
 
 		PortletURL addPortletURL = assetRendererFactory.getURLAdd(
@@ -249,7 +247,7 @@ public class AssetHelperImpl implements AssetHelper {
 			return liferayPortletURL.toString();
 		}
 
-		return _http.addParameter(
+		return HttpComponentsUtil.addParameter(
 			addPortletURL.toString(), "refererPlid", plid);
 	}
 
@@ -672,9 +670,6 @@ public class AssetHelperImpl implements AssetHelper {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private Portal _portal;

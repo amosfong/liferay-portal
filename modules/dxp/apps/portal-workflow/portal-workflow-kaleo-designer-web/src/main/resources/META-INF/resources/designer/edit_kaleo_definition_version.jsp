@@ -28,7 +28,7 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 	<c:when test="<%= WorkflowEngineManagerUtil.isDeployed() %>">
 
 		<%
-		String mvcPath = ParamUtil.getString(request, "mvcPath", KaleoDesignerUtil.getEditJspPath());
+		String mvcPath = ParamUtil.getString(request, "mvcPath", "/designer/edit_workflow_definition.jsp");
 
 		String redirect = ParamUtil.getString(request, "redirect");
 		String closeRedirect = ParamUtil.getString(request, "closeRedirect");
@@ -236,7 +236,7 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 
 			<div class="sidenav-content">
 				<clay:container-fluid
-					size='<%= Objects.equals(renderRequest.getWindowState(), LiferayWindowState.POP_UP) ? "xl" : "lg" %>'
+					size='<%= (Objects.equals(renderRequest.getWindowState(), LiferayWindowState.POP_UP) || Objects.equals(renderRequest.getWindowState(), WindowState.MAXIMIZED)) ? "xl" : "lg" %>'
 				>
 					<aui:form cssClass="full-width-content" method="post" name="fm" onSubmit="event.preventDefault();">
 						<aui:model-context bean="<%= kaleoDefinitionVersion %>" model="<%= KaleoDefinitionVersion.class %>" />
@@ -663,18 +663,18 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 
 									<c:choose>
 										<c:when test="<%= kaleoDefinitionVersion == null %>">
-											var titleComponent = Liferay.component('<portlet:namespace />title');
+											Liferay.componentReady('<portlet:namespace />title').then((titleComponent) => {
+												var titlePlaceholderInput = titleComponent.get('inputPlaceholder');
 
-											var titlePlaceholderInput = titleComponent.get('inputPlaceholder');
-
-											if (titlePlaceholderInput) {
-												titlePlaceholderInput.after('change', (event) => {
-													<portlet:namespace />kaleoDesigner.set(
-														'definitionName',
-														titleComponent.getValue()
-													);
-												});
-											}
+												if (titlePlaceholderInput) {
+													titlePlaceholderInput.after('change', (event) => {
+														<portlet:namespace />kaleoDesigner.set(
+															'definitionName',
+															titleComponent.getValue()
+														);
+													});
+												}
+											});
 										</c:when>
 									</c:choose>
 
@@ -739,7 +739,7 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 							</c:when>
 							<c:when test='<%= Objects.equals(state, "view") && KaleoDefinitionVersionPermission.contains(permissionChecker, kaleoDefinitionVersion, ActionKeys.UPDATE) %>'>
 								<portlet:renderURL var="editURL">
-									<portlet:param name="mvcPath" value="<%= KaleoDesignerUtil.getEditJspPath() %>" />
+									<portlet:param name="mvcPath" value="/designer/edit_workflow_definition.jsp" />
 									<portlet:param name="redirect" value="<%= currentURL %>" />
 									<portlet:param name="name" value="<%= kaleoDefinitionVersion.getName() %>" />
 									<portlet:param name="draftVersion" value="<%= kaleoDefinitionVersion.getVersion() %>" />

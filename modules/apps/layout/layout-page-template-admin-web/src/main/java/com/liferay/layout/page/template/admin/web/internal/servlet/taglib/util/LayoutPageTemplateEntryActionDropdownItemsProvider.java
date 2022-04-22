@@ -46,11 +46,10 @@ import com.liferay.portal.kernel.service.LayoutPrototypeServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadServletRequestConfigurationHelperUtil;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.taglib.security.PermissionsURLTag;
 
 import java.util.List;
@@ -194,7 +193,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 				_themeDisplay.getURLCurrent(), "portletResource",
 				LayoutPageTemplateAdminPortletKeys.LAYOUT_PAGE_TEMPLATES,
 				"selPlid", _layoutPageTemplateEntry.getPlid());
-
+			dropdownItem.setIcon("cog");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "configure"));
 		};
@@ -217,6 +216,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 
 		return dropdownItem -> {
 			dropdownItem.setHref(configureLayoutPrototypeURL);
+			dropdownItem.setIcon("cog");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "configure"));
 		};
@@ -240,6 +240,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 					"layoutPageTemplateEntryId",
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()
 				).buildString());
+			dropdownItem.setIcon("trash");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "delete"));
 		};
@@ -322,12 +323,13 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 				String layoutFullURL = layoutPrototypeGroup.getDisplayURL(
 					_themeDisplay, true);
 
-				layoutFullURL = HttpUtil.setParameter(
+				layoutFullURL = HttpComponentsUtil.setParameter(
 					layoutFullURL, "p_l_back_url",
 					_themeDisplay.getURLCurrent());
 
 				dropdownItem.setHref(layoutFullURL);
 
+				dropdownItem.setIcon("pencil");
 				dropdownItem.setLabel(
 					LanguageUtil.get(_httpServletRequest, "edit"));
 			};
@@ -337,13 +339,14 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			String layoutFullURL = PortalUtil.getLayoutFullURL(
 				_draftLayout, _themeDisplay);
 
-			layoutFullURL = HttpUtil.setParameter(
+			layoutFullURL = HttpComponentsUtil.setParameter(
 				layoutFullURL, "p_l_back_url", _themeDisplay.getURLCurrent());
-			layoutFullURL = HttpUtil.setParameter(
+			layoutFullURL = HttpComponentsUtil.setParameter(
 				layoutFullURL, "p_l_mode", Constants.EDIT);
 
 			dropdownItem.setHref(layoutFullURL);
 
+			dropdownItem.setIcon("pencil");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
@@ -369,6 +372,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.setDisabled(_layoutPageTemplateEntry.isDraft());
 			dropdownItem.setHref(exportLayoutPageTemplateURL);
+			dropdownItem.setIcon("upload");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "export"));
 		};
@@ -437,6 +441,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 					"layoutPageTemplateEntryId",
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()
 				).buildString());
+			dropdownItem.setIcon("move-folder");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "move-to"));
 		};
@@ -459,6 +464,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			dropdownItem.putData(
 				"permissionsLayoutPageTemplateEntryURL",
 				permissionsLayoutPageTemplateEntryURL);
+			dropdownItem.setIcon("password-policies");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
@@ -522,6 +528,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 				"layoutPageTemplateEntryId",
 				String.valueOf(
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+			dropdownItem.setIcon("change");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "change-thumbnail"));
 		};
@@ -562,7 +569,7 @@ public class LayoutPageTemplateEntryActionDropdownItemsProvider {
 			return false;
 		}
 
-		if (_draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) {
+		if (_draftLayout.isDraft()) {
 			return true;
 		}
 

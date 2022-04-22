@@ -199,6 +199,14 @@ public class JSONUtil {
 		return false;
 	}
 
+	public static boolean isEmpty(JSONArray jsonArray) {
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public static boolean isValid(String json) {
 		try {
 			_createJSONObject(json);
@@ -245,14 +253,6 @@ public class JSONUtil {
 		jsonArray.put(value);
 
 		return jsonArray;
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #putAll(Object...)}
-	 */
-	@Deprecated
-	public static JSONArray put(Object... values) {
-		return putAll(values);
 	}
 
 	public static JSONObject put(String key, Object value) {

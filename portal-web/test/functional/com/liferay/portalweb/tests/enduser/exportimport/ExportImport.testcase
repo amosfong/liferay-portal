@@ -139,6 +139,77 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LRQA-73362. Custom fields can be added and deleted through importing their LAR file."
+	@priority = "4"
+	test CustomFieldDeletionViaImporting {
+		property app.server.bundles.size = "1";
+		property databases.size = "1";
+		property minimum.slave.ram = "24";
+		property portal.upstream = "marcell";
+		property test.name.skip.portal.instance = "ExportImport#CustomFieldDeletionViaImporting";
+
+		CustomFields.addCP(
+			customFieldName = "Text Field",
+			customFieldType = "Input Field",
+			customInputDataType = "Text",
+			modelResource = "com.liferay.document.library.kernel.model.DLFileEntry");
+
+		CustomFields.openCustomFieldAdmin();
+
+		LAR.exportPortlet(
+			larFileName = "custom_fields.portlet.lar",
+			portletName = "Custom Fields");
+
+		User.logoutPG();
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://localhost:9080",
+			userEmailAddress = "test@liferay.com");
+
+		CustomFields.openCustomFieldAdmin(baseURL = "http://localhost:9080");
+
+		LAR.importPortlet(larFileName = "custom_fields.portlet.lar");
+
+		CustomFields.viewCPIsPresent(
+			customFieldName = "Text Field",
+			resourceName = "Document");
+
+		User.logoutPG(specificURL = "http://localhost:9080");
+
+		User.loginPG();
+
+		CustomFields.openCustomFieldAdmin();
+
+		CustomFields.deleteCP(
+			customFieldName = "Text Field",
+			resourceName = "Document");
+
+		CustomFields.openCustomFieldAdmin();
+
+		LAR.exportPortlet(
+			exportIndividualDeletions = "true",
+			larFileName = "custom_fields_deletion.portlet.lar",
+			portletName = "Custom Fields");
+
+		User.logoutPG();
+
+		User.firstLoginUI(
+			password = "test",
+			specificURL = "http://localhost:9080",
+			userEmailAddress = "test@liferay.com");
+
+		CustomFields.openCustomFieldAdmin(baseURL = "http://localhost:9080");
+
+		LAR.importPortlet(
+			importDeletions = "true",
+			larFileName = "custom_fields_deletion.portlet.lar");
+
+		CustomFields.viewCPIsNotPresent(
+			customFieldName = "Text Field",
+			resourceName = "Document");
+	}
+
 	@description = "This is a test for LPS-125446."
 	@priority = "4"
 	test DisplayStyleCanRemainAfterNavigation {
@@ -1008,6 +1079,7 @@ definition {
 	@priority = "5"
 	test ExportImportPrivatePage {
 		property portal.acceptance = "true";
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 		property testray.component.names = "Training";
 
 		Navigator.openURL();
@@ -1298,7 +1370,7 @@ definition {
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");
 
-		PagesAdmin.addPublicPage(pageName = "Test Page");
+		PagesAdmin.addPage(pageName = "Test Page");
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");
 

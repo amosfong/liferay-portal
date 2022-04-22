@@ -40,7 +40,10 @@ function getChildAttributes(childNodes) {
 }
 
 function getLocationValue(field, context) {
-	const locator = field.locator || field.key || field;
+	let locator = field.locator || field.key || field;
+	if (locator === 'taskTimers') {
+		locator = 'task-timers';
+	}
 	const xmlDoc = context.ownerDocument || context;
 	let result;
 	let res;
@@ -90,10 +93,33 @@ function getLocationValue(field, context) {
 					else {
 						for (const item of child.children) {
 							if (item.children.length) {
+								let childNodesAttributes = [];
+								let grandChildren = [];
+								let currentTagName;
+
 								for (const itemChild of item.children) {
-									const childNodesAttributes = getChildAttributes(
+									childNodesAttributes = getChildAttributes(
 										itemChild.childNodes
 									);
+
+									for (const item of itemChild.childNodes) {
+										if (item.children) {
+											for (const itemChildren of item.children) {
+												const tagName =
+													itemChildren.tagName ===
+													'name'
+														? `${item.tagName}-name`
+														: itemChildren.tagName;
+												if (!childContent[tagName]) {
+													childContent[tagName] = [];
+												}
+
+												childContent[tagName].push(
+													itemChildren.textContent
+												);
+											}
+										}
+									}
 
 									const itemChildNodesAttributes = getChildAttributes(
 										item.childNodes
@@ -121,17 +147,55 @@ function getLocationValue(field, context) {
 
 										break;
 									}
+									else if (itemChild.children.length) {
+										if (!currentTagName) {
+											currentTagName = itemChild.tagName;
+										}
+										else if (
+											currentTagName !== itemChild.tagName
+										) {
+											grandChildren = [];
+										}
+										currentTagName = itemChild.tagName;
+										const subItemContent = {};
+
+										for (const itemGrandChild of itemChild.children) {
+											if (
+												itemGrandChild.children.length
+											) {
+												for (const grandGrand of itemGrandChild.children) {
+													const grandGrandContent = {};
+
+													grandGrandContent[
+														grandGrand.tagName
+													] = grandGrand.textContent;
+													grandChildren.push(
+														grandGrandContent
+													);
+												}
+											}
+											else {
+												subItemContent[
+													itemGrandChild.tagName
+												] = itemGrandChild.textContent;
+											}
+										}
+										grandChildren.push(subItemContent);
+									}
 									else {
 										itemContent = itemChild.textContent;
+										if (!childContent[itemChild.tagName]) {
+											childContent[
+												itemChild.tagName
+											] = [];
+										}
+										childContent[itemChild.tagName].push(
+											itemContent
+										);
 									}
-
-									if (!childContent[itemChild.tagName]) {
-										childContent[itemChild.tagName] = [];
-									}
-
-									childContent[itemChild.tagName].push(
-										itemContent
-									);
+									childContent[
+										currentTagName
+									] = grandChildren;
 								}
 							}
 							else {
@@ -160,7 +224,6 @@ function getLocationValue(field, context) {
 							}
 						}
 					}
-
 					content.push(childContent);
 				}
 

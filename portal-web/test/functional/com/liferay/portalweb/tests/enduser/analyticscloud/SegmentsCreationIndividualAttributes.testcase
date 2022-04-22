@@ -66,7 +66,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8565 | Test Summary: Add segment using an individual property 'role'"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyRole {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationIndividualAttributes#CanAddSegmentUsingIndividualPropertyRole";
 
 		task ("Add a new regular role and assign to the user") {
 			JSONRole.addRegularRole(
@@ -132,7 +132,7 @@ definition {
 	test CanAddSegmentUsingIndividualPropertySite {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor ticket: LRAC-9707
+		// AC Quarantine Reason: Not navigating DXP with the correct user line 162
 
 		task ("Add a new user") {
 			JSONUser.addUser(
@@ -280,6 +280,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8566 | Test Summary: Add segment using an individual property 'team'"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyTeam {
+		property test.name.skip.portal.instance = "SegmentsCreationIndividualAttributes#CanAddSegmentUsingIndividualPropertyTeam";
+
 		task ("Assign the site to user") {
 			JSONGroup.assignUserToGroup(
 				groupName = "Site Name",
@@ -351,7 +353,6 @@ definition {
 	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyUser {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor ticket: LRAC-9332
 		// AC Bug ticket: LRAC-10593
@@ -416,7 +417,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8567 | Test Summary: Add segment using an individual property 'user group'"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyUserGroup {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationIndividualAttributes#CanAddSegmentUsingIndividualPropertyUserGroup";
 
 		task ("Add a new user group and assign to the user") {
 			JSONUserGroup.addUserGroup(
@@ -480,6 +481,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8569 | Test Summary: Add segment with custom field for individuals"
 	@priority = "4"
 	test CanAddSegmentWithCustomFieldsForIndividuals {
+		property test.name.skip.portal.instance = "SegmentsCreationIndividualAttributes#CanAddSegmentWithCustomFieldsForIndividuals";
+
 		task ("Add a user custom field") {
 			ApplicationsMenu.gotoPortlet(
 				category = "Configuration",
@@ -573,7 +576,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8570 | Test Summary: Add segment with custom fields for organizations"
 	@priority = "4"
 	test CanAddSegmentWithCustomFieldsForOrganizations {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationIndividualAttributes#CanAddSegmentWithCustomFieldsForOrganizations";
 
 		task ("Add a new organization and assign to the user") {
 			JSONOrganization.addOrganization(organizationName = "Organization Name");

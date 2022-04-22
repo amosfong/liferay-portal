@@ -14,18 +14,23 @@
 
 import ClayChart from '@clayui/charts';
 import ClayIcon from '@clayui/icon';
+import {useParams} from 'react-router-dom';
 
 import Container from '../../../components/Layout/Container';
 import ListView from '../../../components/ListView/ListView';
 import ProgressBar from '../../../components/ProgressBar';
 import useTotalTestCases from '../../../data/useTotalTestCases';
-import {getTestrayBuilds} from '../../../graphql/queries';
+import {getBuilds} from '../../../graphql/queries';
 import i18n from '../../../i18n';
+import {BUILD_STATUS} from '../../../util/constants';
+import dayjs from '../../../util/date';
+import RoutineBuildModal from './RoutineBuildModal';
 import useRoutineActions from './useRoutineActions';
 
 const Routine = () => {
-	const {actionsRoutine} = useRoutineActions();
+	const {actionsRoutine, formModal} = useRoutineActions();
 	const {barChart, colors} = useTotalTestCases();
+	const {routineId} = useParams();
 
 	return (
 		<Container title={i18n.translate('build-history')}>
@@ -50,6 +55,7 @@ const Routine = () => {
 			/>
 
 			<ListView
+				forceRefetch={formModal.forceRefetch}
 				initialContext={{
 					filters: {
 						columns: {
@@ -60,37 +66,68 @@ const Routine = () => {
 						},
 					},
 				}}
-				query={getTestrayBuilds}
+				managementToolbarProps={{addButton: formModal.modal.open}}
+				query={getBuilds}
 				tableProps={{
 					actions: actionsRoutine,
 					columns: [
 						{
 							key: 'status',
-							render: (_, {promoted}) => {
+							render: (_, {dueStatus, promoted}) => {
 								return (
 									<>
 										{promoted && (
-											<ClayIcon
-												className="mr-3"
-												symbol="star"
-											/>
+											<span
+												title={i18n.translate(
+													'promoted'
+												)}
+											>
+												<ClayIcon
+													className="mr-3"
+													color="darkblue"
+													symbol="star"
+												/>
+											</span>
 										)}
 
-										<ClayIcon
-											color="darkblue"
-											symbol="circle"
-										/>
+										<span
+											title={
+												(BUILD_STATUS as any)[dueStatus]
+													?.label || ''
+											}
+										>
+											<ClayIcon
+												className={
+													(BUILD_STATUS as any)[
+														dueStatus
+													]?.color
+												}
+												symbol="circle"
+											/>
+										</span>
 									</>
 								);
 							},
 							value: i18n.translate('status'),
 						},
-						{key: 'dateCreated', size: 'sm', value: 'Create Date'},
-						{key: 'gitHash', value: 'Git Hash'},
 						{
+							clickable: true,
+							key: 'dateCreated',
+							render: (dateCreated) =>
+								dayjs(dateCreated).format('lll'),
+							size: 'sm',
+							value: 'Create Date',
+						},
+						{
+							clickable: true,
+							key: 'gitHash',
+							value: 'Git Hash',
+						},
+						{
+							clickable: true,
 							key: 'product_version',
-							render: (_, {testrayProductVersion}) =>
-								testrayProductVersion?.name,
+							render: (_, {productVersion}) =>
+								productVersion?.name,
 							value: 'Product Version',
 						},
 						{
@@ -99,17 +136,50 @@ const Routine = () => {
 							size: 'lg',
 							value: i18n.translate('build'),
 						},
-						{key: 'failed', value: i18n.translate('failed')},
-						{key: 'blocked', value: i18n.translate('blocked')},
-						{key: 'untested', value: i18n.translate('untested')},
 						{
+							clickable: true,
+							key: 'failed',
+							render: () => 0,
+							value: i18n.translate('failed'),
+						},
+						{
+							clickable: true,
+							key: 'blocked',
+							render: () => 0,
+							value: i18n.translate('blocked'),
+						},
+						{
+							clickable: true,
+							key: 'untested',
+							render: () => 0,
+							value: i18n.translate('untested'),
+						},
+						{
+							clickable: true,
 							key: 'in_progress',
+							render: () => 0,
 							value: i18n.translate('in-progress'),
 						},
-						{key: 'passed', value: i18n.translate('passed')},
-						{key: 'test_fix', value: i18n.translate('test-fix')},
-						{key: 'total', value: i18n.translate('total')},
 						{
+							clickable: true,
+							key: 'passed',
+							render: () => 0,
+							value: i18n.translate('passed'),
+						},
+						{
+							clickable: true,
+							key: 'test_fix',
+							render: () => 0,
+							value: i18n.translate('test-fix'),
+						},
+						{
+							clickable: true,
+							key: 'total',
+							render: () => 0,
+							value: i18n.translate('total'),
+						},
+						{
+							clickable: true,
 							key: 'metrics',
 							render: () => (
 								<ProgressBar
@@ -126,10 +196,13 @@ const Routine = () => {
 							value: i18n.translate('metrics'),
 						},
 					],
-					navigateTo: ({testrayBuildId}) => `build/${testrayBuildId}`,
+					navigateTo: ({id}) => `build/${id}`,
 				}}
-				transformData={(data) => data?.testrayBuilds}
+				transformData={(data) => data?.builds}
+				variables={{filter: `routineId eq ${routineId}`}}
 			/>
+
+			<RoutineBuildModal modal={formModal.modal} />
 		</Container>
 	);
 };

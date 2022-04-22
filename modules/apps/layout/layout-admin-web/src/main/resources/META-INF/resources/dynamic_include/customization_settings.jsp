@@ -22,6 +22,10 @@ String portletNamespace = PortalUtil.getPortletNamespace(LayoutAdminPortletKeys.
 boolean hasUpdateLayoutPermission = GetterUtil.getBoolean(request.getAttribute(CustomizationSettingsControlMenuJSPDynamicInclude.CUSTOMIZATION_SETTINGS_LAYOUT_UPDATE_PERMISSION));
 %>
 
+<liferay-util:html-top>
+	<link href="<%= PortalUtil.getStaticResourceURL(request, application.getContextPath() + "/css/customization_settings.css") %>" rel="stylesheet" type="text/css" />
+</liferay-util:html-top>
+
 <div id="<%= portletNamespace %>customizationBar">
 	<div class="control-menu-level-2 py-2">
 		<clay:container-fluid>
@@ -104,7 +108,7 @@ boolean hasUpdateLayoutPermission = GetterUtil.getBoolean(request.getAttribute(C
 
 				String resetCustomizationsViewURLString = "javascript:if (confirm('" + UnicodeLanguageUtil.get(resourceBundle, "are-you-sure-you-want-to-reset-your-customizations-to-default") + "')){submitForm(document.hrefFm, '" + HtmlUtil.escapeJS(resetCustomizationViewURL) + "');}";
 
-				String toggleCustomizationViewURL = HttpUtil.addParameter(
+				String toggleCustomizationViewURL = HttpComponentsUtil.addParameter(
 					PortletURLBuilder.create(
 						PortletURLFactoryUtil.create(request, LayoutAdminPortletKeys.GROUP_PAGES, PortletRequest.ACTION_PHASE)
 					).setActionName(

@@ -7,19 +7,10 @@
 		border-color: transparent;
 	}
 
-	&::-webkit-input-placeholder {
-		color: #a7a9bc;
-		font-style: italic;
-	}
-
 	&::placeholder {
-		color: #a7a9bc;
+		color: $secondary-l1;
 		font-style: italic;
 	}
-}
-
-.form-inline label {
-	display: inline-block;
 }
 
 .form-search .input-group {

@@ -16,17 +16,27 @@ package com.liferay.object.internal.model.listener;
 
 import com.liferay.object.action.engine.ObjectActionEngine;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.vulcan.dto.converter.DTOConverter;
+import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
+import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
+
+import java.util.Collections;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -70,9 +80,7 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		throws ModelListenerException {
 
 		try {
-			_objectValidationRuleLocalService.validate(
-				PrincipalThreadLocal.getUserId(),
-				objectEntry.getObjectDefinitionId(), null, objectEntry);
+			_objectValidationRuleLocalService.validate(objectEntry);
 		}
 		catch (PortalException portalException) {
 			throw new ModelListenerException(portalException);
@@ -85,10 +93,7 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		throws ModelListenerException {
 
 		try {
-			_objectValidationRuleLocalService.validate(
-				PrincipalThreadLocal.getUserId(),
-				objectEntry.getObjectDefinitionId(), originalObjectEntry,
-				objectEntry);
+			_objectValidationRuleLocalService.validate(objectEntry);
 		}
 		catch (PortalException portalException) {
 			throw new ModelListenerException(portalException);
@@ -111,7 +116,8 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 				objectEntry.getModelClassName(), objectEntry.getCompanyId(),
 				objectActionTriggerKey,
 				_getPayloadJSONObject(
-					objectActionTriggerKey, originalObjectEntry, objectEntry),
+					objectActionTriggerKey, originalObjectEntry, objectEntry,
+					userId),
 				userId);
 		}
 		catch (PortalException portalException) {
@@ -119,10 +125,24 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		}
 	}
 
+	private String _getObjectDefinitionShortName(long objectDefinitionId)
+		throws PortalException {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectDefinitionId);
+
+		return objectDefinition.getShortName();
+	}
+
 	private JSONObject _getPayloadJSONObject(
 			String objectActionTriggerKey, ObjectEntry originalObjectEntry,
-			ObjectEntry objectEntry)
-		throws JSONException {
+			ObjectEntry objectEntry, long userId)
+		throws PortalException {
+
+		String objectDefinitionShortName = _getObjectDefinitionShortName(
+			objectEntry.getObjectDefinitionId());
+		User user = _userLocalService.getUser(userId);
 
 		return JSONUtil.put(
 			"objectActionTriggerKey", objectActionTriggerKey
@@ -134,20 +154,72 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 				"values", objectEntry.getValues()
 			)
 		).put(
+			"objectEntryDTO" + objectDefinitionShortName,
+			_jsonFactory.createJSONObject(_toDTO(objectEntry, user))
+		).put(
 			"originalObjectEntry",
 			() -> {
-				if (originalObjectEntry != null) {
-					return _jsonFactory.createJSONObject(
-						originalObjectEntry.toString()
-					).put(
-						"values", originalObjectEntry.getValues()
-					);
+				if (originalObjectEntry == null) {
+					return null;
 				}
 
-				return null;
+				return _jsonFactory.createJSONObject(
+					originalObjectEntry.toString()
+				).put(
+					"values", originalObjectEntry.getValues()
+				);
+			}
+		).put(
+			"originalObjectEntryDTO" + objectDefinitionShortName,
+			() -> {
+				if (originalObjectEntry == null) {
+					return null;
+				}
+
+				return _jsonFactory.createJSONObject(
+					_toDTO(originalObjectEntry, user));
 			}
 		);
 	}
+
+	private String _toDTO(ObjectEntry objectEntry, User user)
+		throws PortalException {
+
+		DTOConverter<ObjectEntry, ?> dtoConverter =
+			(DTOConverter<ObjectEntry, ?>)_dtoConverterRegistry.getDTOConverter(
+				ObjectEntry.class.getName());
+
+		if (dtoConverter == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"No DTO converter found for " +
+						ObjectEntry.class.getName());
+			}
+
+			return objectEntry.toString();
+		}
+
+		DefaultDTOConverterContext defaultDTOConverterContext =
+			new DefaultDTOConverterContext(
+				false, Collections.emptyMap(), _dtoConverterRegistry, null,
+				user.getLocale(), null, user);
+
+		try {
+			return _jsonFactory.looseSerializeDeep(
+				dtoConverter.toDTO(defaultDTOConverterContext, objectEntry));
+		}
+		catch (Exception exception) {
+			_log.error(exception);
+		}
+
+		return objectEntry.toString();
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ObjectEntryModelListener.class);
+
+	@Reference
+	private DTOConverterRegistry _dtoConverterRegistry;
 
 	@Reference
 	private JSONFactory _jsonFactory;
@@ -156,6 +228,12 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 	private ObjectActionEngine _objectActionEngine;
 
 	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
 	private ObjectValidationRuleLocalService _objectValidationRuleLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

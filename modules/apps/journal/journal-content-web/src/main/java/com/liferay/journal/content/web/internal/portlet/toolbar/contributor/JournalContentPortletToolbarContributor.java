@@ -38,7 +38,7 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -167,17 +167,13 @@ public class JournalContentPortletToolbarContributor
 							themeDisplay.getLocale(), "new-x",
 							ddmStructure.getName(themeDisplay.getLocale())))
 				).build());
-
-			String label = ddmStructure.getUnambiguousName(
-				ddmStructures, themeDisplay.getScopeGroupId(),
-				themeDisplay.getLocale());
-
-			urlMenuItem.setLabel(label);
-
-			String url = _http.addParameter(
-				portletURL.toString(), "refererPlid", plid);
-
-			urlMenuItem.setURL(url);
+			urlMenuItem.setLabel(
+				ddmStructure.getUnambiguousName(
+					ddmStructures, themeDisplay.getScopeGroupId(),
+					themeDisplay.getLocale()));
+			urlMenuItem.setURL(
+				HttpComponentsUtil.addParameter(
+					portletURL.toString(), "refererPlid", plid));
 
 			menuItems.add(urlMenuItem);
 		}
@@ -216,9 +212,6 @@ public class JournalContentPortletToolbarContributor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalContentPortletToolbarContributor.class);
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private JournalFolderService _journalFolderService;

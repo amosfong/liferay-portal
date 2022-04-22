@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.security.permission.PermissionCheckerUtil;
@@ -244,12 +245,12 @@ public class MailingListMessageListener extends BaseMessageListener {
 		serviceContext.setAddGuestPermissions(true);
 
 		long groupId = mailingListRequest.getGroupId();
-		String portletId = PortletProviderUtil.getPortletId(
-			MBMessage.class.getName(), PortletProvider.Action.VIEW);
 
 		serviceContext.setLayoutFullURL(
-			_portal.getLayoutFullURL(groupId, portletId));
-
+			_portal.getLayoutFullURL(
+				groupId,
+				PortletProviderUtil.getPortletId(
+					MBMessage.class.getName(), PortletProvider.Action.VIEW)));
 		serviceContext.setScopeGroupId(groupId);
 
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
@@ -258,15 +259,17 @@ public class MailingListMessageListener extends BaseMessageListener {
 		try {
 			if (parentMessage == null) {
 				_mbMessageService.addMessage(
-					groupId, categoryId, subject, mbMailMessage.getBody(),
+					groupId, categoryId, subject,
+					mbMailMessage.getBody(_htmlParser),
 					MBMessageConstants.DEFAULT_FORMAT, inputStreamOVPs,
 					anonymous, 0.0, true, serviceContext);
 			}
 			else {
 				_mbMessageService.addMessage(
 					parentMessage.getMessageId(), subject,
-					mbMailMessage.getBody(), MBMessageConstants.DEFAULT_FORMAT,
-					inputStreamOVPs, anonymous, 0.0, true, serviceContext);
+					mbMailMessage.getBody(_htmlParser),
+					MBMessageConstants.DEFAULT_FORMAT, inputStreamOVPs,
+					anonymous, 0.0, true, serviceContext);
 			}
 		}
 		finally {
@@ -300,6 +303,9 @@ public class MailingListMessageListener extends BaseMessageListener {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		MailingListMessageListener.class);
+
+	@Reference
+	private HtmlParser _htmlParser;
 
 	@Reference
 	private MBMessageLocalService _mbMessageLocalService;

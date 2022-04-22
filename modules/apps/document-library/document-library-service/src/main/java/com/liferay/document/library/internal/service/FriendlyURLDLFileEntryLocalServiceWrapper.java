@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.ServiceWrapper;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -79,10 +80,10 @@ public class FriendlyURLDLFileEntryLocalServiceWrapper
 	}
 
 	@Override
-	public DLFileEntry deleteFileEntry(long fileEntryId)
+	public DLFileEntry deleteFileEntry(DLFileEntry dlFileEntry)
 		throws PortalException {
 
-		DLFileEntry dlFileEntry = super.deleteFileEntry(fileEntryId);
+		dlFileEntry = super.deleteFileEntry(dlFileEntry);
 
 		if (_ffFriendlyURLEntryFileEntryConfiguration.enabled()) {
 			_friendlyURLEntryLocalService.deleteFriendlyURLEntry(
@@ -131,7 +132,8 @@ public class FriendlyURLDLFileEntryLocalServiceWrapper
 		String uniqueUrlTitle = _friendlyURLEntryLocalService.getUniqueUrlTitle(
 			dlFileEntry.getGroupId(),
 			_classNameLocalService.getClassNameId(FileEntry.class),
-			dlFileEntry.getFileEntryId(), urlTitle,
+			dlFileEntry.getFileEntryId(),
+			_friendlyURLNormalizer.normalizeWithPeriodsAndSlashes(urlTitle),
 			LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()));
 
 		_friendlyURLEntryLocalService.addFriendlyURLEntry(
@@ -164,20 +166,14 @@ public class FriendlyURLDLFileEntryLocalServiceWrapper
 			return;
 		}
 
-		if (!Validator.isBlank(urlTitle) &&
-			!Objects.equals(friendlyURLEntry.getUrlTitle(), urlTitle)) {
+		String normalizedUrlTitle =
+			_friendlyURLNormalizer.normalizeWithPeriodsAndSlashes(urlTitle);
 
-			String uniqueUrlTitle =
-				_friendlyURLEntryLocalService.getUniqueUrlTitle(
-					dlFileEntry.getGroupId(),
-					_classNameLocalService.getClassNameId(FileEntry.class),
-					dlFileEntry.getFileEntryId(), urlTitle,
-					LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()));
+		if (Validator.isNotNull(urlTitle) &&
+			!Objects.equals(
+				friendlyURLEntry.getUrlTitle(), normalizedUrlTitle)) {
 
-			_friendlyURLEntryLocalService.updateFriendlyURLEntryLocalization(
-				friendlyURLEntry,
-				LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()),
-				uniqueUrlTitle);
+			_addFriendlyURLEntry(dlFileEntry, normalizedUrlTitle);
 		}
 	}
 
@@ -189,5 +185,8 @@ public class FriendlyURLDLFileEntryLocalServiceWrapper
 
 	@Reference
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
+
+	@Reference
+	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 }

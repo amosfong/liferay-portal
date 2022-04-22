@@ -47,7 +47,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.Set;
 
@@ -90,10 +90,13 @@ public class FragmentStyledLayoutStructureItemTest {
 				RandomTestUtil.randomString(), false, "{fieldSets: []}", null,
 				0, FragmentConstants.TYPE_COMPONENT,
 				WorkflowConstants.STATUS_APPROVED, serviceContext);
+		long defaultSegmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				_layout.getPlid());
 
 		_fragmentEntryLink = _fragmentEntryLinkService.addFragmentEntryLink(
 			_group.getGroupId(), 0, fragmentEntry.getFragmentEntryId(),
-			SegmentsExperienceConstants.ID_DEFAULT, _layout.getPlid(),
+			defaultSegmentsExperienceId, _layout.getPlid(),
 			fragmentEntry.getCss(), fragmentEntry.getHtml(),
 			fragmentEntry.getJs(), fragmentEntry.getConfiguration(), null,
 			StringPool.BLANK, 0, null, serviceContext);
@@ -106,7 +109,7 @@ public class FragmentStyledLayoutStructureItemTest {
 			_fragmentEntryLinkService.addFragmentEntryLink(
 				_group.getGroupId(), 0,
 				contributedFragmentEntry.getFragmentEntryId(),
-				SegmentsExperienceConstants.ID_DEFAULT, _layout.getPlid(),
+				defaultSegmentsExperienceId, _layout.getPlid(),
 				contributedFragmentEntry.getCss(),
 				contributedFragmentEntry.getHtml(),
 				contributedFragmentEntry.getJs(),
@@ -125,8 +128,7 @@ public class FragmentStyledLayoutStructureItemTest {
 					_layout.getGroupId(), _layout.getPlid());
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(
-				SegmentsExperienceConstants.ID_DEFAULT));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem rowStyledLayoutStructureItem =
 			layoutStructure.addRowStyledLayoutStructureItem(
@@ -154,8 +156,7 @@ public class FragmentStyledLayoutStructureItemTest {
 					_layout.getGroupId(), _layout.getPlid());
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(
-				SegmentsExperienceConstants.ID_DEFAULT));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem rowStyledLayoutStructureItem =
 			layoutStructure.addRowStyledLayoutStructureItem(
@@ -236,5 +237,8 @@ public class FragmentStyledLayoutStructureItemTest {
 	@Inject
 	private LayoutPageTemplateStructureLocalService
 		_layoutPageTemplateStructureLocalService;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

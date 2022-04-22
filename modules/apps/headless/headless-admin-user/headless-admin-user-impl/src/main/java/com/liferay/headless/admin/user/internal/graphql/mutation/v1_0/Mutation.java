@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -514,6 +515,72 @@ public class Mutation {
 				accountRoleResource.
 					postAccountAccountRoleUserAccountAssociation(
 						accountId, accountRoleId, userAccountId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public boolean deleteAccountByExternalReferenceCodeOrganization(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode,
+			@GraphQLName("organizationId") String organizationId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_organizationResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			organizationResource ->
+				organizationResource.
+					deleteAccountByExternalReferenceCodeOrganization(
+						externalReferenceCode, organizationId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public boolean createAccountByExternalReferenceCodeOrganization(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode,
+			@GraphQLName("organizationId") String organizationId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_organizationResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			organizationResource ->
+				organizationResource.
+					postAccountByExternalReferenceCodeOrganization(
+						externalReferenceCode, organizationId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public boolean deleteAccountOrganization(
+			@GraphQLName("accountId") Long accountId,
+			@GraphQLName("organizationId") String organizationId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_organizationResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			organizationResource ->
+				organizationResource.deleteAccountOrganization(
+					accountId, organizationId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public boolean createAccountOrganization(
+			@GraphQLName("accountId") Long accountId,
+			@GraphQLName("organizationId") String organizationId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_organizationResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			organizationResource ->
+				organizationResource.postAccountOrganization(
+					accountId, organizationId));
 
 		return true;
 	}
@@ -1435,6 +1502,9 @@ public class Mutation {
 		accountResource.setContextUser(_user);
 		accountResource.setGroupLocalService(_groupLocalService);
 		accountResource.setRoleLocalService(_roleLocalService);
+
+		accountResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -1449,6 +1519,9 @@ public class Mutation {
 		accountRoleResource.setContextUser(_user);
 		accountRoleResource.setGroupLocalService(_groupLocalService);
 		accountRoleResource.setRoleLocalService(_roleLocalService);
+
+		accountRoleResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -1464,6 +1537,9 @@ public class Mutation {
 		organizationResource.setContextUser(_user);
 		organizationResource.setGroupLocalService(_groupLocalService);
 		organizationResource.setRoleLocalService(_roleLocalService);
+
+		organizationResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(RoleResource roleResource)
@@ -1477,6 +1553,9 @@ public class Mutation {
 		roleResource.setContextUser(_user);
 		roleResource.setGroupLocalService(_groupLocalService);
 		roleResource.setRoleLocalService(_roleLocalService);
+
+		roleResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -1492,6 +1571,9 @@ public class Mutation {
 		subscriptionResource.setContextUser(_user);
 		subscriptionResource.setGroupLocalService(_groupLocalService);
 		subscriptionResource.setRoleLocalService(_roleLocalService);
+
+		subscriptionResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -1506,6 +1588,9 @@ public class Mutation {
 		userAccountResource.setContextUser(_user);
 		userAccountResource.setGroupLocalService(_groupLocalService);
 		userAccountResource.setRoleLocalService(_roleLocalService);
+
+		userAccountResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(UserGroupResource userGroupResource)
@@ -1519,6 +1604,9 @@ public class Mutation {
 		userGroupResource.setContextUser(_user);
 		userGroupResource.setGroupLocalService(_groupLocalService);
 		userGroupResource.setRoleLocalService(_roleLocalService);
+
+		userGroupResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private static ComponentServiceObjects<AccountResource>
@@ -1545,5 +1633,7 @@ public class Mutation {
 	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
 	private com.liferay.portal.kernel.model.User _user;
+	private VulcanBatchEngineImportTaskResource
+		_vulcanBatchEngineImportTaskResource;
 
 }

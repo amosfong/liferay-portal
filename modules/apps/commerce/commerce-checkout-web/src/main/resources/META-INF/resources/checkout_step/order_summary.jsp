@@ -17,6 +17,10 @@
 <%@ include file="/init.jsp" %>
 
 <%
+CommerceContext commerceContext = (CommerceContext)request.getAttribute(CommerceWebKeys.COMMERCE_CONTEXT);
+
+CommerceAccount commerceAccount = commerceContext.getCommerceAccount();
+
 OrderSummaryCheckoutStepDisplayContext orderSummaryCheckoutStepDisplayContext = (OrderSummaryCheckoutStepDisplayContext)request.getAttribute(CommerceCheckoutWebKeys.COMMERCE_CHECKOUT_STEP_DISPLAY_CONTEXT);
 
 CommerceOrder commerceOrder = orderSummaryCheckoutStepDisplayContext.getCommerceOrder();
@@ -447,6 +451,43 @@ if (priceDisplayType.equals(CommercePricingConstants.TAX_INCLUDED_IN_PRICE)) {
 								yearValue="<%= requestedDeliveryYear %>"
 							/>
 						</div>
+					</c:if>
+				</address>
+			</c:if>
+
+			<%
+			CommerceAddress commerceBillingAddress = commerceOrder.getBillingAddress();
+			%>
+
+			<c:if test="<%= (commerceBillingAddress != null) && orderSummaryCheckoutStepDisplayContext.hasViewBillingAddressPermission(permissionChecker, commerceAccount) %>">
+				<address class="billing-address">
+					<h5>
+						<liferay-ui:message key="billing-address" />
+					</h5>
+
+					<%
+					request.setAttribute("address.jsp-commerceAddress", commerceBillingAddress);
+					%>
+
+					<%= HtmlUtil.escape(commerceBillingAddress.getName()) %> <br />
+					<%= HtmlUtil.escape(commerceBillingAddress.getStreet1()) %> <br />
+
+					<c:if test="<%= Validator.isNotNull(commerceBillingAddress.getStreet2()) %>">
+						<%= HtmlUtil.escape(commerceBillingAddress.getStreet2()) %> <br />
+					</c:if>
+
+					<c:if test="<%= Validator.isNotNull(commerceBillingAddress.getStreet3()) %>">
+						<%= HtmlUtil.escape(commerceBillingAddress.getStreet3()) %> <br />
+					</c:if>
+
+					<%= HtmlUtil.escape(commerceBillingAddress.getCity()) %> <br />
+
+					<%
+					Country country = commerceBillingAddress.getCountry();
+					%>
+
+					<c:if test="<%= country != null %>">
+						<%= HtmlUtil.escape(country.getTitle(locale)) %><br />
 					</c:if>
 				</address>
 			</c:if>

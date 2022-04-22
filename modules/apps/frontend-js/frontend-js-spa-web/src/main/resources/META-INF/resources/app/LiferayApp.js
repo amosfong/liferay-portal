@@ -18,6 +18,8 @@ import LiferaySurface from '../surface/Surface';
 import {getPortletBoundaryId, getUid, resetAllPortlets} from '../util/utils';
 import App from './App';
 
+import '../css/lfr_spa_loading_bar.scss';
+
 const MAX_TIMEOUT = Math.pow(2, 31) - 1;
 const PROPAGATED_PARAMS = ['bodyCssClass'];
 

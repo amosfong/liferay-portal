@@ -144,6 +144,12 @@ public class PreFilterContributorHelperImpl
 		Stream<ModelPreFilterContributor> stream =
 			modelPreFilterContributorsHolder.stream(
 				modelSearchSettings.getClassName(),
+				getStrings(
+					"search.full.query.clause.contributors.excludes",
+					searchContext),
+				getStrings(
+					"search.full.query.clause.contributors.includes",
+					searchContext),
 				IndexerProvidedClausesUtil.shouldSuppress(searchContext));
 
 		stream.forEach(
@@ -176,10 +182,10 @@ public class PreFilterContributorHelperImpl
 		Stream<QueryPreFilterContributor> stream =
 			queryPreFilterContributorsHolder.stream(
 				getStrings(
-					"search.full.query.clause.contributors.includes",
+					"search.full.query.clause.contributors.excludes",
 					searchContext),
 				getStrings(
-					"search.full.query.clause.contributors.excludes",
+					"search.full.query.clause.contributors.includes",
 					searchContext));
 
 		stream.forEach(

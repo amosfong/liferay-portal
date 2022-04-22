@@ -17,6 +17,7 @@ import {ClayDropDownWithItems} from '@clayui/drop-down';
 import {ClayCheckbox} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayManagementToolbar from '@clayui/management-toolbar';
+import {useState} from 'react';
 
 import {Sort} from '../../context/ListViewContext';
 import {SortOption} from '../../types';
@@ -45,26 +46,43 @@ export type IItem = {
 };
 
 type ManagementToolbarFilterAndOrderProps = {
+	disabled: boolean;
 	filterItems: IItem[];
+	onSelectAllRows: () => void;
 	onSort: () => void;
 	sort: Sort;
 };
 
 const ManagementToolbarFilterAndOrder: React.FC<ManagementToolbarFilterAndOrderProps> = ({
+	disabled,
 	filterItems,
+	onSelectAllRows,
 	onSort,
 	sort,
 }) => {
+	const [checked, setChecked] = useState(false);
+
 	return (
 		<ClayManagementToolbar.ItemList>
 			<ClayManagementToolbar.Item>
-				<ClayCheckbox checked={false} onChange={() => {}} />
+				<ClayCheckbox
+					checked={checked}
+					disabled={disabled}
+					onChange={() => {
+						onSelectAllRows();
+						setChecked(!checked);
+					}}
+				/>
 			</ClayManagementToolbar.Item>
 
 			<ClayDropDownWithItems
 				items={filterItems}
 				trigger={
-					<ClayButton className="nav-link" displayType="unstyled">
+					<ClayButton
+						className="nav-link"
+						disabled={disabled}
+						displayType="unstyled"
+					>
 						<span className="navbar-breakpoint-down-d-none">
 							<span className="navbar-text-truncate">
 								Filter and Order
@@ -86,6 +104,7 @@ const ManagementToolbarFilterAndOrder: React.FC<ManagementToolbarFilterAndOrderP
 			<ClayManagementToolbar.Item>
 				<ClayButton
 					className="nav-link nav-link-monospaced"
+					disabled={disabled}
 					displayType="unstyled"
 					onClick={onSort}
 				>

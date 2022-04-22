@@ -471,6 +471,15 @@ definition {
 				value1 = "${webContentDate}");
 		}
 
+		if (isSet(webContentGeolocation)) {
+			var lat = StringUtil.extractFirst("${webContentGeolocation}", ",");
+			var lng = StringUtil.extractLast("${webContentGeolocation}", ",");
+
+			Geolocation.setMarkerPosition(
+				lat = "${lat}",
+				lng = "${lng}");
+		}
+
 		if (isSet(webContentGrid)) {
 			if (!(isSet(webContentGridFieldLabel))) {
 				var webContentGridFieldLabel = "Grid";
@@ -1262,6 +1271,31 @@ definition {
 
 			SelectFrame(value1 = "relative=top");
 		}
+
+		if ("${saveAsDraft}" == "true") {
+			PortletEntry.saveAsDraft();
+
+			AssertTextEquals.assertPartialText(
+				key_status = "Draft",
+				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
+				value1 = "Draft");
+		}
+		else {
+			PortletEntry.publish();
+		}
+	}
+
+	macro editWebContentContent {
+		WebContent.addCP(webContentTitle = "${webContentTitleEdit}");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
+
+		Type(
+			key_fieldLabel = "content",
+			locator1 = "CKEditor#BODY",
+			value1 = "${webContentContentEdit}");
+
+		SelectFrame(value1 = "relative=top");
 
 		if ("${saveAsDraft}" == "true") {
 			PortletEntry.saveAsDraft();
@@ -2524,6 +2558,15 @@ definition {
 			AssertElementPresent(
 				key_fieldFieldLabel = "${webContentGeolocationFieldLabel}",
 				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+
+			if (isSet(location)) {
+				var lat = StringUtil.extractFirst("${location}", ",");
+				var lng = StringUtil.extractLast("${location}", ",");
+
+				Geolocation.assertMarkerPosition(
+					lat = "${lat}",
+					lng = "${lng}");
+			}
 		}
 
 		if (isSet(webContentGrid)) {

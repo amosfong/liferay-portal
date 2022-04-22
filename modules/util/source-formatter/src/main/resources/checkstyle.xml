@@ -379,7 +379,6 @@
 		<module name="com.liferay.source.formatter.checkstyle.check.ExceptionPrintStackTraceCheck">
 			<property name="category" value="Bug Prevention" />
 			<property name="description" value="Avoid using printStackTrace." />
-			<property name="enabled" value="false" />
 			<message key="method.call.avoid" value="Avoid using method ''printStackTrace''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.check.ExceptionVariableNameCheck">
@@ -674,6 +673,11 @@
 			<property name="category" value="Styling" />
 			<property name="description" value="Finds cases of unnecessary semicolon." />
 			<message key="semi.colon.unnecessary" value="Unnecessary semi colon" />
+		</module>
+		<module name="com.liferay.source.formatter.checkstyle.check.ServiceProxyFactoryCheck">
+			<property name="category" value="Bug Prevention" />
+			<property name="description" value="Finds incorrect parameter in method call." />
+			<message key="parameter.incorrect" value="Pass ''{0}'' as the second parameter when calling method ''ServiceProxyFactory.newServiceTrackedInstance''" />
 		</module>
 		<module name="com.liferay.source.formatter.checkstyle.check.SingleStatementClauseCheck">
 			<property name="category" value="Styling" />

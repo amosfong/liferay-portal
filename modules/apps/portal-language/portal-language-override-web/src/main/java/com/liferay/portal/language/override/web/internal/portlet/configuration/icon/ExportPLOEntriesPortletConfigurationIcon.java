@@ -45,9 +45,15 @@ public class ExportPLOEntriesPortletConfigurationIcon
 	extends BasePortletConfigurationIcon {
 
 	@Override
+	public String getCssClass() {
+		return "text-nowrap";
+	}
+
+	@Override
 	public String getMessage(PortletRequest portletRequest) {
 		return LanguageUtil.get(
-			getResourceBundle(getLocale(portletRequest)), "export");
+			getResourceBundle(getLocale(portletRequest)),
+			"export-overridden-translations");
 	}
 
 	@Override
@@ -62,6 +68,11 @@ public class ExportPLOEntriesPortletConfigurationIcon
 		resourceURL.setResourceID("exportPLOEntries");
 
 		return resourceURL.toString();
+	}
+
+	@Override
+	public double getWeight() {
+		return 200;
 	}
 
 	@Override

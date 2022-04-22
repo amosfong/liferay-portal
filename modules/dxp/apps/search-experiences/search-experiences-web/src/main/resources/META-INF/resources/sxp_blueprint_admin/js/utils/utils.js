@@ -13,6 +13,7 @@ import moment from 'moment';
 
 import {CONFIG_PREFIX, DEFAULT_ERROR} from './constants';
 import {INPUT_TYPES} from './inputTypes';
+import {renameKeys} from './language';
 
 /**
  * Function to get valid classNames and return them sorted.
@@ -20,7 +21,7 @@ import {INPUT_TYPES} from './inputTypes';
  * @param {Array} items Array of objects with classNames
  * @return {Array} Array of classNames
  */
-export function filterAndSortClassNames(items) {
+export function filterAndSortClassNames(items = []) {
 	return items
 		.map(({className}) => className)
 		.filter((item) => item)
@@ -253,97 +254,6 @@ export function cleanUIConfiguration(uiConfiguration = {}) {
 }
 
 /**
- * Function for retrieving a valid default value from one element
- * configuration entry. Returns the proper empty value for invalid values.
- *
- * Examples:
- * getDefaultValue({
- *  	defaultValue: 10,
- *  	label: 'Title Boost',
- *  	name: 'boost',
- *  	type: 'slider',
- *  })
- * => 10
- *
- * getDefaultValue({
- * 		label: 'Enabled',
- * 		name: 'enabled',
- * 		type: 'select',
- * 		typeOptions: {
- * 			options: [
- * 				{
- * 					label: 'True',
- * 					value: true,
- * 				},
- * 				{
- * 					label: 'False',
- * 					value: false,
- * 				},
- * 			],
- * 		},
- * 	})
- * => true
- *
- * @param {object} item Configuration with label, name, type, defaultValue
- * @return {(string|Array|number)}
- */
-export function getDefaultValue(item) {
-	const itemValue = item.defaultValue;
-
-	switch (item.type) {
-		case INPUT_TYPES.DATE:
-			return typeof itemValue === 'number'
-				? itemValue
-				: moment(itemValue, ['MM-DD-YYYY', 'YYYY-MM-DD']).isValid()
-				? moment(itemValue, ['MM-DD-YYYY', 'YYYY-MM-DD']).unix()
-				: '';
-		case INPUT_TYPES.FIELD_MAPPING:
-			return typeof itemValue === 'object' && itemValue.field
-				? itemValue
-				: {
-						field: '',
-						locale: '',
-				  };
-		case INPUT_TYPES.FIELD_MAPPING_LIST:
-			return Array.isArray(itemValue)
-				? itemValue.filter(({field}) => !!field) // Remove empty fields
-				: [];
-		case INPUT_TYPES.ITEM_SELECTOR:
-			return Array.isArray(itemValue)
-				? itemValue.filter((item) => item.label && item.value)
-				: [];
-		case INPUT_TYPES.JSON:
-			return typeof itemValue === 'object'
-				? JSON.stringify(itemValue, null, '\t')
-				: '{}';
-		case INPUT_TYPES.MULTISELECT:
-			return Array.isArray(itemValue)
-				? itemValue.filter((item) => item.label && item.value)
-				: [];
-		case INPUT_TYPES.NUMBER:
-			return typeof itemValue === 'number'
-				? itemValue
-				: typeof toNumber(itemValue) === 'number'
-				? toNumber(itemValue)
-				: '';
-		case INPUT_TYPES.SELECT:
-			return typeof itemValue === 'string'
-				? itemValue
-				: typeof item.typeOptions?.options?.[0]?.value === 'string'
-				? item.typeOptions.options[0].value
-				: '';
-		case INPUT_TYPES.SLIDER:
-			return typeof itemValue === 'number'
-				? itemValue
-				: typeof toNumber(itemValue) === 'number'
-				? toNumber(itemValue)
-				: '';
-		default:
-			return typeof itemValue === 'string' ? itemValue : '';
-	}
-}
-
-/**
  * Function for replacing the ${variable_name} with actual value.
  *
  * @param {object} _.sxpElement SXP Element with elementDefinition
@@ -546,23 +456,126 @@ export function getConfigurationEntry({sxpElement, uiConfigurationValues}) {
 }
 
 /**
- * Function for parsing custom json element text into sxpElement
+ * Function for retrieving a valid default value from one element
+ * configuration entry. Returns the proper empty value for invalid values.
  *
- * @param {object} sxpElement Original sxpElement (default)
- * @param {object} uiConfigurationValues Contains custom JSON for sxpElement
+ * Examples:
+ * getDefaultValue({
+ *  	defaultValue: 10,
+ *  	label: 'Title Boost',
+ *  	name: 'boost',
+ *  	type: 'slider',
+ *  })
+ * => 10
+ *
+ * getDefaultValue({
+ * 		label: 'Enabled',
+ * 		name: 'enabled',
+ * 		type: 'select',
+ * 		typeOptions: {
+ * 			options: [
+ * 				{
+ * 					label: 'True',
+ * 					value: true,
+ * 				},
+ * 				{
+ * 					label: 'False',
+ * 					value: false,
+ * 				},
+ * 			],
+ * 		},
+ * 	})
+ * => true
+ *
+ * @param {object} item Configuration with label, name, type, defaultValue
+ * @return {(string|Array|number)}
+ */
+export function getDefaultValue(item) {
+	const itemValue = item.defaultValue;
+
+	switch (item.type) {
+		case INPUT_TYPES.DATE:
+			return typeof itemValue === 'number'
+				? itemValue
+				: moment(itemValue, ['MM-DD-YYYY', 'YYYY-MM-DD']).isValid()
+				? moment(itemValue, ['MM-DD-YYYY', 'YYYY-MM-DD']).unix()
+				: '';
+		case INPUT_TYPES.FIELD_MAPPING:
+			return typeof itemValue === 'object' && itemValue.field
+				? itemValue
+				: {
+						field: '',
+						locale: '',
+				  };
+		case INPUT_TYPES.FIELD_MAPPING_LIST:
+			return Array.isArray(itemValue)
+				? itemValue.filter(({field}) => !!field) // Remove empty fields
+				: [];
+		case INPUT_TYPES.ITEM_SELECTOR:
+			return Array.isArray(itemValue)
+				? itemValue.filter((item) => item.label && item.value)
+				: [];
+		case INPUT_TYPES.JSON:
+			return typeof itemValue === 'object'
+				? JSON.stringify(itemValue, null, '\t')
+				: '{}';
+		case INPUT_TYPES.MULTISELECT:
+			return Array.isArray(itemValue)
+				? itemValue.filter((item) => item.label && item.value)
+				: [];
+		case INPUT_TYPES.NUMBER:
+			return typeof itemValue === 'number'
+				? itemValue
+				: typeof toNumber(itemValue) === 'number'
+				? toNumber(itemValue)
+				: '';
+		case INPUT_TYPES.SELECT:
+			return typeof itemValue === 'string'
+				? itemValue
+				: typeof item.typeOptions?.options?.[0]?.value === 'string'
+				? item.typeOptions.options[0].value
+				: '';
+		case INPUT_TYPES.SLIDER:
+			return typeof itemValue === 'number'
+				? itemValue
+				: typeof toNumber(itemValue) === 'number'
+				? toNumber(itemValue)
+				: '';
+		default:
+			return typeof itemValue === 'string' ? itemValue : '';
+	}
+}
+
+/**
+ * Function that provides the element JSON, with title, description, and elementDefinition.
+ * The elementDefinition's configuration is updated to have its variables replaced with
+ * values from uiConfigurationValues.
+ *
+ * @param {object} sxpElement SXP Element with title, description, elementDefinition
+ * @param {object=} uiConfigurationValues Values that will replace the keys in uiConfiguration
  * @return {object}
  */
-export function parseCustomSXPElement(sxpElement, uiConfigurationValues) {
-	try {
-		if (isDefined(uiConfigurationValues.sxpElement)) {
-			return JSON.parse(uiConfigurationValues.sxpElement);
-		}
+export function getSXPElementJSON(sxpElement, uiConfigurationValues) {
+	const {description_i18n, elementDefinition, title_i18n} = sxpElement;
 
-		return sxpElement;
-	}
-	catch {
-		return sxpElement;
-	}
+	const {category, configuration, icon} = elementDefinition;
+
+	return {
+		description_i18n: renameKeys(description_i18n, (str) =>
+			str.replace('-', '_')
+		),
+		elementDefinition: {
+			category,
+			configuration: uiConfigurationValues
+				? getConfigurationEntry({
+						sxpElement,
+						uiConfigurationValues,
+				  })
+				: configuration,
+			icon,
+		},
+		title_i18n: renameKeys(title_i18n, (str) => str.replace('-', '_')),
+	};
 }
 
 /**
@@ -598,7 +611,9 @@ export function getUIConfigurationValues(sxpElement = {}) {
 		);
 	}
 
-	return {sxpElement: JSON.stringify(sxpElement, null, '\t')};
+	return {
+		sxpElement: JSON.stringify(getSXPElementJSON(sxpElement), null, '\t'),
+	};
 }
 
 /**
@@ -610,6 +625,26 @@ export function getUIConfigurationValues(sxpElement = {}) {
  */
 export function isCustomJSONSXPElement(uiConfigurationValues) {
 	return isDefined(uiConfigurationValues.sxpElement);
+}
+
+/**
+ * Function for parsing custom json element text into sxpElement
+ *
+ * @param {object} sxpElement Original sxpElement (default)
+ * @param {object} uiConfigurationValues Contains custom JSON for sxpElement
+ * @return {object}
+ */
+export function parseCustomSXPElement(sxpElement, uiConfigurationValues) {
+	try {
+		if (isDefined(uiConfigurationValues.sxpElement)) {
+			return JSON.parse(uiConfigurationValues.sxpElement);
+		}
+
+		return sxpElement;
+	}
+	catch {
+		return sxpElement;
+	}
 }
 
 /**

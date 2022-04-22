@@ -11,9 +11,6 @@
 	<bean class="com.liferay.expando.kernel.service.permission.ExpandoColumnPermissionUtil" id="com.liferay.expando.kernel.service.permission.ExpandoColumnPermissionUtil">
 		<property name="expandoColumnPermission" ref="com.liferay.expando.kernel.service.permission.ExpandoColumnPermission" />
 	</bean>
-	<bean class="com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil" id="com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil">
-		<property name="expandoBridgeIndexer" ref="com.liferay.portlet.expando.util.ExpandoBridgeIndexerImpl" />
-	</bean>
 	<bean class="com.liferay.mail.util.DummyHook" id="com.liferay.mail.util.DummyHook" />
 	<bean class="com.liferay.portal.bean.BeanPropertiesImpl" id="com.liferay.portal.bean.BeanPropertiesImpl" />
 	<bean class="com.liferay.portal.convert.documentlibrary.DocumentLibraryConvertProcess" />
@@ -26,11 +23,6 @@
 	<bean factory-bean="com.liferay.portal.kernel.json.JSONFactory" factory-method="getLiferayJSONDeserializationWhitelist" id="com.liferay.portal.json.jabsorb.serializer.LiferayJSONDeserializationWhitelist" />
 	<bean class="com.liferay.portal.kernel.bean.BeanPropertiesUtil" id="com.liferay.portal.kernel.bean.BeanPropertiesUtil">
 		<property name="beanProperties" ref="com.liferay.portal.bean.BeanPropertiesImpl" />
-	</bean>
-	<bean class="com.liferay.portal.kernel.bean.ConstantsBeanFactoryUtil" id="com.liferay.portal.kernel.bean.ConstantsBeanFactoryUtil">
-		<property name="constantsBeanFactory">
-			<bean class="com.liferay.portal.bean.ConstantsBeanFactoryImpl" />
-		</property>
 	</bean>
 	<bean class="com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil" id="com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil">
 		<property name="cacheKeyGenerators">
@@ -96,11 +88,6 @@
 	<bean class="com.liferay.portal.jsonwebservice.JSONWebServiceActionsManagerImpl" id="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManager" />
 	<bean class="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil" id="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil">
 		<property name="JSONWebServiceActionsManager" ref="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManager" />
-	</bean>
-	<bean class="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceRegistratorFactory" id="com.liferay.portal.kernel.jsonwebservice.JSONWebServiceRegistratorFactory">
-		<property name="JSONWebServiceRegistratorBuilder">
-			<bean class="com.liferay.portal.jsonwebservice.DefaultJSONWebServiceRegistratorBuilder" />
-		</property>
 	</bean>
 	<bean class="com.liferay.portal.kernel.language.LanguageUtil" id="com.liferay.portal.kernel.language.LanguageUtil">
 		<property name="language" ref="com.liferay.portal.language.LanguageImpl" />
@@ -194,10 +181,9 @@
 	<bean class="com.liferay.portal.kernel.servlet.SharedSessionUtil" id="com.liferay.portal.kernel.servlet.SharedSessionUtil">
 		<property name="sharedSession" ref="com.liferay.portal.kernel.servlet.SharedSession" />
 	</bean>
+	<bean class="com.liferay.portal.servlet.TransferHeadersHelperImpl" id="com.liferay.portal.kernel.servlet.TransferHeadersHelper" />
 	<bean class="com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil" id="com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil">
-		<property name="transferHeadersHelper">
-			<bean class="com.liferay.portal.servlet.TransferHeadersHelperImpl" />
-		</property>
+		<property name="transferHeadersHelper" ref="com.liferay.portal.kernel.servlet.TransferHeadersHelper" />
 	</bean>
 	<bean class="com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil" id="com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil">
 		<property name="lastSessionRecorderHelper">
@@ -224,10 +210,9 @@
 			<bean class="com.liferay.portal.util.CalendarFactoryImpl" />
 		</property>
 	</bean>
+	<bean class="com.liferay.portal.util.ColorSchemeFactoryImpl" id="com.liferay.portal.kernel.util.ColorSchemeFactory" />
 	<bean class="com.liferay.portal.kernel.util.ColorSchemeFactoryUtil" id="com.liferay.portal.kernel.util.ColorSchemeFactoryUtil">
-		<property name="colorSchemeFactory">
-			<bean class="com.liferay.portal.util.ColorSchemeFactoryImpl" />
-		</property>
+		<property name="colorSchemeFactory" ref="com.liferay.portal.kernel.util.ColorSchemeFactory" />
 	</bean>
 	<bean class="com.liferay.portal.kernel.util.CustomJspRegistryUtil" id="com.liferay.portal.kernel.util.CustomJspRegistryUtil">
 		<property name="customJspRegistry">
@@ -276,10 +261,9 @@
 			<bean class="com.liferay.portal.util.PortletListerFactoryImpl" />
 		</property>
 	</bean>
+	<bean class="com.liferay.portal.util.ThemeFactoryImpl" id="com.liferay.portal.kernel.util.ThemeFactory" />
 	<bean class="com.liferay.portal.kernel.util.ThemeFactoryUtil" id="com.liferay.portal.kernel.util.ThemeFactoryUtil">
-		<property name="ThemeFactory">
-			<bean class="com.liferay.portal.util.ThemeFactoryImpl" />
-		</property>
+		<property name="ThemeFactory" ref="com.liferay.portal.kernel.util.ThemeFactory" />
 	</bean>
 	<bean class="com.liferay.portal.kernel.util.ThreadLocalDistributor" id="com.liferay.portal.kernel.util.ThreadLocalDistributor">
 		<property name="threadLocalSources">
@@ -304,10 +288,9 @@
 			<bean class="com.liferay.portal.webcache.WebCachePoolImpl" />
 		</property>
 	</bean>
+	<bean class="com.liferay.portal.webserver.WebServerServletTokenImpl" id="com.liferay.portal.kernel.webserver.WebServerServletToken" />
 	<bean class="com.liferay.portal.kernel.webserver.WebServerServletTokenUtil" id="com.liferay.portal.kernel.webserver.WebServerServletTokenUtil">
-		<property name="webServerServletToken">
-			<bean class="com.liferay.portal.webserver.WebServerServletTokenImpl" />
-		</property>
+		<property name="webServerServletToken" ref="com.liferay.portal.kernel.webserver.WebServerServletToken" />
 	</bean>
 	<bean class="com.liferay.portal.workflow.permission.WorkflowPermissionImpl" id="com.liferay.portal.kernel.workflow.permission.WorkflowPermission" />
 	<bean class="com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil" id="com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil">
@@ -357,7 +340,6 @@
 		<constructor-arg name="portletContainer" ref="com.liferay.portlet.internal.PortletContainerImpl" />
 	</bean>
 	<bean class="com.liferay.portlet.admin.util.OmniadminImpl" id="com.liferay.portlet.admin.util.OmniadminImpl" />
-	<bean class="com.liferay.portlet.expando.util.ExpandoBridgeIndexerImpl" id="com.liferay.portlet.expando.util.ExpandoBridgeIndexerImpl" />
 	<bean class="com.liferay.portlet.internal.PortletContainerImpl" id="com.liferay.portlet.internal.PortletContainerImpl">
 		<property name="portletConfigurationIconMenu" ref="com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIconMenu" />
 		<property name="portletToolbar" ref="com.liferay.portal.kernel.portlet.toolbar.PortletToolbar" />

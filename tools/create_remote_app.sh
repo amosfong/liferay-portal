@@ -85,6 +85,8 @@ function create_react_app {
 	yarn add sass
 	yarn remove @testing-library/jest-dom @testing-library/react @testing-library/user-event web-vitals
 
+	mv README.md README.markdown
+
 	echo "SKIP_PREFLIGHT_CHECK=true" > ".env"
 
 	sed -i -e "s|<div id=\"root\"></div>|<$CUSTOM_ELEMENT_NAME route=\"hello-world\"></$CUSTOM_ELEMENT_NAME>|g" public/index.html
@@ -96,8 +98,17 @@ function create_react_app {
 	rm -f App* index* logo.svg reportWebVitals.js setupTests.js
 
 	mkdir -p routes/hello-bar/components routes/hello-bar/pages
+
+	touch routes/hello-bar/components/.gitkeep
+
 	mkdir -p routes/hello-foo/components routes/hello-foo/pages
+
+	touch routes/hello-foo/components/.gitkeep
+
 	mkdir -p routes/hello-world/components routes/hello-world/pages
+
+	touch routes/hello-world/components/.gitkeep
+
 	mkdir -p common/services/liferay common/styles
 
 	write_gitignore

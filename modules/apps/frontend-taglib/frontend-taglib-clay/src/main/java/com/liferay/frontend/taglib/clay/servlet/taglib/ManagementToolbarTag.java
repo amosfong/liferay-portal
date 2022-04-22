@@ -14,7 +14,6 @@
 
 package com.liferay.frontend.taglib.clay.servlet.taglib;
 
-import com.liferay.frontend.taglib.clay.internal.configuration.FFManagementToolbarConfigurationUtil;
 import com.liferay.frontend.taglib.clay.internal.servlet.taglib.BaseContainerTag;
 import com.liferay.frontend.taglib.clay.internal.servlet.taglib.display.context.ManagementToolbarDefaults;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.ManagementToolbarDisplayContext;
@@ -26,11 +25,13 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.taglib.util.TagResourceBundleUtil;
 
@@ -252,7 +253,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 	public String getSearchInputName() {
 		if (_searchInputName == null) {
 			if (_managementToolbarDisplayContext != null) {
-				_managementToolbarDisplayContext.getSearchInputName();
+				return _managementToolbarDisplayContext.getSearchInputName();
 			}
 
 			return ManagementToolbarDefaults.getSearchInputName();
@@ -332,7 +333,8 @@ public class ManagementToolbarTag extends BaseContainerTag {
 	public Boolean isSearchInputAutoFocus() {
 		if (_searchInputAutoFocus == null) {
 			if (_managementToolbarDisplayContext != null) {
-				_managementToolbarDisplayContext.isSearchInputAutoFocus();
+				return _managementToolbarDisplayContext.
+					isSearchInputAutoFocus();
 			}
 
 			return ManagementToolbarDefaults.isSearchInputAutoFocus();
@@ -676,7 +678,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		props.put("showCreationMenu", isShowCreationMenu());
 		props.put(
 			"showDesignImprovementsFF",
-			FFManagementToolbarConfigurationUtil.showDesignImprovements());
+			GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-144527")));
 		props.put("showInfoButton", isShowInfoButton());
 		props.put("showResultsBar", isShowResultsBar());
 		props.put("showSearch", isShowSearch());
@@ -704,6 +706,9 @@ public class ManagementToolbarTag extends BaseContainerTag {
 	@Override
 	protected int processStartTag() throws Exception {
 		super.processStartTag();
+
+		Boolean showDesignImprovementsFF = GetterUtil.getBoolean(
+			PropsUtil.get("feature.flag.LPS-144527"));
 
 		JspWriter jspWriter = pageContext.getOut();
 
@@ -830,7 +835,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 			jspWriter.write("<li class=\"nav-item\"><div class=\"dropdown\">");
 			jspWriter.write("<button class=\"btn btn-unstyled dropdown-toggle");
 
-			if (FFManagementToolbarConfigurationUtil.showDesignImprovements()) {
+			if (showDesignImprovementsFF) {
 				jspWriter.write(" ml-2 mr-2");
 			}
 
@@ -843,7 +848,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 			jspWriter.write(" type=\"button\"><span class=\"");
 			jspWriter.write("navbar-breakpoint-down-d-none\"><span class=\"");
 
-			if (FFManagementToolbarConfigurationUtil.showDesignImprovements()) {
+			if (showDesignImprovementsFF) {
 				jspWriter.write("inline-item inline-item-before\">");
 
 				iconTag = new IconTag();
@@ -857,7 +862,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 			jspWriter.write("navbar-text-truncate\">");
 
-			if (FFManagementToolbarConfigurationUtil.showDesignImprovements()) {
+			if (showDesignImprovementsFF) {
 				jspWriter.write(LanguageUtil.get(resourceBundle, "filter"));
 			}
 			else {
@@ -887,9 +892,8 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 		List<DropdownItem> orderDropdownItems = getOrderDropdownItems();
 
-		if (FFManagementToolbarConfigurationUtil.showDesignImprovements() &&
-			!active && (orderDropdownItems != null) &&
-			(orderDropdownItems.size() > 1)) {
+		if (showDesignImprovementsFF && !active &&
+			(orderDropdownItems != null) && (orderDropdownItems.size() > 1)) {
 
 			jspWriter.write("<li class=\"nav-item\"><div class=\"dropdown\">");
 			jspWriter.write("<button class=\"btn btn-unstyled dropdown-toggle");
@@ -942,10 +946,9 @@ public class ManagementToolbarTag extends BaseContainerTag {
 			 (orderDropdownItems.size() == 1)) ||
 			ListUtil.isEmpty(orderDropdownItems);
 
-		if ((!FFManagementToolbarConfigurationUtil.showDesignImprovements() &&
-			 (getSortingURL() != null)) ||
-			(FFManagementToolbarConfigurationUtil.showDesignImprovements() &&
-			 (getSortingURL() != null) && showOrderToggle)) {
+		if ((!showDesignImprovementsFF && (getSortingURL() != null)) ||
+			(showDesignImprovementsFF && (getSortingURL() != null) &&
+			 showOrderToggle)) {
 
 			jspWriter.write("<li class=\"nav-item\">");
 
@@ -1113,10 +1116,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 			jspWriter.write("</button></li>");
 
-			if (!FFManagementToolbarConfigurationUtil.
-					showDesignImprovements() &&
-				isShowInfoButton()) {
-
+			if (!showDesignImprovementsFF && isShowInfoButton()) {
 				jspWriter.write("<li class=\"nav-item\"><button class=\"");
 				jspWriter.write(" nav-link nav-link-monospaced btn");
 				jspWriter.write(" btn-monospaced btn-unstyled\" type=\"button");
@@ -1135,9 +1135,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 				jspWriter.write("<li class=\"nav-item\"><div class=\"dropdown");
 				jspWriter.write("\"><button class=\"dropdown-toggle nav-link");
 
-				if (!FFManagementToolbarConfigurationUtil.
-						showDesignImprovements()) {
-
+				if (!showDesignImprovementsFF) {
 					jspWriter.write(" nav-link-monospaced btn btn-monospaced");
 				}
 
@@ -1151,9 +1149,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 						iconTag.doTag(pageContext);
 
-						if (FFManagementToolbarConfigurationUtil.
-								showDesignImprovements()) {
-
+						if (showDesignImprovementsFF) {
 							iconTag = new IconTag();
 
 							iconTag.setCssClass(
@@ -1175,9 +1171,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 				LinkTag linkTag = new LinkTag();
 
-				if (FFManagementToolbarConfigurationUtil.
-						showDesignImprovements()) {
-
+				if (showDesignImprovementsFF) {
 					linkTag.setCssClass(
 						"d-md-none nav-btn nav-btn-monospaced btn btn-primary");
 				}
@@ -1192,9 +1186,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 
 				jspWriter.write("</li>");
 
-				if (FFManagementToolbarConfigurationUtil.
-						showDesignImprovements()) {
-
+				if (showDesignImprovementsFF) {
 					jspWriter.write("<li class=\"nav-item\">");
 
 					linkTag = new LinkTag();
@@ -1209,9 +1201,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 				}
 			}
 
-			if (FFManagementToolbarConfigurationUtil.showDesignImprovements() &&
-				isShowInfoButton()) {
-
+			if (showDesignImprovementsFF && isShowInfoButton()) {
 				jspWriter.write("<li class=\"nav-item\"><button class=\"");
 				jspWriter.write(" nav-link nav-link-monospaced btn");
 				jspWriter.write(" btn-monospaced btn-unstyled\" type=\"button");
@@ -1247,15 +1237,16 @@ public class ManagementToolbarTag extends BaseContainerTag {
 			jspWriter.write("\"><div class=\"tbar-section\"><span class=\"");
 			jspWriter.write("component-text text-truncate-inline\"><span");
 			jspWriter.write(" class=\"text-truncate\">");
-
 			jspWriter.write(
 				LanguageUtil.format(
-					resourceBundle, "x-results-for-x",
-					new Object[] {
-						getItemsTotal(),
-						(searchValue == null) ? StringPool.BLANK :
-							HtmlUtil.escape(searchValue)
-					}));
+					resourceBundle, "x-results-for",
+					new Object[] {getItemsTotal()}));
+
+			if (searchValue != null) {
+				jspWriter.write("<strong> \"");
+				jspWriter.write(HtmlUtil.escape(searchValue));
+				jspWriter.write("\"</strong>");
+			}
 
 			jspWriter.write("</span></span></div></li>");
 
@@ -1288,7 +1279,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 		Map<String, List<String>> searchData = new HashMap<>();
 
 		String[] parameters = StringUtil.split(
-			HttpUtil.getQueryString(url), CharPool.AMPERSAND);
+			HttpComponentsUtil.getQueryString(url), CharPool.AMPERSAND);
 
 		for (String parameter : parameters) {
 			if (parameter.length() == 0) {
@@ -1310,7 +1301,7 @@ public class ManagementToolbarTag extends BaseContainerTag {
 				parameterValue = parameterParts[1];
 			}
 
-			parameterValue = HttpUtil.decodeURL(parameterValue);
+			parameterValue = HttpComponentsUtil.decodeURL(parameterValue);
 
 			List<String> parameterValues = searchData.get(parameterName);
 

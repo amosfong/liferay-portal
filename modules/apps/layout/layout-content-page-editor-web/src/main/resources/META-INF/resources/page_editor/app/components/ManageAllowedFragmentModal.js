@@ -20,7 +20,6 @@ import React, {useCallback, useState} from 'react';
 import {config} from '../config/index';
 import {useDispatch} from '../contexts/StoreContext';
 import updateItemConfig from '../thunks/updateItemConfig';
-import AllowedFragmentSelector from './AllowedFragmentSelector';
 import AllowedFragmentSelectorTree from './AllowedFragmentSelectorTree';
 
 const ManageAllowedFragmentModal = ({item, observer, onClose}) => {
@@ -76,17 +75,10 @@ const ManageAllowedFragmentModal = ({item, observer, onClose}) => {
 					)}
 				</p>
 
-				{Liferay.__FF__.enableClayTreeView ? (
-					<AllowedFragmentSelectorTree
-						dropZoneConfig={item.config}
-						onSelectedFragment={onSelectedFragment}
-					/>
-				) : (
-					<AllowedFragmentSelector
-						dropZoneConfig={item.config}
-						onSelectedFragment={onSelectedFragment}
-					/>
-				)}
+				<AllowedFragmentSelectorTree
+					dropZoneConfig={item.config}
+					onSelectedFragment={onSelectedFragment}
+				/>
 			</ClayModal.Body>
 
 			<ClayModal.Footer

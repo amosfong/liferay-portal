@@ -199,6 +199,8 @@ public class JournalDDMStructuresDisplayContext {
 	}
 
 	private OrderByComparator<DDMStructure> _getOrderByComparator() {
+		OrderByComparator<DDMStructure> orderByComparator = null;
+
 		boolean orderByAsc = false;
 
 		String orderByType = getOrderByType();
@@ -207,15 +209,15 @@ public class JournalDDMStructuresDisplayContext {
 			orderByAsc = true;
 		}
 
-		OrderByComparator<DDMStructure> orderByComparator = null;
+		String orderByCol = getOrderByCol();
 
-		if (_orderByCol.equals("id")) {
+		if (orderByCol.equals("id")) {
 			orderByComparator = new StructureIdComparator(orderByAsc);
 		}
-		else if (_orderByCol.equals("modified-date")) {
+		else if (orderByCol.equals("modified-date")) {
 			orderByComparator = new StructureModifiedDateComparator(orderByAsc);
 		}
-		else if (_orderByCol.equals("name")) {
+		else if (orderByCol.equals("name")) {
 			orderByComparator = new StructureNameComparator(
 				orderByAsc, _themeDisplay.getLocale());
 		}

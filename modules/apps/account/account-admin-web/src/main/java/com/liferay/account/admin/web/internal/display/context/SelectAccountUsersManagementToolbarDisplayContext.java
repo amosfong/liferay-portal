@@ -19,6 +19,8 @@ import com.liferay.account.configuration.AccountEntryEmailDomainsConfiguration;
 import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchContainerManagementToolbarDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
@@ -32,6 +34,10 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.portlet.PortletURL;
 
@@ -84,6 +90,40 @@ public class SelectAccountUsersManagementToolbarDisplayContext
 	}
 
 	@Override
+	public List<LabelItem> getFilterLabelItems() {
+		return LabelItemListBuilder.add(
+			() -> {
+				String navigation = getNavigation();
+
+				if (navigation.equals("account-users") ||
+					navigation.equals("no-assigned-account")) {
+
+					return true;
+				}
+
+				return false;
+			},
+			labelItem -> {
+				labelItem.putData(
+					"removeLabelURL",
+					PortletURLBuilder.create(
+						getPortletURL()
+					).setNavigation(
+						(String)null
+					).buildString());
+
+				labelItem.setCloseable(true);
+
+				String label = String.format(
+					"%s: %s", LanguageUtil.get(httpServletRequest, "filter-by"),
+					LanguageUtil.get(httpServletRequest, getNavigation()));
+
+				labelItem.setLabel(label);
+			}
+		).build();
+	}
+
+	@Override
 	public String getNavigation() {
 		return ParamUtil.getString(
 			liferayPortletRequest, getNavigationParam(),
@@ -114,6 +154,9 @@ public class SelectAccountUsersManagementToolbarDisplayContext
 			return new String[0];
 		}
 
+		List<String> navigationKeys = new ArrayList<>(
+			Arrays.asList("all-users", "account-users", "no-assigned-account"));
+
 		try {
 			AccountEntryEmailDomainsConfiguration
 				accountEntryEmailDomainsConfiguration =
@@ -124,7 +167,7 @@ public class SelectAccountUsersManagementToolbarDisplayContext
 			if (accountEntryEmailDomainsConfiguration.
 					enableEmailDomainValidation()) {
 
-				return new String[] {"valid-domain-users", "all-users"};
+				navigationKeys.add(0, "valid-domain-users");
 			}
 		}
 		catch (ConfigurationException configurationException) {
@@ -133,7 +176,7 @@ public class SelectAccountUsersManagementToolbarDisplayContext
 			}
 		}
 
-		return new String[] {"all-users"};
+		return ArrayUtil.toStringArray(navigationKeys);
 	}
 
 	@Override

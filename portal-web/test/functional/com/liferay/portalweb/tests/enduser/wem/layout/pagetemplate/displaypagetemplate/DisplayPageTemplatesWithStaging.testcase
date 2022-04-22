@@ -44,6 +44,95 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-134847. The user can access to an associated display page template via Asset Publisher widget in live site."
+	@priority = "4"
+	test AccessToAssociatedDisplayPageTemplateInLiveSite {
+		task ("Add a display page template for Document and Basic Document") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Document",
+				displayPageTemplateEntryName = "Document DPT",
+				groupName = "Test Site Name-staging",
+				site = "false",
+				subType = "Basic Document");
+		}
+
+		task ("Add a Display Page Content fragment to display page template") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name-staging");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Document DPT");
+
+			PageEditor.addFragment(
+				collectionName = "Content Display",
+				fragmentName = "Display Page Content");
+
+			PageEditor.clickPublish();
+		}
+
+		task ("Add a document with an image") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document Title",
+				groupName = "Test Site Name-staging",
+				mimeType = "image/jpeg",
+				site = "false",
+				sourceFileName = "Document_1.jpg");
+		}
+
+		task ("Select the display page template as Specific") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name-staging");
+
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Edit",
+				rowEntry = "Document Title");
+
+			WebContent.editDisplayPage(
+				pageName = "Document DPT",
+				pageType = "Display Page Templates");
+
+			PortletEntry.publish();
+		}
+
+		task ("Add an Asset Publisher to widget page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name (Staging)",
+				layoutName = "Test Page Name",
+				site = "false");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Test Site Name (Staging)",
+				layoutName = "Test Page Name",
+				site = "false",
+				widgetName = "Asset Publisher");
+		}
+
+		task ("View document is shown in Asset Publisher in staging site") {
+			Navigator.gotoStagedSitePage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			AssetPublisherPortlet.viewAssetPG(assetTitle = "Document Title");
+		}
+
+		task ("Publish to live") {
+			Staging.gotoPublishToLive();
+
+			Staging.publishToLive();
+		}
+
+		task ("Access to associated display page template via Asset Publisher in live site") {
+			Navigator.gotoSitePage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			AssetPublisherPortlet.clickAssetTitle(assetTitle = "Document Title");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Document DPT");
+
+			AssertVisible(
+				key_imageFileName = "Document_1.jpg",
+				locator1 = "PageEditor#ENTRY_COVER_IMAGE");
+		}
+	}
+
 	@description = "This is a test for LPS-133767. The user can bulk assign categories to display page template in staging site but cannot in live site."
 	@priority = "4"
 	@uitest
@@ -307,6 +396,135 @@ definition {
 			AssertElementNotPresent(
 				key_portlet = "Page Templates",
 				locator1 = "ProductMenu#PORTLET");
+		}
+	}
+
+	@description = "This is a test for LPS-139493. View changes are propagated in the display page template content via web content admin in live site."
+	@priority = "4"
+	test PropagateChangesOfFragmentToLive {
+		task ("Add a fragment set") {
+			JSONFragment.addFragmentCollection(
+				groupKey = "Test Site Name-staging",
+				name = "Fragment Set Name",
+				site = "false");
+		}
+
+		task ("Add a fragment") {
+			var htmlSnippet = '''
+<div class="fragment-example">
+	New Fragment Test
+</div>		''';
+
+			JSONFragment.addSection(
+				collectionName = "Fragment Set Name",
+				fragmentStatus = "Approved",
+				groupKey = "Test Site Name-staging",
+				html = "${htmlSnippet}",
+				name = "Test Fragment Name",
+				site = "false");
+		}
+
+		task ("Add the new fragment to Display Page Template") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name-staging");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			PageEditor.addFragment(
+				collectionName = "Fragment Set Name",
+				fragmentName = "Test Fragment Name");
+
+			PageEditor.clickPublish();
+		}
+
+		task ("Add a web content based on Basic Web Content") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Test Site Name (Staging)",
+				site = "false",
+				title = "Web Content Title");
+		}
+
+		task ("Select Display Page Name as Specific Display Page Template") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name-staging");
+
+			WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+			WebContent.editDisplayPage(
+				pageName = "Display Page Name",
+				pageType = "Display Page Templates");
+
+			PortletEntry.publish();
+		}
+
+		task ("Publish to Live") {
+			Staging.openStagingAdmin(siteURLKey = "test-site-name-staging");
+
+			Staging.publishCustomPublication();
+		}
+
+		task ("View associated display page template content via web content admin in live site") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			WebContentNavigator.gotoEntryMenuItem(
+				entry = "Web Content Title",
+				menuItem = "View Content");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Display Page Name");
+
+			ContentPages.viewFragmentText(
+				contributed = "false",
+				fragmentName = "example",
+				text = "New Fragment Test");
+		}
+
+		task ("Edit the new fragment") {
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name-staging");
+
+			FragmentsAdminNavigator.gotoCollection(collectionName = "Fragment Set Name");
+
+			FragmentsAdminNavigator.gotoEntryEllipsisItem(
+				entry = "Test Fragment Name",
+				item = "Edit");
+
+			var htmlSnippet = '''
+<div class="fragment-example">
+	New Fragment Test Edit
+</div>		''';
+
+			FragmentsEditor.typeHtmlEditor(content = "${htmlSnippet}");
+
+			FragmentsEditor.waitForAutoSave();
+
+			FragmentsEditor.publish();
+		}
+
+		task ("Propagate the changes") {
+			FragmentsAdminNavigator.gotoEntryEllipsisItem(
+				entry = "Test Fragment Name",
+				item = "View Usages");
+
+			FragmentsAdmin.propagateChanges();
+		}
+
+		task ("Publish to Live") {
+			Staging.openStagingAdmin(siteURLKey = "test-site-name-staging");
+
+			Staging.publishCustomPublication();
+		}
+
+		task ("View propagate changes in associated display page template content via web content admin in live site") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			WebContentNavigator.gotoEntryMenuItem(
+				entry = "Web Content Title",
+				menuItem = "View Content");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Display Page Name");
+
+			ContentPages.viewFragmentText(
+				contributed = "false",
+				fragmentName = "example",
+				text = "New Fragment Test Edit");
 		}
 	}
 

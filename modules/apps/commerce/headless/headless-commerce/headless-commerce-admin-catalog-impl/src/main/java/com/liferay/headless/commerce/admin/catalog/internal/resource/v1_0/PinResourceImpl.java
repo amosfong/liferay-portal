@@ -31,6 +31,7 @@ import com.liferay.headless.commerce.admin.catalog.internal.util.v1_0.MappedProd
 import com.liferay.headless.commerce.admin.catalog.internal.util.v1_0.PinUtil;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.PinResource;
 import com.liferay.headless.commerce.core.util.ServiceContextHelper;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -45,6 +46,8 @@ import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -58,6 +61,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, PinResource.class}
 )
+@CTAware
 public class PinResourceImpl
 	extends BasePinResourceImpl implements NestedFieldSupport {
 
@@ -70,10 +74,27 @@ public class PinResourceImpl
 				csDiagramPin.getCPDefinitionId(), csDiagramPin.getSequence());
 
 		if (csDiagramEntry != null) {
-			_csDiagramEntryService.deleteCSDiagramEntry(csDiagramEntry);
+			List<CSDiagramPin> csDiagramPins =
+				_csDiagramPinService.getCSDiagramPins(
+					csDiagramPin.getCPDefinitionId(), -1, -1);
+
+			Stream<CSDiagramPin> csDiagramPinsStream = csDiagramPins.stream();
+
+			if (csDiagramPinsStream.filter(
+					curCSDiagramPin ->
+						curCSDiagramPin.getCSDiagramPinId() !=
+							csDiagramPin.getCSDiagramPinId()
+				).noneMatch(
+					curCSDiagramPin -> Objects.equals(
+						curCSDiagramPin.getSequence(),
+						csDiagramPin.getSequence())
+				)) {
+
+				_csDiagramEntryService.deleteCSDiagramEntry(csDiagramEntry);
+			}
 		}
 
-		_csDiagramPinService.deleteCSDiagramPin(pinId);
+		_csDiagramPinService.deleteCSDiagramPin(csDiagramPin);
 	}
 
 	@Override

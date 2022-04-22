@@ -29,14 +29,12 @@ import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletURL;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.language.LanguageImpl;
 import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
-import com.liferay.portal.util.HttpImpl;
 import com.liferay.portal.util.PortalImpl;
 
 import java.util.Collections;
@@ -66,8 +64,6 @@ public class ContentDashboardDropdownItemsProviderTest {
 
 	@BeforeClass
 	public static void setUpClass() {
-		_http = new HttpImpl();
-
 		_language = new LanguageImpl();
 
 		LanguageResources languageResources = new LanguageResources();
@@ -97,17 +93,16 @@ public class ContentDashboardDropdownItemsProviderTest {
 		ContentDashboardDropdownItemsProvider
 			contentDashboardDropdownItemsProvider =
 				new ContentDashboardDropdownItemsProvider(
-					_http, _language, mockLiferayPortletRenderRequest,
+					_language, mockLiferayPortletRenderRequest,
 					new MockLiferayPortletRenderResponse(), new PortalImpl());
-
-		ContentDashboardItem contentDashboardItem = _getContentDashboardItem(
-			Collections.singletonList(
-				_getContentDashboardItemAction(
-					"edit", ContentDashboardItemAction.Type.EDIT, "validURL")));
 
 		List<DropdownItem> dropdownItems =
 			contentDashboardDropdownItemsProvider.getDropdownItems(
-				contentDashboardItem);
+				_getContentDashboardItem(
+					Collections.singletonList(
+						_getContentDashboardItemAction(
+							"edit", ContentDashboardItemAction.Type.EDIT,
+							"validURL"))));
 
 		Stream<DropdownItem> stream = dropdownItems.stream();
 
@@ -120,8 +115,7 @@ public class ContentDashboardDropdownItemsProviderTest {
 		);
 
 		Assert.assertEquals(
-			"validURL",
-			_http.getPath(String.valueOf(editDropdownItem.get("href"))));
+			"validURL", String.valueOf(editDropdownItem.get("href")));
 	}
 
 	@Test
@@ -138,19 +132,17 @@ public class ContentDashboardDropdownItemsProviderTest {
 		ContentDashboardDropdownItemsProvider
 			contentDashboardDropdownItemsProvider =
 				new ContentDashboardDropdownItemsProvider(
-					_http, _language, mockLiferayPortletRenderRequest,
+					_language, mockLiferayPortletRenderRequest,
 					new MockLiferayPortletRenderResponse(), new PortalImpl());
-
-		ContentDashboardItem contentDashboardItem = _getContentDashboardItem(
-			Collections.singletonList(
-				_getContentDashboardItemAction(
-					"viewInPanel",
-					ContentDashboardItemAction.Type.VIEW_IN_PANEL,
-					"validURL")));
 
 		List<DropdownItem> dropdownItems =
 			contentDashboardDropdownItemsProvider.getDropdownItems(
-				contentDashboardItem);
+				_getContentDashboardItem(
+					Collections.singletonList(
+						_getContentDashboardItemAction(
+							"viewInPanel",
+							ContentDashboardItemAction.Type.VIEW_IN_PANEL,
+							"validURL"))));
 
 		Stream<DropdownItem> stream = dropdownItems.stream();
 
@@ -183,17 +175,16 @@ public class ContentDashboardDropdownItemsProviderTest {
 		ContentDashboardDropdownItemsProvider
 			contentDashboardDropdownItemsProvider =
 				new ContentDashboardDropdownItemsProvider(
-					_http, _language, mockLiferayPortletRenderRequest,
+					_language, mockLiferayPortletRenderRequest,
 					new MockLiferayPortletRenderResponse(), new PortalImpl());
-
-		ContentDashboardItem contentDashboardItem = _getContentDashboardItem(
-			Collections.singletonList(
-				_getContentDashboardItemAction(
-					"view", ContentDashboardItemAction.Type.VIEW, "validURL")));
 
 		List<DropdownItem> dropdownItems =
 			contentDashboardDropdownItemsProvider.getDropdownItems(
-				contentDashboardItem);
+				_getContentDashboardItem(
+					Collections.singletonList(
+						_getContentDashboardItemAction(
+							"view", ContentDashboardItemAction.Type.VIEW,
+							"validURL"))));
 
 		Stream<DropdownItem> stream = dropdownItems.stream();
 
@@ -206,8 +197,7 @@ public class ContentDashboardDropdownItemsProviderTest {
 		);
 
 		Assert.assertEquals(
-			"validURL",
-			_http.getPath(String.valueOf(viewDropdownItem.get("href"))));
+			"validURL", String.valueOf(viewDropdownItem.get("href")));
 	}
 
 	private ContentDashboardItem _getContentDashboardItem(
@@ -390,7 +380,6 @@ public class ContentDashboardDropdownItemsProviderTest {
 		};
 	}
 
-	private static Http _http;
 	private static Language _language;
 
 }

@@ -56,7 +56,8 @@ import com.liferay.portal.kernel.upload.LiferayFileItemException;
 import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.Html;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -472,7 +473,8 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 						httpServletRequest, "for-locale-x-x-was-changed-to-x",
 						new Object[] {
 							"<strong>" + locale.getLanguage() + "</strong>",
-							"<strong>" + originalFriendlyURL + "</strong>",
+							"<strong>" + _html.escapeURL(originalFriendlyURL) +
+								"</strong>",
 							"<strong>" + currentFriendlyURL + "</strong>"
 						}));
 			}
@@ -548,7 +550,7 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 		int workflowAction = ParamUtil.getInteger(
 			actionRequest, "workflowAction", WorkflowConstants.ACTION_PUBLISH);
 
-		String portletId = _http.getParameter(
+		String portletId = HttpComponentsUtil.getParameter(
 			redirect, "portletResource", false);
 
 		String namespace = _portal.getPortletNamespace(portletId);
@@ -558,11 +560,11 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 
 			String oldRedirectParam = namespace + "redirect";
 
-			String oldRedirect = _http.getParameter(
+			String oldRedirect = HttpComponentsUtil.getParameter(
 				redirect, oldRedirectParam, false);
 
 			if (Validator.isNotNull(oldRedirect)) {
-				String newRedirect = _http.decodeURL(oldRedirect);
+				String newRedirect = HttpComponentsUtil.decodeURL(oldRedirect);
 
 				newRedirect = StringUtil.replace(
 					newRedirect, oldUrlTitle, article.getUrlTitle());
@@ -588,10 +590,10 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 				actionName.equals("/journal/add_article") &&
 				(article != null) && Validator.isNotNull(namespace)) {
 
-				redirect = _http.addParameter(
+				redirect = HttpComponentsUtil.addParameter(
 					redirect, namespace + "className",
 					JournalArticle.class.getName());
-				redirect = _http.addParameter(
+				redirect = HttpComponentsUtil.addParameter(
 					redirect, namespace + "classPK",
 					JournalArticleAssetRenderer.getClassPK(article));
 			}
@@ -652,7 +654,7 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
-	private Http _http;
+	private Html _html;
 
 	@Reference
 	private JournalArticleService _journalArticleService;

@@ -39,7 +39,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test CanTimeFilterUse180DaysInInterestsList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8884
@@ -96,9 +95,9 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8372 | Test Summary: Custom Range time period filter in Interests List"
+	@ignore = "true"
 	@priority = "5"
 	test CanTimeFilterUseCustomRangeInInterestsList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8885
@@ -162,7 +161,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test CanTimeFilterUseLastYearInInterestsList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8886

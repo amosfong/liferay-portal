@@ -3,26 +3,15 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Shopping Experience";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
+		CommerceConfiguration.commerceSetUp();
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-7833. Verify user is redirected to the Product Detail page when they click on a product in the catalog if Default Product Display Page is not set"
@@ -42,8 +31,8 @@ definition {
 			CommerceEntry.assertDefaultDisplayPage(pageName = "None");
 
 			AssertTextEquals(
-				locator1 = "Message#EMPTY_INFO",
-				value1 = "No Items were found.");
+				locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER",
+				value1 = "Sorry, no results were found.");
 		}
 
 		task ("When I click on a product in the catalog page") {
@@ -192,8 +181,8 @@ definition {
 				layout = "Test Public Widget Page 2");
 
 			AssertTextEquals(
-				locator1 = "Message#EMPTY_INFO",
-				value1 = "No Items were found.");
+				locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER",
+				value1 = "Sorry, no results were found.");
 		}
 	}
 
@@ -364,44 +353,387 @@ definition {
 		}
 	}
 
-	@description = "[Please Update]"
-	@ignore = "Test Stub"
+	@description = "This is a test for COMMERCE-7841. Assert user can override the private default product display page with a private widget page."
 	@priority = "4"
 	test OverridePrivateDefaultProductDisplayPageWithAPrivatePage {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-7841 OverridePrivateDefaultProductDisplayPageWithAPrivatePage pending implementation
+		task ("Given that both a private content page and a private widget page are created with a product details widget") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
+			JSONLayout.addPrivateLayout(
+				groupName = "Minium",
+				layoutName = "Test Private Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Private Content Page",
+				privateLayout = "true",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+
+			JSONLayout.addPrivateLayout(
+				groupName = "Minium",
+				layoutName = "Test Private Widget Page");
+
+			JSONLayout.addWidgetToPrivateLayout(
+				groupName = "Minium",
+				layoutName = "Test Private Widget Page",
+				widgetName = "Product Details");
+		}
+
+		task ("And given the private content page is set to be the default product display page") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Product Display Pages");
+
+			CommerceChannels.chooseDefaultDisplayPage(
+				pageName = "Test Private Content Page",
+				pageType = "Private");
+
+			CommerceEntry.assertDefaultDisplayPage(
+				pageName = "Test Private Content Page",
+				pageType = "Private");
+		}
+
+		task ("And given the private widget page is set as the override product display page for a selected product") {
+			CommerceChannels.overrideProductDisplayPage(
+				pageName = "Test Private Widget Page",
+				pageType = "Private",
+				product = "Torque Converters");
+
+			CommerceEntry.assertDisplayPageOverride(
+				entryName = "Torque Converters",
+				layout = "Test Private Widget Page");
+		}
+
+		task ("When accessing the Minium catalog and viewing the selected product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Torque Converters");
+		}
+
+		task ("Then the site should redirect to the override page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$34.00",
+				productName = "Torque Converters",
+				productSKU = "MIN5589");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Private Widget Page");
+
+			AssertLocation.assertPartialLocation(value1 = "group/minium/p/torque-converters");
+		}
+
+		task ("When accessing the Minium catalog and viewing another product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+		}
+
+		task ("Then the site should redirect to the default product display page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$24.00",
+				productName = "U-Joint",
+				productSKU = "MIN55861");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Private Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "group/minium/p/u-joint");
+		}
 	}
 
-	@description = "[Please Update]"
-	@ignore = "Test Stub"
+	@description = "This is a test for COMMERCE-7840. Assert user can override the private default product display page with a public content page."
 	@priority = "4"
 	test OverridePrivateDefaultProductDisplayPageWithAPublicPage {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-7840 OverridePrivateDefaultProductDisplayPageWithAPublicPage pending implementation
+		task ("Given that both a public content page and a private content page are created with a product details widget") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
+			JSONLayout.addPublicLayout(
+				groupName = "Minium",
+				layoutName = "Test Public Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Public Content Page",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+
+			JSONLayout.addPrivateLayout(
+				groupName = "Minium",
+				layoutName = "Test Private Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Private Content Page",
+				privateLayout = "true",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+		}
+
+		task ("And given the private content page is set to be the default product display page") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Product Display Pages");
+
+			CommerceChannels.chooseDefaultDisplayPage(
+				pageName = "Test Private Content Page",
+				pageType = "Private");
+
+			CommerceEntry.assertDefaultDisplayPage(
+				pageName = "Test Private Content Page",
+				pageType = "Private");
+		}
+
+		task ("And given the public content page is set as the override product display page for a selected product") {
+			CommerceChannels.overrideProductDisplayPage(
+				pageName = "Test Public Content Page",
+				pageType = "Public",
+				product = "Torque Converters");
+
+			CommerceEntry.assertDisplayPageOverride(
+				entryName = "Torque Converters",
+				layout = "Test Public Content Page");
+		}
+
+		task ("When accessing the Minium catalog and viewing the selected product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Torque Converters");
+		}
+
+		task ("Then the site should redirect to the override page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$34.00",
+				productName = "Torque Converters",
+				productSKU = "MIN5589");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Public Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "web/minium/p/torque-converters");
+		}
+
+		task ("When accessing the Minium catalog and viewing another product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+		}
+
+		task ("Then the site should redirect to the default product display page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$24.00",
+				productName = "U-Joint",
+				productSKU = "MIN55861");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Private Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "group/minium/p/u-joint");
+		}
 	}
 
-	@description = "[Please Update]"
-	@ignore = "Test Stub"
+	@description = "This is a test for COMMERCE-7839. Assert user can override the public default product display page with a private content page."
 	@priority = "4"
 	test OverridePublicDefaultProductDisplayPageWithAPrivatePage {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-7839 OverridePublicDefaultProductDisplayPageWithAPrivatePage pending implementation
+		task ("Given that both a public content page and a private content page are created with a product details widget") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
+			JSONLayout.addPublicLayout(
+				groupName = "Minium",
+				layoutName = "Test Public Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Public Content Page",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+
+			JSONLayout.addPrivateLayout(
+				groupName = "Minium",
+				layoutName = "Test Private Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Private Content Page",
+				privateLayout = "true",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+		}
+
+		task ("And given the public content page is set to be the default product display page") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Product Display Pages");
+
+			CommerceChannels.chooseDefaultDisplayPage(
+				pageName = "Test Public Content Page",
+				pageType = "Public");
+
+			CommerceEntry.assertDefaultDisplayPage(
+				pageName = "Test Public Content Page",
+				pageType = "Public");
+		}
+
+		task ("And given the private content page is set as the override product display page for a selected product") {
+			CommerceChannels.overrideProductDisplayPage(
+				pageName = "Test Private Content Page",
+				pageType = "Private",
+				product = "Torque Converters");
+
+			CommerceEntry.assertDisplayPageOverride(
+				entryName = "Torque Converters",
+				layout = "Test Private Content Page");
+		}
+
+		task ("When accessing the Minium catalog and viewing the selected product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Torque Converters");
+		}
+
+		task ("Then the site should redirect to the override page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$34.00",
+				productName = "Torque Converters",
+				productSKU = "MIN5589");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Private Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "group/minium/p/torque-converters");
+		}
+
+		task ("When accessing the Minium catalog and viewing another product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+		}
+
+		task ("Then the site should redirect to the default product display page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$24.00",
+				productName = "U-Joint",
+				productSKU = "MIN55861");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Public Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "group/minium/p/u-joint");
+		}
 	}
 
-	@description = "[Please Update]"
-	@ignore = "Test Stub"
+	@description = "This is a test for COMMERCE-7838. Assert user can override the public default product display page with a public widget page."
 	@priority = "4"
 	test OverridePublicDefaultProductDisplayPageWithAPublicPage {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-7838 OverridePublicDefaultProductDisplayPageWithAPublicPage pending implementation
+		task ("Given that both a public widget page and a public content page are created with a product details widget") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
+			JSONLayout.addPublicLayout(
+				groupName = "Minium",
+				layoutName = "Test Public Widget Page");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Minium",
+				layoutName = "Test Public Widget Page",
+				widgetName = "Product Details");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Minium",
+				layoutName = "Test Public Content Page",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Public Content Page",
+				siteName = "Minium");
+
+			PageEditor.addWidget(portletName = "Product Details");
+
+			Button.clickPublish();
+		}
+
+		task ("And given the public content page is set to be the default product display page") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Product Display Pages");
+
+			CommerceChannels.chooseDefaultDisplayPage(
+				pageName = "Test Public Content Page",
+				pageType = "Public");
+
+			CommerceEntry.assertDefaultDisplayPage(
+				pageName = "Test Public Content Page",
+				pageType = "Public");
+		}
+
+		task ("And given the public widget page is set as the override product display page for a selected product") {
+			CommerceChannels.overrideProductDisplayPage(
+				pageName = "Test Public Widget Page",
+				pageType = "Public",
+				product = "Torque Converters");
+
+			CommerceEntry.assertDisplayPageOverride(
+				entryName = "Torque Converters",
+				layout = "Test Public Widget Page");
+		}
+
+		task ("When accessing the Minium catalog and viewing the selected product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Torque Converters");
+		}
+
+		task ("Then the site should redirect to the override page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$34.00",
+				productName = "Torque Converters",
+				productSKU = "MIN5589");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Public Widget Page");
+
+			AssertLocation.assertPartialLocation(value1 = "web/minium/p/torque-converters");
+		}
+
+		task ("When accessing the Minium catalog and viewing another product") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+		}
+
+		task ("Then the site should redirect to the default product display page") {
+			FrontStore.assertProductDetails(
+				productListPrice = "$24.00",
+				productName = "U-Joint",
+				productSKU = "MIN55861");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Public Content Page");
+
+			AssertLocation.assertPartialLocation(value1 = "web/minium/p/u-joint");
+		}
 	}
 
 	@description = "Verify user is redirected to private content and widget pages with a Product Details widget when clicking on a catalog product after the page is defined as the Default Product Display Page."

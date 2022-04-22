@@ -141,6 +141,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>DOWNLOAD</td>
+	<td>//button[@title='Download']//*[contains(@class,'icon-download')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CUSTOM_EDIT</td>
 	<td>//a[contains(@class,'taglib-icon')]/i[contains(@class,'icon-edit')]</td>
 	<td></td>
@@ -177,7 +182,7 @@
 </tr>
 <tr>
 	<td>EXPORT_FOR_TRANSLATION</td>
-	<td>//*[*[name()='svg'][contains(@class,'import-export')]]</td>
+	<td>//*[*[name()='svg'][contains(@class,'upload')]]</td>
 	<td></td>
 </tr>
 <tr>

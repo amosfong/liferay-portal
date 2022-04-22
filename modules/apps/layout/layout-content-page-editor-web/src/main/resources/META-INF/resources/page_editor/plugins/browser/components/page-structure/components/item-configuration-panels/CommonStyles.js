@@ -25,7 +25,7 @@ import {
 } from '../../../../../../app/contexts/StoreContext';
 import selectSegmentsExperienceId from '../../../../../../app/selectors/selectSegmentsExperienceId';
 import updateItemStyle from '../../../../../../app/utils/updateItemStyle';
-import {FieldSet} from './FieldSet';
+import {FieldSet, fieldIsDisabled} from './FieldSet';
 
 export function CommonStyles({
 	className,
@@ -63,11 +63,56 @@ export function CommonStyles({
 			});
 	}
 
+	const handleValueSelect = (name, value) => {
+		updateItemStyle({
+			dispatch,
+			itemId: item.itemId,
+			segmentsExperienceId,
+			selectedViewportSize,
+			styleName: name,
+			styleValue: value,
+		});
+	};
+
+	const spacingFieldSets = styles
+		.filter((fieldSet) => isSpacingFieldSet(fieldSet))
+		.map((fieldSet) => ({
+			...fieldSet,
+			styles: fieldSet.styles.map((field) => ({
+				...field,
+				disabled: fieldIsDisabled(item, field),
+			})),
+		}));
+
+	if (spacingFieldSets.length) {
+		styles = styles.filter((fieldSet) => !isSpacingFieldSet(fieldSet));
+	}
+
 	return (
 		<>
 			<div
 				className={classNames('page-editor__common-styles', className)}
 			>
+				{spacingFieldSets.length ? (
+					<FieldSet
+						fields={[
+							{
+								displaySize: '',
+								label: '',
+								name: '',
+								responsive: true,
+								type: 'spacing',
+								typeOptions: {spacingFieldSets},
+							},
+						]}
+						item={item}
+						label={Liferay.Language.get('spacing')}
+						languageId={config.defaultLanguageId}
+						onValueSelect={handleValueSelect}
+						values={commonStylesValues}
+					/>
+				) : null}
+
 				{styles.map((fieldSet, index) => {
 					return (
 						<FieldSet
@@ -76,22 +121,20 @@ export function CommonStyles({
 							key={index}
 							label={fieldSet.label}
 							languageId={config.defaultLanguageId}
-							onValueSelect={(name, value) =>
-								updateItemStyle({
-									dispatch,
-									itemId: item.itemId,
-									segmentsExperienceId,
-									selectedViewportSize,
-									styleName: name,
-									styleValue: value,
-								})
-							}
+							onValueSelect={handleValueSelect}
 							values={commonStylesValues}
 						/>
 					);
 				})}
 			</div>
 		</>
+	);
+}
+
+function isSpacingFieldSet(fieldSet) {
+	return (
+		fieldSet.styles.every((field) => field.name.startsWith('margin')) ||
+		fieldSet.styles.every((field) => field.name.startsWith('padding'))
 	);
 }
 

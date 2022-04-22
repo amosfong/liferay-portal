@@ -14,7 +14,6 @@
 
 package com.liferay.object.rest.internal.dto.v1_0.converter;
 
-import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
@@ -33,6 +32,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.object.util.ObjectEntryFieldValueUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -247,17 +247,15 @@ public class ObjectEntryDTOConverter
 			}
 			else if (Objects.equals(
 						objectField.getBusinessType(),
-						ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
+						ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) ||
+					 Objects.equals(
+						 objectField.getBusinessType(),
+						 ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT)) {
 
-				DLFileEntry dlFileEntry =
-					_dlFileEntryLocalService.fetchDLFileEntry(
-						GetterUtil.getLong(serializable));
-
-				if (dlFileEntry == null) {
-					continue;
-				}
-
-				map.put(objectFieldName, dlFileEntry.getFileName());
+				map.put(
+					objectFieldName,
+					ObjectEntryFieldValueUtil.getValueString(
+						objectField, values));
 			}
 			else if ((nestedFieldsDepth > 0) &&
 					 Objects.equals(
@@ -267,7 +265,9 @@ public class ObjectEntryDTOConverter
 				long objectEntryId = 0;
 
 				if (serializable != null) {
-					objectEntryId = (long)serializable;
+					if (GetterUtil.getLong(serializable) > 0) {
+						objectEntryId = (long)serializable;
+					}
 
 					Optional<UriInfo> uriInfoOptional =
 						dtoConverterContext.getUriInfoOptional();

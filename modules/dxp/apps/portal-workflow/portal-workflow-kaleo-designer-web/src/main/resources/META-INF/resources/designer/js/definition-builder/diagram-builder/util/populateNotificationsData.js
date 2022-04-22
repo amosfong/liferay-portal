@@ -11,7 +11,7 @@
 
 import {isNode} from 'react-flow-renderer';
 
-import {retrieveRolesBy} from '../../util/fetchUtil';
+import {retrieveRolesBy, retrieveUsersBy} from '../../util/fetchUtil';
 
 const populateNotificationsData = (initialElements, setElements) => {
 	for (let i = 0; i < initialElements.length; i++) {
@@ -21,7 +21,7 @@ const populateNotificationsData = (initialElements, setElements) => {
 			const recipients = element.data.notifications.recipients;
 
 			recipients.map((recipient, index) => {
-				if (recipient.assignmentType[0] === 'roleId') {
+				if (recipient?.assignmentType?.[0] === 'roleId') {
 					retrieveRolesBy('roleId', recipient.roleId)
 						.then((response) => response.json())
 						.then((response) => {
@@ -32,6 +32,33 @@ const populateNotificationsData = (initialElements, setElements) => {
 								name: response.name,
 								roleType: response.roleType,
 							};
+
+							setElements([...initialElements]);
+						});
+				}
+				else if (
+					recipient?.assignmentType?.[0] === 'user' &&
+					recipient.emailAddress
+				) {
+					const sectionsData = [];
+
+					retrieveUsersBy('emailAddress', recipient.emailAddress)
+						.then((response) => response.json())
+						.then(({items}) => {
+							items.forEach((item, index) => {
+								sectionsData.push({
+									emailAddress: item.emailAddress,
+									identifier: `${Date.now()}-${index}`,
+									name: item.name,
+									screenName: item.alternateName,
+									userId: item.id,
+								});
+							});
+						})
+						.then(() => {
+							initialElements[i].data.notifications.recipients[
+								index
+							].sectionsData = sectionsData;
 
 							setElements([...initialElements]);
 						});

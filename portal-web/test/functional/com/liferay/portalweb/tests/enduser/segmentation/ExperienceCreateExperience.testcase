@@ -2000,7 +2000,7 @@ definition {
 		Select(
 			key_criterion = "options",
 			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
-			value1 = "FALSE");
+			value1 = "False");
 
 		Button.clickSave();
 
@@ -3882,11 +3882,15 @@ definition {
 				assetTitle = "WC Title 1",
 				assetType = "Basic Web Content");
 
+			IFrame.closeFrame();
+
 			PageEditor.changeExperience(newExperience = "New Experience");
 
 			AssetPublisherPortlet.configureManualAssetSelectionPG(
 				assetTitle = "Blogs Entry Title",
 				assetType = "Blogs Entry");
+
+			IFrame.closeFrame();
 
 			PageEditor.clickPublish();
 		}
@@ -4830,6 +4834,8 @@ definition {
 	@description = "This is a test for LPS-132573. Assert no error occurs after switching back to default experience with fragment removed."
 	@priority = "4"
 	test RemoveFragmentAndChangeBackToDefaultExperience {
+		property test.name.skip.portal.instance = "ExperienceCreateExperience#RemoveFragmentAndChangeBackToDefaultExperience";
+
 		JSONWebcontent.addWebContent(
 			content = "Web Content Content",
 			groupName = "Test Site Name",

@@ -9,6 +9,7 @@
  * distribution rights of the Software.
  */
 
+import {SLA_TYPES} from '../../../common/utils/constants/slaTypes';
 import {
 	PRODUCT_TYPES,
 	SLA_NAMES,
@@ -17,65 +18,76 @@ import {
 
 export function getWebContents({dxpVersion, slaCurrent, subscriptionGroups}) {
 	const webContents = [];
+	const hasProjectSLA = Object.values(SLA_TYPES).some((slaType) =>
+		slaCurrent?.includes(slaType)
+	);
 
-	if (
-		subscriptionGroups.some(
-			({name}) =>
-				name === PRODUCT_TYPES.dxp ||
-				name === PRODUCT_TYPES.portal ||
-				name === PRODUCT_TYPES.commerce
-		) ||
-		!subscriptionGroups.some(
-			({name}) =>
-				name === PRODUCT_TYPES.partnership ||
-				name === PRODUCT_TYPES.dxpCloud
-		)
-	) {
+	const allProductsNames = Object.values(PRODUCT_TYPES);
+
+	const allProductsKeys = Object.keys(PRODUCT_TYPES);
+
+	const initialSubscriptions = allProductsKeys.map((productKey) => [
+		productKey,
+		false,
+	]);
+
+	const hasSubscriptionGroup = subscriptionGroups?.reduce(
+		(subscriptionGroupsAccumulator, subscriptionGroup) => {
+			const currentProductIndex = allProductsNames.findIndex(
+				(productName) => productName === subscriptionGroup?.name
+			);
+
+			if (currentProductIndex !== -1) {
+				const productKey = allProductsKeys[currentProductIndex];
+				subscriptionGroupsAccumulator[productKey] = true;
+			}
+
+			return subscriptionGroupsAccumulator;
+		},
+		Object.fromEntries(initialSubscriptions)
+	);
+
+	const hasAccessToActivateAnalyticsCloudContent =
+		!hasSubscriptionGroup.analyticsCloud &&
+		(hasSubscriptionGroup.portal || hasSubscriptionGroup.partnership) &&
+		(hasSubscriptionGroup.dxp || hasSubscriptionGroup.dxpCloud);
+
+	const hasAccessToSourceCodeContent =
+		hasSubscriptionGroup.partnership ||
+		hasSubscriptionGroup.dxpCloud ||
+		hasSubscriptionGroup.dxp;
+
+	const hasAccessToEnvironmentDetailContent =
+		hasSubscriptionGroup.dxp ||
+		hasSubscriptionGroup.portal ||
+		hasSubscriptionGroup.commerce ||
+		!(hasSubscriptionGroup.partnership || hasSubscriptionGroup.dxpCloud);
+
+	if (hasProjectSLA) {
 		webContents.push('WEB-CONTENT-ACTION-01');
 	}
 	if (
-		!subscriptionGroups.some(
-			({name}) => name === PRODUCT_TYPES.partnership
-		) &&
+		!hasSubscriptionGroup.partnership &&
 		slaCurrent !== SLA_NAMES.limitedSubscription
 	) {
 		webContents.push('WEB-CONTENT-ACTION-02');
 	}
-	if (
-		subscriptionGroups.some(
-			({name}) =>
-				name === PRODUCT_TYPES.dxp || name === PRODUCT_TYPES.dxpCloud
-		)
-	) {
+	if (hasAccessToSourceCodeContent) {
 		webContents.push('WEB-CONTENT-ACTION-03');
 	}
-	if (
-		subscriptionGroups.some(
-			({name}) =>
-				name === PRODUCT_TYPES.dxp || name === PRODUCT_TYPES.dxpCloud
-		)
-	) {
+	if (hasSubscriptionGroup.dxp || hasSubscriptionGroup.dxpCloud) {
 		webContents.push(
 			dxpVersion
 				? WEB_CONTENT_DXP_VERSION_TYPES[dxpVersion]
 				: WEB_CONTENT_DXP_VERSION_TYPES['7.4']
 		);
 	}
-	if (
-		!subscriptionGroups.some(
-			({name}) => name === PRODUCT_TYPES.analytics_cloud
-		) &&
-		(!subscriptionGroups.some(({name}) => name === PRODUCT_TYPES.portal) ||
-			(subscriptionGroups.some(
-				({name}) => name === PRODUCT_TYPES.portal
-			) &&
-				subscriptionGroups.some(
-					({name}) =>
-						name === PRODUCT_TYPES.dxp ||
-						name === PRODUCT_TYPES.dxpCloud
-				)))
-	) {
+
+	if (hasAccessToActivateAnalyticsCloudContent) {
 		webContents.push('WEB-CONTENT-ACTION-09');
+	}
+	if (hasAccessToEnvironmentDetailContent) {
+		webContents.push('WEB-CONTENT-ACTION-10');
 	}
 
 	return webContents;

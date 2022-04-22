@@ -361,7 +361,7 @@ $productMenuWidth: 320px;
 	}
 
 	.lfr-header-row {
-		border: 1px solid transparent;
+		border: 1px solid #7b7b7b;
 		min-height: 31px;
 
 		.lfr-asset-summary {
@@ -390,6 +390,7 @@ $productMenuWidth: 320px;
 		}
 
 		.lfr-search-combobox {
+			border-color: #5f5f5f;
 			float: right;
 			margin: -2px 0 0 2px;
 		}
@@ -769,7 +770,33 @@ $productMenuWidth: 320px;
 	.upload-drop-active &,
 	.upload-drop-intent & {
 		.document-container {
-			background-color: #eef4ff;
+			background-color: $primary-l3;
+		}
+	}
+
+	.upload-drop-active & {
+		.document-container {
+			border-radius: 2px;
+			box-shadow: 0 0 0 2px $primary-l2;
+
+			.active-area {
+				background-color: transparent !important;
+
+				.card-type-directory .card,
+				&.list-group-item,
+				td {
+					background-color: $primary-l3 !important;
+				}
+
+				.card-type-directory .card {
+					box-shadow: 0 0 0 2px $primary-l2;
+				}
+			}
+
+			.taglib-empty-result-message {
+				background-color: $primary-l3;
+				border-color: transparent;
+			}
 		}
 	}
 
@@ -782,6 +809,16 @@ $productMenuWidth: 320px;
 			float: right;
 		}
 	}
+
+	.common-file-metadata-container.selected {
+		border-radius: 5px;
+	}
+
+	.entry-thumbnail .label {
+		border-bottom-left-radius: 0;
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
 }
 
 .active-area-proxy {
@@ -792,4 +829,16 @@ $productMenuWidth: 320px;
 
 .autocomplete-dropdown-menu {
 	z-index: 2000;
+}
+
+.portlet-document-library-upload-mask {
+	.progress p {
+		font-weight: 600;
+		margin: auto;
+	}
+
+	.overlaymask-content {
+		background-color: #fff;
+		border-radius: 5px;
+	}
 }

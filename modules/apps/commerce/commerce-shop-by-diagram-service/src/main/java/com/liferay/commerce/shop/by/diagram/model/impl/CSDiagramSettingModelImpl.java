@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -74,10 +73,11 @@ public class CSDiagramSettingModelImpl
 	public static final String TABLE_NAME = "CSDiagramSetting";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
-		{"CSDiagramSettingId", Types.BIGINT}, {"companyId", Types.BIGINT},
-		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
-		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"uuid_", Types.VARCHAR}, {"CSDiagramSettingId", Types.BIGINT},
+		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
+		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
+		{"modifiedDate", Types.TIMESTAMP},
 		{"CPAttachmentFileEntryId", Types.BIGINT},
 		{"CPDefinitionId", Types.BIGINT}, {"color", Types.VARCHAR},
 		{"radius", Types.DOUBLE}, {"type_", Types.VARCHAR}
@@ -88,6 +88,7 @@ public class CSDiagramSettingModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("CSDiagramSettingId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
@@ -103,7 +104,7 @@ public class CSDiagramSettingModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CSDiagramSetting (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,CSDiagramSettingId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,CPAttachmentFileEntryId LONG,CPDefinitionId LONG,color VARCHAR(75) null,radius DOUBLE,type_ VARCHAR(75) null)";
+		"create table CSDiagramSetting (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,CSDiagramSettingId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,CPAttachmentFileEntryId LONG,CPDefinitionId LONG,color VARCHAR(75) null,radius DOUBLE,type_ VARCHAR(75) null,primary key (CSDiagramSettingId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CSDiagramSetting";
 
@@ -243,34 +244,6 @@ public class CSDiagramSettingModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, CSDiagramSetting>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			CSDiagramSetting.class.getClassLoader(), CSDiagramSetting.class,
-			ModelWrapper.class);
-
-		try {
-			Constructor<CSDiagramSetting> constructor =
-				(Constructor<CSDiagramSetting>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<CSDiagramSetting, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<CSDiagramSetting, Object>>
@@ -290,6 +263,12 @@ public class CSDiagramSettingModelImpl
 			"mvccVersion",
 			(BiConsumer<CSDiagramSetting, Long>)
 				CSDiagramSetting::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CSDiagramSetting::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CSDiagramSetting, Long>)
+				CSDiagramSetting::setCtCollectionId);
 		attributeGetterFunctions.put("uuid", CSDiagramSetting::getUuid);
 		attributeSetterBiConsumers.put(
 			"uuid",
@@ -371,6 +350,21 @@ public class CSDiagramSettingModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -687,6 +681,7 @@ public class CSDiagramSettingModelImpl
 		CSDiagramSettingImpl csDiagramSettingImpl = new CSDiagramSettingImpl();
 
 		csDiagramSettingImpl.setMvccVersion(getMvccVersion());
+		csDiagramSettingImpl.setCtCollectionId(getCtCollectionId());
 		csDiagramSettingImpl.setUuid(getUuid());
 		csDiagramSettingImpl.setCSDiagramSettingId(getCSDiagramSettingId());
 		csDiagramSettingImpl.setCompanyId(getCompanyId());
@@ -712,6 +707,8 @@ public class CSDiagramSettingModelImpl
 
 		csDiagramSettingImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
+		csDiagramSettingImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		csDiagramSettingImpl.setUuid(
 			this.<String>getColumnOriginalValue("uuid_"));
 		csDiagramSettingImpl.setCSDiagramSettingId(
@@ -815,6 +812,8 @@ public class CSDiagramSettingModelImpl
 			new CSDiagramSettingCacheModel();
 
 		csDiagramSettingCacheModel.mvccVersion = getMvccVersion();
+
+		csDiagramSettingCacheModel.ctCollectionId = getCtCollectionId();
 
 		csDiagramSettingCacheModel.uuid = getUuid();
 
@@ -966,11 +965,14 @@ public class CSDiagramSettingModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, CSDiagramSetting>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					CSDiagramSetting.class, ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private long _CSDiagramSettingId;
 	private long _companyId;
@@ -1015,6 +1017,7 @@ public class CSDiagramSettingModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put("uuid_", _uuid);
 		_columnOriginalValues.put("CSDiagramSettingId", _CSDiagramSettingId);
 		_columnOriginalValues.put("companyId", _companyId);
@@ -1054,29 +1057,31 @@ public class CSDiagramSettingModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("uuid_", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("CSDiagramSettingId", 4L);
+		columnBitmasks.put("uuid_", 4L);
 
-		columnBitmasks.put("companyId", 8L);
+		columnBitmasks.put("CSDiagramSettingId", 8L);
 
-		columnBitmasks.put("userId", 16L);
+		columnBitmasks.put("companyId", 16L);
 
-		columnBitmasks.put("userName", 32L);
+		columnBitmasks.put("userId", 32L);
 
-		columnBitmasks.put("createDate", 64L);
+		columnBitmasks.put("userName", 64L);
 
-		columnBitmasks.put("modifiedDate", 128L);
+		columnBitmasks.put("createDate", 128L);
 
-		columnBitmasks.put("CPAttachmentFileEntryId", 256L);
+		columnBitmasks.put("modifiedDate", 256L);
 
-		columnBitmasks.put("CPDefinitionId", 512L);
+		columnBitmasks.put("CPAttachmentFileEntryId", 512L);
 
-		columnBitmasks.put("color", 1024L);
+		columnBitmasks.put("CPDefinitionId", 1024L);
 
-		columnBitmasks.put("radius", 2048L);
+		columnBitmasks.put("color", 2048L);
 
-		columnBitmasks.put("type_", 4096L);
+		columnBitmasks.put("radius", 4096L);
+
+		columnBitmasks.put("type_", 8192L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

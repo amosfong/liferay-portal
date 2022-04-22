@@ -349,7 +349,7 @@ export default class SidePanel extends React.Component {
 				<Modal id={this.state.iframeHandlerModalId} />
 				<div
 					className={classNames(
-						'side-panel-nav-cover navigation-bar border-bottom',
+						'fds-side-panel-nav-cover navigation-bar border-bottom',
 						visibility
 					)}
 					style={{top: this.state.menuCoverTopDistance}}
@@ -371,8 +371,8 @@ export default class SidePanel extends React.Component {
 				</div>
 				<div
 					className={classNames(
-						'side-panel',
-						`side-panel-${this.state.size}`,
+						'fds-side-panel',
+						`fds-side-panel-${this.state.size}`,
 						visibility,
 						loading
 					)}
@@ -389,11 +389,11 @@ export default class SidePanel extends React.Component {
 
 					<ClayButton
 						className={classNames(
-							'side-panel-close',
+							'fds-side-panel-close',
 							this.state.closeButtonStyle === 'simple' &&
-								'side-panel-close-simple',
+								'fds-side-panel-close-simple',
 							this.state.closeButtonStyle === 'menu' &&
-								'side-panel-close-menu'
+								'fds-side-panel-close-menu'
 						)}
 						displayType="monospaced"
 						onClick={() => this.close()}

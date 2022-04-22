@@ -21,21 +21,6 @@ import com.liferay.portal.kernel.exception.PortalException;
  */
 public class ObjectDefinitionNameException extends PortalException {
 
-	public ObjectDefinitionNameException() {
-	}
-
-	public ObjectDefinitionNameException(String msg) {
-		super(msg);
-	}
-
-	public ObjectDefinitionNameException(String msg, Throwable throwable) {
-		super(msg, throwable);
-	}
-
-	public ObjectDefinitionNameException(Throwable throwable) {
-		super(throwable);
-	}
-
 	public static class MustBeginWithUpperCaseLetter
 		extends ObjectDefinitionNameException {
 
@@ -96,6 +81,10 @@ public class ObjectDefinitionNameException extends PortalException {
 			super("Custom object definition names must start with \"C_\"");
 		}
 
+	}
+
+	private ObjectDefinitionNameException(String msg) {
+		super(msg);
 	}
 
 }

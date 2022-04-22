@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.model.Country;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Region;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.search.Document;
@@ -35,8 +36,10 @@ import com.liferay.portal.kernel.service.CountryService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.RegionService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
@@ -89,17 +92,33 @@ public class UserModelDocumentContributor
 			document.addText("fullName", user.getFullName());
 			document.addKeyword("groupIds", user.getGroupIds());
 			document.addText("jobTitle", user.getJobTitle());
+			document.addDate("lastLoginDate", user.getLastLoginDate());
 			document.addText("lastName", user.getLastName());
 			document.addText("middleName", user.getMiddleName());
 			document.addKeyword("organizationIds", organizationIds);
 			document.addKeyword(
 				"organizationCount", String.valueOf(organizationIds.length));
-			document.addKeyword("roleIds", user.getRoleIds());
+
+			long[] roleIds = user.getRoleIds();
+
+			document.addKeyword("roleIds", roleIds);
+			document.addKeyword(
+				"roleNames",
+				ListUtil.toArray(
+					_roleLocalService.getRoles(roleIds), Role.NAME_ACCESSOR));
+
 			document.addText("screenName", user.getScreenName());
 			document.addKeyword("teamIds", user.getTeamIds());
 			document.addKeyword("userGroupIds", user.getUserGroupIds());
+
+			long[] userGroupRoleIds = _getUserGroupRoleIds(user.getUserId());
+
+			document.addKeyword("userGroupRoleIds", userGroupRoleIds);
 			document.addKeyword(
-				"userGroupRoleIds", _getUserGroupRoleIds(user.getUserId()));
+				"userGroupRoleNames",
+				ListUtil.toArray(
+					_roleLocalService.getRoles(userGroupRoleIds),
+					Role.NAME_ACCESSOR));
 
 			_populateAddresses(document, user.getAddresses(), 0, 0);
 		}
@@ -258,5 +277,8 @@ public class UserModelDocumentContributor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UserModelDocumentContributor.class);
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 }

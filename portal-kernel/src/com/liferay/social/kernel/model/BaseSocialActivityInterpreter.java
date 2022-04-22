@@ -39,7 +39,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -140,7 +140,8 @@ public abstract class BaseSocialActivityInterpreter
 			return url;
 		}
 
-		return HttpUtil.setParameter(url, "noSuchEntryRedirect", viewEntryURL);
+		return HttpComponentsUtil.setParameter(
+			url, "noSuchEntryRedirect", viewEntryURL);
 	}
 
 	protected String buildLink(String link, String text) {
@@ -333,20 +334,6 @@ public abstract class BaseSocialActivityInterpreter
 		throws Exception {
 
 		return StringPool.BLANK;
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #acquireResourceBundleLoader}
-	 */
-	@Deprecated
-	protected com.liferay.portal.kernel.util.ResourceBundleLoader
-		getResourceBundleLoader() {
-
-		ResourceBundleLoader resourceBundleLoader =
-			acquireResourceBundleLoader();
-
-		return locale -> resourceBundleLoader.loadResourceBundle(locale);
 	}
 
 	protected String getTitle(

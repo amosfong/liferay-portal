@@ -1,12 +1,12 @@
 [
 	{
 		"cssURLs": [
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/main.css$]"
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/site-initializer-raylife-ap/main.css$]"
 		],
 		"elementURLs": [
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/2.js$]",
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/main.js$]",
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/runtime-main.js$]"
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/site-initializer-raylife-ap/2.js$]",
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/site-initializer-raylife-ap/main.js$]",
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/site-initializer-raylife-ap/runtime-main.js$]"
 		],
 		"externalReferenceCode": "RAYLIFEAGENTPORTAL001",
 		"htmlElementName": "liferay-remote-app-raylife-ap",

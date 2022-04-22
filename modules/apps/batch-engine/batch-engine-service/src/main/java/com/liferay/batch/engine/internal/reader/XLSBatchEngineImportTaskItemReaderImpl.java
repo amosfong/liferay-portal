@@ -97,24 +97,13 @@ public class XLSBatchEngineImportTaskItemReaderImpl
 				}
 			}
 			else {
-				String value = cell.getStringCellValue();
+				FieldNameValueMapHandlerFactory.FieldNameValueMapHandler
+					fieldNameValueMapHandler =
+						FieldNameValueMapHandlerFactory.
+							getFieldNameValueMapHandler(fieldName);
 
-				value = value.trim();
-
-				if (value.isEmpty()) {
-					value = null;
-				}
-
-				int lastDelimiterIndex = fieldName.lastIndexOf('_');
-
-				if (lastDelimiterIndex == -1) {
-					fieldNameValueMap.put(fieldName, value);
-				}
-				else {
-					BatchEngineImportTaskItemReaderUtil.handleMapField(
-						fieldName, fieldNameValueMap, lastDelimiterIndex,
-						value);
-				}
+				fieldNameValueMapHandler.handle(
+					fieldName, fieldNameValueMap, cell.getStringCellValue());
 			}
 		}
 

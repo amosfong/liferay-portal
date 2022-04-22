@@ -32,7 +32,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test SegmentCompositionShowsActiveAndKnownIndividuals {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Test blocked by LRAC-9056
 		// AC Refactor Ticket: LRAC-9337

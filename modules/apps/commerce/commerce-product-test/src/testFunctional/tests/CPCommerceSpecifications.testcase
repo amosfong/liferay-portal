@@ -3,28 +3,15 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Product Info Management";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceStoreFrontSetUp();
+		CommerceConfiguration.commerceSetUp(storeFront = "true");
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6283. EditSpecificationGroup"

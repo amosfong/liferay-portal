@@ -286,18 +286,17 @@ public class InviteMembersPortlet extends MVCPortlet {
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			actionRequest);
 
+		serviceContext.setAttribute(
+			"createAccountURL",
+			_portal.getCreateAccountURL(
+				_portal.getHttpServletRequest(actionRequest), themeDisplay));
+		serviceContext.setAttribute("loginURL", themeDisplay.getURLSignIn());
+
 		PortletURL portletURL = PortletProviderUtil.getPortletURL(
 			actionRequest, _groupLocalService.getGroup(groupId),
 			UserNotificationEvent.class.getName(), PortletProvider.Action.VIEW);
 
 		serviceContext.setAttribute("redirectURL", portletURL.toString());
-
-		String createAccountURL = _portal.getCreateAccountURL(
-			_portal.getHttpServletRequest(actionRequest), themeDisplay);
-
-		serviceContext.setAttribute("createAccountURL", createAccountURL);
-
-		serviceContext.setAttribute("loginURL", themeDisplay.getURLSignIn());
 
 		_memberRequestLocalService.addMemberRequests(
 			themeDisplay.getUserId(), groupId, receiverUserIds, invitedRoleId,

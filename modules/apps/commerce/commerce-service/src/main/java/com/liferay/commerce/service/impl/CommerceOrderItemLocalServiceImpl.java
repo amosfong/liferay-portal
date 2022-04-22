@@ -519,12 +519,13 @@ public class CommerceOrderItemLocalServiceImpl
 		User user = userLocalService.getUser(serviceContext.getUserId());
 
 		CommerceOrderItem commerceOrderItem =
-			commerceOrderItemPersistence.fetchByC_ERC(
-				serviceContext.getCompanyId(), externalReferenceCode);
+			commerceOrderItemPersistence.fetchByPrimaryKey(commerceOrderItemId);
 
-		if (commerceOrderItem == null) {
-			commerceOrderItem = commerceOrderItemPersistence.fetchByPrimaryKey(
-				commerceOrderItemId);
+		if ((commerceOrderItem == null) &&
+			!Validator.isBlank(externalReferenceCode)) {
+
+			commerceOrderItem = commerceOrderItemPersistence.fetchByC_ERC(
+				serviceContext.getCompanyId(), externalReferenceCode);
 		}
 
 		if (commerceOrderItem == null) {
@@ -756,9 +757,9 @@ public class CommerceOrderItemLocalServiceImpl
 		CommerceOrderItem commerceOrderItem =
 			commerceOrderItemPersistence.findByPrimaryKey(commerceOrderItemId);
 
+		commerceOrderItem.setShippingAddressId(shippingAddressId);
 		commerceOrderItem.setDeliveryGroup(deliveryGroup);
 		commerceOrderItem.setPrintedNote(printedNote);
-		commerceOrderItem.setShippingAddressId(shippingAddressId);
 
 		return commerceOrderItemPersistence.update(commerceOrderItem);
 	}
@@ -779,10 +780,10 @@ public class CommerceOrderItemLocalServiceImpl
 		CommerceOrderItem commerceOrderItem =
 			commerceOrderItemPersistence.findByPrimaryKey(commerceOrderItemId);
 
+		commerceOrderItem.setShippingAddressId(shippingAddressId);
 		commerceOrderItem.setDeliveryGroup(deliveryGroup);
 		commerceOrderItem.setPrintedNote(printedNote);
 		commerceOrderItem.setRequestedDeliveryDate(requestedDeliveryDate);
-		commerceOrderItem.setShippingAddressId(shippingAddressId);
 
 		return commerceOrderItemPersistence.update(commerceOrderItem);
 	}

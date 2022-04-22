@@ -23,9 +23,10 @@ html#{$cadmin-selector} {
 			}
 
 			@include media-breakpoint-up(sm, $cadmin-grid-breakpoints) {
-				.sidebar-header {
-					padding-bottom: 12px;
-					padding-top: 12px;
+				@include media-breakpoint-down(md, $cadmin-grid-breakpoints) {
+					&.lfr-admin-panel.sidenav-menu-slider {
+						top: 56px;
+					}
 				}
 			}
 

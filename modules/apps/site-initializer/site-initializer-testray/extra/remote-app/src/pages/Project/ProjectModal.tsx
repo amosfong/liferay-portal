@@ -12,101 +12,51 @@
  * details.
  */
 
-import {useMutation} from '@apollo/client';
 import ClayButton from '@clayui/button';
-import ClayForm from '@clayui/form';
-import {useState} from 'react';
+import {useForm} from 'react-hook-form';
 
 import Input from '../../components/Input';
 import Modal from '../../components/Modal';
-import {CreateTestrayProject} from '../../graphql/mutations/TestrayProject';
-import {FormModalOptions} from '../../hooks/useFormModal';
+import {
+	CreateProject,
+	UpdateProject,
+} from '../../graphql/mutations/testrayProject';
+import {withVisibleContent} from '../../hoc/withVisibleContent';
+import {FormModalComponent} from '../../hooks/useFormModal';
 import i18n from '../../i18n';
-import {Liferay} from '../../services/liferay/liferay';
+import yupSchema, {yupResolver} from '../../schema/yup';
 
-type NewProjectForm = {
+type ProjectForm = {
 	description: string;
+	id?: string;
 	name: string;
 };
 
-type NewProjectFormProps = {
-	form: NewProjectForm;
-	onChange: (event: any) => void;
-	onSubmit: (event: any) => void;
-};
-
-const FormNewProject: React.FC<NewProjectFormProps> = ({
-	onChange,
-	onSubmit,
+const ProjectModal: React.FC<FormModalComponent> = ({
+	modal: {modalState, observer, onClose, onSubmit},
 }) => {
-	return (
-		<ClayForm onSubmit={onSubmit}>
-			<ClayForm.Group>
-				<Input label="Name" name="name" onChange={onChange} required />
-			</ClayForm.Group>
-
-			<ClayForm.Group>
-				<Input
-					label="Description"
-					name="description"
-					onChange={onChange}
-					required
-					type="textarea"
-				/>
-			</ClayForm.Group>
-		</ClayForm>
-	);
-};
-
-type NewProjectProps = {
-	modal: FormModalOptions;
-};
-const ProjectModal: React.FC<NewProjectProps> = ({
-	modal: {observer, onClose, onSave, visible},
-}) => {
-	const [form, setForm] = useState<NewProjectForm>({
-		description: '',
-
-		name: '',
+	const {
+		formState: {errors},
+		handleSubmit,
+		register,
+	} = useForm<ProjectForm>({
+		defaultValues: modalState,
+		resolver: yupResolver(yupSchema.project),
 	});
 
-	function onChange({target}: any): void {
-		const {name, value} = target;
+	const _onSubmit = (form: ProjectForm) =>
+		onSubmit(
+			{description: form.description, id: form.id, name: form.name},
+			{
+				createMutation: CreateProject,
+				updateMutation: UpdateProject,
+			}
+		);
 
-		setForm({
-			...form,
-			[name]: value,
-		});
-	}
-
-	const [onCreateTestrayProject] = useMutation(CreateTestrayProject);
-
-	const onSubmit = async () => {
-		const newForm: NewProjectForm = {
-			...form,
-
-			description: form.description,
-
-			name: form.name,
-		};
-
-		try {
-			await onCreateTestrayProject({
-				variables: {
-					TestrayProject: newForm,
-				},
-			});
-
-			Liferay.Util.openToast({message: 'TestrayProject Registered'});
-
-			onSave();
-		}
-		catch (error) {
-			Liferay.Util.openToast({
-				message: (error as any).message,
-				type: 'danger',
-			});
-		}
+	const inputProps = {
+		errors,
+		register,
+		required: true,
 	};
 
 	return (
@@ -117,23 +67,30 @@ const ProjectModal: React.FC<NewProjectProps> = ({
 						{i18n.translate('close')}
 					</ClayButton>
 
-					<ClayButton displayType="primary" onClick={onSubmit}>
-						{i18n.translate('add-project')}
+					<ClayButton
+						displayType="primary"
+						onClick={handleSubmit(_onSubmit)}
+					>
+						{i18n.translate('save')}
 					</ClayButton>
 				</ClayButton.Group>
 			}
 			observer={observer}
 			size="lg"
-			title={i18n.translate('new-project')}
-			visible={visible}
+			title={i18n.translate(
+				modalState?.id ? 'edit-project' : 'new-project'
+			)}
+			visible
 		>
-			<FormNewProject
-				form={form}
-				onChange={onChange}
-				onSubmit={onSubmit}
+			<Input label={i18n.translate('name')} name="name" {...inputProps} />
+
+			<Input
+				label={i18n.translate('description')}
+				name="description"
+				{...inputProps}
 			/>
 		</Modal>
 	);
 };
 
-export default ProjectModal;
+export default withVisibleContent(ProjectModal);

@@ -16,9 +16,12 @@ package com.liferay.frontend.js.components.web.internal.servlet.taglib;
 
 import com.liferay.frontend.js.components.web.internal.configuration.FFFrontendJSComponentsConfiguration;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,9 +57,16 @@ public class FrontendComponentsTopHeadDynamicInclude
 
 		sb.append("<script>var Liferay = window.Liferay || {};");
 		sb.append("Liferay.__FF__ = Liferay.__FF__ || {};");
-		sb.append("Liferay.__FF__.enableClayTreeView = ");
-		sb.append(_ffFrontendJSComponentsConfiguration.enableClayTreeView());
-		sb.append(";</script>");
+		sb.append(
+			_buildFeatureFlagJSGlobalVariable(
+				"enableClayTreeView",
+				_ffFrontendJSComponentsConfiguration.enableClayTreeView()));
+		sb.append(
+			_buildFeatureFlagJSGlobalVariable(
+				"enableCustomDialogs",
+				GetterUtil.getBoolean(
+					PropsUtil.get("feature.flag.enableCustomDialogs"))));
+		sb.append("</script>");
 
 		printWriter.println(sb);
 	}
@@ -72,6 +82,14 @@ public class FrontendComponentsTopHeadDynamicInclude
 		_ffFrontendJSComponentsConfiguration =
 			ConfigurableUtil.createConfigurable(
 				FFFrontendJSComponentsConfiguration.class, properties);
+	}
+
+	private String _buildFeatureFlagJSGlobalVariable(
+		String featureFlagName, boolean validator) {
+
+		return StringBundler.concat(
+			"Liferay.__FF__.", featureFlagName, " = ", validator,
+			StringPool.SEMICOLON);
 	}
 
 	private volatile FFFrontendJSComponentsConfiguration

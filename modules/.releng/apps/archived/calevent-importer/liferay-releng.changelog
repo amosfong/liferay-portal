@@ -52,3 +52,13 @@
 # Bundle Version 5.0.9
 #
 0af8d1765d389b798df1cfee3a0d9da6628626cc^..371a527a0e42aa623f46f5ac830224fd50a05a9b=LPS-146840
+
+#
+# Bundle Version 5.0.10
+#
+371a527a0e42aa623f46f5ac830224fd50a05a9b^..ce86f4cfb32f55cdbf905f23cb3bc29a6a8eba08=LPS-150378
+
+#
+# Bundle Version 5.0.12
+#
+ce86f4cfb32f55cdbf905f23cb3bc29a6a8eba08^..12fcefcc8bf0f02099dbae9f1fa20c922178047f=LPS-145583

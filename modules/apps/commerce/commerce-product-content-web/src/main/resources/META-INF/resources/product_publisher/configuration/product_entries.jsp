@@ -47,7 +47,8 @@ List<CPCatalogEntry> catalogEntries = cpPublisherConfigurationDisplayContext.get
 	total="<%= catalogEntries.size() %>"
 >
 	<liferay-ui:search-container-results
-		results="<%= catalogEntries.subList(searchContainer.getStart(), searchContainer.getResultEnd()) %>"
+		calculateStartAndEnd="<%= true %>"
+		results="<%= catalogEntries %>"
 	/>
 
 	<liferay-ui:search-container-row
@@ -77,7 +78,7 @@ List<CPCatalogEntry> catalogEntries = cpPublisherConfigurationDisplayContext.get
 		</c:choose>
 
 		<liferay-ui:search-container-column-text
-			cssClass="important table-cell-expand"
+			cssClass="font-weight-bold important table-cell-expand"
 			name="name"
 			value="<%= HtmlUtil.escape(cpCatalogEntry.getName()) %>"
 		/>

@@ -593,16 +593,28 @@ definition {
 			wikiPageTitle = "FrontPage");
 	}
 
-	@description = "This ensures that a wiki page can link to other wiki page."
+	@description = "This is a test for LPS-71134. It ensures that an exported wiki page can be imported using default mirror strategy between different sites."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanImportPageBetweenDifferentSites {
+
+		// TODO LPS-149057 CanImportPageBetweenDifferentSites pending implementation
+
+	}
+
+	@description = "This ensures that a wiki page can link to other wiki page, also covers LPS-81914."
 	@priority = "4"
 	@refactordone
 	test CanLinkWikiPageToOtherWikiPage {
+		WikiNavigator.openToWikiNode(
+			groupName = "Guest",
+			siteURLKey = "guest",
+			wikiNodeName = "Main");
+
 		for (var num : list "1,2") {
-			JSONWiki.addWikiPage(
-				groupName = "Guest",
-				wikiNodeName = "Main",
+			WikiPage.addCP(
 				wikiPageContent = "Wiki Page Content${num}",
-				wikiPageName = "Wiki Page Title${num}");
+				wikiPageTitle = "Wiki Page Title${num}");
 		}
 
 		WikiNavigator.openToWikiPage(
@@ -673,6 +685,15 @@ definition {
 			wikiChildPageTitle = "Wiki FrontPage Child Page Title",
 			wikiPageRevision = "1.1",
 			wikiPageTitle = "FrontPage");
+	}
+
+	@description = "This test covers LPS-67282. It ensures that a user cannot rename the draft wiki page."
+	@ignore = "Test Stub"
+	@priority = "3"
+	test CannotRenameDraftPage {
+
+		// TODO LPS-150264 CannotRenameDraftPage pending implementation
+
 	}
 
 	@description = "This ensures that javascript can not be viewed in wiki page content."

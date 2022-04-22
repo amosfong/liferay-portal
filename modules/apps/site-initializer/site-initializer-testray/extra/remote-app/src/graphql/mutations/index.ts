@@ -12,9 +12,13 @@
  * details.
  */
 
-export * from './TestrayCase';
-export * from './TestrayProject';
-export * from './TestrayRequirement';
-export * from './TestrayRoutine';
+export * from './liferayUserAccount';
+export * from './testrayCase';
+export * from './testrayCaseResult';
+export * from './testrayCaseType';
+export * from './testrayFactorCategory';
+export * from './testrayFactorOptions';
+export * from './testrayProject';
+export * from './testrayRequirement';
+export * from './testrayRoutine';
 export * from './testraySuite';
-export * from './LiferayUser';

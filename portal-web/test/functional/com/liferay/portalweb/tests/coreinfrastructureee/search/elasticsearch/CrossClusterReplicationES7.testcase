@@ -3,6 +3,7 @@ definition {
 
 	property elasticsearch.ccr.enabled = "true";
 	property elasticsearch.multiple.connections = "true";
+	property environment.acceptance = "false";
 	property minimum.slave.ram = "24";
 	property portal.release = "true";
 	property portal.suite.search.engine = "elasticsearch7";
@@ -34,7 +35,6 @@ definition {
 
 	@priority = "4"
 	test AssertReplicationAfterReindex {
-		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "CrossClusterReplicationES7#AssertReplicationAfterReindex";
 
 		JSONDocument.addFile(
@@ -70,7 +70,6 @@ definition {
 
 	@priority = "3"
 	test BreakWorkflowSLA {
-		property portal.upstream = "false";
 		property test.name.skip.portal.instance = "CrossClusterReplicationES7#BreakWorkflowSLA";
 
 		CrossClusterReplication.setupCrossClusterReplication();
@@ -553,7 +552,6 @@ definition {
 	test Smoke {
 		property osgi.module.configuration.file.names = "com.liferay.portal.bundle.blacklist.internal.configuration.BundleBlacklistConfiguration.config";
 		property osgi.module.configurations = "blacklistBundleSymbolicNames=&quot;com.liferay.portal.search.tuning.rankings.web&quot;";
-		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "CrossClusterReplicationES7#Smoke";
 
 		JSONDocument.addFile(

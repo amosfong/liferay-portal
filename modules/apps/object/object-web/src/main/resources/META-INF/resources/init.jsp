@@ -44,6 +44,7 @@ page import="com.liferay.object.model.ObjectField" %><%@
 page import="com.liferay.object.model.ObjectLayout" %><%@
 page import="com.liferay.object.model.ObjectLayoutTab" %><%@
 page import="com.liferay.object.model.ObjectRelationship" %><%@
+page import="com.liferay.object.model.ObjectValidationRule" %><%@
 page import="com.liferay.object.model.ObjectView" %><%@
 page import="com.liferay.object.scope.ObjectScopeProvider" %><%@
 page import="com.liferay.object.web.internal.constants.ObjectWebKeys" %><%@
@@ -57,6 +58,7 @@ page import="com.liferay.object.web.internal.object.definitions.display.context.
 page import="com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsFieldsDisplayContext" %><%@
 page import="com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsLayoutsDisplayContext" %><%@
 page import="com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsRelationshipsDisplayContext" %><%@
+page import="com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsValidationsDisplayContext" %><%@
 page import="com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsViewsDisplayContext" %><%@
 page import="com.liferay.object.web.internal.object.definitions.display.context.ViewObjectDefinitionsDisplayContext" %><%@
 page import="com.liferay.object.web.internal.object.entries.constants.ObjectEntriesFDSNames" %><%@
@@ -70,14 +72,13 @@ page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
 page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
 page import="com.liferay.portal.kernel.util.KeyValuePair" %><%@
-page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
+page import="com.liferay.portal.kernel.util.PropsKeys" %><%@
+page import="com.liferay.portal.kernel.util.PropsUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %>
 
 <%@ page import="java.util.List" %><%@
-page import="java.util.Locale" %><%@
-page import="java.util.Map" %><%@
 page import="java.util.Objects" %>
 
 <liferay-frontend:defineObjects />

@@ -159,6 +159,18 @@ public class CommerceAccountGroupCommerceAccountRelLocalServiceImpl
 	}
 
 	@Override
+	public List<CommerceAccountGroupCommerceAccountRel>
+		getCommerceAccountGroupCommerceAccountRelsByCommerceAccountId(
+			long commerceAccountId, int start, int end) {
+
+		return TransformUtil.transform(
+			_accountGroupRelLocalService.getAccountGroupRels(
+				AccountEntry.class.getName(), commerceAccountId, start, end,
+				null),
+			CommerceAccountGroupCommerceAccountRelImpl::fromAccountGroupRel);
+	}
+
+	@Override
 	public int getCommerceAccountGroupCommerceAccountRelsCount(
 		long commerceAccountGroupId) {
 
@@ -166,6 +178,15 @@ public class CommerceAccountGroupCommerceAccountRelLocalServiceImpl
 			_accountGroupRelLocalService.
 				getAccountGroupRelsCountByAccountGroupId(
 					commerceAccountGroupId);
+	}
+
+	@Override
+	public int
+		getCommerceAccountGroupCommerceAccountRelsCountByCommerceAccountId(
+			long commerceAccountId) {
+
+		return _accountGroupRelLocalService.getAccountGroupRelsCount(
+			AccountEntry.class.getName(), commerceAccountId);
 	}
 
 	@ServiceReference(type = AccountGroupRelLocalService.class)

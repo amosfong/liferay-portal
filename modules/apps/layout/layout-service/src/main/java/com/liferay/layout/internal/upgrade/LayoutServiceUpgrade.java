@@ -17,15 +17,18 @@ package com.liferay.layout.internal.upgrade;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
-import com.liferay.asset.service.AssetEntryUsageLocalService;
 import com.liferay.layout.internal.upgrade.v1_0_0.LayoutClassedModelUsageUpgradeProcess;
 import com.liferay.layout.internal.upgrade.v1_0_0.LayoutPermissionsUpgradeProcess;
 import com.liferay.layout.internal.upgrade.v1_0_0.LayoutUpgradeProcess;
 import com.liferay.layout.internal.upgrade.v1_1_0.UpgradeCompanyId;
 import com.liferay.layout.internal.upgrade.v1_2_1.LayoutAssetUpgradeProcess;
 import com.liferay.layout.internal.upgrade.v1_2_2.LayoutSEOUpgradeProcess;
+import com.liferay.layout.internal.upgrade.v1_2_3.LayoutRevisionUpgradeProcess;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.LayoutBranchLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.LayoutRevisionLocalService;
+import com.liferay.portal.kernel.service.LayoutSetBranchLocalService;
 import com.liferay.portal.kernel.upgrade.CTModelUpgradeProcess;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
@@ -42,8 +45,7 @@ public class LayoutServiceUpgrade implements UpgradeStepRegistrator {
 	public void register(Registry registry) {
 		registry.register(
 			"0.0.1", "1.0.0",
-			new LayoutClassedModelUsageUpgradeProcess(
-				_assetEntryLocalService, _assetEntryUsageLocalService),
+			new LayoutClassedModelUsageUpgradeProcess(_assetEntryLocalService),
 			new LayoutPermissionsUpgradeProcess());
 
 		registry.register("1.0.0", "1.0.1", new LayoutUpgradeProcess());
@@ -63,6 +65,12 @@ public class LayoutServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"1.2.1", "1.2.2", new LayoutSEOUpgradeProcess(_layoutLocalService));
+
+		registry.register(
+			"1.2.2", "1.2.3",
+			new LayoutRevisionUpgradeProcess(
+				_layoutBranchLocalService, _layoutLocalService,
+				_layoutRevisionLocalService, _layoutSetBranchLocalService));
 	}
 
 	@Reference
@@ -72,15 +80,21 @@ public class LayoutServiceUpgrade implements UpgradeStepRegistrator {
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
-	private AssetEntryUsageLocalService _assetEntryUsageLocalService;
-
-	@Reference
 	private AssetTagLocalService _assetTagLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
 
 	@Reference
+	private LayoutBranchLocalService _layoutBranchLocalService;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutRevisionLocalService _layoutRevisionLocalService;
+
+	@Reference
+	private LayoutSetBranchLocalService _layoutSetBranchLocalService;
 
 }

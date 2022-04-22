@@ -38,7 +38,7 @@ import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermi
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.TrashRenderer;
-import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -63,9 +63,10 @@ public class MBMessageAssetRenderer
 	extends BaseJSPAssetRenderer<MBMessage> implements TrashRenderer {
 
 	public MBMessageAssetRenderer(
-		MBMessage message,
+		HtmlParser htmlParser, MBMessage message,
 		ModelResourcePermission<MBMessage> messageModelResourcePermission) {
 
+		_htmlParser = htmlParser;
 		_message = message;
 		_messageModelResourcePermission = messageModelResourcePermission;
 	}
@@ -114,7 +115,7 @@ public class MBMessageAssetRenderer
 	@Override
 	public String getSearchSummary(Locale locale) {
 		if (_message.isFormatBBCode()) {
-			return HtmlUtil.extractText(
+			return _htmlParser.extractText(
 				BBCodeTranslatorUtil.getHTML(_message.getBody()));
 		}
 
@@ -339,6 +340,7 @@ public class MBMessageAssetRenderer
 
 	private AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
+	private final HtmlParser _htmlParser;
 	private final MBMessage _message;
 	private final ModelResourcePermission<MBMessage>
 		_messageModelResourcePermission;

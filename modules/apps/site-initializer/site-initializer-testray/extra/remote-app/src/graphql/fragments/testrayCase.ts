@@ -15,18 +15,17 @@
 import {gql} from '@apollo/client';
 
 export const testrayCaseFragment = gql`
-	fragment TestrayCaseFragment on C_TestrayCase {
+	fragment CaseFragment on C_Case {
 		caseNumber
 		dateCreated
 		dateModified
 		description
 		descriptionType
 		estimatedDuration
+		id: caseId
 		name
-		originationKey
 		priority
 		steps
 		stepsType
-		id: testrayCaseId
 	}
 `;

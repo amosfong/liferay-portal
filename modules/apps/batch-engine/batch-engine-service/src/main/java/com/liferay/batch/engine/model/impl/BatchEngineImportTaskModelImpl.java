@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -77,6 +76,7 @@ public class BatchEngineImportTaskModelImpl
 
 	public static final Object[][] TABLE_COLUMNS = {
 		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
+		{"externalReferenceCode", Types.VARCHAR},
 		{"batchEngineImportTaskId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"batchSize", Types.BIGINT},
@@ -96,6 +96,7 @@ public class BatchEngineImportTaskModelImpl
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("batchEngineImportTaskId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
@@ -120,7 +121,7 @@ public class BatchEngineImportTaskModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table BatchEngineImportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,batchEngineImportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,batchSize LONG,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage TEXT null,executeStatus VARCHAR(75) null,fieldNameMapping TEXT null,importStrategy INTEGER,operation VARCHAR(75) null,parameters TEXT null,processedItemsCount INTEGER,startTime DATE null,taskItemDelegateName VARCHAR(75) null,totalItemsCount INTEGER)";
+		"create table BatchEngineImportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,batchEngineImportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,batchSize LONG,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage TEXT null,executeStatus VARCHAR(75) null,fieldNameMapping TEXT null,importStrategy INTEGER,operation VARCHAR(75) null,parameters TEXT null,processedItemsCount INTEGER,startTime DATE null,taskItemDelegateName VARCHAR(75) null,totalItemsCount INTEGER)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table BatchEngineImportTask";
@@ -153,14 +154,20 @@ public class BatchEngineImportTaskModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long UUID_COLUMN_BITMASK = 4L;
+	public static final long EXTERNALREFERENCECODE_COLUMN_BITMASK = 4L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long UUID_COLUMN_BITMASK = 8L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long BATCHENGINEIMPORTTASKID_COLUMN_BITMASK = 8L;
+	public static final long BATCHENGINEIMPORTTASKID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -262,34 +269,6 @@ public class BatchEngineImportTaskModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, BatchEngineImportTask>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			BatchEngineImportTask.class.getClassLoader(),
-			BatchEngineImportTask.class, ModelWrapper.class);
-
-		try {
-			Constructor<BatchEngineImportTask> constructor =
-				(Constructor<BatchEngineImportTask>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<BatchEngineImportTask, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<BatchEngineImportTask, Object>>
@@ -316,6 +295,13 @@ public class BatchEngineImportTaskModelImpl
 			"uuid",
 			(BiConsumer<BatchEngineImportTask, String>)
 				BatchEngineImportTask::setUuid);
+		attributeGetterFunctions.put(
+			"externalReferenceCode",
+			BatchEngineImportTask::getExternalReferenceCode);
+		attributeSetterBiConsumers.put(
+			"externalReferenceCode",
+			(BiConsumer<BatchEngineImportTask, String>)
+				BatchEngineImportTask::setExternalReferenceCode);
 		attributeGetterFunctions.put(
 			"batchEngineImportTaskId",
 			BatchEngineImportTask::getBatchEngineImportTaskId);
@@ -494,6 +480,35 @@ public class BatchEngineImportTaskModelImpl
 	@Deprecated
 	public String getOriginalUuid() {
 		return getColumnOriginalValue("uuid_");
+	}
+
+	@JSON
+	@Override
+	public String getExternalReferenceCode() {
+		if (_externalReferenceCode == null) {
+			return "";
+		}
+		else {
+			return _externalReferenceCode;
+		}
+	}
+
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_externalReferenceCode = externalReferenceCode;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalExternalReferenceCode() {
+		return getColumnOriginalValue("externalReferenceCode");
 	}
 
 	@JSON
@@ -977,6 +992,8 @@ public class BatchEngineImportTaskModelImpl
 
 		batchEngineImportTaskImpl.setMvccVersion(getMvccVersion());
 		batchEngineImportTaskImpl.setUuid(getUuid());
+		batchEngineImportTaskImpl.setExternalReferenceCode(
+			getExternalReferenceCode());
 		batchEngineImportTaskImpl.setBatchEngineImportTaskId(
 			getBatchEngineImportTaskId());
 		batchEngineImportTaskImpl.setCompanyId(getCompanyId());
@@ -1015,6 +1032,8 @@ public class BatchEngineImportTaskModelImpl
 			this.<Long>getColumnOriginalValue("mvccVersion"));
 		batchEngineImportTaskImpl.setUuid(
 			this.<String>getColumnOriginalValue("uuid_"));
+		batchEngineImportTaskImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
 		batchEngineImportTaskImpl.setBatchEngineImportTaskId(
 			this.<Long>getColumnOriginalValue("batchEngineImportTaskId"));
 		batchEngineImportTaskImpl.setCompanyId(
@@ -1146,6 +1165,18 @@ public class BatchEngineImportTaskModelImpl
 			batchEngineImportTaskCacheModel.uuid = null;
 		}
 
+		batchEngineImportTaskCacheModel.externalReferenceCode =
+			getExternalReferenceCode();
+
+		String externalReferenceCode =
+			batchEngineImportTaskCacheModel.externalReferenceCode;
+
+		if ((externalReferenceCode != null) &&
+			(externalReferenceCode.length() == 0)) {
+
+			batchEngineImportTaskCacheModel.externalReferenceCode = null;
+		}
+
 		batchEngineImportTaskCacheModel.batchEngineImportTaskId =
 			getBatchEngineImportTaskId();
 
@@ -1269,7 +1300,7 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(47);
+		StringBundler sb = new StringBundler(49);
 
 		sb.append("{\"mvccVersion\": ");
 
@@ -1278,6 +1309,10 @@ public class BatchEngineImportTaskModelImpl
 		sb.append(", \"uuid\": ");
 
 		sb.append("\"" + getUuid() + "\"");
+
+		sb.append(", \"externalReferenceCode\": ");
+
+		sb.append("\"" + getExternalReferenceCode() + "\"");
 
 		sb.append(", \"batchEngineImportTaskId\": ");
 
@@ -1366,7 +1401,7 @@ public class BatchEngineImportTaskModelImpl
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(73);
+		StringBundler sb = new StringBundler(76);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.batch.engine.model.BatchEngineImportTask");
@@ -1382,6 +1417,12 @@ public class BatchEngineImportTaskModelImpl
 			"<column><column-name>uuid</column-name><column-value><![CDATA[");
 
 		sb.append(getUuid());
+
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>externalReferenceCode</column-name><column-value><![CDATA[");
+
+		sb.append(getExternalReferenceCode());
 
 		sb.append("]]></column-value></column>");
 		sb.append(
@@ -1513,12 +1554,15 @@ public class BatchEngineImportTaskModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, BatchEngineImportTask>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					BatchEngineImportTask.class, ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
 	private String _uuid;
+	private String _externalReferenceCode;
 	private long _batchEngineImportTaskId;
 	private long _companyId;
 	private long _userId;
@@ -1574,6 +1618,8 @@ public class BatchEngineImportTaskModelImpl
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
 		_columnOriginalValues.put("uuid_", _uuid);
 		_columnOriginalValues.put(
+			"externalReferenceCode", _externalReferenceCode);
+		_columnOriginalValues.put(
 			"batchEngineImportTaskId", _batchEngineImportTaskId);
 		_columnOriginalValues.put("companyId", _companyId);
 		_columnOriginalValues.put("userId", _userId);
@@ -1622,47 +1668,49 @@ public class BatchEngineImportTaskModelImpl
 
 		columnBitmasks.put("uuid_", 2L);
 
-		columnBitmasks.put("batchEngineImportTaskId", 4L);
+		columnBitmasks.put("externalReferenceCode", 4L);
 
-		columnBitmasks.put("companyId", 8L);
+		columnBitmasks.put("batchEngineImportTaskId", 8L);
 
-		columnBitmasks.put("userId", 16L);
+		columnBitmasks.put("companyId", 16L);
 
-		columnBitmasks.put("createDate", 32L);
+		columnBitmasks.put("userId", 32L);
 
-		columnBitmasks.put("modifiedDate", 64L);
+		columnBitmasks.put("createDate", 64L);
 
-		columnBitmasks.put("batchSize", 128L);
+		columnBitmasks.put("modifiedDate", 128L);
 
-		columnBitmasks.put("callbackURL", 256L);
+		columnBitmasks.put("batchSize", 256L);
 
-		columnBitmasks.put("className", 512L);
+		columnBitmasks.put("callbackURL", 512L);
 
-		columnBitmasks.put("content", 1024L);
+		columnBitmasks.put("className", 1024L);
 
-		columnBitmasks.put("contentType", 2048L);
+		columnBitmasks.put("content", 2048L);
 
-		columnBitmasks.put("endTime", 4096L);
+		columnBitmasks.put("contentType", 4096L);
 
-		columnBitmasks.put("errorMessage", 8192L);
+		columnBitmasks.put("endTime", 8192L);
 
-		columnBitmasks.put("executeStatus", 16384L);
+		columnBitmasks.put("errorMessage", 16384L);
 
-		columnBitmasks.put("fieldNameMapping", 32768L);
+		columnBitmasks.put("executeStatus", 32768L);
 
-		columnBitmasks.put("importStrategy", 65536L);
+		columnBitmasks.put("fieldNameMapping", 65536L);
 
-		columnBitmasks.put("operation", 131072L);
+		columnBitmasks.put("importStrategy", 131072L);
 
-		columnBitmasks.put("parameters", 262144L);
+		columnBitmasks.put("operation", 262144L);
 
-		columnBitmasks.put("processedItemsCount", 524288L);
+		columnBitmasks.put("parameters", 524288L);
 
-		columnBitmasks.put("startTime", 1048576L);
+		columnBitmasks.put("processedItemsCount", 1048576L);
 
-		columnBitmasks.put("taskItemDelegateName", 2097152L);
+		columnBitmasks.put("startTime", 2097152L);
 
-		columnBitmasks.put("totalItemsCount", 4194304L);
+		columnBitmasks.put("taskItemDelegateName", 4194304L);
+
+		columnBitmasks.put("totalItemsCount", 8388608L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

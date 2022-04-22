@@ -17,7 +17,9 @@ package com.liferay.account.service.impl;
 import com.liferay.account.constants.AccountActionKeys;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountRole;
+import com.liferay.account.role.AccountRolePermissionThreadLocal;
 import com.liferay.account.service.base.AccountRoleServiceBaseImpl;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -71,9 +73,14 @@ public class AccountRoleServiceImpl extends AccountRoleServiceBaseImpl {
 			long accountEntryId, long accountRoleId, long userId)
 		throws PortalException {
 
-		_accountRoleModelResourcePermission.check(
-			getPermissionChecker(), accountRoleId,
-			AccountActionKeys.ASSIGN_USERS);
+		try (SafeCloseable safeCloseable =
+				AccountRolePermissionThreadLocal.setWithSafeCloseable(
+					accountEntryId)) {
+
+			_accountRoleModelResourcePermission.check(
+				getPermissionChecker(), accountRoleId,
+				AccountActionKeys.ASSIGN_USERS);
+		}
 
 		accountRoleLocalService.associateUser(
 			accountEntryId, accountRoleId, userId);
@@ -116,15 +123,8 @@ public class AccountRoleServiceImpl extends AccountRoleServiceBaseImpl {
 		AccountRole accountRole =
 			accountRoleLocalService.getAccountRoleByRoleId(roleId);
 
-		if ((accountRole.getAccountEntryId() > 0) &&
-			_accountEntryModelResourcePermission.contains(
-				getPermissionChecker(), accountRole.getAccountEntryId(),
-				AccountActionKeys.VIEW_ACCOUNT_ROLES)) {
-
-			return accountRole;
-		}
-
-		_rolePermission.check(getPermissionChecker(), roleId, ActionKeys.VIEW);
+		_accountRoleModelResourcePermission.check(
+			getPermissionChecker(), accountRole, ActionKeys.VIEW);
 
 		return accountRole;
 	}
@@ -133,6 +133,17 @@ public class AccountRoleServiceImpl extends AccountRoleServiceBaseImpl {
 	public void setUserAccountRoles(
 			long accountEntryId, long[] accountRoleIds, long userId)
 		throws PortalException {
+
+		try (SafeCloseable safeCloseable =
+				AccountRolePermissionThreadLocal.setWithSafeCloseable(
+					accountEntryId)) {
+
+			for (long accountRoleId : accountRoleIds) {
+				_accountRoleModelResourcePermission.check(
+					getPermissionChecker(), accountRoleId,
+					AccountActionKeys.ASSIGN_USERS);
+			}
+		}
 
 		_accountEntryModelResourcePermission.check(
 			getPermissionChecker(), accountEntryId, ActionKeys.MANAGE_USERS);
@@ -146,9 +157,14 @@ public class AccountRoleServiceImpl extends AccountRoleServiceBaseImpl {
 			long accountEntryId, long accountRoleId, long userId)
 		throws PortalException {
 
-		_accountRoleModelResourcePermission.check(
-			getPermissionChecker(), accountRoleId,
-			AccountActionKeys.ASSIGN_USERS);
+		try (SafeCloseable safeCloseable =
+				AccountRolePermissionThreadLocal.setWithSafeCloseable(
+					accountEntryId)) {
+
+			_accountRoleModelResourcePermission.check(
+				getPermissionChecker(), accountRoleId,
+				AccountActionKeys.ASSIGN_USERS);
+		}
 
 		accountRoleLocalService.unassociateUser(
 			accountEntryId, accountRoleId, userId);

@@ -24,12 +24,9 @@ import {
 import {
 	TestrayBuild,
 	TypePagination,
-	getTestrayBuild,
+	getBuild,
 } from '../../../../graphql/queries';
-import {
-	TestrayTask,
-	getTestrayTasks,
-} from '../../../../graphql/queries/testrayTask';
+import {TestrayTask, getTasks} from '../../../../graphql/queries/testrayTask';
 import useHeader from '../../../../hooks/useHeader';
 import i18n from '../../../../i18n';
 import BuildAlertBar from './BuildAlertBar';
@@ -41,47 +38,53 @@ type BuildOutletProps = {
 
 const BuildOutlet: React.FC<BuildOutletProps> = ({ignorePath}) => {
 	const {pathname} = useLocation();
-	const {projectId, routineId, testrayBuildId} = useParams();
+	const {buildId, projectId, routineId} = useParams();
 	const {testrayProject, testrayRoutine}: any = useOutletContext();
-	const {data} = useQuery<{testrayBuild: TestrayBuild}>(getTestrayBuild, {
+	const {data} = useQuery<{build: TestrayBuild}>(getBuild, {
 		variables: {
-			testrayBuildId,
+			buildId,
 		},
 	});
 
 	const {data: testrayTasksData} = useQuery<
-		TypePagination<'testrayTasks', TestrayTask>
-	>(getTestrayTasks);
+		TypePagination<'tasks', TestrayTask>
+	>(getTasks);
 
-	const testrayBuild = data?.testrayBuild;
-	const testrayTasks = testrayTasksData?.testrayTasks.items || [];
+	const testrayBuild = data?.build;
+	const testrayTasks = testrayTasksData?.tasks.items || [];
 	const testrayTask = testrayTasks.find(
-		(testrayTask) =>
-			testrayTask?.testrayBuild?.id === Number(testrayBuildId)
+		(testrayTask) => testrayTask?.build?.id === Number(buildId)
 	);
 
 	const isCurrentPathIgnored = pathname.includes(ignorePath);
 
-	const basePath = `/project/${projectId}/routines/${routineId}/build/${testrayBuildId}`;
+	const basePath = `/project/${projectId}/routines/${routineId}/build/${buildId}`;
 
 	const {setHeading, setTabs} = useHeader({shouldUpdate: false});
 
 	useEffect(() => {
 		if (testrayBuild) {
 			setTimeout(() => {
-				setHeading(
-					[
-						{
-							category: 'BUILD',
-							path: basePath,
-							title: testrayBuild.name,
-						},
-					],
-					true
-				);
-			}, 0);
+				setHeading([
+					{
+						category: i18n.translate('project').toUpperCase(),
+						path: `/project/${testrayProject.id}/routines`,
+						title: testrayProject.name,
+					},
+					{
+						category: i18n.translate('routine').toUpperCase(),
+						path: `/project/${testrayProject.id}/routines/${testrayRoutine.id}`,
+						title: testrayRoutine.name,
+					},
+					{
+						category: i18n.translate('build').toUpperCase(),
+						path: basePath,
+						title: testrayBuild.name,
+					},
+				]);
+			});
 		}
-	}, [basePath, setHeading, testrayBuild]);
+	}, [basePath, setHeading, testrayBuild, testrayProject, testrayRoutine]);
 
 	useEffect(() => {
 		if (!isCurrentPathIgnored) {
@@ -117,7 +120,7 @@ const BuildOutlet: React.FC<BuildOutletProps> = ({ignorePath}) => {
 		}
 	}, [basePath, isCurrentPathIgnored, pathname, setTabs]);
 
-	if (testrayProject && testrayRoutine && testrayBuild) {
+	if (testrayBuild) {
 		return (
 			<>
 				{!isCurrentPathIgnored && (

@@ -28,6 +28,7 @@ definition {
 				birthdayDay = "10",
 				birthdayMonth = "10",
 				birthdayYear = "2020",
+				jobTitle = "lawyer",
 				userEmailAddress = "user1@liferay.com",
 				userFirstName = "user1",
 				userLastName = "user1",
@@ -59,10 +60,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8938 | Test Summary: All attributes of the individual appear in a list"
 	@priority = "5"
 	test AllIndividualAttributesAppearInList {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9707
-
 		task ("Sign in as new user to view the site page") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "user1@liferay.com",
@@ -186,8 +183,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8938 | Test Summary: Order an Individual's Details"
 	@priority = "3"
 	test OrderIndividualDetails {
-		property portal.upstream = "quarantine";
-
 		task ("Sign in as new user to view the site page") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "user1@liferay.com",
@@ -208,7 +203,7 @@ definition {
 			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 		}
 
-		task ("Go to the Individual > KnownIndividual > Details") {
+		task ("Go to the Individual > Known Individual > Details") {
 			ACNavigation.goToIndividuals();
 
 			ACIndividualsDashboard.goToKnownIndividualsTab();

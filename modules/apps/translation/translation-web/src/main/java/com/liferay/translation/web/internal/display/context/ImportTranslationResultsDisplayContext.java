@@ -48,7 +48,7 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 
 	public ImportTranslationResultsDisplayContext(
 		long classNameId, long classPK, long companyId, long groupId,
-		Map<String, String> failureMessages,
+		List<Map<String, String>> failureMessages,
 		FFBulkTranslationConfiguration ffBulkTranslationConfiguration,
 		String fileName, List<String> successMessages, String title,
 		int workflowAction,
@@ -68,7 +68,26 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 			workflowDefinitionLinkLocalService;
 	}
 
-	public Map<String, String> getFailureMessages() {
+	public String getFailureMessageKey() {
+		String pattern = "x-files-could-not-be-published";
+
+		if (_workflowAction == WorkflowConstants.ACTION_PUBLISH) {
+			if (getFailureMessagesCount() == 1) {
+				pattern = "x-file-could-not-be-published";
+			}
+		}
+		else {
+			pattern = "x-files-could-not-be-saved";
+
+			if (getFailureMessagesCount() == 1) {
+				pattern = "x-file-could-not-be-saved";
+			}
+		}
+
+		return pattern;
+	}
+
+	public List<Map<String, String>> getFailureMessages() {
 		return _failureMessages;
 	}
 
@@ -85,10 +104,14 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 			stringWriter,
 			CSVFormat.DEFAULT.withHeader(
 				LanguageUtil.get(locale, "file-name"),
-				LanguageUtil.get(locale, "error-message")));
+				LanguageUtil.get(locale, "error-message"),
+				LanguageUtil.get(locale, "container")));
 
-		for (Map.Entry<String, String> entry : _failureMessages.entrySet()) {
-			csvPrinter.printRecord(entry.getKey(), entry.getValue());
+		for (Map<String, String> failureMessage : _failureMessages) {
+			csvPrinter.printRecord(
+				failureMessage.get("fileName"),
+				failureMessage.get("errorMessage"),
+				failureMessage.get("container"));
 		}
 
 		return "data:text/csv;charset=utf-8," +
@@ -223,7 +246,7 @@ public class ImportTranslationResultsDisplayContext implements Serializable {
 	private final long _classNameId;
 	private final long _classPK;
 	private final long _companyId;
-	private final Map<String, String> _failureMessages;
+	private final List<Map<String, String>> _failureMessages;
 	private final FFBulkTranslationConfiguration
 		_ffBulkTranslationConfiguration;
 	private final String _fileName;

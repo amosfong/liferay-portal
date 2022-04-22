@@ -49,7 +49,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AssertShowsChannelsIndividualsComingFrom {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9016
@@ -340,8 +339,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8348 | Test Summary: Assert Sites Acquisition card Source|Medium highest session"
 	@priority = "3"
 	test AssertSitesAcquisitionCardSourceAndMediumHighestSession {
-		property portal.upstream = "quarantine";
-
 		task ("Get the portal URL") {
 			var portalURL = PropsUtil.get("portal.url");
 			var portalURL = StringUtil.replace("${portalURL}", "http://", "");

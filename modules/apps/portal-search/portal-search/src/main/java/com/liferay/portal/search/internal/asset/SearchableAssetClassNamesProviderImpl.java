@@ -19,9 +19,8 @@ import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.search.asset.SearchableAssetClassNamesProvider;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -35,41 +34,37 @@ public class SearchableAssetClassNamesProviderImpl
 
 	@Override
 	public String[] getClassNames(long companyId) {
+		List<String> classNames = new ArrayList<>();
+
 		List<AssetRendererFactory<?>> assetRendererFactories =
 			assetRendererFactoryRegistry.getAssetRendererFactories(companyId);
 
-		Stream<AssetRendererFactory<?>> stream1 =
-			assetRendererFactories.stream();
+		for (AssetRendererFactory<?> assetRendererFactory :
+				assetRendererFactories) {
 
-		String[] searchEngineHelperEntryClassNames =
-			searchEngineHelper.getEntryClassNames();
+			if (assetRendererFactory.isSearchable()) {
+				String className = assetRendererFactory.getClassName();
 
-		String[] array1 = stream1.filter(
-			AssetRendererFactory::isSearchable
-		).map(
-			AssetRendererFactory::getClassName
-		).filter(
-			className -> ArrayUtil.contains(
-				searchEngineHelperEntryClassNames, className, false)
-		).toArray(
-			String[]::new
-		);
+				if (ArrayUtil.contains(
+						searchEngineHelper.getEntryClassNames(), className,
+						false)) {
 
-		Stream<String> stream2 = Arrays.stream(
-			searchEngineHelperEntryClassNames);
+					classNames.add(className);
+				}
+			}
+		}
 
-		String[] array2 = stream2.filter(
-			className -> className.startsWith(
-				"com.liferay.object.model.ObjectDefinition#")
-		).toArray(
-			String[]::new
-		);
+		for (String searchEngineHelperEntryClassName :
+				searchEngineHelper.getEntryClassNames()) {
 
-		String[] classNames = new String[array1.length + array2.length];
+			if (searchEngineHelperEntryClassName.startsWith(
+					"com.liferay.object.model.ObjectDefinition#")) {
 
-		ArrayUtil.combine(array1, array2, classNames);
+				classNames.add(searchEngineHelperEntryClassName);
+			}
+		}
 
-		return classNames;
+		return classNames.toArray(new String[0]);
 	}
 
 	@Reference

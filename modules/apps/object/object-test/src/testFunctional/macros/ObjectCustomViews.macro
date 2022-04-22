@@ -1,12 +1,6 @@
 definition {
 
 	macro addColumnsViaUI {
-		ObjectCustomViews.goToViewsDetails(label = "${viewLabel}");
-
-		Click.clickAtNotVisible(locator1 = "ObjectCustomViews#CUSTOM_VIEW_BOOLEAN_CHECKBOX");
-
-		Click(locator1 = "ObjectCustomViews#VIEW_BUILDER_TAB");
-
 		LexiconEntry.gotoAdd();
 
 		Click.clickAtNotVisible(
@@ -16,8 +10,6 @@ definition {
 		Click(
 			key_tab = "Save",
 			locator1 = "Button#TAB_SUBMIT_BTN");
-
-		Button.clickSave();
 	}
 
 	macro addObjectViewViaUI {
@@ -82,10 +74,36 @@ definition {
 		MenuItem.clickNoError(menuItem = "Delete");
 	}
 
+	macro deleteSpecificColumn {
+		Click(
+			key_columnName = "${columnName}",
+			locator1 = "ObjectCustomViews#VIEW_BUILDER_DROPDOWN_SPECIFIC_COLUMN");
+
+		DropdownMenuItem.click(menuItem = "Delete");
+	}
+
+	macro duplicateObjectCustomView {
+		Click(
+			key_objectCustomViewLabel = "${viewLabel}",
+			locator1 = "ObjectCustomViews#OBJECT_VIEW_KEBAB_MENU");
+
+		MenuItem.clickNoError(menuItem = "Duplicate");
+	}
+
 	macro editName {
 		Type(
 			locator1 = "ObjectCustomViews#OBJECT_VIEWS_NAME",
 			value1 = "${name}");
+	}
+
+	macro gotoPermissions {
+		Click(
+			key_objectLabel = "${entryName}",
+			locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
+
+		MenuItem.click(menuItem = "Permissions");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
 
 	macro goToViewsBuilderTab {
@@ -134,11 +152,103 @@ definition {
 			value1 = "${colunmName}");
 	}
 
+	macro selectAnyPermissions {
+		for (var permissionsName : list "${permissionsList}") {
+			if (isSet(analyticsAdministrator)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "analytics-administrator",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(guest)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "guest",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(owner)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "owner",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(powerUser)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "power-user",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(portalContentReviewer)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "portal-content-reviewer",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(publicationsUser)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "publications-user",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(siteContentReviewer)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "site-content-reviewer",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(siteMember)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "site-member",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+
+			if (isSet(user)) {
+				Click(
+					key_permissionName = "${permissionsName}",
+					key_roleName = "user",
+					locator1 = "ObjectCustomViews#SELECT_ANY_PERMISSIONS");
+			}
+		}
+	}
+
+	macro selectPermissionToRegularRole {
+		for (var permissionsName : list "${permissionsList}") {
+			Click(
+				key_permissionName = "${permissionsName}",
+				locator1 = "ObjectCustomViews#SELECT_PERMISSIONS_TO_REGULAR_ROLE");
+		}
+	}
+
 	macro viewColumnsOrder {
 		AssertElementPresent(
 			key_columnName = "${colunmName}",
 			key_position = "${position}",
 			locator1 = "ObjectCustomViews#VIEW_COLUMN_ENTRIES");
+	}
+
+	macro viewOptionNotPresentInKebabMenu {
+		if (IsElementPresent(key_objectLabel = "${entryName}", locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU")) {
+			Click(
+				key_objectLabel = "${entryName}",
+				locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
+
+			AssertElementNotPresent(
+				key_menuItem = "${menuItem}",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+		else {
+			AssertElementNotPresent(
+				key_objectCustomViewLabel = "${entryName}",
+				locator1 = "ObjectCustomViews#OBJECT_VIEW_KEBAB_MENU");
+		}
 	}
 
 	macro viewOrdersOfTheColumns {

@@ -14,44 +14,124 @@
 
 import {gql} from '@apollo/client';
 
+import {TestrayCase} from './testrayCase';
+
 export type TestrayCaseResult = {
 	assignedUserId: string;
 	attachments: string;
+	case: TestrayCase;
 	closedDate: string;
 	commentMBMessageId: string;
 	dateCreated: string;
 	dateModified: string;
-	dueStatus: string;
+	dueStatus: number;
 	errors: string;
+	id: number;
 	startDate: string;
 };
 
-export const getTestrayCaseResults = gql`
-	query getTestrayCaseResults(
-		$filter: String
+export const getCaseResults = gql`
+	query getCaseResults(
+		$filter: String = ""
 		$page: Int = 1
 		$pageSize: Int = 20
 	) {
-		testrayCaseResults(filter: $filter, page: $page, pageSize: $pageSize)
+		caseResults(filter: $filter, page: $page, pageSize: $pageSize)
 			@rest(
-				type: "C_TestrayCaseResult"
-				path: "testraycaseresults?page={args.page}&pageSize={args.pageSize}&nestedFields=testrayComponent.testrayTeam,testrayCaseResultType"
+				type: "C_CaseResult"
+				path: "caseresults?filter={args.filter}&page={args.page}&pageSize={args.pageSize}&nestedFields=case,component.team,build.productVersion,build.routine,run&nestedFieldsDepth=3"
 			) {
 			items {
 				assignedUserId
 				attachments
+				build: r_buildToCaseResult_c_build {
+					gitHash
+					id
+					routine: r_routineToBuilds_c_routine {
+						id
+						name
+					}
+					productVersion: r_productVersionToBuilds_c_productVersion {
+						name
+					}
+				}
+				case: r_caseToCaseResult_c_case {
+					caseType: r_caseTypeToCases_c_caseType {
+						name
+					}
+					component: r_componentToCases_c_component {
+						name
+					}
+					name
+					priority
+					caseNumber
+				}
 				closedDate
 				commentMBMessageId
+				component: r_componentToCaseResult_c_component {
+					name
+					team: r_teamToComponents_c_team {
+						name
+					}
+				}
 				dateCreated
 				dateModified
 				dueStatus
 				errors
+				id
 				startDate
+				run: r_runToCaseResult_c_run {
+					externalReferencePK
+				}
 			}
 			lastPage
 			page
 			pageSize
 			totalCount
+		}
+	}
+`;
+
+export const getCaseResult = gql`
+	query getCaseResult($caseResultId: Long!) {
+		caseResult(caseResultId: $caseResultId)
+			@rest(
+				type: "C_CaseResult"
+				path: "caseresults/{args.caseResultId}/?nestedFields=case,component,build.productVersion,build.routine,run&nestedFieldsDepth=3"
+			) {
+			assignedUserId
+			attachments
+			build: r_buildToCaseResult_c_build {
+				gitHash
+				routine: r_routineToBuilds_c_routine {
+					name
+				}
+				productVersion: r_productVersionToBuilds_c_productVersion {
+					name
+				}
+			}
+			case: r_caseToCaseResult_c_case {
+				caseType: r_caseTypeToCases_c_caseType {
+					name
+				}
+				component: r_componentToCases_c_component {
+					name
+				}
+				name
+				priority
+			}
+			closedDate
+			commentMBMessageId
+			component: r_componentToCaseResult_c_component
+			dateCreated
+			dateModified
+			dueStatus
+			errors
+			id
+			startDate
+			run: r_runToCaseResult_c_run {
+				externalReferencePK
+			}
 		}
 	}
 `;

@@ -18,6 +18,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.display.context.SearchCon
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -41,6 +42,17 @@ public abstract class BaseSearchContainerManagementToolbarDisplayContext
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
 			searchContainer);
+	}
+
+	@Override
+	public String getClearResultsURL() {
+		return PortletURLBuilder.create(
+			getPortletURL()
+		).setKeywords(
+			StringPool.BLANK
+		).setNavigation(
+			"all"
+		).buildString();
 	}
 
 	@Override

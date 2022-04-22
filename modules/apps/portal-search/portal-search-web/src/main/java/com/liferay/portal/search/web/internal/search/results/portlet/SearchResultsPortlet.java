@@ -31,7 +31,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FastDateFormatFactory;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -97,7 +97,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 		"javax.portlet.init-param.view-template=/search/results/view.jsp",
 		"javax.portlet.name=" + SearchResultsPortletKeys.SEARCH_RESULTS,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=guest,power-user,user"
+		"javax.portlet.security-role-ref=guest,power-user,user",
+		"javax.portlet.version=3.0"
 	},
 	service = Portlet.class
 )
@@ -209,9 +210,6 @@ public class SearchResultsPortlet extends MVCPortlet {
 
 	@Reference
 	protected GroupLocalService groupLocalService;
-
-	@Reference
-	protected Http http;
 
 	@Reference
 	protected IndexerRegistry indexerRegistry;
@@ -491,7 +489,7 @@ public class SearchResultsPortlet extends MVCPortlet {
 	private String _getURLString(
 		RenderRequest renderRequest, String paginationStartParameterName) {
 
-		return http.removeParameter(
+		return HttpComponentsUtil.removeParameter(
 			portletSharedRequestHelper.getCompleteURL(renderRequest),
 			paginationStartParameterName);
 	}

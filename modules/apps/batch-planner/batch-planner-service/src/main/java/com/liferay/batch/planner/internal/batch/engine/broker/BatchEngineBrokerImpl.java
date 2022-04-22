@@ -14,19 +14,16 @@
 
 package com.liferay.batch.planner.internal.batch.engine.broker;
 
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.planner.batch.engine.broker.BatchEngineBroker;
-import com.liferay.batch.planner.constants.BatchPlannerLogConstants;
 import com.liferay.batch.planner.constants.BatchPlannerPlanConstants;
 import com.liferay.batch.planner.internal.jaxrs.uri.BatchPlannerUriInfo;
 import com.liferay.batch.planner.model.BatchPlannerMapping;
 import com.liferay.batch.planner.model.BatchPlannerMappingModel;
 import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.model.BatchPlannerPolicy;
-import com.liferay.batch.planner.service.BatchPlannerLogLocalService;
 import com.liferay.batch.planner.service.BatchPlannerMappingLocalService;
 import com.liferay.batch.planner.service.BatchPlannerPlanLocalService;
-import com.liferay.headless.batch.engine.dto.v1_0.ExportTask;
-import com.liferay.headless.batch.engine.dto.v1_0.ImportTask;
 import com.liferay.headless.batch.engine.resource.v1_0.ExportTaskResource;
 import com.liferay.headless.batch.engine.resource.v1_0.ImportTaskResource;
 import com.liferay.petra.function.UnsafeFunction;
@@ -136,9 +133,17 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 		throws Exception {
 
 		BatchPlannerPolicy batchPlannerPolicy =
-			batchPlannerPlan.getBatchPlannerPolicy("importStrategy");
+			batchPlannerPlan.getBatchPlannerPolicy("onErrorFail");
 
-		return batchPlannerPolicy.getValue();
+		boolean onErrorFail = Boolean.valueOf(batchPlannerPolicy.getValue());
+
+		if (onErrorFail) {
+			return BatchEngineImportTaskConstants.
+				IMPORT_STRATEGY_STRING_ON_ERROR_FAIL;
+		}
+
+		return BatchEngineImportTaskConstants.
+			IMPORT_STRATEGY_STRING_ON_ERROR_CONTINUE;
 	}
 
 	private UriInfo _getImportTaskUriInfo(BatchPlannerPlan batchPlannerPlan) {
@@ -146,6 +151,10 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 
 		return builder.delimiter(
 			_getValue(batchPlannerPlan.fetchBatchPlannerPolicy("csvSeparator"))
+		).enclosingCharacter(
+			_getValue(
+				batchPlannerPlan.fetchBatchPlannerPolicy(
+					"csvEnclosingCharacter"))
 		).taskItemDelegateName(
 			batchPlannerPlan.getTaskItemDelegateName()
 		).queryParameter(
@@ -181,17 +190,16 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 			batchPlannerMappings,
 			BatchPlannerMappingModel::getInternalFieldName);
 
-		ExportTask exportTask = _exportTaskResource.postExportTask(
+		_exportTaskResource.postExportTask(
 			batchPlannerPlan.getInternalClassName(),
 			batchPlannerPlan.getExternalType(), null,
+			String.valueOf(batchPlannerPlan.getBatchPlannerPlanId()),
 			StringUtil.merge(headerNames, StringPool.COMMA),
 			batchPlannerPlan.getTaskItemDelegateName());
 
-		_batchPlannerLogLocalService.addBatchPlannerLog(
-			batchPlannerPlan.getUserId(),
-			batchPlannerPlan.getBatchPlannerPlanId(),
-			String.valueOf(exportTask.getId()), null, null, 0,
-			BatchPlannerLogConstants.STATUS_QUEUED);
+		batchPlannerPlan.setStatus(BatchPlannerPlanConstants.STATUS_QUEUED);
+
+		_batchPlannerPlanLocalService.updateBatchPlannerPlan(batchPlannerPlan);
 	}
 
 	private void _submitImportTask(BatchPlannerPlan batchPlannerPlan)
@@ -209,8 +217,9 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 		File file = _getFile(batchPlannerPlan.getBatchPlannerPlanId());
 
 		try {
-			ImportTask importTask = _importTaskResource.postImportTask(
+			_importTaskResource.postImportTask(
 				batchPlannerPlan.getInternalClassName(), null,
+				String.valueOf(batchPlannerPlan.getBatchPlannerPlanId()),
 				_getFieldNameMapping(
 					_batchPlannerMappingLocalService.getBatchPlannerMappings(
 						batchPlannerPlan.getBatchPlannerPlanId())),
@@ -226,11 +235,11 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 							file.length())),
 					null, Collections.emptyMap()));
 
-			_batchPlannerLogLocalService.addBatchPlannerLog(
-				batchPlannerPlan.getUserId(),
-				batchPlannerPlan.getBatchPlannerPlanId(), null,
-				String.valueOf(importTask.getId()), null, (int)file.length(),
-				BatchPlannerLogConstants.STATUS_QUEUED);
+			batchPlannerPlan.setSize((int)file.length());
+			batchPlannerPlan.setStatus(BatchPlannerPlanConstants.STATUS_QUEUED);
+
+			_batchPlannerPlanLocalService.updateBatchPlannerPlan(
+				batchPlannerPlan);
 		}
 		finally {
 			FileUtil.delete(file);
@@ -239,9 +248,6 @@ public class BatchEngineBrokerImpl implements BatchEngineBroker {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BatchEngineBrokerImpl.class);
-
-	@Reference
-	private BatchPlannerLogLocalService _batchPlannerLogLocalService;
 
 	@Reference
 	private BatchPlannerMappingLocalService _batchPlannerMappingLocalService;

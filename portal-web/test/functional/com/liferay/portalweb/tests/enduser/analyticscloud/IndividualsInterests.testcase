@@ -43,7 +43,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AllInterestsInWorkspaceAppearInList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-9004
@@ -127,7 +126,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertIndividualInterestContributingPages {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-9006
@@ -194,13 +192,11 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8982| Test Summary: Individuals interest details are shown"
-	@ignore = "true"
 	@priority = "3"
 	test AssertIndividualInterestDetails {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor: data doesn't appear on time and the test needs data from a past date
-		// AC Refactor ticket: LRAC-9007
+		// AC Quarantine Reason: Individual interests takes time to load
 
 		task ("Connect DXP to AC") {
 			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -261,7 +257,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test OrderIndividualsInterests {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-9005
@@ -339,7 +334,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test PaginateIndividualsInterestsList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-9008

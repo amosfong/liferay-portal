@@ -42,6 +42,8 @@ public class ObjectFieldConstants {
 
 	public static final String BUSINESS_TYPE_RELATIONSHIP = "Relationship";
 
+	public static final String BUSINESS_TYPE_RICH_TEXT = "RichText";
+
 	public static final String BUSINESS_TYPE_TEXT = "Text";
 
 	public static final String DB_TYPE_BIG_DECIMAL = "BigDecimal";

@@ -64,11 +64,7 @@ public class SegmentsExperimentRelImpl extends SegmentsExperimentRelBaseImpl {
 			SegmentsExperienceLocalServiceUtil.fetchSegmentsExperience(
 				getSegmentsExperienceId());
 
-		if (segmentsExperience != null) {
-			return segmentsExperience.getSegmentsExperienceKey();
-		}
-
-		return SegmentsExperienceConstants.KEY_DEFAULT;
+		return segmentsExperience.getSegmentsExperienceKey();
 	}
 
 	@Override
@@ -82,12 +78,6 @@ public class SegmentsExperimentRelImpl extends SegmentsExperimentRelBaseImpl {
 
 	@Override
 	public boolean isActive() throws PortalException {
-		if (SegmentsExperienceConstants.ID_DEFAULT ==
-				getSegmentsExperienceId()) {
-
-			return true;
-		}
-
 		SegmentsExperience segmentsExperience =
 			SegmentsExperienceLocalServiceUtil.getSegmentsExperience(
 				getSegmentsExperienceId());

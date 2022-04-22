@@ -14,6 +14,8 @@
 
 package com.liferay.search.experiences.internal.blueprint.parameter;
 
+import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
+import com.liferay.expando.kernel.service.ExpandoValueLocalService;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributorDefinition;
@@ -59,6 +62,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -107,7 +111,7 @@ public class SXPParameterDataCreator
 
 	@Override
 	public List<SXPParameterContributorDefinition>
-		getSXPParameterContributorDefinitions(long companyId) {
+		getSXPParameterContributorDefinitions(long companyId, Locale locale) {
 
 		if (ArrayUtil.isEmpty(_sxpParameterContributors)) {
 			return Collections.emptyList();
@@ -121,7 +125,7 @@ public class SXPParameterDataCreator
 
 			sxpParameterContributorDefinitions.addAll(
 				sxpParameterContributor.getSXPParameterContributorDefinitions(
-					companyId));
+					companyId, locale));
 		}
 
 		return sxpParameterContributorDefinitions;
@@ -135,7 +139,8 @@ public class SXPParameterDataCreator
 			new OpenWeatherMapSXPParameterContributor(_configurationProvider),
 			new TimeSXPParameterContributor(),
 			new UserSXPParameterContributor(
-				_language, _roleLocalService, _segmentsEntryRetriever,
+				_expandoColumnLocalService, _expandoValueLocalService,
+				_language, _portal, _roleLocalService, _segmentsEntryRetriever,
 				_userGroupGroupRoleLocalService, _userGroupLocalService,
 				_userGroupRoleLocalService, _userLocalService)
 		};
@@ -257,7 +262,8 @@ public class SXPParameterDataCreator
 				sxpParameterContributorDefinitions =
 					sxpParameterContributor.
 						getSXPParameterContributorDefinitions(
-							searchContext.getCompanyId());
+							searchContext.getCompanyId(),
+							searchContext.getLocale());
 
 			if (ListUtil.isNotEmpty(sxpParameterContributorDefinitions)) {
 				for (SXPParameterContributorDefinition
@@ -699,6 +705,12 @@ public class SXPParameterDataCreator
 	private ConfigurationProvider _configurationProvider;
 
 	@Reference
+	private ExpandoColumnLocalService _expandoColumnLocalService;
+
+	@Reference
+	private ExpandoValueLocalService _expandoValueLocalService;
+
+	@Reference
 	private GroupLocalService _groupLocalService;
 
 	@Reference
@@ -706,6 +718,9 @@ public class SXPParameterDataCreator
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

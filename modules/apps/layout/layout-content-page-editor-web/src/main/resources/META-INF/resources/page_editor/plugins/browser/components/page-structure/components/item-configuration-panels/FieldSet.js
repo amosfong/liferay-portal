@@ -31,10 +31,13 @@ const DISPLAY_SIZES = {
 	small: 'small',
 };
 
-const fieldIsDisabled = (item, field) =>
-	item.type === LAYOUT_DATA_ITEM_TYPES.container &&
-	item.config?.widthType === CONTAINER_WIDTH_TYPES.fixed &&
-	(field.name === 'marginRight' || field.name === 'marginLeft');
+export function fieldIsDisabled(item, field) {
+	return (
+		item.type === LAYOUT_DATA_ITEM_TYPES.container &&
+		item.config?.widthType === CONTAINER_WIDTH_TYPES.fixed &&
+		(field.name === 'marginRight' || field.name === 'marginLeft')
+	);
+}
 
 export function FieldSet({
 	fields,
@@ -100,6 +103,7 @@ function FieldSetContent({fields, item, languageId, onValueSelect, values}) {
 							<FieldComponent
 								disabled={fieldIsDisabled(item, field)}
 								field={field}
+								item={item}
 								onValueSelect={onValueSelect}
 								value={getFieldValue({
 									field,
@@ -120,6 +124,10 @@ function FieldSetContent({fields, item, languageId, onValueSelect, values}) {
 }
 
 function getFieldValue({field, languageId, values}) {
+	if (field.name === '') {
+		return values;
+	}
+
 	const value = values[field.name];
 
 	if (isNullOrUndefined(value)) {

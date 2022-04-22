@@ -78,7 +78,6 @@ public class LayoutsAdminManagementToolbarDisplayContext
 		return DropdownItemListBuilder.add(
 			dropdownItem -> {
 				dropdownItem.putData("action", "convertSelectedPages");
-
 				dropdownItem.putData(
 					"convertLayoutURL",
 					PortletURLBuilder.createActionURL(
@@ -88,8 +87,7 @@ public class LayoutsAdminManagementToolbarDisplayContext
 					).setRedirect(
 						_themeDisplay.getURLCurrent()
 					).buildString());
-
-				dropdownItem.setIcon("change");
+				dropdownItem.setIcon("page");
 				dropdownItem.setLabel(
 					LanguageUtil.get(
 						httpServletRequest, "convert-to-content-page"));
@@ -111,7 +109,7 @@ public class LayoutsAdminManagementToolbarDisplayContext
 						_themeDisplay.getURLCurrent()
 					).buildString());
 				dropdownItem.setDisabled(false);
-				dropdownItem.setIcon("import-export");
+				dropdownItem.setIcon("upload");
 				dropdownItem.setLabel(
 					LanguageUtil.get(
 						httpServletRequest, "export-for-translations"));
@@ -120,7 +118,6 @@ public class LayoutsAdminManagementToolbarDisplayContext
 		).add(
 			dropdownItem -> {
 				dropdownItem.putData("action", "deleteSelectedPages");
-
 				dropdownItem.putData(
 					"deleteLayoutURL",
 					PortletURLBuilder.createActionURL(
@@ -130,8 +127,7 @@ public class LayoutsAdminManagementToolbarDisplayContext
 					).setRedirect(
 						_themeDisplay.getURLCurrent()
 					).buildString());
-
-				dropdownItem.setIcon("times-circle");
+				dropdownItem.setIcon("trash");
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "delete"));
 				dropdownItem.setQuickAction(true);

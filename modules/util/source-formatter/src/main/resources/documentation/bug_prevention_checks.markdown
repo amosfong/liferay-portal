@@ -43,6 +43,7 @@ GradleProvidedDependenciesCheck | .gradle | Validates the scope of dependencies 
 [GradleRequiredDependenciesCheck](check/gradle_required_dependencies_check.markdown#gradlerequireddependenciescheck) | .gradle | Validates the dependencies in `/required-dependencies/required-dependencies/build.gradle`. |
 GradleTestDependencyVersionCheck | .gradle | Checks the version for dependencies in gradle build files. |
 [IncorrectFileLocationCheck](check/incorrect_file_location_check.markdown#incorrectfilelocationcheck) | | Checks that `/src/*/java/` only contains `.java` files. |
+IncorrectFilePahCheck | | Checks that file path conatins illegal characters. |
 [JSLodashDependencyCheck](check/js_lodash_dependency_check.markdown#jslodashdependencycheck) | .js or .jsx | Finds incorrect use of `AUI._`. |
 [JSONDeprecatedPackagesCheck](check/json_deprecated_packages_check.markdown#jsondeprecatedpackagescheck) | .ipynb, .json or .npmbridgerc | Finds incorrect use of deprecated packages in `package.json` files. |
 JSONPackageJSONBNDVersionCheck | .ipynb, .json or .npmbridgerc | Checks the version for dependencies in `package.json` files. |
@@ -94,7 +95,6 @@ JavaModifiedServiceMethodCheck | .java | Finds missing empty lines before `remov
 JavaModuleIllegalImportsCheck | .java | Finds cases of incorrect use of certain classes in modules. |
 JavaModuleInternalImportsCheck | .java | Finds cases where a module imports an `internal` class from another class. |
 JavaModuleJavaxPortletInitParamTemplatePathCheck | .java | Validates the value of `javax.portlet.init-param.template-path`. |
-JavaModuleServiceProxyFactoryCheck | .java | Finds cases of `ServiceProxyFactory.newServiceTrackedInstance`. |
 JavaModuleServiceReferenceCheck | .java | Finds cases where `@BeanReference` annotation should be used instead of `@ServiceReference` annotation. |
 [JavaModuleTestCheck](check/java_module_test_check.markdown#javamoduletestcheck) | .java | Checks package names in tests. |
 [JavaOSGiReferenceCheck](check/java_osgi_reference_check.markdown#javaosgireferencecheck) | .java | Performs several checks on classes with `@Component` annotation. |
@@ -161,6 +161,7 @@ ReferenceAnnotationCheck | .java | Performs several checks on classes with @Refe
 ResourceImplCheck | .java | Performs several checks on `*ResourceImpl` classes (except `Base*ResourceImpl` classes). |
 [SQLLongNamesCheck](check/sql_long_names_check.markdown#sqllongnamescheck) | .sql | Checks for table and column names that exceed 30 characters. |
 SelfReferenceCheck | .java | Finds cases of unnecessary reference to its own class. |
+[ServiceProxyFactoryCheck](check/service_proxy_factory_check.markdown#serviceproxyfactorycheck) | .java | Finds incorrect parameter in method call. |
 [StaticBlockCheck](check/static_block_check.markdown#staticblockcheck) | .java | Performs several checks on static blocks. |
 SystemEventCheck | .java | Finds missing or redundant usage of @SystemEvent for delete events. |
 TLDTypeCheck | .tld | Ensures the fully qualified name is used for types in `.tld` file. |

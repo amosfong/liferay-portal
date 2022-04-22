@@ -144,6 +144,9 @@ public interface ObjectFieldLocalService
 	public ObjectField deleteObjectField(ObjectField objectField)
 		throws PortalException;
 
+	public void deleteObjectFieldByObjectDefinitionId(Long objectDefinitionId)
+		throws PortalException;
+
 	/**
 	 * @throws PortalException
 	 */
@@ -246,6 +249,11 @@ public interface ObjectFieldLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<ObjectField> getActiveObjectFields(
+			List<ObjectField> objectFields)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(

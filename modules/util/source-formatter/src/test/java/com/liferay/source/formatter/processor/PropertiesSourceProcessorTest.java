@@ -33,6 +33,11 @@ public class PropertiesSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testSQLStylingCheck() throws Exception {
+		test("testSQLStylingCheck.testproperties");
+	}
+
+	@Test
 	public void testStylingCheck() throws Exception {
 		test("StylingCheck.testproperties");
 	}

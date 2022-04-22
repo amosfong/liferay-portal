@@ -270,17 +270,24 @@ definition {
 			Translations.gotoImportTranslation(webContentTitle = "${webContentTitle}");
 		}
 
-		AssertClick(
-			locator1 = "Button#SELECT_FILE",
-			value1 = "Select File");
-
 		if (isSet(dependencyfile)) {
-			UploadDependencyFile.uploadArchiveFile(fileName = "${fileName}");
+			if (isSet(archive)) {
+				UploadDependencyFile.uploadArchiveFile(fileName = "${fileName}");
+			}
+			else {
+				for (var fileName : list "${fileName}") {
+					UploadDependencyFile.uploadFile(
+						fileName = "${fileName}",
+						filePath = "${filePath}");
+				}
+			}
 		}
 		else {
-			Translations.uploadTranslationsFile(
-				fileName = "${fileName}",
-				filePath = "${filePath}");
+			for (var fileName : list "${fileName}") {
+				Translations.uploadTranslationsFile(
+					fileName = "${fileName}",
+					filePath = "${filePath}");
+			}
 		}
 
 		if ("${workflow}" == "true") {
@@ -306,6 +313,18 @@ definition {
 
 			Click(locator1 = "Button#TRANSLATIONS_DONE");
 		}
+		else if ("${remove}" == "true") {
+			Button.click(button = "Remove Files");
+
+			for (var fileName : list "${fileName}") {
+				AssertTextNotPresent(
+					locator1 = "Translation#IMPORT_FILE_NAME",
+					value1 = "${fileName}");
+			}
+		}
+		else if ("${replace}" == "true") {
+			Button.click(button = "Replace Files");
+		}
 		else {
 			Button.clickPublish();
 
@@ -321,10 +340,27 @@ definition {
 					failFileName2 = "${failFileName2}",
 					successFileName = "${successFileName}",
 					successFileName2 = "${successFileName2}",
-					successFileNumber = "${successFileNumber}");
+					successFileName3 = "${successFileName3}",
+					successFileNumber = "${successFileNumber}",
+					zipFileName = "${zipFileName}");
 			}
 
-			Click(locator1 = "Button#TRANSLATIONS_DONE");
+			if (isSet(downloadCSVErrorReport)) {
+				Button.click(button = "Download CSV Error Report");
+
+				var errorReportName = selenium.getAttribute("//a[normalize-space()='Download CSV Error Report']@download");
+
+				DownloadTempFile();
+
+				return "${errorReportName}";
+			}
+
+			if (isSet(uploadAnotherFile)) {
+				Button.click(button = "Upload Another File");
+			}
+			else {
+				Click(locator1 = "Button#TRANSLATIONS_DONE");
+			}
 		}
 	}
 
@@ -442,6 +478,10 @@ definition {
 			var translationFileName = StringUtil.replace("${translationFileName}", ")", "?");
 		}
 
+		if (contains("${translationZipFileName}", " ")) {
+			var translationZipFileName = StringUtil.replace("${translationZipFileName}", " ", "*");
+		}
+
 		if (!(isSet(pageName)) || !(isSet(pageNameTranslation))) {
 			var pageName = "false";
 			var pageNameTranslation = "false";
@@ -524,9 +564,22 @@ definition {
 	}
 
 	macro translateFile {
-		AntCommand(
-			locator1 = "build-test.xml",
-			value1 = "update-translation-file -Doperation=${operation} -Dtranslation.content.target.original=<![CDATA[<p>${webContentContent}</p>]]></target> -Dtranslation.content.target=<![CDATA[<p>${contentTranslation}</p>]]></target> -Dtranslation.description.target.original=<![CDATA[<p>${webContentDescription}</p>]]></target> -Dtranslation.description.target=<![CDATA[<p>${descriptionTranslation}</p>]]></target> -Dtranslation.file.encoding=${encoding} -Dtranslation.title.target.original=<![CDATA[${webContentTitle}]]></target> -Dtranslation.title.target=<![CDATA[${titleTranslation}]]></target> -Dtranslation.zip.file.name=${translationZipFileName} -Dtranslation.file.name=${translationFileName} -Dtranslation.file.rename=${translationFileRename}");
+		var os = OSDetector.isWindows();
+
+		if (contains("${translationFileName}", " ")) {
+			var translationFileName = StringUtil.replace("${translationFileName}", " ", "*");
+		}
+
+		if ("${os}" == "true") {
+			AntCommand(
+				locator1 = "build-test.xml",
+				value1 = "update-translation-file -Doperation=${operation} -Dtranslation.content.target.original=60![CDATA[60p62${webContentContent}60/p62]]6260/target62 -Dtranslation.content.target=60![CDATA[60p62${contentTranslation}60/p62]]6260/target62 -Dtranslation.description.target.original=60![CDATA[60p62${webContentDescription}60/p62]]6260/target62 -Dtranslation.description.target=60![CDATA[60p62${descriptionTranslation}60/p62]]6260/target62 -Dtranslation.file.encoding=${encoding} -Dtranslation.title.target.original=60![CDATA[${webContentTitle}]]6260/target62 -Dtranslation.title.target=60![CDATA[${titleTranslation}]]6260/target62 -Dtranslation.zip.file.name=${translationZipFileName} -Dtranslation.file.name=${translationFileName} -Dtranslation.file.rename=${translationFileRename}");
+		}
+		else {
+			AntCommand(
+				locator1 = "build-test.xml",
+				value1 = "update-translation-file -Doperation=${operation} -Dtranslation.content.target.original=<![CDATA[<p>${webContentContent}</p>]]></target> -Dtranslation.content.target=<![CDATA[<p>${contentTranslation}</p>]]></target> -Dtranslation.description.target.original=<![CDATA[<p>${webContentDescription}</p>]]></target> -Dtranslation.description.target=<![CDATA[<p>${descriptionTranslation}</p>]]></target> -Dtranslation.file.encoding=${encoding} -Dtranslation.title.target.original=<![CDATA[${webContentTitle}]]></target> -Dtranslation.title.target=<![CDATA[${titleTranslation}]]></target> -Dtranslation.zip.file.name=${translationZipFileName} -Dtranslation.file.name=${translationFileName} -Dtranslation.file.rename=${translationFileRename}");
+		}
 	}
 
 	macro translateFragmentField {
@@ -567,6 +620,10 @@ definition {
 	}
 
 	macro updateTranslateFileID {
+		if (contains("${translationZipFileName}", " ")) {
+			var translationZipFileName = StringUtil.replace("${translationZipFileName}", " ", "*");
+		}
+
 		AntCommand(
 			locator1 = "build-test.xml",
 			value1 = "update-translation-file-id -Dtranslation.file.name=${translationFileName} -Dtranslation.entry.type=${translationEntryType} -Dtranslation.zip.file.name=${translationZipFileName}");
@@ -652,6 +709,26 @@ definition {
 		}
 	}
 
+	macro viewCSVErrorReport {
+		var fileContent = TestCase.getTempFileContent(fileName = "${errorReportName}");
+
+		if (contains("${fileContent}", "${reportContent}")) {
+			echo("The import translation error can be viewed in the report.");
+		}
+		else {
+			fail("The import translation error can not be viewed in the report");
+		}
+
+		if (isSet(viewNoSuccessfullyImportedTranslation)) {
+			if (!(contains("${fileContent}", "${viewNoSuccessfullyImportedTranslation}"))) {
+				echo("No imported translation info in the report");
+			}
+			else {
+				fail("The error report is incorrect.");
+			}
+		}
+	}
+
 	macro viewDisabledFieldTranslationButtons {
 		for (var fieldName : list "${fieldNameList}") {
 			AssertVisible(
@@ -719,9 +796,20 @@ definition {
 			AssertTextEquals.assertPartialText(
 				locator1 = "Message#ERROR_IMPORT_TRANSLATIONS_ITEM",
 				value1 = "${failFileName}");
+
+			if (isSet(zipFileName)) {
+				AssertTextEquals(
+					locator1 = "Message#ERROR_IMPORT_TRANSLATIONS_ITEM_ZIP",
+					value1 = "${zipFileName}");
+			}
 		}
 
 		if (isSet(failFileName2)) {
+			AssertTextEquals.assertPartialText(
+				key_indexNumber = "2",
+				locator1 = "Message#ERROR_IMPORT_TRANSLATIONS_ITEM_MESSAGE_N",
+				value1 = "${errorMessageItem}");
+
 			AssertTextEquals.assertPartialText(
 				key_indexNumber = "2",
 				locator1 = "Message#ERROR_IMPORT_TRANSLATIONS_ITEM_N",

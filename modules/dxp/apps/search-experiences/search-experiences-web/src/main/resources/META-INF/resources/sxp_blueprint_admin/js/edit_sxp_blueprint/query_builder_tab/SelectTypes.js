@@ -10,11 +10,12 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayEmptyState from '@clayui/empty-state';
 import {ClayCheckbox} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
-import ClayManagementToolbar from '@clayui/management-toolbar';
 import ClayModal, {useModal} from '@clayui/modal';
 import ClayTable from '@clayui/table';
+import {ManagementToolbar} from 'frontend-js-components-web';
 import React, {useContext, useState} from 'react';
 
 import ThemeContext from '../../shared/ThemeContext';
@@ -22,6 +23,7 @@ import {sub} from '../../utils/language';
 
 function SelectTypes({
 	onFrameworkConfigChange,
+	onFetchSearchableTypes,
 	searchableTypes = [],
 	selectedTypes = [],
 }) {
@@ -123,115 +125,147 @@ function SelectTypes({
 						{Liferay.Language.get('select-types')}
 					</ClayModal.Header>
 
-					<ClayManagementToolbar
-						className={
-							modalSelectedTypes.length > 0 &&
-							'management-bar-primary'
-						}
-					>
-						<div className="navbar-form navbar-form-autofit navbar-overlay">
-							<ClayManagementToolbar.ItemList>
-								<ClayManagementToolbar.Item>
-									<ClayCheckbox
-										checked={modalSelectedTypes.length > 0}
-										indeterminate={
-											modalSelectedTypes.length > 0 &&
-											modalSelectedTypes.length !==
-												searchableTypes.length
-										}
-										onChange={() =>
-											setModalSelectedTypes(
-												modalSelectedTypes.length === 0
-													? searchableTypesClassNames
-													: []
-											)
-										}
-									/>
-								</ClayManagementToolbar.Item>
+					{searchableTypes.length > 0 ? (
+						<>
+							<ManagementToolbar.Container
+								className={
+									modalSelectedTypes.length > 0 &&
+									'management-bar-primary'
+								}
+							>
+								<div className="navbar-form navbar-form-autofit navbar-overlay">
+									<ManagementToolbar.ItemList>
+										<ManagementToolbar.Item>
+											<ClayCheckbox
+												checked={
+													modalSelectedTypes.length >
+													0
+												}
+												indeterminate={
+													modalSelectedTypes.length >
+														0 &&
+													modalSelectedTypes.length !==
+														searchableTypes.length
+												}
+												onChange={() =>
+													setModalSelectedTypes(
+														modalSelectedTypes.length ===
+															0
+															? searchableTypesClassNames
+															: []
+													)
+												}
+											/>
+										</ManagementToolbar.Item>
 
-								<ClayManagementToolbar.Item>
-									{modalSelectedTypes.length > 0 ? (
-										<>
-											<span className="component-text">
-												{sub(
-													Liferay.Language.get(
-														'x-of-x-selected'
-													),
-													[
-														modalSelectedTypes.length,
-														searchableTypes.length,
-													],
-													false
-												)}
-											</span>
+										<ManagementToolbar.Item>
+											{modalSelectedTypes.length > 0 ? (
+												<>
+													<span className="component-text">
+														{sub(
+															Liferay.Language.get(
+																'x-of-x-selected'
+															),
+															[
+																modalSelectedTypes.length,
+																searchableTypes.length,
+															],
+															false
+														)}
+													</span>
 
-											{modalSelectedTypes.length <
-												searchableTypes.length && (
-												<ClayButton
-													displayType="link"
-													onClick={() => {
-														setModalSelectedTypes(
-															searchableTypesClassNames
-														);
-													}}
-													small
-												>
+													{modalSelectedTypes.length <
+														searchableTypes.length && (
+														<ClayButton
+															displayType="link"
+															onClick={() => {
+																setModalSelectedTypes(
+																	searchableTypesClassNames
+																);
+															}}
+															small
+														>
+															{Liferay.Language.get(
+																'select-all'
+															)}
+														</ClayButton>
+													)}
+												</>
+											) : (
+												<span className="component-text">
 													{Liferay.Language.get(
 														'select-all'
 													)}
-												</ClayButton>
+												</span>
 											)}
-										</>
-									) : (
-										<span className="component-text">
-											{Liferay.Language.get('select-all')}
-										</span>
-									)}
-								</ClayManagementToolbar.Item>
-							</ClayManagementToolbar.ItemList>
-						</div>
-					</ClayManagementToolbar>
+										</ManagementToolbar.Item>
+									</ManagementToolbar.ItemList>
+								</div>
+							</ManagementToolbar.Container>
 
-					<ClayModal.Body scrollable>
-						<ClayTable>
-							<ClayTable.Body>
-								{searchableTypesSorted.map(
-									({className, displayName}) => {
-										const isSelected = modalSelectedTypes.includes(
-											className
-										);
-
-										return (
-											<ClayTable.Row
-												active={isSelected}
-												className="cursor-pointer"
-												key={className}
-												onClick={_handleRowCheck(
+							<ClayModal.Body scrollable>
+								<ClayTable>
+									<ClayTable.Body>
+										{searchableTypesSorted.map(
+											({className, displayName}) => {
+												const isSelected = modalSelectedTypes.includes(
 													className
-												)}
-											>
-												<ClayTable.Cell>
-													<ClayCheckbox
-														checked={isSelected}
-														onChange={_handleRowCheck(
+												);
+
+												return (
+													<ClayTable.Row
+														active={isSelected}
+														className="cursor-pointer"
+														key={className}
+														onClick={_handleRowCheck(
 															className
 														)}
-													/>
-												</ClayTable.Cell>
+													>
+														<ClayTable.Cell>
+															<ClayCheckbox
+																checked={
+																	isSelected
+																}
+																onChange={_handleRowCheck(
+																	className
+																)}
+															/>
+														</ClayTable.Cell>
 
-												<ClayTable.Cell
-													expanded
-													headingTitle
-												>
-													{displayName}
-												</ClayTable.Cell>
-											</ClayTable.Row>
-										);
-									}
+														<ClayTable.Cell
+															expanded
+															headingTitle
+														>
+															{displayName}
+														</ClayTable.Cell>
+													</ClayTable.Row>
+												);
+											}
+										)}
+									</ClayTable.Body>
+								</ClayTable>
+							</ClayModal.Body>
+						</>
+					) : (
+						<ClayModal.Body>
+							<ClayEmptyState
+								description={Liferay.Language.get(
+									'an-error-has-occurred-and-we-were-unable-to-load-the-results'
 								)}
-							</ClayTable.Body>
-						</ClayTable>
-					</ClayModal.Body>
+								imgSrc="/o/admin-theme/images/states/empty_state.gif"
+								title={Liferay.Language.get(
+									'no-items-were-found'
+								)}
+							>
+								<ClayButton
+									displayType="secondary"
+									onClick={onFetchSearchableTypes}
+								>
+									{Liferay.Language.get('refresh')}
+								</ClayButton>
+							</ClayEmptyState>
+						</ClayModal.Body>
+					)}
 
 					<ClayModal.Footer
 						last={

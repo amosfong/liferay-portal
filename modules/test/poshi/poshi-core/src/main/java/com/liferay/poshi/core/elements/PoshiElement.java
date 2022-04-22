@@ -319,6 +319,7 @@ public abstract class PoshiElement
 		PoshiNode<?, ?> previousPoshiNode = null;
 
 		Collections.sort(poshiNodes, new CommandComparator());
+		Collections.sort(poshiNodes, new PropertyComparator());
 
 		for (Iterator<PoshiNode<?, ?>> iterator = poshiNodes.iterator();
 			 iterator.hasNext();) {
@@ -1046,20 +1047,16 @@ public abstract class PoshiElement
 
 				CommandPoshiElement commandPoshiElement1 =
 					(CommandPoshiElement)poshiNode1;
-
 				CommandPoshiElement commandPoshiElement2 =
 					(CommandPoshiElement)poshiNode2;
 
 				String poshiScriptKeyword1 =
 					commandPoshiElement1.getPoshiScriptKeyword();
-
 				String poshiScriptKeyword2 =
 					commandPoshiElement2.getPoshiScriptKeyword();
 
 				String blockName1 = commandPoshiElement1.getBlockName();
-
 				String blockName2 = commandPoshiElement2.getBlockName();
-
 				NaturalOrderStringComparator naturalOrderStringComparator =
 					new NaturalOrderStringComparator();
 
@@ -1086,6 +1083,31 @@ public abstract class PoshiElement
 
 				return naturalOrderStringComparator.compare(
 					blockName1, blockName2);
+			}
+
+			return 0;
+		}
+
+	}
+
+	private class PropertyComparator implements Comparator<PoshiNode> {
+
+		@Override
+		public int compare(PoshiNode poshiNode1, PoshiNode poshiNode2) {
+			if ((poshiNode1 instanceof PropertyPoshiElement) &&
+				(poshiNode2 instanceof PropertyPoshiElement)) {
+
+				PropertyPoshiElement propertyPoshiElement1 =
+					(PropertyPoshiElement)poshiNode1;
+				PropertyPoshiElement propertyPoshiElement2 =
+					(PropertyPoshiElement)poshiNode2;
+
+				String propertyName1 = propertyPoshiElement1.attributeValue(
+					"name");
+				String propertyName2 = propertyPoshiElement2.attributeValue(
+					"name");
+
+				return propertyName1.compareTo(propertyName2);
 			}
 
 			return 0;

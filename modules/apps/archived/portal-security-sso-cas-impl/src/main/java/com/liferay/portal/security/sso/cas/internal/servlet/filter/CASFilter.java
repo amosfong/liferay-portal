@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.servlet.BaseFilter;
 import com.liferay.portal.kernel.settings.CompanyServiceSettingsLocator;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -195,7 +195,8 @@ public class CASFilter extends BaseFilter {
 		if (Validator.isNull(ticket)) {
 			String loginUrl = casConfiguration.loginURL();
 
-			loginUrl = _http.addParameter(loginUrl, "service", serviceURL);
+			loginUrl = HttpComponentsUtil.addParameter(
+				loginUrl, "service", serviceURL);
 
 			httpServletResponse.sendRedirect(loginUrl);
 
@@ -211,9 +212,7 @@ public class CASFilter extends BaseFilter {
 		}
 		catch (TicketValidationException ticketValidationException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(
-					ticketValidationException.getMessage(),
-					ticketValidationException);
+				_log.debug(ticketValidationException);
 			}
 			else if (_log.isInfoEnabled()) {
 				_log.info(ticketValidationException);
@@ -290,9 +289,6 @@ public class CASFilter extends BaseFilter {
 		new ConcurrentHashMap<>();
 
 	private ConfigurationProvider _configurationProvider;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private Portal _portal;

@@ -37,12 +37,15 @@ import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.util.TransformUtil;
+
+import java.io.Serializable;
 
 import java.util.Objects;
 
@@ -88,10 +91,30 @@ public class AssignableAccountUserDisplaySearchContainerFactory {
 		String keywords = ParamUtil.getString(
 			liferayPortletRequest, "keywords", null);
 
+		long[] accountEntryIds = null;
+
+		long accountRoleId = ParamUtil.getLong(
+			liferayPortletRequest, "accountRoleId");
+
+		if ((accountEntryId > 0) && (accountRoleId > 0)) {
+			accountEntryIds = new long[] {accountEntryId};
+		}
+		else if (navigation.equals("account-users")) {
+			accountEntryIds = new long[] {
+				AccountConstants.ACCOUNT_ENTRY_ID_ANY
+			};
+		}
+		else if (navigation.equals("no-assigned-account")) {
+			accountEntryIds = new long[0];
+		}
+
 		BaseModelSearchResult<User> baseModelSearchResult =
 			_accountUserRetriever.searchAccountUsers(
-				AccountConstants.ACCOUNT_ENTRY_ID_ANY,
-				_getEmailAddressDomains(accountEntryId, navigation), keywords,
+				accountEntryIds, keywords,
+				LinkedHashMapBuilder.<String, Serializable>put(
+					"emailAddressDomains",
+					_getEmailAddressDomains(accountEntryId, navigation)
+				).build(),
 				WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(),
 				searchContainer.getDelta(), searchContainer.getOrderByCol(),
 				_isReverseOrder(searchContainer.getOrderByType()));

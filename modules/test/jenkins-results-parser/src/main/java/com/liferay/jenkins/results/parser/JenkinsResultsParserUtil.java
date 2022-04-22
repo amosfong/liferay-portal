@@ -784,7 +784,7 @@ public class JenkinsResultsParserUtil {
 		}
 		catch (IOException ioException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(ioException.getMessage(), ioException);
+				_log.debug(ioException);
 			}
 		}
 		finally {
@@ -1178,6 +1178,20 @@ public class JenkinsResultsParserUtil {
 		String buildNumber = System.getenv("BUILD_NUMBER");
 		String jobName = System.getenv("JOB_NAME");
 		String masterHostname = System.getenv("MASTER_HOSTNAME");
+
+		String topLevelBuildURL = System.getenv("TOP_LEVEL_BUILD_URL");
+
+		if (topLevelBuildURL == null) {
+			topLevelBuildURL = "";
+		}
+
+		Matcher matcher = _topLevelBuildURLPattern.matcher(topLevelBuildURL);
+
+		if (matcher.find()) {
+			buildNumber = matcher.group("buildNumber");
+			jobName = matcher.group("jobName");
+			masterHostname = matcher.group("masterHostname");
+		}
 
 		if (!isCINode() || isNullOrEmpty(buildNumber) ||
 			isNullOrEmpty(jobName) || isNullOrEmpty(masterHostname)) {
@@ -5081,6 +5095,36 @@ public class JenkinsResultsParserUtil {
 		thread.start();
 	}
 
+	private static String _fixFilePathPropertyValue(
+		File propertyFile, String propertyValue) {
+
+		StringBuilder sb = new StringBuilder();
+
+		String[] paths = propertyValue.split("\\s*,\\s*");
+
+		for (String path : paths) {
+			File file = new File(propertyFile.getParentFile(), path);
+
+			if (file.exists()) {
+				try {
+					sb.append(file.getCanonicalPath());
+				}
+				catch (IOException ioException) {
+					throw new RuntimeException(ioException);
+				}
+			}
+			else {
+				sb.append(path);
+			}
+
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+		}
+
+		return sb.toString();
+	}
+
 	private static File _getCacheFile(String key) {
 		String fileName = combine(
 			System.getProperty("java.io.tmpdir"), "/jenkins-cached-files/",
@@ -5392,7 +5436,7 @@ public class JenkinsResultsParserUtil {
 
 		propertiesFiles.add(basePropertiesFile);
 
-		String propertiesFileName = basePropertiesFile.getName();
+		String basePropertiesFileName = basePropertiesFile.getName();
 
 		String[] environments = {
 			System.getenv("HOSTNAME"), System.getenv("HOST"),
@@ -5406,7 +5450,7 @@ public class JenkinsResultsParserUtil {
 
 			File environmentPropertyFile = new File(
 				basePropertiesFile.getParentFile(),
-				propertiesFileName.replace(
+				basePropertiesFileName.replace(
 					".properties", "." + environment + ".properties"));
 
 			if (environmentPropertyFile.exists()) {
@@ -5416,16 +5460,40 @@ public class JenkinsResultsParserUtil {
 
 		Properties properties = new Properties();
 
-		try {
-			for (File propertiesFile : propertiesFiles) {
-				properties.load(new FileInputStream(propertiesFile));
+		String[] poshiDirPropertyNames = {"test.base.dir.name", "test.dirs"};
+
+		for (File propertiesFile : propertiesFiles) {
+			Properties temporaryProperties = new Properties();
+
+			try {
+				temporaryProperties.load(new FileInputStream(propertiesFile));
 			}
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(
-				"Unable to load properties file " +
-					basePropertiesFile.getPath(),
-				ioException);
+			catch (IOException ioException) {
+				throw new RuntimeException(
+					"Unable to load properties file " +
+						basePropertiesFile.getPath(),
+					ioException);
+			}
+
+			String propertiesFileName = propertiesFile.getName();
+
+			if (propertiesFileName.equals("poshi-ext.properties") ||
+				propertiesFileName.equals("poshi.properties")) {
+
+				for (String poshiDirPropertyName : poshiDirPropertyNames) {
+					if (temporaryProperties.containsKey(poshiDirPropertyName)) {
+						temporaryProperties.setProperty(
+							poshiDirPropertyName,
+							_fixFilePathPropertyValue(
+								propertiesFile,
+								getProperty(
+									temporaryProperties,
+									poshiDirPropertyName)));
+					}
+				}
+			}
+
+			properties.putAll(temporaryProperties);
 		}
 
 		for (String propertyName : properties.stringPropertyNames()) {
@@ -5728,8 +5796,8 @@ public class JenkinsResultsParserUtil {
 
 	private static final Set<String> _timeStamps = new HashSet<>();
 	private static final Pattern _topLevelBuildURLPattern = Pattern.compile(
-		"http(?:|s):\\/\\/test-(?<cohortNumber>[\\d]{1})-" +
-			"(?<masterNumber>[\\d]{1,2}).*(?:|\\.liferay\\.com)\\/+job\\/+" +
+		"http(?:|s):\\/\\/(?<masterHostname>test-(?<cohortNumber>[\\d]{1})-" +
+			"(?<masterNumber>[\\d]{1,2})).*(?:|\\.liferay\\.com)\\/+job\\/+" +
 				"(?<jobName>[\\w\\W]*?)\\/+(?<buildNumber>[0-9]*)");
 	private static final Pattern _urlQueryStringPattern = Pattern.compile(
 		"\\&??(\\w++)=([^\\&]*)");

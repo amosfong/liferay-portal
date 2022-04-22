@@ -120,12 +120,11 @@ public class DispatchMessageListenerTest {
 			executeCount, 750, false,
 			TestDispatchTaskExecutor.DISPATCH_TASK_EXECUTOR_TYPE_TEST);
 
-		List<DispatchLog> dispatchLogs =
+		_assertExecutionSequence(
 			_dispatchLogLocalService.getDispatchLogs(
 				dispatchTrigger.getDispatchTriggerId(), QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS);
-
-		_assertExecutionSequence(dispatchLogs, executeCount, false);
+				QueryUtil.ALL_POS),
+			executeCount, false);
 	}
 
 	private void _assertExecutionSequence(
@@ -229,8 +228,8 @@ public class DispatchMessageListenerTest {
 
 		DispatchTrigger dispatchTrigger =
 			_dispatchTriggerLocalService.addDispatchTrigger(
-				user.getUserId(), type, null, RandomTestUtil.randomString(),
-				RandomTestUtil.randomBoolean());
+				null, user.getUserId(), type, null,
+				RandomTestUtil.randomString(), RandomTestUtil.randomBoolean());
 
 		Date date = new Date();
 

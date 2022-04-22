@@ -72,7 +72,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8523 | Test Summary: Assert segment membership list shows all known individuals"
 	@priority = "4"
 	test AssertSegmentMembershipListShowsAllKnownIndividuals {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsMembership#AssertSegmentMembershipListShowsAllKnownIndividuals";
 
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 		var nameList = "user1 user1,user2 user2,user3 user3";
@@ -124,7 +124,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8512 | Test Summary: Segment membership list is searchable"
 	@priority = "5"
 	test CanSearchMembershipList {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsMembership#CanSearchMembershipList";
 
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 		var nameList = "user1 user1,user2 user2,user3 user3";
@@ -180,9 +180,7 @@ definition {
 	@description = "Bug: LRAC-8091 | Automation ID: LRAC-10582 | Test Summary: Dynamic segment is updating membership number"
 	@priority = "4"
 	test CanUpdateNumberOfMembersForDynamicSegment {
-		property portal.upstream = "quarantine";
-
-		// The segment membership list takes a long time to process the events and update the list.
+		property test.name.skip.portal.instance = "SegmentsMembership#CanUpdateNumberOfMembersForDynamicSegment";
 
 		var nameList1 = "user2 user2,user3 user3";
 		var nameList2 = "user1 user1,user2 user2";
@@ -277,7 +275,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test NoChangeOnSegmentProfileSelectedPoint {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9260
@@ -344,7 +341,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8513 | Test Summary: Order the Segment Profile Membership List"
 	@priority = "3"
 	test OrderSegmentProfileMembershipList {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsMembership#OrderSegmentProfileMembershipList";
 
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 		var nameList = "user1 user1,user2 user2,user3 user3";
@@ -426,7 +423,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8519 | Test Summary: Search a Dynamic Segment's Membership Preview Modal"
 	@priority = "3"
 	test SearchDynamicSegmentsMembershipPreviewModal {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsMembership#SearchDynamicSegmentsMembershipPreviewModal";
 
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 		var nameList = "user1 user1,user2 user2,user3 user3";
@@ -483,7 +480,6 @@ definition {
 	@ignore = "true"
 	@priority = "4"
 	test SegmentMembershipGraphExistAndShowsMembers {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9258
@@ -551,7 +547,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test SelectedSegmentMembershipPointCanClearDateSelection {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9257
@@ -624,7 +619,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test SelectPointOnMembershipShowsIndividualsAddedOrRemoved {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9261
@@ -697,7 +691,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipGraphShowsIncreaseOrDecreaseMembers {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9252
@@ -772,7 +765,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipShowsKnownAnonymousTotalMembers {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Segment data takes time to appear.
 		// AC Refactor ticket: LRAC-9251

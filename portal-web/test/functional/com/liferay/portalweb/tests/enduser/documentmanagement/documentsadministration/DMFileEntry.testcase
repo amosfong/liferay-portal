@@ -1112,6 +1112,15 @@ definition {
 		DMDocument.viewTagInfo(tagName = "tag name");
 	}
 
+	@description = "This test covers LPS-115949. It validates that resource allocation for forked processes can be controlled through portal.properties."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanLimitForkedProcessResourceAllocation {
+
+		// TODO LPS-150080
+
+	}
+
 	@description = "This test ensures that only the last two versions of a file are kept when the max version limit is set."
 	@priority = "5"
 	@refactordone
@@ -1348,6 +1357,15 @@ definition {
 			checkedOut = "true",
 			dmDocumentTitle = "DM Document Title",
 			userName = "Test Test");
+	}
+
+	@description = "This is a test for LPS-82205. It checks that the XSS can not be executed after accessing HTML file."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CannotExecuteXSSWhenAccessingHTMLFIle {
+
+		// TODO LPS-149971 CannotExecuteXSSWhenAccessingHTMLFIle pending implementation
+
 	}
 
 	@priority = "4"
@@ -1622,6 +1640,72 @@ definition {
 		AssertVisible(
 			key_dmDocumentFileName = "large_file.pdf",
 			locator1 = "DocumentsAndMediaDocument#DOCUMENT_DETAILS_IMAGE_PREVIEW");
+	}
+
+	@description = "This test covers LPS-146237. It validates that a PDF can be previewed from the Recycle Bin."
+	@priority = "3"
+	test CanPreviewPDFFromRecycleBin {
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document_1.pdf",
+			groupName = "Guest",
+			mimeType = "application/pdf",
+			sourceFileName = "Document_1.pdf");
+
+		JSONDocument.moveToRecycleBin(
+			dmDocumentTitle = "Document_1.pdf",
+			groupName = "Guest");
+
+		RecycleBin.openRecycleBinAdmin(siteURLKey = "guest");
+
+		LexiconEntry.gotoEntry(rowEntry = "Document_1.pdf");
+
+		AssertVisible(
+			key_dmDocumentFileName = "Document_1.pdf",
+			locator1 = "DocumentsAndMediaDocument#DOCUMENT_DETAILS_IMAGE_PREVIEW");
+	}
+
+	@description = "This test covers LPS-148758. It ensures that a PDF without an extension can be previewed through the latest version URL."
+	@priority = "3"
+	test CanPreviewPDFWithoutExtensionViaLatestVersionURL {
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "Document_1.pdf",
+			groupName = "Guest",
+			mimeType = "application/pdf",
+			sourceFileName = "Document_1.pdf");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentTitle = "pdf_no_extension",
+			groupName = "Guest",
+			mimeType = "application/pdf",
+			sourceFileName = "pdf_no_extension");
+
+		DMNavigator.openToEntryInAdmin(
+			dmDocumentTitle = "Document_1.pdf",
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		var latestVersionURL = DMDocument.getLatestVersionURL();
+
+		Navigator.openSpecificURL(url = "${latestVersionURL}");
+
+		AssertAttributeValue(
+			attribute1 = "baseURI",
+			locator1 = "//embed",
+			value1 = "${latestVersionURL}");
+
+		DMNavigator.openToEntryInAdmin(
+			dmDocumentTitle = "pdf_no_extension",
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		var latestVersionURL = DMDocument.getLatestVersionURL();
+
+		Navigator.openSpecificURL(url = "${latestVersionURL}");
+
+		AssertAttributeValue(
+			attribute1 = "baseURI",
+			locator1 = "//embed",
+			value1 = "${latestVersionURL}");
 	}
 
 	@description = "This test covers LPS-104957. It ensures that the PNG file can be previewed."
@@ -2075,6 +2159,15 @@ definition {
 		DMDocument.viewSearchResultsCP(dmDocumentTitle = "DM Document Title");
 	}
 
+	@description = "This is a test for LPS-80857. It checks that the user will stay in the same folder context after filtering."
+	@ignore = "Test Stub"
+	@priority = "3"
+	test CanStayInFolderAfterFiltering {
+
+		// TODO LPS-150082 CanStayInFolderAfterFiltering pending implementation
+
+	}
+
 	@description = "This ensures that the user can create a document with edited display page template."
 	@priority = "4"
 	@refactordone
@@ -2273,7 +2366,7 @@ definition {
 
 		DMDocument.setExpirationDate(
 			enableExpirationDate = "true",
-			increaseMinutes = "2");
+			increaseMinutes = "1");
 
 		Pause(locator1 = "120000");
 
@@ -2465,6 +2558,24 @@ definition {
 		BlogsEntry.viewInlineImage(uploadFileName = "static.gif");
 	}
 
+	@description = "This test covers LPS-144687. It validates that a temp zip is not created if NoSuchFileException occurs during a download."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test NoZipFileIsCreatedIfDownloadResultsInError {
+
+		// TODO LPS-149394
+
+	}
+
+	@description = "This is a test for LPS-145630. It checks that the PDFs linked in web articles content can be updated."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test PDFLinkedInWCCanBeUpdated {
+
+		// TODO LPS-149475 PDFLinkedInWCCanBeUpdated pending implementation
+
+	}
+
 	@description = "This test covers LPS-101667. It makes sure that the file size can be displayed correctly in the different versions after editing the document file."
 	@priority = "3"
 	@refactordone
@@ -2626,6 +2737,15 @@ definition {
 			dmDocumentDescription = "Document Description",
 			dmDocumentTitle = "Document Title",
 			tagNameList = "tag1,tag2");
+	}
+
+	@description = "This is a test for LPS-94829. It ensures that the wildcard can be defined with other file extensions."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test WildcardCanBeDefinedWithOtherFileExtensions {
+
+		// TODO LPS-148982 WildcardCanBeDefinedWithOtherFileExtensions pending implementation
+
 	}
 
 }

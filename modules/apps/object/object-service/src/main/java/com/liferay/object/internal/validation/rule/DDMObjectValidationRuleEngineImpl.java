@@ -17,6 +17,7 @@ package com.liferay.object.internal.validation.rule;
 import com.liferay.dynamic.data.mapping.expression.CreateExpressionRequest;
 import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
+import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.validation.rule.ObjectValidationRuleEngine;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -47,21 +48,26 @@ public class DDMObjectValidationRuleEngineImpl
 
 	@Override
 	public String getName() {
-		return "ddm";
+		return ObjectValidationRuleConstants.ENGINE_TYPE_DDM;
 	}
 
 	private boolean _evaluate(Map<String, Object> inputObjects, String script)
 		throws Exception {
 
-		DDMExpression<Boolean> ddmExpression =
-			_ddmExpressionFactory.createExpression(
-				CreateExpressionRequest.Builder.newBuilder(
-					script
-				).build());
+		DDMExpression<Boolean> ddmExpression = _getDDMExpression(script);
 
 		ddmExpression.setVariables(inputObjects);
 
 		return ddmExpression.evaluate();
+	}
+
+	private DDMExpression<Boolean> _getDDMExpression(String script)
+		throws Exception {
+
+		return _ddmExpressionFactory.createExpression(
+			CreateExpressionRequest.Builder.newBuilder(
+				script
+			).build());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

@@ -1,7 +1,6 @@
 @component-name = "portal-publications"
 definition {
 
-	property app.server.types = "jboss,tomcat,weblogic,websphere,wildfly";
 	property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver";
 	property portal.release = "true";
 	property portal.upstream = "true";
@@ -62,7 +61,7 @@ definition {
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
-		PagesAdmin.addPublicPage(pageName = "Test Page");
+		PagesAdmin.addPage(pageName = "Test Page");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Publications",

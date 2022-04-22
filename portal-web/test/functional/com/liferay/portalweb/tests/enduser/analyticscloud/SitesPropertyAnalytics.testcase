@@ -44,7 +44,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AssertChartTicksPagesVisitorBehaviorStandardized {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-8994

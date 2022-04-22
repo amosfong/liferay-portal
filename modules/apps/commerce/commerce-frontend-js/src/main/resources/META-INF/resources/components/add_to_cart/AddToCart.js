@@ -67,6 +67,7 @@ function AddToCart({
 		if (
 			initialDisabled ||
 			!account?.id ||
+			cpInstance.disabled ||
 			cpInstance.purchasable === false ||
 			!cpInstance.quantity
 		) {
@@ -94,12 +95,13 @@ function AddToCart({
 					setCpInstance((cpInstance) => ({
 						...cpInstance,
 						backOrderAllowed: incomingCpInstance.backOrderAllowed,
+						disabled: incomingCpInstance.disabled,
 						inCart,
-						options: Array.isArray(incomingCpInstance.options)
-							? incomingCpInstance.options
-							: JSON.parse(incomingCpInstance.options),
 						purchasable: incomingCpInstance.purchasable,
 						skuId: incomingCpInstance.skuId,
+						skuOptions: Array.isArray(incomingCpInstance.skuOptions)
+							? incomingCpInstance.skuOptions
+							: JSON.parse(incomingCpInstance.skuOptions),
 						stockQuantity: incomingCpInstance.stockQuantity,
 					}));
 				});
@@ -180,9 +182,9 @@ AddToCart.propTypes = {
 	accountId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 	cartId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 	cpInstance: PropTypes.shape({
-		options: PropTypes.array,
 		skuId: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 			.isRequired,
+		skuOptions: PropTypes.array,
 	}),
 	disabled: PropTypes.bool,
 	settings: PropTypes.shape({

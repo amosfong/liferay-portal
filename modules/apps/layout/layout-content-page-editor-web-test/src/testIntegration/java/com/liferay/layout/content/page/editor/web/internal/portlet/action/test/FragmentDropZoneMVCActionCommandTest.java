@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
-import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
@@ -64,7 +63,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.List;
 
@@ -109,10 +108,8 @@ public class FragmentDropZoneMVCActionCommandTest {
 				fetchLayoutPageTemplateStructure(
 					_group.getGroupId(), _layout.getPlid());
 
-		String data = layoutPageTemplateStructure.getData(
-			SegmentsExperienceConstants.ID_DEFAULT);
-
-		_layoutStructure = LayoutStructure.of(data);
+		_layoutStructure = LayoutStructure.of(
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -421,6 +418,11 @@ public class FragmentDropZoneMVCActionCommandTest {
 
 		mockLiferayPortletActionRequest.addParameter(
 			"groupId", String.valueOf(groupId));
+		mockLiferayPortletActionRequest.addParameter(
+			"segmentsExperienceId",
+			String.valueOf(
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid())));
 
 		return mockLiferayPortletActionRequest;
 	}
@@ -435,10 +437,10 @@ public class FragmentDropZoneMVCActionCommandTest {
 
 		LayoutSet layoutSet = _layout.getLayoutSet();
 
-		Theme theme = _themeLocalService.getTheme(
-			_company.getCompanyId(), layoutSet.getThemeId());
-
-		themeDisplay.setLookAndFeel(theme, null);
+		themeDisplay.setLookAndFeel(
+			_themeLocalService.getTheme(
+				_company.getCompanyId(), layoutSet.getThemeId()),
+			null);
 
 		themeDisplay.setPermissionChecker(
 			PermissionThreadLocal.getPermissionChecker());
@@ -502,6 +504,9 @@ public class FragmentDropZoneMVCActionCommandTest {
 		_layoutPageTemplateStructureLocalService;
 
 	private LayoutStructure _layoutStructure;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Inject
 	private ThemeLocalService _themeLocalService;

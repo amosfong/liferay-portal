@@ -74,7 +74,7 @@
 		</c:choose>
 	</div>
 
-	<div class="hide-accessible" id="<%= namespace + HtmlUtil.escapeAttribute(id + fieldSuffix) %>_desc"><%= defaultLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request))) %> <liferay-ui:message key="translation" /></div>
+	<div class="hide-accessible sr-only" id="<%= namespace + HtmlUtil.escapeAttribute(id + fieldSuffix) %>_desc"><%= defaultLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request))) %> <liferay-ui:message key="translation" /></div>
 
 	<c:if test="<%= !availableLocales.isEmpty() && Validator.isNull(languageId) %>">
 
@@ -354,10 +354,22 @@
 					});
 				</c:when>
 				<c:otherwise>
-					Liferay.InputLocalized.register(
-						'<%= namespace + id + HtmlUtil.getAUICompatibleId(fieldSuffix) %>',
-						inputLocalizedProps
-					);
+					Liferay.Loader.require(
+					[
+						A.config.groups.components.mainModule,
+						A.config.groups.state.mainModule,
+					],
+					(frontendJsComponentsWebModule, frontendJsStateWebModule) => {
+
+						Liferay.InputLocalized.register(
+							'<%= namespace + id + HtmlUtil.getAUICompatibleId(fieldSuffix) %>',
+							{
+								frontendJsComponentsWebModule,
+								frontendJsStateWebModule,
+								...inputLocalizedProps
+							}
+						);
+					});
 				</c:otherwise>
 			</c:choose>
 

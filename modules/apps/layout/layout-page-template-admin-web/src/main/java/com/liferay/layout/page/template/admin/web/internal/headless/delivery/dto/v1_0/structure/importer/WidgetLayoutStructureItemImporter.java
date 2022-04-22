@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.List;
 import java.util.Map;
@@ -174,10 +175,12 @@ public class WidgetLayoutStructureItemImporter
 			warningMessages, widgetPermissionsMaps);
 
 		return _fragmentEntryLinkLocalService.addFragmentEntryLink(
-			layout.getUserId(), layout.getGroupId(), 0, 0, 0, layout.getPlid(),
-			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-			StringPool.BLANK, editableValueJSONObject.toString(),
-			widgetInstanceId, 0, null,
+			layout.getUserId(), layout.getGroupId(), 0, 0,
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				layout.getPlid()),
+			layout.getPlid(), StringPool.BLANK, StringPool.BLANK,
+			StringPool.BLANK, StringPool.BLANK,
+			editableValueJSONObject.toString(), widgetInstanceId, 0, null,
 			ServiceContextThreadLocal.getServiceContext());
 	}
 
@@ -225,5 +228,8 @@ public class WidgetLayoutStructureItemImporter
 
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

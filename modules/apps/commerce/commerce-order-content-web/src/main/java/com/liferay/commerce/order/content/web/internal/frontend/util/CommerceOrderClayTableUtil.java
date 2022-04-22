@@ -17,6 +17,7 @@ package com.liferay.commerce.order.content.web.internal.frontend.util;
 import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.currency.model.CommerceMoney;
 import com.liferay.commerce.model.CommerceOrder;
+import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.order.content.web.internal.frontend.constants.CommerceOrderDataSetConstants;
 import com.liferay.commerce.order.content.web.internal.importer.type.CSVCommerceOrderImporterTypeImpl;
 import com.liferay.commerce.order.content.web.internal.importer.type.CommerceOrdersCommerceOrderImporterTypeImpl;
@@ -24,6 +25,7 @@ import com.liferay.commerce.order.content.web.internal.importer.type.CommerceWis
 import com.liferay.commerce.order.content.web.internal.model.Order;
 import com.liferay.commerce.order.content.web.internal.model.WishList;
 import com.liferay.commerce.pricing.constants.CommercePricingConstants;
+import com.liferay.commerce.service.CommerceOrderTypeLocalService;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -33,6 +35,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletQName;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -48,7 +52,9 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
@@ -147,8 +153,12 @@ public class CommerceOrderClayTableUtil {
 	}
 
 	public static List<Order> getOrders(
-			List<CommerceOrder> commerceOrders, ThemeDisplay themeDisplay,
-			String priceDisplayType)
+			List<CommerceOrder> commerceOrders,
+			CommerceOrderTypeLocalService commerceOrderTypeLocalService,
+			ModelResourcePermission<CommerceOrderType>
+				commerceOrderTypeModelResourcePermission,
+			String priceDisplayType, boolean showCommerceOrderCreateTime,
+			ThemeDisplay themeDisplay)
 		throws PortalException {
 
 		List<Order> orders = new ArrayList<>();
@@ -167,10 +177,6 @@ public class CommerceOrderClayTableUtil {
 			if (totalCommerceMoney != null) {
 				amount = totalCommerceMoney.format(themeDisplay.getLocale());
 			}
-
-			Format dateFormat = FastDateFormatFactoryUtil.getDate(
-				DateFormat.MEDIUM, themeDisplay.getLocale(),
-				themeDisplay.getTimeZone());
 
 			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
 				"content.Language", themeDisplay.getLocale(),
@@ -191,13 +197,36 @@ public class CommerceOrderClayTableUtil {
 				orderDate = commerceOrder.getOrderDate();
 			}
 
+			String commerceOrderTypeName = StringPool.BLANK;
+
+			if ((commerceOrderTypeModelResourcePermission != null) &&
+				(commerceOrderTypeLocalService != null)) {
+
+				CommerceOrderType commerceOrderType =
+					commerceOrderTypeLocalService.fetchCommerceOrderType(
+						commerceOrder.getCommerceOrderTypeId());
+
+				if ((commerceOrderType != null) &&
+					commerceOrderTypeModelResourcePermission.contains(
+						themeDisplay.getPermissionChecker(), commerceOrderType,
+						ActionKeys.VIEW)) {
+
+					commerceOrderTypeName = commerceOrderType.getName(
+						themeDisplay.getLocale());
+				}
+			}
+
 			orders.add(
 				new Order(
 					commerceOrder.getExternalReferenceCode(),
 					commerceOrder.getCommerceOrderId(),
 					commerceOrder.getCommerceAccountName(),
-					dateFormat.format(orderDate), commerceOrder.getUserName(),
-					commerceOrderStatusLabel,
+					_formatCommerceOrderCreateDate(
+						themeDisplay.getLocale(), orderDate,
+						showCommerceOrderCreateTime,
+						themeDisplay.getTimeZone()),
+					commerceOrder.getUserName(), commerceOrderStatusLabel,
+					commerceOrderTypeName,
 					commerceOrder.getPurchaseOrderNumber(), workflowStatusLabel,
 					amount));
 		}
@@ -294,6 +323,25 @@ public class CommerceOrderClayTableUtil {
 		).setWindowState(
 			LiferayWindowState.POP_UP
 		).buildString();
+	}
+
+	private static String _formatCommerceOrderCreateDate(
+		Locale locale, Date orderDate, boolean showCommerceOrderCreateTime,
+		TimeZone timeZone) {
+
+		Format commerceOrderDateFormatDate = FastDateFormatFactoryUtil.getDate(
+			DateFormat.MEDIUM, locale, timeZone);
+
+		if (showCommerceOrderCreateTime) {
+			Format commerceOrderDateFormatTime =
+				FastDateFormatFactoryUtil.getTime(
+					DateFormat.MEDIUM, locale, timeZone);
+
+			return commerceOrderDateFormatDate.format(orderDate) + " " +
+				commerceOrderDateFormatTime.format(orderDate);
+		}
+
+		return commerceOrderDateFormatDate.format(orderDate);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

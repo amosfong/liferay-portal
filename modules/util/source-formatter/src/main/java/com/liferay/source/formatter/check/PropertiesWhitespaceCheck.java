@@ -51,6 +51,10 @@ public class PropertiesWhitespaceCheck extends WhitespaceCheck {
 					line = StringUtil.replace(line, " \t", "     ");
 				}
 
+				if (line.matches("\\s*[^\\s#].*[,=]\\\\")) {
+					line = _fixLeadingSpaces(line);
+				}
+
 				if (previousLine.matches("\\s*[^\\s#].*[,=]\\\\")) {
 					String leadingSpaces = _getLeadingSpaces(line);
 
@@ -66,8 +70,8 @@ public class PropertiesWhitespaceCheck extends WhitespaceCheck {
 							line, leadingSpaces, expectedLeadingSpaces);
 					}
 
-					if (line.matches("    ]")) {
-						line = line.trim();
+					if (line.matches(" {4,}]")) {
+						line = line.substring(4);
 					}
 				}
 
@@ -85,11 +89,36 @@ public class PropertiesWhitespaceCheck extends WhitespaceCheck {
 	protected boolean isAllowTrailingSpaces(String line) {
 		String trimmedLine = StringUtil.removeChar(line, CharPool.SPACE);
 
-		if (trimmedLine.endsWith(StringPool.EQUAL)) {
-			return true;
+		return trimmedLine.endsWith(StringPool.EQUAL);
+	}
+
+	private String _fixLeadingSpaces(String line) {
+		String leadingSpaces = _getLeadingSpaces(line);
+
+		int leadingSpacesLength = leadingSpaces.length();
+
+		int remainder = leadingSpacesLength % 4;
+
+		if (remainder == 0) {
+			return leadingSpaces + StringUtil.trimLeading(line);
 		}
 
-		return false;
+		if ((leadingSpacesLength / 4) > 0) {
+			leadingSpaces = leadingSpaces.substring(remainder);
+		}
+		else {
+			StringBundler sb = new StringBundler(remainder);
+
+			sb.append(leadingSpaces);
+
+			for (int i = 0; i < (remainder - 1); i++) {
+				sb.append(StringPool.SPACE);
+			}
+
+			leadingSpaces = sb.toString();
+		}
+
+		return leadingSpaces + StringUtil.trimLeading(line);
 	}
 
 	private String _getLeadingSpaces(String line) {

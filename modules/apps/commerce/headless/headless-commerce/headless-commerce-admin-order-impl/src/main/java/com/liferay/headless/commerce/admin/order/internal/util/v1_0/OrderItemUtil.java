@@ -227,10 +227,13 @@ public class OrderItemUtil {
 			commerceOrderItemService.fetchCommerceOrderItem(
 				GetterUtil.getLong(orderItem.getId()));
 
-		if (commerceOrderItem == null) {
-			commerceOrderItemService.fetchByExternalReferenceCode(
-				orderItem.getExternalReferenceCode(),
-				serviceContext.getCompanyId());
+		if ((commerceOrderItem == null) &&
+			!Validator.isBlank(orderItem.getExternalReferenceCode())) {
+
+			commerceOrderItem =
+				commerceOrderItemService.fetchByExternalReferenceCode(
+					orderItem.getExternalReferenceCode(),
+					serviceContext.getCompanyId());
 		}
 
 		if (commerceOrderItem != null) {
@@ -256,10 +259,10 @@ public class OrderItemUtil {
 		else {
 			decimalQuantity = (BigDecimal)GetterUtil.get(
 				orderItem.getDecimalQuantity(), decimalQuantity);
+			quantity = GetterUtil.get(orderItem.getQuantity(), quantity);
 
 			if (decimalQuantity == BigDecimal.ZERO) {
-				decimalQuantity = BigDecimal.valueOf(
-					GetterUtil.get(orderItem.getQuantity(), quantity));
+				decimalQuantity = BigDecimal.valueOf(quantity);
 			}
 
 			commerceOrderItem =

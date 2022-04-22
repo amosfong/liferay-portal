@@ -28,8 +28,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.ByteArrayFileInputStream;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -638,7 +638,8 @@ public class DLStoreImpl implements DLStore {
 		validate(fileName, validateFileExtension);
 
 		DLValidatorUtil.validateFileSize(
-			fileName, MimeTypesUtil.getContentType(fileName), bytes);
+			GroupThreadLocal.getGroupId(), fileName,
+			MimeTypesUtil.getContentType(fileName), bytes);
 	}
 
 	@Override
@@ -649,7 +650,8 @@ public class DLStoreImpl implements DLStore {
 		validate(fileName, validateFileExtension);
 
 		DLValidatorUtil.validateFileSize(
-			fileName, MimeTypesUtil.getContentType(fileName), file);
+			GroupThreadLocal.getGroupId(), fileName,
+			MimeTypesUtil.getContentType(fileName), file);
 	}
 
 	@Override
@@ -661,7 +663,8 @@ public class DLStoreImpl implements DLStore {
 		validate(fileName, validateFileExtension);
 
 		DLValidatorUtil.validateFileSize(
-			fileName, MimeTypesUtil.getContentType(fileName), inputStream);
+			GroupThreadLocal.getGroupId(), fileName,
+			MimeTypesUtil.getContentType(fileName), inputStream);
 	}
 
 	@Override
@@ -686,7 +689,8 @@ public class DLStoreImpl implements DLStore {
 			fileName, fileExtension, sourceFileName, validateFileExtension);
 
 		DLValidatorUtil.validateFileSize(
-			fileName, MimeTypesUtil.getContentType(fileName), file);
+			GroupThreadLocal.getGroupId(), fileName,
+			MimeTypesUtil.getContentType(fileName), file);
 	}
 
 	@Override
@@ -699,7 +703,8 @@ public class DLStoreImpl implements DLStore {
 			fileName, fileExtension, sourceFileName, validateFileExtension);
 
 		DLValidatorUtil.validateFileSize(
-			fileName, MimeTypesUtil.getContentType(fileName), inputStream);
+			GroupThreadLocal.getGroupId(), fileName,
+			MimeTypesUtil.getContentType(fileName), inputStream);
 	}
 
 	protected void validate(
@@ -735,12 +740,6 @@ public class DLStoreImpl implements DLStore {
 
 		DLValidatorUtil.validateVersionLabel(versionLabel);
 	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), with no direct replacement
-	 */
-	@Deprecated
-	protected GroupLocalService groupLocalService;
 
 	private final StoreFactory _storeFactory;
 

@@ -37,6 +37,7 @@ import com.liferay.info.sort.Sort;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.web.internal.search.JournalSearcher;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -133,6 +134,8 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 			InfoField.builder(
 			).infoFieldType(
 				TextInfoFieldType.INSTANCE
+			).namespace(
+				StringPool.BLANK
 			).name(
 				Field.TITLE
 			).labelInfoLocalizedValue(
@@ -198,10 +201,10 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 		String[] title = configuration.get(Field.TITLE);
 
 		if (ArrayUtil.isNotEmpty(title) && Validator.isNotNull(title[0])) {
-			String localizedName = Field.getLocalizedName(
-				LocaleUtil.getSiteDefault(), Field.TITLE);
-
-			searchContext.setAttribute(localizedName, title[0]);
+			searchContext.setAttribute(
+				Field.getLocalizedName(
+					LocaleUtil.getSiteDefault(), Field.TITLE),
+				title[0]);
 		}
 
 		ServiceContext serviceContext =
@@ -275,6 +278,8 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 		InfoField.FinalStep<?> finalStep = InfoField.builder(
 		).infoFieldType(
 			SelectInfoFieldType.INSTANCE
+		).namespace(
+			StringPool.BLANK
 		).name(
 			Field.ASSET_TAG_NAMES
 		).attribute(

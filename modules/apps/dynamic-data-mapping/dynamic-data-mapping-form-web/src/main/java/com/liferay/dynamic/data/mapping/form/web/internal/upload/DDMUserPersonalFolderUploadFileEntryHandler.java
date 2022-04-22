@@ -73,8 +73,8 @@ public class DDMUserPersonalFolderUploadFileEntryHandler
 		long size = uploadPortletRequest.getSize(_PARAMETER_NAME);
 
 		_dlValidator.validateFileSize(
-			fileName, uploadPortletRequest.getContentType(_PARAMETER_NAME),
-			size);
+			themeDisplay.getScopeGroupId(), fileName,
+			uploadPortletRequest.getContentType(_PARAMETER_NAME), size);
 
 		try (InputStream inputStream = uploadPortletRequest.getFileAsStream(
 				_PARAMETER_NAME)) {
@@ -89,8 +89,9 @@ public class DDMUserPersonalFolderUploadFileEntryHandler
 			return _dlAppService.addFileEntry(
 				null, repositoryId, folderId, uniqueFileName,
 				uploadPortletRequest.getContentType(_PARAMETER_NAME),
-				uniqueFileName, _getDescription(uploadPortletRequest),
-				StringPool.BLANK, inputStream, size, null, null,
+				uniqueFileName, uniqueFileName,
+				_getDescription(uploadPortletRequest), StringPool.BLANK,
+				inputStream, size, null, null,
 				_getServiceContext(uploadPortletRequest));
 		}
 	}

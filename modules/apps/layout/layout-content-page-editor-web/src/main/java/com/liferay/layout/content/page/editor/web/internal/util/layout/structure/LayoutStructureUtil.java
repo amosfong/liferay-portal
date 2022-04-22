@@ -14,7 +14,6 @@
 
 package com.liferay.layout.content.page.editor.web.internal.util.layout.structure;
 
-import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.layout.content.page.editor.listener.ContentPageEditorListenerTracker;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkUtil;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
@@ -43,9 +42,8 @@ import java.util.Objects;
 public class LayoutStructureUtil {
 
 	public static void deleteMarkedForDeletionItems(
-			long companyId,
 			ContentPageEditorListenerTracker contentPageEditorListenerTracker,
-			long groupId, long plid, PortletRegistry portletRegistry)
+			long groupId, long plid)
 		throws PortalException {
 
 		LayoutPageTemplateStructure layoutPageTemplateStructure =
@@ -79,8 +77,8 @@ public class LayoutStructureUtil {
 						getFragmentEntryLinkIds(deletedLayoutStructureItems)) {
 
 					FragmentEntryLinkUtil.deleteFragmentEntryLink(
-						companyId, contentPageEditorListenerTracker,
-						fragmentEntryLinkId, plid, portletRegistry);
+						contentPageEditorListenerTracker, fragmentEntryLinkId,
+						plid);
 				}
 			}
 
@@ -185,28 +183,6 @@ public class LayoutStructureUtil {
 
 		return LayoutStructure.of(
 			layoutPageTemplateStructure.getData(segmentsExperienceKey));
-	}
-
-	public static boolean isPortletMarkedForDeletion(
-			long groupId, long plid, String portletId,
-			long segmentsExperienceId)
-		throws PortalException {
-
-		LayoutStructure layoutStructure = getLayoutStructure(
-			groupId, plid, segmentsExperienceId);
-
-		List<DeletedLayoutStructureItem> deletedLayoutStructureItems =
-			layoutStructure.getDeletedLayoutStructureItems();
-
-		for (DeletedLayoutStructureItem deletedLayoutStructureItem :
-				deletedLayoutStructureItems) {
-
-			if (deletedLayoutStructureItem.contains(portletId)) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	public static JSONObject updateLayoutPageTemplateData(

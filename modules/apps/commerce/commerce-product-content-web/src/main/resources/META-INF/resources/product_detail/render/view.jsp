@@ -73,6 +73,22 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 					<aui:button cssClass="btn btn-primary btn-sm my-2" href="<%= cpContentHelper.getReplacementCommerceProductFriendlyURL(cpSku, themeDisplay) %>" value="replacement-product" />
 				</c:if>
 
+				<c:if test="<%= (cpSku != null) && (cpSku.getDiscontinuedDate() != null) %>">
+
+					<%
+					Format format = FastDateFormatFactoryUtil.getSimpleDateFormat("MMMMM dd, yyyy", locale, timeZone);
+					%>
+
+					<p class="my-2">
+						<span class="font-weight-semi-bold">
+							<%= LanguageUtil.get(request, "end-of-life") %>
+						</span>
+						<span>
+							<%= format.format(cpSku.getDiscontinuedDate()) %>
+						</span>
+					</p>
+				</c:if>
+
 				<%
 				String hideCssClass = StringPool.BLANK;
 
@@ -156,6 +172,8 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 				</c:otherwise>
 			</c:choose>
 
+			<liferay-util:dynamic-include key="com.liferay.commerce.product.type.grouped.web#/grouped_product_type.jsp#" />
+
 			<div class="mt-3 price-container row">
 				<div class="col-lg-9 col-sm-12 col-xl-6">
 					<commerce-ui:price
@@ -178,14 +196,16 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 					CPCatalogEntry="<%= cpCatalogEntry %>"
 					inline="<%= true %>"
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
-					options="[]"
 					size="lg"
+					skuOptions="[]"
 				/>
 
 				<commerce-ui:add-to-wish-list
 					CPCatalogEntry="<%= cpCatalogEntry %>"
 					large="<%= true %>"
 				/>
+
+				<liferay-util:dynamic-include key="com.liferay.commerce.product.type.virtual.web#/virtual_product_type.jsp#" />
 			</div>
 
 			<div class="mt-3">

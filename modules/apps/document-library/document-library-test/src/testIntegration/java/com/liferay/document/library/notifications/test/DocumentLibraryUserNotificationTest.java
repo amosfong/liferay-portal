@@ -85,14 +85,11 @@ public class DocumentLibraryUserNotificationTest
 
 	@Override
 	protected void addContainerModel() throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group.getGroupId(), TestPropsValues.getUserId());
-
 		_folder = DLAppServiceUtil.addFolder(
 			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			serviceContext);
+			ServiceContextTestUtil.getServiceContext(
+				group.getGroupId(), TestPropsValues.getUserId()));
 	}
 
 	@Override
@@ -120,8 +117,9 @@ public class DocumentLibraryUserNotificationTest
 		FileEntry fileEntry = DLAppServiceUtil.updateFileEntry(
 			(Long)baseModel.getPrimaryKeyObj(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
-			StringPool.BLANK, StringPool.BLANK, DLVersionNumberIncrease.MINOR,
-			TestDataConstants.TEST_BYTE_ARRAY, null, null, serviceContext);
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+			DLVersionNumberIncrease.MINOR, TestDataConstants.TEST_BYTE_ARRAY,
+			null, null, serviceContext);
 
 		return (BaseModel<?>)fileEntry.getModel();
 	}

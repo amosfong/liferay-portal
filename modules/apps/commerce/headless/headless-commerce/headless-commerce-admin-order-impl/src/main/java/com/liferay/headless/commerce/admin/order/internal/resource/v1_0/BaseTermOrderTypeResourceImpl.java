@@ -391,6 +391,10 @@ public abstract class BaseTermOrderTypeResourceImpl
 		return null;
 	}
 
+	public String getVersion() {
+		return "v1.0";
+	}
+
 	@Override
 	public Page<TermOrderType> read(
 			Filter filter, Pagination pagination, Sort[] sorts,
@@ -500,6 +504,14 @@ public abstract class BaseTermOrderTypeResourceImpl
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource) {
+
+		this.vulcanBatchEngineImportTaskResource =
+			vulcanBatchEngineImportTaskResource;
 	}
 
 	@Override

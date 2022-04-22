@@ -38,10 +38,10 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.servlet.PipingServletResponse;
-import com.liferay.portal.kernel.servlet.TransferHeadersHelperUtil;
+import com.liferay.portal.kernel.servlet.TransferHeadersHelper;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -163,7 +163,7 @@ public class DisplayPageLayoutTypeController
 		}
 
 		RequestDispatcher requestDispatcher =
-			TransferHeadersHelperUtil.getTransferHeadersRequestDispatcher(
+			_transferHeadersHelper.getTransferHeadersRequestDispatcher(
 				servletContext.getRequestDispatcher(page));
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
@@ -218,7 +218,7 @@ public class DisplayPageLayoutTypeController
 				String signInURL = themeDisplay.getURLSignIn();
 
 				httpServletResponse.sendRedirect(
-					_http.setParameter(
+					HttpComponentsUtil.setParameter(
 						signInURL, "redirect", themeDisplay.getURLCurrent()));
 			}
 		}
@@ -354,9 +354,6 @@ public class DisplayPageLayoutTypeController
 		_assetDisplayPageFriendlyURLProvider;
 
 	@Reference
-	private Http _http;
-
-	@Reference
 	private volatile List<InfoDisplayRequestAttributesContributor>
 		_infoDisplayRequestAttributesContributors;
 
@@ -372,5 +369,8 @@ public class DisplayPageLayoutTypeController
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private TransferHeadersHelper _transferHeadersHelper;
 
 }

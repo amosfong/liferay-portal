@@ -531,6 +531,7 @@ definition {
 	@priority = "4"
 	test SelectStyleBookInMasterPageWhenUsePublicPagesTheme {
 		property portal.release = "false";
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 
 		task ("Add a public page and change it's theme to Minium") {
 			JSONLayout.addPublicLayout(
@@ -596,6 +597,8 @@ definition {
 	@description = "This is a test for LPS-142078. The user could view the default style book in Style Books admin but cannot delete and edit it."
 	@priority = "5"
 	test ViewDefaultStyleBook {
+		property portal.acceptance = "true";
+
 		task ("Navigate to the Style Books admin") {
 			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
 		}

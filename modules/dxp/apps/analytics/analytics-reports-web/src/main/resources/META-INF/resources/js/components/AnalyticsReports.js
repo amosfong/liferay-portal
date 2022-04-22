@@ -20,6 +20,7 @@ import {ChartStateContextProvider} from '../context/ChartStateContext';
 import ConnectionContext from '../context/ConnectionContext';
 import {StoreContextProvider} from '../context/StoreContext';
 import {dataReducer, initialState} from '../context/dataReducer';
+import ConnectToAC from './ConnectToAC';
 import Navigation from './Navigation';
 
 import '../../css/analytics-reports-app.scss';
@@ -97,47 +98,65 @@ export default function AnalyticsReports({
 		[]
 	);
 
-	return state.loading ? (
+	const {data, error, loading} = state;
+
+	return loading ? (
 		<ClayLoadingIndicator small />
-	) : state.error ? (
+	) : error ? (
 		<ClayAlert displayType="danger" variant="stripe">
-			{state.error}
+			{error}
 		</ClayAlert>
 	) : (
-		state.data && (
+		data && (
 			<ConnectionContext.Provider
 				value={{
 					validAnalyticsConnection:
-						state.data.validAnalyticsConnection,
+						data?.analyticsData.hasValidConnection,
 				}}
 			>
 				<StoreContextProvider
 					value={{
-						endpoints: {...state.data.endpoints},
-						languageTag: state.data.languageTag,
-						namespace: state.data.namespace,
-						page: state.data.page,
-						publishedToday: state.data.publishedToday,
+						endpoints: {...data?.endpoints},
+						languageTag: data?.languageTag,
+						namespace: data?.namespace,
+						page: data?.page,
+						publishedToday: data?.publishedToday,
 					}}
 				>
 					<ChartStateContextProvider
-						publishDate={state.data.publishDate}
-						timeRange={state.data.timeRange}
-						timeSpanKey={state.data.timeSpanKey}
+						publishDate={data?.publishDate}
+						timeRange={data?.timeRange}
+						timeSpanKey={data?.timeSpanKey}
 					>
-						<div className="analytics-reports-app">
-							<Navigation
-								author={state.data.author}
-								canonicalURL={state.data.canonicalURL}
-								onSelectedLanguageClick={
-									handleSelectedLanguageClick
+						{data?.analyticsData.isSynced ? (
+							<div className="analytics-reports-app">
+								<Navigation
+									author={data?.author}
+									canonicalURL={data?.canonicalURL}
+									onSelectedLanguageClick={
+										handleSelectedLanguageClick
+									}
+									pagePublishDate={data?.publishDate}
+									pageTitle={data?.title}
+									timeSpanOptions={data?.timeSpans}
+									viewURLs={data?.viewURLs}
+								/>
+							</div>
+						) : (
+							<ConnectToAC
+								analyticsCloudTrialURL={
+									data?.analyticsData.cloudTrialURL
 								}
-								pagePublishDate={state.data.publishDate}
-								pageTitle={state.data.title}
-								timeSpanOptions={state.data.timeSpans}
-								viewURLs={state.data.viewURLs}
+								analyticsURL={data?.analyticsData.url}
+								hideAnalyticsReportsPanelURL={
+									data?.hideAnalyticsReportsPanelURL
+								}
+								isAnalyticsConnected={
+									data?.analyticsData.hasValidConnection
+								}
+								pathToAssets={data?.pathToAssets}
 							/>
-						</div>
+						)}
 					</ChartStateContextProvider>
 				</StoreContextProvider>
 			</ConnectionContext.Provider>

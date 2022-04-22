@@ -56,28 +56,8 @@
 		<td></td>
 	</tr>
 	<tr>
-		<td>FIELD_TYPE</td>
-		<td>//select[@id='_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_type'] | //input[@placeholder='Choose an Option']</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>FIELD_TYPE_OPTION</td>
-		<td>//button[@class='dropdown-item']//div[text()='${fieldType}']</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>FIELD_NAME</td>
-		<td>//input[@name='_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_name']</td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>TITLE_FIELD</td>
 		<td>//select[contains(@id,'_titleObjectFieldId')]</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>TOGGLE_MANDATORY</td>
-		<td>//input[@id='_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_required']</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -106,16 +86,6 @@
 		<td></td>
 	</tr>
 	<tr>
-		<td>DISABLED_FIELD_TYPE</td>
-		<td>//select[(@id='_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_type') and (@class='form-control disabled')]</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>DISABLED_FIELD_NAME</td>
-		<td>//input[@class='field disabled form-control lfr-input-text']</td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>DISABLED_PUBLISH_OBJECT_BUTTON</td>
 		<td>//button[contains(@disabled,'') and contains(@id,'_com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_publish')]</td>
 		<td></td>
@@ -128,6 +98,11 @@
 	<tr>
 		<td>OBJECT_NAME</td>
 		<td>//div[(@class='table-list-title') and contains(.,'${key_labelName}')]</td>
+		<td></td>
+	</tr>
+		<tr>
+		<td>OBJECT_NAME_INDEX</td>
+		<td>xpath=(//div[(@class='table-list-title') and contains(.,'${key_labelName}')])[${key_index}]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -218,6 +193,11 @@
 	<tr>
 		<td>ERROR_MESSAGE</td>
 		<td>//div[contains(@class,'${key_className}') and contains(.,'${key_errorMessage}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>VIEW_COLLAPSE_ICON</td>
+		<td>//span[contains(@class,'actions collapse-icon-${key_closedOrOpen}')]</td>
 		<td></td>
 	</tr>
 </tbody>

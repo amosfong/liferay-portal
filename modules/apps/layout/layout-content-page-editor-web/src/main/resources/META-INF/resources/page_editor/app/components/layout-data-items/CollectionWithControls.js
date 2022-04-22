@@ -24,10 +24,10 @@ import {
 	useHoveredItemType,
 } from '../../contexts/ControlsContext';
 import {useSelector} from '../../contexts/StoreContext';
+import getLayoutDataItemTopperUniqueClassName from '../../utils/getLayoutDataItemTopperUniqueClassName';
 import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
 import Topper from '../topper/Topper';
 import Collection from './Collection';
-import OldCollection from './OldCollection';
 import isHovered from './isHovered';
 
 const CollectionWithControls = React.forwardRef(({children, item}, ref) => {
@@ -46,10 +46,6 @@ const CollectionWithControls = React.forwardRef(({children, item}, ref) => {
 
 	const {display} = responsiveConfig.styles;
 
-	const CollectionComponent = config.paginationImprovementsEnabled
-		? Collection
-		: OldCollection;
-
 	return (
 		<>
 			<HoverHandler
@@ -59,15 +55,18 @@ const CollectionWithControls = React.forwardRef(({children, item}, ref) => {
 			/>
 			<Topper
 				className={classNames({
+					[getLayoutDataItemTopperUniqueClassName(
+						item.itemId
+					)]: config.featureFlagLps132571,
 					'page-editor__topper--hovered': hovered,
 				})}
 				item={item}
 				itemElement={itemElement}
 				style={{display}}
 			>
-				<CollectionComponent item={item} ref={setRef}>
+				<Collection item={item} ref={setRef}>
 					{children}
-				</CollectionComponent>
+				</Collection>
 			</Topper>
 		</>
 	);

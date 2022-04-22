@@ -35,21 +35,27 @@ definition {
 	}
 
 	macro assertCanCollapseAndExpandEntryField {
-		LexiconEntry.gotoAdd();
-
-		Click(locator1 = "CreateObject#COLLAPSE_EXPAND_OBJECT_PORTLET_ENTRY_FIELD");
-
 		WaitForSPARefresh();
 
-		AssertNotVisible(locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD");
+		if (IsVisible(key_closedOrOpen = "open", locator1 = "CreateObject#VIEW_COLLAPSE_ICON")) {
+			Click(locator1 = "CreateObject#COLLAPSE_EXPAND_OBJECT_PORTLET_ENTRY_FIELD");
 
-		Click(locator1 = "CreateObject#COLLAPSE_EXPAND_OBJECT_PORTLET_ENTRY_FIELD");
+			WaitForSPARefresh();
 
-		WaitForSPARefresh();
+			AssertNotVisible(
+				key_entryLabel = "Custom Field",
+				locator1 = "ObjectPortlet#VIEW_ENTRY_DETAILS_LABEL");
+		}
 
-		WaitForVisible(locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD");
+		if (IsVisible(key_closedOrOpen = "closed", locator1 = "CreateObject#VIEW_COLLAPSE_ICON")) {
+			Click(locator1 = "CreateObject#COLLAPSE_EXPAND_OBJECT_PORTLET_ENTRY_FIELD");
 
-		AssertVisible(locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD");
+			WaitForSPARefresh();
+
+			AssertVisible(
+				key_entryLabel = "Custom Field",
+				locator1 = "ObjectPortlet#VIEW_ENTRY_DETAILS_LABEL");
+		}
 	}
 
 	macro assertCannotAddRelationshipTabFirst {
@@ -70,6 +76,13 @@ definition {
 			locator1 = "CreateObject#OBJECT_NAME");
 	}
 
+	macro assertCustomObjectWithIndex {
+		AssertElementPresent(
+			key_index = "${index}",
+			key_labelName = "${labelName}",
+			locator1 = "CreateObject#OBJECT_NAME_INDEX");
+	}
+
 	macro assertDisabledAllFields {
 		CreateObject.assertDisabledObjectName();
 
@@ -86,14 +99,6 @@ definition {
 		}
 
 		AssertElementPresent(locator1 = "CreateObject#SAVE_BUTTON_DISABLED");
-	}
-
-	macro assertDisabledFieldName {
-		AssertElementPresent(locator1 = "CreateObject#DISABLED_FIELD_NAME");
-	}
-
-	macro assertDisabledFieldType {
-		AssertElementPresent(locator1 = "CreateObject#DISABLED_FIELD_TYPE");
 	}
 
 	macro assertDisabledObjectName {
@@ -116,22 +121,10 @@ definition {
 			locator1 = "CreateObject#FIELD_ADDED_ON_BLOCK");
 	}
 
-	macro assertFieldName {
-		AssertTextEquals(
-			locator1 = "CreateObject#FIELD_NAME",
-			value1 = "${fieldName}");
-	}
-
 	macro assertFieldNotPresentInBlock {
 		AssertElementNotPresent(
 			key_fieldLabelName = "${fieldLabelName}",
 			locator1 = "CreateObject#FIELD_ADDED_ON_BLOCK");
-	}
-
-	macro assertFieldType {
-		AssertElementPresent(
-			locator1 = "CreateObject#FIELD_TYPE",
-			value1 = "${fieldType}");
 	}
 
 	macro assertLabelBasicInfo {
@@ -176,7 +169,7 @@ definition {
 		LexiconEntry.gotoAdd();
 
 		Type(
-			locator1 = "ObjectAdmin#OBJECT_FIELDS_LABEL_INPUT",
+			locator1 = "ObjectField#LABEL_INPUT",
 			value1 = "${fieldLabel}");
 
 		AssertElementPresent(
@@ -263,10 +256,6 @@ definition {
 		AssertChecked.assertCheckedNotVisible(locator1 = "CreateObject#TOGGLE_COLLAPSIBLE");
 	}
 
-	macro assertToggleMandatory {
-		AssertChecked.assertCheckedNotVisible(locator1 = "ObjectAdmin#OBJECT_FIELDS_MANDATORY_TOGGLE_SWITCH");
-	}
-
 	macro assertValuesOnObjectData {
 		var key_fieldType = "form-control";
 
@@ -305,14 +294,6 @@ definition {
 
 	macro checkToggleInactive {
 		Uncheck.uncheckToggleSwitch(locator1 = "CreateObject#TOGGLE_INACTIVE");
-
-		WaitForSPARefresh();
-
-		WaitForPageLoad();
-	}
-
-	macro checkToggleMandatory {
-		Check.checkToggleSwitch(locator1 = "CreateObject#TOGGLE_MANDATORY");
 
 		WaitForSPARefresh();
 
@@ -359,24 +340,10 @@ definition {
 			value1 = "${labelName}");
 	}
 
-	macro editName {
-		Type(
-			locator1 = "CreateObject#FIELD_NAME",
-			value1 = "${fieldName}");
-	}
-
 	macro editPluralLabel {
 		Type(
 			locator1 = "CreateObject#OBJECT_PLURAL_LABEL",
 			value1 = "${pluralLabelName}");
-	}
-
-	macro editType {
-		Click(locator1 = "CreateObject#FIELD_TYPE");
-
-		Click(
-			locator1 = "CreateObject#FIELD_TYPE_OPTION",
-			value1 = "${fieldType}");
 	}
 
 	macro inactiveCustomObject {
@@ -421,10 +388,6 @@ definition {
 		Select(
 			locator1 = "CreateObject#TITLE_FIELD",
 			value1 = "${fieldLabel}");
-	}
-
-	macro toggleMandatory {
-		Check.toggleSwitch(locator1 = "CreateObject#TOGGLE_MANDATORY");
 	}
 
 	macro viewEmptyFieldTable {

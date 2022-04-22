@@ -144,9 +144,11 @@ public class ObjectValidationRulePersistenceTest {
 
 		newObjectValidationRule.setActive(RandomTestUtil.randomBoolean());
 
+		newObjectValidationRule.setEngine(RandomTestUtil.randomString());
+
 		newObjectValidationRule.setErrorLabel(RandomTestUtil.randomString());
 
-		newObjectValidationRule.setEngine(RandomTestUtil.randomString());
+		newObjectValidationRule.setName(RandomTestUtil.randomString());
 
 		newObjectValidationRule.setScript(RandomTestUtil.randomString());
 
@@ -190,11 +192,14 @@ public class ObjectValidationRulePersistenceTest {
 			existingObjectValidationRule.isActive(),
 			newObjectValidationRule.isActive());
 		Assert.assertEquals(
+			existingObjectValidationRule.getEngine(),
+			newObjectValidationRule.getEngine());
+		Assert.assertEquals(
 			existingObjectValidationRule.getErrorLabel(),
 			newObjectValidationRule.getErrorLabel());
 		Assert.assertEquals(
-			existingObjectValidationRule.getEngine(),
-			newObjectValidationRule.getEngine());
+			existingObjectValidationRule.getName(),
+			newObjectValidationRule.getName());
 		Assert.assertEquals(
 			existingObjectValidationRule.getScript(),
 			newObjectValidationRule.getScript());
@@ -264,8 +269,8 @@ public class ObjectValidationRulePersistenceTest {
 			"ObjectValidationRule", "mvccVersion", true, "uuid", true,
 			"objectValidationRuleId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"objectDefinitionId", true, "active", true, "errorLabel", true,
-			"engine", true, "script", true);
+			"objectDefinitionId", true, "active", true, "engine", true,
+			"errorLabel", true, "name", true);
 	}
 
 	@Test
@@ -525,9 +530,11 @@ public class ObjectValidationRulePersistenceTest {
 
 		objectValidationRule.setActive(RandomTestUtil.randomBoolean());
 
+		objectValidationRule.setEngine(RandomTestUtil.randomString());
+
 		objectValidationRule.setErrorLabel(RandomTestUtil.randomString());
 
-		objectValidationRule.setEngine(RandomTestUtil.randomString());
+		objectValidationRule.setName(RandomTestUtil.randomString());
 
 		objectValidationRule.setScript(RandomTestUtil.randomString());
 

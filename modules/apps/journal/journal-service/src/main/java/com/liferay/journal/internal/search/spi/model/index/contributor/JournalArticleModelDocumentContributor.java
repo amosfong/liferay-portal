@@ -139,22 +139,17 @@ public class JournalArticleModelDocumentContributor
 			"ddmStructureKey", journalArticle.getDDMStructureKey());
 		document.addKeyword(
 			"ddmTemplateKey", journalArticle.getDDMTemplateKey());
-
-		String defaultLanguageId = localization.getDefaultLanguageId(
-			journalArticle.getDocument());
-
-		document.addText("defaultLanguageId", defaultLanguageId);
-
-		document.addDate("displayDate", journalArticle.getDisplayDate());
+		document.addText(
+			"defaultLanguageId",
+			localization.getDefaultLanguageId(journalArticle.getDocument()));
 		document.addKeyword("head", JournalUtil.isHead(journalArticle));
 
 		boolean headListable = JournalUtil.isHeadListable(journalArticle);
 
 		document.addKeyword("headListable", headListable);
 
-		boolean latestArticle = JournalUtil.isLatestArticle(journalArticle);
-
-		document.addKeyword("latest", latestArticle);
+		document.addKeyword(
+			"latest", JournalUtil.isLatestArticle(journalArticle));
 
 		// Scheduled listable articles should be visible in asset browser
 

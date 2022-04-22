@@ -1,8 +1,8 @@
 @component-name = "portal-lima"
 definition {
 
-	property portal.acceptance = "true";
 	property custom.properties = "default.layout.template.id=1_column";
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Adaptive Media";
@@ -341,9 +341,8 @@ definition {
 	@ignore = "Test Stub"
 	@priority = "5"
 	test CanRenderImageAfterChangingScreenResolution {
-		property portal.acceptance = "false";
 
-		// TODO LPS-78626 CanRenderImageAfterChangingScreenResolution pending implementation
+		// TODO LPS-148675 CanRenderImageAfterChangingScreenResolution pending implementation
 
 	}
 
@@ -483,6 +482,15 @@ definition {
 			portlet = "Adaptive Media");
 
 		AdaptiveMedia.viewNoImageResolution(imageName = "This should not appear on new virtual instance");
+	}
+
+	@description = "This test covers LPS-136280. It validates that an image can be adapted in a web content after it is updated."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test ImageVariantsAreGeneratedAfterEditingWebContentWithImage {
+
+		// TODO LPS-149586
+
 	}
 
 }

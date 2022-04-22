@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
 import com.liferay.portal.kernel.portlet.FriendlyURLMapperTracker;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.portlet.PortletConfigurationListener;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
@@ -51,7 +52,7 @@ import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -151,6 +152,9 @@ public class PortletBagFactory {
 		_registerTemplateHandlers(
 			bundleContext, portlet, properties, serviceRegistrations);
 
+		_registerPortletConfigurationListeners(
+			bundleContext, portlet, properties, serviceRegistrations);
+
 		_registerPortletLayoutListeners(
 			bundleContext, portlet, properties, serviceRegistrations);
 
@@ -232,7 +236,7 @@ public class PortletBagFactory {
 	 * @see FriendlyURLMapperTrackerImpl#getContent(ClassLoader, String)
 	 */
 	private String _getContent(String fileName) throws Exception {
-		String queryString = HttpUtil.getQueryString(fileName);
+		String queryString = HttpComponentsUtil.getQueryString(fileName);
 
 		if (Validator.isNull(queryString)) {
 			return StringUtil.read(_classLoader, fileName);
@@ -242,7 +246,7 @@ public class PortletBagFactory {
 
 		String xml = StringUtil.read(_classLoader, fileName.substring(0, pos));
 
-		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(
+		Map<String, String[]> parameterMap = HttpComponentsUtil.getParameterMap(
 			queryString);
 
 		if (parameterMap == null) {
@@ -524,6 +528,29 @@ public class PortletBagFactory {
 				bundleContext.registerService(
 					MessageListener.class, popMessageListenerInstance,
 					properties);
+
+			serviceRegistrations.add(serviceRegistration);
+		}
+	}
+
+	private void _registerPortletConfigurationListeners(
+			BundleContext bundleContext, Portlet portlet,
+			Dictionary<String, Object> properties,
+			List<ServiceRegistration<?>> serviceRegistrations)
+		throws Exception {
+
+		if (Validator.isNotNull(
+				portlet.getPortletConfigurationListenerClass())) {
+
+			PortletConfigurationListener portletConfigurationListener =
+				_newInstance(
+					PortletConfigurationListener.class,
+					portlet.getPortletConfigurationListenerClass());
+
+			ServiceRegistration<?> serviceRegistration =
+				bundleContext.registerService(
+					PortletConfigurationListener.class,
+					portletConfigurationListener, properties);
 
 			serviceRegistrations.add(serviceRegistration);
 		}

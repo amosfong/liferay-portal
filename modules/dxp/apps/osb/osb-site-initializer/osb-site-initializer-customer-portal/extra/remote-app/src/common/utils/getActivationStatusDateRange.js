@@ -33,9 +33,9 @@ export default function getActivationStatusDateRange(accountSubscriptionTerms) {
 	const farthestEndDate = new Date(
 		Math.max(...dates.endDates.map((date) => new Date(date)))
 	);
-	const ActivationStatusDateRange = `${getCurrentEndDate(
+	const activationStatusDateRange = `${getCurrentEndDate(
 		earliestStartDate
 	)} - ${getCurrentEndDate(farthestEndDate)}`;
 
-	return ActivationStatusDateRange;
+	return activationStatusDateRange;
 }

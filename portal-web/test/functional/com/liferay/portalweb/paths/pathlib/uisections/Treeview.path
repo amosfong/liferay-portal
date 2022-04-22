@@ -77,7 +77,7 @@
 </tr>
 <tr>
 	<td>PAGE_STRUCTURE_TREE_NODE_DELETE</td>
-	<td>//div[contains(@class,'page-structure__tree-node') and contains(.,'${key_nodeName}')]//button[contains(@class,'tree-node')][*[name()='svg'][contains(@class,'times-circle')]]</td>
+	<td>//div[contains(@class,'page-structure__tree-node') and contains(.,'${key_nodeName}')]//button[contains(@class,'tree-node')][*[name()='svg'][contains(@class,'trash')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -93,6 +93,11 @@
 <tr>
 	<td>PAGE_STRUCTURE_TREE_NODE_NAME</td>
 	<td>//div[contains(@class,'page-structure__tree-node') and contains(.,'${key_nodeName}')]//div[contains(@class,'node__name')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_STRUCTURE_TREE_NODE_NAME_INFO</td>
+	<td>//div[contains(@class,'page-structure__tree-node') and contains(.,'${key_nodeName}')]//span[contains(@class,'node__name-info')][normalize-space(text())='${key_info}']</td>
 	<td></td>
 </tr>
 <tr>

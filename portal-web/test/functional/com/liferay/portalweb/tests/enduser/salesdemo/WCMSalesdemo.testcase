@@ -34,12 +34,11 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "IFrame Page");
+		PagesAdmin.addPage(pageName = "IFrame Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "IFrame Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoPage(pageName = "IFrame Page");
@@ -65,8 +64,6 @@ definition {
 	@priority = "4"
 	test IFrameDemoFF {
 		property testray.component.names = "IFrame Portlet";
-		property osgi.module.configuration.file.names = "com.liferay.layout.internal.configuration.FFDisablePrivateLayoutsConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
 
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",

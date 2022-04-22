@@ -88,7 +88,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlEscapableObject;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -511,10 +511,10 @@ public class JournalArticleStagedModelDataHandler
 			ExportImportPathUtil.getModelPath(article, "journal-content-path"),
 			content);
 
-		long defaultUserId = _userLocalService.getDefaultUserId(
-			article.getCompanyId());
+		if (_isPreloadedArticle(
+				_userLocalService.getDefaultUserId(article.getCompanyId()),
+				article)) {
 
-		if (_isPreloadedArticle(defaultUserId, article)) {
 			articleElement.addAttribute("preloaded", "true");
 		}
 
@@ -869,7 +869,7 @@ public class JournalArticleStagedModelDataHandler
 
 			friendlyURLMap.forEach(
 				(locale, url) -> friendlyURLMap.replace(
-					locale, _http.decodeURL(url)));
+					locale, HttpComponentsUtil.decodeURL(url)));
 
 			String articleURL = null;
 
@@ -1822,9 +1822,6 @@ public class JournalArticleStagedModelDataHandler
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private Http _http;
 
 	private ImageLocalService _imageLocalService;
 

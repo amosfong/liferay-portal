@@ -240,13 +240,17 @@ definition {
 
 		Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-		KaleoDesigner.selectNode(nodeNodeLabel = "review");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "review2",
+			nodeLabel = "review",
+			nodeType = "task",
+			update = "true");
 
-		KaleoDesigner.editNodeName(nodeName = "review2");
-
-		KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-		KaleoDesigner.editNodeName(nodeName = "update2");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "update2",
+			nodeLabel = "update",
+			nodeType = "task",
+			update = "true");
 
 		Button.clickUpdate();
 
@@ -351,9 +355,13 @@ definition {
 			panel = "Applications",
 			portlet = "Process Builder");
 
-		Workflow.uploadDefinition(
-			workflowDefinitionFile = "11-transitions-workflow-definition.xml",
-			workflowDefinitionTitle = "11 Transitions Definition");
+		Workflow.addNewDefinition(workflowDefinitionTitle = "11 Transitions Definition");
+
+		ProcessBuilderKaleoDesignerReact.uploadDefinition(workflowDefinitionFile = "11-transitions-workflow-definition.xml");
+
+		ProcessBuilderKaleoDesignerReact.diagramSourceSwitchView();
+
+		PortletEntry.publish();
 
 		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "11 Transitions Definition");
 
@@ -509,13 +517,17 @@ definition {
 
 		Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-		KaleoDesigner.selectNode(nodeNodeLabel = "review");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "review2",
+			nodeLabel = "review",
+			nodeType = "task",
+			update = "true");
 
-		KaleoDesigner.editNodeName(nodeName = "review2");
-
-		KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-		KaleoDesigner.editNodeName(nodeName = "update2");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "update2",
+			nodeLabel = "update",
+			nodeType = "task",
+			update = "true");
 
 		Button.clickUpdate();
 
@@ -579,13 +591,17 @@ definition {
 
 			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-			KaleoDesigner.selectNode(nodeNodeLabel = "review");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+				nodeID = "review2",
+				nodeLabel = "review",
+				nodeType = "task",
+				update = "true");
 
-			KaleoDesigner.editNodeName(nodeName = "review2");
-
-			KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-			KaleoDesigner.editNodeName(nodeName = "update2");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+				nodeID = "update2",
+				nodeLabel = "update",
+				nodeType = "task",
+				update = "true");
 
 			Button.clickUpdate();
 		}
@@ -877,9 +893,13 @@ definition {
 			panel = "Applications",
 			portlet = "Process Builder");
 
-		Workflow.uploadDefinition(
-			workflowDefinitionFile = "single-approver-updated-workflow-definition.xml",
-			workflowDefinitionTitle = "Single Approver Updated");
+		Workflow.addNewDefinition(workflowDefinitionTitle = "Single Approver Updated");
+
+		ProcessBuilderKaleoDesignerReact.uploadDefinition(workflowDefinitionFile = "single-approver-updated-workflow-definition.xml");
+
+		ProcessBuilderKaleoDesignerReact.diagramSourceSwitchView();
+
+		PortletEntry.publish();
 
 		Navigator.openURL();
 
@@ -1110,13 +1130,17 @@ definition {
 
 			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-			KaleoDesigner.selectNode(nodeNodeLabel = "review");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeName(
+				nodeLabel = "review",
+				nodeName = "review2",
+				nodeType = "task",
+				update = "true");
 
-			KaleoDesigner.editNodeName(nodeName = "review2");
-
-			KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-			KaleoDesigner.editNodeName(nodeName = "update2");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeName(
+				nodeLabel = "update",
+				nodeName = "update2",
+				nodeType = "task",
+				update = "true");
 
 			Button.clickUpdate();
 		}
@@ -1255,9 +1279,15 @@ definition {
 			panel = "Applications",
 			portlet = "Process Builder");
 
-		Workflow.uploadDefinition(
-			workflowDefinitionFile = "11-transitions-update-workflow-definition.xml",
-			workflowDefinitionTitle = "11 Transitions Update");
+		Workflow.addNewDefinition(workflowDefinitionTitle = "11 Transitions Update");
+
+		ProcessBuilderKaleoDesignerReact.uploadDefinition(workflowDefinitionFile = "11-transitions-update-workflow-definition.xml");
+
+		ProcessBuilderKaleoDesignerReact.diagramSourceSwitchView();
+
+		Button.clickPublish();
+
+		Navigator.gotoBack();
 
 		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "11 Transitions Update");
 

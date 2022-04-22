@@ -15,6 +15,7 @@
 package com.liferay.commerce.payment.internal.engine;
 
 import com.liferay.commerce.constants.CommerceOrderConstants;
+import com.liferay.commerce.context.CommerceGroupThreadLocal;
 import com.liferay.commerce.model.CommerceAddress;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderType;
@@ -38,6 +39,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -419,6 +421,9 @@ public class CommercePaymentEngineImpl implements CommercePaymentEngine {
 		CommerceOrder commerceOrder =
 			_commerceOrderLocalService.getCommerceOrder(commerceOrderId);
 
+		CommerceGroupThreadLocal.set(
+			_groupLocalService.fetchGroup(commerceOrder.getGroupId()));
+
 		commerceOrder =
 			_commerceOrderLocalService.updatePaymentStatusAndTransactionId(
 				commerceOrder.getUserId(), commerceOrderId, paymentStatus,
@@ -481,6 +486,12 @@ public class CommercePaymentEngineImpl implements CommercePaymentEngine {
 			long commerceOrderId, HttpServletRequest httpServletRequest)
 		throws Exception {
 
+		CommerceOrder commerceOrder =
+			_commerceOrderLocalService.getCommerceOrder(commerceOrderId);
+
+		CommerceGroupThreadLocal.set(
+			_groupLocalService.fetchGroup(commerceOrder.getGroupId()));
+
 		_commerceOrderLocalService.updatePaymentStatusAndTransactionId(
 			_portal.getUserId(httpServletRequest), commerceOrderId,
 			CommerceOrderConstants.PAYMENT_STATUS_PAID, StringPool.BLANK);
@@ -496,7 +507,7 @@ public class CommercePaymentEngineImpl implements CommercePaymentEngine {
 
 		ListUtil.sort(
 			commercePaymentMethodGroupRels,
-			new CommercePaymentMethodPriorityComparator(true));
+			new CommercePaymentMethodPriorityComparator());
 
 		List<CommercePaymentMethod> commercePaymentMethods = new LinkedList<>();
 
@@ -563,6 +574,9 @@ public class CommercePaymentEngineImpl implements CommercePaymentEngine {
 
 	@Reference
 	private CommercePaymentUtils _commercePaymentUtils;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Portal _portal;

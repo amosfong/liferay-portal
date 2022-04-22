@@ -21,21 +21,6 @@ import com.liferay.portal.kernel.exception.PortalException;
  */
 public class ObjectFieldNameException extends PortalException {
 
-	public ObjectFieldNameException() {
-	}
-
-	public ObjectFieldNameException(String msg) {
-		super(msg);
-	}
-
-	public ObjectFieldNameException(String msg, Throwable throwable) {
-		super(msg, throwable);
-	}
-
-	public ObjectFieldNameException(Throwable throwable) {
-		super(throwable);
-	}
-
 	public static class MustBeginWithLowerCaseLetter
 		extends ObjectFieldNameException {
 
@@ -85,6 +70,10 @@ public class ObjectFieldNameException extends PortalException {
 			super("Name must only contain letters and digits");
 		}
 
+	}
+
+	private ObjectFieldNameException(String msg) {
+		super(msg);
 	}
 
 }

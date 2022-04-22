@@ -1,7 +1,7 @@
 @component-name = "portal-ab-test"
 definition {
 
-	property portal.release = "false";
+	property portal.release = "true";
 	property portal.upstream = "true";
 	property property.group = "analytics.cloud.profile";
 	property testray.main.component.name = "Content Performance";
@@ -161,7 +161,7 @@ definition {
 	@priority = "3"
 	test AuthorNotShowInWidgetPage {
 		task ("Create and go to Widget Page") {
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 
@@ -291,9 +291,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_URL",
 				value1 = "pt/web/test-site-name/test-widget-page-name");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -320,7 +318,7 @@ definition {
 		task ("Create Widget Page") {
 			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
 
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 		}
@@ -342,9 +340,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_URL",
 				value1 = "pt/web/test-site-name");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -412,6 +408,29 @@ definition {
 			ContentPerformance.openContentPerformance();
 
 			AssertElementPresent(locator1 = "ContentPerformance#SELECT_DATE_RANGE");
+		}
+	}
+
+	@description = "LPS-150536 Bug: Traffic sources with link and full pie chart when the content was published today and there is some data for that content in AC side"
+	@priority = "4"
+	test EmptyDataAtPieChartPublishedToday {
+		task ("Create and go to content page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Content Page 2",
+				type = "content");
+
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/content-page-2");
+		}
+
+		task ("Open Content Performance panel") {
+			ContentPerformance.openContentPerformance();
+		}
+
+		task ("Check that graph is empty (grey/gray)") {
+			AssertElementPresent(
+				colorHex = "f1f2f5",
+				locator1 = "ContentPerformance#PIE_CHART_WITH_COLOR");
 		}
 	}
 
@@ -664,9 +683,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_TITLE",
 				pageName = "Test Widget Page Name");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -682,9 +699,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_TITLE",
 				pageName = "Content Page");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -722,9 +737,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_TITLE",
 				pageName = "Test Widget Page Name");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -732,7 +745,7 @@ definition {
 	@priority = "4"
 	test MetricsIconVisibleInWidgetPage {
 		task ("Create Widget Page") {
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 		}
@@ -750,9 +763,7 @@ definition {
 				locator1 = "ContentPerformance#CONTENT_PERFORMANCE_TITLE",
 				pageName = "Widget Page Name");
 
-			AssertTextEquals(
-				locator1 = "ContentPerformance#TOTAL_VIEWS_NUMBER",
-				value1 = "0");
+			ContentPerformance.viewTotalViews(numberViews = "0");
 		}
 	}
 
@@ -1268,24 +1279,24 @@ definition {
 	@description = "LPS-111042: As a content writer I want to know the keywords driving traffic to my contents by different countries"
 	@priority = "4"
 	test NoNavigationWithoutIncomingTraffic {
-		task ("Open Content Performance and Assert") {
-			if (IsVisible(locator1 = "ContentPerformance#CONTENT_PERFORMANCE_PANEL")) {
-				Click(locator1 = "ContentPerformance#CONTENT_PERFORMANCE_BUTTON");
-			}
-
-			Click(locator1 = "ContentPerformance#CONTENT_PERFORMANCE_BUTTON");
-
-			AssertElementPresent(
-				locator1 = "ContentPerformance#SELECT_TRAFFIC_SOURCES_NUMBER",
-				value1 = "0");
+		task ("Open Content Performance") {
+			ContentPerformance.openContentPerformance();
 		}
 
-		task ("Click and Assert if element still present") {
-			ClickNoError(locator1 = "ContentPerformance#SELECT_TRAFFIC_SOURCES_NUMBER");
+		task ("Check the value of engagement data") {
+			for (var channel : list "Referral,Social,Paid,Direct,Organic") {
+				ContentPerformance.viewTrafficViews(
+					key_numberViews = "0",
+					trafficChannel = "${channel}");
+			}
+		}
 
-			AssertElementPresent(
-				locator1 = "ContentPerformance#SELECT_TRAFFIC_SOURCES_NUMBER",
-				value1 = "0");
+		task ("Chech that channels are not clickable") {
+			for (var channel : list "Referral,Social,Paid,Direct,Organic") {
+				AssertVisible(
+					locator1 = "ContentPerformance#TRAFFIC_CHANNELS_TEXT",
+					trafficChannel = "${channel}");
+			}
 		}
 	}
 
@@ -1397,7 +1408,7 @@ definition {
 	@priority = "3"
 	test PanelInformationInWidgetPage {
 		task ("Create Widget Page") {
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 		}

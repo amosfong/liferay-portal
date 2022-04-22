@@ -28,7 +28,7 @@ const INITIAL_STATE = {
 	timeSpanOffset: 0,
 };
 
-/** 
+/**
  * Example state
  * {
 		"lineChartloading": false,
@@ -203,6 +203,13 @@ function setLineChartLoadingState(state) {
 	 */
 	if (!state.dataSet) {
 		return {...state, lineChartLoading: true};
+	}
+
+	/**
+	 * The dataSet is already formatted
+	 */
+	if (state.dataSet.histogram.length) {
+		return {...state, lineChartLoading: false};
 	}
 
 	const histogram = state.dataSet.histogram.map((set) => {

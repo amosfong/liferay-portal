@@ -84,6 +84,7 @@ definition {
 
 	@priority = "5"
 	test ActivateStagingPageVersioningWithCustomDefaultLanguage {
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 		property test.name.skip.portal.instance = "Staging#ActivateStagingPageVersioningWithCustomDefaultLanguage";
 
 		JSONLayout.addPrivateLayout(
@@ -1053,6 +1054,8 @@ definition {
 
 	@priority = "4"
 	test PublishTemplateWithPages {
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
+
 		JSONLayout.addPrivateLayout(
 			groupName = "Site Name",
 			layoutName = "Private Staging Page");
@@ -1123,7 +1126,7 @@ definition {
 
 		Form.publishForm();
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Test Page",
 			sitePageType = "Widget Page");
 
@@ -1557,7 +1560,6 @@ definition {
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Staging Test Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoSitePage(
@@ -1899,6 +1901,8 @@ definition {
 
 		Portlet.addPG(portletName = "Asset Publisher");
 
+		AssetPublisherPortlet.configureDynamicAssetSelectionPG(portletName = "Asset Publisher");
+
 		AssetPublisherPortlet.configureAssetLinkBehaviorPG(assetLinkBehavior = "Show Full Content");
 
 		Navigator.gotoStagedSitePage(
@@ -1906,6 +1910,8 @@ definition {
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Asset Publisher");
+
+		AssetPublisherPortlet.configureDynamicAssetSelectionPG(portletName = "Asset Publisher");
 
 		Navigator.gotoStagedSitePage(
 			pageName = "Test Page 1",
@@ -2060,7 +2066,7 @@ definition {
 
 		WebContentNavigator.gotoEditCP(webContentTitle = '''Special Char aŐb''');
 
-		WebContent.viewFriendlyURLCP(friendlyURL = '''special-char-aŐb''');
+		WebContent.viewFriendlyURLCP(friendlyURL = '''special-char-a%C5%90b''');
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
 
@@ -2288,7 +2294,7 @@ definition {
 		PagesAdmin.openPagesAdmin(siteURLKey = "site-name");
 
 		PagesAdmin.viewPagesOrder(
-			depth = "2",
+			depth = "1",
 			pageNameList = "Staging Test Page,Test Page 1,Test Page 2");
 	}
 
@@ -2337,17 +2343,13 @@ definition {
 			pageName = "Staging Page Edit",
 			siteName = "Site Name");
 
-		PagesAdmin.viewPageItemPresent(
-			pageName = "Staging Page Edit",
-			privacy = "Public Pages");
+		PagesAdmin.viewPageItemPresent(pageName = "Staging Page Edit");
 
 		Navigator.gotoSitePage(
 			pageName = "Staging Page Edit",
 			siteName = "Site Name");
 
-		PagesAdmin.viewPageItemPresent(
-			pageName = "Staging Page Edit",
-			privacy = "Public Pages");
+		PagesAdmin.viewPageItemPresent(pageName = "Staging Page Edit");
 
 		Navigator.openSiteURL(siteName = "Site Name");
 
@@ -2423,9 +2425,7 @@ definition {
 			pageName = "Staging Page Edit",
 			siteName = "Site Name");
 
-		PagesAdmin.viewPageItemPresent(
-			pageName = "Staging Page Edit",
-			privacy = "Public Pages");
+		PagesAdmin.viewPageItemPresent(pageName = "Staging Page Edit");
 	}
 
 	@description = "This is a use case for LPS-82355."

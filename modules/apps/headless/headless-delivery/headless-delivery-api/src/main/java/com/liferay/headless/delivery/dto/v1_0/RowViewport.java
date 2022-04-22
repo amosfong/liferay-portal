@@ -64,7 +64,7 @@ public class RowViewport implements Serializable {
 		return ObjectMapperUtil.unsafeReadValue(RowViewport.class, json);
 	}
 
-	@Schema(description = "The row vieport's ID.")
+	@Schema(description = "The row viewport's ID.")
 	public String getId() {
 		return id;
 	}
@@ -86,12 +86,12 @@ public class RowViewport implements Serializable {
 		}
 	}
 
-	@GraphQLField(description = "The row vieport's ID.")
+	@GraphQLField(description = "The row viewport's ID.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotEmpty
 	protected String id;
 
-	@Schema(description = "The definition of the row vieport.")
+	@Schema(description = "The definition of the row viewport.")
 	@Valid
 	public RowViewportDefinition getRowViewportDefinition() {
 		return rowViewportDefinition;
@@ -119,7 +119,7 @@ public class RowViewport implements Serializable {
 		}
 	}
 
-	@GraphQLField(description = "The definition of the row vieport.")
+	@GraphQLField(description = "The definition of the row viewport.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	@NotNull
 	protected RowViewportDefinition rowViewportDefinition;

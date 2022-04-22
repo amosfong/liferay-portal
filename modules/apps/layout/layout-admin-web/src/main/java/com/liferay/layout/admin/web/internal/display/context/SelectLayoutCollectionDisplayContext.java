@@ -82,14 +82,7 @@ public class SelectLayoutCollectionDisplayContext {
 				LanguageUtil.get(
 					_httpServletRequest, "there-are-no-collection-providers"));
 
-		List<InfoCollectionProvider<?>> infoCollectionProviders =
-			_getInfoCollectionProviders();
-
-		searchContainer.setResultsAndTotal(
-			() -> ListUtil.subList(
-				infoCollectionProviders, searchContainer.getStart(),
-				searchContainer.getEnd()),
-			infoCollectionProviders.size());
+		searchContainer.setResultsAndTotal(_getInfoCollectionProviders());
 
 		return searchContainer;
 	}
@@ -214,10 +207,9 @@ public class SelectLayoutCollectionDisplayContext {
 			infoCollectionProviders,
 			infoCollectionProvider -> {
 				try {
-					String label = infoCollectionProvider.getLabel(
-						_themeDisplay.getLocale());
-
-					if (Validator.isNotNull(label) &&
+					if (Validator.isNotNull(
+							infoCollectionProvider.getLabel(
+								_themeDisplay.getLocale())) &&
 						infoCollectionProvider.isAvailable()) {
 
 						return true;

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides the local service utility for ObjectValidationRule. This utility wraps
@@ -44,6 +45,16 @@ public class ObjectValidationRuleLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectValidationRuleLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static ObjectValidationRule addObjectValidationRule(
+			long userId, long objectDefinitionId, boolean active, String engine,
+			Map<java.util.Locale, String> errorLabelMap,
+			Map<java.util.Locale, String> nameMap, String script)
+		throws PortalException {
+
+		return getService().addObjectValidationRule(
+			userId, objectDefinitionId, active, engine, errorLabelMap, nameMap,
+			script);
+	}
 
 	/**
 	 * Adds the object validation rule to the database. Also notifies the appropriate model listeners.
@@ -115,6 +126,12 @@ public class ObjectValidationRuleLocalServiceUtil {
 		ObjectValidationRule objectValidationRule) {
 
 		return getService().deleteObjectValidationRule(objectValidationRule);
+	}
+
+	public static void deleteObjectValidationRules(Long objectDefinitionId)
+		throws PortalException {
+
+		getService().deleteObjectValidationRules(objectDefinitionId);
 	}
 
 	/**
@@ -303,10 +320,16 @@ public class ObjectValidationRuleLocalServiceUtil {
 	}
 
 	public static List<ObjectValidationRule> getObjectValidationRules(
-		long objectDefinitionId, boolean active, int start, int end) {
+		long objectDefinitionId) {
+
+		return getService().getObjectValidationRules(objectDefinitionId);
+	}
+
+	public static List<ObjectValidationRule> getObjectValidationRules(
+		long objectDefinitionId, boolean active) {
 
 		return getService().getObjectValidationRules(
-			objectDefinitionId, active, start, end);
+			objectDefinitionId, active);
 	}
 
 	/**
@@ -336,6 +359,17 @@ public class ObjectValidationRuleLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static ObjectValidationRule updateObjectValidationRule(
+			long objectValidationRuleId, boolean active, String engine,
+			Map<java.util.Locale, String> errorLabelMap,
+			Map<java.util.Locale, String> nameMap, String script)
+		throws PortalException {
+
+		return getService().updateObjectValidationRule(
+			objectValidationRuleId, active, engine, errorLabelMap, nameMap,
+			script);
+	}
+
 	/**
 	 * Updates the object validation rule in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -353,13 +387,10 @@ public class ObjectValidationRuleLocalServiceUtil {
 	}
 
 	public static void validate(
-			long userId, long objectDefinitionId,
-			com.liferay.portal.kernel.model.BaseModel<?> originalBaseModel,
-			com.liferay.portal.kernel.model.BaseModel<?> baseModel)
+			com.liferay.object.model.ObjectEntry objectEntry)
 		throws PortalException {
 
-		getService().validate(
-			userId, objectDefinitionId, originalBaseModel, baseModel);
+		getService().validate(objectEntry);
 	}
 
 	public static ObjectValidationRuleLocalService getService() {

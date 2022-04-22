@@ -1,5 +1,8 @@
 {
 	"dependencies": {
+		"codemirror": "^5.59.0",
+		"frontend-js-components-web": "*",
+		"text-mask-core": "^5.1.2"
 	},
 	"name": "@liferay/object-web",
 	"private": true,
@@ -8,5 +11,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "1.0.53"
+	"version": "1.0.62"
 }

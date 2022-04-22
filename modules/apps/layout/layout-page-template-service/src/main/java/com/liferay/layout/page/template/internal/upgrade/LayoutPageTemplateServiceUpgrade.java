@@ -16,6 +16,7 @@ package com.liferay.layout.page.template.internal.upgrade;
 
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
+import com.liferay.layout.helper.CollectionPaginationHelper;
 import com.liferay.layout.page.template.internal.upgrade.v1_1_0.LayoutPrototypeUpgradeProcess;
 import com.liferay.layout.page.template.internal.upgrade.v1_1_1.LayoutPageTemplateEntryUpgradeProcess;
 import com.liferay.layout.page.template.internal.upgrade.v1_2_0.LayoutPageTemplateStructureUpgradeProcess;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.upgrade.MVCCVersionUpgradeProcess;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.upgrade.step.util.UpgradeStepFactory;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -163,7 +165,27 @@ public class LayoutPageTemplateServiceUpgrade
 			"3.4.3", "3.5.0",
 			new com.liferay.layout.page.template.internal.upgrade.v3_5_0.
 				LayoutPageTemplateStructureRelUpgradeProcess());
+
+		registry.register(
+			"3.5.0", "4.0.0",
+			new com.liferay.layout.page.template.internal.upgrade.v4_0_0.
+				LayoutPageTemplateStructureRelUpgradeProcess(
+					_collectionPaginationHelper));
+
+		registry.register(
+			"4.0.0", "5.0.0",
+			new com.liferay.layout.page.template.internal.upgrade.v5_0_0.
+				LayoutPageTemplateStructureUpgradeProcess());
+
+		registry.register(
+			"5.0.0", "5.1.0",
+			new com.liferay.layout.page.template.internal.upgrade.v5_1_0.
+				LayoutPageTemplateStructureUpgradeProcess(
+					_layoutLocalService, _segmentsExperienceLocalService));
 	}
+
+	@Reference
+	private CollectionPaginationHelper _collectionPaginationHelper;
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
@@ -188,5 +210,8 @@ public class LayoutPageTemplateServiceUpgrade
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

@@ -41,6 +41,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8490 | Test Summary: Order a Dynamic Segment's Membership Preview Modal"
 	@priority = "3"
 	test OrderDynamicSegmentMembershipPreview {
+		property test.name.skip.portal.instance = "SegmentsOverViewMembership#OrderDynamicSegmentMembershipPreview";
+
 		var usernameList = "user1,user2,user3";
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 
@@ -127,7 +129,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipCardExistsShowsMembersAdded {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: members are not appearing
 		// AC Refactor ticket: LRAC-8818
@@ -216,7 +217,6 @@ definition {
 	@ignore = "true"
 	@priority = "4"
 	test ViewMembershipCardHoverDetails {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: timing issue for membership card
 		// AC Refactor ticket: LRAC-9130
@@ -306,7 +306,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipCardShowsAnonymousUsers {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: timing issue for membership card
 		// AC Refactor ticket: LRAC-9192
@@ -378,7 +377,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipCardShowsMembersRemoved {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: timing issue for membership card
 		// AC Refactor ticket: LRAC-8887

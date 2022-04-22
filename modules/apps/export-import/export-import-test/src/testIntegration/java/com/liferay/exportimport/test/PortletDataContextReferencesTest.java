@@ -90,14 +90,13 @@ public class PortletDataContextReferencesTest {
 
 		Element element = rootElement.addElement("PortletDataRootElement");
 
+		element.addAttribute("self-path", "dummyPortletDataPath");
+
 		_portletDataContext.setExportDataRootElement(element);
 		_portletDataContext.setImportDataRootElement(element);
 
-		Element missingReferencesElement = rootElement.addElement(
-			"missing-references");
-
 		_portletDataContext.setMissingReferencesElement(
-			missingReferencesElement);
+			rootElement.addElement("missing-references"));
 
 		_bookmarksFolder = BookmarksTestUtil.addFolder(
 			_group.getGroupId(), RandomTestUtil.randomString());

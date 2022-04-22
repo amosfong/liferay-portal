@@ -97,7 +97,7 @@ import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -172,7 +172,8 @@ public class WebServerServlet extends HttpServlet {
 					PortalUtil.getUserPassword(httpServletRequest));
 			}
 
-			String path = HttpUtil.fixPath(httpServletRequest.getPathInfo());
+			String path = HttpComponentsUtil.fixPath(
+				httpServletRequest.getPathInfo());
 
 			String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
@@ -675,7 +676,7 @@ public class WebServerServlet extends HttpServlet {
 				modifiedDate = image.getModifiedDate();
 			}
 			else {
-				String path = HttpUtil.fixPath(
+				String path = HttpComponentsUtil.fixPath(
 					httpServletRequest.getPathInfo());
 
 				String[] pathArray = StringUtil.split(path, CharPool.SLASH);
@@ -855,7 +856,7 @@ public class WebServerServlet extends HttpServlet {
 
 		String redirect = PortalUtil.getPathMain() + "/portal/login";
 
-		redirect = HttpUtil.addParameter(
+		redirect = HttpComponentsUtil.addParameter(
 			redirect, "redirect", PortalUtil.getCurrentURL(httpServletRequest));
 
 		httpServletResponse.sendRedirect(redirect);
@@ -1207,7 +1208,8 @@ public class WebServerServlet extends HttpServlet {
 
 		for (Group group : groups) {
 			if (_isDirectoryIndexingEnabled(group)) {
-				String name = HttpUtil.fixPath(group.getFriendlyURL());
+				String name = HttpComponentsUtil.fixPath(
+					group.getFriendlyURL());
 
 				WebServerEntry webServerEntry = new WebServerEntry(
 					path, name + StringPool.SLASH, null, null,
@@ -1229,7 +1231,7 @@ public class WebServerServlet extends HttpServlet {
 			TemplateConstants.LANG_TYPE_FTL, _templateResource, true);
 
 		template.put("entries", webServerEntries);
-		template.put("path", HttpUtil.encodePath(path));
+		template.put("path", HttpComponentsUtil.encodePath(path));
 
 		if (_WEB_SERVER_SERVLET_VERSION_VERBOSITY_DEFAULT) {
 		}
@@ -1249,7 +1251,8 @@ public class WebServerServlet extends HttpServlet {
 
 	protected void sendPortletFileEntry(
 			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, String[] pathArray)
+			HttpServletResponse httpServletResponse, String path,
+			String[] pathArray)
 		throws Exception {
 
 		FileEntry fileEntry = getPortletFileEntry(
@@ -1263,7 +1266,12 @@ public class WebServerServlet extends HttpServlet {
 			return;
 		}
 
-		String fileName = HttpUtil.decodeURL(HtmlUtil.escape(pathArray[2]));
+		String fileName = HttpComponentsUtil.decodeURL(
+			HtmlUtil.escape(pathArray[2]));
+
+		if (Validator.isNull(fileName)) {
+			throw new NoSuchFileEntryException("Invalid path " + path);
+		}
 
 		if (fileEntry.isInTrash()) {
 			fileName = TrashUtil.getOriginalTitle(fileName);
@@ -1363,7 +1371,7 @@ public class WebServerServlet extends HttpServlet {
 		else if (pathArray.length == 3) {
 			long groupId = GetterUtil.getLong(pathArray[0]);
 			long folderId = GetterUtil.getLong(pathArray[1]);
-			String fileName = HttpUtil.decodeURL(pathArray[2]);
+			String fileName = HttpComponentsUtil.decodeURL(pathArray[2]);
 
 			try {
 				try {
@@ -1521,7 +1529,8 @@ public class WebServerServlet extends HttpServlet {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		String path = HttpUtil.fixPath(httpServletRequest.getPathInfo());
+		String path = HttpComponentsUtil.fixPath(
+			httpServletRequest.getPathInfo());
 
 		String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
@@ -1574,7 +1583,8 @@ public class WebServerServlet extends HttpServlet {
 		HttpServletResponse httpServletResponse, User user) {
 
 		return () -> {
-			String path = HttpUtil.fixPath(httpServletRequest.getPathInfo());
+			String path = HttpComponentsUtil.fixPath(
+				httpServletRequest.getPathInfo());
 
 			String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
@@ -1597,7 +1607,8 @@ public class WebServerServlet extends HttpServlet {
 				}
 				else if (PATH_PORTLET_FILE_ENTRY.equals(pathArray[0])) {
 					sendPortletFileEntry(
-						httpServletRequest, httpServletResponse, pathArray);
+						httpServletRequest, httpServletResponse, path,
+						pathArray);
 				}
 				else {
 					if (PropsValues.WEB_SERVER_SERVLET_CHECK_IMAGE_GALLERY &&
@@ -1675,7 +1686,7 @@ public class WebServerServlet extends HttpServlet {
 			long groupId = GetterUtil.getLong(pathArray[0]);
 			long folderId = GetterUtil.getLong(pathArray[1]);
 
-			String fileName = HttpUtil.decodeURL(pathArray[2]);
+			String fileName = HttpComponentsUtil.decodeURL(pathArray[2]);
 
 			if (fileName.contains(StringPool.QUESTION)) {
 				fileName = fileName.substring(
@@ -1781,9 +1792,7 @@ public class WebServerServlet extends HttpServlet {
 	}
 
 	private static final String _PATH_SEPARATOR_FILE_ENTRY =
-		FriendlyURLResolverConstants.URL_SEPARATOR_FILE_ENTRY.substring(
-			1,
-			FriendlyURLResolverConstants.URL_SEPARATOR_FILE_ENTRY.length() - 1);
+		FriendlyURLResolverConstants.URL_SEPARATOR_Y_FILE_ENTRY;
 
 	private static final boolean _WEB_SERVER_SERVLET_VERSION_VERBOSITY_DEFAULT =
 		StringUtil.equalsIgnoreCase(

@@ -94,6 +94,38 @@ public class PageCollectionDefinition implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected CollectionConfig collectionConfig;
 
+	@Schema(description = "A list of viewports of the page collection.")
+	@Valid
+	public CollectionViewport[] getCollectionViewports() {
+		return collectionViewports;
+	}
+
+	public void setCollectionViewports(
+		CollectionViewport[] collectionViewports) {
+
+		this.collectionViewports = collectionViewports;
+	}
+
+	@JsonIgnore
+	public void setCollectionViewports(
+		UnsafeSupplier<CollectionViewport[], Exception>
+			collectionViewportsUnsafeSupplier) {
+
+		try {
+			collectionViewports = collectionViewportsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(description = "A list of viewports of the page collection.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected CollectionViewport[] collectionViewports;
+
 	@Schema(
 		description = "Whether to show all items when pagination is disabled."
 	)
@@ -307,7 +339,9 @@ public class PageCollectionDefinition implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Integer numberOfColumns;
 
-	@Schema(description = "The number of items in the page collection.")
+	@Schema(
+		description = "The maximum number of items to display in the page collection when pagination is disabled."
+	)
 	public Integer getNumberOfItems() {
 		return numberOfItems;
 	}
@@ -331,7 +365,9 @@ public class PageCollectionDefinition implements Serializable {
 		}
 	}
 
-	@GraphQLField(description = "The number of items in the page collection.")
+	@GraphQLField(
+		description = "The maximum number of items to display in the page collection when pagination is disabled."
+	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Integer numberOfItems;
 
@@ -439,7 +475,8 @@ public class PageCollectionDefinition implements Serializable {
 	protected PaginationType paginationType;
 
 	@Schema(
-		description = "Whether to show all items when pagination is enabled."
+		deprecated = true,
+		description = "Whether to show all items when pagination is enabled. Deprecated as of Cavanaugh (7.4.x), replaced by displayAllPages"
 	)
 	public Boolean getShowAllItems() {
 		return showAllItems;
@@ -464,8 +501,9 @@ public class PageCollectionDefinition implements Serializable {
 		}
 	}
 
+	@Deprecated
 	@GraphQLField(
-		description = "Whether to show all items when pagination is enabled."
+		description = "Whether to show all items when pagination is enabled. Deprecated as of Cavanaugh (7.4.x), replaced by displayAllPages"
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Boolean showAllItems;
@@ -534,6 +572,26 @@ public class PageCollectionDefinition implements Serializable {
 			sb.append("\"collectionConfig\": ");
 
 			sb.append(String.valueOf(collectionConfig));
+		}
+
+		if (collectionViewports != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"collectionViewports\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < collectionViewports.length; i++) {
+				sb.append(String.valueOf(collectionViewports[i]));
+
+				if ((i + 1) < collectionViewports.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (displayAllItems != null) {

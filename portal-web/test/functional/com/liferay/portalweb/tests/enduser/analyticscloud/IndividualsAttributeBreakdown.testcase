@@ -64,6 +64,9 @@ definition {
 	test AddNewBreakdownByAttributeAndAssertCorrectResultsAppear {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: Name of breakdown already exists causing test to fail
+		// Possible CSV load time issue as well
+
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "ac@liferay.com",
@@ -111,13 +114,15 @@ definition {
 				fillColor = "#4B9BFF",
 				tick = "farmer");
 		}
+
+		task ("Remove the breakdown") {
+			ACIndividualsDashboard.deleteBreakdown(breakdownName = "Breakdown by Job Title");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8997 | Test Summary: Distribution page can be filtered by a specific string"
 	@priority = "5"
 	test BreakdownByAttributeOnDistributionPage {
-		property portal.upstream = "quarantine";
-
 		task ("View the site page") {
 			ACUtils.navigateToSitePageWithUser(
 				emailList = "ac@liferay.com",
@@ -221,6 +226,9 @@ definition {
 	test SelectDifferentTabsInbreakdown {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: Name of breakdown already exists causing test to fail
+		// Possible CSV load time issue as well
+
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "ac@liferay.com",
@@ -283,6 +291,12 @@ definition {
 			ACIndividualsDashboard.viewBreakdownRecharts(
 				fillColor = "#4B9BFF",
 				tick = "ac");
+		}
+
+		task ("Remove the breakdown") {
+			ACIndividualsDashboard.deleteBreakdown(breakdownName = "Breakdown by Job Title");
+
+			ACIndividualsDashboard.deleteBreakdown(breakdownName = "Breakdown by Family Name");
 		}
 	}
 

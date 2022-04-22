@@ -16,6 +16,7 @@ package com.liferay.jenkins.results.parser.test.clazz.group;
 
 import com.liferay.jenkins.results.parser.GitWorkingDirectory;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+import com.liferay.jenkins.results.parser.PortalTestClassJob;
 import com.liferay.jenkins.results.parser.QAWebsitesGitRepositoryJob;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
 import com.liferay.poshi.core.PoshiContext;
@@ -27,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.json.JSONObject;
+
 /**
  * @author Michael Hashimoto
  */
@@ -37,10 +40,11 @@ public class QAWebsitesFunctionalBatchTestClassGroup
 	public List<File> getTestBaseDirs() {
 		List<File> testBaseDirs = new ArrayList<>();
 
-		QAWebsitesGitRepositoryJob qaWebsitesGitRepositoryJob =
-			_getQAWebsitesGitRepositoryJob();
 		GitWorkingDirectory qaWebsitesGitWorkingDirectory =
 			_getQAWebsitesGitWorkingDirectory();
+
+		QAWebsitesGitRepositoryJob qaWebsitesGitRepositoryJob =
+			_getQAWebsitesGitRepositoryJob();
 
 		for (String projectName :
 				qaWebsitesGitRepositoryJob.getProjectNames()) {
@@ -55,10 +59,15 @@ public class QAWebsitesFunctionalBatchTestClassGroup
 	}
 
 	protected QAWebsitesFunctionalBatchTestClassGroup(
-		String batchName,
-		QAWebsitesGitRepositoryJob qaWebsitesGitRepositoryJob) {
+		JSONObject jsonObject, PortalTestClassJob portalTestClassJob) {
 
-		super(batchName, qaWebsitesGitRepositoryJob);
+		super(jsonObject, portalTestClassJob);
+	}
+
+	protected QAWebsitesFunctionalBatchTestClassGroup(
+		String batchName, PortalTestClassJob portalTestClassJob) {
+
+		super(batchName, portalTestClassJob);
 	}
 
 	@Override

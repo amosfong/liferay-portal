@@ -12,14 +12,18 @@
  * details.
  */
 
+import {useParams} from 'react-router-dom';
+
 import Container from '../../../components/Layout/Container';
 import ListView from '../../../components/ListView/ListView';
-import {getTestraySuites} from '../../../graphql/queries';
+import {getSuites} from '../../../graphql/queries';
 import i18n from '../../../i18n';
 import SuiteModal from './SuiteModal';
 import useSuiteActions from './useSuiteActions';
 
 const Suites = () => {
+	const {projectId} = useParams();
+
 	const {actions, formModal} = useSuiteActions();
 
 	return (
@@ -28,7 +32,7 @@ const Suites = () => {
 				<ListView
 					forceRefetch={formModal.forceRefetch}
 					managementToolbarProps={{addButton: formModal.modal.open}}
-					query={getTestraySuites}
+					query={getSuites}
 					tableProps={{
 						actions,
 						columns: [
@@ -52,11 +56,12 @@ const Suites = () => {
 						],
 						navigateTo: ({id}) => id?.toString(),
 					}}
-					transformData={(data) => data?.c?.testraySuites}
+					transformData={(data) => data?.c?.suites}
+					variables={{filter: `projectId eq ${projectId}`}}
 				/>
 			</Container>
 
-			<SuiteModal modal={formModal.modal} />
+			<SuiteModal modal={formModal.modal} projectId={Number(projectId)} />
 		</>
 	);
 };

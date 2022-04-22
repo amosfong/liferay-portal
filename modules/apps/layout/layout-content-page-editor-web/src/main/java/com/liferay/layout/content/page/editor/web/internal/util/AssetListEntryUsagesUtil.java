@@ -59,8 +59,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -537,7 +536,7 @@ public class AssetListEntryUsagesUtil {
 		Layout layout = themeDisplay.getLayout();
 
 		try {
-			return HttpUtil.setParameter(
+			return HttpComponentsUtil.setParameter(
 				PortalUtil.getLayoutRelativeURL(layout, themeDisplay),
 				"p_l_mode", Constants.EDIT);
 		}
@@ -608,11 +607,8 @@ public class AssetListEntryUsagesUtil {
 			layoutStructure.getLayoutStructureItemByFragmentEntryLinkId(
 				fragmentEntryLink.getFragmentEntryLinkId());
 
-		if (ListUtil.exists(
-				layoutStructure.getDeletedLayoutStructureItems(),
-				deletedLayoutStructureItem ->
-					deletedLayoutStructureItem.containsItemId(
-						layoutStructureItem.getItemId()))) {
+		if (layoutStructure.isItemMarkedForDeletion(
+				layoutStructureItem.getItemId())) {
 
 			return true;
 		}

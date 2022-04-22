@@ -14,6 +14,7 @@ import {isNode} from 'react-flow-renderer';
 
 import {DefinitionBuilderContext} from '../../../DefinitionBuilderContext';
 import {DiagramBuilderContext} from '../../DiagramBuilderContext';
+import DefinitionInfo from './DefnitionInfo';
 import SidebarBody from './SidebarBody';
 import SidebarHeader from './SidebarHeader';
 import sectionComponents from './sections/sectionComponents';
@@ -96,7 +97,7 @@ const contents = {
 	},
 	'scripted-reassignment': {
 		backButton: (setContentName) => () => setContentName('timers'),
-		sections: ['timersSourceCode'],
+		sections: ['timerSourceCode'],
 		showDeleteButton: false,
 		title: Liferay.Language.get('scripted-reassignment'),
 	},
@@ -148,7 +149,10 @@ const errorsDefaultValues = {
 };
 
 export default function Sidebar() {
-	const {setBlockingErrors} = useContext(DefinitionBuilderContext);
+	const {definitionTitle, setBlockingErrors, showDefinitionInfo} = useContext(
+		DefinitionBuilderContext
+	);
+
 	const {selectedItem, setSelectedItem, setSelectedItemNewId} = useContext(
 		DiagramBuilderContext
 	);
@@ -167,10 +171,10 @@ export default function Sidebar() {
 
 	useEffect(() => {
 		setBlockingErrors((prev) => {
-			if (errors.label === true || errors.id.empty === true) {
+			if (errors?.label === true || errors?.id?.empty === true) {
 				return {...prev, errorType: 'emptyField'};
 			}
-			if (errors.id.duplicated === true) {
+			if (errors?.id?.duplicated === true) {
 				return {...prev, errorType: 'duplicated'};
 			}
 			else {
@@ -211,25 +215,33 @@ export default function Sidebar() {
 				deleteButtonFunction={
 					content?.deleteFunction?.(setSelectedItem) || null
 				}
-				showBackButton={!!content}
-				showDeleteButton={content?.showDeleteButton}
-				title={title}
+				showBackButton={!!content && !showDefinitionInfo}
+				showDeleteButton={
+					content?.showDeleteButton && !showDefinitionInfo
+				}
+				title={!showDefinitionInfo ? title : definitionTitle}
 			/>
 
-			<SidebarBody displayDefaultContent={!content}>
-				{content?.sections?.map((sectionKey) => {
-					const SectionComponent = sectionComponents[sectionKey];
+			<SidebarBody
+				displayDefaultContent={!content && !showDefinitionInfo}
+			>
+				{!showDefinitionInfo ? (
+					content?.sections?.map((sectionKey) => {
+						const SectionComponent = sectionComponents[sectionKey];
 
-					return (
-						<SectionComponent
-							errors={errors}
-							key={sectionKey}
-							sections={content?.sections || []}
-							setContentName={setContentName}
-							setErrors={setErrors}
-						/>
-					);
-				})}
+						return (
+							<SectionComponent
+								errors={errors}
+								key={sectionKey}
+								sections={content?.sections || []}
+								setContentName={setContentName}
+								setErrors={setErrors}
+							/>
+						);
+					})
+				) : (
+					<DefinitionInfo />
+				)}
 			</SidebarBody>
 		</div>
 	);

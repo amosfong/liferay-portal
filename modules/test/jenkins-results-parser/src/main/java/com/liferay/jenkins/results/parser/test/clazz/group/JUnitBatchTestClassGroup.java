@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -133,27 +134,22 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 	@Override
 	public JSONObject getJSONObject() {
-		JSONObject jsonObject = super.getJSONObject();
-
-		jsonObject.put("exclude_globs", getGlobs(getExcludesJobProperties()));
-		jsonObject.put("filter_globs", getGlobs(getFilterJobProperties()));
-		jsonObject.put("include_globs", getGlobs(getIncludesJobProperties()));
-
-		return jsonObject;
-	}
-
-	public List<JUnitTestClass> getJUnitTestClasses() {
-		List<JUnitTestClass> junitTestClasses = new ArrayList<>();
-
-		for (TestClass testClass : TestClassFactory.getTestClasses()) {
-			if (!(testClass instanceof JUnitTestClass)) {
-				continue;
-			}
-
-			junitTestClasses.add((JUnitTestClass)testClass);
+		if (jsonObject != null) {
+			return jsonObject;
 		}
 
-		return junitTestClasses;
+		jsonObject = super.getJSONObject();
+
+		jsonObject.put("auto_balance_test_files", _autoBalanceTestFiles);
+		jsonObject.put("exclude_globs", getGlobs(getExcludesJobProperties()));
+		jsonObject.put("filter_globs", getGlobs(getFilterJobProperties()));
+		jsonObject.put("include_auto_balance_tests", _includeAutoBalanceTests);
+		jsonObject.put("include_globs", getGlobs(getIncludesJobProperties()));
+		jsonObject.put(
+			"include_unstaged_test_class_files",
+			_includeUnstagedTestClassFiles);
+
+		return jsonObject;
 	}
 
 	public void writeTestCSVReportFile() throws Exception {
@@ -161,7 +157,9 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 			new CSVReport.Row(
 				"Class Name", "Method Name", "Ignored", "File Path"));
 
-		for (JUnitTestClass jUnitTestClass : getJUnitTestClasses()) {
+		for (JUnitTestClass jUnitTestClass :
+				TestClassFactory.getJUnitTestClasses()) {
+
 			File testClassFile = jUnitTestClass.getTestClassFile();
 
 			String testClassFileRelativePath =
@@ -207,6 +205,37 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
+	}
+
+	protected JUnitBatchTestClassGroup(
+		JSONObject jsonObject, PortalTestClassJob portalTestClassJob) {
+
+		super(jsonObject, portalTestClassJob);
+
+		JSONArray autoBalanceTestFilesJSONArray = jsonObject.getJSONArray(
+			"auto_balance_test_files");
+
+		if ((autoBalanceTestFilesJSONArray != null) &&
+			!autoBalanceTestFilesJSONArray.isEmpty()) {
+
+			for (int i = 0; i < autoBalanceTestFilesJSONArray.length(); i++) {
+				String autoBalanceTestFilePath =
+					autoBalanceTestFilesJSONArray.getString(i);
+
+				if (JenkinsResultsParserUtil.isNullOrEmpty(
+						autoBalanceTestFilePath)) {
+
+					continue;
+				}
+
+				_autoBalanceTestFiles.add(new File(autoBalanceTestFilePath));
+			}
+		}
+
+		_includeAutoBalanceTests = jsonObject.getBoolean(
+			"include_auto_balance_tests");
+		_includeUnstagedTestClassFiles = jsonObject.getBoolean(
+			"include_unstaged_test_class_files");
 	}
 
 	protected JUnitBatchTestClassGroup(
@@ -564,11 +593,6 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 
 		Collections.sort(testClasses);
 	}
-
-	protected final List<PathMatcher> testClassNamesExcludesPathMatchers =
-		new ArrayList<>();
-	protected final List<PathMatcher> testClassNamesIncludesPathMatchers =
-		new ArrayList<>();
 
 	private void _setAutoBalanceTestFiles() {
 		JobProperty jobProperty = getJobProperty(

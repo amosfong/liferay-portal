@@ -44,12 +44,12 @@
 	<property name="elasticsearch.tar.url.linux" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.linux}" />
 	<property name="elasticsearch.tar.url.mac" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.tar.name.mac}" />
 	<property name="elasticsearch.zip.url.windows" value="https://artifacts.elastic.co/downloads/elasticsearch/${elasticsearch.zip.name.windows}" />
-	<property name="elasticsearch.sidecar.version" value="7.10.2" />
+	<property name="elasticsearch.sidecar.version" value="7.17.0" />
 	<property name="elasticsearch.sidecar.analysis-icu.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-icu/analysis-icu-${elasticsearch.sidecar.version}.zip" />
 	<property name="elasticsearch.sidecar.analysis-kuromoji.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-kuromoji/analysis-kuromoji-${elasticsearch.sidecar.version}.zip" />
 	<property name="elasticsearch.sidecar.analysis-smartcn.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-smartcn/analysis-smartcn-${elasticsearch.sidecar.version}.zip" />
 	<property name="elasticsearch.sidecar.analysis-stempel.zip.url" value="https://artifacts.elastic.co/downloads/elasticsearch-plugins/analysis-stempel/analysis-stempel-${elasticsearch.sidecar.version}.zip" />
-	<property name="elasticsearch.sidecar.no.jdk.tar.url" value="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${elasticsearch.sidecar.version}-no-jdk-linux-x86_64.tar.gz" />
+	<property name="elasticsearch.sidecar.no.jdk.tar.url" value="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${elasticsearch.sidecar.version}-no-jdk-linux-x86_64.tar.gz" />
 
 	<macrodef name="check-elasticsearch-security">
 		<attribute name="authentication.type" />
@@ -254,7 +254,8 @@ elasticsearch.username: "elastic"</echo>
 
 	<macrodef name="configure-portal-remote-elasticsearch-osgi-properties">
 		<sequential>
-			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">${line.separator}productionModeEnabled="true"</echo>
+			<echo append="true" file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config">${line.separator}minimumRequiredNodeVersion="${elasticsearch.version}"
+productionModeEnabled="true"</echo>
 		</sequential>
 	</macrodef>
 
@@ -964,7 +965,12 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 			</if>
 
 			<if>
-				<os family="unix" />
+				<and>
+					<not>
+						<os family="mac" />
+					</not>
+					<os family="unix" />
+				</and>
 				<then>
 					<if>
 						<not>
@@ -1283,7 +1289,7 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 
 				<configure-elasticsearch-discovery-type-single-node />
 
-				<antcall target="start-elasticsearch-node" />
+				<antcall target="start-elasticsearch-node" unless:true="${skip.server.startup}" />
 			</default>
 		</switch>
 
@@ -1340,6 +1346,12 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 
 		<configure-kibana-x-pack-security-properties if:true="${elastic.xpack.enabled}" />
 
+		<antcall target="start-kibana-server" unless:true="${skip.server.startup}" />
+
+		<lstopwatch action="total" name="start.kibana" />
+	</target>
+
+	<target name="start-kibana-server">
 		<exec dir="${elastic.kibana.dir}/bin" executable="/bin/bash" osfamily="unix">
 			<arg value="-c" />
 			<arg value="./kibana --allow-root &gt; kibana.log 2&gt;&amp;1 &amp;" />
@@ -1354,9 +1366,14 @@ ${line.separator}CATALINA_OPTS="${CATALINA_OPTS} -Djavax.net.ssl.trustStore=${el
 			<socket port="5601" server="localhost" />
 		</waitfor>
 
-		<lstopwatch action="total" name="start.kibana" />
+		<if>
+			<isset property="kibana.server.not.started" />
+			<then>
+				<lstopwatch action="total" name="start.kibana" />
 
-		<fail if="kibana.server.not.started" message="Kibana failed to start on port 5601." />
+				<fail message="Kibana failed to start on port 5601." />
+			</then>
+		</if>
 	</target>
 
 	<target name="stop-elasticsearch">

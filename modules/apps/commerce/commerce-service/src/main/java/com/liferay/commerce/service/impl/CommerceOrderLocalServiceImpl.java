@@ -159,28 +159,29 @@ public class CommerceOrderLocalServiceImpl
 		throws PortalException {
 
 		return commerceOrderLocalService.addCommerceOrder(
-			userId, groupId, commerceAccountId, commerceCurrencyId,
-			commerceOrderTypeId, 0, 0, null, 0, null, null, BigDecimal.ZERO,
+			userId, groupId, 0, commerceAccountId, commerceCurrencyId,
+			commerceOrderTypeId, 0, 0, null, 0, 0, 0, 0, 0,
+			CommerceOrderConstants.ORDER_STATUS_OPEN,
+			CommerceOrderConstants.PAYMENT_STATUS_PENDING, null,
+			BigDecimal.ZERO, null, BigDecimal.ZERO, BigDecimal.ZERO,
 			BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
-			BigDecimal.ZERO, BigDecimal.ZERO,
-			CommerceOrderConstants.PAYMENT_STATUS_PENDING, 0, 0, 0, 0, 0,
-			CommerceOrderConstants.ORDER_STATUS_OPEN, new ServiceContext());
+			new ServiceContext());
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public CommerceOrder addCommerceOrder(
-			long userId, long groupId, long commerceAccountId,
-			long commerceCurrencyId, long commerceOrderTypeId,
-			long billingAddressId, long shippingAddressId,
-			String commercePaymentMethodKey, long commerceShippingMethodId,
-			String shippingOptionName, String purchaseOrderNumber,
-			BigDecimal subtotal, BigDecimal shippingAmount,
-			BigDecimal taxAmount, BigDecimal total,
-			BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
-			BigDecimal totalWithTaxAmount, int paymentStatus,
+			long userId, long groupId, long billingAddressId,
+			long commerceAccountId, long commerceCurrencyId,
+			long commerceOrderTypeId, long commerceShippingMethodId,
+			long shippingAddressId, String commercePaymentMethodKey,
 			int orderDateMonth, int orderDateDay, int orderDateYear,
 			int orderDateHour, int orderDateMinute, int orderStatus,
+			int paymentStatus, String purchaseOrderNumber,
+			BigDecimal shippingAmount, String shippingOptionName,
+			BigDecimal shippingWithTaxAmount, BigDecimal subtotal,
+			BigDecimal subtotalWithTaxAmount, BigDecimal taxAmount,
+			BigDecimal total, BigDecimal totalWithTaxAmount,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -252,19 +253,19 @@ public class CommerceOrderLocalServiceImpl
 		commerceOrder.setCompanyId(user.getCompanyId());
 		commerceOrder.setUserId(userId);
 		commerceOrder.setUserName(user.getFullName());
+		commerceOrder.setBillingAddressId(billingAddressId);
 		commerceOrder.setCommerceAccountId(commerceAccountId);
 		commerceOrder.setCommerceCurrencyId(commerceCurrencyId);
 		commerceOrder.setCommerceOrderTypeId(commerceOrderTypeId);
-		commerceOrder.setBillingAddressId(billingAddressId);
+		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
 		commerceOrder.setShippingAddressId(shippingAddressId);
 		commerceOrder.setCommercePaymentMethodKey(commercePaymentMethodKey);
-		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
-		commerceOrder.setShippingOptionName(shippingOptionName);
 		commerceOrder.setPurchaseOrderNumber(purchaseOrderNumber);
+		commerceOrder.setShippingOptionName(shippingOptionName);
 
 		_setCommerceOrderPrices(
-			commerceOrder, subtotal, shippingAmount, taxAmount, total,
-			subtotalWithTaxAmount, shippingWithTaxAmount, totalWithTaxAmount);
+			commerceOrder, shippingAmount, shippingWithTaxAmount, subtotal,
+			subtotalWithTaxAmount, taxAmount, total, totalWithTaxAmount);
 
 		_setCommerceOrderShippingDiscountValue(commerceOrder, null, true);
 		_setCommerceOrderShippingDiscountValue(commerceOrder, null, false);
@@ -273,7 +274,7 @@ public class CommerceOrderLocalServiceImpl
 		_setCommerceOrderTotalDiscountValue(commerceOrder, null, true);
 		_setCommerceOrderTotalDiscountValue(commerceOrder, null, false);
 
-		commerceOrder.setPaymentStatus(paymentStatus);
+		commerceOrder.setManuallyAdjusted(false);
 
 		Date orderDate = PortalUtil.getDate(
 			orderDateMonth, orderDateDay, orderDateYear, orderDateHour,
@@ -287,7 +288,8 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		commerceOrder.setOrderStatus(orderStatus);
-		commerceOrder.setManuallyAdjusted(false);
+		commerceOrder.setPaymentStatus(paymentStatus);
+
 		commerceOrder.setStatus(WorkflowConstants.STATUS_DRAFT);
 		commerceOrder.setStatusByUserId(user.getUserId());
 		commerceOrder.setStatusByUserName(user.getFullName());
@@ -308,18 +310,18 @@ public class CommerceOrderLocalServiceImpl
 	@Override
 	public CommerceOrder addOrUpdateCommerceOrder(
 			String externalReferenceCode, long userId, long groupId,
-			long commerceAccountId, long commerceCurrencyId,
-			long commerceOrderTypeId, long billingAddressId,
-			long shippingAddressId, String commercePaymentMethodKey,
-			long commerceShippingMethodId, String shippingOptionName,
-			String purchaseOrderNumber, BigDecimal subtotal,
-			BigDecimal shippingAmount, BigDecimal taxAmount, BigDecimal total,
-			BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
-			BigDecimal totalWithTaxAmount, int paymentStatus,
+			long billingAddressId, long commerceAccountId,
+			long commerceCurrencyId, long commerceOrderTypeId,
+			long commerceShippingMethodId, long shippingAddressId,
+			String advanceStatus, String commercePaymentMethodKey,
 			int orderDateMonth, int orderDateDay, int orderDateYear,
 			int orderDateHour, int orderDateMinute, int orderStatus,
-			String advanceStatus, CommerceContext commerceContext,
-			ServiceContext serviceContext)
+			int paymentStatus, String purchaseOrderNumber,
+			BigDecimal shippingAmount, String shippingOptionName,
+			BigDecimal shippingWithTaxAmount, BigDecimal subtotal,
+			BigDecimal subtotalWithTaxAmount, BigDecimal taxAmount,
+			BigDecimal total, BigDecimal totalWithTaxAmount,
+			CommerceContext commerceContext, ServiceContext serviceContext)
 		throws PortalException {
 
 		if (Validator.isBlank(externalReferenceCode)) {
@@ -336,41 +338,43 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		if (commerceOrder != null) {
-			commerceOrderLocalService.updateCommerceOrder(
+			commerceOrder = commerceOrderLocalService.updateCommerceOrder(
 				externalReferenceCode, commerceOrder.getCommerceOrderId(),
-				billingAddressId, shippingAddressId, commercePaymentMethodKey,
-				commerceShippingMethodId, shippingOptionName,
-				purchaseOrderNumber, subtotal, shippingAmount, taxAmount, total,
-				subtotalWithTaxAmount, shippingWithTaxAmount,
-				totalWithTaxAmount, advanceStatus, commerceContext);
+				billingAddressId, commerceShippingMethodId, shippingAddressId,
+				advanceStatus, commercePaymentMethodKey, purchaseOrderNumber,
+				shippingAmount, shippingOptionName, shippingWithTaxAmount,
+				subtotal, subtotalWithTaxAmount, taxAmount, total,
+				commerceOrder.getTotalDiscountAmount(), totalWithTaxAmount,
+				commerceContext);
 
-			Date orderDate = PortalUtil.getDate(
-				orderDateMonth, orderDateDay, orderDateYear);
-
-			if (orderDate != null) {
-				commerceOrderLocalService.updateOrderDate(
-					commerceOrder.getCommerceOrderId(), orderDateMonth,
-					orderDateDay, orderDateYear, orderDateHour, orderDateMinute,
-					serviceContext);
-			}
-
-			commerceOrderLocalService.updatePaymentStatus(
+			commerceOrder = commerceOrderLocalService.updatePaymentStatus(
 				userId, commerceOrder.getCommerceOrderId(), paymentStatus);
 
-			return commerceOrderLocalService.updateOrderStatus(
-				commerceOrder.getCommerceOrderId(), paymentStatus);
+			User user = userLocalService.getUser(serviceContext.getUserId());
+
+			Date orderDate = PortalUtil.getDate(
+				orderDateMonth, orderDateDay, orderDateYear, orderDateHour,
+				orderDateMinute, user.getTimeZone(), null);
+
+			if (orderDate != null) {
+				commerceOrder.setOrderDate(orderDate);
+			}
+
+			commerceOrder.setOrderStatus(orderStatus);
+
+			return commerceOrderPersistence.update(commerceOrder);
 		}
 
 		// Add
 
 		commerceOrder = commerceOrderLocalService.addCommerceOrder(
-			userId, groupId, commerceAccountId, commerceCurrencyId,
-			commerceOrderTypeId, billingAddressId, shippingAddressId,
-			commercePaymentMethodKey, commerceShippingMethodId,
-			shippingOptionName, purchaseOrderNumber, subtotal, shippingAmount,
-			taxAmount, total, subtotalWithTaxAmount, shippingWithTaxAmount,
-			totalWithTaxAmount, paymentStatus, orderDateMonth, orderDateDay,
-			orderDateYear, orderDateHour, orderDateMinute, orderStatus,
+			userId, groupId, billingAddressId, commerceAccountId,
+			commerceCurrencyId, commerceOrderTypeId, commerceShippingMethodId,
+			shippingAddressId, commercePaymentMethodKey, orderDateMonth,
+			orderDateDay, orderDateYear, orderDateHour, orderDateMinute,
+			orderStatus, paymentStatus, purchaseOrderNumber, shippingAmount,
+			shippingOptionName, shippingWithTaxAmount, subtotal,
+			subtotalWithTaxAmount, taxAmount, total, totalWithTaxAmount,
 			serviceContext);
 
 		commerceOrder.setExternalReferenceCode(externalReferenceCode);
@@ -400,14 +404,14 @@ public class CommerceOrderLocalServiceImpl
 		throws PortalException {
 
 		return commerceOrderLocalService.addOrUpdateCommerceOrder(
-			externalReferenceCode, userId, groupId, commerceAccountId,
-			commerceCurrencyId, 0, billingAddressId, shippingAddressId,
-			commercePaymentMethodKey, commerceShippingMethodId,
-			shippingOptionName, purchaseOrderNumber, subtotal, shippingAmount,
-			taxAmount, total, subtotalWithTaxAmount, shippingWithTaxAmount,
-			totalWithTaxAmount, paymentStatus, orderDateMonth, orderDateDay,
-			orderDateYear, orderDateHour, orderDateMinute, orderStatus,
-			advanceStatus, commerceContext, serviceContext);
+			externalReferenceCode, userId, groupId, billingAddressId,
+			commerceAccountId, commerceCurrencyId, 0, commerceShippingMethodId,
+			shippingAddressId, advanceStatus, commercePaymentMethodKey,
+			orderDateMonth, orderDateDay, orderDateYear, orderDateHour,
+			orderDateMinute, orderStatus, paymentStatus, purchaseOrderNumber,
+			shippingAmount, shippingOptionName, shippingWithTaxAmount, subtotal,
+			subtotalWithTaxAmount, taxAmount, total, totalWithTaxAmount,
+			commerceContext, serviceContext);
 	}
 
 	@Override
@@ -830,8 +834,9 @@ public class CommerceOrderLocalServiceImpl
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
-		if (commerceOrder.getOrderStatus() !=
-				CommerceOrderConstants.ORDER_STATUS_OPEN) {
+		if ((commerceOrder.getOrderStatus() !=
+				CommerceOrderConstants.ORDER_STATUS_OPEN) ||
+			commerceOrder.isManuallyAdjusted()) {
 
 			return commerceOrder;
 		}
@@ -863,8 +868,8 @@ public class CommerceOrderLocalServiceImpl
 		CommerceMoney totalWithTaxAmountCommerceMoney =
 			commerceOrderPrice.getTotalWithTaxAmount();
 
-		commerceOrder.setSubtotal(subtotalCommerceMoney.getPrice());
 		commerceOrder.setShippingAmount(shippingValueCommerceMoney.getPrice());
+		commerceOrder.setSubtotal(subtotalCommerceMoney.getPrice());
 		commerceOrder.setTaxAmount(taxValueCommerceMoney.getPrice());
 		commerceOrder.setTotal(totalCommerceMoney.getPrice());
 
@@ -883,28 +888,23 @@ public class CommerceOrderLocalServiceImpl
 				totalWithTaxAmountCommerceMoney.getPrice());
 		}
 
-		if (!commerceOrder.isManuallyAdjusted()) {
-			_setCommerceOrderSubtotalDiscountValue(
-				commerceOrder, commerceOrderPrice.getSubtotalDiscountValue(),
-				false);
-			_setCommerceOrderShippingDiscountValue(
-				commerceOrder, commerceOrderPrice.getShippingDiscountValue(),
-				false);
-			_setCommerceOrderTotalDiscountValue(
-				commerceOrder, commerceOrderPrice.getTotalDiscountValue(),
-				false);
-			_setCommerceOrderSubtotalDiscountValue(
-				commerceOrder,
-				commerceOrderPrice.getSubtotalDiscountValueWithTaxAmount(),
-				true);
-			_setCommerceOrderShippingDiscountValue(
-				commerceOrder,
-				commerceOrderPrice.getShippingDiscountValueWithTaxAmount(),
-				true);
-			_setCommerceOrderTotalDiscountValue(
-				commerceOrder,
-				commerceOrderPrice.getTotalDiscountValueWithTaxAmount(), true);
-		}
+		_setCommerceOrderSubtotalDiscountValue(
+			commerceOrder, commerceOrderPrice.getSubtotalDiscountValue(),
+			false);
+		_setCommerceOrderShippingDiscountValue(
+			commerceOrder, commerceOrderPrice.getShippingDiscountValue(),
+			false);
+		_setCommerceOrderTotalDiscountValue(
+			commerceOrder, commerceOrderPrice.getTotalDiscountValue(), false);
+		_setCommerceOrderSubtotalDiscountValue(
+			commerceOrder,
+			commerceOrderPrice.getSubtotalDiscountValueWithTaxAmount(), true);
+		_setCommerceOrderShippingDiscountValue(
+			commerceOrder,
+			commerceOrderPrice.getShippingDiscountValueWithTaxAmount(), true);
+		_setCommerceOrderTotalDiscountValue(
+			commerceOrder,
+			commerceOrderPrice.getTotalDiscountValueWithTaxAmount(), true);
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -950,20 +950,21 @@ public class CommerceOrderLocalServiceImpl
 
 		CommerceOrder newCommerceOrder =
 			commerceOrderLocalService.addCommerceOrder(
-				userId, commerceOrder.getGroupId(),
+				userId, commerceOrder.getGroupId(), billingAddressId,
 				commerceOrder.getCommerceAccountId(),
 				commerceOrder.getCommerceCurrencyId(),
-				commerceOrder.getCommerceOrderTypeId(), billingAddressId,
-				shippingAddressId, commerceOrder.getCommercePaymentMethodKey(),
-				commerceOrder.getCommerceShippingMethodId(),
-				commerceOrder.getShippingOptionName(), StringPool.BLANK,
-				commerceOrder.getSubtotal(), commerceOrder.getShippingAmount(),
-				commerceOrder.getTaxAmount(), commerceOrder.getTotal(),
-				commerceOrder.getSubtotalWithTaxAmount(),
+				commerceOrder.getCommerceOrderTypeId(),
+				commerceOrder.getCommerceShippingMethodId(), shippingAddressId,
+				commerceOrder.getCommercePaymentMethodKey(), 0, 0, 0, 0, 0,
+				CommerceOrderConstants.ORDER_STATUS_OPEN,
+				CommerceOrderConstants.PAYMENT_STATUS_PENDING, StringPool.BLANK,
+				commerceOrder.getShippingAmount(),
+				commerceOrder.getShippingOptionName(),
 				commerceOrder.getShippingWithTaxAmount(),
-				commerceOrder.getTotalWithTaxAmount(),
-				CommerceOrderConstants.PAYMENT_STATUS_PENDING, 0, 0, 0, 0, 0,
-				CommerceOrderConstants.ORDER_STATUS_OPEN, serviceContext);
+				commerceOrder.getSubtotal(),
+				commerceOrder.getSubtotalWithTaxAmount(),
+				commerceOrder.getTaxAmount(), commerceOrder.getTotal(),
+				commerceOrder.getTotalWithTaxAmount(), serviceContext);
 
 		// Commerce order items
 
@@ -996,8 +997,8 @@ public class CommerceOrderLocalServiceImpl
 			commerceOrderLocalService.getCommerceOrder(commerceOrderId);
 
 		commerceOrder.setCommerceShippingMethodId(0);
-		commerceOrder.setShippingOptionName(null);
 		commerceOrder.setShippingAmount(BigDecimal.ZERO);
+		commerceOrder.setShippingOptionName(null);
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -1111,14 +1112,14 @@ public class CommerceOrderLocalServiceImpl
 	@Override
 	public CommerceOrder updateCommerceOrder(
 			String externalReferenceCode, long commerceOrderId,
-			long billingAddressId, long shippingAddressId,
-			String commercePaymentMethodKey, long commerceShippingMethodId,
-			String shippingOptionName, String purchaseOrderNumber,
-			BigDecimal subtotal, BigDecimal shippingAmount,
-			BigDecimal taxAmount, BigDecimal total,
-			BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
-			BigDecimal totalWithTaxAmount, BigDecimal totalDiscountAmount,
-			String advanceStatus, CommerceContext commerceContext)
+			long billingAddressId, long commerceShippingMethodId,
+			long shippingAddressId, String advanceStatus,
+			String commercePaymentMethodKey, String purchaseOrderNumber,
+			BigDecimal shippingAmount, String shippingOptionName,
+			BigDecimal shippingWithTaxAmount, BigDecimal subtotal,
+			BigDecimal subtotalWithTaxAmount, BigDecimal taxAmount,
+			BigDecimal total, BigDecimal totalDiscountAmount,
+			BigDecimal totalWithTaxAmount, CommerceContext commerceContext)
 		throws PortalException {
 
 		if (Validator.isBlank(externalReferenceCode)) {
@@ -1130,16 +1131,22 @@ public class CommerceOrderLocalServiceImpl
 
 		commerceOrder.setExternalReferenceCode(externalReferenceCode);
 		commerceOrder.setBillingAddressId(billingAddressId);
-		commerceOrder.setShippingAddressId(shippingAddressId);
-		commerceOrder.setCommercePaymentMethodKey(commercePaymentMethodKey);
 		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
-		commerceOrder.setShippingOptionName(shippingOptionName);
+		commerceOrder.setShippingAddressId(shippingAddressId);
+		commerceOrder.setAdvanceStatus(advanceStatus);
+		commerceOrder.setCommercePaymentMethodKey(commercePaymentMethodKey);
 		commerceOrder.setPurchaseOrderNumber(purchaseOrderNumber);
+		commerceOrder.setShippingOptionName(shippingOptionName);
+
+		if (totalDiscountAmount == null) {
+			totalDiscountAmount = BigDecimal.ZERO;
+		}
+
 		commerceOrder.setTotalDiscountAmount(totalDiscountAmount);
 
 		_setCommerceOrderPrices(
-			commerceOrder, subtotal, shippingAmount, taxAmount, total,
-			subtotalWithTaxAmount, shippingWithTaxAmount, totalWithTaxAmount);
+			commerceOrder, shippingAmount, shippingWithTaxAmount, subtotal,
+			subtotalWithTaxAmount, taxAmount, total, totalWithTaxAmount);
 
 		if (commerceContext != null) {
 			CommerceOrderPriceCalculation commerceOrderPriceCalculation =
@@ -1174,8 +1181,6 @@ public class CommerceOrderLocalServiceImpl
 			}
 		}
 
-		commerceOrder.setAdvanceStatus(advanceStatus);
-
 		return commerceOrderPersistence.update(commerceOrder);
 	}
 
@@ -1183,125 +1188,26 @@ public class CommerceOrderLocalServiceImpl
 	@Override
 	public CommerceOrder updateCommerceOrder(
 			String externalReferenceCode, long commerceOrderId,
-			long billingAddressId, long shippingAddressId,
-			String commercePaymentMethodKey, long commerceShippingMethodId,
-			String shippingOptionName, String purchaseOrderNumber,
-			BigDecimal subtotal, BigDecimal shippingAmount,
-			BigDecimal taxAmount, BigDecimal total,
-			BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
-			BigDecimal totalWithTaxAmount, String advanceStatus,
+			long billingAddressId, long commerceShippingMethodId,
+			long shippingAddressId, String advanceStatus,
+			String commercePaymentMethodKey, String purchaseOrderNumber,
+			BigDecimal shippingAmount, String shippingOptionName,
+			BigDecimal subtotal, BigDecimal total,
 			CommerceContext commerceContext)
 		throws PortalException {
 
-		if (Validator.isBlank(externalReferenceCode)) {
-			externalReferenceCode = null;
-		}
-
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
-		commerceOrder.setExternalReferenceCode(externalReferenceCode);
-		commerceOrder.setBillingAddressId(billingAddressId);
-		commerceOrder.setShippingAddressId(shippingAddressId);
-		commerceOrder.setCommercePaymentMethodKey(commercePaymentMethodKey);
-		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
-		commerceOrder.setShippingOptionName(shippingOptionName);
-		commerceOrder.setPurchaseOrderNumber(purchaseOrderNumber);
-
-		_setCommerceOrderPrices(
-			commerceOrder, subtotal, shippingAmount, taxAmount, total,
-			subtotalWithTaxAmount, shippingWithTaxAmount, totalWithTaxAmount);
-
-		if (commerceContext != null) {
-			CommerceOrderPriceCalculation commerceOrderPriceCalculation =
-				_commerceOrderPriceCalculationFactory.
-					getCommerceOrderPriceCalculation();
-
-			CommerceOrderPrice commerceOrderPrice =
-				commerceOrderPriceCalculation.getCommerceOrderPrice(
-					commerceOrder, false, commerceContext);
-
-			CommerceDiscountValue shippingDiscountValue =
-				commerceOrderPrice.getShippingDiscountValue();
-
-			if (shippingDiscountValue != null) {
-				CommerceMoney shippingDiscountAmountCommerceMoney =
-					shippingDiscountValue.getDiscountAmount();
-
-				commerceOrder.setShippingDiscountAmount(
-					shippingDiscountAmountCommerceMoney.getPrice());
-			}
-
-			CommerceDiscountValue shippingWithTaxAmountCommerceDiscountValue =
-				commerceOrderPrice.getShippingDiscountValueWithTaxAmount();
-
-			if (shippingWithTaxAmountCommerceDiscountValue != null) {
-				CommerceMoney shippingDiscountWithTaxAmountCommerceMoney =
-					shippingWithTaxAmountCommerceDiscountValue.
-						getDiscountAmount();
-
-				commerceOrder.setShippingDiscountWithTaxAmount(
-					shippingDiscountWithTaxAmountCommerceMoney.getPrice());
-			}
-		}
-
-		commerceOrder.setAdvanceStatus(advanceStatus);
-
-		return commerceOrderPersistence.update(commerceOrder);
-	}
-
-	@Indexable(type = IndexableType.REINDEX)
-	@Override
-	public CommerceOrder updateCommerceOrder(
-			String externalReferenceCode, long commerceOrderId,
-			long billingAddressId, long shippingAddressId,
-			String commercePaymentMethodKey, long commerceShippingMethodId,
-			String shippingOptionName, String purchaseOrderNumber,
-			BigDecimal subtotal, BigDecimal shippingAmount, BigDecimal total,
-			String advanceStatus, CommerceContext commerceContext)
-		throws PortalException {
-
-		if (Validator.isBlank(externalReferenceCode)) {
-			externalReferenceCode = null;
-		}
-
-		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
-			commerceOrderId);
-
-		commerceOrder.setExternalReferenceCode(externalReferenceCode);
-		commerceOrder.setBillingAddressId(billingAddressId);
-		commerceOrder.setShippingAddressId(shippingAddressId);
-		commerceOrder.setCommercePaymentMethodKey(commercePaymentMethodKey);
-		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
-		commerceOrder.setShippingOptionName(shippingOptionName);
-		commerceOrder.setPurchaseOrderNumber(purchaseOrderNumber);
-
-		_setCommerceOrderPrices(commerceOrder, subtotal, shippingAmount, total);
-
-		if (commerceContext != null) {
-			CommerceOrderPriceCalculation commerceOrderPriceCalculation =
-				_commerceOrderPriceCalculationFactory.
-					getCommerceOrderPriceCalculation();
-
-			CommerceOrderPrice commerceOrderPrice =
-				commerceOrderPriceCalculation.getCommerceOrderPrice(
-					commerceOrder, false, commerceContext);
-
-			CommerceDiscountValue shippingDiscountValue =
-				commerceOrderPrice.getShippingDiscountValue();
-
-			if (shippingDiscountValue != null) {
-				CommerceMoney shippingDiscountAmountCommerceMoney =
-					shippingDiscountValue.getDiscountAmount();
-
-				commerceOrder.setShippingDiscountAmount(
-					shippingDiscountAmountCommerceMoney.getPrice());
-			}
-		}
-
-		commerceOrder.setAdvanceStatus(advanceStatus);
-
-		return commerceOrderPersistence.update(commerceOrder);
+		return commerceOrderLocalService.updateCommerceOrder(
+			externalReferenceCode, commerceOrderId, billingAddressId,
+			commerceShippingMethodId, shippingAddressId, advanceStatus,
+			commercePaymentMethodKey, purchaseOrderNumber, shippingAmount,
+			shippingOptionName, commerceOrder.getShippingWithTaxAmount(),
+			subtotal, commerceOrder.getSubtotalWithTaxAmount(),
+			commerceOrder.getTaxAmount(), total,
+			commerceOrder.getTotalDiscountAmount(),
+			commerceOrder.getTotalWithTaxAmount(), commerceContext);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -1321,17 +1227,17 @@ public class CommerceOrderLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public CommerceOrder updateCommerceOrderPrices(
-			long commerceOrderId, BigDecimal subtotal,
+			long commerceOrderId, BigDecimal shippingAmount,
+			BigDecimal shippingDiscountAmount,
+			BigDecimal shippingDiscountPercentageLevel1,
+			BigDecimal shippingDiscountPercentageLevel2,
+			BigDecimal shippingDiscountPercentageLevel3,
+			BigDecimal shippingDiscountPercentageLevel4, BigDecimal subtotal,
 			BigDecimal subtotalDiscountAmount,
 			BigDecimal subtotalDiscountPercentageLevel1,
 			BigDecimal subtotalDiscountPercentageLevel2,
 			BigDecimal subtotalDiscountPercentageLevel3,
-			BigDecimal subtotalDiscountPercentageLevel4,
-			BigDecimal shippingAmount, BigDecimal shippingDiscountAmount,
-			BigDecimal shippingDiscountPercentageLevel1,
-			BigDecimal shippingDiscountPercentageLevel2,
-			BigDecimal shippingDiscountPercentageLevel3,
-			BigDecimal shippingDiscountPercentageLevel4, BigDecimal taxAmount,
+			BigDecimal subtotalDiscountPercentageLevel4, BigDecimal taxAmount,
 			BigDecimal total, BigDecimal totalDiscountAmount,
 			BigDecimal totalDiscountPercentageLevel1,
 			BigDecimal totalDiscountPercentageLevel2,
@@ -1342,96 +1248,80 @@ public class CommerceOrderLocalServiceImpl
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
-		commerceOrder.setLastPriceUpdateDate(new Date());
-		commerceOrder.setSubtotal(subtotal);
-		commerceOrder.setSubtotalDiscountAmount(subtotalDiscountAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel1(
-			subtotalDiscountPercentageLevel1);
-		commerceOrder.setSubtotalDiscountPercentageLevel2(
-			subtotalDiscountPercentageLevel2);
-		commerceOrder.setSubtotalDiscountPercentageLevel3(
-			subtotalDiscountPercentageLevel3);
-		commerceOrder.setSubtotalDiscountPercentageLevel4(
-			subtotalDiscountPercentageLevel4);
-		commerceOrder.setShippingAmount(shippingAmount);
-		commerceOrder.setShippingDiscountAmount(shippingDiscountAmount);
-		commerceOrder.setShippingDiscountPercentageLevel1(
-			shippingDiscountPercentageLevel1);
-		commerceOrder.setShippingDiscountPercentageLevel2(
-			shippingDiscountPercentageLevel2);
-		commerceOrder.setShippingDiscountPercentageLevel3(
-			shippingDiscountPercentageLevel3);
-		commerceOrder.setShippingDiscountPercentageLevel4(
-			shippingDiscountPercentageLevel4);
-		commerceOrder.setTaxAmount(taxAmount);
-		commerceOrder.setTotal(total);
-		commerceOrder.setTotalDiscountAmount(totalDiscountAmount);
-		commerceOrder.setTotalDiscountPercentageLevel1(
-			totalDiscountPercentageLevel1);
-		commerceOrder.setTotalDiscountPercentageLevel2(
-			totalDiscountPercentageLevel2);
-		commerceOrder.setTotalDiscountPercentageLevel3(
-			totalDiscountPercentageLevel3);
-		commerceOrder.setTotalDiscountPercentageLevel4(
-			totalDiscountPercentageLevel4);
-		commerceOrder.setManuallyAdjusted(true);
-
-		return commerceOrderPersistence.update(commerceOrder);
+		return commerceOrderLocalService.updateCommerceOrderPrices(
+			commerceOrderId, shippingAmount, shippingDiscountAmount,
+			shippingDiscountPercentageLevel1, shippingDiscountPercentageLevel2,
+			shippingDiscountPercentageLevel3, shippingDiscountPercentageLevel4,
+			commerceOrder.getShippingDiscountPercentageLevel1WithTaxAmount(),
+			commerceOrder.getShippingDiscountPercentageLevel2WithTaxAmount(),
+			commerceOrder.getShippingDiscountPercentageLevel3WithTaxAmount(),
+			commerceOrder.getShippingDiscountPercentageLevel4WithTaxAmount(),
+			commerceOrder.getShippingDiscountWithTaxAmount(),
+			commerceOrder.getShippingWithTaxAmount(), subtotal,
+			subtotalDiscountAmount, subtotalDiscountPercentageLevel1,
+			subtotalDiscountPercentageLevel2, subtotalDiscountPercentageLevel3,
+			subtotalDiscountPercentageLevel4,
+			commerceOrder.getSubtotalDiscountPercentageLevel1WithTaxAmount(),
+			commerceOrder.getSubtotalDiscountPercentageLevel2WithTaxAmount(),
+			commerceOrder.getSubtotalDiscountPercentageLevel3WithTaxAmount(),
+			commerceOrder.getSubtotalDiscountPercentageLevel4WithTaxAmount(),
+			commerceOrder.getSubtotalDiscountWithTaxAmount(),
+			commerceOrder.getSubtotalWithTaxAmount(), taxAmount, total,
+			totalDiscountAmount, totalDiscountPercentageLevel1,
+			totalDiscountPercentageLevel2, totalDiscountPercentageLevel3,
+			totalDiscountPercentageLevel4,
+			commerceOrder.getTotalDiscountPercentageLevel1WithTaxAmount(),
+			commerceOrder.getTotalDiscountPercentageLevel2WithTaxAmount(),
+			commerceOrder.getTotalDiscountPercentageLevel3WithTaxAmount(),
+			commerceOrder.getTotalDiscountPercentageLevel4WithTaxAmount(),
+			commerceOrder.getTotalDiscountWithTaxAmount(),
+			commerceOrder.getTotalWithTaxAmount());
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public CommerceOrder updateCommerceOrderPrices(
-			long commerceOrderId, BigDecimal subtotal,
+			long commerceOrderId, BigDecimal shippingAmount,
+			BigDecimal shippingDiscountAmount,
+			BigDecimal shippingDiscountPercentageLevel1,
+			BigDecimal shippingDiscountPercentageLevel2,
+			BigDecimal shippingDiscountPercentageLevel3,
+			BigDecimal shippingDiscountPercentageLevel4,
+			BigDecimal shippingDiscountPercentageLevel1WithTaxAmount,
+			BigDecimal shippingDiscountPercentageLevel2WithTaxAmount,
+			BigDecimal shippingDiscountPercentageLevel3WithTaxAmount,
+			BigDecimal shippingDiscountPercentageLevel4WithTaxAmount,
+			BigDecimal shippingDiscountWithTaxAmount,
+			BigDecimal shippingWithTaxAmount, BigDecimal subtotal,
 			BigDecimal subtotalDiscountAmount,
 			BigDecimal subtotalDiscountPercentageLevel1,
 			BigDecimal subtotalDiscountPercentageLevel2,
 			BigDecimal subtotalDiscountPercentageLevel3,
 			BigDecimal subtotalDiscountPercentageLevel4,
-			BigDecimal shippingAmount, BigDecimal shippingDiscountAmount,
-			BigDecimal shippingDiscountPercentageLevel1,
-			BigDecimal shippingDiscountPercentageLevel2,
-			BigDecimal shippingDiscountPercentageLevel3,
-			BigDecimal shippingDiscountPercentageLevel4, BigDecimal taxAmount,
+			BigDecimal subtotalDiscountPercentageLevel1WithTaxAmount,
+			BigDecimal subtotalDiscountPercentageLevel2WithTaxAmount,
+			BigDecimal subtotalDiscountPercentageLevel3WithTaxAmount,
+			BigDecimal subtotalDiscountPercentageLevel4WithTaxAmount,
+			BigDecimal subtotalDiscountWithTaxAmount,
+			BigDecimal subtotalWithTaxAmount, BigDecimal taxAmount,
 			BigDecimal total, BigDecimal totalDiscountAmount,
 			BigDecimal totalDiscountPercentageLevel1,
 			BigDecimal totalDiscountPercentageLevel2,
 			BigDecimal totalDiscountPercentageLevel3,
 			BigDecimal totalDiscountPercentageLevel4,
-			BigDecimal subtotalWithTaxAmount,
-			BigDecimal subtotalDiscountWithTaxAmount,
-			BigDecimal subtotalDiscountPercentageLevel1WithTaxAmount,
-			BigDecimal subtotalDiscountPercentageLevel2WithTaxAmount,
-			BigDecimal subtotalDiscountPercentageLevel3WithTaxAmount,
-			BigDecimal subtotalDiscountPercentageLevel4WithTaxAmount,
-			BigDecimal shippingWithTaxAmount,
-			BigDecimal shippingDiscountWithTaxAmount,
-			BigDecimal shippingDiscountPercentageLevel1WithTaxAmount,
-			BigDecimal shippingDiscountPercentageLevel2WithTaxAmount,
-			BigDecimal shippingDiscountPercentageLevel3WithTaxAmount,
-			BigDecimal shippingDiscountPercentageLevel4WithTaxAmount,
-			BigDecimal totalWithTaxAmount,
-			BigDecimal totalDiscountWithTaxAmount,
 			BigDecimal totalDiscountPercentageLevel1WithTaxAmount,
 			BigDecimal totalDiscountPercentageLevel2WithTaxAmount,
 			BigDecimal totalDiscountPercentageLevel3WithTaxAmount,
-			BigDecimal totalDiscountPercentageLevel4WithTaxAmount)
+			BigDecimal totalDiscountPercentageLevel4WithTaxAmount,
+			BigDecimal totalDiscountWithTaxAmount,
+			BigDecimal totalWithTaxAmount)
 		throws PortalException {
 
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
 		commerceOrder.setLastPriceUpdateDate(new Date());
-		commerceOrder.setSubtotal(subtotal);
-		commerceOrder.setSubtotalDiscountAmount(subtotalDiscountAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel1(
-			subtotalDiscountPercentageLevel1);
-		commerceOrder.setSubtotalDiscountPercentageLevel2(
-			subtotalDiscountPercentageLevel2);
-		commerceOrder.setSubtotalDiscountPercentageLevel3(
-			subtotalDiscountPercentageLevel3);
-		commerceOrder.setSubtotalDiscountPercentageLevel4(
-			subtotalDiscountPercentageLevel4);
+		commerceOrder.setManuallyAdjusted(true);
 		commerceOrder.setShippingAmount(shippingAmount);
 		commerceOrder.setShippingDiscountAmount(shippingDiscountAmount);
 		commerceOrder.setShippingDiscountPercentageLevel1(
@@ -1442,31 +1332,6 @@ public class CommerceOrderLocalServiceImpl
 			shippingDiscountPercentageLevel3);
 		commerceOrder.setShippingDiscountPercentageLevel4(
 			shippingDiscountPercentageLevel4);
-		commerceOrder.setTaxAmount(taxAmount);
-		commerceOrder.setTotal(total);
-		commerceOrder.setTotalDiscountAmount(totalDiscountAmount);
-		commerceOrder.setTotalDiscountPercentageLevel1(
-			totalDiscountPercentageLevel1);
-		commerceOrder.setTotalDiscountPercentageLevel2(
-			totalDiscountPercentageLevel2);
-		commerceOrder.setTotalDiscountPercentageLevel3(
-			totalDiscountPercentageLevel3);
-		commerceOrder.setTotalDiscountPercentageLevel4(
-			totalDiscountPercentageLevel4);
-		commerceOrder.setSubtotalWithTaxAmount(subtotalWithTaxAmount);
-		commerceOrder.setSubtotalDiscountWithTaxAmount(
-			subtotalDiscountWithTaxAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel1WithTaxAmount(
-			subtotalDiscountPercentageLevel1WithTaxAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel2WithTaxAmount(
-			subtotalDiscountPercentageLevel2WithTaxAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel3WithTaxAmount(
-			subtotalDiscountPercentageLevel3WithTaxAmount);
-		commerceOrder.setSubtotalDiscountPercentageLevel4WithTaxAmount(
-			subtotalDiscountPercentageLevel4WithTaxAmount);
-		commerceOrder.setShippingWithTaxAmount(shippingWithTaxAmount);
-		commerceOrder.setShippingDiscountWithTaxAmount(
-			shippingDiscountWithTaxAmount);
 		commerceOrder.setShippingDiscountPercentageLevel1WithTaxAmount(
 			shippingDiscountPercentageLevel1WithTaxAmount);
 		commerceOrder.setShippingDiscountPercentageLevel2WithTaxAmount(
@@ -1475,8 +1340,41 @@ public class CommerceOrderLocalServiceImpl
 			shippingDiscountPercentageLevel3WithTaxAmount);
 		commerceOrder.setShippingDiscountPercentageLevel4WithTaxAmount(
 			shippingDiscountPercentageLevel4WithTaxAmount);
-		commerceOrder.setTotalWithTaxAmount(totalWithTaxAmount);
-		commerceOrder.setTotalDiscountWithTaxAmount(totalDiscountWithTaxAmount);
+		commerceOrder.setShippingDiscountWithTaxAmount(
+			shippingDiscountWithTaxAmount);
+		commerceOrder.setShippingWithTaxAmount(shippingWithTaxAmount);
+		commerceOrder.setSubtotal(subtotal);
+		commerceOrder.setSubtotalDiscountAmount(subtotalDiscountAmount);
+		commerceOrder.setSubtotalDiscountPercentageLevel1(
+			subtotalDiscountPercentageLevel1);
+		commerceOrder.setSubtotalDiscountPercentageLevel2(
+			subtotalDiscountPercentageLevel2);
+		commerceOrder.setSubtotalDiscountPercentageLevel3(
+			subtotalDiscountPercentageLevel3);
+		commerceOrder.setSubtotalDiscountPercentageLevel4(
+			subtotalDiscountPercentageLevel4);
+		commerceOrder.setSubtotalDiscountPercentageLevel1WithTaxAmount(
+			subtotalDiscountPercentageLevel1WithTaxAmount);
+		commerceOrder.setSubtotalDiscountPercentageLevel2WithTaxAmount(
+			subtotalDiscountPercentageLevel2WithTaxAmount);
+		commerceOrder.setSubtotalDiscountPercentageLevel3WithTaxAmount(
+			subtotalDiscountPercentageLevel3WithTaxAmount);
+		commerceOrder.setSubtotalDiscountPercentageLevel4WithTaxAmount(
+			subtotalDiscountPercentageLevel4WithTaxAmount);
+		commerceOrder.setSubtotalDiscountWithTaxAmount(
+			subtotalDiscountWithTaxAmount);
+		commerceOrder.setSubtotalWithTaxAmount(subtotalWithTaxAmount);
+		commerceOrder.setTaxAmount(taxAmount);
+		commerceOrder.setTotal(total);
+		commerceOrder.setTotalDiscountAmount(totalDiscountAmount);
+		commerceOrder.setTotalDiscountPercentageLevel1(
+			totalDiscountPercentageLevel1);
+		commerceOrder.setTotalDiscountPercentageLevel2(
+			totalDiscountPercentageLevel2);
+		commerceOrder.setTotalDiscountPercentageLevel3(
+			totalDiscountPercentageLevel3);
+		commerceOrder.setTotalDiscountPercentageLevel4(
+			totalDiscountPercentageLevel4);
 		commerceOrder.setTotalDiscountPercentageLevel1WithTaxAmount(
 			totalDiscountPercentageLevel1WithTaxAmount);
 		commerceOrder.setTotalDiscountPercentageLevel2WithTaxAmount(
@@ -1485,7 +1383,8 @@ public class CommerceOrderLocalServiceImpl
 			totalDiscountPercentageLevel3WithTaxAmount);
 		commerceOrder.setTotalDiscountPercentageLevel4WithTaxAmount(
 			totalDiscountPercentageLevel4WithTaxAmount);
-		commerceOrder.setManuallyAdjusted(true);
+		commerceOrder.setTotalDiscountWithTaxAmount(totalDiscountWithTaxAmount);
+		commerceOrder.setTotalWithTaxAmount(totalWithTaxAmount);
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -1515,8 +1414,8 @@ public class CommerceOrderLocalServiceImpl
 			commerceOrderId);
 
 		commerceOrder.setCommerceShippingMethodId(commerceShippingMethodId);
-		commerceOrder.setShippingOptionName(commerceShippingOptionName);
 		commerceOrder.setShippingAmount(shippingAmount);
+		commerceOrder.setShippingOptionName(commerceShippingOptionName);
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -1554,7 +1453,7 @@ public class CommerceOrderLocalServiceImpl
 
 			if (Validator.isNotNull(commerceShippingOptionName) &&
 				commerceShippingOptionName.equals(
-					commerceShippingOption.getName())) {
+					commerceShippingOption.getKey())) {
 
 				commerceOrder.setShippingAmount(
 					commerceShippingOption.getAmount());
@@ -1567,20 +1466,6 @@ public class CommerceOrderLocalServiceImpl
 
 		return commerceOrderLocalService.recalculatePrice(
 			commerceOrder.getCommerceOrderId(), commerceContext);
-	}
-
-	@Indexable(type = IndexableType.REINDEX)
-	@Override
-	public CommerceOrder updateCustomFields(
-			long commerceOrderId, ServiceContext serviceContext)
-		throws PortalException {
-
-		CommerceOrder commerceOrder =
-			commerceOrderLocalService.getCommerceOrder(commerceOrderId);
-
-		commerceOrder.setExpandoBridgeAttributes(serviceContext);
-
-		return commerceOrderPersistence.update(commerceOrder);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -1622,26 +1507,11 @@ public class CommerceOrderLocalServiceImpl
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
-		Date orderDate = PortalUtil.getDate(
-			orderDateMonth, orderDateDay, orderDateYear, orderDateHour,
-			orderDateMinute, user.getTimeZone(),
-			CommerceOrderDateException.class);
-
-		commerceOrder.setOrderDate(orderDate);
-
-		return commerceOrderPersistence.update(commerceOrder);
-	}
-
-	@Indexable(type = IndexableType.REINDEX)
-	@Override
-	public CommerceOrder updateOrderStatus(
-			long commerceOrderId, int orderStatus)
-		throws PortalException {
-
-		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
-			commerceOrderId);
-
-		commerceOrder.setOrderStatus(orderStatus);
+		commerceOrder.setOrderDate(
+			PortalUtil.getDate(
+				orderDateMonth, orderDateDay, orderDateYear, orderDateHour,
+				orderDateMinute, user.getTimeZone(),
+				CommerceOrderDateException.class));
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -1655,17 +1525,9 @@ public class CommerceOrderLocalServiceImpl
 		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
 			commerceOrderId);
 
-		int previousPaymentStatus = commerceOrder.getPaymentStatus();
-
-		commerceOrder.setPaymentStatus(paymentStatus);
-
-		commerceOrder = commerceOrderPersistence.update(commerceOrder);
-
-		// Messaging
-
-		sendPaymentStatusMessage(commerceOrder, previousPaymentStatus);
-
-		return commerceOrder;
+		return commerceOrderLocalService.updatePaymentStatusAndTransactionId(
+			userId, commerceOrderId, paymentStatus,
+			commerceOrder.getTransactionId());
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -1680,8 +1542,8 @@ public class CommerceOrderLocalServiceImpl
 
 		int previousPaymentStatus = commerceOrder.getPaymentStatus();
 
-		commerceOrder.setTransactionId(transactionId);
 		commerceOrder.setPaymentStatus(paymentStatus);
+		commerceOrder.setTransactionId(transactionId);
 
 		commerceOrder = commerceOrderPersistence.update(commerceOrder);
 
@@ -1805,48 +1667,19 @@ public class CommerceOrderLocalServiceImpl
 			commerceOrder.setDeliveryCommerceTermEntryId(
 				deliveryCommerceTermEntry.getCommerceTermEntryId());
 			commerceOrder.setDeliveryCommerceTermEntryDescription(
-				deliveryCommerceTermEntry.getDescription(languageId));
+				deliveryCommerceTermEntry.getDescription(languageId, true));
 			commerceOrder.setDeliveryCommerceTermEntryName(
-				deliveryCommerceTermEntry.getLabel(languageId));
+				deliveryCommerceTermEntry.getLabel(languageId, true));
 		}
 
 		if (paymentCommerceTermEntry != null) {
 			commerceOrder.setPaymentCommerceTermEntryId(
 				paymentCommerceTermEntry.getCommerceTermEntryId());
 			commerceOrder.setPaymentCommerceTermEntryDescription(
-				paymentCommerceTermEntry.getDescription(languageId));
+				paymentCommerceTermEntry.getDescription(languageId, true));
 			commerceOrder.setPaymentCommerceTermEntryName(
-				paymentCommerceTermEntry.getLabel(languageId));
+				paymentCommerceTermEntry.getLabel(languageId, true));
 		}
-
-		return commerceOrderPersistence.update(commerceOrder);
-	}
-
-	@Indexable(type = IndexableType.REINDEX)
-	@Override
-	public CommerceOrder updateTransactionId(
-			long commerceOrderId, String transactionId)
-		throws PortalException {
-
-		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
-			commerceOrderId);
-
-		commerceOrder.setTransactionId(transactionId);
-
-		return commerceOrderPersistence.update(commerceOrder);
-	}
-
-	@Override
-	public CommerceOrder updateUser(long commerceOrderId, long userId)
-		throws PortalException {
-
-		CommerceOrder commerceOrder = commerceOrderPersistence.findByPrimaryKey(
-			commerceOrderId);
-
-		User user = userLocalService.getUser(userId);
-
-		commerceOrder.setUserId(user.getUserId());
-		commerceOrder.setUserName(user.getFullName());
 
 		return commerceOrderPersistence.update(commerceOrder);
 	}
@@ -1881,29 +1714,30 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		if (commerceOrder != null) {
-			commerceOrderLocalService.updateCommerceOrder(
+			commerceOrder = commerceOrderLocalService.updateCommerceOrder(
 				externalReferenceCode, commerceOrder.getCommerceOrderId(),
-				billingAddressId, shippingAddressId, commercePaymentMethodKey,
-				commerceShippingMethodId, shippingOptionName,
-				purchaseOrderNumber, subtotal, shippingAmount, total,
-				advanceStatus, commerceContext);
+				billingAddressId, commerceShippingMethodId, shippingAddressId,
+				advanceStatus, commercePaymentMethodKey, purchaseOrderNumber,
+				shippingAmount, shippingOptionName, subtotal, total,
+				commerceContext);
 
-			commerceOrderLocalService.updatePaymentStatus(
+			commerceOrder = commerceOrderLocalService.updatePaymentStatus(
 				userId, commerceOrder.getCommerceOrderId(), paymentStatus);
 
-			return commerceOrderLocalService.updateOrderStatus(
-				commerceOrder.getCommerceOrderId(), paymentStatus);
+			commerceOrder.setOrderStatus(paymentStatus);
+
+			return commerceOrderPersistence.update(commerceOrder);
 		}
 
 		// Add
 
 		commerceOrder = commerceOrderLocalService.addCommerceOrder(
-			userId, groupId, commerceAccountId, commerceCurrencyId, 0,
-			billingAddressId, shippingAddressId, commercePaymentMethodKey,
-			commerceShippingMethodId, shippingOptionName, purchaseOrderNumber,
-			subtotal, shippingAmount, BigDecimal.ZERO, total, BigDecimal.ZERO,
-			BigDecimal.ZERO, BigDecimal.ZERO, paymentStatus, 0, 0, 0, 0, 0,
-			orderStatus, serviceContext);
+			userId, groupId, billingAddressId, commerceAccountId,
+			commerceCurrencyId, 0, commerceShippingMethodId, shippingAddressId,
+			commercePaymentMethodKey, 0, 0, 0, 0, 0, orderStatus, paymentStatus,
+			purchaseOrderNumber, shippingAmount, shippingOptionName,
+			BigDecimal.ZERO, subtotal, BigDecimal.ZERO, BigDecimal.ZERO, total,
+			BigDecimal.ZERO, serviceContext);
 
 		commerceOrder.setExternalReferenceCode(externalReferenceCode);
 
@@ -1951,12 +1785,10 @@ public class CommerceOrderLocalServiceImpl
 		searchContext.setEnd(end);
 		searchContext.setGroupIds(new long[] {commerceChannelGroupId});
 		searchContext.setKeywords(keywords);
-
-		Sort sort = SortFactoryUtil.getSort(
-			CommerceOrder.class, Sort.LONG_TYPE, Field.CREATE_DATE, "DESC");
-
-		searchContext.setSorts(sort);
-
+		searchContext.setSorts(
+			SortFactoryUtil.getSort(
+				CommerceOrder.class, Sort.LONG_TYPE, Field.CREATE_DATE,
+				"DESC"));
 		searchContext.setStart(start);
 
 		QueryConfig queryConfig = searchContext.getQueryConfig();
@@ -2219,38 +2051,25 @@ public class CommerceOrderLocalServiceImpl
 	}
 
 	private void _setCommerceOrderPrices(
-		CommerceOrder commerceOrder, BigDecimal subtotal,
-		BigDecimal shippingAmount, BigDecimal total) {
-
-		if (subtotal == null) {
-			subtotal = BigDecimal.ZERO;
-		}
+		CommerceOrder commerceOrder, BigDecimal shippingAmount,
+		BigDecimal shippingWithTaxAmount, BigDecimal subtotal,
+		BigDecimal subtotalWithTaxAmount, BigDecimal taxAmount,
+		BigDecimal total, BigDecimal totalWithTaxAmount) {
 
 		if (shippingAmount == null) {
 			shippingAmount = BigDecimal.ZERO;
 		}
 
-		if (total == null) {
-			total = BigDecimal.ZERO;
+		if (shippingWithTaxAmount == null) {
+			shippingWithTaxAmount = BigDecimal.ZERO;
 		}
-
-		commerceOrder.setSubtotal(subtotal);
-		commerceOrder.setShippingAmount(shippingAmount);
-		commerceOrder.setTotal(total);
-	}
-
-	private void _setCommerceOrderPrices(
-		CommerceOrder commerceOrder, BigDecimal subtotal,
-		BigDecimal shippingAmount, BigDecimal taxAmount, BigDecimal total,
-		BigDecimal subtotalWithTaxAmount, BigDecimal shippingWithTaxAmount,
-		BigDecimal totalWithTaxAmount) {
 
 		if (subtotal == null) {
 			subtotal = BigDecimal.ZERO;
 		}
 
-		if (shippingAmount == null) {
-			shippingAmount = BigDecimal.ZERO;
+		if (subtotalWithTaxAmount == null) {
+			subtotalWithTaxAmount = BigDecimal.ZERO;
 		}
 
 		if (taxAmount == null) {
@@ -2261,24 +2080,16 @@ public class CommerceOrderLocalServiceImpl
 			total = BigDecimal.ZERO;
 		}
 
-		if (subtotalWithTaxAmount == null) {
-			subtotalWithTaxAmount = BigDecimal.ZERO;
-		}
-
-		if (shippingWithTaxAmount == null) {
-			shippingWithTaxAmount = BigDecimal.ZERO;
-		}
-
 		if (totalWithTaxAmount == null) {
 			totalWithTaxAmount = BigDecimal.ZERO;
 		}
 
-		commerceOrder.setSubtotal(subtotal);
 		commerceOrder.setShippingAmount(shippingAmount);
+		commerceOrder.setShippingWithTaxAmount(shippingWithTaxAmount);
+		commerceOrder.setSubtotal(subtotal);
+		commerceOrder.setSubtotalWithTaxAmount(subtotalWithTaxAmount);
 		commerceOrder.setTaxAmount(taxAmount);
 		commerceOrder.setTotal(total);
-		commerceOrder.setSubtotalWithTaxAmount(subtotalWithTaxAmount);
-		commerceOrder.setShippingWithTaxAmount(shippingWithTaxAmount);
 		commerceOrder.setTotalWithTaxAmount(totalWithTaxAmount);
 	}
 
@@ -2318,7 +2129,6 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		if (withTaxAmount) {
-			commerceOrder.setShippingDiscountWithTaxAmount(discountAmount);
 			commerceOrder.setShippingDiscountPercentageLevel1WithTaxAmount(
 				discountPercentageLevel1);
 			commerceOrder.setShippingDiscountPercentageLevel2WithTaxAmount(
@@ -2327,6 +2137,7 @@ public class CommerceOrderLocalServiceImpl
 				discountPercentageLevel3);
 			commerceOrder.setShippingDiscountPercentageLevel4WithTaxAmount(
 				discountPercentageLevel4);
+			commerceOrder.setShippingDiscountWithTaxAmount(discountAmount);
 		}
 		else {
 			commerceOrder.setShippingDiscountAmount(discountAmount);
@@ -2377,7 +2188,6 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		if (withTaxAmount) {
-			commerceOrder.setSubtotalDiscountWithTaxAmount(discountAmount);
 			commerceOrder.setSubtotalDiscountPercentageLevel1WithTaxAmount(
 				discountPercentageLevel1);
 			commerceOrder.setSubtotalDiscountPercentageLevel2WithTaxAmount(
@@ -2386,6 +2196,7 @@ public class CommerceOrderLocalServiceImpl
 				discountPercentageLevel3);
 			commerceOrder.setSubtotalDiscountPercentageLevel4WithTaxAmount(
 				discountPercentageLevel4);
+			commerceOrder.setSubtotalDiscountWithTaxAmount(discountAmount);
 		}
 		else {
 			commerceOrder.setSubtotalDiscountAmount(discountAmount);
@@ -2436,7 +2247,6 @@ public class CommerceOrderLocalServiceImpl
 		}
 
 		if (withTaxAmount) {
-			commerceOrder.setTotalDiscountWithTaxAmount(discountAmount);
 			commerceOrder.setTotalDiscountPercentageLevel1WithTaxAmount(
 				discountPercentageLevel1);
 			commerceOrder.setTotalDiscountPercentageLevel2WithTaxAmount(
@@ -2445,6 +2255,7 @@ public class CommerceOrderLocalServiceImpl
 				discountPercentageLevel3);
 			commerceOrder.setTotalDiscountPercentageLevel4WithTaxAmount(
 				discountPercentageLevel4);
+			commerceOrder.setTotalDiscountWithTaxAmount(discountAmount);
 		}
 		else {
 			commerceOrder.setTotalDiscountAmount(discountAmount);

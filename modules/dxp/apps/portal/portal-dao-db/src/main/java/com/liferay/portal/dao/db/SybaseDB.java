@@ -97,7 +97,7 @@ public class SybaseDB extends BaseDB {
 
 	@Override
 	public void removePrimaryKey(Connection connection, String tableName)
-		throws IOException, SQLException {
+		throws Exception {
 
 		DatabaseMetaData databaseMetaData = connection.getMetaData();
 
@@ -106,19 +106,28 @@ public class SybaseDB extends BaseDB {
 		String normalizedTableName = dbInspector.normalizeName(
 			tableName, databaseMetaData);
 
+		if (!dbInspector.hasTable(normalizedTableName)) {
+			throw new SQLException(
+				StringBundler.concat(
+					"Table ", normalizedTableName, " does not exist"));
+		}
+
 		String primaryKeyConstraintName = null;
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				"sp_helpconstraint " + normalizedTableName);
-			ResultSet resultSet = preparedStatement.executeQuery()) {
+				"sp_helpconstraint ?")) {
 
-			while (resultSet.next()) {
-				String definition = resultSet.getString("definition");
+			preparedStatement.setString(1, normalizedTableName);
 
-				if (definition.startsWith("PRIMARY KEY INDEX")) {
-					primaryKeyConstraintName = resultSet.getString("name");
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				while (resultSet.next()) {
+					String definition = resultSet.getString("definition");
 
-					break;
+					if (definition.startsWith("PRIMARY KEY INDEX")) {
+						primaryKeyConstraintName = resultSet.getString("name");
+
+						break;
+					}
 				}
 			}
 		}
@@ -128,10 +137,20 @@ public class SybaseDB extends BaseDB {
 				"No primary key constraint found for " + normalizedTableName);
 		}
 
-		runSQL(
-			StringBundler.concat(
-				"alter table ", normalizedTableName, " drop constraint ",
-				primaryKeyConstraintName));
+		if (dbInspector.hasIndex(
+				normalizedTableName, primaryKeyConstraintName)) {
+
+			runSQL(
+				StringBundler.concat(
+					"alter table ", normalizedTableName, " drop constraint ",
+					primaryKeyConstraintName));
+		}
+		else {
+			throw new SQLException(
+				StringBundler.concat(
+					"Primary key with name ", primaryKeyConstraintName,
+					" does not exist"));
+		}
 	}
 
 	@Override

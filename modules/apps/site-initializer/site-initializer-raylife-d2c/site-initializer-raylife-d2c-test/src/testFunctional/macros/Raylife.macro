@@ -40,9 +40,9 @@ definition {
 
 		Click(locator1 = "Button#ADD");
 
-		AssertElementPresent(locator1 = "Button#ADD_DISABLED");
+		AssertElementPresent(locator1 = "Raylife#SAVE_LOADING_ANIMATION");
 
-		while (IsElementPresent(locator1 = "Button#ADD_DISABLED")) {
+		while (IsElementPresent(locator1 = "Raylife#SAVE_LOADING_ANIMATION")) {
 			Pause(locator1 = "1500");
 		}
 

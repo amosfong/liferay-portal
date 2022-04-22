@@ -108,23 +108,31 @@ definition {
 		}
 
 		task ("Get current date") {
-			ACSegments.generateDayMonthAndYearValues(dateDifferenceFromCurrentDate = "0");
-
+			var dayNum = DateUtil.getDate("0");
+			var tomorrowNum = DateUtil.getDate("1");
 			var monthNum = DateUtil.getCurrentMonth();
+			var yearNum = DateUtil.getCurrentYear();
 
 			if (("${monthNum}" != "10") && ("${monthNum}" != "11") && ("${monthNum}" != "12")) {
 				var monthNum = "0${monthNum}";
 			}
 
-			var i = ${staticDay} / 10;
+			var i = ${dayNum} / 10;
+			var j = ${tomorrowNum} / 10;
 
 			if ("${i}" == "0") {
-				var staticDay = "0${staticDay}";
+				var dayNum = "0${dayNum}";
+			}
+
+			if ("${j}" == "0") {
+				var tomorrowNum = "0${tomorrowNum}";
 			}
 		}
 
 		task ("View Chart Entry") {
-			ACSegments.viewBreakdownChartsEntry(key_entry = "${staticYear}-${monthNum}-${staticDay}");
+			if (!(IsTextEqual.isPartialText(key_entry = "${yearNum}-${monthNum}-${dayNum}", locator1 = "ACSegments#BREAKDOWN_CHART"))) {
+				ACSegments.viewBreakdownChartsEntry(key_entry = "${yearNum}-${monthNum}-${tomorrowNum}");
+			}
 
 			ACSegments.viewBreakdownChartsEntry(key_entry = "100.0%");
 		}
@@ -134,7 +142,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test CanDistributionChartFilteredNumber {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Chart fails to appear when filtering with a number property.
 		// AC Refactor ticket: LRAC-9328
@@ -211,6 +218,9 @@ definition {
 	test CanDistributionChartFilteredText {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
 		task ("View AC Page as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
@@ -265,8 +275,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8625 | Test Summary: Search the Segment Profile Distribution"
 	@priority = "3"
 	test CanSearchTheSegmentProfileDistribution {
-		property portal.upstream = "quarantine";
-
 		var userList = "ac,dxp";
 		var emailList = "ac@liferay.com,dxp@liferay.com,userea@liferay.com";
 		var nameList = "ac ac,dxp dxp,userfn userln";

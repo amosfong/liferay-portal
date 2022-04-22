@@ -23,10 +23,10 @@ export const DATA_COLORS = {
 export const LABEL_GREATER_THAN_99 = '> 99';
 export const LABEL_LESS_THAN_1 = '< 1';
 
-export const PAGINATION_DELTA = [20, 50, 75, 100, 200];
+export const PAGINATION_DELTA = [20, 50, 75, 100, 150];
 
 export const PAGINATION = {
-	delta: [20, 50, 75, 100, 200],
+	delta: PAGINATION_DELTA,
 	ellipsisBuffer: 3,
 };
 
@@ -65,6 +65,11 @@ export const SUBTASK_STATUS = {
 	2: {color: 'label-secondary', label: 'ABANDONED'},
 	3: {color: 'label-primary', label: 'COMPLETE'},
 	4: {color: 'label-secondary', label: 'OPEN'},
+};
+
+export const BUILD_STATUS = {
+	0: {color: 'label-warning', label: 'IN ANALYSIS'},
+	2: {color: 'label-secondary', label: 'OPEN'},
 };
 
 export {getStatusLabel};

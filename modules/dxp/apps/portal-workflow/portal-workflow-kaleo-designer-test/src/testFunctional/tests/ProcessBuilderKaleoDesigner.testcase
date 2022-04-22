@@ -1,4 +1,5 @@
 @component-name = "portal-workflow-ee"
+@ignore = "true"
 definition {
 
 	property portal.release = "true";
@@ -210,7 +211,7 @@ definition {
 		PortletEntry.inputTitle(title = "Test Title");
 
 		Click(
-			key_icon = "en-us",
+			key_icon = "pt-br",
 			locator1 = "KaleoDesigner#ICON_COUNTRY");
 
 		Click(

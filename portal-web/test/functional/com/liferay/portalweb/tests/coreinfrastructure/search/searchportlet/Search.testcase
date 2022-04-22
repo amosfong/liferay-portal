@@ -213,6 +213,7 @@ definition {
 	@priority = "4"
 	test AssertPaginationURLforHTTPS {
 		property custom.properties = "web.server.host=localhost${line.separator}redirect.url.security.mode=domain${line.separator}redirect.url.domains.allowed=${line.separator}web.server.https.port=8443${line.separator}web.server.protocol=https";
+		property environment.acceptance = "false";
 		property portal.ssl.enabled = "true";
 		property test.name.skip.portal.instance = "Search#AssertPaginationURLforHTTPS";
 
@@ -354,6 +355,7 @@ definition {
 	@priority = "4"
 	test AssertSuggestionsCannotOfferInvalidWordsAsSuggestion {
 		property custom.properties = "locales.enabled=de_DE,en_US${line.separator}locales=de_DE,en_US${line.separator}index.search.spell.checker.dictionary[de_DE]=spellchecker/dictionary_de_DE.txt${line.separator}index.search.spell.checker.supported.locales=en_US,es_ES,de_DE";
+		property environment.acceptance = "false";
 		property index.search.spell.checker.enabled = "true";
 		property test.name.skip.portal.instance = "Search#AssertSuggestionsCannotOfferInvalidWordsAsSuggestion";
 
@@ -404,6 +406,55 @@ definition {
 
 			AssertElementNotPresent(locator1 = "Search#SEARCH_SUGGESTED_SPELLING");
 		}
+	}
+
+	@description = "This is a use case for LPS-151026."
+	@priority = "3"
+	test CanHighlightResultsAndDisableHighlighting {
+		JSONWebcontent.addWebContent(
+			content = "",
+			groupName = "Guest",
+			title = "WC Title");
+
+		Search.openSearchPage();
+
+		Portlet.gotoPortletOptions(
+			portletName = "Search Results",
+			portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		AssertChecked(
+			checkboxName = "Enable Highlighting",
+			locator1 = "Checkbox#ANY_CHECKBOX");
+
+		IFrame.closeFrame();
+
+		SearchPortlets.searchEmbedded(searchTerm = "WC Title");
+
+		AssertCssValue(
+			key_searchAssetTitle = "WC",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC_HIGHLIGHT",
+			locator2 = "background-color",
+			value1 = "rgba(255, 255, 204, 1)");
+
+		AssertCssValue(
+			key_searchAssetTitle = "Title",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC_HIGHLIGHT",
+			locator2 = "background-color",
+			value1 = "rgba(255, 255, 204, 1)");
+
+		SearchResultPortlet.configureSearchResults(disableHighlighting = "true");
+
+		SearchPortlets.searchEmbedded(searchTerm = "WC Title");
+
+		AssertElementNotPresent(
+			key_searchAssetTitle = "WC",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC_HIGHLIGHT");
+
+		AssertElementNotPresent(
+			key_searchAssetTitle = "Title",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC_HIGHLIGHT");
 	}
 
 	@priority = "4"
@@ -633,7 +684,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Search Page");
+		PagesAdmin.addPage(pageName = "Search Page");
 
 		var browserType = PropsUtil.get("browser.type");
 
@@ -667,11 +718,9 @@ definition {
 
 		SearchPortlets.searchEmbedded(searchTerm = "WC Title");
 
-		while (IsElementNotPresent(key_searchAssetTitle = "WC Title 1", locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE")) {
-			Pause(locator1 = "5000");
-		}
-
-		WaitForLiferayEvent.initializeLiferayEventLog();
+		SearchResultPortlet.viewSearchResults(
+			searchAssetTitle = "WC Title 1",
+			searchAssetType = "Web Content Article");
 
 		Portlet.gotoPortletOptions(
 			portletName = "Search Results",
@@ -730,7 +779,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Search Page");
+		PagesAdmin.addPage(pageName = "Search Page");
 
 		Navigator.gotoPage(pageName = "Search Page");
 
@@ -1244,9 +1293,9 @@ definition {
 	@priority = "4"
 	test SearchCompanyScopedObject {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects",
+			labelName = "Custom Object 500",
+			objectName = "CustomObject500",
+			pluralLabelName = "Custom Objects 500",
 			scope = "company");
 
 		ObjectAdmin.addObjectFieldViaAPI(
@@ -1255,13 +1304,13 @@ definition {
 			fieldName = "title",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject500");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject500");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "title",
-			objectName = "CustomObject",
+			objectName = "CustomObject500",
 			value = "apple");
 
 		Search.openSearchPage();
@@ -1273,11 +1322,11 @@ definition {
 		var objectEntryId = JSONObject.getObjectEntryId(
 			entryValue = "apple",
 			fieldName = "title",
-			objectName = "CustomObject");
+			objectName = "CustomObject500");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetTitle = "${objectEntryId}",
-			searchAssetType = "Custom Object");
+			searchAssetType = "Custom Object 500");
 
 		Portlet.gotoPortletOptions(
 			portletName = "Type Facet",
@@ -1286,16 +1335,16 @@ definition {
 		SelectFrame(locator1 = "IFrame#CONFIGURATION");
 
 		AssertElementPresent(
-			assetType = "Custom Object",
+			assetType = "Custom Object 500",
 			locator1 = "Search#TYPE_FACET_CURRENT_ASSET_TYPE");
 
 		IFrame.closeFrame();
 
-		SearchFacetPortlet.checkFacet(facetValueName = "Custom Object");
+		SearchFacetPortlet.checkFacet(facetValueName = "Custom Object 500");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetTitle = "${objectEntryId}",
-			searchAssetType = "Custom Object");
+			searchAssetType = "Custom Object 500");
 	}
 
 	@priority = "4"
@@ -1408,9 +1457,9 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Site 3 Home Page");
+		PagesAdmin.addPage(pageName = "Site 3 Home Page");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			inheritChanges = "disable",
 			pageName = "Search Page",
 			pageTemplateName = "Search");
@@ -1626,8 +1675,7 @@ definition {
 	@description = "This is a use case for LPS-81931"
 	@priority = "5"
 	test SearchGlobalTemplateSmoke {
-		property portal.acceptance = "false";
-		property portal.upstream = "false";
+		property portal.acceptance = "true";
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
@@ -1648,9 +1696,9 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Home");
+		PagesAdmin.addPage(pageName = "Home");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			inheritChanges = "disable",
 			pageName = "Search Global Template Page",
 			pageTemplateName = "Search");
@@ -1712,6 +1760,22 @@ definition {
 		User.editUserSiteCP(
 			siteName = "${siteName}",
 			userScreenName = "usersn");
+
+		Navigator.gotoBack();
+
+		Search.searchCP(searchTerm = "userfn");
+
+		User.viewUserTableName(
+			key_userScreenName = "usersn",
+			userfn = "userfn",
+			userln = "userln");
+
+		Search.searchCP(searchTerm = "userln");
+
+		User.viewUserTableName(
+			key_userScreenName = "usersn",
+			userfn = "userfn",
+			userln = "userln");
 
 		Navigator.openURL();
 
@@ -2029,7 +2093,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Wiki Test Page");
+		PagesAdmin.addPage(pageName = "Wiki Test Page");
 
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
@@ -2532,7 +2596,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Search Page");
+		PagesAdmin.addPage(pageName = "Search Page");
 
 		Navigator.gotoPage(pageName = "Search Page");
 
@@ -2674,7 +2738,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "${searchPage}");
+		PagesAdmin.addPage(pageName = "${searchPage}");
 
 		Navigator.gotoPage(pageName = "${searchPage}");
 
@@ -3022,7 +3086,7 @@ definition {
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			inheritChanges = "disable",
 			pageName = "search",
 			pageTemplateName = "Search");

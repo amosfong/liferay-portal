@@ -22,6 +22,7 @@ import com.liferay.commerce.product.service.CPDefinitionService;
 import com.liferay.headless.commerce.admin.catalog.dto.v1_0.Product;
 import com.liferay.headless.commerce.admin.catalog.dto.v1_0.ProductAccountGroup;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductAccountGroupResource;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldId;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
@@ -44,6 +45,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, ProductAccountGroupResource.class}
 )
+@CTAware
 public class ProductAccountGroupResourceImpl
 	extends BaseProductAccountGroupResourceImpl implements NestedFieldSupport {
 
@@ -75,10 +77,6 @@ public class ProductAccountGroupResourceImpl
 			return Page.of(Collections.emptyList());
 		}
 
-		int commerceAccountGroupRelsCount =
-			_commerceAccountGroupRelService.getCommerceAccountGroupRelsCount(
-				CPDefinition.class.getName(), cpDefinition.getCPDefinitionId());
-
 		return Page.of(
 			TransformUtil.transform(
 				_commerceAccountGroupRelService.getCommerceAccountGroupRels(
@@ -87,7 +85,10 @@ public class ProductAccountGroupResourceImpl
 					pagination.getStartPosition(), pagination.getEndPosition(),
 					null),
 				this::toProductAccountGroup),
-			pagination, commerceAccountGroupRelsCount);
+			pagination,
+			_commerceAccountGroupRelService.getCommerceAccountGroupRelsCount(
+				CPDefinition.class.getName(),
+				cpDefinition.getCPDefinitionId()));
 	}
 
 	@NestedField(parentClass = Product.class, value = "productAccountGroups")
@@ -103,10 +104,6 @@ public class ProductAccountGroupResourceImpl
 			return Page.of(Collections.emptyList());
 		}
 
-		int commerceAccountGroupRelsCount =
-			_commerceAccountGroupRelService.getCommerceAccountGroupRelsCount(
-				CPDefinition.class.getName(), cpDefinition.getCPDefinitionId());
-
 		return Page.of(
 			TransformUtil.transform(
 				_commerceAccountGroupRelService.getCommerceAccountGroupRels(
@@ -115,7 +112,10 @@ public class ProductAccountGroupResourceImpl
 					pagination.getStartPosition(), pagination.getEndPosition(),
 					null),
 				this::toProductAccountGroup),
-			pagination, commerceAccountGroupRelsCount);
+			pagination,
+			_commerceAccountGroupRelService.getCommerceAccountGroupRelsCount(
+				CPDefinition.class.getName(),
+				cpDefinition.getCPDefinitionId()));
 	}
 
 	public ProductAccountGroup toProductAccountGroup(

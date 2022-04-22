@@ -15,9 +15,10 @@
 import {gql} from '@apollo/client';
 
 export const testrayRoutineFragment = gql`
-	fragment TestrayRoutineFragment on C_TestrayRoutine {
+	fragment RoutineFragment on C_Routine {
 		autoanalyze
-		id: testrayRoutineId
+		dateCreated
+		id: routineId
 		name
 	}
 `;

@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -407,12 +406,9 @@ public class JournalFeedReferencesExportImportContentProcessor
 				break;
 			}
 
-			Map<String, String> journalFeedReferenceParameters =
-				_getJournalFeedReferenceParameters(
-					groupId, content, beginPos, endPos);
-
 			JournalFeed journalFeed = _getJournalFeed(
-				journalFeedReferenceParameters);
+				_getJournalFeedReferenceParameters(
+					groupId, content, beginPos, endPos));
 
 			if (journalFeed == null) {
 				ExportImportContentValidationException
@@ -451,9 +447,6 @@ public class JournalFeedReferencesExportImportContentProcessor
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;

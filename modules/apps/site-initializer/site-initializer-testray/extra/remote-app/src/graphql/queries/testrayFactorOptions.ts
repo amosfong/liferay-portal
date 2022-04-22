@@ -14,39 +14,51 @@
 
 import {gql} from '@apollo/client';
 
-import {testrayFactorOptionsFragment} from '../fragments';
+import {testrayFactorOptionFragment} from '../fragments';
+import {TestrayFactorCategory} from './testrayFactorCategory';
 
 export type TestrayFactorOptions = {
 	dateCreated: string;
 	dateModified: string;
+	factorCategory?: TestrayFactorCategory;
+	id: number;
 	name: string;
 };
 
-export const getTestrayFactorOptions = gql`
-	${testrayFactorOptionsFragment}
-
-	query getTestrayFactorOptions {
-		c {
-			testrayFactorOptions {
-				items {
-					...TestrayFactorOptionsFragment
+export const getFactorOptions = gql`
+	query getFactorOptions(
+		$filter: String
+		$page: Int = 1
+		$pageSize: Int = 20
+	) {
+		factorOptions(filter: $filter, page: $page, pageSize: $pageSize)
+			@rest(
+				type: "C_FactorOption"
+				path: "factoroptions?page={args.page}&pageSize={args.pageSize}&nestedFields=factorCategory"
+			) {
+			items {
+				name
+				id
+				factorCategory: r_factorCategoryToOptions_c_factorCategory {
+					id
+					name
 				}
-				lastPage
-				page
-				pageSize
-				totalCount
 			}
+			lastPage
+			page
+			pageSize
+			totalCount
 		}
 	}
 `;
 
-export const getTestrayFactorOption = gql`
-	${testrayFactorOptionsFragment}
+export const getFactorOption = gql`
+	${testrayFactorOptionFragment}
 
-	query getTestrayFactoroption($testrayFactorOptionId: Long) {
+	query getFactorOption($factorOptionId: Long) {
 		c {
-			testrayFactorOption(testrayFactorOption: $testrayFactorOptionId) {
-				...TestrayFactorOptionsFragment
+			factorOption(factorOption: $factorOptionId) {
+				...FactorOptionFragment
 			}
 		}
 	}

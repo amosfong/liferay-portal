@@ -34,6 +34,8 @@ import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.servlet.PipingServletResponse;
 import com.liferay.portal.kernel.servlet.taglib.util.OutputData;
 import com.liferay.portal.kernel.util.Validator;
@@ -133,7 +135,28 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		return fragmentEntryLink;
 	}
 
-	private boolean _isCacheable(FragmentEntryLink fragmentEntryLink) {
+	private boolean _isCacheable(
+		FragmentEntryLink fragmentEntryLink,
+		FragmentRendererContext fragmentRendererContext) {
+
+		if (!Objects.equals(
+				fragmentRendererContext.getMode(),
+				FragmentEntryLinkConstants.VIEW) ||
+			(fragmentRendererContext.getPreviewClassPK() > 0) ||
+			!fragmentRendererContext.isUseCachedContent()) {
+
+			return false;
+		}
+
+		if (fragmentEntryLink.getPlid() > 0) {
+			Layout layout = _layoutLocalService.fetchLayout(
+				fragmentEntryLink.getPlid());
+
+			if (layout.isDraftLayout()) {
+				return false;
+			}
+		}
+
 		if (Validator.isNull(fragmentEntryLink.getRendererKey())) {
 			return fragmentEntryLink.isCacheable();
 		}
@@ -247,13 +270,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 
 		String content = StringPool.BLANK;
 
-		if (Objects.equals(
-				fragmentRendererContext.getMode(),
-				FragmentEntryLinkConstants.VIEW) &&
-			(fragmentRendererContext.getPreviewClassPK() <= 0) &&
-			fragmentRendererContext.isUseCachedContent() &&
-			_isCacheable(fragmentEntryLink)) {
-
+		if (_isCacheable(fragmentEntryLink, fragmentRendererContext)) {
 			content = portalCache.get(cacheKeySB.toString());
 
 			if (Validator.isNotNull(content)) {
@@ -328,11 +345,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 			fragmentRendererContext.getFragmentElementId(),
 			fragmentRendererContext.getMode(), httpServletRequest);
 
-		if (Objects.equals(
-				fragmentRendererContext.getMode(),
-				FragmentEntryLinkConstants.VIEW) &&
-			_isCacheable(fragmentEntryLink)) {
-
+		if (_isCacheable(fragmentEntryLink, fragmentRendererContext)) {
 			portalCache.put(cacheKeySB.toString(), content);
 		}
 
@@ -365,6 +378,9 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 
 	@Reference
 	private FragmentEntryProcessorRegistry _fragmentEntryProcessorRegistry;
+
+	@Reference
+	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private MultiVMPool _multiVMPool;

@@ -19,7 +19,7 @@ import React from 'react';
 function CommentRenderer({children}) {
 	return (
 		<ClayButton
-			className="cell-comment inline-item ml-2 my-n2 px-1 text-warning"
+			className="comment-renderer inline-item ml-2 my-n2 px-1 text-warning"
 			data-tooltip-align="top"
 			data-tooltip-delay={0}
 			displayType="link"

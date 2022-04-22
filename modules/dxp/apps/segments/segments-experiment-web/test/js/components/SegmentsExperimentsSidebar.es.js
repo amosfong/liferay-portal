@@ -74,7 +74,18 @@ describe('SegmentsExperimentsSidebar', () => {
 		getByText(segmentsExperiment.goal.label);
 
 		getByText('edit');
+		expect(
+			document.querySelectorAll(
+				'.dropdown-item .lexicon-icon.lexicon-icon-pencil'
+			).length
+		).toBe(1);
+
 		getByText('delete');
+		expect(
+			document.querySelectorAll(
+				'.dropdown-item .lexicon-icon.lexicon-icon-trash'
+			).length
+		).toBe(1);
 
 		getByText('review-and-run-test');
 		getByText('view-data-in-analytics-cloud');
@@ -168,6 +179,16 @@ describe('Variants', () => {
 
 		expect(control).not.toBe(null);
 		expect(variant).not.toBe(null);
+		expect(
+			document.querySelectorAll(
+				'.dropdown-item .lexicon-icon.lexicon-icon-pencil'
+			).length
+		).toBe(2);
+		expect(
+			document.querySelectorAll(
+				'.dropdown-item .lexicon-icon.lexicon-icon-trash'
+			).length
+		).toBe(2);
 	});
 
 	it('Create variant button', async () => {
@@ -399,7 +420,7 @@ describe('Experiment History Tab', () => {
 		/*
 		 * Terminated test should be archived now
 		 */
-		await findByText('history (1)');
+		await findByText('history[record] (1)');
 		getByText('create-test');
 	});
 
@@ -447,7 +468,7 @@ describe('Experiment History Tab', () => {
 			})
 		);
 
-		const historyTab = getByText('history (1)');
+		const historyTab = getByText('history[record] (1)');
 
 		userEvent.click(historyTab);
 
@@ -484,7 +505,7 @@ describe('Experiment History Tab', () => {
 		/*
 		 * History tab has the number of arhived Experiments
 		 */
-		const historyTab = getByText('history (2)');
+		const historyTab = getByText('history[record] (2)');
 
 		userEvent.click(historyTab);
 

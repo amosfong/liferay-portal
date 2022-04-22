@@ -29,7 +29,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -82,7 +82,7 @@ public class ServiceContextFactory {
 
 		ServiceContext serviceContext = _getInstance(httpServletRequest);
 
-		if (className == null) {
+		if ((className == null) || (httpServletRequest == null)) {
 			return serviceContext;
 		}
 
@@ -171,6 +171,10 @@ public class ServiceContextFactory {
 
 		ServiceContext serviceContext = new ServiceContext();
 
+		if (httpServletRequest == null) {
+			return serviceContext;
+		}
+
 		// Theme display
 
 		ThemeDisplay themeDisplay =
@@ -188,7 +192,7 @@ public class ServiceContextFactory {
 
 			String fullCanonicalURL = canonicalURL;
 
-			if (!HttpUtil.hasProtocol(layoutURL)) {
+			if (!HttpComponentsUtil.hasProtocol(layoutURL)) {
 				fullCanonicalURL = PortalUtil.getCanonicalURL(
 					PortalUtil.getPortalURL(themeDisplay) + layoutURL,
 					themeDisplay, themeDisplay.getLayout(), true);

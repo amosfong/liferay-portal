@@ -39,7 +39,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertSitesTopPagesCardEntrancePagesHighestEntrances {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: the issue is due to data not appearing on time
 		// AC Refactor ticket: LRAC-9010
@@ -93,7 +92,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertSitesTopPagesCardExitPagesHighestExits {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: the issue is due to data not appearing on time
 		// AC Refactor ticket: LRAC-8964
@@ -157,14 +155,8 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8301 | Test Summary: Assert Sites Top Pages Card Visited Pages Highest Views"
-	@ignore = "true"
 	@priority = "3"
 	test AssertSitesTopPagesCardVisitedPagesHighestViews {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: the issue is due to data not appearing on time
-		// AC Refactor ticket: LRAC-8961
-
 		var num = "1,2";
 		var usernameList = "ac,liferay";
 		var emailList = "ac@liferay.com,liferay@liferay.com";
@@ -176,6 +168,11 @@ definition {
 					userFirstName = "${name}",
 					userLastName = "${name}",
 					userScreenName = "${name}");
+
+				JSONUser.setFirstPassword(
+					agreeToTermsAndAnswerReminderQuery = "true",
+					requireReset = "false",
+					userEmailAddress = "${name}@liferay.com");
 			}
 		}
 
@@ -186,7 +183,7 @@ definition {
 		}
 
 		task ("Connect Analytics Cloud to DXP") {
-			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 		}
 
 		task ("Access the page as a Test user") {
@@ -200,13 +197,15 @@ definition {
 				userLoginEmailAddress = "ac@liferay.com",
 				userLoginFullName = "ac ac");
 
-			for (var n : list "${num}") {
-				ACUtils.navigateToSitePage(
-					actionType = "View Blog",
-					documentTitleList = "Test Blog ${n}",
-					pageName = "AC Page",
-					siteName = "Site Name");
-			}
+			ACUtils.navigateToSitePage(
+				actionType = "View Blog",
+				documentTitleList = "Test Blog 1,Test Blog 2",
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessionsAndWait();
 		}
 
 		task ("Interation with liferay user") {
@@ -226,20 +225,19 @@ definition {
 
 			ACUtils.launchAC();
 
-			ACProperties.switchProperty(propertyName = "${propertyName}");
+			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 		}
 
 		task ("Asset highest views pages Top Pages") {
-
-			// Unable to perform the declaration because the data does not appear at the time
-
 			ACTimeFilter.clickTimeFilterButton(cardName = "Top Pages");
 
 			ACTimeFilter.setLast24Hours();
 
-			for (var current : list "1-AC Page,2-Test Blog 2,3-Test Blog 1") {
-				ACSites.viewVisitedTopPages(current = "${current}");
-			}
+			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
+
+			ACSites.viewVisitedTopPages(
+				pageNameList = "Test Blog 2 - Site Name - ${dataSourceName},AC Page - Site Name - ${dataSourceName},Test Blog 1 - Site Name - ${dataSourceName}",
+				positionList = "1,2,3");
 		}
 	}
 
@@ -247,7 +245,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertSitesTopPagesChangeTimeFilter {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: the issue is due to data not appearing on time
 		// AC Refactor ticket: LRAC-8815
@@ -298,7 +295,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ShowTop5EntrancePages {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: the issue is due to data not appearing on time
 		// AC Refactor ticket: LRAC-8725
@@ -357,7 +353,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ShowTop5ExitPages {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: the issue is due to data not appearing on time
 		// AC Refactor ticket: LRAC-8898
@@ -426,14 +421,8 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8294 | Test Summary: Show Top 5 Visited Pages"
-	@ignore = "true"
 	@priority = "5"
 	test ShowTop5VisitedPages {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: This test is flaky due to timing issues
-		// AC Refactor ticket: LRAC-8764
-
 		var n = "1,2,3,4,5";
 		var u = "1,2,3,4";
 

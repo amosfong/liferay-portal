@@ -38,7 +38,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.translation.constants.TranslationActionKeys;
 import com.liferay.translation.constants.TranslationConstants;
 import com.liferay.translation.constants.TranslationPortletKeys;
@@ -87,12 +87,12 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 		try {
 			long segmentsExperienceId = ParamUtil.getLong(
-				renderRequest, "segmentsExperienceId",
-				SegmentsExperienceConstants.ID_DEFAULT);
+				renderRequest, "segmentsExperienceId");
 
 			TranslationRequestHelper translationRequestHelper =
 				new TranslationRequestHelper(
-					_infoItemServiceTracker, renderRequest);
+					_infoItemServiceTracker, renderRequest,
+					_segmentsExperienceLocalService);
 
 			String className = translationRequestHelper.getClassName(
 				segmentsExperienceId);
@@ -110,7 +110,8 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 			if (object == null) {
 				return _getErrorJSP(
-					renderRequest, renderResponse, translationRequestHelper);
+					renderRequest, renderResponse, segmentsExperienceId,
+					translationRequestHelper);
 			}
 
 			InfoItemLanguagesProvider<Object> infoItemLanguagesProvider =
@@ -119,7 +120,8 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 			if (infoItemLanguagesProvider == null) {
 				return _getErrorJSP(
-					renderRequest, renderResponse, translationRequestHelper);
+					renderRequest, renderResponse, segmentsExperienceId,
+					translationRequestHelper);
 			}
 
 			List<String> availableSourceLanguageIds = Arrays.asList(
@@ -139,7 +141,8 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 			if (infoItemFormProvider == null) {
 				return _getErrorJSP(
-					renderRequest, renderResponse, translationRequestHelper);
+					renderRequest, renderResponse, segmentsExperienceId,
+					translationRequestHelper);
 			}
 
 			InfoForm infoForm = infoItemFormProvider.getInfoForm(object);
@@ -149,7 +152,8 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 			if (sourceInfoItemFieldValues == null) {
 				return _getErrorJSP(
-					renderRequest, renderResponse, translationRequestHelper);
+					renderRequest, renderResponse, segmentsExperienceId,
+					translationRequestHelper);
 			}
 
 			String targetLanguageId = ParamUtil.getString(
@@ -226,6 +230,7 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 	private String _getErrorJSP(
 			RenderRequest renderRequest, RenderResponse renderResponse,
+			long segmentsExperienceId,
 			TranslationRequestHelper translationRequestHelper)
 		throws PortalException {
 
@@ -238,7 +243,7 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 				translationRequestHelper.getModelClassPK(), null,
 				_portal.getLiferayPortletRequest(renderRequest),
 				_portal.getLiferayPortletResponse(renderResponse), null,
-				SegmentsExperienceConstants.ID_DEFAULT, null, null, null, null,
+				segmentsExperienceId, null, null, null, null,
 				_translationInfoFieldChecker));
 
 		return "/translate.jsp";
@@ -326,7 +331,7 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 		InfoFieldValue<Object> infoFieldValue =
 			translationEntryInfoItemFieldValues.getInfoFieldValue(
-				infoField.getName());
+				infoField.getUniqueId());
 
 		if (infoFieldValue != null) {
 			return infoFieldValue.getValue();
@@ -356,6 +361,9 @@ public class TranslateMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Reference
 	private TranslationEntryLocalService _translationEntryLocalService;

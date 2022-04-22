@@ -19,6 +19,8 @@ import {TestrayComponent} from './testrayComponent';
 
 export type TestrayCase = {
 	caseNumber: number;
+	caseType?: TestrayCaseType;
+	component?: TestrayComponent;
 	dateCreated: string;
 	dateModified: string;
 	description: string;
@@ -30,45 +32,38 @@ export type TestrayCase = {
 	priority: number;
 	steps: string;
 	stepsType: string;
-	testrayCaseResult: number;
-	testrayCaseType?: TestrayCaseType;
-	testrayComponent?: TestrayComponent;
 };
 
-export const getTestrayCases = gql`
-	query getTestrayCases(
-		$filter: String
-		$page: Int = 1
-		$pageSize: Int = 20
-	) {
-		testrayCases(filter: $filter, page: $page, pageSize: $pageSize)
+export const getCases = gql`
+	query getCases($filter: String = "", $page: Int = 1, $pageSize: Int = 20) {
+		cases(filter: $filter, page: $page, pageSize: $pageSize)
 			@rest(
-				type: "C_TestrayCase"
-				path: "testraycases?page={args.page}&pageSize={args.pageSize}&nestedFields=testrayComponent.testrayTeam,testrayCaseType"
+				type: "C_Case"
+				path: "cases?filter={args.filter}&page={args.page}&pageSize={args.pageSize}&nestedFields=component.team,caseType&nestedFieldsDepth=2"
 			) {
 			items {
 				caseNumber
+				caseType: r_caseTypeToCases_c_caseType {
+					id
+					name
+				}
+				component: r_componentToCases_c_component {
+					id
+					name
+					team: r_teamToComponents_c_team {
+						name
+					}
+				}
 				dateCreated
 				dateModified
 				description
 				descriptionType
 				estimatedDuration
+				id
 				name
-				originationKey
 				priority
 				steps
 				stepsType
-				id
-				testrayCaseResult
-				testrayCaseType: r_caseCaseType_c_testrayCaseType {
-					name
-				}
-				testrayComponent: r_casesComponents_c_testrayComponent {
-					name
-					testrayTeam: r_componentTeam_c_testrayTeam {
-						name
-					}
-				}
 			}
 			lastPage
 			page
@@ -78,35 +73,34 @@ export const getTestrayCases = gql`
 	}
 `;
 
-export const getTestrayCase = gql`
-	query gettestrayCase($testrayCaseId: Long!) {
-		testrayCase(testrayCaseId: $testrayCaseId)
+export const getCase = gql`
+	query getCase($caseId: Long!) {
+		case(caseId: $caseId)
 			@rest(
-				type: "C_TestrayCase"
-				path: "testraycases/{args.testrayCaseId}?nestedFields=testrayComponent.testrayTeam,testrayCaseType"
+				type: "C_Case"
+				path: "cases/{args.caseId}?nestedFields=Component.Team,CaseType&nestedFieldsDepth=2"
 			) {
 			caseNumber
+			caseResult
+			caseType: r_caseCaseType_c_CaseType {
+				name
+			}
+			component: r_casesComponents_c_Component {
+				name
+				team: r_componentTeam_c_Team {
+					name
+				}
+			}
 			dateCreated
 			dateModified
 			description
 			descriptionType
 			estimatedDuration
+			id
 			name
-			originationKey
 			priority
 			steps
 			stepsType
-			id
-			testrayCaseResult
-			testrayCaseType: r_caseCaseType_c_testrayCaseType {
-				name
-			}
-			testrayComponent: r_casesComponents_c_testrayComponent {
-				name
-				testrayTeam: r_componentTeam_c_testrayTeam {
-					name
-				}
-			}
 		}
 	}
 `;

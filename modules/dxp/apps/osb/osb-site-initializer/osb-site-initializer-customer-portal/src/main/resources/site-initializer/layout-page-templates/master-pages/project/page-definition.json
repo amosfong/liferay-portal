@@ -61,15 +61,16 @@
 									"fragmentStyle": {
 										"borderWidth": "0",
 										"height": "64px",
+										"marginLeft": "4",
 										"textAlign": ""
 									},
 									"layout": {
 										"align": "Center",
 										"borderWidth": 0,
 										"contentDisplay": "FlexRow",
-										"justify": "End",
+										"justify": "SpaceBetween",
 										"marginBottom": 0,
-										"marginLeft": 0,
+										"marginLeft": 2,
 										"marginRight": 0,
 										"marginTop": 0,
 										"paddingBottom": 0,
@@ -83,38 +84,23 @@
 									{
 										"definition": {
 											"fragment": {
+												"key": "project-breadcrumbs"
+											},
+											"fragmentConfig": {
+											},
+											"fragmentFields": [
+											]
+										},
+										"type": "Fragment"
+									},
+									{
+										"definition": {
+											"fragment": {
 												"key": "select-user"
 											},
 											"fragmentConfig": {
 											},
 											"fragmentFields": [
-												{
-													"id": "user-name",
-													"value": {
-														"fragmentLink": {
-															"value_i18n": {
-															}
-														}
-													}
-												},
-												{
-													"id": "select-icon",
-													"value": {
-														"fragmentLink": {
-															"value_i18n": {
-															}
-														}
-													}
-												},
-												{
-													"id": "user-icon",
-													"value": {
-														"fragmentLink": {
-															"value_i18n": {
-															}
-														}
-													}
-												}
 											]
 										},
 										"type": "Fragment"
@@ -165,7 +151,6 @@
 	},
 	"settings": {
 		"colorSchemeName": "01",
-		"css": "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;800&display=swap');",
 		"styleBook": {
 			"key": "customer-portal",
 			"name": "Customer Portal"

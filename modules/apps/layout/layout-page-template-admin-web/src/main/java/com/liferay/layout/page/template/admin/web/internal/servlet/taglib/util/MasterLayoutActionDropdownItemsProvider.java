@@ -40,7 +40,7 @@ import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadServletRequestConfigurationHelperUtil;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -225,6 +225,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 					"layoutPageTemplateEntryId",
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()
 				).buildString());
+			dropdownItem.setIcon("copy");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "make-a-copy"));
 		};
@@ -247,6 +248,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 					"layoutPageTemplateEntryId",
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()
 				).buildString());
+			dropdownItem.setIcon("trash");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "delete"));
 		};
@@ -317,13 +319,14 @@ public class MasterLayoutActionDropdownItemsProvider {
 			String layoutFullURL = PortalUtil.getLayoutFullURL(
 				_draftLayout, _themeDisplay);
 
-			layoutFullURL = HttpUtil.setParameter(
+			layoutFullURL = HttpComponentsUtil.setParameter(
 				layoutFullURL, "p_l_back_url", _themeDisplay.getURLCurrent());
-			layoutFullURL = HttpUtil.setParameter(
+			layoutFullURL = HttpComponentsUtil.setParameter(
 				layoutFullURL, "p_l_mode", Constants.EDIT);
 
 			dropdownItem.setHref(layoutFullURL);
 
+			dropdownItem.setIcon("pencil");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "edit"));
 		};
@@ -344,6 +347,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 		return dropdownItem -> {
 			dropdownItem.setDisabled(_layoutPageTemplateEntry.isDraft());
 			dropdownItem.setHref(exportMasterLayoutURL);
+			dropdownItem.setIcon("upload");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "export"));
 		};
@@ -479,6 +483,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 			dropdownItem.putData("action", "permissionsMasterLayout");
 			dropdownItem.putData(
 				"permissionsMasterLayoutURL", permissionsMasterLayoutURL);
+			dropdownItem.setIcon("password-policies");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "permissions"));
 		};
@@ -527,6 +532,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 				"layoutPageTemplateEntryId",
 				String.valueOf(
 					_layoutPageTemplateEntry.getLayoutPageTemplateEntryId()));
+			dropdownItem.setIcon("change");
 			dropdownItem.setLabel(
 				LanguageUtil.get(_httpServletRequest, "change-thumbnail"));
 		};
@@ -537,7 +543,7 @@ public class MasterLayoutActionDropdownItemsProvider {
 			return false;
 		}
 
-		if (_draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) {
+		if (_draftLayout.isDraft()) {
 			return true;
 		}
 

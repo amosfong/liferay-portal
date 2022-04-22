@@ -43,7 +43,7 @@ definition {
 		task ("Add a collection page based on dynamic collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Dynamic Collection",
 				pageName = "Test Collection Page Name",
 				tabName = "Collections");
@@ -140,7 +140,7 @@ definition {
 		task ("Add a collection page based on manual collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Manual Collection",
 				pageName = "Test Collection Page Name",
 				tabName = "Collections");
@@ -178,7 +178,7 @@ definition {
 		task ("Add a manual collection when adding a collection page") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Manual Collection Name",
 				menuItem = "Manual Collection",
 				pageName = "Manual Collection Page Name",
@@ -189,7 +189,7 @@ definition {
 		}
 
 		task ("Add a dynamic collection when adding a collection page") {
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Dynamic Collection Name",
 				menuItem = "Dynamic Collection",
 				pageName = "Dynamic Collection Page Name",
@@ -201,9 +201,7 @@ definition {
 
 		task ("View collection pages are shown in pages admin") {
 			for (var collectionType : list "Manual,Dynamic") {
-				PagesAdmin.viewPageItemPresent(
-					pageName = "${collectionType} Collection Page Name",
-					privacy = "Public Pages");
+				PagesAdmin.viewPageItemPresent(pageName = "${collectionType} Collection Page Name");
 			}
 		}
 	}
@@ -274,8 +272,7 @@ definition {
 			for (var i : list "1,2,3,4") {
 				PagesAdmin.viewPageItemPresent(
 					depth = "${n}",
-					pageName = "Child Page Name ${i}",
-					privacy = "Public Pages");
+					pageName = "Child Page Name ${i}");
 
 				var n = ${n} + 1;
 			}
@@ -303,9 +300,7 @@ definition {
 		}
 
 		task ("View first widget page is not shown") {
-			PagesAdmin.viewPageItemNotPresent(
-				pageName = "Test Page Name 1",
-				privacy = "Public Pages");
+			PagesAdmin.viewPageItemNotPresent(pageName = "Test Page Name 1");
 		}
 	}
 
@@ -448,7 +443,7 @@ definition {
 		task ("Add a collection page based on recent content collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Recent Content",
 				pageName = "Test Collection Page Name",
 				tabName = "Collection Providers");
@@ -593,8 +588,7 @@ definition {
 
 			PagesAdmin.viewPageItemPresent(
 				depth = "2",
-				pageName = "Child Page Name",
-				privacy = "Public Pages");
+				pageName = "Child Page Name");
 		}
 
 		task ("Move child page to parent level") {
@@ -605,9 +599,7 @@ definition {
 
 		task ("View child and parent page are in the same level") {
 			for (var name : list "Test,Child") {
-				PagesAdmin.viewPageItemPresent(
-					pageName = "${name} Page Name",
-					privacy = "Public Pages");
+				PagesAdmin.viewPageItemPresent(pageName = "${name} Page Name");
 			}
 		}
 	}
@@ -666,7 +658,7 @@ definition {
 
 		task ("View Test Page Name 2 and Child Child Page Name 1 are moved to the same level with Child Page Name 1") {
 			PagesAdmin.viewPagesOrder(
-				depth = "3",
+				depth = "2",
 				pageNameList = "Test Page Name 2,Child Child Page Name 1,Child Page Name 1");
 		}
 	}
@@ -697,7 +689,7 @@ definition {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			PagesAdmin.viewPagesOrder(
-				depth = "2",
+				depth = "1",
 				pageNameList = "Test Page Name 1,Test Page Name 2,Test Page Name 3");
 		}
 
@@ -713,7 +705,7 @@ definition {
 
 		task ("View Test Page Name 2 and 3 are moved to top of Test Page Name 1") {
 			PagesAdmin.viewPagesOrder(
-				depth = "2",
+				depth = "1",
 				pageNameList = "Test Page Name 2,Test Page Name 3,Test Page Name 1");
 		}
 	}
@@ -758,7 +750,7 @@ definition {
 
 		task ("View Test Page Name 1 and 2 are moved to child level of Test Page Name 3") {
 			PagesAdmin.viewPagesOrder(
-				depth = "3",
+				depth = "1",
 				pageNameList = "Test Page Name 1,Test Page Name 2");
 		}
 	}
@@ -785,7 +777,7 @@ definition {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			PagesAdmin.viewPagesOrder(
-				depth = "2",
+				depth = "1",
 				pageNameList = "Test Page Name 1,Test Page Name 2");
 		}
 
@@ -797,7 +789,7 @@ definition {
 
 		task ("View new pages order in Pages admin") {
 			PagesAdmin.viewPagesOrder(
-				depth = "2",
+				depth = "1",
 				pageNameList = "Test Page Name 2,Test Page Name 1");
 		}
 	}
@@ -835,8 +827,7 @@ definition {
 
 			PagesAdmin.viewPageItemPresent(
 				depth = "2",
-				pageName = "Child Page Name 1",
-				privacy = "Public Pages");
+				pageName = "Child Page Name 1");
 		}
 
 		task ("Move Test Page Name 2 to child level of Test Page Name 1") {
@@ -851,8 +842,7 @@ definition {
 			for (var name : list "Child,Test") {
 				PagesAdmin.viewPageItemPresent(
 					depth = "2",
-					pageName = "${name} Page Name ${n}",
-					privacy = "Public Pages");
+					pageName = "${name} Page Name ${n}");
 
 				var n = ${n} + 1;
 			}
@@ -865,7 +855,7 @@ definition {
 		task ("Add a collection page based on Highest Rated Assets collection provider") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Highest Rated Assets",
 				pageName = "Test Page Name",
 				tabName = "Collection Providers");
@@ -895,6 +885,7 @@ definition {
 	@priority = "5"
 	test PreviewDraftContentPage {
 		property portal.acceptance = "true";
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 
 		task ("Add a public content page") {
 			JSONLayout.addPublicLayout(
@@ -972,17 +963,19 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-76825. A user can search for a page from pages admin."
+	@description = "This is a test for LPS-76825 and LPS-149161. A user can search for a page from pages admin."
 	@priority = "5"
 	test SearchPages {
+		property portal.acceptance = "true";
+
 		task ("Add two pages to root and add one child page") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			PagesAdmin.addPublicPage(pageName = "Page One");
+			PagesAdmin.addPage(pageName = "Page One");
 
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			PagesAdmin.addPublicPage(pageName = "Page Two");
+			PagesAdmin.addPage(pageName = "Page Two");
 
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -995,61 +988,64 @@ definition {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 		}
 
-		task ("Search for all three pages and assert they all appear") {
-			Search.searchCP(searchTerm = "page");
-
-			for (var n : list "2,3") {
-				AssertTextEquals(
-					locator1 = "//tr[1]/td[${n}]",
-					value1 = "Page One");
-			}
-
-			for (var n : list "2,3") {
-				AssertTextEquals(
-					locator1 = "//tr[2]/td[${n}]",
-					value1 = "Page Two");
-			}
-
-			var n = "2";
-
-			for (var pageName : list "Page Three,Page One Page Three") {
-				AssertTextEquals(
-					locator1 = "//tr[3]/td[${n}]",
-					value1 = "${pageName}");
-
-				var n = ${n} + 1;
-			}
-		}
-
-		task ("Search for one page and assert only that page appears") {
+		task ("Search for page one and assert only that page appears") {
 			Search.searchCP(searchTerm = "one");
 
-			for (var n : list "2,3") {
-				AssertTextEquals(
-					locator1 = "//tr[1]/td[${n}]",
-					value1 = "Page One");
-			}
+			AssertElementPresent(
+				index = "1",
+				key_tableEntry = "Page One",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
 
 			for (var pageName : list "Page Two,Page Three") {
-				AssertElementNotPresent(locator1 = "//tr/td[2][contains(.,'${pageName}')]");
+				AssertElementNotPresent(
+					index = "2",
+					key_tableEntry = "${pageName}",
+					locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
 			}
 		}
 
 		task ("Search for child page and assert that page appears") {
 			Search.searchCP(searchTerm = "three");
 
-			var n = "2";
-
-			for (var pageName : list "Page Three,Page One Page Three") {
-				AssertTextEquals(
-					locator1 = "//tr[1]/td[${n}]",
-					value1 = "${pageName}");
-
-				var n = ${n} + 1;
-			}
+			AssertElementPresent(
+				index = "1",
+				key_tableEntry = "Page Three",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
 
 			for (var pageName : list "Page One,Page Two") {
-				AssertElementNotPresent(locator1 = "//tr/td[2][contains(.,'${pageName}')]");
+				AssertElementNotPresent(
+					index = "2",
+					key_tableEntry = "${pageName}",
+					locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
+			}
+		}
+
+		task ("Search for all three pages and order by Create Date") {
+			Search.searchCP(searchTerm = "page");
+
+			ManagementBar.setFilterAndOrder(filterBy = "Create Date");
+
+			var i = "1";
+
+			for (var pageName : list "Page One,Page Two,Page Three") {
+				AssertElementPresent(
+					index = "${i}",
+					key_tableEntry = "${pageName}",
+					locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
+
+				var i = ${i} + 1;
+			}
+		}
+
+		task ("Order by Relevance") {
+			ManagementBar.setFilterAndOrder(filterBy = "Relevance");
+		}
+
+		task ("View redirect to Pages admin after clear search results") {
+			Search.clearSearchResult();
+
+			for (var pageName : list "Page One,Page Two") {
+				PagesAdmin.viewPageItemPresent(pageName = "${pageName}");
 			}
 		}
 	}
@@ -1138,7 +1134,7 @@ definition {
 		task ("Add a collection page based on dynamic collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Dynamic Collection",
 				pageName = "Dynamic Collection Page Name",
 				tabName = "Collections");
@@ -1222,7 +1218,7 @@ definition {
 		task ("Add a collection page based on highest rated assets collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Highest Rated Assets",
 				pageName = "Test Collection Page Name",
 				tabName = "Collection Providers");
@@ -1335,7 +1331,7 @@ definition {
 		task ("Add a collection page based on manual collection") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPublicCollectionPage(
+			ContentPages.addCollectionPage(
 				collectionName = "Manual Collection",
 				pageName = "Manual Collection Page Name",
 				tabName = "Collections");

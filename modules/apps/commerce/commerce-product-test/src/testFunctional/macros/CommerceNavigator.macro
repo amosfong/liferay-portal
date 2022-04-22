@@ -62,9 +62,13 @@ definition {
 	}
 
 	macro gotoMiniumSidebarItem {
+		ScrollBy(value1 = "0, -1000");
+
 		Click(
 			key_menuItem = "${menuItem}",
 			locator1 = "CommerceAccelerators#MINIUM_SIDEBAR_MENU_ITEM");
+
+		WaitForPageLoad();
 	}
 
 	macro gotoOptionValues {

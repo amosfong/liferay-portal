@@ -100,10 +100,10 @@ public class MBCommentManagerImplTest {
 
 	@Test
 	public void testGetChildCommentsCount() {
-		int childCommentsCount = _commentManager.getChildCommentsCount(
-			_parentCommentId, WorkflowConstants.STATUS_APPROVED);
-
-		Assert.assertEquals(3, childCommentsCount);
+		Assert.assertEquals(
+			3,
+			_commentManager.getChildCommentsCount(
+				_parentCommentId, WorkflowConstants.STATUS_APPROVED));
 	}
 
 	@Test
@@ -118,11 +118,12 @@ public class MBCommentManagerImplTest {
 
 	@Test
 	public void testGetRootCommentsCount() {
-		int rootCommentsCount = _commentManager.getRootCommentsCount(
-			DLFileEntryConstants.getClassName(), _fileEntry.getFileEntryId(),
-			WorkflowConstants.STATUS_APPROVED);
-
-		Assert.assertEquals(2, rootCommentsCount);
+		Assert.assertEquals(
+			2,
+			_commentManager.getRootCommentsCount(
+				DLFileEntryConstants.getClassName(),
+				_fileEntry.getFileEntryId(),
+				WorkflowConstants.STATUS_APPROVED));
 	}
 
 	@Test
@@ -212,7 +213,7 @@ public class MBCommentManagerImplTest {
 					_group, user.getUserId()));
 
 		return _commentManager.addComment(
-			user.getUserId(), User.class.getName(), user.getUserId(),
+			null, user.getUserId(), User.class.getName(), user.getUserId(),
 			user.getFullName(), parentCommentId, StringUtil.randomString(),
 			StringUtil.randomString(), serviceContextFunction);
 	}

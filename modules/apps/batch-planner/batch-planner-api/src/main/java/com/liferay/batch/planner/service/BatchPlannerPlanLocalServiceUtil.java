@@ -300,10 +300,10 @@ public class BatchPlannerPlanLocalServiceUtil {
 	}
 
 	public static BatchPlannerPlan updateActive(
-			boolean active, String batchEngineTaskERC, boolean export)
+			boolean active, String batchEngineTaskERC)
 		throws PortalException {
 
-		return getService().updateActive(active, batchEngineTaskERC, export);
+		return getService().updateActive(active, batchEngineTaskERC);
 	}
 
 	public static BatchPlannerPlan updateActive(
@@ -330,12 +330,12 @@ public class BatchPlannerPlanLocalServiceUtil {
 	}
 
 	public static BatchPlannerPlan updateBatchPlannerPlan(
-			long userId, long batchPlannerPlanId, String externalType,
+			long batchPlannerPlanId, String externalType,
 			String internalClassName, String name)
 		throws PortalException {
 
 		return getService().updateBatchPlannerPlan(
-			userId, batchPlannerPlanId, externalType, internalClassName, name);
+			batchPlannerPlanId, externalType, internalClassName, name);
 	}
 
 	public static BatchPlannerPlanLocalService getService() {

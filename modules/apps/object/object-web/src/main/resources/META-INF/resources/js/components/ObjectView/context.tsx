@@ -116,6 +116,7 @@ export enum TYPES {
 	DELETE_OBJECT_VIEW_COLUMN = 'DELETE_OBJECT_VIEW_COLUMN',
 	DELETE_OBJECT_VIEW_SORT_COLUMN = 'DELETE_OBJECT_VIEW_SORT_COLUMN',
 	DELETE_OBJECT_CUSTOM_VIEW_FIELD = 'DELETE_OBJECT_CUSTOM_VIEW_FIELD',
+	EDIT_OBJECT_VIEW_COLUMN_LABEL = 'EDIT_OBJECT_VIEW_COLUMN_LABEL',
 	EDIT_OBJECT_VIEW_SORT_COLUMN_SORT_ORDER = 'EDIT_OBJECT_VIEW_SORT_COLUMN_SORT_ORDER',
 	SET_OBJECT_VIEW_AS_DEFAULT = 'SET_OBJECT_VIEW_AS_DEFAULT',
 }
@@ -206,7 +207,8 @@ const viewReducer = (state: TState, action: TAction) => {
 			const [label] = labels;
 
 			const newSortColumnItem: TObjectViewSortColumn = {
-				label: label[defaultLanguageId],
+				fieldLabel: label[defaultLanguageId],
+				label,
 				objectFieldName,
 				sortOrder: selectedObjetSort.value,
 			};
@@ -256,11 +258,7 @@ const viewReducer = (state: TState, action: TAction) => {
 			};
 		}
 		case TYPES.ADD_OBJECT_FIELDS: {
-			const {
-				isFFObjectViewSortColumnConfigurationEnabled,
-				objectFields,
-				objectView,
-			} = action.payload;
+			const {objectFields, objectView} = action.payload;
 
 			const {objectViewColumns, objectViewSortColumns} = objectView;
 
@@ -295,68 +293,51 @@ const viewReducer = (state: TState, action: TAction) => {
 			});
 
 			const newObjectViewColumns: TObjectViewColumn[] = [];
+			const newObjectViewSortColumns: TObjectViewSortColumn[] = [];
 
 			objectViewColumns.forEach((viewColumn: TObjectViewColumn) => {
 				newObjectFields.forEach((objectField: TObjectField) => {
 					if (objectField.name === viewColumn.objectFieldName) {
 						newObjectViewColumns.push({
 							...viewColumn,
+							fieldLabel: objectField.label[defaultLanguageId],
 							isDefaultSort: false,
-							label: objectField.label[defaultLanguageId],
+							label: viewColumn.label,
 						});
 					}
 				});
 			});
 
-			if (isFFObjectViewSortColumnConfigurationEnabled) {
-				const newObjectViewSortColumns: TObjectViewSortColumn[] = [];
-
-				objectViewSortColumns.forEach(
-					(sortColumn: TObjectViewColumn) => {
-						newObjectFields.forEach((objectField: TObjectField) => {
-							if (
-								objectField.name === sortColumn.objectFieldName
-							) {
-								newObjectViewSortColumns.push({
-									...sortColumn,
-									label: objectField.label[defaultLanguageId],
-								});
-							}
+			objectViewSortColumns.forEach((sortColumn: TObjectViewColumn) => {
+				newObjectFields.forEach((objectField: TObjectField) => {
+					if (objectField.name === sortColumn.objectFieldName) {
+						newObjectViewSortColumns.push({
+							...sortColumn,
+							fieldLabel: objectField.label[defaultLanguageId],
 						});
 					}
-				);
+				});
+			});
 
-				newObjectViewSortColumns.forEach(
-					(sortColumn: TObjectViewSortColumn) => {
-						newObjectViewColumns.forEach(
-							(viewColumn: TObjectViewColumn) => {
-								if (
-									sortColumn.objectFieldName ===
-									viewColumn.objectFieldName
-								) {
-									viewColumn.isDefaultSort = true;
-								}
+			newObjectViewSortColumns.forEach(
+				(sortColumn: TObjectViewSortColumn) => {
+					newObjectViewColumns.forEach(
+						(viewColumn: TObjectViewColumn) => {
+							if (
+								sortColumn.objectFieldName ===
+								viewColumn.objectFieldName
+							) {
+								viewColumn.isDefaultSort = true;
 							}
-						);
-					}
-				);
-
-				const newObjectView = {
-					...objectView,
-					objectViewColumns: newObjectViewColumns,
-					objectViewSortColumns: newObjectViewSortColumns,
-				};
-
-				return {
-					...state,
-					objectFields: newObjectFields,
-					objectView: newObjectView,
-				};
-			}
+						}
+					);
+				}
+			);
 
 			const newObjectView = {
 				...objectView,
 				objectViewColumns: newObjectViewColumns,
+				objectViewSortColumns: newObjectViewSortColumns,
 			};
 
 			return {
@@ -496,6 +477,32 @@ const viewReducer = (state: TState, action: TAction) => {
 				objectView: newObjectView,
 			};
 		}
+		case TYPES.EDIT_OBJECT_VIEW_COLUMN_LABEL: {
+			const {editingObjectFieldName, translations} = action.payload;
+
+			const {objectViewColumns} = state.objectView;
+
+			const newObjectViewColumns = objectViewColumns.map((viewColumn) => {
+				if (viewColumn.objectFieldName === editingObjectFieldName) {
+					return {
+						...viewColumn,
+						label: translations,
+					};
+				}
+
+				return viewColumn;
+			});
+
+			const newObjectView = {
+				...state.objectView,
+				objectViewColumns: newObjectViewColumns,
+			};
+
+			return {
+				...state,
+				objectView: newObjectView,
+			};
+		}
 		case TYPES.EDIT_OBJECT_VIEW_SORT_COLUMN_SORT_ORDER: {
 			const {editingObjectFieldName, selectedObjectSort} = action.payload;
 
@@ -547,7 +554,6 @@ const viewReducer = (state: TState, action: TAction) => {
 
 interface IViewContextProviderProps extends React.HTMLAttributes<HTMLElement> {
 	value: {
-		isFFObjectViewSortColumnConfigurationEnabled: boolean;
 		isViewOnly: boolean;
 		objectViewId: string;
 	};

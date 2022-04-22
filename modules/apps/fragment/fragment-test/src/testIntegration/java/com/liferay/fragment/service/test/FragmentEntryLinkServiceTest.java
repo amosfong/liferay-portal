@@ -39,8 +39,9 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PersistenceTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,7 +60,8 @@ public class FragmentEntryLinkServiceTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), PersistenceTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
+			PermissionCheckerMethodTestRule.INSTANCE,
 			new TransactionalTestRule(
 				Propagation.REQUIRED,
 				FragmentPersistenceConstants.BUNDLE_SYMBOLIC_NAME));
@@ -90,7 +92,9 @@ public class FragmentEntryLinkServiceTest {
 
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkService.addFragmentEntryLink(
-				_group.getGroupId(), 0, _fragmentEntry.getFragmentEntryId(), 0,
+				_group.getGroupId(), 0, _fragmentEntry.getFragmentEntryId(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid()),
 				_layout.getPlid(), css, html, js, configuration,
 				StringPool.BLANK, StringPool.BLANK, 0, null, serviceContext);
 
@@ -159,5 +163,8 @@ public class FragmentEntryLinkServiceTest {
 	private Group _group;
 
 	private Layout _layout;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

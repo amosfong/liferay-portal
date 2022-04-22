@@ -106,7 +106,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormViewBuilder.setFieldPredefinedDate(fieldValue = "FF0D0D");
+		FormViewBuilder.setFieldPredefinedDate(fieldValue = "ff0d0d");
 
 		FormViewBuilder.clickActionMenuFieldset();
 
@@ -118,11 +118,11 @@ definition {
 
 		FormFields.viewColorValue(
 			fieldName = "Color",
-			fieldValue = "FF0D0D");
+			fieldValue = "ff0d0d");
 
 		FormFields.viewColorValue(
 			fieldName = "Field",
-			fieldValue = "FF0D0D");
+			fieldValue = "ff0d0d");
 
 		FormFields.viewFieldHelpText(
 			fieldHelpText = "Help Text Test",
@@ -416,13 +416,13 @@ definition {
 			fieldPositionNumber = "0",
 			fieldType = "Color");
 
-		FormFields.editPredefinedValueInput(fieldValue = "7F26FF");
+		FormFields.editPredefinedValueInput(fieldValue = "7f26ff");
 
 		Form.save();
 
 		FormFields.viewColorValue(
 			fieldName = "Color",
-			fieldValue = "7F26FF");
+			fieldValue = "7f26ff");
 
 		Form.publishForm();
 
@@ -430,7 +430,7 @@ definition {
 
 		FormFields.viewColorValue(
 			fieldName = "Color",
-			fieldValue = "7F26FF");
+			fieldValue = "7f26ff");
 
 		FormPortlet.submitSuccessfully();
 

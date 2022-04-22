@@ -35,7 +35,7 @@ import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.permission.LayoutPermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -96,12 +96,12 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 			Layout layout = themeDisplay.getLayout();
 
 			if (layout.isDraftLayout()) {
-				String layoutFullURL = _portal.getLayoutFullURL(
-					_layoutLocalService.getLayout(layout.getClassPK()),
-					themeDisplay);
-
 				return _getRedirect(
-					httpServletRequest, layoutFullURL, layout, themeDisplay);
+					httpServletRequest,
+					_portal.getLayoutFullURL(
+						_layoutLocalService.getLayout(layout.getClassPK()),
+						themeDisplay),
+					layout, themeDisplay);
 			}
 
 			Layout draftLayout = layout.fetchDraftLayout();
@@ -131,11 +131,10 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 					WorkflowConstants.STATUS_APPROVED, serviceContext);
 			}
 
-			String layoutFullURL = _portal.getLayoutFullURL(
-				draftLayout, themeDisplay);
-
 			return _getRedirect(
-				httpServletRequest, layoutFullURL, layout, themeDisplay);
+				httpServletRequest,
+				_portal.getLayoutFullURL(draftLayout, themeDisplay), layout,
+				themeDisplay);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -223,17 +222,18 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 			Layout layout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		String redirect = _http.setParameter(
+		String redirect = HttpComponentsUtil.setParameter(
 			fullLayoutURL, "p_l_back_url",
 			_portal.getLayoutFullURL(layout, themeDisplay));
 
-		redirect = _http.setParameter(redirect, "p_l_mode", Constants.EDIT);
+		redirect = HttpComponentsUtil.setParameter(
+			redirect, "p_l_mode", Constants.EDIT);
 
 		long segmentsExperienceId = ParamUtil.getLong(
 			httpServletRequest, "segmentsExperienceId", -1);
 
 		if (segmentsExperienceId != -1) {
-			redirect = _http.setParameter(
+			redirect = HttpComponentsUtil.setParameter(
 				redirect, "segmentsExperienceId", segmentsExperienceId);
 		}
 
@@ -242,9 +242,6 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		EditLayoutModeProductNavigationControlMenuEntry.class);
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;

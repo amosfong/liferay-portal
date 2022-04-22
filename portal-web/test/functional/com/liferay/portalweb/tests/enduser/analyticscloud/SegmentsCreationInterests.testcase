@@ -64,6 +64,8 @@ definition {
 	test CanCreateIndividualsSegmentInterestAndAnotherOneNotInterestInTopic {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: Segment membership list taking too long to load
+
 		ACUtils.createBlogsAndAddToPage();
 
 		task ("View the page and blog with the new user") {

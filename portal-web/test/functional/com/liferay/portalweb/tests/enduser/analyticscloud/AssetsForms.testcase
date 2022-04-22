@@ -38,13 +38,11 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8433 | Test Summary: Form appears on card shows the pages that the form appears on"
-	@ignore = "true"
 	@priority = "5"
 	test AssertAppearsOnListShowsPagesFormsExists {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: It is not possible to perform the assert because this test presents timing problems.
-		// AC Refactor ticket: LRAC-9467
+		task ("Connect DXP to AC") {
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
 
 		task ("Submit the form") {
 			ACUtils.navigateToSitePage(
@@ -61,7 +59,7 @@ definition {
 		task ("Switch to new property in AC and go to forms tab") {
 			ACUtils.launchAC();
 
-			ACProperties.switchProperty(propertyName = "${propertyName}");
+			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 
 			ACNavigation.goToAssets();
 
@@ -77,25 +75,19 @@ definition {
 		}
 
 		task ("Assert appears on metric") {
-
-			// This data takes too long to appear
-
 			var portalURL = PropsUtil.get("portal.url");
-
-			var siteName = TestCase.getSiteName(siteName = "${siteName}");
+			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
 
 			ACAssets.viewAssetAppearsOnMetric(
 				canonicalURL = "${portalURL}/web/site-name",
 				cardTitle = "Asset Appears On",
-				pageNmae = "AC Page - Site Name - ${siteName}");
+				pageName = "AC Page - Site Name - ${dataSourceName}");
 		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8423 | Test Summary: Forms audience card shows expected amount of known and anonymous individuals"
 	@priority = "5"
 	test AudienceCardShowsExpectedAmountKnowAndAnonymousIndividualsInForms {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "ac,ac2";
 		var emailList = "ac@liferay.com,ac2@liferay.com";
 
@@ -255,9 +247,13 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8417 | Test Summary: Forms list is searchable"
+	@ignore = "true"
 	@priority = "5"
 	test CanFormsListSearchable {
 		property portal.upstream = "quarantine";
+
+		// AC Quarantine Reason: Empty state no form changed
+		// LRAC-10599 is a dependency of this fix
 
 		var formNameList = "Created Form Name,Created Form Name 1";
 
@@ -307,8 +303,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8121 | Test Summary: Assert clicking a form in the forms list navigates to the form overview page"
 	@priority = "5"
 	test CanNavigatesToFormsOverviewPage {
-		property portal.upstream = "quarantine";
-
 		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -368,7 +362,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test CanTimeFilterUseCustomRangeInFormsBehaviourReport {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Timing issues may happen on this test case
 		// AC Refactor ticket: LRAC-8813
@@ -486,7 +479,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test FormsLocationCardShowsViewsByExpectedLocation {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: Location data issues happen in this ticket
 		// AC Refactor ticket: LRAC-8750
@@ -540,8 +532,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8429 | Test Summary: Form submissions by technology card shows views by expected browser"
 	@priority = "5"
 	test FormsTechnologyCardShowsViewsByExpectedBrowser {
-		property portal.upstream = "quarantine";
-
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		task ("Form submit") {
@@ -588,8 +578,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8428 | Test Summary: Form submissions by technology card shows views by expected device"
 	@priority = "5"
 	test FormsTechnologyCardShowsViewsByExpectedDevice {
-		property portal.upstream = "quarantine";
-
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		task ("Submit the form") {
@@ -634,7 +622,7 @@ definition {
 	@description = "Form known individuals shows which individuals interact with the form"
 	@priority = "5"
 	test KnownIndividualsShowsWhichIndividualsInteractWithForm {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "AssetsForms#KnownIndividualsShowsWhichIndividualsInteractWithForm";
 
 		var nameList = "ac ac,liferay liferay,dxp dxp";
 		var usernameList = "ac,liferay,dxp";
@@ -687,6 +675,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8120 | Test Summary: Assert forms list shows all of the forms in a list"
 	@priority = "5"
 	test ViewAllFormsShownInAssetList {
+		property test.name.skip.portal.instance = "AssetsForms#ViewAllFormsShownInAssetList";
+
 		var formNameList = "Created Form Name,Created Form Name 1,Created Form Name 2,Created Form Name 3";
 
 		for (var n : list "1,2,3") {
@@ -732,6 +722,8 @@ definition {
 	@priority = "5"
 	test VisitorBehaviorCardShowsExpectedAmountOfViews {
 		property portal.acceptance = "true";
+		property portal.release = "true";
+		property test.name.skip.portal.instance = "AssetsForms#VisitorBehaviorCardShowsExpectedAmountOfViews";
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 

@@ -21,6 +21,7 @@
 
 		<column db-name="oA2AScopeAliasesId" name="oAuth2ApplicationScopeAliasesId" type="long" />
 		<column name="allowedGrantTypes" type="String" />
+		<column name="clientAuthenticationMethod" type="String" />
 		<column name="clientCredentialUserId" type="long" />
 		<column name="clientCredentialUserName" type="String" />
 		<column name="clientId" type="String" />
@@ -30,6 +31,7 @@
 		<column name="features" type="String" />
 		<column name="homePageURL" type="String" />
 		<column name="iconFileEntryId" type="long" />
+		<column name="jwks" type="String" />
 		<column name="name" type="String" />
 		<column name="privacyPolicyURL" type="String" />
 		<column name="redirectURIs" type="String" />

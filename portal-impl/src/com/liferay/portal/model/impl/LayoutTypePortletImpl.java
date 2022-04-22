@@ -331,11 +331,30 @@ public class LayoutTypePortletImpl
 
 	@Override
 	public List<Portlet> getExplicitlyAddedPortlets() {
+		return getExplicitlyAddedPortlets(true);
+	}
+
+	@Override
+	public List<Portlet> getExplicitlyAddedPortlets(
+		boolean includeCustomizableColumns) {
+
 		List<Portlet> portlets = new ArrayList<>();
 
 		List<String> columns = getColumns();
 
 		for (String columnId : columns) {
+			if (!includeCustomizableColumns) {
+				String customizableString = getTypeSettingsProperty(
+					CustomizedPages.namespaceColumnId(columnId));
+
+				boolean customizable = GetterUtil.getBoolean(
+					customizableString);
+
+				if (customizable && !isLayoutSetPrototype()) {
+					continue;
+				}
+			}
+
 			portlets.addAll(getAllPortlets(columnId));
 		}
 
@@ -513,6 +532,87 @@ public class LayoutTypePortletImpl
 	@Override
 	public String getStateMin() {
 		return getTypeSettingsProperty(LayoutTypePortletConstants.STATE_MIN);
+	}
+
+	@Override
+	public List<Portlet> getStaticPortlets(String position) {
+		String[] portletIds = getStaticPortletIds(position);
+
+		List<Portlet> portlets = new ArrayList<>();
+
+		for (String portletId : portletIds) {
+			if (Validator.isNull(portletId) ||
+				hasNonstaticPortletId(portletId)) {
+
+				continue;
+			}
+
+			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+				getCompanyId(), portletId);
+
+			if (portlet == null) {
+				continue;
+			}
+
+			Portlet staticPortlet = portlet;
+
+			if (portlet.isInstanceable()) {
+
+				// Instanceable portlets do not need to be cloned because they
+				// are already cloned. See the method getPortletById in the
+				// class PortletLocalServiceImpl and how it references the
+				// method getClonedInstance in the class PortletImpl.
+
+			}
+			else {
+				staticPortlet = new PortletWrapper(portlet) {
+
+					@Override
+					public boolean getStatic() {
+						return _staticPortlet;
+					}
+
+					@Override
+					public boolean getStaticStart() {
+						return _staticPortletStart;
+					}
+
+					@Override
+					public boolean isStatic() {
+						return _staticPortlet;
+					}
+
+					@Override
+					public boolean isStaticStart() {
+						return _staticPortletStart;
+					}
+
+					@Override
+					public void setStatic(boolean staticPortlet) {
+						_staticPortlet = staticPortlet;
+					}
+
+					@Override
+					public void setStaticStart(boolean staticPortletStart) {
+						_staticPortletStart = staticPortletStart;
+					}
+
+					private boolean _staticPortlet;
+					private boolean _staticPortletStart;
+
+				};
+			}
+
+			staticPortlet.setStatic(true);
+
+			if (position.startsWith("layout.static.portlets.start")) {
+				staticPortlet.setStaticStart(true);
+			}
+
+			portlets.add(staticPortlet);
+		}
+
+		return portlets;
 	}
 
 	@Override
@@ -1065,6 +1165,7 @@ public class LayoutTypePortletImpl
 
 				try {
 					portletPreferences.setValue(columnId, columnValue);
+
 					portletPreferences.store();
 				}
 				catch (Exception exception) {
@@ -1475,6 +1576,7 @@ public class LayoutTypePortletImpl
 
 			try {
 				portletPreferences.setValue(columnId, columnValue);
+
 				portletPreferences.store();
 			}
 			catch (Exception exception) {
@@ -1760,86 +1862,6 @@ public class LayoutTypePortletImpl
 		}
 
 		return portletIds;
-	}
-
-	protected List<Portlet> getStaticPortlets(String position) {
-		String[] portletIds = getStaticPortletIds(position);
-
-		List<Portlet> portlets = new ArrayList<>();
-
-		for (String portletId : portletIds) {
-			if (Validator.isNull(portletId) ||
-				hasNonstaticPortletId(portletId)) {
-
-				continue;
-			}
-
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(
-				getCompanyId(), portletId);
-
-			if (portlet == null) {
-				continue;
-			}
-
-			Portlet staticPortlet = portlet;
-
-			if (portlet.isInstanceable()) {
-
-				// Instanceable portlets do not need to be cloned because they
-				// are already cloned. See the method getPortletById in the
-				// class PortletLocalServiceImpl and how it references the
-				// method getClonedInstance in the class PortletImpl.
-
-			}
-			else {
-				staticPortlet = new PortletWrapper(portlet) {
-
-					@Override
-					public boolean getStatic() {
-						return _staticPortlet;
-					}
-
-					@Override
-					public boolean getStaticStart() {
-						return _staticPortletStart;
-					}
-
-					@Override
-					public boolean isStatic() {
-						return _staticPortlet;
-					}
-
-					@Override
-					public boolean isStaticStart() {
-						return _staticPortletStart;
-					}
-
-					@Override
-					public void setStatic(boolean staticPortlet) {
-						_staticPortlet = staticPortlet;
-					}
-
-					@Override
-					public void setStaticStart(boolean staticPortletStart) {
-						_staticPortletStart = staticPortletStart;
-					}
-
-					private boolean _staticPortlet;
-					private boolean _staticPortletStart;
-
-				};
-			}
-
-			staticPortlet.setStatic(true);
-
-			if (position.startsWith("layout.static.portlets.start")) {
-				staticPortlet.setStaticStart(true);
-			}
-
-			portlets.add(staticPortlet);
-		}
-
-		return portlets;
 	}
 
 	protected String getThemeId() {

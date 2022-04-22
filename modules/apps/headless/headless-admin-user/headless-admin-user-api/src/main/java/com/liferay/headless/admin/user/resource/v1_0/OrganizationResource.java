@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
@@ -58,6 +59,31 @@ public interface OrganizationResource {
 	public static Builder builder() {
 		return FactoryHolder.factory.create();
 	}
+
+	public Page<Organization>
+			getAccountByExternalReferenceCodeOrganizationsPage(
+				String externalReferenceCode, String search, Filter filter,
+				Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public void deleteAccountByExternalReferenceCodeOrganization(
+			String externalReferenceCode, String organizationId)
+		throws Exception;
+
+	public void postAccountByExternalReferenceCodeOrganization(
+			String externalReferenceCode, String organizationId)
+		throws Exception;
+
+	public Page<Organization> getAccountOrganizationsPage(
+			Long accountId, String search, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception;
+
+	public void deleteAccountOrganization(Long accountId, String organizationId)
+		throws Exception;
+
+	public void postAccountOrganization(Long accountId, String organizationId)
+		throws Exception;
 
 	public Page<Organization> getOrganizationsPage(
 			Boolean flatten, String search, Filter filter,
@@ -166,6 +192,10 @@ public interface OrganizationResource {
 		ResourcePermissionLocalService resourcePermissionLocalService);
 
 	public void setRoleLocalService(RoleLocalService roleLocalService);
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource);
 
 	public default Filter toFilter(String filterString) {
 		return toFilter(

@@ -12,58 +12,53 @@
  * details.
  */
 
-import ClayForm, {ClaySelect} from '@clayui/form';
-import classNames from 'classnames';
+import {ClaySelect} from '@clayui/form';
 import React from 'react';
 
-import ErrorFeedback from './ErrorFeedback';
-import FeedbackMessage from './FeedbackMessage';
-import RequiredMask from './RequiredMask';
+import FieldBase from './FieldBase';
 
-interface ISelectProps extends React.HTMLAttributes<HTMLElement> {
+interface ISelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 	disabled?: boolean;
 	error?: string;
 	feedbackMessage?: string;
 	label: string;
-	options: string[];
+	options?: string[];
 	required?: boolean;
 }
 
-const Select: React.FC<ISelectProps> = ({
+export default function Select({
 	className,
-	disabled = false,
+	disabled,
 	error,
 	feedbackMessage,
 	id,
 	label,
 	onChange,
-	options: optionsProps,
-	required = false,
+	options,
+	required,
 	...otherProps
-}) => {
-	const options = [Liferay.Language.get('choose-an-option'), ...optionsProps];
-
+}: ISelectProps) {
 	return (
-		<ClayForm.Group
-			className={classNames(className, {
-				'has-error': error,
-			})}
+		<FieldBase
+			className={className}
+			disabled={disabled}
+			errorMessage={error}
+			helpMessage={feedbackMessage}
+			id={id}
+			label={label}
+			required={required}
 		>
-			<label className={classNames({disabled})} htmlFor={id}>
-				{label}
-
-				{required && <RequiredMask />}
-			</label>
-
 			<ClaySelect
 				{...otherProps}
-				defaultValue={options[0]}
 				disabled={disabled}
 				id={id}
 				onChange={onChange}
-				placeholder={Liferay.Language.get('choose-an-option')}
 			>
-				{options.map((label, index) => (
+				<ClaySelect.Option
+					label={Liferay.Language.get('choose-an-option')}
+				/>
+
+				{options?.map((label, index) => (
 					<ClaySelect.Option
 						key={index}
 						label={label}
@@ -71,14 +66,6 @@ const Select: React.FC<ISelectProps> = ({
 					/>
 				))}
 			</ClaySelect>
-
-			{error && <ErrorFeedback error={error} />}
-
-			{feedbackMessage && (
-				<FeedbackMessage feedbackMessage={feedbackMessage} />
-			)}
-		</ClayForm.Group>
+		</FieldBase>
 	);
-};
-
-export default Select;
+}

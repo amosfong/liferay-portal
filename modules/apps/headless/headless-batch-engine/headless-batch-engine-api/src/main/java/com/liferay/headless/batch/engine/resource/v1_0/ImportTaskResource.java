@@ -35,6 +35,7 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -55,38 +56,58 @@ public interface ImportTaskResource {
 		return FactoryHolder.factory.create();
 	}
 
-	public ImportTask deleteImportTask(
-			String className, String callbackURL, String importStrategy,
-			String taskItemDelegateName, Object object)
+	public ImportTask getImportTaskByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception;
+
+	public Response getImportTaskByExternalReferenceCodeContent(
+			String externalReferenceCode)
+		throws Exception;
+
+	public Response getImportTaskByExternalReferenceCodeFailedItemReport(
+			String externalReferenceCode)
 		throws Exception;
 
 	public ImportTask deleteImportTask(
-			String className, String callbackURL, String importStrategy,
-			String taskItemDelegateName, MultipartBody multipartBody)
-		throws Exception;
-
-	public ImportTask postImportTask(
-			String className, String callbackURL, String fieldNameMapping,
+			String className, String callbackURL, String externalReferenceCode,
 			String importStrategy, String taskItemDelegateName, Object object)
 		throws Exception;
 
-	public ImportTask postImportTask(
-			String className, String callbackURL, String fieldNameMapping,
+	public ImportTask deleteImportTask(
+			String className, String callbackURL, String externalReferenceCode,
 			String importStrategy, String taskItemDelegateName,
 			MultipartBody multipartBody)
 		throws Exception;
 
-	public ImportTask putImportTask(
-			String className, String callbackURL, String importStrategy,
+	public ImportTask postImportTask(
+			String className, String callbackURL, String externalReferenceCode,
+			String fieldNameMapping, String importStrategy,
 			String taskItemDelegateName, Object object)
 		throws Exception;
 
-	public ImportTask putImportTask(
-			String className, String callbackURL, String importStrategy,
+	public ImportTask postImportTask(
+			String className, String callbackURL, String externalReferenceCode,
+			String fieldNameMapping, String importStrategy,
 			String taskItemDelegateName, MultipartBody multipartBody)
 		throws Exception;
 
+	public ImportTask putImportTask(
+			String className, String callbackURL, String externalReferenceCode,
+			String importStrategy, String taskItemDelegateName, Object object)
+		throws Exception;
+
+	public ImportTask putImportTask(
+			String className, String callbackURL, String externalReferenceCode,
+			String importStrategy, String taskItemDelegateName,
+			MultipartBody multipartBody)
+		throws Exception;
+
 	public ImportTask getImportTask(Long importTaskId) throws Exception;
+
+	public Response getImportTaskContent(Long importTaskId) throws Exception;
+
+	public Response getImportTaskFailedItemReport(Long importTaskId)
+		throws Exception;
 
 	public default void setContextAcceptLanguage(
 		AcceptLanguage contextAcceptLanguage) {

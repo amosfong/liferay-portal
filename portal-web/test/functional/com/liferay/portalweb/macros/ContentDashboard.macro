@@ -1,5 +1,38 @@
 definition {
 
+	macro addMimeType {
+		Click(
+			ariaLabel = "Add Duplicate Field Code File MIME types",
+			locator1 = "Button#ANY_WITH_ARIA_LABEL");
+
+		Type(
+			key_indexNumber = "2",
+			key_label = "Code File MIME types",
+			locator1 = "TextArea#ANY_LABELED_N",
+			value1 = "${typeName}");
+
+		Button.clickSave();
+	}
+
+	macro checkMimeExtensionDisplayed {
+		if (isSet(typeName)) {
+			AssertVisible(
+				key_nodeName = "${typeName}",
+				locator1 = "Treeview#NODE_ITEM");
+		}
+		else {
+			for (var typeName : list "${typeNameList}") {
+				AssertVisible(
+					key_nodeName = "${typeName}",
+					locator1 = "Treeview#NODE_ITEM");
+			}
+		}
+
+		SelectFrame(value1 = "relative=top");
+
+		Button.clickCancel();
+	}
+
 	macro clearFilters {
 		Click(locator1 = "ContentDashboard#CLEAR_FILTERS_BUTTON");
 	}
@@ -260,7 +293,7 @@ definition {
 		WaitForElementPresent(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
 	}
 
-	macro filterBySiteGlobal {
+	macro filterBySite {
 		if (IsElementPresent(locator1 = "ContentDashboard#FILTER_AND_ORDER_DROPDOWN")) {
 			AssertClickNoError(
 				locator1 = "ContentDashboard#FILTER_AND_ORDER_DROPDOWN",
@@ -268,6 +301,7 @@ definition {
 		}
 
 		var key_filterOption = "${filterOption}";
+		var key_siteName = "${siteName}";
 
 		Click(locator1 = "ContentDashboard#FILTER_BY_OPTION");
 
@@ -275,7 +309,7 @@ definition {
 
 		Click(locator1 = "ContentDashboard#MY_SITES_TAB");
 
-		Click(locator1 = "ContentDashboard#GLOBAL_SITE_CARD");
+		Click(locator1 = "ContentDashboard#SITE_CARD");
 
 		SelectFrame(value1 = "relative=top");
 	}
@@ -457,10 +491,28 @@ definition {
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
 
+	macro openFilterModal {
+		AssertClickNoError(
+			locator1 = "ContentDashboard#FILTER_AND_ORDER_DROPDOWN",
+			value1 = "Filter and Order");
+
+		Click(locator1 = "ContentDashboard#FILTER_BY_OPTION");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+	}
+
 	macro openInfoPanelByDropdownMenu {
 		Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
 
 		Click(locator1 = "ContentDashboard#INFO_OPTION");
+	}
+
+	macro openViewMetricsByDropdownMenu {
+		Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
+
+		Click(locator1 = "ContentDashboard#VIEW_METRICS_OPTION");
 	}
 
 	macro orderByModificationDate {

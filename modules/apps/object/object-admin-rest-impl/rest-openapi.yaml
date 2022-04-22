@@ -117,7 +117,7 @@ components:
                     readOnly: true
                     type: object
                 businessType:
-                    enum: [Attachment, Boolean, Date, Decimal, Integer, LongInteger, LongText, Picklist, PrecisionDecimal, Relationship, Text]
+                    enum: [Attachment, Boolean, Date, Decimal, Integer, LongInteger, LongText, Picklist, PrecisionDecimal, Relationship, RichText, Text]
                     type: string
                 id:
                     format: int64
@@ -163,8 +163,6 @@ components:
                 objectFieldId:
                     format: int64
                     type: integer
-                required:
-                    type: boolean
                 value:
                     type: string
         ObjectLayout:
@@ -301,6 +299,48 @@ components:
                 type:
                     enum: [oneToMany, oneToOne, manyToMany]
                     type: string
+        ObjectValidationRule:
+            properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    readOnly: true
+                    type: object
+                active:
+                    type: boolean
+                dateCreated:
+                    format: date
+                    readOnly: true
+                    type: string
+                dateModified:
+                    format: date
+                    readOnly: true
+                    type: string
+                engine:
+                    type: string
+                engineLabel:
+                    readOnly: true
+                    type: string
+                errorLabel:
+                    additionalProperties:
+                        type: string
+                    type: object
+                id:
+                    format: int64
+                    readOnly: true
+                    type: integer
+                name:
+                    additionalProperties:
+                        type: string
+                    type: object
+                objectDefinitionId:
+                    format: int64
+                    type: integer
+                script:
+                    type: string
+            type: object
         ObjectView:
             properties:
                 actions:
@@ -345,6 +385,10 @@ components:
                     format: int64
                     readOnly: true
                     type: integer
+                label:
+                    additionalProperties:
+                        type: string
+                    type: object
                 objectFieldName:
                     type: string
                 priority:
@@ -378,7 +422,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.object.admin.rest.client', and version '1.0.17'."
+        'com.liferay.object.admin.rest.client', and version '1.0.22'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -892,6 +936,73 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ObjectRelationship"
             tags: ["ObjectRelationship"]
+    "/object-definitions/{objectDefinitionId}/object-validation-rules":
+        get:
+            operationId: getObjectDefinitionObjectValidationRulesPage
+            parameters:
+                - in: path
+                  name: objectDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: search
+                  schema:
+                      type: string
+                - in: header
+                  name: Accept-Language
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ObjectValidationRule"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ObjectValidationRule"
+                                type: array
+            tags: ["ObjectValidationRule"]
+        post:
+            operationId: postObjectDefinitionObjectValidationRule
+            parameters:
+                - in: path
+                  name: objectDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+            tags: ["ObjectValidationRule"]
     "/object-definitions/{objectDefinitionId}/object-views":
         get:
             operationId: getObjectDefinitionObjectViewsPage
@@ -975,68 +1086,6 @@ paths:
                         application/json: {}
                         application/xml: {}
             tags: ["ObjectDefinition"]
-    "/object-field-settings/{objectFieldSettingId}":
-        delete:
-            operationId: deleteObjectFieldSetting
-            parameters:
-                - in: path
-                  name: objectFieldSettingId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            responses:
-                204:
-                    content:
-                        application/json: {}
-                        application/xml: {}
-            tags: ["ObjectFieldSetting"]
-        get:
-            operationId: getObjectFieldSetting
-            parameters:
-                - in: path
-                  name: objectFieldSettingId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-            tags: ["ObjectFieldSetting"]
-        put:
-            operationId: putObjectFieldSetting
-            parameters:
-                - in: path
-                  name: objectFieldSettingId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/ObjectFieldSetting"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/ObjectFieldSetting"
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-            tags: ["ObjectFieldSetting"]
     "/object-fields/{objectFieldId}":
         delete:
             operationId: deleteObjectField
@@ -1126,65 +1175,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ObjectField"
             tags: ["ObjectField"]
-    "/object-fields/{objectFieldId}/object-field-settings":
-        get:
-            operationId: getObjectFieldObjectFieldSettingsPage
-            parameters:
-                - in: path
-                  name: objectFieldId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-                - in: query
-                  name: page
-                  schema:
-                      type: integer
-                - in: query
-                  name: pageSize
-                  schema:
-                      type: integer
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                items:
-                                    $ref: "#/components/schemas/ObjectFieldSetting"
-                                type: array
-                        application/xml:
-                            schema:
-                                items:
-                                    $ref: "#/components/schemas/ObjectFieldSetting"
-                                type: array
-            tags: ["ObjectFieldSetting"]
-        post:
-            operationId: postObjectFieldObjectFieldSetting
-            parameters:
-                - in: path
-                  name: objectFieldId
-                  required: true
-                  schema:
-                      format: int64
-                      type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/ObjectFieldSetting"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/ObjectFieldSetting"
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/ObjectFieldSetting"
-            tags: ["ObjectFieldSetting"]
     "/object-layouts/{objectLayoutId}":
         delete:
             operationId: deleteObjectLayout
@@ -1309,6 +1299,95 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ObjectRelationship"
             tags: ["ObjectRelationship"]
+    "/object-validation-rules/{objectValidationRuleId}":
+        delete:
+            operationId: deleteObjectValidationRule
+            parameters:
+                - in: path
+                  name: objectValidationRuleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["ObjectValidationRule"]
+        get:
+            operationId: getObjectValidationRule
+            parameters:
+                - in: path
+                  name: objectValidationRuleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+            tags: ["ObjectValidationRule"]
+        patch:
+            operationId: patchObjectValidationRule
+            parameters:
+                - in: path
+                  name: objectValidationRuleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+            tags: ["ObjectValidationRule"]
+        put:
+            operationId: putObjectValidationRule
+            parameters:
+                - in: path
+                  name: objectValidationRuleId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectValidationRule"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectValidationRule"
+            tags: ["ObjectValidationRule"]
     "/object-views/{objectViewId}":
         delete:
             operationId: deleteObjectView
@@ -1361,6 +1440,26 @@ paths:
                     application/xml:
                         schema:
                             $ref: "#/components/schemas/ObjectView"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectView"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectView"
+            tags: ["ObjectView"]
+    "/object-views/{objectViewId}/copy":
+        post:
+            operationId: postObjectViewCopy
+            parameters:
+                - in: path
+                  name: objectViewId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
             responses:
                 200:
                     content:

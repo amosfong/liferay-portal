@@ -50,7 +50,7 @@ import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -294,13 +294,13 @@ public class LayoutClassedModelUsagesDisplayContext {
 					layoutClassedModelUsage.getPlid()),
 				themeDisplay);
 
-			layoutURL = HttpUtil.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewClassNameId",
 				String.valueOf(layoutClassedModelUsage.getClassNameId()));
-			layoutURL = HttpUtil.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewClassPK",
 				String.valueOf(layoutClassedModelUsage.getClassPK()));
-			layoutURL = HttpUtil.setParameter(
+			layoutURL = HttpComponentsUtil.setParameter(
 				layoutURL, "previewType",
 				String.valueOf(AssetRendererFactory.TYPE_LATEST));
 		}
@@ -319,7 +319,7 @@ public class LayoutClassedModelUsagesDisplayContext {
 			).buildString();
 		}
 
-		String portletURLString = HttpUtil.addParameter(
+		String portletURLString = HttpComponentsUtil.addParameter(
 			layoutURL, "p_l_mode", Constants.PREVIEW);
 
 		return portletURLString + "#portlet_" +

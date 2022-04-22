@@ -161,13 +161,50 @@ export const addDXPCloudEnvironment = gql`
 	}
 `;
 
+export const updateDXPCloudEnvironment = gql`
+	mutation updateDXPCloudProjectId(
+		$dxpCloudEnvironmentId: Long!
+		$DXPCloudEnvironment: InputC_DXPCloudEnvironment!
+	) {
+		c {
+			updateDXPCloudEnvironment(
+				dxpCloudEnvironmentId: $dxpCloudEnvironmentId
+				DXPCloudEnvironment: $DXPCloudEnvironment
+			) {
+				dxpCloudEnvironmentId
+			}
+		}
+	}
+`;
+
 export const getDXPCloudEnvironment = gql`
 	query getDXPCloudEnvironment($scopeKey: String, $filter: String) {
 		c {
 			dXPCloudEnvironments(filter: $filter, scopeKey: $scopeKey) {
 				items {
+					dxpCloudEnvironmentId
 					projectId
 				}
+			}
+		}
+	}
+`;
+
+export const addAnalyticsCloudWorkspace = gql`
+	mutation addAnalyticsCloudWorkspace(
+		$scopeKey: String!
+		$analyticsCloudWorkspace: InputC_AnalyticsCloudWorkspace!
+	) {
+		c {
+			createAnalyticsCloudWorkspace(
+				scopeKey: $scopeKey
+				AnalyticsCloudWorkspace: $analyticsCloudWorkspace
+			) {
+				analyticsCloudWorkspaceId
+				accountKey
+				dataCenterLocation
+				ownerEmailAddress
+				workspaceName
 			}
 		}
 	}
@@ -178,7 +215,29 @@ export const getAnalyticsCloudWorkspace = gql`
 		c {
 			analyticsCloudWorkspaces(filter: $filter, scopeKey: $scopeKey) {
 				items {
+					analyticsCloudWorkspaceId
 					workspaceGroupId
+				}
+			}
+		}
+	}
+`;
+
+export const getAnalyticsCloudPageInfo = gql`
+	query getAnalyticsCloudPageInfo($accountSubscriptionsFilter: String) {
+		c {
+			accountSubscriptions(filter: $accountSubscriptionsFilter) {
+				items {
+					accountKey
+					hasDisasterDataCenterRegion
+					name
+				}
+			}
+			analyticsCloudDataCenterLocations {
+				items {
+					analyticsCloudDataCenterLocationId
+					name
+					value
 				}
 			}
 		}
@@ -200,6 +259,23 @@ export const addAdminDXPCloud = gql`
 				githubUsername
 				lastName
 				dxpCloudEnvironmentId
+			}
+		}
+	}
+`;
+
+export const addIncidentReportAnalyticsCloud = gql`
+	mutation addIncidentReportAnalyticsCloud(
+		$scopeKey: String!
+		$IncidentReportContactAnalyticsCloud: InputC_IncidentReportContactAnalyticsCloud!
+	) {
+		c {
+			createIncidentReportContactAnalyticsCloud(
+				scopeKey: $scopeKey
+				IncidentReportContactAnalyticsCloud: $IncidentReportContactAnalyticsCloud
+			) {
+				emailAddress
+				analyticsCloudWorkspaceId
 			}
 		}
 	}
@@ -288,6 +364,8 @@ export const getAccountSubscriptionGroups = gql`
 					accountKey
 					activationStatus
 					name
+					tabOrder
+					menuOrder
 				}
 			}
 		}
@@ -295,9 +373,17 @@ export const getAccountSubscriptionGroups = gql`
 `;
 
 export const getKoroneikiAccounts = gql`
-	query getKoroneikiAccounts($filter: String, $pageSize: Int = 20) {
+	query getKoroneikiAccounts(
+		$filter: String
+		$pageSize: Int = 20
+		$page: Int = 1
+	) {
 		c {
-			koroneikiAccounts(filter: $filter, pageSize: $pageSize) {
+			koroneikiAccounts(
+				filter: $filter
+				pageSize: $pageSize
+				page: $page
+			) {
 				items {
 					accountKey
 					code
@@ -308,6 +394,7 @@ export const getKoroneikiAccounts = gql`
 					maxRequestors
 					partner
 					region
+					name
 					slaCurrent
 					slaCurrentEndDate
 					slaCurrentStartDate
@@ -318,6 +405,7 @@ export const getKoroneikiAccounts = gql`
 					slaFutureEndDate
 					slaFutureStartDate
 				}
+				totalCount
 			}
 		}
 	}
@@ -362,10 +450,12 @@ export const getAccountUserAccountsByExternalReferenceCode = gql`
 	query getAccountUserAccountsByExternalReferenceCode(
 		$externalReferenceCode: String!
 		$pageSize: Int = 20
+		$filter: String
 	) {
 		accountUserAccountsByExternalReferenceCode(
 			externalReferenceCode: $externalReferenceCode
 			pageSize: $pageSize
+			filter: $filter
 		) {
 			items {
 				id
@@ -402,6 +492,9 @@ export const getUserAccount = gql`
 			image
 			name
 			roleBriefs {
+				name
+			}
+			organizationBriefs {
 				name
 			}
 		}
@@ -450,5 +543,21 @@ export const deleteAccountUserAccount = gql`
 			emailAddress: $emailAddress
 			externalReferenceCode: $accountKey
 		)
+	}
+`;
+
+export const updateAnalyticsCloudWorkspace = gql`
+	mutation putAnalyticsCloudWorkspace(
+		$analyticsCloudWorkspaceId: Long!
+		$analyticsCloudWorkspace: InputC_AnalyticsCloudWorkspace!
+	) {
+		c {
+			updateAnalyticsCloudWorkspace(
+				analyticsCloudWorkspaceId: $analyticsCloudWorkspaceId
+				AnalyticsCloudWorkspace: $analyticsCloudWorkspace
+			) {
+				analyticsCloudWorkspaceId
+			}
+		}
 	}
 `;

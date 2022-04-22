@@ -16,19 +16,20 @@ import classNames from 'classnames';
 import React, {ReactNode} from 'react';
 
 export enum Orientation {
-	HORIZONTAL,
-	VERTICAL,
+	HORIZONTAL = 'HORIZONTAL',
+	VERTICAL = 'VERTICAL',
 }
 
 type QAItem = {
 	divider?: boolean;
+	flexHeading?: boolean;
 	title: string;
 	value: string | ReactNode;
 };
 
 type QATableProps = {
 	items: QAItem[];
-	orientation?: Orientation;
+	orientation?: keyof typeof Orientation;
 };
 
 const QATable: React.FC<QATableProps> = ({
@@ -46,13 +47,23 @@ const QATable: React.FC<QATableProps> = ({
 						})}
 						key={index}
 					>
-						<th className="small-heading">{item.title}</th>
+						<th
+							className={classNames('small-heading', {
+								'd-flex': item.flexHeading,
+							})}
+						>
+							{item.title}
+						</th>
 
 						<td>{item.value}</td>
 					</tr>
 
 					{item.divider && (
 						<tr>
+							<td>
+								<hr />
+							</td>
+
 							<td>
 								<hr />
 							</td>

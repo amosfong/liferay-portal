@@ -284,6 +284,11 @@ public interface CommerceShippingFixedOptionQualifierLocalService
 			OrderByComparator<CommerceShippingFixedOptionQualifier>
 				orderByComparator);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CommerceShippingFixedOptionQualifier>
+		getCommerceShippingFixedOptionQualifiers(
+			String className, long commerceShippingFixedOptionId);
+
 	/**
 	 * Returns the number of commerce shipping fixed option qualifiers.
 	 *

@@ -24,15 +24,16 @@ import {editorConfig} from '../constants';
 import {xmlNamespace} from './constants';
 import {serializeDefinition} from './serializeUtil';
 
-export default function SourceBuilder({version}) {
+export default function SourceBuilder() {
 	const {
 		currentEditor,
 		definitionDescription,
-		definitionTitle,
+		definitionName,
 		elements,
 		setCurrentEditor,
 		setShowInvalidContentMessage,
 		showInvalidContentMessage,
+		version,
 	} = useContext(DefinitionBuilderContext);
 	const editorRef = useRef();
 	const [showImportSuccessMessage, setShowImportSuccessMessage] = useState(
@@ -43,7 +44,7 @@ export default function SourceBuilder({version}) {
 		if (elements) {
 			const metada = {
 				description: definitionDescription,
-				name: definitionTitle,
+				name: definitionName,
 				version,
 			};
 
@@ -60,7 +61,7 @@ export default function SourceBuilder({version}) {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentEditor, definitionTitle, elements, version]);
+	}, [currentEditor, definitionName, elements, version]);
 
 	useEffect(() => {
 		if (showInvalidContentMessage) {

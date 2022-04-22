@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -80,7 +80,7 @@ public class KeepAliveSPPortalDynamicInclude extends BaseDynamicInclude {
 		SamlProviderConfiguration samlProviderConfiguration =
 			_samlProviderConfigurationHelper.getSamlProviderConfiguration();
 
-		keepAliveURL = _http.addParameter(
+		keepAliveURL = HttpComponentsUtil.addParameter(
 			keepAliveURL, "entityId", samlProviderConfiguration.entityId());
 
 		try {
@@ -206,9 +206,6 @@ public class KeepAliveSPPortalDynamicInclude extends BaseDynamicInclude {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		KeepAliveSPPortalDynamicInclude.class);
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private SamlPeerBindingLocalService _samlPeerBindingLocalService;

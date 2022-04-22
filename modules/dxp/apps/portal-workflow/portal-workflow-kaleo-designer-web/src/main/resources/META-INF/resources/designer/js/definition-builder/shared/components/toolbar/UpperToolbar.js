@@ -13,12 +13,11 @@
 import ClayAlert from '@clayui/alert';
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput} from '@clayui/form';
-import ClayLabel from '@clayui/label';
 import ClayLayout from '@clayui/layout';
 import ClayToolbar from '@clayui/toolbar';
 import {TranslationAdminSelector} from 'frontend-js-components-web';
 import PropTypes from 'prop-types';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {isEdge, isNode} from 'react-flow-renderer';
 
 import {DefinitionBuilderContext} from '../../../DefinitionBuilderContext';
@@ -33,29 +32,37 @@ import {
 } from '../../../util/fetchUtil';
 import {isObjectEmpty} from '../../../util/utils';
 
-export default function UpperToolbar({displayNames, languageIds, version}) {
+export default function UpperToolbar({displayNames, languageIds}) {
 	const {
 		active,
+		alertMessage,
+		alertType,
 		blockingErrors,
 		currentEditor,
 		definitionDescription,
 		definitionId,
+		definitionName,
 		definitionTitle,
 		elements,
 		selectedLanguageId,
+		setAlertMessage,
+		setAlertType,
+		setDefinitionId,
 		setDefinitionTitle,
 		setDeserialize,
 		setSelectedLanguageId,
+		setShowAlert,
+		setShowDefinitionInfo,
 		setShowInvalidContentMessage,
 		setSourceView,
 		setTranslations,
+		setVersion,
+		showAlert,
 		sourceView,
 		translations,
+		version,
 	} = useContext(DefinitionBuilderContext);
 	const inputRef = useRef(null);
-	const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-	const [showDangerAlert, setShowDangerAlert] = useState(false);
-	const [alertMessage, setAlertMessage] = useState('');
 
 	const availableLocales = getAvailableLocalesObject(
 		displayNames,
@@ -75,10 +82,10 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 		}
 	};
 
-	const getXMLContent = () => {
+	const getXMLContent = (exporting) => {
 		let xmlContent;
 
-		if (currentEditor) {
+		if (currentEditor && !exporting) {
 			xmlContent = currentEditor.getData();
 		}
 		else {
@@ -86,12 +93,12 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 				xmlNamespace,
 				{
 					description: definitionDescription,
-					name: definitionTitle,
+					name: definitionName,
 					version,
 				},
 				elements.filter(isNode),
 				elements.filter(isEdge),
-				true
+				exporting
 			);
 		}
 
@@ -118,15 +125,18 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 		}
 	};
 
-	const definitionNotPublished = version === '0' || !active;
+	const definitionNotPublished = version === 0 || !active;
 
 	const publishDefinition = () => {
 		let alertMessage;
 
 		if (!definitionTitle) {
 			alertMessage = Liferay.Language.get('name-workflow-before-publish');
+
 			setAlertMessage(alertMessage);
-			setShowDangerAlert(true);
+			setAlertType('danger');
+
+			setShowAlert(true);
 		}
 		else {
 			if (definitionNotPublished) {
@@ -144,16 +154,29 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 
 			publishDefinitionRequest({
 				active,
-				content: getXMLContent(),
+				content: getXMLContent(true),
 				name: definitionId,
 				title: definitionTitle,
 				title_i18n: translations,
 				version,
 			}).then((response) => {
 				if (response.ok) {
-					setShowSuccessAlert(true);
+					setAlertType('success');
 
-					window.history.back();
+					setShowAlert(true);
+
+					response.json().then(({name, version}) => {
+						setDefinitionId(name);
+						setVersion(parseInt(version, 10));
+					});
+				}
+				else {
+					response.json().then(({title}) => {
+						setAlertMessage(title);
+						setAlertType('danger');
+
+						setShowAlert(true);
+					});
 				}
 			});
 		}
@@ -170,26 +193,36 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 
 		if (blockingErrors.errorType === 'emptyField') {
 			setAlertMessage(emptyFieldAlertMessage);
-			setShowDangerAlert(true);
+			setAlertType('danger');
+
+			setShowAlert(true);
 		}
 
 		if (blockingErrors.errorType === 'duplicated') {
 			setAlertMessage(duplicatedAlertMessage);
-			setShowDangerAlert(true);
+			setAlertType('danger');
+
+			setShowAlert(true);
 		}
 
 		if (blockingErrors.errorType === '') {
 			saveDefinitionRequest({
 				active,
-				content: getXMLContent(),
+				content: getXMLContent(true),
 				name: definitionId,
 				title: definitionTitle,
 				version,
 			}).then((response) => {
 				if (response.ok) {
 					setAlertMessage(successMessage);
-					setShowSuccessAlert(true);
-					window.history.back();
+					setAlertType('success');
+
+					setShowAlert(true);
+
+					response.json().then(({name, version}) => {
+						setDefinitionId(name);
+						setVersion(parseInt(version, 10));
+					});
 				}
 			});
 		}
@@ -243,20 +276,17 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 							/>
 						</ClayToolbar.Item>
 
-						{version !== '0' && (
+						{version !== 0 && (
 							<ClayToolbar.Item>
-								<ClayLabel
-									className="version"
+								<ClayButtonWithIcon
 									displayType="secondary"
-								>
-									<div>
-										{`${Liferay.Language.get('version')}:`}
-
-										<span className="version-text">
-											{version}
-										</span>
-									</div>
-								</ClayLabel>
+									onClick={() =>
+										setShowDefinitionInfo(
+											(previous) => !previous
+										)
+									}
+									symbol="info-circle-open"
+								/>
 							</ClayToolbar.Item>
 						)}
 
@@ -326,26 +356,17 @@ export default function UpperToolbar({displayNames, languageIds, version}) {
 				</ClayLayout.ContainerFluid>
 			</ClayToolbar>
 
-			{showSuccessAlert && (
+			{showAlert && (
 				<ClayAlert.ToastContainer>
 					<ClayAlert
 						autoClose={5000}
-						displayType="success"
-						onClose={() => setShowSuccessAlert(false)}
-						title={`${Liferay.Language.get('success')}:`}
-					>
-						{alertMessage}
-					</ClayAlert>
-				</ClayAlert.ToastContainer>
-			)}
-
-			{showDangerAlert && (
-				<ClayAlert.ToastContainer>
-					<ClayAlert
-						autoClose={5000}
-						displayType="danger"
-						onClose={() => setShowDangerAlert(false)}
-						title={errorTitle()}
+						displayType={alertType}
+						onClose={() => setShowAlert(false)}
+						title={
+							alertType === 'success'
+								? `${Liferay.Language.get('success')}:`
+								: `${errorTitle()}:`
+						}
 					>
 						{alertMessage}
 					</ClayAlert>

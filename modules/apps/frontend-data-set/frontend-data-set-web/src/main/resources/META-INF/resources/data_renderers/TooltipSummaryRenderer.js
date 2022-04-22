@@ -13,10 +13,10 @@
  */
 
 import ClayIcon from '@clayui/icon';
+import {ReactDOMServer} from '@liferay/frontend-js-react-web';
 import classNames from 'classnames';
 import Proptypes from 'prop-types';
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
 
 import {getDataRendererById} from '../utils/dataRenderers';
 import {getSchemaString} from '../utils/index';
@@ -86,7 +86,7 @@ function TooltipSummaryRenderer({itemData, options, value}) {
 			{value}
 			{!!tooltipTableRows.length && (
 				<span
-					className="tooltip-provider"
+					className="fds-tooltip-summary"
 					data-title-set-as-html
 					data-tooltip-delay="0"
 					title={ReactDOMServer.renderToString(

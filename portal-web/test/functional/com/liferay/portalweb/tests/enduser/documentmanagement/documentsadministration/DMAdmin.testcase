@@ -37,23 +37,113 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-80187. It checks that the Email configuration changes can be canceled."
+	@priority = "4"
+	test CancelingEmailConfigurationScreenDoesNotSaveChanges {
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMDocument.configureDocumentEmailSenderInfo(
+			cancel = "true",
+			senderName = "Test Test");
+
+		Portlet.gotoPortletOptions(portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		InputField.viewText(
+			fieldLabel = "Name",
+			text = "Joe Bloggs");
+	}
+
 	@description = "This is a test for LPS-91199. It checks that all files selected on different pages can be deleted."
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanDeleteAllDocumentsOnDifferentPagesAtOnce {
-		property portal.acceptance = "false";
+		for (var entryCount : list "1,2,3,4,5") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "DM Document Title ${entryCount}",
+				groupName = "Guest",
+				mimeType = "text/txt",
+				sourceFileName = "Document_${entryCount}.txt");
+		}
 
-		// TODO LPS-91199 CanDeleteAllDocumentsOnDifferentPagesAtOnce pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
+		Pagination.changePagination(itemsPerPage = "4");
+
+		DMDocument.deleteCP(deleteAll = "true");
+
+		DMDocument.viewDefault();
 	}
 
 	@description = "This is a test for LPS-91861. It checks that the counts can be reset in management toolbar."
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanResetCountsInManagementToolbar {
-		property portal.acceptance = "false";
+		JSONFolder.addFolder(
+			dmFolderDescription = "DM Folder Description",
+			dmFolderName = "DM Folder Name",
+			groupName = "Guest");
 
-		// TODO LPS-91861 CanResetCountsInManagementToolbar pending implementation
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Description",
+			dmDocumentTitle = "Document_1.doc",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_1.doc");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Description",
+			dmDocumentTitle = "Document_2.doc",
+			folderName = "DM Folder Name",
+			groupName = "Guest",
+			mimeType = "application/msword",
+			sourceFileName = "Document_2.doc");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Image Description",
+			dmDocumentTitle = "Document_1.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpg",
+			sourceFileName = "Document_1.jpg");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Image Description",
+			dmDocumentTitle = "Document_2.jpg",
+			groupName = "Guest",
+			mimeType = "image/jpg",
+			sourceFileName = "Document_2.jpg");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		PortletEntry.selectAll();
+
+		AssertTextEquals(
+			locator1 = "ManagementBar#NAVBAR_TEXT",
+			value1 = "All Selected");
+
+		Button.click(button = "Clear");
+
+		DMNavigator.openToFolderInAdmin(
+			dmFolderName = "DM Folder Name",
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+		DMDocument.checkDocumentCheckboxCP(dmDocumentTitle = "Document_1.doc");
+
+		AssertTextEquals(
+			locator1 = "ManagementBar#NAVBAR_TEXT",
+			value1 = "1 of 2 Selected");
+	}
+
+	@description = "This test covers LPS-141587. It validates that if the 'Delete Application Data Before Importing' option is selected the Doc Lib will not increase in size after the LAR import."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test DLSizeDoesNotIncreaseIfAppDataIsDeletedBeforeImport {
+
+		// TODO LPS-149404
 
 	}
 
@@ -178,6 +268,15 @@ definition {
 		AssertTextEquals(
 			locator1 = "ManagementBar#NAVBAR_TEXT",
 			value1 = "5 of 11 Selected");
+	}
+
+	@description = "This test covers LPS-103231. It validates that the owner name from a document cannot execute XSS from the info panel."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test XSSCannotBeExecutedFromTheOwnerNameInTheInfoPanel {
+
+		// TODO LPS-129153
+
 	}
 
 }

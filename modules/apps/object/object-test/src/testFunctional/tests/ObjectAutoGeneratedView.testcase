@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -26,9 +27,9 @@ definition {
 	@priority = "4"
 	test CanAddClobLongText {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 195",
+			objectName = "CustomObject195",
+			pluralLabelName = "Custom Objects 195");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongText",
@@ -36,16 +37,16 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Clob",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject195");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject195");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject195",
 			value = "By building a vibrant business, making technology useful, and investing in communities, we make it possible for people to reach their full potential to serve others.");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject195");
 
 		ObjectPortlet.viewEntry(entry = "By building a vibrant business, making technology useful, and investing in communities, we make it possible for people to reach their full potential to serve others.");
 	}
@@ -86,12 +87,10 @@ definition {
 	@description = "LPS-142659 - Verify it is possible to edit a entry of Clob field and view the update on entry table"
 	@priority = "4"
 	test CanEditClobField {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 196",
+			objectName = "CustomObject196",
+			pluralLabelName = "Custom Objects 196");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongText",
@@ -99,16 +98,16 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Clob",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject196");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject196");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject196",
 			value = "We make it possible for people to reach their full potential to serve others.");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject196");
 
 		ObjectPortlet.viewEntry(entry = "We make it possible for people to reach their full potential to serve others.");
 
@@ -116,18 +115,36 @@ definition {
 
 		ObjectAdmin.editClobEntryName(clobEntry = "All people are inherently valuable; who we are is as important as what we can do.");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject196");
 
 		ObjectPortlet.viewEntry(entry = "All people are inherently valuable; who we are is as important as what we can do.");
+	}
+
+	@description = "LPS-150797 - Verify it is possible to view object entries after adding a file in the attachment field"
+	@ignore = "Test Stub"
+	@priority = "5"
+	test CanViewObjectEntriesAfterAddingAttachment {
+
+		// TODO LPS-151587 CanViewObjectEntriesAfterAddingAttachment pending implementation
+
+	}
+
+	@description = "LPS-143064 - Verify that, when seeing an object view with uploads, the user must only be able to read the first line of the text without considering its format"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewOnlyFirstLineOfUploadTextField {
+
+		// TODO LPS-151585 CanViewOnlyFirstLineOfUploadTextField pending implementation
+
 	}
 
 	@description = "LPS-142659 - Verify that a Clob entry is correctly displayed on the auto-generated table on the Custom Object Portlet"
 	@priority = "4"
 	test ClobDisplayed {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 197",
+			objectName = "CustomObject197",
+			pluralLabelName = "Custom Objects 197");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongText",
@@ -135,16 +152,16 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Clob",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject197");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject197");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject197",
 			value = "We make it possible for people to reach their full potential to serve others.");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject197");
 
 		ObjectPortlet.viewEntry(entry = "We make it possible for people to reach their full potential to serve others.");
 	}
@@ -153,9 +170,9 @@ definition {
 	@priority = "4"
 	test ClobLongTextWillTruncate {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 198",
+			objectName = "CustomObject198",
+			pluralLabelName = "Custom Objects 198");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongText",
@@ -163,16 +180,16 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Clob",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject198");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject198");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject198",
 			value = "We make it possible for people to reach their full potential to serve others.");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject198");
 
 		AssertElementPresent(
 			key_entry = "We make it possible for people to reach their full potential to serve others.",
@@ -190,13 +207,13 @@ definition {
 			picklistName = "Picklist Test");
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 199",
+			objectName = "CustomObject199",
+			pluralLabelName = "Custom Objects 199");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 199");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -207,13 +224,13 @@ definition {
 
 		Navigator.openURL();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject199");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject199");
 
 		ObjectAdmin.addObjectPicklistFieldEntryViaUI(picklistOption = "Entry Test");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject199");
 
 		ObjectPortlet.viewEntry(entry = "Entry Test");
 	}

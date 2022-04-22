@@ -82,7 +82,7 @@ import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -651,7 +651,7 @@ public class ServicePreAction extends Action {
 		String portalDomain = _portalDomains.get(portalURL);
 
 		if (portalDomain == null) {
-			portalDomain = HttpUtil.getDomain(portalURL);
+			portalDomain = HttpComponentsUtil.getDomain(portalURL);
 
 			_portalDomains.put(portalURL, portalDomain);
 		}
@@ -1015,7 +1015,7 @@ public class ServicePreAction extends Action {
 					Group sourceGroup = GroupLocalServiceUtil.getGroup(
 						sourceGroupId);
 
-					if (sourceGroup.isUser() &&
+					if (layout.isTypeControlPanel() && sourceGroup.isUser() &&
 						(sourceGroup.getClassPK() != user.getUserId()) &&
 						!GroupPermissionUtil.contains(
 							permissionChecker, sourceGroup, ActionKeys.VIEW)) {
@@ -1585,12 +1585,12 @@ public class ServicePreAction extends Action {
 			GroupConstants.CONTROL_PANEL_FRIENDLY_URL);
 
 		if (Validator.isNotNull(doAsUserId)) {
-			urlControlPanel = HttpUtil.addParameter(
+			urlControlPanel = HttpComponentsUtil.addParameter(
 				urlControlPanel, "doAsUserId", doAsUserId);
 		}
 
 		if (refererGroupId > 0) {
-			urlControlPanel = HttpUtil.addParameter(
+			urlControlPanel = HttpComponentsUtil.addParameter(
 				urlControlPanel, "refererGroupId", refererGroupId);
 		}
 		else if (scopeGroupId > 0) {
@@ -1600,18 +1600,18 @@ public class ServicePreAction extends Action {
 				Group refererLayoutGroup = refererLayout.getGroup();
 
 				if (refererLayoutGroup.isUserGroup()) {
-					urlControlPanel = HttpUtil.addParameter(
+					urlControlPanel = HttpComponentsUtil.addParameter(
 						urlControlPanel, "refererGroupId", scopeGroupId);
 				}
 			}
 		}
 
 		if (refererPlid > 0) {
-			urlControlPanel = HttpUtil.addParameter(
+			urlControlPanel = HttpComponentsUtil.addParameter(
 				urlControlPanel, "refererPlid", refererPlid);
 		}
 		else if (plid > 0) {
-			urlControlPanel = HttpUtil.addParameter(
+			urlControlPanel = HttpComponentsUtil.addParameter(
 				urlControlPanel, "refererPlid", plid);
 		}
 
@@ -1748,7 +1748,7 @@ public class ServicePreAction extends Action {
 			securePortalURL, mainPath, _PATH_PORTAL_LOGIN);
 
 		if (layout != null) {
-			urlSignIn = HttpUtil.addParameter(
+			urlSignIn = HttpComponentsUtil.addParameter(
 				urlSignIn, "p_l_id", layout.getPlid());
 		}
 

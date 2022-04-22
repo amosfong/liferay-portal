@@ -1220,15 +1220,35 @@ definition {
 
 		FormFields.viewSelectOptionsList(
 			fieldName = "${fieldNameCountries}",
-			selectOption = "Option");
+			selectOption = "Select 1");
 
 		FormFields.editText(
 			fieldName = "${fieldNameTextField}",
 			fieldValue = "country");
 
-		FormFields.viewSelectOptionsList(
+		DataEngine.waitForAutoSave();
+
+		FormFields.selectSelectOption(
 			fieldName = "${fieldNameCountries}",
 			selectOption = "Afghanistan");
+
+		FormPortlet.submitSuccessfully();
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Content & Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoViewEntries();
+
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Text Field",
+			fieldValue = "country");
+
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Countries",
+			fieldValue = "Afghanistan");
 	}
 
 	@description = "LPS-75495 - Verify that the 'Show' action is not triggered when typing into an unrelated field"

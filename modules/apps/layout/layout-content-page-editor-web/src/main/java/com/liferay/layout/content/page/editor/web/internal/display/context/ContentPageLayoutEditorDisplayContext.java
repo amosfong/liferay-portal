@@ -66,8 +66,8 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.segments.constants.SegmentsEntryConstants;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.constants.SegmentsPortletKeys;
+import com.liferay.segments.manager.SegmentsExperienceManager;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.model.SegmentsExperimentRel;
@@ -114,6 +114,7 @@ public class ContentPageLayoutEditorDisplayContext
 		ItemSelector itemSelector,
 		PageEditorConfiguration pageEditorConfiguration,
 		PortletRequest portletRequest, RenderResponse renderResponse,
+		SegmentsExperienceManager segmentsExperienceManager,
 		StagingGroupHelper stagingGroupHelper) {
 
 		super(
@@ -124,7 +125,7 @@ public class ContentPageLayoutEditorDisplayContext
 			fragmentRendererTracker, frontendTokenDefinitionRegistry,
 			httpServletRequest, infoItemServiceTracker, itemSelector,
 			pageEditorConfiguration, portletRequest, renderResponse,
-			stagingGroupHelper);
+			segmentsExperienceManager, stagingGroupHelper);
 	}
 
 	@Override
@@ -204,9 +205,7 @@ public class ContentPageLayoutEditorDisplayContext
 			PortalUtil.getOriginalServletRequest(httpServletRequest),
 			"segmentsExperienceId", -1);
 
-		if ((_segmentsExperienceId != -1) &&
-			(_segmentsExperienceId != SegmentsExperienceConstants.ID_DEFAULT)) {
-
+		if (_segmentsExperienceId != -1) {
 			_segmentsExperienceId = Optional.ofNullable(
 				SegmentsExperienceLocalServiceUtil.fetchSegmentsExperience(
 					_segmentsExperienceId)
@@ -626,20 +625,11 @@ public class ContentPageLayoutEditorDisplayContext
 			return _lockedSegmentsExperience;
 		}
 
-		if (SegmentsExperienceConstants.ID_DEFAULT == segmentsExperienceId) {
-			_lockedSegmentsExperience =
-				SegmentsExperienceUtil.
-					hasDefaultSegmentsExperienceLockedSegmentsExperiment(
-						themeDisplay);
-		}
-		else {
-			SegmentsExperience segmentsExperience =
-				SegmentsExperienceLocalServiceUtil.getSegmentsExperience(
-					segmentsExperienceId);
+		SegmentsExperience segmentsExperience =
+			SegmentsExperienceLocalServiceUtil.getSegmentsExperience(
+				segmentsExperienceId);
 
-			_lockedSegmentsExperience =
-				segmentsExperience.hasSegmentsExperiment();
-		}
+		_lockedSegmentsExperience = segmentsExperience.hasSegmentsExperiment();
 
 		return _lockedSegmentsExperience;
 	}

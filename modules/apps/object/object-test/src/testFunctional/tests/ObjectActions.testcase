@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -26,13 +27,13 @@ definition {
 	@priority = "4"
 	test CanCancelAction {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 181",
+			objectName = "CustomObject181",
+			pluralLabelName = "Custom Objects 181");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 181");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -42,20 +43,20 @@ definition {
 
 		AssertElementNotPresent(locator1 = "Portlet#MODAL_TITLE");
 
-		ObjectAdmin.assertNoItemsWereFound();
+		ObjectAdmin.assertNoResultsWereFound();
 	}
 
 	@description = "LPS-139008 - Verify it is possible to cancel the update of an Action"
 	@priority = "4"
 	test CanCancelActionUpdate {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 182",
+			objectName = "CustomObject182",
+			pluralLabelName = "Custom Objects 182");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 182");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -90,13 +91,13 @@ definition {
 		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 183",
+			objectName = "CustomObject183",
+			pluralLabelName = "Custom Objects 183");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 183");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -117,13 +118,13 @@ definition {
 		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 184",
+			objectName = "CustomObject184",
+			pluralLabelName = "Custom Objects 184");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 184");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -148,13 +149,13 @@ definition {
 	@priority = "4"
 	test CanInactivateAction {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 185",
+			objectName = "CustomObject185",
+			pluralLabelName = "Custom Objects 185");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 185");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -181,13 +182,13 @@ definition {
 	@priority = "3"
 	test CannotLeaveActionNameBlank {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 186",
+			objectName = "CustomObject186",
+			pluralLabelName = "Custom Objects 186");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 186");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -204,13 +205,13 @@ definition {
 	@priority = "3"
 	test CannotLeaveActionThenBlank {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 187",
+			objectName = "CustomObject187",
+			pluralLabelName = "Custom Objects 187");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 187");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -225,13 +226,13 @@ definition {
 	@priority = "3"
 	test CannotLeaveActionWhenBlank {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 188",
+			objectName = "CustomObject188",
+			pluralLabelName = "Custom Objects 188");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 188");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -247,13 +248,13 @@ definition {
 	@priority = "3"
 	test CannotLeaveURLBlank {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 189",
+			objectName = "CustomObject189",
+			pluralLabelName = "Custom Objects 189");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 189");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -269,13 +270,13 @@ definition {
 	@priority = "4"
 	test CanReactivateAction {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 190",
+			objectName = "CustomObject190",
+			pluralLabelName = "Custom Objects 190");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 190");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -310,13 +311,13 @@ definition {
 	@priority = "4"
 	test CanSearchAction {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 191",
+			objectName = "CustomObject191",
+			pluralLabelName = "Custom Objects 191");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 191");
 
 		ObjectAdmin.goToActionsTab();
 
@@ -343,13 +344,13 @@ definition {
 	@priority = "4"
 	test CanUpdateAction {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 192",
+			objectName = "CustomObject192",
+			pluralLabelName = "Custom Objects 192");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 192");
 
 		ObjectAdmin.goToActionsTab();
 

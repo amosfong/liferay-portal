@@ -33,20 +33,11 @@
 		},
 	};
 
-	var REGEX_SUB = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g;
-
 	var SRC_HIDE_LINK = {
 		src: 'hideLink',
 	};
 
 	var STR_RIGHT_SQUARE_BRACKET = ']';
-
-	var TPL_LEXICON_ICON =
-		'<svg aria-hidden="true" class="lexicon-icon lexicon-icon-{0} {1}" focusable="false" role="presentation">' +
-		'<use href="' +
-		themeDisplay.getPathThemeImages() +
-		'/clay/icons.svg#{0}" />' +
-		'</svg>';
 
 	var Window = {
 		_map: {},
@@ -435,144 +426,9 @@
 			return columnId;
 		},
 
-		getGeolocation(success, fallback, options) {
-			if (success && navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						success(
-							position.coords.latitude,
-							position.coords.longitude,
-							position
-						);
-					},
-					fallback,
-					options
-				);
-			}
-			else if (fallback) {
-				fallback();
-			}
-		},
-
-		getLexiconIcon(icon, cssClass) {
-			var instance = this;
-
-			const tempElement = document.createElement('div');
-
-			tempElement.innerHTML = instance.getLexiconIconTpl(icon, cssClass);
-
-			return tempElement.firstChild;
-		},
-
-		getLexiconIconTpl(icon, cssClass) {
-			return Liferay.Util.sub(TPL_LEXICON_ICON, icon, cssClass || '');
-		},
-
-		getOpener() {
-			var openingWindow = Window._opener;
-
-			if (!openingWindow) {
-				var topUtil = Liferay.Util.getTop().Liferay.Util;
-
-				var windowName = Liferay.Util.getWindowName();
-
-				var dialog = topUtil.Window.getById(windowName);
-
-				if (dialog) {
-					openingWindow = dialog._opener;
-
-					Window._opener = openingWindow;
-				}
-			}
-
-			return openingWindow || window.opener || window.parent;
-		},
-
-		getTop() {
-			var topWindow = Util._topWindow;
-
-			if (!topWindow) {
-				var parentWindow = window.parent;
-
-				var parentThemeDisplay;
-
-				while (parentWindow !== window) {
-					try {
-						if (typeof parentWindow.location.href === 'undefined') {
-							break;
-						}
-
-						parentThemeDisplay = parentWindow.themeDisplay;
-					}
-					catch (error) {
-						break;
-					}
-
-					if (
-						!parentThemeDisplay ||
-						window.name === 'simulationDeviceIframe'
-					) {
-						break;
-					}
-					else if (
-						!parentThemeDisplay.isStatePopUp() ||
-						parentWindow === parentWindow.parent
-					) {
-						topWindow = parentWindow;
-
-						break;
-					}
-
-					parentWindow = parentWindow.parent;
-				}
-
-				if (!topWindow) {
-					topWindow = window;
-				}
-
-				Util._topWindow = topWindow;
-			}
-
-			return topWindow;
-		},
-
-		getURLWithSessionId(url) {
-			if (!themeDisplay.isAddSessionIdToURL()) {
-				return url;
-			}
-
-			// LEP-4787
-
-			var x = url.indexOf(';');
-
-			if (x > -1) {
-				return url;
-			}
-
-			var sessionId = ';jsessionid=' + themeDisplay.getSessionId();
-
-			x = url.indexOf('?');
-
-			if (x > -1) {
-				return url.substring(0, x) + sessionId + url.substring(x);
-			}
-
-			// In IE6, http://www.abc.com;jsessionid=XYZ does not work, but
-			// http://www.abc.com/;jsessionid=XYZ does work.
-
-			x = url.indexOf('//');
-
-			if (x > -1) {
-				var y = url.lastIndexOf('/');
-
-				if (x + 1 === y) {
-					return url + '/' + sessionId;
-				}
-			}
-
-			return url + sessionId;
-		},
-
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by `openModal`
+		 */
 		getWindow(id) {
 			if (!id) {
 				id = Util.getWindowName();
@@ -581,6 +437,9 @@
 			return Util.getTop().Liferay.Util.Window.getById(id);
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by `window.name`
+		 */
 		getWindowName() {
 			return window.name || Window._name || '';
 		},
@@ -707,33 +566,6 @@
 			return Math.ceil(Math.random() * new Date().getTime());
 		},
 
-		removeEntitySelection(
-			entityIdString,
-			entityNameString,
-			removeEntityButton,
-			namespace
-		) {
-			const elementByEntityId = document.getElementById(
-				`${namespace}${entityIdString}`
-			);
-
-			if (elementByEntityId) {
-				elementByEntityId.value = 0;
-			}
-
-			const elementByEntityName = document.getElementById(
-				`${namespace}${entityNameString}`
-			);
-
-			if (elementByEntityName) {
-				elementByEntityName.value = '';
-			}
-
-			Liferay.Util.toggleDisabled(removeEntityButton, true);
-
-			Liferay.fire('entitySelectionRemoved');
-		},
-
 		reorder(box, down) {
 			box = Util.getElement(box);
 
@@ -823,38 +655,18 @@
 			});
 		},
 
-		selectFolder(folderData, namespace) {
-			const folderDataElement = document.getElementById(
-				namespace + folderData.idString
-			);
-
-			if (folderDataElement) {
-				folderDataElement.value = folderData.idValue;
-			}
-
-			const folderNameElement = document.getElementById(
-				namespace + folderData.nameString
-			);
-
-			if (folderNameElement) {
-				folderNameElement.value = this.unescape(folderData.nameValue);
-			}
-
-			const removeFolderButton = document.getElementById(
-				`${namespace}removeFolderButton`
-			);
-
-			if (removeFolderButton) {
-				this.toggleDisabled(removeFolderButton, false);
-			}
-		},
-
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setSelectionRange}
+		 */
 		setCursorPosition(element, position) {
 			var instance = this;
 
 			instance.setSelectionRange(element, position, position);
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setSelectionRange}
+		 */
 		setSelectionRange(element, selectionStart, selectionEnd) {
 			element = Util.getDOM(element);
 
@@ -879,29 +691,6 @@
 			}
 		},
 
-		showCapsLock(event, spanId) {
-			const span = document.getElementById(spanId);
-
-			if (span) {
-				var keyCode = event.keyCode ? event.keyCode : event.which;
-
-				var shiftKeyCode = keyCode === 16;
-
-				var shiftKey = event.shiftKey ? event.shiftKey : shiftKeyCode;
-
-				var display = 'none';
-
-				if (
-					(keyCode >= 65 && keyCode <= 90 && !shiftKey) ||
-					(keyCode >= 97 && keyCode <= 122 && shiftKey)
-				) {
-					display = '';
-				}
-
-				span.style.display = display;
-			}
-		},
-
 		/**
 		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 		 */
@@ -918,21 +707,6 @@
 			}
 
 			return 0;
-		},
-
-		sub(string, data) {
-			if (
-				arguments.length > 2 ||
-				(typeof data !== 'object' && typeof data !== 'function')
-			) {
-				data = Array.prototype.slice.call(arguments, 1);
-			}
-
-			return string.replace
-				? string.replace(REGEX_SUB, (match, key) => {
-						return data[key] === undefined ? match : data[key];
-				  })
-				: string;
 		},
 
 		submitCountdown: 0,
@@ -1707,34 +1481,8 @@
 
 	Liferay.Util = Util;
 
-	Liferay.STATUS_CODE = {
-		BAD_REQUEST: 400,
-		INTERNAL_SERVER_ERROR: 500,
-		OK: 200,
-		SC_DUPLICATE_FILE_EXCEPTION: 490,
-		SC_FILE_ANTIVIRUS_EXCEPTION: 494,
-		SC_FILE_CUSTOM_EXCEPTION: 499,
-		SC_FILE_EXTENSION_EXCEPTION: 491,
-		SC_FILE_NAME_EXCEPTION: 492,
-		SC_FILE_SIZE_EXCEPTION: 493,
-		SC_UPLOAD_REQUEST_SIZE_EXCEPTION: 495,
-	};
-
 	// 0-200: Theme Developer
 	// 200-400: Portlet Developer
 	// 400+: Liferay
 
-	Liferay.zIndex = {
-		ALERT: 430,
-		DOCK: 10,
-		DOCK_PARENT: 20,
-		DRAG_ITEM: 460,
-		DROP_AREA: 440,
-		DROP_POSITION: 450,
-		MENU: 5000,
-		OVERLAY: 1000,
-		POPOVER: 1600,
-		TOOLTIP: 10000,
-		WINDOW: 1200,
-	};
 })(AUI());

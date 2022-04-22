@@ -29,26 +29,49 @@ export declare type TObjectField = {
 	required: boolean;
 	type: string;
 };
+export declare type TObjectColumn = {
+	fieldLabel?: string;
+	filterBy?: string;
+	isDefaultSort?: boolean;
+	label: TName;
+	objectFieldName: string;
+	priority?: number;
+	sortOrder?: string;
+	type?: string;
+	value?: string;
+	valueList?: string[];
+};
 export declare type TObjectViewColumn = {
+	fieldLabel: string;
 	isDefaultSort: boolean;
-	label: string;
+	label: TName;
 	objectFieldName: string;
 	priority?: number;
 };
 export declare type TObjectViewSortColumn = {
-	label: string;
+	fieldLabel: string;
+	label: TName;
 	objectFieldName: string;
 	priority?: number;
 	sortOrder?: string;
+};
+export declare type TObjectViewFilterColumn = {
+	fieldLabel: string;
+	filterBy: string;
+	label: TName;
+	objectFieldName: string;
+	type: string;
+	value?: string;
+	valueList?: string[];
 };
 export declare type TObjectView = {
 	defaultObjectView: boolean;
 	name: TName;
 	objectViewColumns: TObjectViewColumn[];
+	objectViewFilterColumns: TObjectViewFilterColumn[];
 	objectViewSortColumns: TObjectViewSortColumn[];
 };
 export declare type TState = {
-	isFFObjectViewSortColumnConfigurationEnabled: boolean;
 	isViewOnly: boolean;
 	objectFields: TObjectField[];
 	objectView: TObjectView;

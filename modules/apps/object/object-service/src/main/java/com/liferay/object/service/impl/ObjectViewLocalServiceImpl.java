@@ -15,6 +15,7 @@
 package com.liferay.object.service.impl;
 
 import com.liferay.object.exception.DefaultObjectViewException;
+import com.liferay.object.exception.ObjectViewSortColumnException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectView;
@@ -32,11 +33,14 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -87,7 +91,7 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 				user, objectView.getObjectViewId(), objectViewColumns));
 		objectView.setObjectViewSortColumns(
 			_addObjectViewSortColumns(
-				user, objectView.getObjectViewId(), objectViewSortColumns));
+				user, objectView, objectViewColumns, objectViewSortColumns));
 
 		return objectView;
 	}
@@ -214,8 +218,8 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 				objectView.getObjectViewId(), objectViewColumns));
 		objectView.setObjectViewSortColumns(
 			_addObjectViewSortColumns(
-				_userLocalService.getUser(objectView.getUserId()),
-				objectView.getObjectViewId(), objectViewSortColumns));
+				_userLocalService.getUser(objectView.getUserId()), objectView,
+				objectViewColumns, objectViewSortColumns));
 
 		return objectView;
 	}
@@ -235,6 +239,7 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 				newObjectViewColumn.setUserId(user.getUserId());
 				newObjectViewColumn.setUserName(user.getFullName());
 				newObjectViewColumn.setObjectViewId(objectViewId);
+				newObjectViewColumn.setLabelMap(objectViewColumn.getLabelMap());
 				newObjectViewColumn.setObjectFieldName(
 					objectViewColumn.getObjectFieldName());
 				newObjectViewColumn.setPriority(objectViewColumn.getPriority());
@@ -244,8 +249,18 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 	}
 
 	private List<ObjectViewSortColumn> _addObjectViewSortColumns(
-		User user, long objectViewId,
-		List<ObjectViewSortColumn> objectViewSortColumns) {
+			User user, ObjectView objectView,
+			List<ObjectViewColumn> objectViewColumns,
+			List<ObjectViewSortColumn> objectViewSortColumns)
+		throws ObjectViewSortColumnException {
+
+		try {
+			_validate(objectViewColumns, objectViewSortColumns);
+		}
+		catch (ObjectViewSortColumnException objectViewSortColumnException) {
+			throw new ObjectViewSortColumnException(
+				objectViewSortColumnException.getMessage());
+		}
 
 		return TransformUtil.transform(
 			objectViewSortColumns,
@@ -257,7 +272,8 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 				newObjectViewSortColumn.setCompanyId(user.getCompanyId());
 				newObjectViewSortColumn.setUserId(user.getUserId());
 				newObjectViewSortColumn.setUserName(user.getFullName());
-				newObjectViewSortColumn.setObjectViewId(objectViewId);
+				newObjectViewSortColumn.setObjectViewId(
+					objectView.getObjectViewId());
 				newObjectViewSortColumn.setObjectFieldName(
 					objectViewSortColumn.getObjectFieldName());
 				newObjectViewSortColumn.setPriority(
@@ -268,6 +284,43 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 				return _objectViewSortColumnPersistence.update(
 					newObjectViewSortColumn);
 			});
+	}
+
+	private void _validate(
+			List<ObjectViewColumn> objectViewColumns,
+			List<ObjectViewSortColumn> objectViewSortColumns)
+		throws ObjectViewSortColumnException {
+
+		Set<String> objectFieldNames = SetUtil.fromArray(
+			new String[] {
+				"creator", "dateCreated", "dateModified", "id", "status"
+			});
+
+		for (ObjectViewColumn objectViewColumn : objectViewColumns) {
+			objectFieldNames.add(objectViewColumn.getObjectFieldName());
+		}
+
+		for (ObjectViewSortColumn objectViewSortColumn :
+				objectViewSortColumns) {
+
+			if (!objectFieldNames.contains(
+					objectViewSortColumn.getObjectFieldName())) {
+
+				throw new ObjectViewSortColumnException(
+					"There is no object field with the name: " +
+						objectViewSortColumn.getObjectFieldName());
+			}
+
+			if (!(StringUtil.equals(
+					objectViewSortColumn.getSortOrder(), "asc") ||
+				  StringUtil.equals(
+					  objectViewSortColumn.getSortOrder(), "desc"))) {
+
+				throw new ObjectViewSortColumnException(
+					"There is no sort order of type: " +
+						objectViewSortColumn.getSortOrder());
+			}
+		}
 	}
 
 	private void _validate(long objectViewId, long objectDefinitionId)

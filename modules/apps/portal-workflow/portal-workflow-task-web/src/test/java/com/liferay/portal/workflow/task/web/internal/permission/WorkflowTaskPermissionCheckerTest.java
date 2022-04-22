@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceWrapper;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalServiceWrapper;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -36,6 +35,7 @@ import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskAssignee;
 import com.liferay.portal.security.permission.SimplePermissionChecker;
+import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.io.Serializable;
 
@@ -49,19 +49,21 @@ import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.osgi.framework.BundleContext;
-
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Adam Brandizzi
  */
-@RunWith(PowerMockRunner.class)
-public class WorkflowTaskPermissionCheckerTest extends PowerMockito {
+public class WorkflowTaskPermissionCheckerTest {
+
+	@ClassRule
+	@Rule
+	public static final LiferayUnitTestRule liferayUnitTestRule =
+		LiferayUnitTestRule.INSTANCE;
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -480,13 +482,6 @@ public class WorkflowTaskPermissionCheckerTest extends PowerMockito {
 
 				@Override
 				public String getType(Locale locale) {
-					return null;
-				}
-
-				@Override
-				public String getURLEditWorkflowTask(
-					long workflowTaskId, ServiceContext serviceContext) {
-
 					return null;
 				}
 

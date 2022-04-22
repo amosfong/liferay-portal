@@ -28,22 +28,24 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.product.navigation.control.menu.BaseJSPProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
-import com.liferay.segments.model.SegmentsExperience;
+import com.liferay.segments.manager.SegmentsExperienceManager;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
+import com.liferay.segments.web.internal.display.context.SegmentsExperienceSelectorDisplayContext;
 import com.liferay.sites.kernel.util.SitesUtil;
 
-import java.util.List;
+import java.io.IOException;
+
 import java.util.Objects;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -83,13 +85,13 @@ public class SegmentsExperienceSelectorProductNavigationControlMenuEntry
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		List<SegmentsExperience> segmentsExperiences =
-			_segmentsExperienceLocalService.getSegmentsExperiences(
+		long segmentsExperiencesCount =
+			_segmentsExperienceLocalService.getSegmentsExperiencesCount(
 				themeDisplay.getScopeGroupId(),
 				_portal.getClassNameId(Layout.class.getName()),
 				themeDisplay.getPlid(), true);
 
-		if (ListUtil.isEmpty(segmentsExperiences)) {
+		if (segmentsExperiencesCount <= 1) {
 			return false;
 		}
 
@@ -152,6 +154,22 @@ public class SegmentsExperienceSelectorProductNavigationControlMenuEntry
 	)
 	public void setServletContext(ServletContext servletContext) {
 		super.setServletContext(servletContext);
+	}
+
+	@Override
+	protected boolean include(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, String jspPath)
+		throws IOException {
+
+		httpServletRequest.setAttribute(
+			SegmentsExperienceSelectorDisplayContext.class.getName(),
+			new SegmentsExperienceSelectorDisplayContext(
+				httpServletRequest,
+				new SegmentsExperienceManager(
+					_segmentsExperienceLocalService)));
+
+		return super.include(httpServletRequest, httpServletResponse, jspPath);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

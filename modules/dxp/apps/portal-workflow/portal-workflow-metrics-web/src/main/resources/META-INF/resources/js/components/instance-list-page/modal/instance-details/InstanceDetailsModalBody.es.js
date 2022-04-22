@@ -15,6 +15,7 @@ import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import ClayModal, {useModal} from '@clayui/modal';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import WorkflowInstanceTracker from '@liferay/portal-workflow-instance-tracker-web/js/components/WorkflowInstanceTracker';
 import React, {useState} from 'react';
 
@@ -147,14 +148,22 @@ function Body({
 									? Liferay.Language.get('completed')
 									: Liferay.Language.get('pending')}
 
-								<ClayLink
-									className="ml-1"
-									onClick={() =>
-										setShowInstanceTrackerModal(true)
-									}
-								>
-									({Liferay.Language.get('track-workflow')})
-								</ClayLink>
+								<ClayTooltipProvider>
+									<ClayLink
+										className="ml-1 tracker-tooltip"
+										data-tooltip-align="top"
+										onClick={() =>
+											setShowInstanceTrackerModal(true)
+										}
+										title={Liferay.Language.get(
+											'click-and-see'
+										)}
+									>
+										(
+										{Liferay.Language.get('track-workflow')}
+										)
+									</ClayLink>
+								</ClayTooltipProvider>
 							</>
 						}
 					/>

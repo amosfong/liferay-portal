@@ -41,27 +41,27 @@ public abstract class BaseMBUploadFileEntryHandler
 	public FileEntry upload(UploadPortletRequest uploadPortletRequest)
 		throws IOException, PortalException {
 
-		dlValidator.validateFileSize(
-			uploadPortletRequest.getFileName(getParameterName()),
-			uploadPortletRequest.getContentType(getParameterName()),
-			uploadPortletRequest.getSize(getParameterName()));
-
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)uploadPortletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
+
+		dlValidator.validateFileSize(
+			themeDisplay.getScopeGroupId(),
+			uploadPortletRequest.getFileName(getParameterName()),
+			uploadPortletRequest.getContentType(getParameterName()),
+			uploadPortletRequest.getSize(getParameterName()));
 
 		long categoryId = ParamUtil.getLong(uploadPortletRequest, "categoryId");
 
 		try (InputStream inputStream = _getFileAsInputStream(
 				uploadPortletRequest)) {
 
-			String tempFileName = TempFileEntryUtil.getTempFileName(
-				_getFileName(uploadPortletRequest));
-
 			return mbMessageService.addTempAttachment(
 				themeDisplay.getScopeGroupId(), categoryId,
-				MBMessageConstants.TEMP_FOLDER_NAME, tempFileName, inputStream,
-				_getContentType(uploadPortletRequest));
+				MBMessageConstants.TEMP_FOLDER_NAME,
+				TempFileEntryUtil.getTempFileName(
+					_getFileName(uploadPortletRequest)),
+				inputStream, _getContentType(uploadPortletRequest));
 		}
 	}
 

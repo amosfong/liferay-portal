@@ -16,12 +16,17 @@ import {ClayModalProvider} from '@clayui/modal';
 import {HashRouter, Route, Routes} from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
+import CompareRunsComponents from './pages/CompareRuns/CompareRunsComponents';
+import CompareRunsOutlet from './pages/CompareRuns/CompareRunsOutlet';
+import CompareRunsRedirect from './pages/CompareRuns/CompareRunsRedirect';
+import Users from './pages/Manage/User';
+import UserManagement from './pages/Manage/User/User';
 import OutletBridge from './pages/OutletBridge';
+import Projects from './pages/Project';
 import Cases from './pages/Project/Cases';
 import Case from './pages/Project/Cases/Case';
 import CaseOutlet from './pages/Project/Cases/CaseOutlet';
 import CaseRequirement from './pages/Project/Cases/CaseRequirement';
-import Home from './pages/Project/Home';
 import Overview from './pages/Project/Overview';
 import ProjectOutlet from './pages/Project/ProjectOutlet';
 import Requirements from './pages/Project/Requirements';
@@ -34,7 +39,6 @@ import CaseResultOutlet from './pages/Project/Routines/Builds/Inner/CaseResult/C
 import CaseResultHistory from './pages/Project/Routines/Builds/Inner/CaseResult/History';
 import CaseTypes from './pages/Project/Routines/Builds/Inner/CaseTypes';
 import Components from './pages/Project/Routines/Builds/Inner/Components';
-import Results from './pages/Project/Routines/Builds/Inner/Results';
 import Runs from './pages/Project/Routines/Builds/Inner/Run';
 import Teams from './pages/Project/Routines/Builds/Inner/Teams';
 import Routine from './pages/Project/Routines/Routine';
@@ -47,21 +51,19 @@ import Subtasks from './pages/Testflow/Subtask';
 import TestflowArchived from './pages/Testflow/TestflowArchived';
 import TestflowOutlet from './pages/Testflow/TestflowOutlet';
 import TestFlowTasks from './pages/Testflow/TestflowTasks';
-import UserManagement from './pages/UserManagement';
-import UserList from './pages/UserManagement/UsersList';
 
 const TestrayRoute = () => (
 	<HashRouter>
 		<ClayModalProvider>
 			<Routes>
 				<Route element={<Layout />} path="/">
-					<Route element={<Home />} index />
+					<Route element={<Projects />} index />
 
 					<Route
 						element={<ProjectOutlet />}
 						path="project/:projectId"
 					>
-						<Route element={<Home />} index />
+						<Route element={<Projects />} index />
 
 						<Route element={<Overview />} path="overview" />
 
@@ -74,10 +76,7 @@ const TestrayRoute = () => (
 						<Route element={<OutletBridge />} path="cases">
 							<Route element={<Cases />} index />
 
-							<Route
-								element={<CaseOutlet />}
-								path=":testrayCaseId"
-							>
+							<Route element={<CaseOutlet />} path=":caseId">
 								<Route element={<Case />} index />
 
 								<Route
@@ -114,13 +113,13 @@ const TestrayRoute = () => (
 									element={
 										<BuildOutlet ignorePath="case-result" />
 									}
-									path="build/:testrayBuildId"
+									path="build/:buildId"
 								>
 									<Route element={<Build />} index />
 
 									<Route
 										element={<CaseResultOutlet />}
-										path="case-result/:testrayCaseResultId"
+										path="case-result/:caseResultId"
 									>
 										<Route element={<CaseResult />} index />
 
@@ -143,20 +142,15 @@ const TestrayRoute = () => (
 										element={<Components />}
 										path="components"
 									/>
-
-									<Route
-										element={<Results />}
-										path="results"
-									/>
 								</Route>
 							</Route>
 						</Route>
 					</Route>
 
 					<Route element={<OutletBridge />} path="manage">
-						<Route element={<UserManagement />} path="user" />
+						<Route element={<Users />} path="user" />
 
-						<Route element={<UserList />} path="userlist" />
+						<Route element={<UserManagement />} path="user/me" />
 					</Route>
 
 					<Route element={<TestflowOutlet />} path="testflow">
@@ -169,6 +163,25 @@ const TestrayRoute = () => (
 						<Route
 							element={<TestFlowTasks />}
 							path=":testrayTaskId"
+						/>
+					</Route>
+
+					<Route element={<CompareRunsOutlet />} path="compare-runs">
+						<Route element={<CompareRunsRedirect />} index />
+
+						<Route
+							element={<CompareRunsComponents />}
+							path="components"
+						/>
+
+						<Route
+							element={<CompareRunsComponents />}
+							path="details"
+						/>
+
+						<Route
+							element={<CompareRunsComponents />}
+							path="teams"
 						/>
 					</Route>
 

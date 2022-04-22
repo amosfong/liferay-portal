@@ -67,10 +67,7 @@ definition {
 
 		Navigator.openURL();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Manage",
@@ -106,10 +103,7 @@ definition {
 			pageName = "Site Page Name",
 			siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		SiteTemplates.addChildPageViaSiteTemplateCP(
 			childSitepageName = "true",
@@ -117,10 +111,7 @@ definition {
 			siteChildPageName = "Site Child Page Name",
 			siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addSiteTemplateCP(
 			siteName = "Site Name",
@@ -134,16 +125,11 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.togglePrivacy(privacy = "Public Pages");
-
 		PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(
 			page = "Site Child Page Name",
 			pageName = "Site Page Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		SiteTemplates.deletePage(
 			hasChildren = "true",
@@ -158,13 +144,9 @@ definition {
 
 		Page.viewNoPG(pageName = "Site Child Page Name");
 
-		PagesAdmin.viewPageItemNotPresent(
-			pageName = "Site Page Name",
-			privacy = "Public Pages");
+		PagesAdmin.viewPageItemNotPresent(pageName = "Site Page Name");
 
-		PagesAdmin.viewPageItemNotPresent(
-			pageName = "Site Child Page Name",
-			privacy = "Public Pages");
+		PagesAdmin.viewPageItemNotPresent(pageName = "Site Child Page Name");
 
 		AssertConsoleTextNotPresent(value1 = "java.lang.NullPointerException");
 	}
@@ -196,10 +178,7 @@ definition {
 			siteName = "${siteName}",
 			siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addSiteTemplateCP(
 			siteName = "Site Name",
@@ -219,10 +198,7 @@ definition {
 	test EditSiteTemplateGuestPermissions {
 		SiteTemplates.addCP(siteTemplateName = "${siteTemplateName}");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addSiteTemplateCP(
 			siteName = "Site Name",
@@ -258,10 +234,7 @@ definition {
 	test ImportOldSchemaVersion {
 		property test.name.skip.portal.instance = "SitetemplatesUsecase#ImportOldSchemaVerion";
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		LAR.importPortlet(
 			importSchemaVersionMismatching = "true",
@@ -293,10 +266,7 @@ definition {
 			pageName = "Page2 Name",
 			siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addSiteTemplateCP(
 			siteName = "Site Name",
@@ -314,10 +284,7 @@ definition {
 
 		Refresh();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		SiteTemplates.gotoViewPages(
 			siteName = "${siteName}",
@@ -348,20 +315,14 @@ definition {
 	test SiteAdminCannotDeletePagesThatWereCreatedBySiteTemplates {
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.addCP(
 			selectSiteTemplate = "true",
 			siteTemplateName = "Site Template Name",
 			userGroupName = "UG UserGroup Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Manage Pages");
 
@@ -369,9 +330,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(
-			page = "Home",
-			pageName = "Public Pages");
+		PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(page = "Home");
 	}
 
 	@description = "LRQA-73456. Site template preferences and contents are inherited on User group sites."
@@ -384,10 +343,7 @@ definition {
 
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Site Templates");
+		SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
 		SiteTemplates.gotoViewPages(
 			siteName = "${siteName}",
@@ -398,6 +354,10 @@ definition {
 		PageEditor.addWidget(portletName = "Message Boards");
 
 		PageEditor.clickPublish();
+
+		MessageboardsThread.addPG(
+			threadBody = "Message Boards Body",
+			threadSubject = "Message Boards Subject");
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
@@ -422,19 +382,26 @@ definition {
 			password = "test",
 			userEmailAddress = "userea@liferay.com");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
+		UserGroup.openUserGroupsAdmin();
 
 		UserGroup.addCP(
 			selectSiteTemplate = "true",
 			siteTemplateName = "Site Template Name",
-			userGroupName = "UG UserGroup Name");
+			userGroupName = "User Group Test");
 
-		User.firstLoginPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
+		UserGroup.gotoProfilePages(
+			siteName = "${siteName}",
+			userGroupName = "User Group Test");
+
+		MessageboardsThread.gotoPG(
+			lastPostUserName = "Test Test",
+			replyCount = "0",
+			threadBody = "Message Boards Body",
+			threadSubject = "Message Boards Subject");
+
+		MessageboardsThread.viewPG(
+			threadBody = "Message Boards Body",
+			threadSubject = "Message Boards Subject");
 	}
 
 	@description = "This is a use case for LRQA-73458. The preferences and contents of a personal site will inherit from site templates."
@@ -475,23 +442,19 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.addPersonalSiteCP(
 			siteTemplateName = "Site Template Name",
 			userScreenName = "usersn");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editPasswordCP(
 			userEmailAddress = "userea@liferay.com",
 			userScreenName = "usersn");
+
+		User.logoutPG();
 
 		User.firstLoginPG(
 			password = "test",
@@ -505,10 +468,6 @@ definition {
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentFile = "Document_1.png",
 			dmDocumentTitle = "Document_1.png");
-
-		User.firstLoginPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This is a use case for LPS-86487. Page links on sites which were created in site templates should redirect correctly to other pages."
@@ -559,10 +518,7 @@ definition {
 
 		Close.closeAndSelectWindow(locator1 = "Site Templates - ${siteName}");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addCP(
 			siteName = "Site Name",
@@ -594,24 +550,19 @@ definition {
 	@description = "This is a use case for LPS-74081. Site pages with numeric friendly URL's can be imported from LAR files."
 	@priority = "4"
 	test ViewImportedSitePageWithNumericFriendlyURL {
+		property test.name.skip.portal.instance = "SitetemplatesUsecase#ViewImportedSitePageWithNumericFriendlyURL";
+
 		var portalURL = PropsUtil.get("portal.url");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
-		Site.addCP(
-			siteName = "Export",
-			siteType = "Blank");
+		JSONGroup.addGroup(groupName = "Export");
 
 		JSONLayout.addPublicLayout(
 			groupName = "Export",
 			layoutName = "1");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+		PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
 		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
@@ -626,9 +577,7 @@ definition {
 			groupName = "Export",
 			layoutName = "2");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+		PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
 		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
@@ -643,9 +592,7 @@ definition {
 			groupName = "Export",
 			layoutName = "Hello");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+		PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
 		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
@@ -664,27 +611,22 @@ definition {
 
 		LAR.downloadLar();
 
-		SiteTemplates.addCP(siteTemplateName = "Template Site");
+		SiteTemplates.addCP(siteTemplateName = "New Site Template");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
+		Site.openSitesAdmin();
 
 		Site.addCP(
 			siteName = "New Site",
-			siteType = "Template");
+			siteTemplateName = "New Site Template");
 
 		LAR.importSiteCP(
 			larFileName = "${larFileName}",
 			siteName = "New Site");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+		PagesAdmin.openPagesAdmin(siteURLKey = "new-site");
 
 		PagesAdmin.viewPagesOrder(
-			depth = "2",
+			depth = "1",
 			pageNameList = "Home,1,2,Hello");
 	}
 
@@ -784,6 +726,8 @@ definition {
 	@description = "This is a use case for LPS-92663. Navigation menus are copied when a site is created from a site template."
 	@priority = "4"
 	test ViewNavigationMenuCopyFromSitesTemplate {
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
+
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
 		SiteTemplates.addCP(

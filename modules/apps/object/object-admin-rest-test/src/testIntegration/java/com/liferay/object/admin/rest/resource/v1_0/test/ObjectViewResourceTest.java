@@ -18,7 +18,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectView;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectViewColumn;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectViewSortColumn;
-import com.liferay.object.admin.rest.configuration.activator.FFObjectViewSortColumnConfigurationUtil;
+import com.liferay.object.admin.rest.resource.v1_0.util.NameMapUtil;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
@@ -30,8 +30,11 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.test.rule.Inject;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -89,6 +92,72 @@ public class ObjectViewResourceTest extends BaseObjectViewResourceTestCase {
 	}
 
 	@Override
+	@Test
+	public void testPostObjectViewCopy() throws Exception {
+		ObjectView objectView = testGetObjectView_addObjectView();
+
+		objectView.setDefaultObjectView(true);
+
+		ObjectView copiedObjectView = objectViewResource.postObjectViewCopy(
+			objectView.getId());
+
+		Assert.assertTrue(
+			Objects.deepEquals(
+				objectView.getActions(), copiedObjectView.getActions()));
+		Assert.assertFalse(copiedObjectView.getDefaultObjectView());
+		Assert.assertEquals(
+			objectView.getObjectDefinitionId(),
+			copiedObjectView.getObjectDefinitionId());
+
+		ObjectViewColumn[] objectViewColumns =
+			objectView.getObjectViewColumns();
+		ObjectViewColumn[] copiedObjectViewColumns =
+			copiedObjectView.getObjectViewColumns();
+
+		for (int i = 0; i < objectViewColumns.length; i++) {
+			ObjectViewColumn objectViewColumn = objectViewColumns[i];
+			ObjectViewColumn copiedObjectViewColumn =
+				copiedObjectViewColumns[i];
+
+			Assert.assertEquals(
+				objectViewColumn.getObjectFieldName(),
+				copiedObjectViewColumn.getObjectFieldName());
+			Assert.assertEquals(
+				objectViewColumn.getPriority(),
+				copiedObjectViewColumn.getPriority());
+		}
+
+		ObjectViewSortColumn[] objectViewSortColumns =
+			objectView.getObjectViewSortColumns();
+		ObjectViewSortColumn[] copiedObjectViewSortColumns =
+			copiedObjectView.getObjectViewSortColumns();
+
+		for (int i = 0; i < objectViewSortColumns.length; i++) {
+			ObjectViewSortColumn objectViewSortColumn =
+				objectViewSortColumns[i];
+			ObjectViewSortColumn objectViewSortColumnCopy =
+				copiedObjectViewSortColumns[i];
+
+			Assert.assertEquals(
+				objectViewSortColumn.getObjectFieldName(),
+				objectViewSortColumnCopy.getObjectFieldName());
+			Assert.assertEquals(
+				objectViewSortColumn.getPriority(),
+				objectViewSortColumnCopy.getPriority());
+			Assert.assertEquals(
+				objectViewSortColumn.getSortOrderAsString(),
+				objectViewSortColumnCopy.getSortOrderAsString());
+		}
+
+		Assert.assertTrue(
+			equals(
+				NameMapUtil.copy(objectView.getName()),
+				(Map)copiedObjectView.getName()));
+
+		assertValid(copiedObjectView);
+	}
+
+	@Override
 	protected ObjectView randomObjectView() throws Exception {
 		ObjectView objectView = super.randomObjectView();
 
@@ -99,11 +168,8 @@ public class ObjectViewResourceTest extends BaseObjectViewResourceTestCase {
 			_objectDefinition.getObjectDefinitionId());
 		objectView.setObjectViewColumns(
 			new ObjectViewColumn[] {_randomObjectViewColumn()});
-
-		if (FFObjectViewSortColumnConfigurationUtil.enabled()) {
-			objectView.setObjectViewSortColumns(
-				new ObjectViewSortColumn[] {_randomObjectViewSortColumn()});
-		}
+		objectView.setObjectViewSortColumns(
+			new ObjectViewSortColumn[] {_randomObjectViewSortColumn()});
 
 		return objectView;
 	}

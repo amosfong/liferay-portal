@@ -71,6 +71,16 @@ export default function MappedProductRow({
 									Liferay.ThemeDisplay.getLanguageId()
 							  ]
 							: product.sku}
+
+						{product.type === 'sku' && (
+							<p className="m-0 text-weight-light">
+								{
+									product.productName[
+										Liferay.ThemeDisplay.getLanguageId()
+									]
+								}
+							</p>
+						)}
 					</ClayButton>
 				</div>
 			</ClayTable.Cell>

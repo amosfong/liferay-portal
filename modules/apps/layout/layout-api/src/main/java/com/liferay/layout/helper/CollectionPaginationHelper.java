@@ -21,6 +21,8 @@ import com.liferay.info.pagination.Pagination;
  */
 public interface CollectionPaginationHelper {
 
+	public static final String PAGINATION_TYPE_NONE = "none";
+
 	public static final String PAGINATION_TYPE_NUMERIC = "numeric";
 
 	public static final String PAGINATION_TYPE_REGULAR = "regular";
@@ -30,12 +32,12 @@ public interface CollectionPaginationHelper {
 	public Pagination getPagination(
 		int activePage, int count, boolean displayAllPages,
 		boolean displayAllItems, int numberOfItems, int numberOfItemsPerPage,
-		int numberOfPages, String paginationType, boolean showAllItems);
+		int numberOfPages, String paginationType);
 
 	public int getTotalNumberOfItems(
 		int count, boolean displayAllPages, boolean displayAllItems,
 		int numberOfItems, int numberOfItemsPerPage, int numberOfPages,
-		String paginationType, boolean showAllItems);
+		String paginationType);
 
 	public boolean isPaginationEnabled(String paginationType);
 

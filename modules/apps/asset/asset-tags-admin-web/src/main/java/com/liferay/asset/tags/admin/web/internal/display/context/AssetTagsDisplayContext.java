@@ -84,7 +84,7 @@ public class AssetTagsDisplayContext {
 								).setParameter(
 									"tagId", tag.getTagId()
 								).buildString());
-
+							dropdownItem.setIcon("pencil");
 							dropdownItem.setLabel(
 								LanguageUtil.get(_httpServletRequest, "edit"));
 						}
@@ -105,7 +105,7 @@ public class AssetTagsDisplayContext {
 								).setParameter(
 									"mergeTagIds", tag.getTagId()
 								).buildString());
-
+							dropdownItem.setIcon("merge");
 							dropdownItem.setLabel(
 								LanguageUtil.get(_httpServletRequest, "merge"));
 						}
@@ -118,7 +118,6 @@ public class AssetTagsDisplayContext {
 					DropdownItemListBuilder.add(
 						dropdownItem -> {
 							dropdownItem.putData("action", "deleteTag");
-
 							dropdownItem.putData(
 								"deleteTagURL",
 								PortletURLBuilder.createActionURL(
@@ -130,7 +129,7 @@ public class AssetTagsDisplayContext {
 								).setParameter(
 									"tagId", tag.getTagId()
 								).buildString());
-
+							dropdownItem.setIcon("trash");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "delete"));

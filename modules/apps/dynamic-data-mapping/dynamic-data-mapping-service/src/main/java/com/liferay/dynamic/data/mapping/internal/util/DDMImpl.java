@@ -64,7 +64,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Image;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -76,7 +75,7 @@ import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -325,10 +324,9 @@ public class DDMImpl implements DDM {
 			boolean privateLayout = jsonObject.getBoolean("privateLayout");
 			long layoutId = jsonObject.getLong("layoutId");
 
-			Layout layout = _layoutLocalService.getLayout(
-				groupId, privateLayout, layoutId);
-
-			fieldValue = _portal.getLayoutFriendlyURL(layout, themeDisplay);
+			fieldValue = _portal.getLayoutFriendlyURL(
+				_layoutLocalService.getLayout(groupId, privateLayout, layoutId),
+				themeDisplay);
 		}
 		else if (type.equals(DDMFormFieldType.SELECT)) {
 			String valueString = String.valueOf(fieldValue);
@@ -1162,7 +1160,7 @@ public class DDMImpl implements DDM {
 		String url = uploadRequest.getParameter(fieldNameValue + "URL");
 
 		long imageId = GetterUtil.getLong(
-			_http.getParameter(url, "img_id", false));
+			HttpComponentsUtil.getParameter(url, "img_id", false));
 
 		Image image = _imageLocalService.fetchImage(imageId);
 
@@ -1340,10 +1338,6 @@ public class DDMImpl implements DDM {
 	private DLURLHelper _dlURLHelper;
 
 	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
-
-	@Reference
-	private Http _http;
-
 	private ImageLocalService _imageLocalService;
 
 	@Reference(target = "(ddm.form.deserializer.type=json)")

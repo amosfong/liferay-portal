@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
@@ -429,9 +430,10 @@ public class KaleoFormsAdminPortlet extends MVCPortlet {
 
 		KaleoFormsAdminDisplayContext kaleoFormsAdminDisplayContext =
 			new KaleoFormsAdminDisplayContext(
-				renderRequest, renderResponse, _ddlRecordLocalService,
-				_ddmDisplayRegistry, _kaleoDefinitionVersionLocalService,
-				_kaleoFormsWebConfiguration, storageEngine);
+				_ddlRecordLocalService, _ddmDisplayRegistry, _htmlParser,
+				_kaleoDefinitionVersionLocalService,
+				_kaleoFormsWebConfiguration, renderRequest, renderResponse,
+				storageEngine);
 
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, kaleoFormsAdminDisplayContext);
@@ -448,6 +450,9 @@ public class KaleoFormsAdminPortlet extends MVCPortlet {
 
 	@Reference
 	private DDMFormDeserializerTracker _ddmFormDeserializerTracker;
+
+	@Reference
+	private HtmlParser _htmlParser;
 
 	@Reference
 	private KaleoDefinitionVersionLocalService

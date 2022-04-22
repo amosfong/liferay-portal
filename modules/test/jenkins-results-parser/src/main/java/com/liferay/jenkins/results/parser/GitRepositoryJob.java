@@ -31,7 +31,7 @@ import org.json.JSONObject;
 public abstract class GitRepositoryJob extends BaseJob {
 
 	public String getBranchName() {
-		return _upstreamBranchName;
+		return getUpstreamBranchName();
 	}
 
 	public GitWorkingDirectory getGitWorkingDirectory() {
@@ -68,9 +68,18 @@ public abstract class GitRepositoryJob extends BaseJob {
 		jsonObject = super.getJSONObject();
 
 		jsonObject.put("branch", _getBranchJSONObject());
+		jsonObject.put("git_repository_dir", gitRepositoryDir);
 		jsonObject.put("upstream_branch_name", _upstreamBranchName);
 
 		return jsonObject;
+	}
+
+	public String getRepositoryName() {
+		String gitRepositoryDirPath = JenkinsResultsParserUtil.getCanonicalPath(
+			gitRepositoryDir);
+
+		return JenkinsResultsParserUtil.getGitRepositoryName(
+			gitRepositoryDirPath.replaceAll(".*/([^/]+)", "$1"));
 	}
 
 	public String getUpstreamBranchName() {
@@ -78,12 +87,6 @@ public abstract class GitRepositoryJob extends BaseJob {
 	}
 
 	public void setGitRepositoryDir(File gitRepositoryDir) {
-		if (this.gitRepositoryDir != null) {
-			throw new IllegalStateException(
-				"Repository directory is already set to " +
-					this.gitRepositoryDir.getPath());
-		}
-
 		this.gitRepositoryDir = gitRepositoryDir;
 	}
 
@@ -112,6 +115,7 @@ public abstract class GitRepositoryJob extends BaseJob {
 	protected GitRepositoryJob(JSONObject jsonObject) {
 		super(jsonObject);
 
+		gitRepositoryDir = new File(jsonObject.getString("git_repository_dir"));
 		_upstreamBranchName = jsonObject.getString("upstream_branch_name");
 	}
 
@@ -130,6 +134,10 @@ public abstract class GitRepositoryJob extends BaseJob {
 	protected GitWorkingDirectory gitWorkingDirectory;
 
 	private JSONObject _getBranchJSONObject() {
+		if ((jsonObject != null) && jsonObject.has("branch")) {
+			return jsonObject.getJSONObject("branch");
+		}
+
 		JSONObject branchJSONObject = new JSONObject();
 
 		GitWorkingDirectory gitWorkingDirectory = getGitWorkingDirectory();

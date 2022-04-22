@@ -15,8 +15,8 @@
 import ClayButton from '@clayui/button';
 import ClayForm, {ClayCheckbox} from '@clayui/form';
 import ClayList from '@clayui/list';
-import ClayManagementToolbar from '@clayui/management-toolbar';
 import ClayModal from '@clayui/modal';
+import {ManagementToolbar} from 'frontend-js-components-web';
 import React, {FormEvent, useContext, useEffect, useState} from 'react';
 
 import {ManagementToolbarSearch} from '../ManagementToolbarSearch/ManagementToolbarSearch';
@@ -108,8 +108,9 @@ const ModalAddColumnsObjectCustomView: React.FC<IProps> = ({
 			setCheckedItems(
 				newFiltredItems.map((filteredItem, index) => {
 					return {
+						fieldLabel: filteredItem.label[defaultLanguageId],
 						isDefaultSort: false,
-						label: filteredItem.label[defaultLanguageId],
+						label: filteredItem.label,
 						objectFieldName: filteredItem.name,
 						priority: index,
 					};
@@ -135,8 +136,9 @@ const ModalAddColumnsObjectCustomView: React.FC<IProps> = ({
 					setCheckedItems([
 						...checkedItems,
 						{
+							fieldLabel: field.label[defaultLanguageId],
 							isDefaultSort: false,
-							label: field.label[defaultLanguageId],
+							label: field.label,
 							objectFieldName: field.name,
 							priority: index,
 						},
@@ -186,9 +188,9 @@ const ModalAddColumnsObjectCustomView: React.FC<IProps> = ({
 					{Liferay.Language.get('select-the-columns')}
 				</div>
 
-				<ClayManagementToolbar>
-					<ClayManagementToolbar.ItemList>
-						<ClayManagementToolbar.Item>
+				<ManagementToolbar.Container>
+					<ManagementToolbar.ItemList>
+						<ManagementToolbar.Item>
 							<ClayCheckbox
 								checked={fieldsChecked}
 								indeterminate={
@@ -203,14 +205,14 @@ const ModalAddColumnsObjectCustomView: React.FC<IProps> = ({
 									}
 								}}
 							/>
-						</ClayManagementToolbar.Item>
-					</ClayManagementToolbar.ItemList>
+						</ManagementToolbar.Item>
+					</ManagementToolbar.ItemList>
 
 					<ManagementToolbarSearch
 						query={query}
 						setQuery={setQuery}
 					/>
-				</ClayManagementToolbar>
+				</ManagementToolbar.Container>
 			</ClayModal.Body>
 
 			<ClayForm onSubmit={(event) => onSubmit(event)}>

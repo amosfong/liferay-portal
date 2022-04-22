@@ -16,20 +16,20 @@ import ClayEmptyState from '@clayui/empty-state';
 import ClayIcon from '@clayui/icon';
 import ClayList from '@clayui/list';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import ClayManagementToolbar from '@clayui/management-toolbar';
 import {ClayPaginationWithBasicItems} from '@clayui/pagination';
 import ClayPaginationBar from '@clayui/pagination-bar';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import getCN from 'classnames';
+import {ManagementToolbar} from 'frontend-js-components-web';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 
+import useDidUpdateEffect from '../../hooks/useDidUpdateEffect';
 import ErrorListItem from '../../shared/ErrorListItem';
 import {PreviewModalWithCopyDownload} from '../../shared/PreviewModal';
 import SearchInput from '../../shared/SearchInput';
 import {sub} from '../../utils/language';
 import {TEST_IDS} from '../../utils/testIds';
-import useDidUpdateEffect from '../../utils/useDidUpdateEffect';
 import {isDefined, parseAndPrettifyJSON} from '../../utils/utils';
 import PreviewAttributesModal from './PreviewAttributesModal';
 import ResultListItem from './ResultListItem';
@@ -41,6 +41,7 @@ function PreviewSidebar({
 	hits = [],
 	loading,
 	onClose,
+	onFetchCancel,
 	onFetchResults,
 	onFocusSXPElement,
 	responseString = '',
@@ -51,6 +52,7 @@ function PreviewSidebar({
 	const [activeDelta, setActiveDelta] = useState(10);
 	const [activePage, setActivePage] = useState(1);
 	const [attributes, setAttributes] = useState([]);
+	const [showCancel, setShowCancel] = useState(false);
 	const [value, setValue] = useState('');
 
 	const _handleAttributesSubmit = (attributes) => {
@@ -58,7 +60,9 @@ function PreviewSidebar({
 	};
 
 	const _handleFetch = () => {
+		setShowCancel(false);
 		onFetchResults(value, activeDelta, activePage, attributes);
+		setTimeout(() => setShowCancel(true), 10000);
 	};
 
 	useDidUpdateEffect(() => {
@@ -136,9 +140,9 @@ function PreviewSidebar({
 	);
 
 	const _renderResultsManagementBar = () => (
-		<ClayManagementToolbar>
-			<ClayManagementToolbar.ItemList>
-				<ClayManagementToolbar.Item>
+		<ManagementToolbar.Container>
+			<ManagementToolbar.ItemList>
+				<ManagementToolbar.Item>
 					<span className="text-truncate-inline total-hits-label">
 						<span className="text-truncate">
 							{sub(Liferay.Language.get('x-results'), [
@@ -148,9 +152,9 @@ function PreviewSidebar({
 							])}
 						</span>
 					</span>
-				</ClayManagementToolbar.Item>
+				</ManagementToolbar.Item>
 
-				<ClayManagementToolbar.Item>
+				<ManagementToolbar.Item>
 					<ClayButton
 						aria-label={Liferay.Language.get('refresh')}
 						disabled={loading}
@@ -160,11 +164,11 @@ function PreviewSidebar({
 					>
 						{Liferay.Language.get('refresh')}
 					</ClayButton>
-				</ClayManagementToolbar.Item>
-			</ClayManagementToolbar.ItemList>
+				</ManagementToolbar.Item>
+			</ManagementToolbar.ItemList>
 
-			<ClayManagementToolbar.ItemList>
-				<ClayManagementToolbar.Item>
+			<ManagementToolbar.ItemList>
+				<ManagementToolbar.Item>
 					<PreviewModalWithCopyDownload
 						fileName="raw_response.json"
 						folded
@@ -183,9 +187,9 @@ function PreviewSidebar({
 							{Liferay.Language.get('view-raw-response')}
 						</ClayButton>
 					</PreviewModalWithCopyDownload>
-				</ClayManagementToolbar.Item>
-			</ClayManagementToolbar.ItemList>
-		</ClayManagementToolbar>
+				</ManagementToolbar.Item>
+			</ManagementToolbar.ItemList>
+		</ManagementToolbar.Container>
 	);
 
 	return (
@@ -294,7 +298,26 @@ function PreviewSidebar({
 					</div>
 				)
 			) : (
-				<ClayLoadingIndicator />
+				<>
+					<ClayLoadingIndicator />
+
+					{showCancel && (
+						<div className="search-message">
+							{Liferay.Language.get(
+								'it-looks-like-this-is-taking-longer-than-expected'
+							)}
+
+							<ClayButton
+								className="cancel"
+								displayType="secondary"
+								onClick={onFetchCancel}
+								small
+							>
+								{Liferay.Language.get('cancel')}
+							</ClayButton>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
@@ -305,6 +328,7 @@ PreviewSidebar.propTypes = {
 	hits: PropTypes.arrayOf(PropTypes.object),
 	loading: PropTypes.bool,
 	onClose: PropTypes.func,
+	onFetchCancel: PropTypes.func,
 	onFetchResults: PropTypes.func,
 	onFocusSXPElement: PropTypes.func,
 	responseString: PropTypes.string,

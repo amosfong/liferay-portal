@@ -15,7 +15,6 @@
 package com.liferay.journal.web.internal.info.item.renderer;
 
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
-import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.info.item.renderer.InfoItemRenderer;
 import com.liferay.journal.model.JournalArticle;
@@ -51,17 +50,21 @@ public class JournalArticleAbstractInfoItemRenderer
 		JournalArticle article, HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) {
 
+		if (!JournalArticleRendererUtil.isShowArticle(
+				httpServletRequest, article)) {
+
+			return;
+		}
+
 		try {
 			AssetRendererFactory<?> assetRendererFactory =
 				AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClass(
 					JournalArticle.class);
 
-			AssetRenderer<?> assetRenderer =
-				assetRendererFactory.getAssetRenderer(
-					article.getResourcePrimKey());
-
 			httpServletRequest.setAttribute(
-				WebKeys.ASSET_RENDERER, assetRenderer);
+				WebKeys.ASSET_RENDERER,
+				assetRendererFactory.getAssetRenderer(
+					article.getResourcePrimKey()));
 
 			httpServletRequest.setAttribute(WebKeys.JOURNAL_ARTICLE, article);
 

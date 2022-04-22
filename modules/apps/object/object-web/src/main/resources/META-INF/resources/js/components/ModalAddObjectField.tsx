@@ -14,26 +14,15 @@
 
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
-import ClayForm, {ClayToggle} from '@clayui/form';
+import ClayForm from '@clayui/form';
 import ClayModal, {ClayModalProvider, useModal} from '@clayui/modal';
 import {fetch} from 'frontend-js-web';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
-import useForm from '../hooks/useForm';
 import {ERRORS} from '../utils/errors';
 import {toCamelCase} from '../utils/string';
-import CustomSelect from './Form/CustomSelect/CustomSelect';
 import Input from './Form/Input';
-import Select from './Form/Select';
-
-const userComputer = {
-	description: Liferay.Language.get(
-		'files-can-be-stored-in-an-object-entry-or-in-a-specific-folder-in-documents-and-media'
-	),
-	label: Liferay.Language.get('upload-directly-from-users-computer'),
-};
-
-const attachmentSources = [userComputer];
+import ObjectFieldFormBase, {useObjectFieldForm} from './ObjectFieldFormBase';
 
 const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId() as Liferay.Language.Locale;
 
@@ -42,44 +31,21 @@ const headers = new Headers({
 	'Content-Type': 'application/json',
 });
 
-async function fetchPickList() {
-	const result = await fetch(
-		'/o/headless-admin-list-type/v1.0/list-type-definitions?pageSize=-1',
-		{
-			headers,
-			method: 'GET',
-		}
-	);
-
-	const {items = []} = (await result.json()) as {
-		items: IPicklist[] | undefined;
-	};
-
-	return items.map(({id, name}) => ({id, name}));
-}
-
 function ModalAddObjectField({
+	allowMaxLength,
+	allowUploadDocAndMedia,
 	apiURL,
 	objectFieldTypes,
+	objectName,
 	observer,
 	onClose,
 }: IModal) {
-	const businessTypeMap = useMemo(() => {
-		const businessTypeMap = new Map<string, ObjectFieldType>();
-
-		objectFieldTypes.forEach((type) => {
-			businessTypeMap.set(type.businessType, type);
-		});
-
-		return businessTypeMap;
-	}, [objectFieldTypes]);
-
 	const [error, setError] = useState<string>('');
-	const [picklist, setPicklist] = useState<IPicklist[]>([]);
 
 	const initialValues: Partial<ObjectField> = {
 		indexed: true,
 		indexedAsKeyword: false,
+		indexedLanguageId: null,
 		listTypeDefinitionId: 0,
 		required: false,
 	};
@@ -106,80 +72,23 @@ function ModalAddObjectField({
 		}
 		else {
 			const {type} = (await response.json()) as any;
-			const isMapped = Object.prototype.hasOwnProperty.call(ERRORS, type);
-			const errorMessage = isMapped
-				? ERRORS[type]
-				: Liferay.Language.get('an-error-occurred');
+			const errorMessage =
+				ERRORS[type] ?? Liferay.Language.get('an-error-occurred');
 
 			setError(errorMessage);
 		}
 	};
 
-	const validate = (field: Partial<ObjectField>) => {
-		const errors: any = {};
-
-		if (!field.label?.[defaultLanguageId]) {
-			errors.label = Liferay.Language.get('required');
-		}
-
-		if (
-			!(
-				field.name ??
-				toCamelCase(field.label?.[defaultLanguageId] as string)
-			)
-		) {
-			errors.name = Liferay.Language.get('required');
-		}
-
-		if (!field.businessType) {
-			errors.businessType = Liferay.Language.get('required');
-		}
-
-		if (field.businessType === 'Picklist' && !field.listTypeDefinitionId) {
-			errors.listTypeDefinitionId = Liferay.Language.get('required');
-		}
-
-		return errors;
-	};
-
-	const {errors, handleChange, handleSubmit, setValues, values} = useForm({
+	const {
+		errors,
+		handleChange,
+		handleSubmit,
+		setValues,
+		values,
+	} = useObjectFieldForm({
 		initialValues,
 		onSubmit,
-		validate,
 	});
-
-	const handleTypeChange = async (option: ObjectFieldType) => {
-		if (option.businessType === 'Picklist') {
-			setPicklist(await fetchPickList());
-		}
-
-		const objectFieldSettings: ObjectFieldSetting[] | undefined =
-			option.businessType === 'Attachment'
-				? [
-						{
-							name: 'acceptedFileExtensions',
-							required: true,
-							value: 'jpeg, jpg, pdf, png',
-						},
-						{
-							name: 'fileSource',
-							required: true,
-							value: 'userComputer',
-						},
-						{
-							name: 'maximumFileSize',
-							required: true,
-							value: 100,
-						},
-				  ]
-				: undefined;
-
-		setValues({
-			DBType: option.dbType,
-			businessType: option.businessType,
-			objectFieldSettings,
-		});
-	};
 
 	return (
 		<ClayModal observer={observer}>
@@ -195,7 +104,6 @@ function ModalAddObjectField({
 
 					<Input
 						error={errors.label}
-						id="objectFieldLabel"
 						label={Liferay.Language.get('label')}
 						name="label"
 						onChange={({target: {value}}) => {
@@ -205,66 +113,21 @@ function ModalAddObjectField({
 						value={values.label?.[defaultLanguageId]}
 					/>
 
-					<Input
-						error={errors.name || errors.label}
-						id="objectFieldName"
-						label={Liferay.Language.get('field-name')}
-						name="name"
-						onChange={handleChange}
-						required
-						value={
-							values.name ??
-							toCamelCase(values.label?.[defaultLanguageId] ?? '')
-						}
-					/>
-
-					<CustomSelect<ObjectFieldType>
-						error={errors.businessType}
-						label={Liferay.Language.get('type')}
-						onChange={handleTypeChange}
-						options={objectFieldTypes}
-						required
-						value={
-							businessTypeMap.get(values.businessType ?? '')
-								?.label
-						}
-					/>
-
-					{values.businessType === 'Attachment' && (
-						<CustomSelect
-							label={Liferay.Language.get('request-files')}
-							options={attachmentSources}
-							required
-							value={userComputer.label}
-						/>
-					)}
-
-					{values.businessType === 'Picklist' && (
-						<Select
-							error={errors.listTypeDefinitionId}
-							label={Liferay.Language.get('picklist')}
-							onChange={({target: {value}}: any) =>
-								setValues({
-									listTypeDefinitionId: Number(
-										picklist[Number(value) - 1].id
-									),
-								})
-							}
-							options={picklist.map(({name}) => name)}
-							required
-						/>
-					)}
-
-					<ClayToggle
-						label={Liferay.Language.get('mandatory')}
-						onToggle={() => setValues({required: !values.required})}
-						toggled={values.required}
+					<ObjectFieldFormBase
+						allowMaxLength={allowMaxLength}
+						allowUploadDocAndMedia={allowUploadDocAndMedia}
+						errors={errors}
+						handleChange={handleChange}
+						objectField={values}
+						objectFieldTypes={objectFieldTypes}
+						objectName={objectName}
+						setValues={setValues}
 					/>
 				</ClayModal.Body>
 
 				<ClayModal.Footer
 					last={
-						<ClayButton.Group key={1} spaced>
+						<ClayButton.Group spaced>
 							<ClayButton
 								displayType="secondary"
 								onClick={() => onClose()}
@@ -272,7 +135,7 @@ function ModalAddObjectField({
 								{Liferay.Language.get('cancel')}
 							</ClayButton>
 
-							<ClayButton displayType="primary" type="submit">
+							<ClayButton type="submit">
 								{Liferay.Language.get('save')}
 							</ClayButton>
 						</ClayButton.Group>
@@ -283,7 +146,13 @@ function ModalAddObjectField({
 	);
 }
 
-export default function ModalWithProvider({apiURL, objectFieldTypes}: IProps) {
+export default function ModalWithProvider({
+	allowMaxLength,
+	allowUploadDocAndMedia,
+	apiURL,
+	objectFieldTypes,
+	objectName,
+}: IProps) {
 	const [isVisible, setVisibility] = useState<boolean>(false);
 	const {observer, onClose} = useModal({onClose: () => setVisibility(false)});
 
@@ -297,8 +166,11 @@ export default function ModalWithProvider({apiURL, objectFieldTypes}: IProps) {
 		<ClayModalProvider>
 			{isVisible && (
 				<ModalAddObjectField
+					allowMaxLength={allowMaxLength}
+					allowUploadDocAndMedia={allowUploadDocAndMedia}
 					apiURL={apiURL}
 					objectFieldTypes={objectFieldTypes}
+					objectName={objectName}
 					observer={observer}
 					onClose={onClose}
 				/>
@@ -308,16 +180,16 @@ export default function ModalWithProvider({apiURL, objectFieldTypes}: IProps) {
 }
 
 interface IModal extends IProps {
+	allowMaxLength: boolean;
+	allowUploadDocAndMedia: boolean;
 	observer: any;
 	onClose: () => void;
 }
 
-interface IPicklist {
-	id: string;
-	name: string;
-}
-
 interface IProps {
+	allowMaxLength: boolean;
+	allowUploadDocAndMedia: boolean;
 	apiURL: string;
 	objectFieldTypes: ObjectFieldType[];
+	objectName: string;
 }

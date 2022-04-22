@@ -3,26 +3,15 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Order Management";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
+		CommerceConfiguration.commerceSetUp();
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6226. Price Entry lifecycle"
@@ -471,7 +460,7 @@ definition {
 			if ("${isLessThan21}" == "false") {
 				Click(
 					key_pageNumber = "2",
-					locator1 = "Pagination#ANY_PAGE");
+					locator1 = "CommerceNavigation#PAGINATION_ANY_PAGE");
 
 				WaitForElementPresent(
 					key_index = "${aux_iterator}",
@@ -480,7 +469,7 @@ definition {
 			else if ("${isLessThan41}" == "false") {
 				Click(
 					key_pageNumber = "3",
-					locator1 = "Pagination#ANY_PAGE");
+					locator1 = "CommerceNavigation#PAGINATION_ANY_PAGE");
 
 				WaitForElementPresent(
 					key_index = "${aux_iterator}",
@@ -691,7 +680,7 @@ definition {
 			key_entryName = "AccountGroup1",
 			locator1 = "CommerceEntry#TABLE_ELIGIBILITY_ACCOUNT_GROUPS");
 
-		ClickNoError(locator1 = "Button#MOVE_TO_RECYCLE_BIN");
+		ClickNoError(locator1 = "Button#TRASH_ENABLED");
 
 		Button.clickPublish();
 
@@ -1093,14 +1082,124 @@ definition {
 			value1 = "7.45");
 	}
 
-	@description = "This is a test for COMMERCE-6220. When creating a price list only catalogs for which the user has permission should be visible in the drop down"
-	@ignore = "true"
+	@description = "This is a test for COMMERCE-8568. Verify multiple Price Entries can be set on the same Price List for the same SKU"
 	@priority = "3"
-	test AllowMultiplePriceEntriesOnTheSamePriceList {
+	test AllowMultiplePriceEntriesInTheSamePriceList {
+		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
 		property portal.acceptance = "false";
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 
-		// TODO COMMERCE-8568 AllowMultiplePriceEntriesOnTheSamePriceList Pending Implementation
+		// TODO COMMERCE-9089 Find alternative to having a pause to wait for a timed expiration and publication
 
+		task ("Given a Minium site with a buyer user") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+			CommerceEntry.addAccountEntryUser(
+				accountName = "Commerce Account",
+				accountType = "Business",
+				agreeToTermsAndAnswerReminderQuery = "true",
+				createNewAccount = "true",
+				requireReset = "false",
+				userEmailAddress = "buyer@liferay.com",
+				userFirstName = "Buyer",
+				userLastName = "User",
+				userRole = "Buyer",
+				userScreenName = "buyeruser",
+				userSiteMembership = "Minium");
+		}
+
+		task ("And given a new Test Price List") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				priceListName = "Test Price List");
+		}
+
+		task ("And given a Test Price List entry for U-Joint that is set to expire in 2 minutes") {
+			CommercePriceLists.openPriceListsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Test Price List");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Entries");
+
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "20",
+				priceListName = "Test Price List",
+				productSKU = "MIN55861");
+
+			Refresh();
+
+			CommerceNavigator.gotoEntry(entryName = "MIN55861");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+			CommerceEntry.setExpirationTime(minutesToExpire = "2");
+
+			Button.clickSave();
+		}
+
+		task ("And given a Test Price List entry for U-Joint that is set to publish in 3 minutes") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "10",
+				priceListName = "Test Price List",
+				productSKU = "MIN55861");
+
+			Refresh();
+
+			Click(
+				key_rowNumber = "2",
+				locator1 = "CommerceNavigation#ENTRY_NAME_N");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+			CommerceEntry.setPublishTime(minutesToPublish = "3");
+
+			Button.clickSave();
+		}
+
+		task ("When the buyer navigates to the Minium Catalog") {
+			Refresh();
+
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then the U-Joint price is the first price entry price (20.00)") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE",
+				value1 = "20.00");
+		}
+
+		task ("When the first price entry expires and the buyer views the U-Joint product") {
+			Pause(locator1 = "90000");
+
+			Refresh();
+		}
+
+		task ("Then the U-Joint price is the base price (24.00)") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE",
+				value1 = "24.00");
+		}
+
+		task ("When the second price entry is published and the buyer views the U-Joint product") {
+			Pause(locator1 = "30000");
+
+			Refresh();
+		}
+
+		task ("Then the U-Joint price is the second price entry price (10.00)") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE",
+				value1 = "10.00");
+		}
 	}
 
 	test AssertPriceEntriesAreProductsInTheSameCatalogAsPriceList {

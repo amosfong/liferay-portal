@@ -22,27 +22,25 @@ import {LoadingWrapper} from '../../../components/Loading';
 import QATable from '../../../components/Table/QATable';
 import {
 	CType,
+	TestrayComponent,
 	TestraySuite,
-	getTestrayCases,
-	getTestraySuite,
+	getCases,
+	getSuite,
 } from '../../../graphql/queries';
 import useHeader from '../../../hooks/useHeader';
 import i18n from '../../../i18n';
 
 const Suite = () => {
-	const {testraySuiteId} = useParams();
+	const {projectId, testraySuiteId} = useParams();
 	const {testrayProject}: any = useOutletContext();
 
-	const {data, loading} = useQuery<CType<'testraySuite', TestraySuite>>(
-		getTestraySuite,
-		{
-			variables: {
-				testraySuiteId,
-			},
-		}
-	);
+	const {data, loading} = useQuery<CType<'suite', TestraySuite>>(getSuite, {
+		variables: {
+			suiteId: testraySuiteId,
+		},
+	});
 
-	const testraySuite = data?.c.testraySuite;
+	const testraySuite = data?.c.suite;
 
 	const {setHeading} = useHeader({shouldUpdate: false});
 
@@ -55,7 +53,7 @@ const Suite = () => {
 					title: testrayProject.name,
 				},
 				{
-					category: i18n.translate('case').toUpperCase(),
+					category: i18n.translate('suite').toUpperCase(),
 					title: testraySuite.name,
 				},
 			]);
@@ -113,7 +111,7 @@ const Suite = () => {
 
 			<Container className="mt-4">
 				<ListView
-					query={getTestrayCases}
+					query={getCases}
 					tableProps={{
 						columns: [
 							{
@@ -122,6 +120,8 @@ const Suite = () => {
 							},
 							{
 								key: 'component',
+								render: (component: TestrayComponent) =>
+									component?.name,
 								value: i18n.translate('component'),
 							},
 							{
@@ -130,9 +130,13 @@ const Suite = () => {
 								value: i18n.translate('case-name'),
 							},
 						],
-						navigateTo: ({id}) => id?.toString(),
+						navigateTo: ({id}) =>
+							`/project/${projectId}/cases/${id}`,
 					}}
-					transformData={(data) => data?.c?.testrayCases}
+					transformData={(data) => data?.cases}
+					variables={{
+						filter: `suiteId eq ${testraySuiteId}`,
+					}}
 				/>
 			</Container>
 		</LoadingWrapper>

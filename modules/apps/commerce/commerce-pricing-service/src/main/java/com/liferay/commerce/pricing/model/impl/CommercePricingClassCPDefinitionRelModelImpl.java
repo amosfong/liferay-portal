@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -74,7 +73,7 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 	public static final String TABLE_NAME = "CPricingClassCPDefinitionRel";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"CPricingClassCPDefinitionRelId", Types.BIGINT},
 		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
@@ -88,6 +87,7 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("CPricingClassCPDefinitionRelId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
@@ -99,7 +99,7 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CPricingClassCPDefinitionRel (mvccVersion LONG default 0 not null,CPricingClassCPDefinitionRelId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commercePricingClassId LONG,CPDefinitionId LONG)";
+		"create table CPricingClassCPDefinitionRel (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,CPricingClassCPDefinitionRelId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commercePricingClassId LONG,CPDefinitionId LONG,primary key (CPricingClassCPDefinitionRelId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CPricingClassCPDefinitionRel";
@@ -246,35 +246,6 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function
-		<InvocationHandler, CommercePricingClassCPDefinitionRel>
-			_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			CommercePricingClassCPDefinitionRel.class.getClassLoader(),
-			CommercePricingClassCPDefinitionRel.class, ModelWrapper.class);
-
-		try {
-			Constructor<CommercePricingClassCPDefinitionRel> constructor =
-				(Constructor<CommercePricingClassCPDefinitionRel>)
-					proxyClass.getConstructor(InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map
 		<String, Function<CommercePricingClassCPDefinitionRel, Object>>
 			_attributeGetterFunctions;
@@ -300,6 +271,13 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 			"mvccVersion",
 			(BiConsumer<CommercePricingClassCPDefinitionRel, Long>)
 				CommercePricingClassCPDefinitionRel::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId",
+			CommercePricingClassCPDefinitionRel::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CommercePricingClassCPDefinitionRel, Long>)
+				CommercePricingClassCPDefinitionRel::setCtCollectionId);
 		attributeGetterFunctions.put(
 			"CommercePricingClassCPDefinitionRelId",
 			CommercePricingClassCPDefinitionRel::
@@ -374,6 +352,21 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -607,6 +600,8 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 
 		commercePricingClassCPDefinitionRelImpl.setMvccVersion(
 			getMvccVersion());
+		commercePricingClassCPDefinitionRelImpl.setCtCollectionId(
+			getCtCollectionId());
 		commercePricingClassCPDefinitionRelImpl.
 			setCommercePricingClassCPDefinitionRelId(
 				getCommercePricingClassCPDefinitionRelId());
@@ -634,6 +629,8 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 
 		commercePricingClassCPDefinitionRelImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commercePricingClassCPDefinitionRelImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		commercePricingClassCPDefinitionRelImpl.
 			setCommercePricingClassCPDefinitionRelId(
 				this.<Long>getColumnOriginalValue(
@@ -740,6 +737,9 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 
 		commercePricingClassCPDefinitionRelCacheModel.mvccVersion =
 			getMvccVersion();
+
+		commercePricingClassCPDefinitionRelCacheModel.ctCollectionId =
+			getCtCollectionId();
 
 		commercePricingClassCPDefinitionRelCacheModel.
 			CommercePricingClassCPDefinitionRelId =
@@ -880,11 +880,14 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 		private static final Function
 			<InvocationHandler, CommercePricingClassCPDefinitionRel>
 				_escapedModelProxyProviderFunction =
-					_getProxyProviderFunction();
+					ProxyUtil.getProxyProviderFunction(
+						CommercePricingClassCPDefinitionRel.class,
+						ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _CommercePricingClassCPDefinitionRelId;
 	private long _companyId;
 	private long _userId;
@@ -925,6 +928,7 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"CPricingClassCPDefinitionRelId",
 			_CommercePricingClassCPDefinitionRelId);
@@ -963,21 +967,23 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("CPricingClassCPDefinitionRelId", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("companyId", 4L);
+		columnBitmasks.put("CPricingClassCPDefinitionRelId", 4L);
 
-		columnBitmasks.put("userId", 8L);
+		columnBitmasks.put("companyId", 8L);
 
-		columnBitmasks.put("userName", 16L);
+		columnBitmasks.put("userId", 16L);
 
-		columnBitmasks.put("createDate", 32L);
+		columnBitmasks.put("userName", 32L);
 
-		columnBitmasks.put("modifiedDate", 64L);
+		columnBitmasks.put("createDate", 64L);
 
-		columnBitmasks.put("commercePricingClassId", 128L);
+		columnBitmasks.put("modifiedDate", 128L);
 
-		columnBitmasks.put("CPDefinitionId", 256L);
+		columnBitmasks.put("commercePricingClassId", 256L);
+
+		columnBitmasks.put("CPDefinitionId", 512L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

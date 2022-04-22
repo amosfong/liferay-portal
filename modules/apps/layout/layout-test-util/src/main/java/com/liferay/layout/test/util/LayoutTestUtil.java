@@ -140,46 +140,76 @@ public class LayoutTestUtil {
 	}
 
 	public static Layout addTypeContentLayout(Group group) throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				TestPropsValues.getGroupId(), TestPropsValues.getUserId());
-
 		return LayoutLocalServiceUtil.addLayout(
 			TestPropsValues.getUserId(), group.getGroupId(), false,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
 			LayoutConstants.TYPE_CONTENT, false, StringPool.BLANK,
-			serviceContext);
+			ServiceContextTestUtil.getServiceContext(
+				TestPropsValues.getGroupId(), TestPropsValues.getUserId()));
 	}
 
 	public static Layout addTypeContentLayout(
 			Group group, boolean privateLayout, boolean system)
 		throws Exception {
 
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				TestPropsValues.getGroupId(), TestPropsValues.getUserId());
-
 		return LayoutLocalServiceUtil.addLayout(
 			TestPropsValues.getUserId(), group.getGroupId(), privateLayout,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
 			LayoutConstants.TYPE_CONTENT, false, system, StringPool.BLANK,
-			serviceContext);
+			ServiceContextTestUtil.getServiceContext(
+				TestPropsValues.getGroupId(), TestPropsValues.getUserId()));
 	}
 
-	public static Layout addTypeContentLayout(Group group, String title)
+	public static Layout addTypeContentLayout(Group group, String name)
 		throws Exception {
+
+		return LayoutLocalServiceUtil.addLayout(
+			TestPropsValues.getUserId(), group.getGroupId(), false,
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, name, StringPool.BLANK,
+			StringPool.BLANK, LayoutConstants.TYPE_CONTENT, false,
+			StringPool.BLANK,
+			ServiceContextTestUtil.getServiceContext(
+				TestPropsValues.getGroupId(), TestPropsValues.getUserId()));
+	}
+
+	public static Layout addTypeContentLayout(
+			Group group, String name, String title)
+		throws Exception {
+
+		return LayoutLocalServiceUtil.addLayout(
+			TestPropsValues.getUserId(), group.getGroupId(), false,
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, name, title,
+			StringPool.BLANK, LayoutConstants.TYPE_CONTENT, false,
+			StringPool.BLANK,
+			ServiceContextTestUtil.getServiceContext(
+				TestPropsValues.getGroupId(), TestPropsValues.getUserId()));
+	}
+
+	public static Layout addTypeContentPublishedLayout(
+			Group group, String name, int status)
+		throws Exception {
+
+		Layout layout = addTypeContentLayout(group, name);
+
+		Layout draftLayout = LayoutLocalServiceUtil.fetchDraftLayout(
+			layout.getPlid());
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
 				TestPropsValues.getGroupId(), TestPropsValues.getUserId());
 
-		return LayoutLocalServiceUtil.addLayout(
-			TestPropsValues.getUserId(), group.getGroupId(), false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, title, StringPool.BLANK,
-			StringPool.BLANK, LayoutConstants.TYPE_CONTENT, false,
-			StringPool.BLANK, serviceContext);
+		serviceContext.setAttribute("published", Boolean.TRUE);
+
+		if (draftLayout != null) {
+			LayoutLocalServiceUtil.updateStatus(
+				draftLayout.getUserId(), draftLayout.getPlid(), status,
+				serviceContext);
+		}
+
+		return LayoutLocalServiceUtil.updateStatus(
+			layout.getUserId(), layout.getPlid(), status, serviceContext);
 	}
 
 	public static Layout addTypeLinkToLayoutLayout(

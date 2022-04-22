@@ -46,7 +46,8 @@ definition {
 	test AssertIndividualActivitiesChartPopover {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor ticket: LRAC-9707
+		// AC Quarantine Reason: Not finding the date pattern
+		// AC Refactor ticket: LRAC-10517
 
 		task ("Add DM to AC Page") {
 			ACUtils.createDMAndAddToPage();
@@ -138,7 +139,7 @@ definition {
 		}
 
 		task ("Get site assigned property name") {
-			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 		}
 
 		task ("Sign in with the new user to visit the site pages") {
@@ -160,7 +161,7 @@ definition {
 		task ("Switch to new property in AC") {
 			ACUtils.launchAC();
 
-			ACProperties.switchProperty(propertyName = "${propertyName}");
+			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 		}
 
 		task ("Navigate to the Individual Activity Overview") {
@@ -181,10 +182,8 @@ definition {
 			ACIndividualsDashboard.viewRechartsBarOnIndividualsActivitiesChart();
 		}
 
-		task ("Click Individual Activity Chart") {
-			Click(
-				index = "1",
-				locator1 = "ACIndividualsDashboard#INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR");
+		task ("Select the data on Individuals Activities chart") {
+			ACIndividualsDashboard.selectDataOnIndividualsActivitiesChart();
 		}
 
 		task ("Get current Date") {
@@ -226,7 +225,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertIndividualActivitiesTimeFilter180Days {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8970
@@ -330,10 +328,12 @@ definition {
 		ACIndividualsDashboard.assertIndividualAttribute(individualAttribute = "Static Segment Test");
 	}
 
-	@description = "Set custom range filter with data for individual activity"
+	@description = "Assert Individual Activities Custom Range (when changing to an valida data time period)"
+	@ignore = "true"
 	@priority = "5"
 	test CanSetDataWithCustomRangeOnIndividualActivitiesCard {
-		property portal.upstream = "quarantine";
+
+		// Tests with custom range are not possible to automate now. These cases will be automated on personas.
 
 		ACUtils.createDMAndAddToPage();
 

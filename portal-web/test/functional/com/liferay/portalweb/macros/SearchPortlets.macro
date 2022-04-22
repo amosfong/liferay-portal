@@ -306,6 +306,13 @@ definition {
 				value1 = "${fields}");
 		}
 
+		if (isSet(linkBehavior)) {
+			Select(
+				locator1 = "Select#SELECT_ID",
+				selectFieldId = "linkBehavior",
+				value1 = "${linkBehavior}");
+		}
+
 		if (isSet(maximumDocumentFrequency)) {
 			Type(
 				key_fieldLabel = "Maximum Document Frequency",
@@ -360,6 +367,12 @@ definition {
 				key_fieldLabel = "Minimum Word Length",
 				locator1 = "TextInput#GENERIC_NUMBER_INPUT",
 				value1 = "${minimumWordLength}");
+		}
+
+		if (isSet(searchScope)) {
+			Select(
+				locator1 = "Select#SCOPE_CONFIGURATION",
+				value1 = "${searchScope}");
 		}
 
 		if (isSet(stopWords)) {

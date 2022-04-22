@@ -61,8 +61,22 @@ public class ImageImpl extends ImageBaseImpl {
 			else {
 				Image image = ImageLocalServiceUtil.getImage(imageId);
 
-				inputStream = DLStoreUtil.getFileAsStream(
-					image.getCompanyId(), _REPOSITORY_ID, getFileName());
+				if (DLStoreUtil.hasFile(
+						image.getCompanyId(), _REPOSITORY_ID, getFileName())) {
+
+					inputStream = DLStoreUtil.getFileAsStream(
+						image.getCompanyId(), _REPOSITORY_ID, getFileName());
+				}
+				else {
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							"Get image " + imageId +
+								" from the default company");
+					}
+
+					inputStream = DLStoreUtil.getFileAsStream(
+						0, _REPOSITORY_ID, getFileName());
+				}
 			}
 
 			byte[] bytes = FileUtil.getBytes(inputStream);
@@ -70,7 +84,7 @@ public class ImageImpl extends ImageBaseImpl {
 			_textObj = bytes;
 		}
 		catch (Exception exception) {
-			_log.error("Error reading image " + imageId, exception);
+			_log.error("Unable to read image " + imageId, exception);
 		}
 
 		return _textObj;

@@ -1110,6 +1110,25 @@ public class LayoutLocalServiceWrapper
 	}
 
 	/**
+	 * Returns all the layouts that match the type and belong to the group.
+	 *
+	 * @param groupId the primary key of the group
+	 * @param privateLayout whether the layout is private to the group
+	 * @param types the layout's type (optionally {@link
+	 LayoutConstants#TYPE_PORTLET}). The possible types can be found
+	 in {@link LayoutConstants}.
+	 * @return the matching layouts, or <code>null</code> if no matches were
+	 found
+	 */
+	@Override
+	public java.util.List<Layout> getLayouts(
+			long groupId, boolean privateLayout, String[] types)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutLocalService.getLayouts(groupId, privateLayout, types);
+	}
+
+	/**
 	 * Returns a range of all the layouts belonging to the group.
 	 *
 	 * @param groupId the primary key of the group
@@ -1803,6 +1822,19 @@ public class LayoutLocalServiceWrapper
 
 		return _layoutLocalService.updateLayout(
 			groupId, privateLayout, layoutId, typeSettings);
+	}
+
+	@Override
+	public Layout updateLayout(
+			long groupId, boolean privateLayout, long layoutId,
+			String typeSettings, byte[] iconBytes, String themeId,
+			String colorSchemeId, long styleBookEntryId, String css,
+			long masterLayoutPlid)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutLocalService.updateLayout(
+			groupId, privateLayout, layoutId, typeSettings, iconBytes, themeId,
+			colorSchemeId, styleBookEntryId, css, masterLayoutPlid);
 	}
 
 	/**

@@ -342,6 +342,14 @@ public class CommerceShippingFixedOptionQualifierLocalServiceUtil {
 			commerceShippingFixedOptionId, start, end, orderByComparator);
 	}
 
+	public static List<CommerceShippingFixedOptionQualifier>
+		getCommerceShippingFixedOptionQualifiers(
+			String className, long commerceShippingFixedOptionId) {
+
+		return getService().getCommerceShippingFixedOptionQualifiers(
+			className, commerceShippingFixedOptionId);
+	}
+
 	/**
 	 * Returns the number of commerce shipping fixed option qualifiers.
 	 *

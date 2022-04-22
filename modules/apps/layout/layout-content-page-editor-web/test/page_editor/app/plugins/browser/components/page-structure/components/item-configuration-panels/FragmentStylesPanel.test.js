@@ -13,7 +13,7 @@
  */
 
 import '@testing-library/jest-dom/extend-expect';
-import {cleanup, fireEvent, render} from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 import React from 'react';
 
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../../../../../src/main/resources/META-INF/resources/page_editor/app/config/constants/editableFragmentEntryProcessor';
@@ -171,15 +171,12 @@ jest.mock(
 			],
 			defaultLanguageId: 'es_ES',
 			defaultSegmentsExperienceId: '0',
-			marginOptions: [],
-			paddingOptions: [],
 		},
 	})
 );
 
 describe('FragmentStylesPanel', () => {
 	afterEach(() => {
-		cleanup();
 		updateItemConfig.mockClear();
 	});
 
@@ -198,14 +195,16 @@ describe('FragmentStylesPanel', () => {
 	});
 
 	it('allows changing custom styles for a given viewport', async () => {
-		const {getByLabelText} = renderComponent({
+		Liferay.Util.sub.mockImplementation((key, args) =>
+			args.reduce((key, arg) => key.replace('x', arg), key)
+		);
+
+		renderComponent({
 			selectedViewportSize: VIEWPORT_SIZES.tablet,
 		});
-		const input = getByLabelText('margin-top');
 
-		await fireEvent.change(input, {
-			target: {value: '1'},
-		});
+		screen.getByLabelText('margin-top').click();
+		screen.getByLabelText('set-margin-top-to-1').click();
 
 		expect(updateItemConfig).toHaveBeenCalledWith({
 			itemConfig: {

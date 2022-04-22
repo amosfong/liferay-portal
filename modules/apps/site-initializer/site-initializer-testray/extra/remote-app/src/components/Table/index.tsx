@@ -12,8 +12,10 @@
  * details.
  */
 
+import {ClayCheckbox} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import classNames from 'classnames';
+import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import DropDown from '../DropDown/DropDown';
@@ -34,15 +36,42 @@ export type TableProps<T = any> = {
 	columns: Column[];
 	items: T[];
 	navigateTo?: (item: T) => string;
+	onSelectRow?: (row: any) => void;
+	rowSelectable?: boolean;
+	selectedRows?: number[];
 };
 
-const Table: React.FC<TableProps> = ({actions, columns, items, navigateTo}) => {
+const Table: React.FC<TableProps> = ({
+	actions,
+	columns,
+	items,
+	navigateTo,
+	onSelectRow,
+	selectedRows = [],
+	rowSelectable = false,
+}) => {
+	const [activeRow, setActiveRow] = useState<number | undefined>();
+
 	const navigate = useNavigate();
+
+	const onMouseLeaveRow = () => {
+		if (actions) {
+			setActiveRow(undefined);
+		}
+	};
+
+	const onMouseOverRow = (rowIndex: number) => {
+		if (actions) {
+			setActiveRow(rowIndex);
+		}
+	};
 
 	return (
 		<ClayTable borderless className="testray-table" hover>
 			<Head className="testray-table">
 				<Row>
+					{rowSelectable && <Cell />}
+
 					{columns.map((column, index) => (
 						<Cell headingTitle key={index}>
 							{column.value}
@@ -54,8 +83,22 @@ const Table: React.FC<TableProps> = ({actions, columns, items, navigateTo}) => {
 			</Head>
 
 			<Body>
-				{items.map((item, index) => (
-					<Row key={index}>
+				{items.map((item, rowIndex) => (
+					<Row
+						className="table-row"
+						key={rowIndex}
+						onMouseLeave={onMouseLeaveRow}
+						onMouseOver={() => onMouseOverRow(rowIndex)}
+					>
+						{rowSelectable && onSelectRow && (
+							<Cell>
+								<ClayCheckbox
+									checked={selectedRows.includes(item.id)}
+									onChange={() => onSelectRow(item)}
+								/>
+							</Cell>
+						)}
+
 						{columns.map((column, columnIndex) => (
 							<Cell
 								className={classNames('text-dark', {
@@ -76,18 +119,24 @@ const Table: React.FC<TableProps> = ({actions, columns, items, navigateTo}) => {
 								}}
 							>
 								{column.render
-									? column.render(item[column.key], item)
+									? column.render(item[column.key], {
+											...item,
+											rowIndex,
+									  })
 									: item[column.key]}
 							</Cell>
 						))}
 
 						{actions && (
-							<Cell align="right">
-								<DropDown
-									actions={actions}
-									item={item}
-									noActionsMessage="Bla"
-								/>
+							<Cell
+								align="right"
+								className="py-0 table-action-column table-cell-expand"
+							>
+								{activeRow === rowIndex ? (
+									<DropDown actions={actions} item={item} />
+								) : (
+									<div></div>
+								)}
 							</Cell>
 						)}
 					</Row>

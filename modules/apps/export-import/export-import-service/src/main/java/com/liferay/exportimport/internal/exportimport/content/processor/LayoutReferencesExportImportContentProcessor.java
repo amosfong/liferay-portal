@@ -43,7 +43,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -117,11 +117,11 @@ public class LayoutReferencesExportImportContentProcessor
 			Group group, String url, StringBundler urlSB)
 		throws PortalException {
 
-		if (!_http.hasProtocol(url)) {
+		if (!HttpComponentsUtil.hasProtocol(url)) {
 			return url;
 		}
 
-		boolean secure = _http.isSecure(url);
+		boolean secure = HttpComponentsUtil.isSecure(url);
 
 		int serverPort = _portal.getPortalServerPort(secure);
 
@@ -351,29 +351,34 @@ public class LayoutReferencesExportImportContentProcessor
 
 						url = urlWithoutLocale;
 					}
-					else if (urlWithoutLocale.indexOf(StringPool.SLASH, 1) ==
-								-1) {
+					else if ((urlWithoutLocale.indexOf(StringPool.SLASH, 1) ==
+								-1) &&
+							 !localePath.equals(
+								 _PRIVATE_GROUP_SERVLET_MAPPING) &&
+							 !localePath.equals(
+								 _PRIVATE_USER_SERVLET_MAPPING) &&
+							 !localePath.equals(
+								 _PUBLIC_GROUP_SERVLET_MAPPING)) {
 
-						if (!localePath.equals(
-								_PRIVATE_GROUP_SERVLET_MAPPING) &&
-							!localePath.equals(_PRIVATE_USER_SERVLET_MAPPING) &&
-							!localePath.equals(_PUBLIC_GROUP_SERVLET_MAPPING)) {
+						urlSB.append(localePath);
 
+						url = urlWithoutLocale;
+					}
+					else {
+						Layout layout =
+							_layoutLocalService.fetchLayoutByFriendlyURL(
+								group.getGroupId(), false, urlWithoutLocale);
+
+						if (layout == null) {
+							layout =
+								_layoutLocalService.fetchLayoutByFriendlyURL(
+									group.getGroupId(), true, urlWithoutLocale);
+						}
+
+						if (layout != null) {
 							urlSB.append(localePath);
 
 							url = urlWithoutLocale;
-						}
-						else {
-							Layout layout =
-								_layoutLocalService.fetchLayoutByFriendlyURL(
-									group.getGroupId(), false,
-									urlWithoutLocale);
-
-							if (layout != null) {
-								urlSB.append(localePath);
-
-								url = urlWithoutLocale;
-							}
 						}
 					}
 				}
@@ -1006,25 +1011,30 @@ public class LayoutReferencesExportImportContentProcessor
 
 					url = urlWithoutLocale;
 				}
-				else if (urlWithoutLocale.indexOf(StringPool.SLASH, 1) == -1) {
-					if (!localePath.equals(_PRIVATE_GROUP_SERVLET_MAPPING) &&
-						!localePath.equals(_PRIVATE_USER_SERVLET_MAPPING) &&
-						!localePath.equals(_PUBLIC_GROUP_SERVLET_MAPPING)) {
+				else if ((urlWithoutLocale.indexOf(StringPool.SLASH, 1) ==
+							-1) &&
+						 !localePath.equals(_PRIVATE_GROUP_SERVLET_MAPPING) &&
+						 !localePath.equals(_PRIVATE_USER_SERVLET_MAPPING) &&
+						 !localePath.equals(_PUBLIC_GROUP_SERVLET_MAPPING)) {
 
+					urlSB.append(localePath);
+
+					url = urlWithoutLocale;
+				}
+				else {
+					Layout layout =
+						_layoutLocalService.fetchLayoutByFriendlyURL(
+							group.getGroupId(), false, urlWithoutLocale);
+
+					if (layout == null) {
+						layout = _layoutLocalService.fetchLayoutByFriendlyURL(
+							group.getGroupId(), true, urlWithoutLocale);
+					}
+
+					if (layout != null) {
 						urlSB.append(localePath);
 
 						url = urlWithoutLocale;
-					}
-					else {
-						Layout layout =
-							_layoutLocalService.fetchLayoutByFriendlyURL(
-								group.getGroupId(), false, urlWithoutLocale);
-
-						if (layout != null) {
-							urlSB.append(localePath);
-
-							url = urlWithoutLocale;
-						}
 					}
 				}
 			}
@@ -1172,7 +1182,7 @@ public class LayoutReferencesExportImportContentProcessor
 		throws PortalException {
 
 		try {
-			URI uri = _http.getURI(url);
+			URI uri = HttpComponentsUtil.getURI(url);
 
 			if ((uri != null) &&
 				InetAddressUtil.isLocalInetAddress(
@@ -1325,9 +1335,6 @@ public class LayoutReferencesExportImportContentProcessor
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private LayoutFriendlyURLLocalService _layoutFriendlyURLLocalService;

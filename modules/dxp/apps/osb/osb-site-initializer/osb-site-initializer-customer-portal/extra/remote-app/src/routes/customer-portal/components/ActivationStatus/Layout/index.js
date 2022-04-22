@@ -13,7 +13,6 @@ import ClayCard from '@clayui/card';
 import classNames from 'classnames';
 import {STATUS_TAG_TYPE_NAMES} from '../../../utils/constants';
 import StatusTag from '../../StatusTag';
-
 const ActivationStatusLayout = ({
 	activationStatus,
 	activationStatusDate,
@@ -31,7 +30,7 @@ const ActivationStatusLayout = ({
 
 			<div>
 				<ClayCard className="border border-light cp-activation-status-container m-0 rounded shadow-none">
-					<ClayCard.Body className="px-4 py-3">
+					<ClayCard.Body className="pl-4 pr-2 py-3">
 						<div className="align-items-center d-flex position-relative">
 							<img
 								className={classNames(
@@ -75,9 +74,13 @@ const ActivationStatusLayout = ({
 									title={null}
 									truncate={false}
 								>
-									<StatusTag
-										currentStatus={activationStatus.id}
-									/>
+									<div className="align-items-center d-flex">
+										<StatusTag
+											currentStatus={activationStatus.id}
+										/>
+
+										{activationStatus.dropdownIcon}
+									</div>
 								</ClayCard.Description>
 							</div>
 						</div>

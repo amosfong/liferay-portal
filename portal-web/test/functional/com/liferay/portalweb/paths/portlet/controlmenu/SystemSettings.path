@@ -36,6 +36,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>KEY</td>
+	<td>//div[@class='form-group']/label[contains(.,'Key')]/following-sibling::textarea[@type='text']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>LABEL</td>
 	<td>//span[contains(@class,'custom-control-label-text') and contains(.,'${key_fieldLabel}')]</td>
 	<td></td>
@@ -67,7 +72,7 @@
 </tr>
 <tr>
 	<td>SETTINGS_TEXT</td>
-	<td>//span[contains(@class,'form-text')][contains(.,'${key_settingsText}')]</td>
+	<td>//span[contains(@id,'fieldDetails')][contains(.,'${key_settingsText}')]</td>
 	<td></td>
 </tr>
 <!--ASSETS-->

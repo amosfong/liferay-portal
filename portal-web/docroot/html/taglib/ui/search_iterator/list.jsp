@@ -40,8 +40,8 @@ PortletURL iteratorURL = searchContainer.getIteratorURL();
 
 if (iteratorURL != null) {
 	url = iteratorURL.toString();
-	url = HttpUtil.removeParameter(url, namespace + searchContainer.getOrderByColParam());
-	url = HttpUtil.removeParameter(url, namespace + searchContainer.getOrderByTypeParam());
+	url = HttpComponentsUtil.removeParameter(url, namespace + searchContainer.getOrderByColParam());
+	url = HttpComponentsUtil.removeParameter(url, namespace + searchContainer.getOrderByTypeParam());
 }
 %>
 
@@ -157,8 +157,8 @@ if (iteratorURL != null) {
 									<c:when test="<%= Validator.isNull(orderByJS) %>">
 
 										<%
-										url = HttpUtil.setParameter(url, namespace + searchContainer.getOrderByColParam(), orderKey);
-										url = HttpUtil.setParameter(url, namespace + searchContainer.getOrderByTypeParam(), orderByType);
+										url = HttpComponentsUtil.setParameter(url, namespace + searchContainer.getOrderByColParam(), orderKey);
+										url = HttpComponentsUtil.setParameter(url, namespace + searchContainer.getOrderByTypeParam(), orderByType);
 										%>
 
 										<a href="<%= url %>">

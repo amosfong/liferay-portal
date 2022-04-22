@@ -40,16 +40,19 @@ describe('The UpperToolbar component should', () => {
 	it('Be rendered with all buttons and title input', () => {
 		const tbarItems = container.querySelectorAll('li.tbar-item');
 
-		expect(tbarItems.length).toBe(6);
+		expect(tbarItems.length).toBe(7);
 		expect(tbarItems[0]).toHaveTextContent('en-US');
 		const inputTitle = tbarItems[1].querySelector('input#definition-title');
 
 		expect(inputTitle).toBeTruthy();
 
-		expect(tbarItems[2]).toHaveTextContent('cancel');
-		expect(tbarItems[3]).toHaveTextContent('save');
-		expect(tbarItems[4]).toHaveTextContent('publish');
-		const sourceButton = tbarItems[5].querySelector(
+		expect(tbarItems[2].children[0].children[0]).toHaveClass(
+			'lexicon-icon-info-circle-open'
+		);
+		expect(tbarItems[3]).toHaveTextContent('cancel');
+		expect(tbarItems[4]).toHaveTextContent('save');
+		expect(tbarItems[5]).toHaveTextContent('publish');
+		const sourceButton = tbarItems[6].querySelector(
 			'svg.lexicon-icon-code'
 		);
 

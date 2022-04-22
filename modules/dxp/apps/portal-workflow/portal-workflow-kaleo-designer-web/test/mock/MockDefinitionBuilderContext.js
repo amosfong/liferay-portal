@@ -18,6 +18,7 @@ export default function MockDefinitionBuilderContext({children}) {
 	const [blockingErrors, setBlockingErrors] = useState({});
 	const [selectedLanguageId, setSelectedLanguageId] = useState('');
 	const [translations, setTranslations] = useState({});
+	const [showDefinitionInfo, setShowDefinitionInfo] = useState(false);
 
 	const contextProps = {
 		blockingErrors,
@@ -25,7 +26,9 @@ export default function MockDefinitionBuilderContext({children}) {
 		selectedLanguageId,
 		setBlockingErrors,
 		setSelectedLanguageId,
+		setShowDefinitionInfo,
 		setTranslations,
+		showDefinitionInfo,
 		translations,
 	};
 

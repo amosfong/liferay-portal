@@ -14,7 +14,6 @@
 
 package com.liferay.batch.planner.web.internal.helper;
 
-import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.planner.model.BatchPlannerMapping;
 import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.model.BatchPlannerPolicy;
@@ -92,14 +91,13 @@ public class BatchPlannerPlanHelper {
 	}
 
 	public BatchPlannerPlan addImportBatchPlannerPlan(
-			PortletRequest portletRequest, String importFileURI)
+			PortletRequest portletRequest, String name, String importFileURI)
 		throws PortalException {
 
 		String externalType = ParamUtil.getString(
 			portletRequest, "externalType", "CSV");
 		String internalClassName = ParamUtil.getString(
 			portletRequest, "internalClassName");
-		String name = ParamUtil.getString(portletRequest, "name");
 		String taskItemDelegateName = ParamUtil.getString(
 			portletRequest, "taskItemDelegateName");
 		boolean template = ParamUtil.getBoolean(portletRequest, "template");
@@ -117,17 +115,18 @@ public class BatchPlannerPlanHelper {
 			_batchPlannerPolicyService.addBatchPlannerPolicy(
 				batchPlannerPlan.getBatchPlannerPlanId(), "csvSeparator",
 				ParamUtil.getString(portletRequest, "csvSeparator"));
+			_batchPlannerPolicyService.addBatchPlannerPolicy(
+				batchPlannerPlan.getBatchPlannerPlanId(),
+				"csvEnclosingCharacter",
+				ParamUtil.getString(portletRequest, "csvEnclosingCharacter"));
 		}
 
 		_batchPlannerPolicyService.addBatchPlannerPolicy(
 			batchPlannerPlan.getBatchPlannerPlanId(), "headlessEndpoint",
 			ParamUtil.getString(portletRequest, "headlessEndpoint"));
 		_batchPlannerPolicyService.addBatchPlannerPolicy(
-			batchPlannerPlan.getBatchPlannerPlanId(), "importStrategy",
-			ParamUtil.getString(
-				portletRequest, "importStrategy",
-				BatchEngineImportTaskConstants.
-					IMPORT_STRATEGY_STRING_ON_ERROR_FAIL));
+			batchPlannerPlan.getBatchPlannerPlanId(), "onErrorFail",
+			_getCheckboxValue(portletRequest, "onErrorFail"));
 
 		List<BatchPlannerMapping> batchPlannerMappings =
 			_getImportBatchPlannerMappings(portletRequest);
@@ -247,7 +246,8 @@ public class BatchPlannerPlanHelper {
 	private List<BatchPlannerMapping> _getExportBatchPlannerMappings(
 		PortletRequest portletRequest) {
 
-		String[] fieldNames = portletRequest.getParameterValues("fieldName");
+		String[] fieldNames = ParamUtil.getStringValues(
+			portletRequest, "fieldName");
 
 		if (fieldNames == null) {
 			return Collections.emptyList();

@@ -23,6 +23,25 @@ definition {
 			locator1 = "Portlet#HEADER",
 			value1 = "Search");
 
+		if ("${executionScope}" == "All Instances") {
+			Check.checkNotVisible(
+				locator1 = "Radio#ANY",
+				radioLabel = "${executionScope}");
+
+			AssertElementNotPresent(
+				key_executionScope = "System",
+				locator1 = "SearchAdmin#SELECTED_INSTANCE_INDEX_CHECKBOX");
+		}
+		else if (isSet(executionScope)) {
+			Check.checkNotVisible(
+				locator1 = "Radio#ANY",
+				radioLabel = "Selected Instances");
+
+			Check.checkNotVisible(
+				key_executionScope = "${executionScope}",
+				locator1 = "SearchAdmin#SELECTED_INSTANCE_INDEX_CHECKBOX");
+		}
+
 		var port = Elasticsearch.getServerPort();
 
 		var portalHostname = PropsUtil.get("portal.hostname");

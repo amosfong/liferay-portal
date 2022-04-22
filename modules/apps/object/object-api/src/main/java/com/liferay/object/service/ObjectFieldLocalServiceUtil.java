@@ -143,6 +143,13 @@ public class ObjectFieldLocalServiceUtil {
 		return getService().deleteObjectField(objectField);
 	}
 
+	public static void deleteObjectFieldByObjectDefinitionId(
+			Long objectDefinitionId)
+		throws PortalException {
+
+		getService().deleteObjectFieldByObjectDefinitionId(objectDefinitionId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -272,6 +279,13 @@ public class ObjectFieldLocalServiceUtil {
 		getActionableDynamicQuery() {
 
 		return getService().getActionableDynamicQuery();
+	}
+
+	public static List<ObjectField> getActiveObjectFields(
+			List<ObjectField> objectFields)
+		throws PortalException {
+
+		return getService().getActiveObjectFields(objectFields);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery

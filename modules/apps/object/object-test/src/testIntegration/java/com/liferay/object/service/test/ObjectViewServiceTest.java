@@ -61,11 +61,6 @@ public class ObjectViewServiceTest {
 	public void setUp() throws Exception {
 		_defaultUser = _userLocalService.getDefaultUser(
 			TestPropsValues.getCompanyId());
-		_originalName = PrincipalThreadLocal.getName();
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-		_user = TestPropsValues.getUser();
-
 		_objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(),
@@ -73,6 +68,10 @@ public class ObjectViewServiceTest {
 				"A" + RandomTestUtil.randomString(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY, null);
+		_originalName = PrincipalThreadLocal.getName();
+		_originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		_user = TestPropsValues.getUser();
 	}
 
 	@After

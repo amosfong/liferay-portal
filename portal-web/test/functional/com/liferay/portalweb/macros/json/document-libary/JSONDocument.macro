@@ -79,6 +79,7 @@ definition {
 			-d sourceFileName= \
 			-d mimeType= \
 			-d title=${dmDocumentTitle} \
+			-d urlTitle= \
 		 	-d description=${dmDocumentDescription} \
 			-d changeLog= \
 			-d file=@path_to_file \
@@ -172,6 +173,7 @@ definition {
 				-F sourceFileName=${sourceFileName} \
 				-F mimeType=${mimeType} \
 				-F title=${dmDocumentTitle} \
+				-F urlTitle= \
 			 	-F description=${description} \
 				-F changeLog= \
 				-F <CURL_DATA[expirationDate=${expirationDate}]CURL_DATA> \
@@ -190,6 +192,7 @@ definition {
 				-F sourceFileName=${sourceFileName} \
 				-F mimeType=${mimeType} \
 				-F title=${dmDocumentTitle} \
+				-F urlTitle= \
 			 	-F description=${description} \
 				-F changeLog= \
 				-F file=@${filePath} \
@@ -206,6 +209,76 @@ definition {
 		var fileEntryId = JSONCurlUtil.post("${curl}", "$..fileEntryId");
 
 		return "${fileEntryId}";
+	}
+
+	@summary = "This calls the JSON WS API to add a document shortcut"
+	macro addShortcut {
+		Variables.assertDefined(parameterList = "${targetGroupName},${sourceGroupName},${dmDocumentTitle}");
+
+		var portalURL = JSONCompany.getPortalURL();
+
+		var targetRepositoryId = JSONGroupAPI._getSiteIdByGroupKey(groupName = "${targetGroupName}");
+
+		var sourceRepositoryId = JSONGroupAPI._getSiteIdByGroupKey(groupName = "${sourceGroupName}");
+
+		if (isSet(sourceFolderName)) {
+			Variables.assertDefined(parameterList = "${sourceFolderName}");
+
+			if (isSet(sourceParentFolderName)) {
+				var sourceParentFolderId = JSONDocumentAPI._getFolderIdByFolderName(
+					groupName = "${sourceGroupName}",
+					name = "${sourceParentFolderName}");
+			}
+			else {
+				var sourceParentFolderId = "0";
+			}
+
+			var sourceFolderId = JSONDocumentAPI._getFolderIdByFolderName(
+				groupName = "${targetGroupName}",
+				name = "${targetFolderName}",
+				parentFolderId = "${sourceParentFolderNames}");
+		}
+		else {
+			var sourceFolderId = "0";
+		}
+
+		var fileEntryId = JSONDocument.getFileEntryId(
+			dmDocumentTitle = "${dmDocumentTitle}",
+			folderId = "${sourceFolderId}",
+			groupName = "${sourceGroupName}",
+			portalURL = "${baseURL}");
+
+		if (isSet(targetFolderName)) {
+			Variables.assertDefined(parameterList = "${targetFolderName}");
+
+			if (isSet(targetParentFolderName)) {
+				var targetParentFolderId = JSONDocumentAPI._getFolderIdByFolderName(
+					groupName = "${targetGroupName}",
+					name = "${targetParentFolderName}");
+			}
+			else {
+				var targetParentFolderId = "0";
+			}
+
+			var targetFolderId = JSONDocumentAPI._getFolderIdByFolderName(
+				groupName = "${targetGroupName}",
+				name = "${targetFolderName}",
+				parentFolderId = "${targetParentFolderId}");
+		}
+		else {
+			var targetFolderId = "0";
+		}
+
+		var curl = '''
+			${portalURL}/api/jsonws/dlfileshortcut/add-file-shortcut  \
+                -u test@liferay.com:test \
+                -d groupId=${targetRepositoryId} \
+                -d repositoryId=${sourceRepositoryId} \
+                -d folderId=${targetFolderId} \
+                -d toFileEntryId=${fileEntryId}
+        ''';
+
+		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
 	}
 
 	@summary = "This calls the JSON WS API to delete a Document entry"
@@ -331,9 +404,17 @@ definition {
 		var portalURL = JSONCompany.getPortalURL();
 
 		if (isSet(folderName)) {
-			var folderId = JSONDocumentAPI._getFolderIdByFolderName(
-				groupName = "${groupName}",
-				name = "${folderName}");
+			if (isSet(stagingDepotName)) {
+				var folderId = JSONDocumentAPI._getFolderIdByFolderName(
+					groupName = "${stagingDepotName}-staging",
+					name = "${folderName}",
+					parentFolderId = "${parentFolderId}");
+			}
+			else {
+				var folderId = JSONDocumentAPI._getFolderIdByFolderName(
+					groupName = "${groupName}",
+					name = "${folderName}");
+			}
 		}
 		else {
 			var folderId = "0";
@@ -343,7 +424,8 @@ definition {
 			dmDocumentTitle = "${dmDocumentTitle}",
 			folderId = "${folderId}",
 			groupName = "${groupName}",
-			portalURL = "${baseURL}");
+			portalURL = "${baseURL}",
+			site = "${site}");
 
 		var portalURL = JSONCompany.getPortalURL();
 

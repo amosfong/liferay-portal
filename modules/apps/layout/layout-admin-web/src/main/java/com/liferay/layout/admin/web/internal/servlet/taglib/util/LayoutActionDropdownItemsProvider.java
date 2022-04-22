@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import com.liferay.translation.constants.TranslationActionKeys;
 import com.liferay.translation.security.permission.TranslationPermission;
 import com.liferay.translation.url.provider.TranslationURLProvider;
@@ -81,6 +82,7 @@ public class LayoutActionDropdownItemsProvider {
 							dropdownItem.setHref(
 								_layoutsAdminDisplayContext.getEditLayoutURL(
 									layout));
+							dropdownItem.setIcon("pencil");
 
 							String label = LanguageUtil.get(
 								_httpServletRequest, "edit");
@@ -119,7 +121,13 @@ public class LayoutActionDropdownItemsProvider {
 
 										return portletDisplay.getId();
 									}
+								).setParameter(
+									"segmentsExperienceId",
+									SegmentsExperienceLocalServiceUtil.
+										fetchDefaultSegmentsExperienceId(
+											layout.getPlid())
 								).buildString());
+							dropdownItem.setIcon("automatic-translate");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "translate"));
@@ -129,6 +137,7 @@ public class LayoutActionDropdownItemsProvider {
 							dropdownItem.setHref(
 								_layoutsAdminDisplayContext.getViewLayoutURL(
 									layout));
+							dropdownItem.setIcon("view");
 
 							String label = LanguageUtil.get(
 								_httpServletRequest, "view");
@@ -196,6 +205,7 @@ public class LayoutActionDropdownItemsProvider {
 							dropdownItem.setHref(
 								_layoutsAdminDisplayContext.
 									getLayoutConversionPreviewURL(layout));
+							dropdownItem.setIcon("page");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest,
@@ -275,6 +285,7 @@ public class LayoutActionDropdownItemsProvider {
 								dropdownItem.setDisabled(true);
 							}
 
+							dropdownItem.setIcon("copy");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "copy-page"));
@@ -307,6 +318,7 @@ public class LayoutActionDropdownItemsProvider {
 										return portletDisplay.getId();
 									}
 								).buildString());
+							dropdownItem.setIcon("upload");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest,
@@ -338,6 +350,7 @@ public class LayoutActionDropdownItemsProvider {
 										return portletDisplay.getId();
 									}
 								).buildString());
+							dropdownItem.setIcon("download");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "import-translation"));
@@ -355,6 +368,7 @@ public class LayoutActionDropdownItemsProvider {
 							dropdownItem.setHref(
 								_layoutsAdminDisplayContext.
 									getConfigureLayoutURL(layout));
+							dropdownItem.setIcon("cog");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "configure"));
@@ -369,6 +383,7 @@ public class LayoutActionDropdownItemsProvider {
 								"permissionLayoutURL",
 								_layoutsAdminDisplayContext.getPermissionsURL(
 									layout));
+							dropdownItem.setIcon("password-policies");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "permissions"));
@@ -422,6 +437,7 @@ public class LayoutActionDropdownItemsProvider {
 										layout.getName(
 											_themeDisplay.getLocale()))));
 
+							dropdownItem.setIcon("trash");
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest, "delete"));

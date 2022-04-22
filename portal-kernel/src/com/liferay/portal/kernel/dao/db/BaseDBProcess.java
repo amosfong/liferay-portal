@@ -162,19 +162,6 @@ public abstract class BaseDBProcess implements DBProcess {
 		}
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #runSQLTemplateString(String, boolean)}
-	 */
-	@Deprecated
-	@Override
-	public void runSQLTemplateString(
-			String template, boolean evaluate, boolean failOnError)
-		throws IOException, NamingException, SQLException {
-
-		runSQLTemplateString(template, failOnError);
-	}
-
 	protected void addIndexes(
 			Connection connection, List<IndexMetadata> indexMetadatas)
 		throws IOException, SQLException {
@@ -252,20 +239,6 @@ public abstract class BaseDBProcess implements DBProcess {
 		return dbInspector.hasColumn(tableName, columnName);
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link
-	 *             #hasColumnType(String, String, String)}
-	 */
-	@Deprecated
-	protected boolean hasColumnType(
-			Class<?> tableClass, String columnName, String columnType)
-		throws Exception {
-
-		DBInspector dbInspector = new DBInspector(connection);
-
-		return dbInspector.hasColumnType(tableClass, columnName, columnType);
-	}
-
 	protected boolean hasColumnType(
 			String tableName, String columnName, String columnType)
 		throws Exception {
@@ -314,8 +287,11 @@ public abstract class BaseDBProcess implements DBProcess {
 			String exceptionMessage)
 		throws Exception {
 
+		int fetchSize = GetterUtil.getInteger(
+			PropsUtil.get(PropsKeys.UPGRADE_CONCURRENT_FETCH_SIZE));
+
 		try (Statement statement = connection.createStatement()) {
-			statement.setFetchSize(_UPGRADE_CONCURRENT_FETCH_SIZE);
+			statement.setFetchSize(fetchSize);
 
 			try (ResultSet resultSet = statement.executeQuery(sqlQuery)) {
 				_processConcurrently(
@@ -396,9 +372,12 @@ public abstract class BaseDBProcess implements DBProcess {
 						return null;
 					});
 
-				if (futures.size() >=
-						_UPGRADE_CONCURRENT_PROCESS_FUTURE_LIST_MAX_SIZE) {
+				int futuresMaxSize = GetterUtil.getInteger(
+					PropsUtil.get(
+						PropsKeys.
+							UPGRADE_CONCURRENT_PROCESS_FUTURE_LIST_MAX_SIZE));
 
+				if (futures.size() >= futuresMaxSize) {
 					for (Future<Void> curFuture : futures) {
 						curFuture.get();
 					}
@@ -427,15 +406,6 @@ public abstract class BaseDBProcess implements DBProcess {
 			ReflectionUtil.throwException(throwable);
 		}
 	}
-
-	private static final int _UPGRADE_CONCURRENT_FETCH_SIZE =
-		GetterUtil.getInteger(
-			PropsUtil.get(PropsKeys.UPGRADE_CONCURRENT_FETCH_SIZE));
-
-	private static final int _UPGRADE_CONCURRENT_PROCESS_FUTURE_LIST_MAX_SIZE =
-		GetterUtil.getInteger(
-			PropsUtil.get(
-				PropsKeys.UPGRADE_CONCURRENT_PROCESS_FUTURE_LIST_MAX_SIZE));
 
 	private static final Log _log = LogFactoryUtil.getLog(BaseDBProcess.class);
 

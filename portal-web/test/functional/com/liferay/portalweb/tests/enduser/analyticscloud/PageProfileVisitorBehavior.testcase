@@ -60,13 +60,11 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8514 | Test Summary: Page Profile Visitor behavior card shows the number of unique visitors and views"
-	@ignore = "true"
 	@priority = "5"
 	test ShowNumberOfUniqueVisitorsAndViews {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: data doesn't appear on time
-		// AC Refactor ticket: LRAC-8728
+		task ("Create Blog to Add to Page") {
+			ACUtils.createBlogsAndAddToPage();
+		}
 
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
@@ -74,8 +72,10 @@ definition {
 				userLoginFullName = "userfn userln");
 		}
 
-		task ("View the site page") {
+		task ("View the blog page") {
 			ACUtils.navigateToSitePage(
+				actionType = "View Blog",
+				documentTitleList = "Blogs AC Title",
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -103,7 +103,9 @@ definition {
 		}
 
 		task ("Navigate to page report entry") {
-			ACNavigation.openItem(itemName = "AC Page - Site Name - Liferay DXP");
+			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
+
+			ACNavigation.openItem(itemName = "Blogs AC Title - Site Name - ${dataSourceName}");
 		}
 
 		task ("Navigate to the Overview tab in Pages dashboard") {
@@ -135,7 +137,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test TimeFilterByCustomRangeInPagesOverview {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8730
@@ -209,7 +210,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test TimeFilterByLast180DaysInPagesOverview {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8731
@@ -277,7 +277,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test TimeFilterByLastYearInPagesOverview {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-8729

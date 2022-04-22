@@ -10,8 +10,8 @@ definition {
 	@priority = "4"
 	test AdminIsRequiredToChangePasswordWithSetupWizardDisabled {
 		property custom.properties = "setup.wizard.enabled=false${line.separator}passwords.default.policy.change.required=true";
-		property test.prepare.bundle.properties = "true";
 		property database.types = "mysql";
+		property test.prepare.bundle.properties = "true";
 		property testray.main.component.name = "Users and Organizations";
 
 		task ("When an admin logs in with Setup Wizard disabled") {
@@ -192,10 +192,15 @@ definition {
 			localizedAgree = "Acepto",
 			localizedAnswer = "Respuesta",
 			localizedSaveButton = "Guardar",
+			newPassword = "test1",
 			password = "test",
 			userEmailAddress = "user@liferay.com");
 
-		Button.click(button = "Finalizado");
+		var testRunEnvironment = PropsUtil.get("test.run.environment");
+
+		if ("${testRunEnvironment}" == "EE") {
+			Button.click(button = "Finalizado");
+		}
 
 		AssertTextEquals(
 			locator1 = "Home#SITE_NAME",

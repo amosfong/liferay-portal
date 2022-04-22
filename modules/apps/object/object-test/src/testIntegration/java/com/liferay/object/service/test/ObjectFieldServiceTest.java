@@ -65,11 +65,6 @@ public class ObjectFieldServiceTest {
 	public void setUp() throws Exception {
 		_defaultUser = _userLocalService.getDefaultUser(
 			TestPropsValues.getCompanyId());
-		_originalName = PrincipalThreadLocal.getName();
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-		_user = TestPropsValues.getUser();
-
 		_objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(),
@@ -77,7 +72,6 @@ public class ObjectFieldServiceTest {
 				"A" + RandomTestUtil.randomString(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY, null);
-
 		_systemObjectDefinition =
 			_objectDefinitionLocalService.addSystemObjectDefinition(
 				TestPropsValues.getUserId(), "Test", null,
@@ -86,6 +80,10 @@ public class ObjectFieldServiceTest {
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY, 1,
 				Collections.<ObjectField>emptyList());
+		_originalName = PrincipalThreadLocal.getName();
+		_originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		_user = TestPropsValues.getUser();
 	}
 
 	@After

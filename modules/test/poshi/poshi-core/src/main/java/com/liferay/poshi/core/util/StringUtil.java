@@ -1047,6 +1047,10 @@ public class StringUtil {
 	}
 
 	public static String upperCaseFirstLetter(String s) {
+		if ((s == null) || s.isEmpty()) {
+			return s;
+		}
+
 		char[] chars = s.toCharArray();
 
 		if ((chars[0] >= 97) && (chars[0] <= 122)) {

@@ -222,7 +222,8 @@ public class CPDefinitionHelperImpl implements CPDefinitionHelper {
 		}
 		catch (Exception exception) {
 			if (_log.isInfoEnabled()) {
-				_log.info("No friendly URL found for " + cProductId, exception);
+				_log.info(
+					"No friendly URL entry found for " + cProductId, exception);
 			}
 
 			return StringPool.BLANK;

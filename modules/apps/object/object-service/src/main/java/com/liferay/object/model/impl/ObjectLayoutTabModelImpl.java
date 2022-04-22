@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -141,14 +140,20 @@ public class ObjectLayoutTabModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long UUID_COLUMN_BITMASK = 4L;
+	public static final long OBJECTRELATIONSHIPID_COLUMN_BITMASK = 4L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long UUID_COLUMN_BITMASK = 8L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long OBJECTLAYOUTTABID_COLUMN_BITMASK = 8L;
+	public static final long OBJECTLAYOUTTABID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -247,34 +252,6 @@ public class ObjectLayoutTabModelImpl
 		getAttributeSetterBiConsumers() {
 
 		return _attributeSetterBiConsumers;
-	}
-
-	private static Function<InvocationHandler, ObjectLayoutTab>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			ObjectLayoutTab.class.getClassLoader(), ObjectLayoutTab.class,
-			ModelWrapper.class);
-
-		try {
-			Constructor<ObjectLayoutTab> constructor =
-				(Constructor<ObjectLayoutTab>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
 	}
 
 	private static final Map<String, Function<ObjectLayoutTab, Object>>
@@ -564,6 +541,16 @@ public class ObjectLayoutTabModelImpl
 		}
 
 		_objectRelationshipId = objectRelationshipId;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public long getOriginalObjectRelationshipId() {
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("objectRelationshipId"));
 	}
 
 	@JSON
@@ -1083,7 +1070,9 @@ public class ObjectLayoutTabModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, ObjectLayoutTab>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					ObjectLayoutTab.class, ModelWrapper.class);
 
 	}
 

@@ -65,10 +65,6 @@ public class ObjectRelationshipServiceTest {
 	public void setUp() throws Exception {
 		_defaultUser = _userLocalService.getDefaultUser(
 			TestPropsValues.getCompanyId());
-		_originalName = PrincipalThreadLocal.getName();
-		_originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-		_user = TestPropsValues.getUser();
 
 		_objectDefinition1 =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
@@ -101,6 +97,11 @@ public class ObjectRelationshipServiceTest {
 			_objectDefinitionLocalService.publishCustomObjectDefinition(
 				TestPropsValues.getUserId(),
 				_objectDefinition2.getObjectDefinitionId());
+
+		_originalName = PrincipalThreadLocal.getName();
+		_originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		_user = TestPropsValues.getUser();
 	}
 
 	@After

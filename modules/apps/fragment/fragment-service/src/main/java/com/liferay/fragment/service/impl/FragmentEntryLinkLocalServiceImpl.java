@@ -546,12 +546,12 @@ public class FragmentEntryLinkLocalServiceImpl
 
 		fragmentEntryLink.setConfiguration(fragmentEntry.getConfiguration());
 
-		String processedHTML = _getProcessedHTML(
-			fragmentEntryLink, ServiceContextThreadLocal.getServiceContext());
-
 		String defaultEditableValues = String.valueOf(
 			_fragmentEntryProcessorRegistry.getDefaultEditableValuesJSONObject(
-				processedHTML, fragmentEntryLink.getConfiguration()));
+				_getProcessedHTML(
+					fragmentEntryLink,
+					ServiceContextThreadLocal.getServiceContext()),
+				fragmentEntryLink.getConfiguration()));
 
 		fragmentEntryLink.setCss(fragmentEntry.getCss());
 		fragmentEntryLink.setJs(fragmentEntry.getJs());
@@ -623,13 +623,28 @@ public class FragmentEntryLinkLocalServiceImpl
 					continue;
 				}
 
-				Iterator<String> iterator =
+				Iterator<String> defaultEditableValuesIterator =
 					defaultEditableFragmentEntryProcessorJSONObject.keys();
 
-				while (iterator.hasNext()) {
-					String key = iterator.next();
+				while (defaultEditableValuesIterator.hasNext()) {
+					String key = defaultEditableValuesIterator.next();
 
 					if (editableFragmentEntryProcessorJSONObject.has(key)) {
+						defaultEditableFragmentEntryProcessorJSONObject.put(
+							key,
+							editableFragmentEntryProcessorJSONObject.get(key));
+					}
+				}
+
+				Iterator<String> editableValuesIterator =
+					editableFragmentEntryProcessorJSONObject.keys();
+
+				while (editableValuesIterator.hasNext()) {
+					String key = editableValuesIterator.next();
+
+					if (!defaultEditableFragmentEntryProcessorJSONObject.has(
+							key)) {
+
 						defaultEditableFragmentEntryProcessorJSONObject.put(
 							key,
 							editableFragmentEntryProcessorJSONObject.get(key));

@@ -16,11 +16,12 @@ import {useQuery} from '@apollo/client';
 import {useCallback, useEffect} from 'react';
 import {Outlet, useLocation, useParams} from 'react-router-dom';
 
+import EmptyState from '../../components/EmptyState';
 import {CType, CTypePagination} from '../../graphql/queries';
 import {
 	TestrayProject,
-	getTestrayProject,
-	getTestrayProjects,
+	getProject,
+	getProjects,
 } from '../../graphql/queries/testrayProject';
 import useHeader from '../../hooks/useHeader';
 import i18n from '../../i18n';
@@ -30,25 +31,25 @@ const ProjectOutlet = () => {
 	const {pathname} = useLocation();
 	const {setActions, setDropdown, setHeading, setTabs} = useHeader();
 
-	const {data} = useQuery<CType<'testrayProject', TestrayProject>>(
-		getTestrayProject,
+	const {data, error} = useQuery<CType<'project', TestrayProject>>(
+		getProject,
 		{
-			variables: {testrayProjectId: projectId},
+			variables: {projectId},
 		}
 	);
 
 	const {data: dataTestrayProjects} = useQuery<
-		CTypePagination<'testrayProjects', TestrayProject>
-	>(getTestrayProjects, {
+		CTypePagination<'projects', TestrayProject>
+	>(getProjects, {
 		variables: {
 			pageSize: 100,
 		},
 	});
 
-	const testrayProjects = dataTestrayProjects?.c?.testrayProjects?.items;
+	const testrayProjects = dataTestrayProjects?.c?.projects?.items;
 
 	const hasOtherParams = !!Object.values(otherParams).length;
-	const testrayProject = data?.c.testrayProject;
+	const testrayProject = data?.c.project;
 
 	const getPath = useCallback(
 		(path: string) => {
@@ -160,6 +161,16 @@ const ProjectOutlet = () => {
 			}, 0);
 		}
 	}, [getPath, setTabs, hasOtherParams]);
+
+	if (error) {
+		return (
+			<EmptyState
+				description={error.message}
+				title={i18n.translate('error')}
+				type="EMPTY_SEARCH"
+			/>
+		);
+	}
 
 	if (testrayProject) {
 		return <Outlet context={{testrayProject}} />;

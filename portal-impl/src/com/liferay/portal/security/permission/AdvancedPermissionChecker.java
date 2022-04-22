@@ -86,26 +86,29 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	@Override
 	public long[] getGuestUserRoleIds() {
 		long[] roleIds = PermissionCacheUtil.getUserGroupRoleIds(
-			defaultUserId, _guestGroupId);
+			defaultUserId, GroupConstants.DEFAULT_PARENT_GROUP_ID);
 
 		if (roleIds != null) {
 			return roleIds;
 		}
 
-		List<Role> roles = RoleLocalServiceUtil.getUserRelatedRoles(
-			defaultUserId, _guestGroupId);
-
-		// Only use the guest group for deriving the roles for unauthenticated
-		// users. Do not add the group to the permission bag as this implies
-		// group membership which is incorrect in the case of unauthenticated
-		// users.
+		List<Role> roles = RoleLocalServiceUtil.getUserRoles(defaultUserId);
 
 		roleIds = ListUtil.toLongArray(roles, Role.ROLE_ID_ACCESSOR);
 
-		Arrays.sort(roleIds);
+		if (roleIds.length > 1) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"More than one role ID was returned for the guest user. " +
+						"This may cause guest users to have more permissions " +
+							"than intended.");
+			}
+
+			Arrays.sort(roleIds);
+		}
 
 		PermissionCacheUtil.putUserGroupRoleIds(
-			defaultUserId, _guestGroupId, roleIds);
+			defaultUserId, GroupConstants.DEFAULT_PARENT_GROUP_ID, roleIds);
 
 		return roleIds;
 	}
@@ -251,21 +254,6 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			groupId, name, primKey, roleIds, actionId, value);
 
 		return value;
-	}
-
-	@Override
-	public void init(User user) {
-		super.init(user);
-
-		try {
-			Group guestGroup = GroupLocalServiceUtil.getGroup(
-				user.getCompanyId(), GroupConstants.GUEST);
-
-			_guestGroupId = guestGroup.getGroupId();
-		}
-		catch (Exception exception) {
-			_log.error(exception);
-		}
 	}
 
 	@Override
@@ -1427,7 +1415,6 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		AdvancedPermissionChecker.class);
 
 	private Map<Long, long[]> _contributedRoleIds;
-	private long _guestGroupId;
 	private RoleContributor[] _roleContributors;
 
 }

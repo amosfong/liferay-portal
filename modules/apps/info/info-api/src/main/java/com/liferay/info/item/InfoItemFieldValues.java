@@ -38,31 +38,15 @@ public class InfoItemFieldValues {
 		return new Builder();
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x)
-	 */
-	@Deprecated
-	public InfoItemFieldValues add(InfoFieldValue<Object> infoFieldValue) {
-		_builder.infoFieldValue(infoFieldValue);
-
-		return this;
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x)
-	 */
-	@Deprecated
-	public InfoItemFieldValues addAll(
-		List<InfoFieldValue<Object>> infoFieldValues) {
-
-		_builder.infoFieldValues(infoFieldValues);
-
-		return this;
-	}
-
 	public InfoFieldValue<Object> getInfoFieldValue(String infoFieldName) {
 		Collection<InfoFieldValue<Object>> infoFieldValues =
-			_builder._infoFieldValuesMap.get(infoFieldName);
+			_builder._infoFieldValuesByIdMap.getOrDefault(
+				infoFieldName, Collections.emptyList());
+
+		if (infoFieldValues.isEmpty()) {
+			infoFieldValues = _builder._infoFieldValuesByNameMap.getOrDefault(
+				infoFieldName, Collections.emptyList());
+		}
 
 		if (infoFieldValues != null) {
 			Iterator<InfoFieldValue<Object>> iterator =
@@ -83,7 +67,15 @@ public class InfoItemFieldValues {
 	public Collection<InfoFieldValue<Object>> getInfoFieldValues(
 		String infoFieldName) {
 
-		return _builder._infoFieldValuesMap.getOrDefault(
+		Collection<InfoFieldValue<Object>> infoFieldValues =
+			_builder._infoFieldValuesByIdMap.getOrDefault(
+				infoFieldName, Collections.emptyList());
+
+		if (!infoFieldValues.isEmpty()) {
+			return infoFieldValues;
+		}
+
+		return _builder._infoFieldValuesByNameMap.getOrDefault(
 			infoFieldName, Collections.emptyList());
 	}
 
@@ -101,6 +93,7 @@ public class InfoItemFieldValues {
 			InfoField infoField = infoFieldValue.getInfoField();
 
 			map.put(infoField.getName(), infoFieldValue.getValue(locale));
+			map.put(infoField.getUniqueId(), infoFieldValue.getValue(locale));
 		}
 
 		return map;
@@ -124,8 +117,13 @@ public class InfoItemFieldValues {
 			InfoField infoField = infoFieldValue.getInfoField();
 
 			Collection<InfoFieldValue<Object>> infoFieldValues =
-				_infoFieldValuesMap.computeIfAbsent(
+				_infoFieldValuesByNameMap.computeIfAbsent(
 					infoField.getName(), key -> new ArrayList<>());
+
+			infoFieldValues.add(infoFieldValue);
+
+			infoFieldValues = _infoFieldValuesByIdMap.computeIfAbsent(
+				infoField.getUniqueId(), key -> new ArrayList<>());
 
 			infoFieldValues.add(infoFieldValue);
 
@@ -161,7 +159,9 @@ public class InfoItemFieldValues {
 		private final Collection<InfoFieldValue<Object>> _infoFieldValues =
 			new LinkedHashSet<>();
 		private final Map<String, Collection<InfoFieldValue<Object>>>
-			_infoFieldValuesMap = new HashMap<>();
+			_infoFieldValuesByIdMap = new HashMap<>();
+		private final Map<String, Collection<InfoFieldValue<Object>>>
+			_infoFieldValuesByNameMap = new HashMap<>();
 		private InfoItemReference _infoItemReference;
 
 	}

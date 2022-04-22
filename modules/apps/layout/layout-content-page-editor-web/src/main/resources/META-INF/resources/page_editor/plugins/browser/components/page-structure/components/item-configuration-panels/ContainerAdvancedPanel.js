@@ -14,6 +14,7 @@
 
 import React from 'react';
 
+import {HideFromSearchField} from '../../../../../../app/components/fragment-configuration-fields/HideFromSearchField';
 import {SelectField} from '../../../../../../app/components/fragment-configuration-fields/SelectField';
 import {
 	useDispatch,
@@ -53,7 +54,7 @@ export default function ContainerAdvancedPanel({item}) {
 					},
 				}}
 				onValueSelect={(name, value) => {
-					const itemConfig = {[name]: value};
+					const itemConfig = {[name]: value === 'div' ? '' : value};
 
 					dispatch(
 						updateItemConfig({
@@ -68,6 +69,8 @@ export default function ContainerAdvancedPanel({item}) {
 			<p className="small text-secondary">
 				{Liferay.Language.get('misusing-this-setup-might-impact-seo')}
 			</p>
+
+			<HideFromSearchField item={item} />
 		</>
 	);
 }

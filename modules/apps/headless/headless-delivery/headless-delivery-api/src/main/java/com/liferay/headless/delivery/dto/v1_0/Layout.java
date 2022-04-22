@@ -274,29 +274,29 @@ public class Layout implements Serializable {
 
 	@Schema
 	@Valid
-	public HtmlTag getHtmlTag() {
-		return htmlTag;
+	public FlexWrap getFlexWrap() {
+		return flexWrap;
 	}
 
 	@JsonIgnore
-	public String getHtmlTagAsString() {
-		if (htmlTag == null) {
+	public String getFlexWrapAsString() {
+		if (flexWrap == null) {
 			return null;
 		}
 
-		return htmlTag.toString();
+		return flexWrap.toString();
 	}
 
-	public void setHtmlTag(HtmlTag htmlTag) {
-		this.htmlTag = htmlTag;
+	public void setFlexWrap(FlexWrap flexWrap) {
+		this.flexWrap = flexWrap;
 	}
 
 	@JsonIgnore
-	public void setHtmlTag(
-		UnsafeSupplier<HtmlTag, Exception> htmlTagUnsafeSupplier) {
+	public void setFlexWrap(
+		UnsafeSupplier<FlexWrap, Exception> flexWrapUnsafeSupplier) {
 
 		try {
-			htmlTag = htmlTagUnsafeSupplier.get();
+			flexWrap = flexWrapUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -308,7 +308,7 @@ public class Layout implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected HtmlTag htmlTag;
+	protected FlexWrap flexWrap;
 
 	@Schema(deprecated = true)
 	@Valid
@@ -823,16 +823,16 @@ public class Layout implements Serializable {
 			sb.append("\"");
 		}
 
-		if (htmlTag != null) {
+		if (flexWrap != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"htmlTag\": ");
+			sb.append("\"flexWrap\": ");
 
 			sb.append("\"");
 
-			sb.append(htmlTag);
+			sb.append(flexWrap);
 
 			sb.append("\"");
 		}
@@ -1145,21 +1145,20 @@ public class Layout implements Serializable {
 
 	}
 
-	@GraphQLName("HtmlTag")
-	public static enum HtmlTag {
+	@GraphQLName("FlexWrap")
+	public static enum FlexWrap {
 
-		ARTICLE("Article"), ASIDE("Aside"), DIV("Div"), FOOTER("Footer"),
-		HEADER("Header"), MAIN("Main"), NAV("Nav"), SECTION("Section");
+		NO_WRAP("NoWrap"), WRAP("Wrap"), WRAP_REVERSE("WrapReverse");
 
 		@JsonCreator
-		public static HtmlTag create(String value) {
+		public static FlexWrap create(String value) {
 			if ((value == null) || value.equals("")) {
 				return null;
 			}
 
-			for (HtmlTag htmlTag : values()) {
-				if (Objects.equals(htmlTag.getValue(), value)) {
-					return htmlTag;
+			for (FlexWrap flexWrap : values()) {
+				if (Objects.equals(flexWrap.getValue(), value)) {
+					return flexWrap;
 				}
 			}
 
@@ -1176,7 +1175,7 @@ public class Layout implements Serializable {
 			return _value;
 		}
 
-		private HtmlTag(String value) {
+		private FlexWrap(String value) {
 			_value = value;
 		}
 

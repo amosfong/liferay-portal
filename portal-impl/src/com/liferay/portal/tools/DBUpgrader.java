@@ -48,6 +48,7 @@ import com.liferay.portal.verify.VerifyException;
 import com.liferay.portal.verify.VerifyGroup;
 import com.liferay.portal.verify.VerifyProperties;
 import com.liferay.portal.verify.VerifyResourcePermissions;
+import com.liferay.portlet.documentlibrary.store.StoreFactory;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.sql.Connection;
@@ -163,6 +164,16 @@ public class DBUpgrader {
 		DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
 
 		_upgradeModules(applicationContext);
+
+		StoreFactory storeFactory = StoreFactory.getInstance();
+
+		if (storeFactory.getStore(PropsValues.DL_STORE_IMPL) == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Store \"" + PropsValues.DL_STORE_IMPL +
+						"\" is not available");
+			}
+		}
 
 		if (applicationContext == null) {
 			DependencyManagerSyncUtil.sync();

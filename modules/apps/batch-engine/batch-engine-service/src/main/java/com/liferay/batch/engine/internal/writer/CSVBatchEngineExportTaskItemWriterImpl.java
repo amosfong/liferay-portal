@@ -15,10 +15,13 @@
 package com.liferay.batch.engine.internal.writer;
 
 import com.liferay.petra.io.unsync.UnsyncPrintWriter;
+import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import java.lang.reflect.Field;
 
@@ -38,7 +41,7 @@ public class CSVBatchEngineExportTaskItemWriterImpl
 
 	public CSVBatchEngineExportTaskItemWriterImpl(
 		String delimiter, Map<String, Field> fieldMap, List<String> fieldNames,
-		OutputStream outputStream) {
+		OutputStream outputStream, Map<String, Serializable> parameters) {
 
 		if (fieldNames.isEmpty()) {
 			throw new IllegalArgumentException("Field names are not set");
@@ -46,12 +49,20 @@ public class CSVBatchEngineExportTaskItemWriterImpl
 
 		_delimiter = delimiter;
 
+		fieldNames = ListUtil.sort(
+			fieldNames, (value1, value2) -> value1.compareToIgnoreCase(value2));
+
 		_columnValuesExtractor = new ColumnValuesExtractor(
 			fieldMap, fieldNames);
 
 		_unsyncPrintWriter = new UnsyncPrintWriter(outputStream);
 
-		_unsyncPrintWriter.println(StringUtil.merge(fieldNames, delimiter));
+		if (Boolean.valueOf(
+				(String)parameters.getOrDefault(
+					"containsHeaders", StringPool.TRUE))) {
+
+			_unsyncPrintWriter.println(StringUtil.merge(fieldNames, delimiter));
+		}
 	}
 
 	@Override

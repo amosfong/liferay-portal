@@ -20,7 +20,7 @@
 String tabs1 = ParamUtil.getString(request, "tabs1", "published");
 
 String redirect = ParamUtil.getString(request, "redirect");
-String backURL = HttpUtil.setParameter(currentURL, liferayPortletResponse.getNamespace() + "historyKey", "workflow");
+String backURL = HttpComponentsUtil.setParameter(currentURL, liferayPortletResponse.getNamespace() + "historyKey", "workflow");
 
 KaleoProcess kaleoProcess = (KaleoProcess)request.getAttribute(KaleoFormsWebKeys.KALEO_PROCESS);
 
@@ -82,7 +82,7 @@ if (Validator.isNotNull(workflowDefinition)) {
 		<aui:button onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "editWorkflow('" + addURL + "');" %>' primary="<%= true %>" value="add-workflow" />
 	</c:if>
 
-	<div class="separator"><!-- --></div>
+	<hr class="separator" />
 
 	<liferay-portlet:renderURL varImpl="portletURL">
 		<portlet:param name="mvcPath" value="/admin/edit_kaleo_process.jsp" />

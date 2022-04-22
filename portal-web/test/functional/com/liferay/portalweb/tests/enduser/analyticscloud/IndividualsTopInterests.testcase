@@ -44,8 +44,7 @@ definition {
 	test AssertIndividualOverviewTopInterest {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor: data doesn't appear on time and the test needs data from a past date
-		// AC Refactor ticket: LRAC-9266
+		// AC Quarantine Reason: Individual interest takes long time to load
 
 		task ("Connect DXP to AC") {
 			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -132,7 +131,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test ShowsTop5InterestTopicsForAllIndividuals {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time and the test needs data from a past date
 		// AC Refactor ticket: LRAC-9267

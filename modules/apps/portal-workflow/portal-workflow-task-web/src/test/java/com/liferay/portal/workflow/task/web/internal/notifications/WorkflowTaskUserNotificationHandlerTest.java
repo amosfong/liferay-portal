@@ -16,8 +16,6 @@ package com.liferay.portal.workflow.task.web.internal.notifications;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.json.JSONFactoryImpl;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -32,14 +30,13 @@ import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ProxyFactory;
 import com.liferay.portal.kernel.workflow.BaseWorkflowHandler;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
-import com.liferay.portal.util.HtmlImpl;
+import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.portal.workflow.WorkflowTaskManagerProxyBean;
 import com.liferay.portal.workflow.task.web.internal.permission.WorkflowTaskPermissionChecker;
 
@@ -52,26 +49,26 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.mockito.Mockito;
 
 import org.osgi.framework.BundleContext;
 
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 /**
  * @author Inácio Nery
  */
-@RunWith(PowerMockRunner.class)
-public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
+public class WorkflowTaskUserNotificationHandlerTest {
+
+	@ClassRule
+	@Rule
+	public static final LiferayUnitTestRule liferayUnitTestRule =
+		LiferayUnitTestRule.INSTANCE;
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_setUpHtmlUtil();
-		_setUpJSONFactoryUtil();
 		_setUpUserNotificationEventLocalService();
 		_setUpWorkflowTaskManagerUtil();
 		_setUpWorkflowTaskPermissionChecker();
@@ -84,10 +81,10 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 
 	@Test
 	public void testInterpret() throws Exception {
-		_language = Mockito.mock(Language.class);
+		Language language = Mockito.mock(Language.class);
 
 		ReflectionTestUtil.setFieldValue(
-			LanguageUtil.class, "_language", _language);
+			LanguageUtil.class, "_language", language);
 
 		Mockito.when(
 			LanguageUtil.format(
@@ -99,7 +96,7 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 		);
 
 		Mockito.when(
-			_language.get(
+			language.get(
 				Mockito.any(Locale.class),
 				Mockito.eq("notification-no-longer-applies"))
 		).thenReturn(
@@ -207,26 +204,6 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 		};
 	}
 
-	private static void _setUpHtmlUtil() {
-		HtmlUtil htmlUtil = new HtmlUtil();
-
-		htmlUtil.setHtml(
-			new HtmlImpl() {
-
-				@Override
-				public String escape(String text) {
-					return text;
-				}
-
-			});
-	}
-
-	private static void _setUpJSONFactoryUtil() {
-		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
-
-		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
-	}
-
 	private static void _setUpUserNotificationEventLocalService()
 		throws Exception {
 
@@ -312,13 +289,6 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 				}
 
 				@Override
-				public String getURLEditWorkflowTask(
-					long workflowTaskId, ServiceContext serviceContext) {
-
-					return getNotificationLink(workflowTaskId, serviceContext);
-				}
-
-				@Override
 				public Object updateStatus(int status, Map workflowContext) {
 					return null;
 				}
@@ -340,8 +310,6 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 
 	private static final Long _VALID_WORKFLOW_TASK_ID =
 		RandomTestUtil.randomLong();
-
-	private static Language _language;
 
 	private static final ServiceContext _serviceContext = new ServiceContext() {
 

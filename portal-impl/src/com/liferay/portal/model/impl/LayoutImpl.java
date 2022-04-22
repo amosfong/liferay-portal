@@ -58,7 +58,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LayoutTypePortletFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -1177,6 +1177,24 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return !isPrivateLayout();
 	}
 
+	@Override
+	public boolean isPublished() {
+		if (!isTypeContent()) {
+			return true;
+		}
+
+		Layout draftLayout = fetchDraftLayout();
+
+		if ((draftLayout == null) ||
+			GetterUtil.getBoolean(
+				draftLayout.getTypeSettingsProperty("published"))) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Returns <code>true</code> if the current layout is the root layout.
 	 *
@@ -1481,6 +1499,11 @@ public class LayoutImpl extends LayoutBaseImpl {
 			return null;
 		}
 
+		if (getMasterLayoutPlid() == getPlid()) {
+			throw new UnsupportedOperationException(
+				"Master page cannot point to itself");
+		}
+
 		_masterLayout = LayoutLocalServiceUtil.fetchLayout(
 			getMasterLayoutPlid());
 
@@ -1593,12 +1616,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 
 		if (PropsValues.LAYOUT_DEFAULT_P_L_RESET && !resetRenderParameters) {
-			url = HttpUtil.addParameter(url, "p_l_reset", 0);
+			url = HttpComponentsUtil.addParameter(url, "p_l_reset", 0);
 		}
 		else if (!PropsValues.LAYOUT_DEFAULT_P_L_RESET &&
 				 resetRenderParameters) {
 
-			url = HttpUtil.addParameter(url, "p_l_reset", 1);
+			url = HttpComponentsUtil.addParameter(url, "p_l_reset", 1);
 		}
 
 		return url;

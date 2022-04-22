@@ -21,6 +21,7 @@ import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.layout.util.comparator.LayoutCreateDateComparator;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.MasterLayoutException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -34,7 +35,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -257,9 +258,10 @@ public class LayoutLocalServiceTest {
 
 		String name = "café";
 
-		String friendlyURL = HttpUtil.decodeURL(StringPool.SLASH + name);
+		String friendlyURL = HttpComponentsUtil.decodeURL(
+			StringPool.SLASH + name);
 
-		friendlyURL = HttpUtil.decodeURL(friendlyURL);
+		friendlyURL = HttpComponentsUtil.decodeURL(friendlyURL);
 
 		Layout layout = LayoutTestUtil.addTypePortletLayout(
 			_group.getGroupId(), false,
@@ -278,7 +280,8 @@ public class LayoutLocalServiceTest {
 
 		String name = "café";
 
-		String friendlyURL = HttpUtil.decodeURL(StringPool.SLASH + name);
+		String friendlyURL = HttpComponentsUtil.decodeURL(
+			StringPool.SLASH + name);
 
 		Layout layout = LayoutTestUtil.addTypePortletLayout(
 			_group.getGroupId(), false,
@@ -392,7 +395,7 @@ public class LayoutLocalServiceTest {
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), TestPropsValues.getUserId());
 
-		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group, "home");
 
 		layout = _layoutLocalService.updateLayout(
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
@@ -409,6 +412,29 @@ public class LayoutLocalServiceTest {
 			layout.getStyleBookEntryId(), serviceContext);
 
 		Assert.assertEquals("/home", layout.getFriendlyURL(LocaleUtil.US));
+	}
+
+	@Test(expected = MasterLayoutException.class)
+	public void testUpdateMasterLayoutWithInvalidPlid1() throws Exception {
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		_layoutLocalService.updateMasterLayoutPlid(
+			_group.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
+			layout.getPlid());
+	}
+
+	@Test(expected = MasterLayoutException.class)
+	public void testUpdateMasterLayoutWithInvalidPlid2() throws Exception {
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		_layoutLocalService.updateLayout(
+			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
+			layout.getParentLayoutId(), layout.getNameMap(),
+			layout.getTitleMap(), layout.getDescriptionMap(),
+			layout.getKeywordsMap(), layout.getRobotsMap(), layout.getType(),
+			layout.isHidden(), layout.getFriendlyURLMap(),
+			layout.getIconImage(), null, layout.getPlid(),
+			layout.getStyleBookEntryId(), new ServiceContext());
 	}
 
 	private void _testDeleteLayouts(boolean system) throws Exception {

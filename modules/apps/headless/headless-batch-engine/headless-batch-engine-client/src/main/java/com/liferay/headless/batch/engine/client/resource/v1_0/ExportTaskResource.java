@@ -38,14 +38,34 @@ public interface ExportTaskResource {
 		return new Builder();
 	}
 
+	public ExportTask getExportTaskByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getExportTaskByExternalReferenceCodeHttpResponse(
+				String externalReferenceCode)
+		throws Exception;
+
+	public void getExportTaskByExternalReferenceCodeContent(
+			String externalReferenceCode)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse
+			getExportTaskByExternalReferenceCodeContentHttpResponse(
+				String externalReferenceCode)
+		throws Exception;
+
 	public ExportTask postExportTask(
 			String className, String contentType, String callbackURL,
-			String fieldNames, String taskItemDelegateName)
+			String externalReferenceCode, String fieldNames,
+			String taskItemDelegateName)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse postExportTaskHttpResponse(
 			String className, String contentType, String callbackURL,
-			String fieldNames, String taskItemDelegateName)
+			String externalReferenceCode, String fieldNames,
+			String taskItemDelegateName)
 		throws Exception;
 
 	public ExportTask getExportTask(Long exportTaskId) throws Exception;
@@ -130,14 +150,172 @@ public interface ExportTaskResource {
 
 	public static class ExportTaskResourceImpl implements ExportTaskResource {
 
+		public ExportTask getExportTaskByExternalReferenceCode(
+				String externalReferenceCode)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getExportTaskByExternalReferenceCodeHttpResponse(
+					externalReferenceCode);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return ExportTaskSerDes.toDTO(content);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getExportTaskByExternalReferenceCodeHttpResponse(
+					String externalReferenceCode)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/headless-batch-engine/v1.0/export-task/by-external-reference-code/{externalReferenceCode}");
+
+			httpInvoker.path("externalReferenceCode", externalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
+		public void getExportTaskByExternalReferenceCodeContent(
+				String externalReferenceCode)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				getExportTaskByExternalReferenceCodeContentHttpResponse(
+					externalReferenceCode);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+		}
+
+		public HttpInvoker.HttpResponse
+				getExportTaskByExternalReferenceCodeContentHttpResponse(
+					String externalReferenceCode)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port +
+						"/o/headless-batch-engine/v1.0/export-task/by-external-reference-code/{externalReferenceCode}/content");
+
+			httpInvoker.path("externalReferenceCode", externalReferenceCode);
+
+			httpInvoker.userNameAndPassword(
+				_builder._login + ":" + _builder._password);
+
+			return httpInvoker.invoke();
+		}
+
 		public ExportTask postExportTask(
 				String className, String contentType, String callbackURL,
-				String fieldNames, String taskItemDelegateName)
+				String externalReferenceCode, String fieldNames,
+				String taskItemDelegateName)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse = postExportTaskHttpResponse(
-				className, contentType, callbackURL, fieldNames,
-				taskItemDelegateName);
+				className, contentType, callbackURL, externalReferenceCode,
+				fieldNames, taskItemDelegateName);
 
 			String content = httpResponse.getContent();
 
@@ -178,7 +356,8 @@ public interface ExportTaskResource {
 
 		public HttpInvoker.HttpResponse postExportTaskHttpResponse(
 				String className, String contentType, String callbackURL,
-				String fieldNames, String taskItemDelegateName)
+				String externalReferenceCode, String fieldNames,
+				String taskItemDelegateName)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -208,6 +387,12 @@ public interface ExportTaskResource {
 			if (callbackURL != null) {
 				httpInvoker.parameter(
 					"callbackURL", String.valueOf(callbackURL));
+			}
+
+			if (externalReferenceCode != null) {
+				httpInvoker.parameter(
+					"externalReferenceCode",
+					String.valueOf(externalReferenceCode));
 			}
 
 			if (fieldNames != null) {

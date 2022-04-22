@@ -41,6 +41,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BLUEPRINTS_ADDED_ELEMENT_ENABLE_DISABLE_TOGGLE</td>
+	<td>//div[contains(@id,'querySXPElement')][./ul[contains(.,'${elementName}')]]//input[contains(@class,"toggle-switch-check")]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>BLUEPRINTS_ADDED_ELEMENT_FIELD_LABEL</td>
 	<td>//div[contains(@id,'querySXPElement')][./ul[contains(.,'${elementName}')]]//label[contains(.,'${fieldName}')]</td>
 	<td></td>
@@ -101,6 +106,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BLUEPRINTS_ADMIN_ENTRY_CHECKBOX</td>
+	<td>//div[contains(@class,'dnd-tr')][.//*[normalize-space(text())='${entryTitle}']]//input[@type='checkbox']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>BLUEPRINTS_ADMIN_ENTRY_DESCRIPTION</td>
 	<td>//div[contains(@class,'dnd-tr')][.//*[normalize-space(text())='${entryTitle}']]//div[contains(@class,'dnd-td')][3]</td>
 	<td></td>
@@ -108,6 +118,11 @@
 <tr>
 	<td>BLUEPRINTS_ADMIN_ENTRY_DROPDOWN_MENU_OPEN</td>
 	<td>//div[contains(@class,'dropdown-menu') and contains(@class,'show')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_ADMIN_ENTRY_ROW_NUMBER</td>
+	<td>//div[contains(@class,'dnd-tbody')]//div[contains(@class,'dnd-tr')][${rowNumber}]</td>
 	<td></td>
 </tr>
 <tr>
@@ -141,6 +156,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_CLEAR_FILTER_BUTTON</td>
+	<td>//span[contains(@class,'label-dismissible') and contains(.,'${filter}')]//button[contains(@class,'close')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_ITEM</td>
+	<td>//div[contains(@class,'clause-contributors-sidebar')]//li[contains(@class,'list-group-item') and contains(.,"${contributorClass}")]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_NTH_ITEM</td>
+	<td>xpath=(//div[contains(@class,'clause-contributors-sidebar')]//li[contains(@class,'list-group-item')])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_ON_OFF_TOGGLE</td>
 	<td>//div[contains(@class,'clause-contributors-sidebar')]//li[contains(.,"${contributorClass}")]//input[contains(@class,"toggle-switch-check")]</td>
 	<td></td>
@@ -148,6 +178,16 @@
 <tr>
 	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_OPEN_SIDEBAR</td>
 	<td>//div[contains(@class,'clause-contributors-sidebar') and contains(@class,'open')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_SEARCH_BAR</td>
+	<td>//div[contains(@class,'clause-contributors-sidebar')]//input[contains(@aria-label,'Search')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BLUEPRINTS_CLAUSE_CONTRIBUTOR_SORT_BUTTON</td>
+	<td>//button[@title='Reverse Sort Direction']</td>
 	<td></td>
 </tr>
 <tr>
@@ -298,6 +338,21 @@
 <tr>
 	<td>CODE_MIRROR_EDITOR</td>
 	<td>//div[contains(@class,'CodeMirror cm-s-default')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ELEMENTS_EDIT_PAGE_PREDEFINED_VARIABLES_SHOW_HIDE_BUTTON</td>
+	<td>//button[@title='Predefined Variables']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ELEMENTS_EDIT_PAGE_PREDEFINED_VARIABLES_SIDEBAR</td>
+	<td>//div[contains(@class,'sidebar') and contains(.,'Predefined Variables')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ELEMENTS_EDIT_PAGE_PREDEFINED_VARIABLES_SIDEBAR_ITEM</td>
+	<td>//dl[contains(@class,'sidebar-dl')]//button[contains(.,'${item}')]</td>
 	<td></td>
 </tr>
 <tr>

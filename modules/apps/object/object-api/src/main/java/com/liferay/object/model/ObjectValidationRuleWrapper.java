@@ -55,8 +55,9 @@ public class ObjectValidationRuleWrapper
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("objectDefinitionId", getObjectDefinitionId());
 		attributes.put("active", isActive());
-		attributes.put("errorLabel", getErrorLabel());
 		attributes.put("engine", getEngine());
+		attributes.put("errorLabel", getErrorLabel());
+		attributes.put("name", getName());
 		attributes.put("script", getScript());
 
 		return attributes;
@@ -125,16 +126,22 @@ public class ObjectValidationRuleWrapper
 			setActive(active);
 		}
 
+		String engine = (String)attributes.get("engine");
+
+		if (engine != null) {
+			setEngine(engine);
+		}
+
 		String errorLabel = (String)attributes.get("errorLabel");
 
 		if (errorLabel != null) {
 			setErrorLabel(errorLabel);
 		}
 
-		String engine = (String)attributes.get("engine");
+		String name = (String)attributes.get("name");
 
-		if (engine != null) {
-			setEngine(engine);
+		if (name != null) {
+			setName(name);
 		}
 
 		String script = (String)attributes.get("script");
@@ -293,6 +300,82 @@ public class ObjectValidationRuleWrapper
 	@Override
 	public long getMvccVersion() {
 		return model.getMvccVersion();
+	}
+
+	/**
+	 * Returns the name of this object validation rule.
+	 *
+	 * @return the name of this object validation rule
+	 */
+	@Override
+	public String getName() {
+		return model.getName();
+	}
+
+	/**
+	 * Returns the localized name of this object validation rule in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the locale of the language
+	 * @return the localized name of this object validation rule
+	 */
+	@Override
+	public String getName(java.util.Locale locale) {
+		return model.getName(locale);
+	}
+
+	/**
+	 * Returns the localized name of this object validation rule in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param locale the local of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized name of this object validation rule. If <code>useDefault</code> is <code>false</code> and no localization exists for the requested language, an empty string will be returned.
+	 */
+	@Override
+	public String getName(java.util.Locale locale, boolean useDefault) {
+		return model.getName(locale, useDefault);
+	}
+
+	/**
+	 * Returns the localized name of this object validation rule in the language. Uses the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @return the localized name of this object validation rule
+	 */
+	@Override
+	public String getName(String languageId) {
+		return model.getName(languageId);
+	}
+
+	/**
+	 * Returns the localized name of this object validation rule in the language, optionally using the default language if no localization exists for the requested language.
+	 *
+	 * @param languageId the ID of the language
+	 * @param useDefault whether to use the default language if no localization exists for the requested language
+	 * @return the localized name of this object validation rule
+	 */
+	@Override
+	public String getName(String languageId, boolean useDefault) {
+		return model.getName(languageId, useDefault);
+	}
+
+	@Override
+	public String getNameCurrentLanguageId() {
+		return model.getNameCurrentLanguageId();
+	}
+
+	@Override
+	public String getNameCurrentValue() {
+		return model.getNameCurrentValue();
+	}
+
+	/**
+	 * Returns a map of the locales and localized names of this object validation rule.
+	 *
+	 * @return the locales and localized names of this object validation rule
+	 */
+	@Override
+	public Map<java.util.Locale, String> getNameMap() {
+		return model.getNameMap();
 	}
 
 	/**
@@ -528,6 +611,69 @@ public class ObjectValidationRuleWrapper
 	@Override
 	public void setMvccVersion(long mvccVersion) {
 		model.setMvccVersion(mvccVersion);
+	}
+
+	/**
+	 * Sets the name of this object validation rule.
+	 *
+	 * @param name the name of this object validation rule
+	 */
+	@Override
+	public void setName(String name) {
+		model.setName(name);
+	}
+
+	/**
+	 * Sets the localized name of this object validation rule in the language.
+	 *
+	 * @param name the localized name of this object validation rule
+	 * @param locale the locale of the language
+	 */
+	@Override
+	public void setName(String name, java.util.Locale locale) {
+		model.setName(name, locale);
+	}
+
+	/**
+	 * Sets the localized name of this object validation rule in the language, and sets the default locale.
+	 *
+	 * @param name the localized name of this object validation rule
+	 * @param locale the locale of the language
+	 * @param defaultLocale the default locale
+	 */
+	@Override
+	public void setName(
+		String name, java.util.Locale locale, java.util.Locale defaultLocale) {
+
+		model.setName(name, locale, defaultLocale);
+	}
+
+	@Override
+	public void setNameCurrentLanguageId(String languageId) {
+		model.setNameCurrentLanguageId(languageId);
+	}
+
+	/**
+	 * Sets the localized names of this object validation rule from the map of locales and localized names.
+	 *
+	 * @param nameMap the locales and localized names of this object validation rule
+	 */
+	@Override
+	public void setNameMap(Map<java.util.Locale, String> nameMap) {
+		model.setNameMap(nameMap);
+	}
+
+	/**
+	 * Sets the localized names of this object validation rule from the map of locales and localized names, and sets the default locale.
+	 *
+	 * @param nameMap the locales and localized names of this object validation rule
+	 * @param defaultLocale the default locale
+	 */
+	@Override
+	public void setNameMap(
+		Map<java.util.Locale, String> nameMap, java.util.Locale defaultLocale) {
+
+		model.setNameMap(nameMap, defaultLocale);
 	}
 
 	/**

@@ -19,7 +19,7 @@ import React from 'react';
 
 export default function SideMenu({active, items, open}) {
 	return (
-		<ul className="bg-dark nav side-menu" role="tablist">
+		<ul className="bg-dark fds-side-menu nav" role="tablist">
 			{items.map((item) => (
 				<li className="nav-item" key={item.slug}>
 					<ClayButton

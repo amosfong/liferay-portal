@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.URLTemplateResource;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -416,12 +417,11 @@ public class DDMFormEmailNotificationSender {
 		for (DDMFormLayoutPage ddmFormLayoutPage :
 				ddmFormLayout.getDDMFormLayoutPages()) {
 
-			Map<String, Object> page = _getPage(
-				ddmFormLayoutPage,
-				getDDMFormFieldValuesMap(ddmFormInstanceRecord),
-				_getLocale(ddmFormInstance));
-
-			pages.add(page);
+			pages.add(
+				_getPage(
+					ddmFormLayoutPage,
+					getDDMFormFieldValuesMap(ddmFormInstanceRecord),
+					_getLocale(ddmFormInstance)));
 		}
 
 		return pages;
@@ -434,7 +434,7 @@ public class DDMFormEmailNotificationSender {
 			return StringPool.BLANK;
 		}
 
-		return HtmlUtil.extractText(text.getString(locale));
+		return _htmlParser.extractText(text.getString(locale));
 	}
 
 	private ResourceBundle _getResourceBundle(Locale locale) {
@@ -583,6 +583,9 @@ public class DDMFormEmailNotificationSender {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private HtmlParser _htmlParser;
 
 	private MailService _mailService;
 

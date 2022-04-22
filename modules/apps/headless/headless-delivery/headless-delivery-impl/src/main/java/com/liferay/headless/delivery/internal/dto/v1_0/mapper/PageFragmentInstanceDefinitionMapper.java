@@ -119,6 +119,7 @@ public class PageFragmentInstanceDefinitionMapper {
 				fragmentStyle = pageFragmentInstanceDefinitionFragmentStyle;
 				fragmentViewports =
 					pageFragmentInstanceDefinitionFragmentViewports;
+				indexed = fragmentStyledLayoutStructureItem.isIndexed();
 				widgetInstances = _getWidgetInstances(fragmentEntryLink);
 			}
 		};
@@ -254,12 +255,11 @@ public class PageFragmentInstanceDefinitionMapper {
 				"EditableFragmentEntryProcessor");
 
 		if (jsonObject != null) {
-			Map<String, String> editableTypes =
-				EditableFragmentEntryProcessorUtil.getEditableTypes(
-					fragmentEntryLink.getHtml());
-
 			fragmentFields.addAll(
-				_getTextFragmentFields(editableTypes, jsonObject, saveMapping));
+				_getTextFragmentFields(
+					EditableFragmentEntryProcessorUtil.getEditableTypes(
+						fragmentEntryLink.getHtml()),
+					jsonObject, saveMapping));
 		}
 
 		return fragmentFields.toArray(new FragmentField[0]);
@@ -672,13 +672,33 @@ public class PageFragmentInstanceDefinitionMapper {
 				classPKReferences = _toClassPKReferences(localizedJSONObjects);
 				fragmentImageConfiguration = new FragmentImageConfiguration() {
 					{
-						landscapeMobile =
-							imageConfigurationJSONObject.getString(
-								"landscapeMobile", "auto");
-						portraitMobile = imageConfigurationJSONObject.getString(
-							"portraitMobile", "auto");
-						tablet = imageConfigurationJSONObject.getString(
-							"tablet", "auto");
+						setLandscapeMobile(
+							() -> {
+								if (imageConfigurationJSONObject == null) {
+									return null;
+								}
+
+								return imageConfigurationJSONObject.getString(
+									"landscapeMobile", "auto");
+							});
+						setPortraitMobile(
+							() -> {
+								if (imageConfigurationJSONObject == null) {
+									return null;
+								}
+
+								return imageConfigurationJSONObject.getString(
+									"portraitMobile", "auto");
+							});
+						setTablet(
+							() -> {
+								if (imageConfigurationJSONObject == null) {
+									return null;
+								}
+
+								return imageConfigurationJSONObject.getString(
+									"tablet", "auto");
+							});
 					}
 				};
 			}

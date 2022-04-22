@@ -41,8 +41,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY_SPECIFIC</td>
+	<td>//div/label[text()='${key_text}']/..//input[not(contains(@type,'checkbox'))]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_DISABLED</td>
 	<td>//div[contains(@class,'input-text-wrapper')]/label[contains(.,'${key_selectFieldLabel}')]//following-sibling::input[contains(@class,'disabled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_PLACEHOLDER</td>
+	<td>//input[contains(@placeholder,'${key_placeHolder}') and not(contains(@class,'disabled'))]</td>
 	<td></td>
 </tr>
 <tr>
@@ -462,7 +472,7 @@
 </tr>
 <tr>
 	<td>PASSWORD</td>
-	<td>//div[label[contains(.,'Password')]]/input | //div[label[contains(.,"parola d'ordine")]]/input | //div[label[contains(.,'Contraseña')]]/input | //div[label[contains(.,'パスワード')]]/input | //div[label[contains(.,'密码')]]/input | //div[contains(.,'Kennwort')]//input[@type='password']</td>
+	<td>//div[label[contains(.,'Password') and not(contains(.,'One-Time Password'))]]/input | //div[label[contains(.,"parola d'ordine")]]/input | //div[label[contains(.,'Contraseña')]]/input | //div[label[contains(.,'パスワード')]]/input | //div[label[contains(.,'密码')]]/input | //div[contains(.,'Kennwort')]//input[@type='password']</td>
 	<td></td>
 </tr>
 <tr>

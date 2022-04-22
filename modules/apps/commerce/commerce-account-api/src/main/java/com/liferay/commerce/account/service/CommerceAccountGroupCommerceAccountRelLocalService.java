@@ -106,8 +106,18 @@ public interface CommerceAccountGroupCommerceAccountRelLocalService
 			long commerceAccountGroupId, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<CommerceAccountGroupCommerceAccountRel>
+		getCommerceAccountGroupCommerceAccountRelsByCommerceAccountId(
+			long commerceAccountId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getCommerceAccountGroupCommerceAccountRelsCount(
 		long commerceAccountGroupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int
+		getCommerceAccountGroupCommerceAccountRelsCountByCommerceAccountId(
+			long commerceAccountId);
 
 	/**
 	 * Returns the OSGi service identifier.

@@ -14,18 +14,27 @@
 
 import {useModal} from '@clayui/modal';
 import {Observer} from '@clayui/modal/src/types';
+import {DocumentNode} from 'graphql';
 import {Dispatch, useState} from 'react';
 
+import client from '../graphql/apolloClient';
 import i18n from '../i18n';
 import {Liferay} from '../services/liferay/liferay';
+
+type OnSubmitOptions = {
+	createMutation: DocumentNode;
+	updateMutation: DocumentNode;
+};
 
 export type FormModalOptions = {
 	modalState: any;
 	observer: Observer;
+	onChange: (state: any) => (event: any) => void;
 	onClose: () => void;
-	onError: () => void;
+	onError: (error?: any) => void;
 	onSave: (param?: any) => void;
-	open: () => void;
+	onSubmit: (data: any, options: OnSubmitOptions) => Promise<void>;
+	open: (state?: any) => void;
 	setVisible: Dispatch<boolean>;
 	visible: boolean;
 };
@@ -34,6 +43,8 @@ export type FormModal = {
 	forceRefetch: number;
 	modal: FormModalOptions;
 };
+
+export type FormModalComponent = Omit<FormModal, 'forceRefetch'>;
 
 type UseFormModal = {
 	isVisible?: boolean;
@@ -52,35 +63,89 @@ const useFormModal = ({
 
 	const [forceRefetch, setForceRefetch] = useState(0);
 
+	const onError = (error: any) => {
+		console.error(error);
+
+		Liferay.Util.openToast({
+			message: i18n.translate('an-unexpected-error-occurred'),
+			type: 'danger',
+		});
+	};
+
+	const onSave = (state?: any) => {
+		Liferay.Util.openToast({
+			message: i18n.translate('your-request-completed-successfully'),
+			type: 'success',
+		});
+
+		onClose();
+		setForceRefetch(new Date().getTime());
+
+		if (state) {
+			setModalState(state);
+			onSaveModal(state);
+		}
+	};
+
+	const onSubmit = async (
+		data: any,
+		{createMutation, updateMutation}: OnSubmitOptions
+	) => {
+		const variables: any = {
+			data,
+		};
+
+		if (data.id) {
+			variables.id = data.id;
+		}
+
+		delete variables.data.id;
+
+		try {
+			await client.mutate({
+				mutation: variables.id ? updateMutation : createMutation,
+				variables,
+			});
+
+			onSave();
+		}
+		catch (error) {
+			onError(error);
+
+			throw error;
+		}
+	};
+
 	return {
 		forceRefetch,
 		modal: {
 			modalState,
 			observer,
-			onClose,
-			onError: () => {
-				Liferay.Util.openToast({
-					message: i18n.translate('an-unexpected-error-occurred'),
-					type: 'danger',
-				});
-			},
-			onSave: (state?: any) => {
-				Liferay.Util.openToast({
-					message: i18n.translate(
-						'your-request-completed-successfully'
-					),
-					type: 'success',
-				});
+			onChange: ({form, setForm}: any) => (event: any) => {
+				const {
+					target: {checked, name, type},
+				} = event;
 
-				onClose();
-				setForceRefetch(new Date().getTime());
+				let {value} = event.target;
 
-				if (state) {
-					setModalState(state);
-					onSaveModal(state);
+				if (type === 'checkbox') {
+					value = checked;
 				}
+
+				setForm({
+					...form,
+					[name]: value,
+				});
 			},
-			open: () => setVisible(true),
+			onClose,
+			onError,
+			onSave,
+			onSubmit,
+			open: (state?: any) => {
+				setModalState(state);
+
+				setVisible(true);
+			},
 			setVisible,
 			visible,
 		},

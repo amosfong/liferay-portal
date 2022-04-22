@@ -60,9 +60,9 @@ public class BatchEngineImportTaskLocalServiceWrapper
 	@Override
 	public com.liferay.batch.engine.model.BatchEngineImportTask
 			addBatchEngineImportTask(
-				long companyId, long userId, long batchSize, String callbackURL,
-				String className, byte[] content, String contentType,
-				String executeStatus,
+				String externalReferenceCode, long companyId, long userId,
+				long batchSize, String callbackURL, String className,
+				byte[] content, String contentType, String executeStatus,
 				java.util.Map<String, String> fieldNameMappingMap,
 				int importStrategy, String operation,
 				java.util.Map<String, java.io.Serializable> parameters,
@@ -70,27 +70,9 @@ public class BatchEngineImportTaskLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _batchEngineImportTaskLocalService.addBatchEngineImportTask(
-			companyId, userId, batchSize, callbackURL, className, content,
-			contentType, executeStatus, fieldNameMappingMap, importStrategy,
-			operation, parameters, taskItemDelegateName);
-	}
-
-	@Override
-	public com.liferay.batch.engine.model.BatchEngineImportTask
-			addBatchEngineImportTask(
-				long companyId, long userId, long batchSize, String callbackURL,
-				String className, byte[] content, String contentType,
-				String executeStatus,
-				java.util.Map<String, String> fieldNameMappingMap,
-				String operation,
-				java.util.Map<String, java.io.Serializable> parameters,
-				String taskItemDelegateName)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _batchEngineImportTaskLocalService.addBatchEngineImportTask(
-			companyId, userId, batchSize, callbackURL, className, content,
-			contentType, executeStatus, fieldNameMappingMap, operation,
-			parameters, taskItemDelegateName);
+			externalReferenceCode, companyId, userId, batchSize, callbackURL,
+			className, content, contentType, executeStatus, fieldNameMappingMap,
+			importStrategy, operation, parameters, taskItemDelegateName);
 	}
 
 	/**
@@ -284,6 +266,37 @@ public class BatchEngineImportTaskLocalServiceWrapper
 	}
 
 	/**
+	 * Returns the batch engine import task with the matching external reference code and company.
+	 *
+	 * @param companyId the primary key of the company
+	 * @param externalReferenceCode the batch engine import task's external reference code
+	 * @return the matching batch engine import task, or <code>null</code> if a matching batch engine import task could not be found
+	 */
+	@Override
+	public com.liferay.batch.engine.model.BatchEngineImportTask
+		fetchBatchEngineImportTaskByExternalReferenceCode(
+			long companyId, String externalReferenceCode) {
+
+		return _batchEngineImportTaskLocalService.
+			fetchBatchEngineImportTaskByExternalReferenceCode(
+				companyId, externalReferenceCode);
+	}
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchBatchEngineImportTaskByExternalReferenceCode(long, String)}
+	 */
+	@Deprecated
+	@Override
+	public com.liferay.batch.engine.model.BatchEngineImportTask
+		fetchBatchEngineImportTaskByReferenceCode(
+			long companyId, String externalReferenceCode) {
+
+		return _batchEngineImportTaskLocalService.
+			fetchBatchEngineImportTaskByReferenceCode(
+				companyId, externalReferenceCode);
+	}
+
+	/**
 	 * Returns the batch engine import task with the matching UUID and company.
 	 *
 	 * @param uuid the batch engine import task's UUID
@@ -320,6 +333,25 @@ public class BatchEngineImportTaskLocalServiceWrapper
 
 		return _batchEngineImportTaskLocalService.getBatchEngineImportTask(
 			batchEngineImportTaskId);
+	}
+
+	/**
+	 * Returns the batch engine import task with the matching external reference code and company.
+	 *
+	 * @param companyId the primary key of the company
+	 * @param externalReferenceCode the batch engine import task's external reference code
+	 * @return the matching batch engine import task
+	 * @throws PortalException if a matching batch engine import task could not be found
+	 */
+	@Override
+	public com.liferay.batch.engine.model.BatchEngineImportTask
+			getBatchEngineImportTaskByExternalReferenceCode(
+				long companyId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _batchEngineImportTaskLocalService.
+			getBatchEngineImportTaskByExternalReferenceCode(
+				companyId, externalReferenceCode);
 	}
 
 	/**

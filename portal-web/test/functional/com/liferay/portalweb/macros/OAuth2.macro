@@ -12,6 +12,7 @@ definition {
 		OAuth2.addApplication(
 			applicationName = "${applicationName}",
 			callbackUri = '''http://martamedio.com/oauth2-tester/?url=${portalURL}&client_id=${clientId}''',
+			clientAuthenticationMethod = "${clientAuthenticationMethod}",
 			clientProfile = "Web Application");
 
 		if (isSet(checkboxCheckList)) {
@@ -46,8 +47,10 @@ definition {
 			callbackUri = "${callbackUri}",
 			checkboxCheckList = "${checkboxCheckList}",
 			checkboxUncheckList = "${checkboxUncheckList}",
+			clientAuthenticationMethod = "${clientAuthenticationMethod}",
 			clientProfile = "${clientProfile}",
 			description = "${description}",
+			jwks = "${jwks}",
 			privacyPolicyURL = "${privacyPolicyURL}",
 			websiteURL = "${websiteURL}");
 
@@ -315,6 +318,10 @@ definition {
 
 			if (isSet(resourceCheckList)) {
 				for (var scopeName : list "${resourceCheckList}") {
+					ScrollWebElementIntoView(
+						key_scopeName = "${scopeName}",
+						locator1 = "OAuth2#ADMIN_RESOURCE_SCOPE_CHECKBOX");
+
 					Check(
 						key_scopeName = "${scopeName}",
 						locator1 = "OAuth2#ADMIN_RESOURCE_SCOPE_CHECKBOX");
@@ -471,6 +478,39 @@ definition {
 				text = "${privacyPolicyURL}");
 		}
 
+		if (isSet(clientAuthenticationMethod)) {
+			if ("${clientAuthenticationMethod}" == "Client Secret JWT") {
+				Select(
+					key_fieldLabel = "Client Authentication Method",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "Client Secret JWT");
+			}
+			else if ("${clientAuthenticationMethod}" == "Private Key JWT") {
+				var jwks = FileUtil.read("test/functional/com/liferay/portalweb/tests/coreinfrastructure/security/oauth2/dependencies/jwks.txt");
+
+				Select(
+					key_fieldLabel = "Client Authentication Method",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "Private Key JWT");
+
+				PortletEntry.inputTextArea(
+					fieldId = "jwks",
+					text = "${jwks}");
+			}
+			else if ("${clientAuthenticationMethod}" == "None") {
+				Select(
+					key_fieldLabel = "Client Authentication Method",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "None");
+			}
+			else {
+				Select(
+					key_fieldLabel = "Client Authentication Method",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "Client Secret POST");
+			}
+		}
+
 		if (isSet(clientProfile)) {
 			Select(
 				key_fieldLabel = "Client Profile",
@@ -540,6 +580,14 @@ definition {
 			value1 = "");
 	}
 
+	macro obtainOAuth2AccessNotAuthorized {
+		AssertConfirm.assertConfirmationNoError(value1 = "There's a problem with your authorization access");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "OAuth2#OAUTH2_TESTER_REQUEST_RESULTS",
+			value1 = "");
+	}
+
 	macro openOAuth2Admin {
 		Navigator.openWithAppendToBaseURL(
 			baseURL = "${baseURL}",
@@ -562,6 +610,35 @@ definition {
 				''';
 
 		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
+	}
+
+	@description = "Request the liferay access token for OAuth2 application with the JWT via curl."
+	macro requestAccessTokenWithJWTViaCurl {
+		var portalURL = PropsUtil.get("portal.url");
+		var jwt = FileUtil.read("${jwtFileBaseDir}/${jwtFileName}");
+
+		var curl = '''
+				${portalURL}/o/oauth2/token \
+					-H 'Content-Type: application/x-www-form-urlencoded' \
+					--data-urlencode 'client_id=${clientId}' \
+					--data-urlencode 'client_secret=${clientSecret}' \
+					--data-urlencode 'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer' \
+					--data-urlencode 'scope=${scopes}'
+					--data-urlencode 'assertion=${jwt}'
+				''';
+
+		if (!(isSet(noResponse))) {
+			var scopeList = JSONCurlUtil.post("${curl}", "$['scope']");
+
+			echo("## * Scope list: ${scopeList}");
+
+			return "${scopeList}";
+		}
+		else {
+			var errorType = JSONCurlUtil.post("${curl}", "$['error']");
+
+			echo("## * No access token is returned due to ${errorType}");
+		}
 	}
 
 	macro revokeApplicationAuthorization {
@@ -678,6 +755,20 @@ definition {
 				key_text = "redirectURIs",
 				locator1 = "TextArea#ANY",
 				value1 = "${callbackUri}");
+		}
+
+		if (isSet(clientAuthenticationMethod)) {
+			AssertSelectedLabel(
+				key_fieldLabel = "Client Authentication Method",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "${clientAuthenticationMethod}");
+		}
+
+		if (isSet(jwks)) {
+			AssertTextEquals.assertPartialText(
+				key_text = "jwks",
+				locator1 = "TextArea#ANY",
+				value1 = "${jwks}");
 		}
 
 		if (isSet(clientProfile)) {

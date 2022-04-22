@@ -410,6 +410,8 @@ definition {
 	}
 
 	macro closeAllSessions {
+		ACUtils.restartDockerContainer(containerName = "osbasahredis");
+
 		var analyticsCloudAsahCuratorBatchURL = PropsUtil.get("analytics.cloud.asah.curator.batch.url");
 
 		var cleanCurl = '''
@@ -693,6 +695,13 @@ definition {
 				pageName = "${pageName}",
 				siteName = "${siteName}");
 
+			if ("${actionType}" == "View WC") {
+				Pause(locator1 = "5000");
+
+				// Pause is necessary because the web content event is sent too fast and doesn't have time to process if you navigate to another page quickly.
+
+			}
+
 			if ("${actionType}" == "View Blog") {
 				BlogsNavigator.gotoPG(entryTitle = "${documentTitle}");
 			}
@@ -785,6 +794,14 @@ definition {
 				Click(locator1 = "ACUtils#ORDER_ARROW_TABLE_BUTTON_DOWN");
 			}
 		}
+	}
+
+	macro restartDockerContainer {
+		var containerName = "${containerName}";
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "restart-docker-container -Ddocker.container=${containerName}");
 	}
 
 	macro saveButton {

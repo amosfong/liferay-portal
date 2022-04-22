@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.petra.executor.PortalExecutorManager;
@@ -171,13 +172,14 @@ public class BatchEngineAutoDeployListener implements AutoDeployListener {
 
 		BatchEngineImportTask batchEngineImportTask =
 			_batchEngineImportTaskLocalService.addBatchEngineImportTask(
-				batchEngineImportConfiguration.companyId,
+				null, batchEngineImportConfiguration.companyId,
 				batchEngineImportConfiguration.userId, 100,
 				batchEngineImportConfiguration.callbackURL,
 				batchEngineImportConfiguration.className, content,
 				StringUtil.toUpperCase(contentType),
 				BatchEngineTaskExecuteStatus.INITIAL.name(),
 				batchEngineImportConfiguration.fieldNameMappingMap,
+				BatchEngineImportTaskConstants.IMPORT_STRATEGY_ON_ERROR_FAIL,
 				BatchEngineTaskOperation.CREATE.name(),
 				batchEngineImportConfiguration.parameters,
 				batchEngineImportConfiguration.taskItemDelegateName);

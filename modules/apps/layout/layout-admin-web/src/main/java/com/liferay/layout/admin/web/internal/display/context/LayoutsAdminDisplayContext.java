@@ -78,7 +78,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -329,18 +329,6 @@ public class LayoutsAdminDisplayContext {
 		).buildString();
 	}
 
-	public String getConvertLayoutURL(Layout layout) {
-		return PortletURLBuilder.createActionURL(
-			_liferayPortletResponse
-		).setActionName(
-			"/layout_admin/convert_layout"
-		).setRedirect(
-			themeDisplay.getURLCurrent()
-		).setParameter(
-			"selPlid", layout.getPlid()
-		).buildString();
-	}
-
 	public String getCopyLayoutRenderURL(Layout layout) throws Exception {
 		return PortletURLBuilder.createRenderURL(
 			_liferayPortletResponse
@@ -545,7 +533,8 @@ public class LayoutsAdminDisplayContext {
 
 			friendlyURLBase.append(
 				group.getPathFriendlyURL(isPrivateLayout(), themeDisplay));
-			friendlyURLBase.append(HttpUtil.decodeURL(group.getFriendlyURL()));
+			friendlyURLBase.append(
+				HttpComponentsUtil.decodeURL(group.getFriendlyURL()));
 		}
 
 		return friendlyURLBase.toString();
@@ -1250,7 +1239,7 @@ public class LayoutsAdminDisplayContext {
 		}
 
 		try {
-			layoutFullURL = HttpUtil.setParameter(
+			layoutFullURL = HttpComponentsUtil.setParameter(
 				layoutFullURL, "p_l_back_url", _getBackURL());
 		}
 		catch (Exception exception) {
@@ -1539,20 +1528,7 @@ public class LayoutsAdminDisplayContext {
 			return false;
 		}
 
-		if (layout.isTypeContent()) {
-			Layout draftLayout = layout.fetchDraftLayout();
-
-			boolean published = false;
-
-			if (draftLayout != null) {
-				published = GetterUtil.getBoolean(
-					draftLayout.getTypeSettingsProperty("published"));
-			}
-
-			return published;
-		}
-
-		return true;
+		return layout.isPublished();
 	}
 
 	public boolean isShowDeleteAction(Layout layout) throws PortalException {
@@ -1595,7 +1571,7 @@ public class LayoutsAdminDisplayContext {
 			return false;
 		}
 
-		if (draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) {
+		if (draftLayout.isDraft()) {
 			return true;
 		}
 
@@ -1680,12 +1656,7 @@ public class LayoutsAdminDisplayContext {
 			return false;
 		}
 
-		boolean published = GetterUtil.getBoolean(
-			draftLayout.getTypeSettingsProperty("published"));
-
-		if ((draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) ||
-			!published) {
-
+		if (draftLayout.isDraft() || !layout.isPublished()) {
 			return true;
 		}
 
@@ -1703,10 +1674,6 @@ public class LayoutsAdminDisplayContext {
 	}
 
 	public boolean isShowUserPrivateLayouts() throws PortalException {
-		if (!isPrivateLayoutsEnabled()) {
-			return false;
-		}
-
 		Group selGroup = getSelGroup();
 
 		if (selGroup.isUser()) {
@@ -1724,6 +1691,12 @@ public class LayoutsAdminDisplayContext {
 					return false;
 				}
 			}
+		}
+
+		if (!selGroup.isLayoutSetPrototype() &&
+			!selGroup.isPrivateLayoutsEnabled()) {
+
+			return false;
 		}
 
 		return true;
@@ -1753,20 +1726,7 @@ public class LayoutsAdminDisplayContext {
 	}
 
 	public boolean isShowViewLayoutAction(Layout layout) {
-		Layout draftLayout = layout.fetchDraftLayout();
-
-		if (layout.isDenied() || layout.isPending()) {
-			return true;
-		}
-
-		boolean published = true;
-
-		if (draftLayout != null) {
-			published = GetterUtil.getBoolean(
-				draftLayout.getTypeSettingsProperty("published"));
-		}
-
-		if (!layout.isTypeContent() || published) {
+		if (layout.isDenied() || layout.isPending() || layout.isPublished()) {
 			return true;
 		}
 
@@ -1904,11 +1864,12 @@ public class LayoutsAdminDisplayContext {
 	}
 
 	private String _getDraftLayoutURL(Layout layout) throws Exception {
-		String layoutFullURL = HttpUtil.setParameter(
+		String layoutFullURL = HttpComponentsUtil.setParameter(
 			PortalUtil.getLayoutFullURL(getDraftLayout(layout), themeDisplay),
 			"p_l_back_url", _getBackURL());
 
-		return HttpUtil.setParameter(layoutFullURL, "p_l_mode", Constants.EDIT);
+		return HttpComponentsUtil.setParameter(
+			layoutFullURL, "p_l_mode", Constants.EDIT);
 	}
 
 	private long[] _getGroupIds() {

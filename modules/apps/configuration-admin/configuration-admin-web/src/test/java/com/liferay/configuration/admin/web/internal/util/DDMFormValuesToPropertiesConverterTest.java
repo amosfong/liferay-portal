@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Locale;
 import java.util.Vector;
@@ -100,7 +101,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, 3);
 		whenGetID(extendedAttributeDefinition, "Boolean");
 
@@ -121,6 +121,116 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		Assert.assertTrue(booleanValues[0]);
 		Assert.assertFalse(booleanValues[1]);
 		Assert.assertTrue(booleanValues[2]);
+	}
+
+	@Test
+	public void testEmptyStringValue() {
+		DDMForm ddmForm = new DDMForm();
+
+		ddmForm.addAvailableLocale(_enLocale);
+		ddmForm.setDefaultLocale(_enLocale);
+
+		DDMFormField booleanDDMFormField = DDMFormTestUtil.createDDMFormField(
+			"String", "String", DDMFormFieldType.TEXT, "string", false, true,
+			false);
+
+		ddmForm.addDDMFormField(booleanDDMFormField);
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.addAvailableLocale(_enLocale);
+		ddmFormValues.setDefaultLocale(_enLocale);
+
+		ddmFormValues.addDDMFormFieldValue(
+			createDDMFormFieldValue("String", "", _enLocale));
+
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
+
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
+
+		Configuration configuration = mock(Configuration.class);
+
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
+		whenGetCardinality(extendedAttributeDefinition, 1);
+		whenGetID(extendedAttributeDefinition, "String");
+
+		ConfigurationModel configurationModel = new ConfigurationModel(
+			null, null, configuration, extendedObjectClassDefinition, false);
+
+		DDMFormValuesToPropertiesConverter ddmFormValuesToPropertiesConverter =
+			new DDMFormValuesToPropertiesConverter(
+				configurationModel, ddmFormValues, _jsonFactory, _enLocale);
+
+		Dictionary<String, Object> properties =
+			ddmFormValuesToPropertiesConverter.getProperties();
+
+		Object value = properties.get("String");
+
+		String[] stringValues = (String[])value;
+
+		Assert.assertEquals(
+			Arrays.toString(stringValues), 0, stringValues.length);
+	}
+
+	@Test
+	public void testEmptyValueArrayStringValues() {
+		DDMForm ddmForm = new DDMForm();
+
+		ddmForm.addAvailableLocale(_enLocale);
+		ddmForm.setDefaultLocale(_enLocale);
+
+		DDMFormField booleanDDMFormField = DDMFormTestUtil.createDDMFormField(
+			"String", "String", DDMFormFieldType.TEXT, "string", false, true,
+			false);
+
+		ddmForm.addDDMFormField(booleanDDMFormField);
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.addAvailableLocale(_enLocale);
+		ddmFormValues.setDefaultLocale(_enLocale);
+
+		ddmFormValues.addDDMFormFieldValue(
+			createDDMFormFieldValue("String", "A", _enLocale));
+		ddmFormValues.addDDMFormFieldValue(
+			createDDMFormFieldValue("String", "", _enLocale));
+		ddmFormValues.addDDMFormFieldValue(
+			createDDMFormFieldValue("String", "B", _enLocale));
+
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
+
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
+
+		Configuration configuration = mock(Configuration.class);
+
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
+		whenGetCardinality(extendedAttributeDefinition, 3);
+		whenGetID(extendedAttributeDefinition, "String");
+
+		ConfigurationModel configurationModel = new ConfigurationModel(
+			null, null, configuration, extendedObjectClassDefinition, false);
+
+		DDMFormValuesToPropertiesConverter ddmFormValuesToPropertiesConverter =
+			new DDMFormValuesToPropertiesConverter(
+				configurationModel, ddmFormValues, _jsonFactory, _enLocale);
+
+		Dictionary<String, Object> properties =
+			ddmFormValuesToPropertiesConverter.getProperties();
+
+		Object value = properties.get("String");
+
+		String[] stringValues = (String[])value;
+
+		Assert.assertEquals(
+			Arrays.toString(stringValues), 2, stringValues.length);
 	}
 
 	@Test
@@ -155,7 +265,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, 0);
 		whenGetID(extendedAttributeDefinition, "Boolean");
 
@@ -204,7 +313,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, 0);
 		whenGetID(extendedAttributeDefinition, "Integer");
 
@@ -253,7 +361,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, 0);
 		whenGetID(extendedAttributeDefinition, "Integer");
 
@@ -302,7 +409,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, 0);
 		whenGetID(extendedAttributeDefinition, "Select");
 
@@ -356,7 +462,6 @@ public class DDMFormValuesToPropertiesConverterTest extends Mockito {
 		whenGetAttributeDefinitions(
 			extendedObjectClassDefinition,
 			new ExtendedAttributeDefinition[] {extendedAttributeDefinition});
-
 		whenGetCardinality(extendedAttributeDefinition, -3);
 		whenGetID(extendedAttributeDefinition, "Boolean");
 

@@ -223,8 +223,8 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 			_dlAppService.addFileEntry(
 				null, groupId, parentFolderId, fileName,
 				fileEntry.getMimeType(), FileUtil.stripExtension(fileName),
-				fileEntry.getDescription(), StringPool.BLANK, file, null, null,
-				serviceContext);
+				StringPool.BLANK, fileEntry.getDescription(), StringPool.BLANK,
+				file, null, null, serviceContext);
 
 			return status;
 		}
@@ -456,11 +456,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 				ServiceContext serviceContext = _getServiceContext(
 					DLFileEntry.class.getName(), webDAVRequest);
 
+				String title = FileUtil.stripExtension(fileName);
+
 				FileEntry fileEntry = _dlAppService.addFileEntry(
 					null, webDAVRequest.getGroupId(), parentFolderId, fileName,
-					contentType, FileUtil.stripExtension(fileName),
-					StringPool.BLANK, StringPool.BLANK, file, null, null,
-					serviceContext);
+					contentType, title, StringPool.BLANK, StringPool.BLANK,
+					StringPool.BLANK, file, null, null, serviceContext);
 
 				resource = _toResource(webDAVRequest, fileEntry, false);
 			}
@@ -695,6 +696,7 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 						destFileEntry.getFileEntryId(),
 						destFileEntry.getFileName(),
 						destFileEntry.getMimeType(), destFileEntry.getTitle(),
+						destFileEntry.getTitle(),
 						destFileEntry.getDescription(), StringPool.BLANK,
 						DLVersionNumberIncrease.MINOR, file,
 						destFileEntry.getExpirationDate(),
@@ -715,8 +717,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 			_dlAppService.updateFileEntry(
 				fileEntry.getFileEntryId(), fileName, fileEntry.getMimeType(),
-				fileEntry.getTitle(), fileEntry.getDescription(),
-				StringPool.BLANK, DLVersionNumberIncrease.MINOR, file,
+				fileEntry.getTitle(), fileEntry.getTitle(),
+				fileEntry.getDescription(), StringPool.BLANK,
+				DLVersionNumberIncrease.MINOR, file,
 				fileEntry.getExpirationDate(), fileEntry.getReviewDate(),
 				serviceContext);
 
@@ -799,8 +802,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 				_dlAppService.updateFileEntry(
 					fileEntry.getFileEntryId(), fileName, contentType,
-					fileEntry.getTitle(), fileEntry.getDescription(),
-					StringPool.BLANK, DLVersionNumberIncrease.MINOR, file,
+					fileEntry.getTitle(), fileEntry.getTitle(),
+					fileEntry.getDescription(), StringPool.BLANK,
+					DLVersionNumberIncrease.MINOR, file,
 					fileEntry.getExpirationDate(), fileEntry.getReviewDate(),
 					serviceContext);
 			}
@@ -811,11 +815,12 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 				serviceContext.setCommand(Constants.ADD_WEBDAV);
 
+				String title = FileUtil.stripExtension(fileName);
+
 				_dlAppService.addFileEntry(
 					null, webDAVRequest.getGroupId(), parentFolderId, fileName,
-					contentType, FileUtil.stripExtension(fileName),
-					StringPool.BLANK, StringPool.BLANK, file, null, null,
-					serviceContext);
+					contentType, title, StringPool.BLANK, StringPool.BLANK,
+					StringPool.BLANK, file, null, null, serviceContext);
 			}
 
 			if (_log.isInfoEnabled()) {
@@ -1153,10 +1158,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 		String className = DLFileEntryConstants.getClassName();
 
-		long[] assetCategoryIds = _assetCategoryLocalService.getCategoryIds(
-			className, fileEntry.getFileEntryId());
-
-		serviceContext.setAssetCategoryIds(assetCategoryIds);
+		serviceContext.setAssetCategoryIds(
+			_assetCategoryLocalService.getCategoryIds(
+				className, fileEntry.getFileEntryId()));
 
 		AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
 			className, fileEntry.getFileEntryId());
@@ -1169,10 +1173,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 
 		serviceContext.setAssetLinkEntryIds(assetLinkEntryIds);
 
-		String[] assetTagNames = _assetTagLocalService.getTagNames(
-			className, fileEntry.getFileEntryId());
-
-		serviceContext.setAssetTagNames(assetTagNames);
+		serviceContext.setAssetTagNames(
+			_assetTagLocalService.getTagNames(
+				className, fileEntry.getFileEntryId()));
 
 		ExpandoBridge expandoBridge = fileEntry.getExpandoBridge();
 
@@ -1209,14 +1212,11 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 				continue;
 			}
 
-			DDMFormValues ddmFormValues =
-				StorageEngineManagerUtil.getDDMFormValues(
-					dlFileEntryMetadata.getDDMStorageId());
-
 			serviceContext.setAttribute(
 				DDMFormValues.class.getName() + StringPool.POUND +
 					ddmStructure.getStructureId(),
-				ddmFormValues);
+				StorageEngineManagerUtil.getDDMFormValues(
+					dlFileEntryMetadata.getDDMStorageId()));
 		}
 	}
 

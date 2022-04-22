@@ -109,7 +109,6 @@ JavaModifiedServiceMethodCheck | [Bug Prevention](bug_prevention_checks.markdown
 JavaModuleIllegalImportsCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases of incorrect use of certain classes in modules. |
 JavaModuleInternalImportsCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases where a module imports an `internal` class from another class. |
 JavaModuleJavaxPortletInitParamTemplatePathCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Validates the value of `javax.portlet.init-param.template-path`. |
-JavaModuleServiceProxyFactoryCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases of `ServiceProxyFactory.newServiceTrackedInstance`. |
 JavaModuleServiceReferenceCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases where `@BeanReference` annotation should be used instead of `@ServiceReference` annotation. |
 [JavaModuleTestCheck](check/java_module_test_check.markdown#javamoduletestcheck) | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks package names in tests. |
 [JavaMultiPlusConcatCheck](check/java_multi_plus_concat_check.markdown#javamultiplusconcatcheck) | [Performance](performance_checks.markdown#performance-checks) | Checks that we do not concatenate more than 3 String objects. |
@@ -138,14 +137,14 @@ JavaStaticVariableDependencyCheck | [Bug Prevention](bug_prevention_checks.markd
 [JavaStringBundlerConcatCheck](check/java_string_bundler_concat_check.markdown#javastringbundlerconcatcheck) | [Performance](performance_checks.markdown#performance-checks) | Finds calls to `StringBundler.concat` with less than 3 parameters. |
 JavaStringBundlerInitialCapacityCheck | [Performance](performance_checks.markdown#performance-checks) | Checks the initial capacity of new instances of `StringBundler`. |
 JavaStringStartsWithSubstringCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks for uses of `contains` followed by `substring`, which should be `startsWith` instead. |
-JavaStylingCheck | [Styling](styling_checks.markdown#styling-checks) | Applies rules to enforce consisteny in code style. |
+JavaStylingCheck | [Styling](styling_checks.markdown#styling-checks) | Applies rules to enforce consistency in code style. |
 [JavaSwitchCheck](check/java_switch_check.markdown#javaswitchcheck) | [Styling](styling_checks.markdown#styling-checks) | Checks that `if/else` statement is used instead of `switch` statement. |
 JavaSystemEventAnnotationCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds missing method `setDeletionSystemEventStagedModelTypes` in class with annotation @SystemEvent. |
 JavaSystemExceptionCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds unnecessary SystemExceptions. |
 JavaTaglibMethodCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks that a `*Tag` class has a `set*` and `get*` or `is*` method for each attribute. |
 JavaTermDividersCheck | [Styling](styling_checks.markdown#styling-checks) | Finds missing or unnecessary empty lines between javaterms. |
 JavaTermOrderCheck | [Styling](styling_checks.markdown#styling-checks) | Checks the order of javaterms. |
-JavaTermStylingCheck | [Styling](styling_checks.markdown#styling-checks) | Applies rules to enforce consisteny in code style. |
+JavaTermStylingCheck | [Styling](styling_checks.markdown#styling-checks) | Applies rules to enforce consistency in code style. |
 [JavaTestMethodAnnotationsCheck](check/java_test_method_annotations_check.markdown#javatestmethodannotationscheck) | [Naming Conventions](naming_conventions_checks.markdown#naming-conventions-checks) | Checks if methods with test annotations follow the naming conventions. |
 JavaTransactionBoundaryCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds direct `add*` or `get*` calls in `*ServiceImpl` (those should use the `*service` global variable instead). |
 [JavaUnsafeCastingCheck](check/java_unsafe_casting_check.markdown#javaunsafecastingcheck) | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks for potential ClassCastException. |
@@ -217,6 +216,7 @@ ReferenceAnnotationCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-p
 ResourceImplCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Performs several checks on `*ResourceImpl` classes (except `Base*ResourceImpl` classes). |
 SelfReferenceCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases of unnecessary reference to its own class. |
 SemiColonCheck | [Styling](styling_checks.markdown#styling-checks) | Finds cases of unnecessary semicolon. |
+[ServiceProxyFactoryCheck](check/service_proxy_factory_check.markdown#serviceproxyfactorycheck) | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds incorrect parameter in method call. |
 SessionKeysCheck | [Naming Conventions](naming_conventions_checks.markdown#naming-conventions-checks) | Checks that messages send to `SessionsErrors` or `SessionMessages` follow naming conventions. |
 SetUtilMethodsCheck | [Performance](performance_checks.markdown#performance-checks) | Finds cases of inefficient SetUtil operations. |
 SingleStatementClauseCheck | [Styling](styling_checks.markdown#styling-checks) | Verifies that `for`, `if` or `while` statement always uses curly braces. |

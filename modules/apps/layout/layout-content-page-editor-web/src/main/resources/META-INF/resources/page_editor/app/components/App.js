@@ -32,6 +32,7 @@ import {reducer} from '../reducers/index';
 import selectLanguageId from '../selectors/selectLanguageId';
 import selectSegmentsExperienceId from '../selectors/selectSegmentsExperienceId';
 import {DragAndDropContextProvider} from '../utils/drag-and-drop/useDragAndDrop';
+import CommonStylesManager from './CommonStylesManager';
 import {DisplayPagePreviewItemSelector} from './DisplayPagePreviewItemSelector';
 import DragPreview from './DragPreview';
 import LayoutViewport from './LayoutViewport';
@@ -99,6 +100,10 @@ export default function App({state}) {
 										<ShortcutManager />
 
 										<GlobalContextProvider>
+											{config.featureFlagLps132571 ? (
+												<CommonStylesManager />
+											) : null}
+
 											<LayoutViewport />
 
 											<StyleBookContextProvider>

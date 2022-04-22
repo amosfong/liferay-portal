@@ -97,10 +97,9 @@ public class ProductFeedXMLGenerator {
 
 		feed.setLink(link);
 
-		String updated = DateUtil.getCurrentDate(
-			DateUtil.ISO_8601_PATTERN, null, TimeZoneUtil.GMT);
-
-		feed.setUpdated(updated);
+		feed.setUpdated(
+			DateUtil.getCurrentDate(
+				DateUtil.ISO_8601_PATTERN, null, TimeZoneUtil.GMT));
 
 		int total = _countCPCatalogEntriesByChannel(commerceChannel);
 
@@ -115,7 +114,9 @@ public class ProductFeedXMLGenerator {
 				/* TODO: To be implemented in COMMERCE-2690.
 
 				for (CPCatalogEntry cpCatalogEntry : cpCatalogEntries) {
-					//TODO COMMERCE-2690 add XML for a product here
+
+					// TODO COMMERCE-2690 add XML for a product here
+
 				}
 				*/
 

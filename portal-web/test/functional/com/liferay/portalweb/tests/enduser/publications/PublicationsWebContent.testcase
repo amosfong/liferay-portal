@@ -1,7 +1,6 @@
 @component-name = "portal-publications"
 definition {
 
-	property app.server.types = "jboss,tomcat,weblogic,websphere,wildfly";
 	property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver";
 	property portal.release = "true";
 	property portal.upstream = "true";
@@ -410,7 +409,7 @@ definition {
 
 		WebContent.editDisplayPage(
 			pageName = "Test Page",
-			pageType = "Public Pages");
+			pageType = "Pages");
 
 		PortletEntry.publish();
 

@@ -159,17 +159,14 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			long objectDefinitionId = _getObjectDefinitionId(
 				ddmStorageAdapterSaveRequest);
 
-			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.getObjectDefinition(
-					objectDefinitionId);
-
 			ObjectEntry addObjectEntry = _objectEntryManager.addObjectEntry(
 				_getDTOConverterContext(null, user, ddmForm.getDefaultLocale()),
-				objectDefinition,
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectDefinitionId),
 				new ObjectEntry() {
 					{
 						properties = _getObjectEntryProperties(
-							ddmForm.getDDMFormFieldsReferencesMap(true),
+							ddmForm.getDDMFormFieldsMap(true),
 							ddmFormValues.getDDMFormFieldValues(),
 							_objectFieldLocalService.getObjectFields(
 								objectDefinitionId));
@@ -312,6 +309,17 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			objectFields);
 
 		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
+			DDMFormField ddmFormField = ddmFormFieldsMap.get(
+				ddmFormFieldValue.getName());
+
+			if (ddmFormField.isTransient() &&
+				!StringUtil.equals(
+					ddmFormField.getType(),
+					DDMFormFieldTypeConstants.FIELDSET)) {
+
+				continue;
+			}
+
 			if (StringUtil.equals(
 					ddmFormFieldValue.getType(),
 					DDMFormFieldTypeConstants.FIELDSET)) {
@@ -472,13 +480,13 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 		throws ParseException {
 
 		if (Objects.equals(objectFieldDBType, "BigDecimal")) {
-			return GetterUtil.get(value, BigDecimal.ZERO);
-		}
-		else if (Objects.equals(objectFieldDBType, "Blob")) {
-			return value.getBytes();
-		}
-		else if (Objects.equals(objectFieldDBType, "Boolean")) {
-			return GetterUtil.getBoolean(value);
+			if (value.isEmpty()) {
+				return GetterUtil.DEFAULT_DOUBLE;
+			}
+
+			NumberFormat numberFormat = NumberFormat.getInstance(locale);
+
+			return GetterUtil.get(numberFormat.parse(value), BigDecimal.ZERO);
 		}
 		else if (Objects.equals(objectFieldDBType, "Double")) {
 			if (value.isEmpty()) {
@@ -488,12 +496,6 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			NumberFormat numberFormat = NumberFormat.getInstance(locale);
 
 			return GetterUtil.getDouble(numberFormat.parse(value));
-		}
-		else if (Objects.equals(objectFieldDBType, "Integer")) {
-			return GetterUtil.getInteger(value);
-		}
-		else if (Objects.equals(objectFieldDBType, "Long")) {
-			return GetterUtil.getLong(value);
 		}
 		else {
 			return value;

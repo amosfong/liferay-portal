@@ -183,7 +183,8 @@ definition {
 	test CheckTotalAndUniqueAndAverageChartDataIsShown {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor: It is not possible to assert the chart because the data takes some time to appear.
+		// AC Quarantine Reason: The data in the event analysis taking a while to appear
+		// AC Refactor ticket: LRAC-10527
 
 		var attributeName = "pageTitle";
 		var layoutNameList = "Custom 1,Custom 2";
@@ -454,6 +455,8 @@ definition {
 	@description = "Feature ID: LRAC-4266 | Automation ID: LRAC-10306 | Test Summary: Remove Attribute"
 	@priority = "5"
 	test RemoveAttribute {
+		property test.name.skip.portal.instance = "CustomEventsEventAnalysis#RemoveAttribute";
+
 		var attributeName = "pageTitle";
 		var dataSource = StringUtil.extractFirst("${assignedPropertyName}", " ");
 
@@ -515,6 +518,8 @@ definition {
 	@description = "Feature ID: LRAC-4266 | Automation ID: LRAC-10301 | Test Summary: Search Event Attribute from Event tab"
 	@priority = "3"
 	test SearchEventAttributeInEventTab {
+		property test.name.skip.portal.instance = "CustomEventsEventAnalysis#SearchEventAttributeInEventTab";
+
 		var defaultAttributeName = "pageTitle";
 		var customAttributeName = "category";
 
@@ -568,6 +573,8 @@ definition {
 	@description = "Feature ID: LRAC-4266 | Automation ID: LRAC-10295 | Test Summary: Search for events in different tabs"
 	@priority = "3"
 	test SearchEventsInDifferentTabs {
+		property test.name.skip.portal.instance = "CustomEventsEventAnalysis#SearchEventsInDifferentTabs";
+
 		var defaultEventName = "pageViewed";
 
 		task ("Fill fields and create custom event") {

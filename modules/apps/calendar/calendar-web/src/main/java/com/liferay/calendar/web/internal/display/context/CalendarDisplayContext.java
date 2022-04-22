@@ -26,8 +26,10 @@ import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.calendar.service.CalendarService;
 import com.liferay.calendar.util.RecurrenceUtil;
+import com.liferay.calendar.util.comparator.CalendarResourceNameComparator;
 import com.liferay.calendar.web.internal.search.CalendarResourceDisplayTerms;
 import com.liferay.calendar.web.internal.search.CalendarResourceSearch;
+import com.liferay.calendar.web.internal.search.CalendarSearchContainer;
 import com.liferay.calendar.web.internal.security.permission.resource.CalendarPermission;
 import com.liferay.calendar.web.internal.security.permission.resource.CalendarPortletPermission;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
@@ -46,22 +48,36 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
+import com.liferay.portal.kernel.util.comparator.UserScreenNameComparator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.portlet.PortletException;
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -91,8 +107,14 @@ public class CalendarDisplayContext {
 		_calendarResourceLocalService = calendarResourceLocalService;
 		_calendarService = calendarService;
 
+		_portletSession = renderRequest.getPortletSession();
+
 		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		PortletDisplay portletDisplay = _themeDisplay.getPortletDisplay();
+
+		_portletId = portletDisplay.getId();
 	}
 
 	public List<CalendarBooking> getChildCalendarBookings(
@@ -201,7 +223,8 @@ public class CalendarDisplayContext {
 
 		String redirect = ParamUtil.getString(httpServletRequest, "redirect");
 
-		String ppid = HttpUtil.getParameter(redirect, "p_p_id", false);
+		String ppid = HttpComponentsUtil.getParameter(
+			redirect, "p_p_id", false);
 
 		if (ppid.equals(CalendarPortletKeys.CALENDAR)) {
 			return defaultURL;
@@ -226,11 +249,60 @@ public class CalendarDisplayContext {
 				dropdownGroupItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "scope"));
 			}
+		).addGroup(
+			dropdownGroupItem -> {
+				dropdownGroupItem.setDropdownItems(_getOrderByDropdownItems());
+				dropdownGroupItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "order-by"));
+			}
 		).build();
 	}
 
+	public SearchContainer<Group> getGroupSearchContainer()
+		throws PortalException {
+
+		if (_groupSearchContainer != null) {
+			return _groupSearchContainer;
+		}
+
+		_groupSearchContainer = new CalendarSearchContainer(
+			_renderRequest, CalendarResourceSearch.DEFAULT_CUR_PARAM + "Groups",
+			_getIteratorURL());
+
+		_groupSearchContainer.setId("sites");
+		_groupSearchContainer.setOrderByCol(getOrderByCol());
+
+		boolean orderByAsc = false;
+
+		if (Objects.equals(getOrderByType(), "asc")) {
+			orderByAsc = true;
+		}
+
+		_groupSearchContainer.setOrderByComparator(
+			new GroupNameComparator(orderByAsc));
+		_groupSearchContainer.setOrderByType(getOrderByType());
+		_groupSearchContainer.setResultsAndTotal(
+			() -> GroupServiceUtil.search(
+				_themeDisplay.getCompanyId(), _getClassNameIds(), getKeywords(),
+				MapUtil.toLinkedHashMap(new String[] {"site:true:boolean"}),
+				_groupSearchContainer.getStart(),
+				_groupSearchContainer.getEnd(),
+				_groupSearchContainer.getOrderByComparator()),
+			GroupServiceUtil.searchCount(
+				_themeDisplay.getCompanyId(), getKeywords(), getKeywords(),
+				new String[] {"site:true:boolean"}));
+
+		return _groupSearchContainer;
+	}
+
 	public String getKeywords() {
-		return ParamUtil.getString(_renderRequest, "keywords");
+		if (_keywords != null) {
+			return _keywords;
+		}
+
+		_keywords = ParamUtil.getString(_renderRequest, "keywords");
+
+		return _keywords;
 	}
 
 	public Recurrence getLastRecurrence(CalendarBooking calendarBooking)
@@ -273,6 +345,44 @@ public class CalendarDisplayContext {
 			).setLabel(
 				LanguageUtil.get(httpServletRequest, "resources")
 			).build());
+	}
+
+	public String getOrderByCol() {
+		if (Validator.isNotNull(_orderByCol)) {
+			return _orderByCol;
+		}
+
+		String orderByCol = ParamUtil.getString(_renderRequest, "orderByCol");
+
+		if (Validator.isNull(orderByCol)) {
+			orderByCol = _getPortletPreference("order-by-col", "name");
+		}
+		else {
+			_setPortletPreference("order-by-col", orderByCol);
+		}
+
+		_orderByCol = orderByCol;
+
+		return _orderByCol;
+	}
+
+	public String getOrderByType() {
+		if (Validator.isNotNull(_orderByType)) {
+			return _orderByType;
+		}
+
+		String orderByType = ParamUtil.getString(_renderRequest, "orderByType");
+
+		if (Validator.isNull(orderByType)) {
+			orderByType = _getPortletPreference("order-by-type", "asc");
+		}
+		else {
+			_setPortletPreference("order-by-type", orderByType);
+		}
+
+		_orderByType = orderByType;
+
+		return _orderByType;
 	}
 
 	public List<Calendar> getOtherCalendars(User user, long[] calendarIds)
@@ -367,6 +477,11 @@ public class CalendarDisplayContext {
 		).setParameter(
 			"active", ParamUtil.getString(_renderRequest, "active")
 		).setParameter(
+			"order-by-col", ParamUtil.getString(_renderRequest, "order-by-col")
+		).setParameter(
+			"order-by-type",
+			ParamUtil.getString(_renderRequest, "order-by-type")
+		).setParameter(
 			"scope", ParamUtil.getString(_renderRequest, "scope")
 		).buildPortletURL();
 	}
@@ -376,6 +491,18 @@ public class CalendarDisplayContext {
 			new CalendarResourceSearch(
 				_renderRequest, CalendarResourceSearch.DEFAULT_CUR_PARAM,
 				getPortletURL());
+
+		calendarResourceSearch.setOrderByCol(getOrderByCol());
+
+		boolean orderByAsc = false;
+
+		if (Objects.equals(getOrderByType(), "asc")) {
+			orderByAsc = true;
+		}
+
+		calendarResourceSearch.setOrderByComparator(
+			new CalendarResourceNameComparator(orderByAsc));
+		calendarResourceSearch.setOrderByType(getOrderByType());
 
 		CalendarResourceDisplayTerms displayTerms =
 			new CalendarResourceDisplayTerms(_renderRequest);
@@ -410,10 +537,55 @@ public class CalendarDisplayContext {
 		return "resource";
 	}
 
+	public String getSortingURL() {
+		return PortletURLBuilder.create(
+			getPortletURL()
+		).setParameter(
+			"orderByType",
+			Objects.equals(getOrderByType(), "asc") ? "desc" : "asc"
+		).buildString();
+	}
+
 	public int getTotalItems() {
 		SearchContainer<?> searchContainer = getSearch();
 
 		return searchContainer.getTotal();
+	}
+
+	public SearchContainer<User> getUserSearchContainer()
+		throws PortalException {
+
+		if (_userSearchContainer != null) {
+			return _userSearchContainer;
+		}
+
+		_userSearchContainer = new CalendarSearchContainer(
+			_renderRequest, CalendarResourceSearch.DEFAULT_CUR_PARAM + "Users",
+			_getIteratorURL());
+
+		_userSearchContainer.setId("users");
+		_userSearchContainer.setOrderByCol(getOrderByCol());
+
+		boolean orderByAsc = false;
+
+		if (Objects.equals(getOrderByType(), "asc")) {
+			orderByAsc = true;
+		}
+
+		_userSearchContainer.setOrderByComparator(
+			new UserScreenNameComparator(orderByAsc));
+		_userSearchContainer.setOrderByType(getOrderByType());
+		_userSearchContainer.setResultsAndTotal(
+			() -> UserLocalServiceUtil.search(
+				_themeDisplay.getCompanyId(), getKeywords(),
+				WorkflowConstants.STATUS_ANY, null,
+				_userSearchContainer.getStart(), _userSearchContainer.getEnd(),
+				_userSearchContainer.getOrderByComparator()),
+			UserLocalServiceUtil.searchCount(
+				_themeDisplay.getCompanyId(), getKeywords(),
+				WorkflowConstants.STATUS_ANY, null));
+
+		return _userSearchContainer;
 	}
 
 	public boolean isDisabledManagementBar() {
@@ -422,6 +594,19 @@ public class CalendarDisplayContext {
 		}
 
 		return true;
+	}
+
+	private long[] _getClassNameIds() {
+		if (_classNameIds != null) {
+			return _classNameIds;
+		}
+
+		_classNameIds = new long[] {
+			PortalUtil.getClassNameId(Group.class),
+			PortalUtil.getClassNameId(Organization.class)
+		};
+
+		return _classNameIds;
 	}
 
 	private List<DropdownItem> _getFilterActiveDropdownItems() {
@@ -443,6 +628,60 @@ public class CalendarDisplayContext {
 					LanguageUtil.get(_themeDisplay.getRequest(), "no"));
 			}
 		).build();
+	}
+
+	private PortletURL _getIteratorURL() {
+		if (_iteratorURL != null) {
+			return _iteratorURL;
+		}
+
+		_iteratorURL = PortletURLBuilder.createRenderURL(
+			_renderResponse
+		).setMVCPath(
+			"/view.jsp"
+		).setTabs1(
+			"resources"
+		).buildPortletURL();
+
+		return _iteratorURL;
+	}
+
+	private List<DropdownItem> _getOrderByDropdownItems() {
+		return DropdownItemListBuilder.add(
+			dropdownItem -> {
+				dropdownItem.setActive(Objects.equals(getOrderByCol(), "name"));
+				dropdownItem.setHref(getPortletURL(), "orderByCol", "name");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_themeDisplay.getRequest(), "name"));
+			}
+		).build();
+	}
+
+	private String _getPortletPreference(String name, String defaultValue) {
+		if (_themeDisplay.isSignedIn()) {
+			PortletPreferences portletPreferences = _getPortletPreferences();
+
+			return portletPreferences.getValue(name, defaultValue);
+		}
+
+		return GetterUtil.getString(
+			_portletSession.getAttribute(
+				_portletId + StringPool.UNDERLINE + name),
+			defaultValue);
+	}
+
+	private PortletPreferences _getPortletPreferences() {
+		if (_portletPreferences != null) {
+			return _portletPreferences;
+		}
+
+		_portletPreferences =
+			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+				_themeDisplay.getCompanyId(), _themeDisplay.getUserId(),
+				PortletKeys.PREFS_OWNER_TYPE_USER, _themeDisplay.getPlid(),
+				_portletId, StringPool.BLANK);
+
+		return _portletPreferences;
 	}
 
 	private List<DropdownItem> _getScopeDropdownItems() {
@@ -494,6 +733,27 @@ public class CalendarDisplayContext {
 			_themeDisplay.getScopeGroupId(), CalendarActionKeys.ADD_RESOURCE);
 	}
 
+	private void _setPortletPreference(String name, String value) {
+		if (_themeDisplay.isSignedIn()) {
+			PortletPreferences portletPreferences = _getPortletPreferences();
+
+			try {
+				portletPreferences.setValue(name, value);
+
+				portletPreferences.store();
+			}
+			catch (Exception exception) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(exception);
+				}
+			}
+		}
+		else {
+			_portletSession.setAttribute(
+				_portletId + StringPool.UNDERLINE + name, value);
+		}
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarDisplayContext.class.getName());
 
@@ -502,9 +762,19 @@ public class CalendarDisplayContext {
 	private final CalendarLocalService _calendarLocalService;
 	private final CalendarResourceLocalService _calendarResourceLocalService;
 	private final CalendarService _calendarService;
+	private long[] _classNameIds;
 	private final GroupLocalService _groupLocalService;
+	private SearchContainer<Group> _groupSearchContainer;
+	private PortletURL _iteratorURL;
+	private String _keywords;
+	private String _orderByCol;
+	private String _orderByType;
+	private final String _portletId;
+	private PortletPreferences _portletPreferences;
+	private final PortletSession _portletSession;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final ThemeDisplay _themeDisplay;
+	private SearchContainer<User> _userSearchContainer;
 
 }

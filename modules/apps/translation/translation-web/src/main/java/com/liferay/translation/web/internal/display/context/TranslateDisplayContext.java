@@ -48,7 +48,6 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsExperienceServiceUtil;
 import com.liferay.translation.constants.TranslationPortletKeys;
@@ -184,7 +183,8 @@ public class TranslateDisplayContext {
 						return stream.map(
 							infoField -> {
 								String infoFieldId =
-									"infoField--" + infoField.getName() + "--";
+									"infoField--" + infoField.getUniqueId() +
+										"--";
 
 								Map<String, Object> editorConfiguration = null;
 
@@ -353,7 +353,8 @@ public class TranslateDisplayContext {
 		InfoField infoField, Locale locale) {
 
 		Collection<InfoFieldValue<Object>> infoFieldValues =
-			_sourceInfoItemFieldValues.getInfoFieldValues(infoField.getName());
+			_sourceInfoItemFieldValues.getInfoFieldValues(
+				infoField.getUniqueId());
 
 		Stream<InfoFieldValue<Object>> stream = infoFieldValues.stream();
 
@@ -377,7 +378,8 @@ public class TranslateDisplayContext {
 		InfoField infoField, Locale locale) {
 
 		Collection<InfoFieldValue<Object>> infoFieldValues =
-			_targetInfoItemFieldValues.getInfoFieldValues(infoField.getName());
+			_targetInfoItemFieldValues.getInfoFieldValues(
+				infoField.getUniqueId());
 
 		Stream<InfoFieldValue<Object>> stream = infoFieldValues.stream();
 
@@ -497,28 +499,9 @@ public class TranslateDisplayContext {
 				_groupId, PortalUtil.getClassNameId(_className), _classPK,
 				true);
 
-		boolean addedDefault = false;
-
-		Map<String, String> defaultExperience = HashMapBuilder.put(
-			"label",
-			SegmentsExperienceConstants.getDefaultSegmentsExperienceName(
-				_themeDisplay.getLocale())
-		).put(
-			"value", String.valueOf(SegmentsExperienceConstants.ID_DEFAULT)
-		).build();
-
 		List<Map<String, String>> options = new ArrayList<>();
 
 		for (SegmentsExperience segmentsExperience : segmentsExperiences) {
-			if ((segmentsExperience.getPriority() <
-					SegmentsExperienceConstants.PRIORITY_DEFAULT) &&
-				!addedDefault) {
-
-				options.add(defaultExperience);
-
-				addedDefault = true;
-			}
-
 			options.add(
 				HashMapBuilder.put(
 					"label",
@@ -527,10 +510,6 @@ public class TranslateDisplayContext {
 					"value",
 					String.valueOf(segmentsExperience.getSegmentsExperienceId())
 				).build());
-		}
-
-		if (!addedDefault) {
-			options.add(defaultExperience);
 		}
 
 		return HashMapBuilder.<String, Object>put(

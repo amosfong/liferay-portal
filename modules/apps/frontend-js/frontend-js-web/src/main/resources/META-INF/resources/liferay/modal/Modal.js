@@ -22,7 +22,23 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import './Modal.scss';
 import delegate from '../delegate/delegate.es';
+import {escapeHTML} from '../util/html_util';
 import navigate from '../util/navigate.es';
+
+const openAlertModal = ({message}) => {
+	openModal({
+		bodyHTML: escapeHTML(message),
+		buttons: [
+			{
+				autoFocus: true,
+				label: Liferay.Language.get('ok'),
+				onClick: ({processClose}) => {
+					processClose();
+				},
+			},
+		],
+	});
+};
 
 const Modal = ({
 	bodyHTML,
@@ -181,6 +197,7 @@ const Modal = ({
 					disableAutoClose={disableAutoClose}
 					id={id}
 					observer={observer}
+					role="dialog"
 					size={url && !size ? 'full-screen' : size}
 					status={status}
 					zIndex={zIndex}
@@ -193,7 +210,7 @@ const Modal = ({
 								}}
 							></div>
 						) : (
-							title
+							<ClayModal.Title>{title}</ClayModal.Title>
 						)}
 					</ClayModal.Header>
 
@@ -233,23 +250,41 @@ const Modal = ({
 							className={footerCssClass}
 							last={
 								<ClayButton.Group spaced>
-									{buttons.map((button, index) => (
-										<ClayButton
-											displayType={button.displayType}
-											id={button.id}
-											key={index}
-											onClick={() => {
-												onButtonClick(button);
-											}}
-											type={
-												button.type === 'cancel'
-													? 'button'
-													: button.type
-											}
-										>
-											{button.label}
-										</ClayButton>
-									))}
+									{buttons.map(
+										(
+											{
+												displayType,
+												formId,
+												id,
+												label,
+												onClick,
+												type,
+												...otherProps
+											},
+											index
+										) => (
+											<ClayButton
+												displayType={displayType}
+												id={id}
+												key={index}
+												onClick={() => {
+													onButtonClick({
+														formId,
+														onClick,
+														type,
+													});
+												}}
+												type={
+													type === 'cancel'
+														? 'button'
+														: type
+												}
+												{...otherProps}
+											>
+												{label}
+											</ClayButton>
+										)
+									)}
 								</ClayButton.Group>
 							}
 						/>
@@ -258,6 +293,29 @@ const Modal = ({
 			)}
 		</>
 	);
+};
+
+const openConfirmModal = ({message, onConfirm}) => {
+	openModal({
+		bodyHTML: escapeHTML(message),
+		buttons: [
+			{
+				displayType: 'secondary',
+				label: Liferay.Language.get('cancel'),
+				type: 'cancel',
+			},
+			{
+				autoFocus: true,
+				label: Liferay.Language.get('ok'),
+				onClick: ({processClose}) => {
+					processClose();
+
+					onConfirm(true);
+				},
+			},
+		],
+		onClose: () => onConfirm(false),
+	});
 };
 
 const openModal = (props) => {
@@ -669,6 +727,8 @@ Modal.propTypes = {
 
 export {
 	Modal,
+	openAlertModal,
+	openConfirmModal,
 	openModal,
 	openPortletModal,
 	openPortletWindow,

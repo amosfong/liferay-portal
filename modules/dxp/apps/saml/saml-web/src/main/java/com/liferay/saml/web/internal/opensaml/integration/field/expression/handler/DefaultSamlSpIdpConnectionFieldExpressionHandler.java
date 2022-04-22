@@ -73,24 +73,22 @@ public class DefaultSamlSpIdpConnectionFieldExpressionHandler
 		samlSpIdpConnectionBind.mapBoolean(
 			"unknownUsersAreStrangers",
 			SamlSpIdpConnection::setUnknownUsersAreStrangers);
+
 		samlSpIdpConnectionBind.mapString(
-			"metadataUrl", SamlSpIdpConnection::setMetadataUrl);
+			"metadataDelivery",
+			(samlSpIdpConnection, metadataDelivery) -> {
+				if (metadataDelivery.equals("metadataXml")) {
+					samlSpIdpConnection.setMetadataUrl(null);
 
-		samlSpIdpConnectionBind.handleFileItemArray(
-			"metadataXml",
-			(samlSpIdpConnection, fileItems) -> {
-				if (ArrayUtil.isEmpty(fileItems)) {
-
-					// Dereference metadataUrl
-
+					samlSpIdpConnectionBind.handleFileItemArray(
+						"metadataXml", this::_setMetadataXml);
+				}
+				else {
 					samlSpIdpConnection.setMetadataXml(null);
 
-					return;
+					samlSpIdpConnectionBind.mapString(
+						"metadataUrl", SamlSpIdpConnection::setMetadataUrl);
 				}
-
-				FileItem fileItem = fileItems[0];
-
-				samlSpIdpConnection.setMetadataXml(fileItem.getString());
 			});
 
 		samlSpIdpConnectionBind.mapString("name", SamlSpIdpConnection::setName);
@@ -165,6 +163,23 @@ public class DefaultSamlSpIdpConnectionFieldExpressionHandler
 		}
 
 		return null;
+	}
+
+	private void _setMetadataXml(
+		SamlSpIdpConnection samlSpIdpConnection, FileItem[] fileItems) {
+
+		if (ArrayUtil.isEmpty(fileItems)) {
+
+			// Dereference metadata XML
+
+			samlSpIdpConnection.setMetadataXml(null);
+
+			return;
+		}
+
+		FileItem fileItem = fileItems[0];
+
+		samlSpIdpConnection.setMetadataXml(fileItem.getString());
 	}
 
 	private int _processingIndex;

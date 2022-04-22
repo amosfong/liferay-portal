@@ -29,9 +29,13 @@ import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.util.concurrent.Callable;
 
@@ -71,15 +75,20 @@ public class AssetEntryModelListener extends BaseModelListener<AssetEntry> {
 			AssetEntry originalAssetEntry, AssetEntry assetEntry)
 		throws ModelListenerException {
 
+		boolean updateAutoTags = _isUpdateAutoTags();
+
 		AssetEntry assetEntryFromDatabase =
 			_assetEntryLocalService.fetchAssetEntry(assetEntry.getEntryId());
 
-		if (assetEntryFromDatabase.getPublishDate() == null) {
+		if (updateAutoTags ||
+			(assetEntryFromDatabase.getPublishDate() == null)) {
+
 			TransactionCommitCallbackUtil.registerCallback(
 				(Callable<Void>)() -> {
-					if ((assetEntry.getPublishDate() == null) ||
-						!ListUtil.isEmpty(assetEntry.getTags()) ||
-						!_assetAutoTaggerHelper.isAutoTaggable(assetEntry)) {
+					if (!updateAutoTags &&
+						((assetEntry.getPublishDate() == null) ||
+						 !ListUtil.isEmpty(assetEntry.getTags()) ||
+						 !_assetAutoTaggerHelper.isAutoTaggable(assetEntry))) {
 
 						return null;
 					}
@@ -116,6 +125,22 @@ public class AssetEntryModelListener extends BaseModelListener<AssetEntry> {
 	@Deactivate
 	protected void deactivate() {
 		_destinationServiceRegistration.unregister();
+	}
+
+	private boolean _isUpdateAutoTags() {
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-150762"))) {
+			return false;
+		}
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		if (serviceContext == null) {
+			return false;
+		}
+
+		return GetterUtil.getBoolean(
+			serviceContext.getAttribute("updateAutoTags"));
 	}
 
 	@Reference

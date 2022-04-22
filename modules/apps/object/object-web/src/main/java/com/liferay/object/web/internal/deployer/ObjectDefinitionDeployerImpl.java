@@ -38,6 +38,7 @@ import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
@@ -46,7 +47,6 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.web.internal.asset.model.ObjectEntryAssetRendererFactory;
-import com.liferay.object.web.internal.configuration.activator.FFSearchAndSortMetadataColumnsConfigurationActivator;
 import com.liferay.object.web.internal.info.item.provider.ObjectEntryInfoItemCapabilitiesProvider;
 import com.liferay.object.web.internal.info.item.provider.ObjectEntryInfoItemDetailsProvider;
 import com.liferay.object.web.internal.info.item.provider.ObjectEntryInfoItemFieldValuesProvider;
@@ -118,11 +118,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			_bundleContext.registerService(
 				FDSView.class,
 				new ObjectEntriesTableFDSView(
-					_fdsTableSchemaBuilderFactory,
-					_ffSearchAndSortMetadataColumnsConfigurationActivator,
-					objectDefinition, _objectDefinitionLocalService,
-					_objectFieldLocalService, _objectRelationshipLocalService,
-					_objectViewLocalService),
+					_fdsTableSchemaBuilderFactory, objectDefinition,
+					_objectDefinitionLocalService, _objectFieldLocalService,
+					_objectRelationshipLocalService, _objectViewLocalService),
 				HashMapDictionaryBuilder.put(
 					"frontend.data.set.name", objectDefinition.getPortletId()
 				).build()),
@@ -207,7 +205,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectEntryItemSelectorView(
 					_itemSelectorViewDescriptorRenderer, objectDefinition,
 					_objectDefinitionLocalService, _objectEntryLocalService,
-					_objectScopeProviderRegistry, _portal),
+					_objectEntryManager, _objectScopeProviderRegistry, _portal),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"item.selector.view.order", 500
 				).build()),
@@ -362,10 +360,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	private FDSTableSchemaBuilderFactory _fdsTableSchemaBuilderFactory;
 
 	@Reference
-	private FFSearchAndSortMetadataColumnsConfigurationActivator
-		_ffSearchAndSortMetadataColumnsConfigurationActivator;
-
-	@Reference
 	private InfoItemFieldReaderFieldSetProvider
 		_infoItemFieldReaderFieldSetProvider;
 
@@ -390,6 +384,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	@Reference
 	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
+	private ObjectEntryManager _objectEntryManager;
 
 	@Reference
 	private ObjectEntryService _objectEntryService;

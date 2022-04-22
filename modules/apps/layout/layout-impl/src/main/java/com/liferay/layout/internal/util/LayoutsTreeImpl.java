@@ -45,12 +45,10 @@ import com.liferay.portal.kernel.service.permission.LayoutPermission;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.servlet.BrowserSniffer;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.layoutsadmin.util.LayoutsTree;
 import com.liferay.sites.kernel.util.SitesUtil;
@@ -261,12 +259,7 @@ public class LayoutsTreeImpl implements LayoutsTree {
 			return null;
 		}
 
-		boolean published = GetterUtil.getBoolean(
-			draftLayout.getTypeSettingsProperty("published"));
-
-		if ((draftLayout.getStatus() == WorkflowConstants.STATUS_DRAFT) ||
-			!published) {
-
+		if (draftLayout.isDraft() || !layout.isPublished()) {
 			return draftLayout;
 		}
 

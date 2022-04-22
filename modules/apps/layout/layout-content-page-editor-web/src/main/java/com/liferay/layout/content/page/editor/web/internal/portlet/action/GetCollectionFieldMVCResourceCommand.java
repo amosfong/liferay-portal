@@ -40,7 +40,6 @@ import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderIt
 import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.info.list.renderer.InfoListRendererTracker;
-import com.liferay.info.pagination.Pagination;
 import com.liferay.info.type.WebImage;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
@@ -139,8 +138,6 @@ public class GetCollectionFieldMVCResourceCommand
 			resourceRequest, "numberOfPages");
 		String paginationType = ParamUtil.getString(
 			resourceRequest, "paginationType");
-		boolean showAllItems = ParamUtil.getBoolean(
-			resourceRequest, "showAllItems");
 		String templateKey = ParamUtil.getString(
 			resourceRequest, "templateKey");
 
@@ -152,7 +149,7 @@ public class GetCollectionFieldMVCResourceCommand
 				layoutObjectReference, listStyle, listItemStyle,
 				resourceResponse.getNamespace(), numberOfItems,
 				numberOfItemsPerPage, numberOfPages, paginationType,
-				showAllItems, templateKey);
+				templateKey);
 		}
 		catch (Exception exception) {
 			_log.error("Unable to get collection field", exception);
@@ -197,7 +194,7 @@ public class GetCollectionFieldMVCResourceCommand
 			String layoutObjectReference, String listStyle,
 			String listItemStyle, String namespace, int numberOfItems,
 			int numberOfItemsPerPage, int numberOfPages, String paginationType,
-			boolean showAllItems, String templateKey)
+			String templateKey)
 		throws PortalException {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
@@ -246,19 +243,16 @@ public class GetCollectionFieldMVCResourceCommand
 			activePage = 1;
 		}
 
-		Pagination pagination = _collectionPaginationHelper.getPagination(
-			activePage, listCount, displayAllPages, displayAllItems,
-			numberOfItems, numberOfItemsPerPage, numberOfPages, paginationType,
-			showAllItems);
-
-		defaultLayoutListRetrieverContext.setPagination(pagination);
-
-		long[] segmentsEntryIds = _segmentsEntryRetriever.getSegmentsEntryIds(
-			_portal.getScopeGroupId(httpServletRequest),
-			_portal.getUserId(httpServletRequest),
-			_requestContextMapper.map(httpServletRequest));
-
-		defaultLayoutListRetrieverContext.setSegmentsEntryIds(segmentsEntryIds);
+		defaultLayoutListRetrieverContext.setPagination(
+			_collectionPaginationHelper.getPagination(
+				activePage, listCount, displayAllPages, displayAllItems,
+				numberOfItems, numberOfItemsPerPage, numberOfPages,
+				paginationType));
+		defaultLayoutListRetrieverContext.setSegmentsEntryIds(
+			_segmentsEntryRetriever.getSegmentsEntryIds(
+				_portal.getScopeGroupId(httpServletRequest),
+				_portal.getUserId(httpServletRequest),
+				_requestContextMapper.map(httpServletRequest)));
 
 		// LPS-111037
 
@@ -349,8 +343,7 @@ public class GetCollectionFieldMVCResourceCommand
 			"totalNumberOfItems",
 			_collectionPaginationHelper.getTotalNumberOfItems(
 				listCount, displayAllPages, displayAllItems, numberOfItems,
-				numberOfItemsPerPage, numberOfPages, paginationType,
-				showAllItems)
+				numberOfItemsPerPage, numberOfPages, paginationType)
 		);
 
 		return jsonObject;
@@ -455,7 +448,11 @@ public class GetCollectionFieldMVCResourceCommand
 
 			InfoField infoField = infoFieldValue.getInfoField();
 
-			displayObjectJSONObject.put(infoField.getName(), value);
+			displayObjectJSONObject.put(
+				infoField.getName(), value
+			).put(
+				infoField.getUniqueId(), value
+			);
 		}
 
 		InfoItemReference infoItemReference =

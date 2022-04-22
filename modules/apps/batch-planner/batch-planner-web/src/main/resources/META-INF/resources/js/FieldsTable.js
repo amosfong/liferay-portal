@@ -107,7 +107,7 @@ function FieldsTable({portletNamespace}) {
 			</ClayAlert>
 
 			<div className="card-body p-0">
-				<ClayTable borderless hover={false} responsive={false}>
+				<ClayTable hover={false} responsive={true}>
 					<ClayTable.Head>
 						<ClayTable.Row>
 							<ClayTable.Cell headingCell>

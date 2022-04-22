@@ -9,16 +9,34 @@
  * distribution rights of the Software.
  */
 
-import React from 'react';
+import React, {useContext} from 'react';
 
+import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import BaseRoleType from '../shared-components/BaseRoleType';
 
-const RoleType = (props) => {
+const RoleType = ({notificationIndex, updateSelectedItem: _, ...restProps}) => {
+	const {setSelectedItem} = useContext(DiagramBuilderContext);
+
+	const updateSelectedItem = (values) => {
+		setSelectedItem((previousItem) => {
+			previousItem.data.notifications.recipients[notificationIndex] = {
+				assignmentType: ['roleType'],
+				autoCreate: values.map(({autoCreate}) => autoCreate),
+				roleName: values.map(({roleName}) => roleName),
+				roleType: values.map(({roleType}) => roleType),
+			};
+
+			return previousItem;
+		});
+	};
+
 	return (
 		<BaseRoleType
 			buttonName={Liferay.Language.get('new-role-type')}
 			inputLabel={Liferay.Language.get('role-type')}
-			{...props}
+			notificationIndex={notificationIndex}
+			updateSelectedItem={updateSelectedItem}
+			{...restProps}
 		/>
 	);
 };

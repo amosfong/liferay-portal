@@ -30,6 +30,7 @@ import com.liferay.info.form.InfoForm;
 import com.liferay.info.localized.InfoLocalizedValue;
 import com.liferay.info.pagination.InfoPage;
 import com.liferay.info.pagination.Pagination;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -195,11 +196,9 @@ public class AssetEntriesWithSameAssetCategoryRelatedInfoItemCollectionProvider
 		ServiceContext serviceContext =
 			ServiceContextThreadLocal.getServiceContext();
 
-		long[] classNameIds = AssetRendererFactoryRegistryUtil.getClassNameIds(
-			serviceContext.getCompanyId(), true);
-
 		return ArrayUtil.filter(
-			classNameIds,
+			AssetRendererFactoryRegistryUtil.getClassNameIds(
+				serviceContext.getCompanyId(), true),
 			classNameId -> {
 				Indexer<?> indexer = IndexerRegistryUtil.getIndexer(
 					_portal.getClassName(classNameId));
@@ -255,6 +254,8 @@ public class AssetEntriesWithSameAssetCategoryRelatedInfoItemCollectionProvider
 		InfoField.FinalStep finalStep = InfoField.builder(
 		).infoFieldType(
 			SelectInfoFieldType.INSTANCE
+		).namespace(
+			StringPool.BLANK
 		).name(
 			"item_types"
 		).attribute(

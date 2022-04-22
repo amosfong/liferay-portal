@@ -12,6 +12,12 @@
  * details.
  */
 
+import {config} from '../config/index';
+
 export function isValidSpacingOption(value) {
+	if (config.featureFlagLps132571) {
+		return false;
+	}
+
 	return !isNaN(parseInt(value, 10));
 }

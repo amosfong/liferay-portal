@@ -336,6 +336,15 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-90864. It checks that a site member can add shortcut to folder with permissions."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanAddShortcutToFolderAsSiteMemberWithPermissions {
+
+		// TODO LPS-149366 CanAddShortcutToFolderAsSiteMemberWithPermissions pending implementation
+
+	}
+
 	@priority = "5"
 	@refactorneeded
 	test CannotViewFolderAsSiteMember {
@@ -2043,14 +2052,13 @@ definition {
 			portlet = "Pages",
 			site = "${siteName}");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Documents and Media Page",
 			sitePageType = "Widget Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Documents and Media Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
@@ -2155,7 +2163,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Documents and Media Page");
+		PagesAdmin.addPage(pageName = "Documents and Media Page");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
@@ -2487,6 +2495,7 @@ definition {
 	@refactorneeded
 	test ViewDocumentWithGlobalScope {
 		property portal.acceptance = "true";
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 		property testray.component.names = "Training";
 
 		JSONLayout.addPublicLayout(
@@ -2783,14 +2792,13 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Documents and Media Page",
 			sitePageType = "Widget Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Documents and Media Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoSitePage(
@@ -3052,7 +3060,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Search Page",
 			pageTemplateName = "Search");
 

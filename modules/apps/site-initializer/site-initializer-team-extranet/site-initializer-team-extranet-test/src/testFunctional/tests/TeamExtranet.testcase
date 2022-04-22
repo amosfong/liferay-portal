@@ -4,6 +4,7 @@ definition {
 	property osgi.modules.includes = "site-initializer-team-extranet";
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Team Extranet";
 
 	var testSiteName = "Test Site Team Extranet Name";
@@ -52,6 +53,32 @@ definition {
 			AssertElementPresent(
 				key_title = "Welcome to the team!",
 				locator1 = "TeamExtranet#FRAGMENT_HEADER");
+		}
+	}
+
+	@description = "This is a test for LPS-148459. Background image changed from the page editor"
+	@priority = "3"
+	test BackgroundImageChangedFromPageEditor {
+		task ("Open to Edit the Home Page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Home",
+				siteName = "${testSiteName}");
+		}
+
+		task ("Change the Image of Parallax Container") {
+			TeamExtranet.editFragmentImage(
+				container = "parallaxContainerImage",
+				id = "parallaxContainerImage",
+				imageFileName = "entry_01.jpg");
+		}
+
+		task ("Assert the Image presence") {
+			SelectFrameTop();
+
+			AssertElementPresent(
+				id = "parallaxContainerImage",
+				key_image = "entry_01.jpg",
+				locator1 = "Fragment#BACKGROUND_IMAGE_EDITABLE_FIELD_IMAGE_PROPERTIES");
 		}
 	}
 
@@ -1144,8 +1171,8 @@ definition {
 
 		task ("Click on the Careers Card Title and Assert it is redirected to Careers Page") {
 			Click(
-				key_title = "Browse all the open job positions",
-				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+				key_entryTitle = "Browse all the open job positions",
+				locator1 = "TeamExtranet#CARD_TITLE_LINK");
 
 			AssertElementPresent(
 				key_description = "Careers",
@@ -1158,8 +1185,8 @@ definition {
 
 		task ("Click on the Team Card Title and Assert it is redirected to Team Page") {
 			Click(
-				key_title = "Meet the members of the team",
-				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+				key_entryTitle = "Meet the members of the team",
+				locator1 = "TeamExtranet#CARD_TITLE_LINK");
 
 			AssertElementPresent(
 				key_description = "Team",
@@ -1172,8 +1199,8 @@ definition {
 
 		task ("Click on the Blog Card Title and Assert it is redirected to Blog Page") {
 			Click(
-				key_title = "Stay on top of the latest news",
-				locator1 = "TeamExtranet#FRAGMENT_HEADING");
+				key_entryTitle = "Stay on top of the latest news",
+				locator1 = "TeamExtranet#CARD_TITLE_LINK");
 
 			AssertElementPresent(
 				key_title = "20 gifts you can give to your marketing boss",

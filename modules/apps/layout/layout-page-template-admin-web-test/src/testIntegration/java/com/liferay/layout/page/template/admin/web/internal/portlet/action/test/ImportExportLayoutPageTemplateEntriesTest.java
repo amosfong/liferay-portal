@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.display.page.constants.AssetDisplayPageConstants;
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
+import com.liferay.asset.list.constants.AssetListEntryTypeConstants;
+import com.liferay.asset.list.model.AssetListEntry;
+import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.model.FragmentCollection;
@@ -40,6 +43,7 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONFactoryImpl;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -134,6 +138,74 @@ public class ImportExportLayoutPageTemplateEntriesTest {
 	}
 
 	@Test
+	public void testImportExportLayoutPageTemplateEntryCollectionDisplayBeforePaginationImprovements()
+		throws Exception {
+
+		Map<String, String> numberValuesMap = HashMapBuilder.put(
+			"CLASS_PK",
+			() -> {
+				AssetListEntry assetListEntry = _addAssetListEntry(
+					_group1.getGroupId());
+
+				return String.valueOf(assetListEntry.getAssetListEntryId());
+			}
+		).build();
+
+		File expectedFile = _generateZipFile(
+			"collection_display/before_pagination_improvements/expected",
+			numberValuesMap, null);
+		File inputFile = _generateZipFile(
+			"collection_display/before_pagination_improvements/input",
+			numberValuesMap, null);
+
+		_validateImportExport(expectedFile, inputFile);
+	}
+
+	@Test
+	public void testImportExportLayoutPageTemplateEntryCollectionDisplayComplete()
+		throws Exception {
+
+		Map<String, String> numberValuesMap = HashMapBuilder.put(
+			"CLASS_PK",
+			() -> {
+				AssetListEntry assetListEntry = _addAssetListEntry(
+					_group1.getGroupId());
+
+				return String.valueOf(assetListEntry.getAssetListEntryId());
+			}
+		).build();
+
+		File expectedFile = _generateZipFile(
+			"collection_display/complete/expected", numberValuesMap, null);
+		File inputFile = _generateZipFile(
+			"collection_display/complete/input", numberValuesMap, null);
+
+		_validateImportExport(expectedFile, inputFile);
+	}
+
+	@Test
+	public void testImportExportLayoutPageTemplateEntryCollectionDisplayDefault()
+		throws Exception {
+
+		Map<String, String> numberValuesMap = HashMapBuilder.put(
+			"CLASS_PK",
+			() -> {
+				AssetListEntry assetListEntry = _addAssetListEntry(
+					_group1.getGroupId());
+
+				return String.valueOf(assetListEntry.getAssetListEntryId());
+			}
+		).build();
+
+		File expectedFile = _generateZipFile(
+			"collection_display/default/expected", numberValuesMap, null);
+		File inputFile = _generateZipFile(
+			"collection_display/default/input", numberValuesMap, null);
+
+		_validateImportExport(expectedFile, inputFile);
+	}
+
+	@Test
 	public void testImportExportLayoutPageTemplateEntryContainerBackgroundFragmentImage()
 		throws Exception {
 
@@ -174,6 +246,18 @@ public class ImportExportLayoutPageTemplateEntriesTest {
 			"container/background_image/expected", numberValuesMap, null);
 		File inputFile = _generateZipFile(
 			"container/background_image/input", numberValuesMap, null);
+
+		_validateImportExport(expectedFile, inputFile);
+	}
+
+	@Test
+	public void testImportExportLayoutPageTemplateEntryContainerComplete()
+		throws Exception {
+
+		File expectedFile = _generateZipFile(
+			"container/complete/expected", null, null);
+		File inputFile = _generateZipFile(
+			"container/complete/input", null, null);
 
 		_validateImportExport(expectedFile, inputFile);
 	}
@@ -576,6 +660,15 @@ public class ImportExportLayoutPageTemplateEntriesTest {
 		_validateImportExport(expectedFile, inputFile);
 	}
 
+	private AssetListEntry _addAssetListEntry(long groupId)
+		throws PortalException {
+
+		return _assetListEntryLocalService.addAssetListEntry(
+			TestPropsValues.getUserId(), groupId, RandomTestUtil.randomString(),
+			AssetListEntryTypeConstants.TYPE_MANUAL,
+			ServiceContextTestUtil.getServiceContext(groupId));
+	}
+
 	private void _addDisplayPageTemplate(JournalArticle journalArticle)
 		throws Exception {
 
@@ -941,6 +1034,9 @@ public class ImportExportLayoutPageTemplateEntriesTest {
 	@Inject
 	private AssetDisplayPageEntryLocalService
 		_assetDisplayPageEntryLocalService;
+
+	@Inject
+	private AssetListEntryLocalService _assetListEntryLocalService;
 
 	private Bundle _bundle;
 	private Company _company;

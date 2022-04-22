@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -26,9 +27,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryClob {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 203",
+			objectName = "CustomObject203",
+			pluralLabelName = "Custom Objects 203");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongText",
@@ -36,13 +37,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Clob",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject203");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject203");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject203",
 			value = "We make it possible for people to reach their full potential to serve others.");
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
@@ -57,7 +58,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 203");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Custom Field");
 
@@ -85,13 +86,13 @@ definition {
 			picklistName = "Picklist Test");
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 204",
+			objectName = "CustomObject204",
+			pluralLabelName = "Custom Objects 204");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 204");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -102,9 +103,9 @@ definition {
 
 		Navigator.openURL();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject204");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject204");
 
 		ObjectAdmin.addObjectPicklistFieldEntryViaUI(picklistOption = "Entry Test");
 
@@ -120,7 +121,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 204");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Field Picklist");
 

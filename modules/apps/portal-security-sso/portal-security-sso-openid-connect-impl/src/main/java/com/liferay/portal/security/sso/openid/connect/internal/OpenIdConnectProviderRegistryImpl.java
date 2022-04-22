@@ -35,9 +35,12 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -189,11 +192,49 @@ public class OpenIdConnectProviderRegistryImpl
 		throws ConfigurationException {
 
 		try {
+			Map<String, List<String>> customAuthorizationRequestParameters =
+				new HashMap<>();
+
+			for (String parameter :
+					openIdConnectProviderConfiguration.
+						customAuthorizationRequestParameters()) {
+
+				if (Validator.isNull(parameter)) {
+					continue;
+				}
+
+				String[] parameterParts = parameter.split("=");
+
+				customAuthorizationRequestParameters.put(
+					parameterParts[0],
+					Arrays.asList(parameterParts[1].split(" ")));
+			}
+
+			Map<String, List<String>> customTokenRequestParameters =
+				new HashMap<>();
+
+			for (String parameter :
+					openIdConnectProviderConfiguration.
+						customTokenRequestParameters()) {
+
+				if (Validator.isNull(parameter)) {
+					continue;
+				}
+
+				String[] parameterParts = parameter.split("=");
+
+				customTokenRequestParameters.put(
+					parameterParts[0],
+					Arrays.asList(parameterParts[1].split(" ")));
+			}
+
 			return new OpenIdConnectProviderImpl(
 				openIdConnectProviderConfiguration.providerName(),
 				openIdConnectProviderConfiguration.openIdConnectClientId(),
 				openIdConnectProviderConfiguration.openIdConnectClientSecret(),
 				configurationPid, openIdConnectProviderConfiguration.scopes(),
+				customAuthorizationRequestParameters,
+				customTokenRequestParameters,
 				_getOpenIdConnectMetadataFactory(
 					openIdConnectProviderConfiguration),
 				openIdConnectProviderConfiguration.tokenConnectionTimeout());

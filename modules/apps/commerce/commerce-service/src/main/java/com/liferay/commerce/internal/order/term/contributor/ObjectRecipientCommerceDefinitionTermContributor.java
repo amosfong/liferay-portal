@@ -58,7 +58,7 @@ public class ObjectRecipientCommerceDefinitionTermContributor
 			_objectFieldLocalService.getObjectFields(_objectDefinitionId);
 
 		for (ObjectField objectField : objectFields) {
-			_languageKeys.put(
+			_objectFieldIds.put(
 				StringBundler.concat(
 					"[%",
 					StringUtil.toUpperCase(
@@ -89,11 +89,10 @@ public class ObjectRecipientCommerceDefinitionTermContributor
 		if (term.startsWith("[%USER_GROUP_")) {
 			String[] termParts = term.split("_");
 
-			UserGroup userGroup = _userGroupLocalService.getUserGroup(
-				objectEntry.getCompanyId(),
-				StringUtil.removeChars(termParts[2], '%', ']'));
-
-			return _getUserIds(userGroup);
+			return _getUserIds(
+				_userGroupLocalService.getUserGroup(
+					objectEntry.getCompanyId(),
+					StringUtil.removeChars(termParts[2], '%', ']')));
 		}
 
 		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
@@ -127,7 +126,7 @@ public class ObjectRecipientCommerceDefinitionTermContributor
 			return LanguageUtil.get(locale, "user-group-name");
 		}
 
-		long objectFieldId = _languageKeys.get(term);
+		long objectFieldId = _objectFieldIds.get(term);
 
 		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
 			objectFieldId);
@@ -137,7 +136,7 @@ public class ObjectRecipientCommerceDefinitionTermContributor
 
 	@Override
 	public List<String> getTerms() {
-		return new ArrayList<>(_languageKeys.keySet());
+		return new ArrayList<>(_objectFieldIds.keySet());
 	}
 
 	private String _getUserIds(UserGroup userGroup) throws PortalException {
@@ -157,14 +156,14 @@ public class ObjectRecipientCommerceDefinitionTermContributor
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectRecipientCommerceDefinitionTermContributor.class);
 
-	private final Map<String, Long> _languageKeys = HashMapBuilder.put(
+	private final long _objectDefinitionId;
+	private final Map<String, Long> _objectFieldIds = HashMapBuilder.put(
 		"[%OBJECT_ENTRY_CREATOR%]", 0L
 	).put(
 		"[%OBJECT_ENTRY_ID%]", 0L
 	).put(
 		"[%USER_GROUP_NAME%]", 0L
 	).build();
-	private final long _objectDefinitionId;
 	private final ObjectFieldLocalService _objectFieldLocalService;
 	private final UserGroupLocalService _userGroupLocalService;
 	private final UserLocalService _userLocalService;

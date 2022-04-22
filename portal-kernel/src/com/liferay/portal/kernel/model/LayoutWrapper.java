@@ -1749,6 +1749,11 @@ public class LayoutWrapper
 		return model.isPublicLayout();
 	}
 
+	@Override
+	public boolean isPublished() {
+		return model.isPublished();
+	}
+
 	/**
 	 * Returns <code>true</code> if the current layout is the root layout.
 	 *

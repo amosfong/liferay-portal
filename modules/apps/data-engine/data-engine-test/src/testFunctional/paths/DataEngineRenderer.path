@@ -57,7 +57,7 @@
 </tr>
 <tr>
 	<td>BUTTON_LABEL_INDEXED</td>
-	<td>xpath=(//div[./label[normalize-space(text())='${key_fieldLabel}']]//button[normalize-space()='${key_text}'])[${key_index}]</td>
+	<td>xpath=(//div[./label[normalize-space(text())='${key_fieldLabel}']]//button[normalize-space()='${key_text}'])[${key_index}] | //div[@class='ddm-field'][${key_index}]//label[text()='${key_fieldLabel}']/..//input[@class='form-control bg-light']</td>
 	<td></td>
 </tr>
 <tr>
@@ -127,7 +127,7 @@
 </tr>
 <tr>
 	<td>SEPARATOR_STYLE</td>
-	<td>//div[contains(@class, 'separator') and contains(@style, '${key_styleValue}')]</td>
+	<td>//hr[contains(@class, 'separator') and contains(@style, '${key_styleValue}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -147,7 +147,7 @@
 </tr>
 <tr>
 	<td>WEB_CONTENT_DISABLED_FIELD</td>
-	<td>xpath=(//div[contains(@data-field-name, '${key_fieldName}')]//input[@disabled=''])</td>
+	<td>xpath=(//div[contains(@data-field-name, '${key_fieldName}')]//input[@disabled=''] | //legend[text()='${key_fieldName}']/..//input[@disabled=''])</td>
 	<td></td>
 </tr>
 </tbody>

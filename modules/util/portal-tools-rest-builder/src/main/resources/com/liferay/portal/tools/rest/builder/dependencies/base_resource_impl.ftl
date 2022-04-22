@@ -404,6 +404,10 @@ public abstract class Base${schemaName}ResourceImpl
 			return null;
 		}
 
+		public String getVersion() {
+			return "${freeMarkerTool.getVersion(openAPIYAML)}";
+		}
+
 		@Override
 		public Page<${javaDataType}> read(Filter filter, Pagination pagination, Sort[] sorts, Map<String, Serializable> parameters, String search) throws Exception {
 			<#if getAssetLibraryBatchJavaMethodSignature?? || getBatchJavaMethodSignature?? || getSiteBatchJavaMethodSignature??>
@@ -606,6 +610,10 @@ public abstract class Base${schemaName}ResourceImpl
 	}
 
 	<#if generateBatch>
+		public void setVulcanBatchEngineImportTaskResource(VulcanBatchEngineImportTaskResource vulcanBatchEngineImportTaskResource) {
+			this.vulcanBatchEngineImportTaskResource = vulcanBatchEngineImportTaskResource;
+		}
+
 		@Override
 		public Filter toFilter(String filterString, Map<String, List<String>> multivaluedMap) {
 			try {

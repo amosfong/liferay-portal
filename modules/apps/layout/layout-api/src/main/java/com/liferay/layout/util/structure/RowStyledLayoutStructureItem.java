@@ -72,6 +72,8 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 		jsonObject.put(
 			"gutters", _gutters
 		).put(
+			"indexed", _indexed
+		).put(
 			"modulesPerRow", getModulesPerRow()
 		).put(
 			"numberOfColumns", _numberOfColumns
@@ -81,7 +83,7 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 			"verticalAlignment", _verticalAlignment
 		);
 
-		for (ViewportSize viewportSize : ViewportSize.values()) {
+		for (ViewportSize viewportSize : _viewportSizes) {
 			if (viewportSize.equals(ViewportSize.DESKTOP)) {
 				continue;
 			}
@@ -95,7 +97,7 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 			}
 
 			JSONObject viewportConfigurationJSONObject =
-				_viewportConfigurations.getOrDefault(
+				_viewportConfigurationJSONObjects.getOrDefault(
 					viewportSize.getViewportSizeId(),
 					JSONFactoryUtil.createJSONObject());
 
@@ -150,8 +152,8 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 		return _verticalAlignment;
 	}
 
-	public Map<String, JSONObject> getViewportConfigurations() {
-		return _viewportConfigurations;
+	public Map<String, JSONObject> getViewportConfigurationJSONObjects() {
+		return _viewportConfigurationJSONObjects;
 	}
 
 	@Override
@@ -163,12 +165,20 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 		return _gutters;
 	}
 
+	public boolean isIndexed() {
+		return _indexed;
+	}
+
 	public boolean isReverseOrder() {
 		return _reverseOrder;
 	}
 
 	public void setGutters(boolean gutters) {
 		_gutters = gutters;
+	}
+
+	public void setIndexed(boolean indexed) {
+		_indexed = indexed;
 	}
 
 	public void setModulesPerRow(int modulesPerRow) {
@@ -190,9 +200,9 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 	public void setViewportConfiguration(
 		String viewportSizeId, JSONObject configurationJSONObject) {
 
-		_viewportConfigurations.put(
+		_viewportConfigurationJSONObjects.put(
 			viewportSizeId,
-			_viewportConfigurations.getOrDefault(
+			_viewportConfigurationJSONObjects.getOrDefault(
 				viewportSizeId, JSONFactoryUtil.createJSONObject()
 			).put(
 				"modulesPerRow",
@@ -238,6 +248,10 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 			setModulesPerRow(itemConfigJSONObject.getInt("modulesPerRow"));
 		}
 
+		if (itemConfigJSONObject.has("indexed")) {
+			setIndexed(itemConfigJSONObject.getBoolean("indexed"));
+		}
+
 		if (itemConfigJSONObject.has("numberOfColumns")) {
 			setNumberOfColumns(itemConfigJSONObject.getInt("numberOfColumns"));
 		}
@@ -251,7 +265,7 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 				itemConfigJSONObject.getString("verticalAlignment"));
 		}
 
-		for (ViewportSize viewportSize : ViewportSize.values()) {
+		for (ViewportSize viewportSize : _viewportSizes) {
 			if (viewportSize.equals(ViewportSize.DESKTOP)) {
 				continue;
 			}
@@ -265,12 +279,15 @@ public class RowStyledLayoutStructureItem extends StyledLayoutStructureItem {
 		}
 	}
 
+	private static final ViewportSize[] _viewportSizes = ViewportSize.values();
+
 	private boolean _gutters = true;
+	private boolean _indexed = true;
 	private Integer _modulesPerRow;
 	private int _numberOfColumns;
 	private boolean _reverseOrder;
 	private String _verticalAlignment = "top";
-	private final Map<String, JSONObject> _viewportConfigurations =
+	private final Map<String, JSONObject> _viewportConfigurationJSONObjects =
 		new HashMap<>();
 
 }

@@ -12,12 +12,12 @@
 <tbody>
 <tr>
 	<td>SELECT_TRANSLATION_LANGUAGE_MENU</td>
-	<td>//div[h3='${key_title}']//button[contains(@title,'select-translation-language')]//*[name()='svg'][contains(@class,'lexicon-icon-${key_currentLocale}')]</td>
+	<td>//div[h3='${key_title}']//button[@*='select-translation-language']//*[name()='svg'][contains(@class,'lexicon-icon-${key_currentLocale}')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>SELECT_TRANSLATION_LANGUAGE_AUI_TAG_ADMINMENU</td>
-	<td>//button[contains(@id,'aui_2d_2Menu')]//*[name()='svg'][contains(@class,'lexicon-icon-${key_currentLocale}')]</td>
+	<td>SELECT_TRANSLATION_LANGUAGE_AUI_TAG_MENU</td>
+	<td>//div[h3='${key_title}']//button[contains(@id,'aui_2d')]//*[name()='svg'][contains(@class,'lexicon-icon-${key_currentLocale}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -31,26 +31,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>MANAGE_TRANSLATIONS_DIALOG_SEARCH_FIELD</td>
-	<td>//div[contains(@class,'modal-dialog')]//input[contains(@placeholder,'Search')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>MANAGE_TRANSLATIONS_DIALOG_SEARCH_RESULTS_TITLE</td>
-	<td>//th[contains(text(),'${key_text}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>MANAGE_TRANSLATIONS_DIALOG_LANGUAGE_LIST</td>
-	<td>//tr[${key_index}]//*[name()='svg'][contains(@class,'lexicon-icon-${key_locale}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>MANAGE_TRANSLATIONS_DIALOG_LANGUAGE_DELETE</td>
-	<td>//tr[${key_index}]//*[name()='svg'][contains(@class,'lexicon-icon-trash')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>AUI_TAG_INPUT_TEXT_FIELD</td>
 	<td>//div[contains(@class,'col') and h3='${key_title}']//input[contains(@class,'language-value field')]</td>
 	<td></td>
@@ -58,6 +38,11 @@
 <tr>
 	<td>AUI_TAG_DEFAULT_LANGUAGE_TEXT</td>
 	<td>//div[contains(@class,'col') and h3='${key_title}']//div[contains(@class,'form-group')]//div[contains(@class,'form-text')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUI_TAG</td>
+	<td>//div[contains(@class,'col') and h2='AUI Tag']</td>
 	<td></td>
 </tr>
 </tbody>

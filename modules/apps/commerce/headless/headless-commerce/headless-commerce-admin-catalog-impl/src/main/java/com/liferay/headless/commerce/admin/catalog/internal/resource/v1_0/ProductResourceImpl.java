@@ -87,6 +87,7 @@ import com.liferay.headless.commerce.core.util.DateConfig;
 import com.liferay.headless.commerce.core.util.ExpandoUtil;
 import com.liferay.headless.commerce.core.util.LanguageUtils;
 import com.liferay.headless.commerce.core.util.ServiceContextHelper;
+import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -139,6 +140,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 	properties = "OSGI-INF/liferay/rest/v1_0/product.properties",
 	scope = ServiceScope.PROTOTYPE, service = ProductResource.class
 )
+@CTAware
 public class ProductResourceImpl
 	extends BaseProductResourceImpl implements EntityModelResource {
 
@@ -419,11 +421,10 @@ public class ProductResourceImpl
 				ArrayUtil.toLongArray(assetCategoryIds));
 		}
 		else if (cpDefinition != null) {
-			long[] assetCategoryIds = _assetCategoryLocalService.getCategoryIds(
-				cpDefinition.getModelClassName(),
-				cpDefinition.getCPDefinitionId());
-
-			serviceContext.setAssetCategoryIds(assetCategoryIds);
+			serviceContext.setAssetCategoryIds(
+				_assetCategoryLocalService.getCategoryIds(
+					cpDefinition.getModelClassName(),
+					cpDefinition.getCPDefinitionId()));
 		}
 
 		Map<String, String> nameMap = product.getName();
@@ -446,6 +447,13 @@ public class ProductResourceImpl
 				cpDefinition.getDescriptionMap());
 		}
 
+		Map<String, String> urlTitleMap = product.getUrls();
+
+		if ((cpDefinition != null) && (urlTitleMap == null)) {
+			urlTitleMap = LanguageUtils.getLanguageIdMap(
+				cpDefinition.getUrlTitleMap());
+		}
+
 		boolean ignoreSKUCombinations = true;
 
 		if (cpDefinition != null) {
@@ -456,7 +464,8 @@ public class ProductResourceImpl
 			product.getExternalReferenceCode(), commerceCatalog.getGroupId(),
 			LanguageUtils.getLocalizedMap(nameMap),
 			LanguageUtils.getLocalizedMap(shortDescriptionMap),
-			LanguageUtils.getLocalizedMap(descriptionMap), null,
+			LanguageUtils.getLocalizedMap(descriptionMap),
+			LanguageUtils.getLocalizedMap(urlTitleMap),
 			LanguageUtils.getLocalizedMap(product.getMetaTitle()),
 			LanguageUtils.getLocalizedMap(product.getMetaDescription()),
 			LanguageUtils.getLocalizedMap(product.getMetaKeyword()),
@@ -1007,11 +1016,10 @@ public class ProductResourceImpl
 		Category[] categories = product.getCategories();
 
 		if (categories == null) {
-			long[] assetCategoryIds = _assetCategoryLocalService.getCategoryIds(
-				cpDefinition.getModelClassName(),
-				cpDefinition.getCPDefinitionId());
-
-			serviceContext.setAssetCategoryIds(assetCategoryIds);
+			serviceContext.setAssetCategoryIds(
+				_assetCategoryLocalService.getCategoryIds(
+					cpDefinition.getModelClassName(),
+					cpDefinition.getCPDefinitionId()));
 		}
 		else {
 			List<Long> assetCategoryIds = new ArrayList<>();

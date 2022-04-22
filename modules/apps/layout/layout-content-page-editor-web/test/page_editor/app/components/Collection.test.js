@@ -41,7 +41,7 @@ jest.mock(
 	'../../../../src/main/resources/META-INF/resources/page_editor/app/config',
 	() => ({
 		config: {
-			maxNumberOfItemsEditMode: 2,
+			maxNumberOfItemsInEditMode: 2,
 			searchContainerPageMaxDelta: 10,
 		},
 	})
@@ -166,7 +166,7 @@ describe('Collection', () => {
 				},
 				numberOfItems: 2,
 				numberOfPages: 1,
-				paginationType: '',
+				paginationType: 'none',
 			});
 		});
 
@@ -236,7 +236,7 @@ describe('Collection', () => {
 				},
 				numberOfItems: 3,
 				numberOfPages: 1,
-				paginationType: '',
+				paginationType: 'none',
 			});
 		});
 

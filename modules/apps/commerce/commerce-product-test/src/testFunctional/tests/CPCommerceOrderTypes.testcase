@@ -1,8 +1,10 @@
 @component-name = "portal-commerce"
 definition {
 
+	property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Order Management";
 
 	setUp {
@@ -12,15 +14,6 @@ definition {
 
 		task ("Setup: Login") {
 			User.firstLoginPG();
-		}
-
-		task ("Setup: Uncheck Require strangers to verify their email address") {
-			PortalSettings.gotoConfiguration(
-				configurationCategory = "User Authentication",
-				configurationName = "General",
-				configurationScope = "Virtual Instance Scope");
-
-			PortalSettings.uncheckStrangersVerifyEmailCheckbox();
 		}
 
 		task ("Setup: Create a Minium site") {
@@ -56,17 +49,7 @@ definition {
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "Verify active order type is automatically assigned to an order created via the account selector."

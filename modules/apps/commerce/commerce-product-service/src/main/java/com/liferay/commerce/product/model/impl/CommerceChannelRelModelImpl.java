@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -76,11 +75,12 @@ public class CommerceChannelRelModelImpl
 	public static final String TABLE_NAME = "CommerceChannelRel";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"commerceChannelRelId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
-		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
-		{"modifiedDate", Types.TIMESTAMP}, {"classNameId", Types.BIGINT},
-		{"classPK", Types.BIGINT}, {"commerceChannelId", Types.BIGINT}
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"commerceChannelRelId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
+		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
+		{"classNameId", Types.BIGINT}, {"classPK", Types.BIGINT},
+		{"commerceChannelId", Types.BIGINT}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -88,6 +88,7 @@ public class CommerceChannelRelModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("commerceChannelRelId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
@@ -100,7 +101,7 @@ public class CommerceChannelRelModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CommerceChannelRel (mvccVersion LONG default 0 not null,commerceChannelRelId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,commerceChannelId LONG)";
+		"create table CommerceChannelRel (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,commerceChannelRelId LONG not null,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,classNameId LONG,classPK LONG,commerceChannelId LONG,primary key (commerceChannelRelId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CommerceChannelRel";
 
@@ -248,34 +249,6 @@ public class CommerceChannelRelModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, CommerceChannelRel>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			CommerceChannelRel.class.getClassLoader(), CommerceChannelRel.class,
-			ModelWrapper.class);
-
-		try {
-			Constructor<CommerceChannelRel> constructor =
-				(Constructor<CommerceChannelRel>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<CommerceChannelRel, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<CommerceChannelRel, Object>>
@@ -296,6 +269,12 @@ public class CommerceChannelRelModelImpl
 			"mvccVersion",
 			(BiConsumer<CommerceChannelRel, Long>)
 				CommerceChannelRel::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CommerceChannelRel::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CommerceChannelRel, Long>)
+				CommerceChannelRel::setCtCollectionId);
 		attributeGetterFunctions.put(
 			"commerceChannelRelId",
 			CommerceChannelRel::getCommerceChannelRelId);
@@ -369,6 +348,21 @@ public class CommerceChannelRelModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -641,6 +635,7 @@ public class CommerceChannelRelModelImpl
 			new CommerceChannelRelImpl();
 
 		commerceChannelRelImpl.setMvccVersion(getMvccVersion());
+		commerceChannelRelImpl.setCtCollectionId(getCtCollectionId());
 		commerceChannelRelImpl.setCommerceChannelRelId(
 			getCommerceChannelRelId());
 		commerceChannelRelImpl.setCompanyId(getCompanyId());
@@ -664,6 +659,8 @@ public class CommerceChannelRelModelImpl
 
 		commerceChannelRelImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commerceChannelRelImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		commerceChannelRelImpl.setCommerceChannelRelId(
 			this.<Long>getColumnOriginalValue("commerceChannelRelId"));
 		commerceChannelRelImpl.setCompanyId(
@@ -762,6 +759,8 @@ public class CommerceChannelRelModelImpl
 			new CommerceChannelRelCacheModel();
 
 		commerceChannelRelCacheModel.mvccVersion = getMvccVersion();
+
+		commerceChannelRelCacheModel.ctCollectionId = getCtCollectionId();
 
 		commerceChannelRelCacheModel.commerceChannelRelId =
 			getCommerceChannelRelId();
@@ -889,11 +888,14 @@ public class CommerceChannelRelModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, CommerceChannelRel>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					CommerceChannelRel.class, ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _commerceChannelRelId;
 	private long _companyId;
 	private long _userId;
@@ -933,6 +935,7 @@ public class CommerceChannelRelModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"commerceChannelRelId", _commerceChannelRelId);
 		_columnOriginalValues.put("companyId", _companyId);
@@ -958,23 +961,25 @@ public class CommerceChannelRelModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("commerceChannelRelId", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("companyId", 4L);
+		columnBitmasks.put("commerceChannelRelId", 4L);
 
-		columnBitmasks.put("userId", 8L);
+		columnBitmasks.put("companyId", 8L);
 
-		columnBitmasks.put("userName", 16L);
+		columnBitmasks.put("userId", 16L);
 
-		columnBitmasks.put("createDate", 32L);
+		columnBitmasks.put("userName", 32L);
 
-		columnBitmasks.put("modifiedDate", 64L);
+		columnBitmasks.put("createDate", 64L);
 
-		columnBitmasks.put("classNameId", 128L);
+		columnBitmasks.put("modifiedDate", 128L);
 
-		columnBitmasks.put("classPK", 256L);
+		columnBitmasks.put("classNameId", 256L);
 
-		columnBitmasks.put("commerceChannelId", 512L);
+		columnBitmasks.put("classPK", 512L);
+
+		columnBitmasks.put("commerceChannelId", 1024L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

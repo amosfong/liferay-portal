@@ -14,6 +14,7 @@
 
 package com.liferay.server.admin.web.internal.portlet.action;
 
+import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.document.library.kernel.util.DLPreviewableProcessor;
 import com.liferay.mail.kernel.model.Account;
 import com.liferay.mail.kernel.service.MailService;
@@ -106,6 +107,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.MaintenanceUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.ShutdownUtil;
+import com.liferay.server.admin.web.internal.constants.ImageMagickResourceLimitConstants;
 
 import java.lang.reflect.InvocationHandler;
 
@@ -136,6 +138,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
+		"javax.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
 		"javax.portlet.name=" + PortletKeys.SERVER_ADMIN,
 		"mvc.command.name=/server_admin/edit_server"
 	},
@@ -165,7 +168,8 @@ public class EditServerMVCActionCommand
 			return;
 		}
 
-		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences();
+		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences(
+			ParamUtil.getLong(actionRequest, "preferencesCompanyId"));
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
@@ -643,18 +647,11 @@ public class EditServerMVCActionCommand
 		portletPreferences.setValue(
 			PropsKeys.IMAGEMAGICK_GLOBAL_SEARCH_PATH, imageMagickPath);
 
-		Enumeration<String> enumeration = actionRequest.getParameterNames();
+		for (String name : ImageMagickResourceLimitConstants.PROPERTY_NAMES) {
+			String propertyName = PropsKeys.IMAGEMAGICK_RESOURCE_LIMIT + name;
 
-		while (enumeration.hasMoreElements()) {
-			String name = enumeration.nextElement();
-
-			if (name.startsWith("imageMagickLimit")) {
-				String key = StringUtil.toLowerCase(name.substring(16));
-				String value = ParamUtil.getString(actionRequest, name);
-
-				portletPreferences.setValue(
-					PropsKeys.IMAGEMAGICK_RESOURCE_LIMIT + key, value);
-			}
+			portletPreferences.setValue(
+				propertyName, ParamUtil.getString(actionRequest, propertyName));
 		}
 
 		portletPreferences.store();

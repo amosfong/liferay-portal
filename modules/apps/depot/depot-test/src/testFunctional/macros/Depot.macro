@@ -414,11 +414,16 @@ definition {
 
 			SelectFrame(value1 = "relative=top");
 
-			Alert.viewSuccessMessage();
+			if (isSet(connectStagedSite)) {
+				Alert.viewErrorMessage(errorMessage = "An unstaged asset library cannot be connected to a staged site.");
+			}
+			else {
+				Alert.viewSuccessMessage();
 
-			AssertElementPresent.pauseAssertVisible(
-				key_tableEntry = "${siteName}",
-				locator1 = "LexiconTable#TABLE_ENTRY");
+				AssertElementPresent.pauseAssertVisible(
+					key_tableEntry = "${siteName}",
+					locator1 = "LexiconTable#TABLE_ENTRY");
+			}
 		}
 	}
 
@@ -659,15 +664,28 @@ definition {
 			var remotePort = "8080";
 		}
 
-		JSONDepot.addDepot(
-			depotDescription = "This is the description of a remote depot",
-			depotName = "Remote Depot",
-			portalURL = "http://localhost:${remotePort}");
+		if (isSet(remoteDepotName)) {
+			JSONDepot.addDepot(
+				depotDescription = "This is the description of a remote depot",
+				depotName = "${remoteDepotName}",
+				portalURL = "http://localhost:${remotePort}");
 
-		var remoteGroupId = JSONGroupSetter.setGroupId(
-			groupName = "Remote Depot",
-			portalURL = "http://localhost:${remotePort}",
-			site = "${site}");
+			var remoteGroupId = JSONGroupSetter.setGroupId(
+				groupName = "${remoteDepotName}",
+				portalURL = "http://localhost:${remotePort}",
+				site = "${site}");
+		}
+		else {
+			JSONDepot.addDepot(
+				depotDescription = "This is the description of a remote depot",
+				depotName = "Remote Depot",
+				portalURL = "http://localhost:${remotePort}");
+
+			var remoteGroupId = JSONGroupSetter.setGroupId(
+				groupName = "Remote Depot",
+				portalURL = "http://localhost:${remotePort}",
+				site = "${site}");
+		}
 
 		JSONStaging.enableRemoteStaging(
 			branchingPrivate = "${branchingPrivate}",
@@ -1136,6 +1154,8 @@ definition {
 	}
 
 	macro viewSearchResult {
+		var searchTerm = '''"${searchTerm}"''';
+
 		if ("${resultCount}" != "1") {
 			AssertTextEquals.assertPartialText(
 				locator1 = "ManagementBar#SEARCH_RESULT_SUMMARY",

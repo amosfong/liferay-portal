@@ -98,6 +98,11 @@
 			<finder-column name="system" />
 			<finder-column name="status" />
 		</finder>
+		<finder name="C_A_S" return-type="Collection">
+			<finder-column name="companyId" />
+			<finder-column name="active" />
+			<finder-column name="status" />
+		</finder>
 		<finder name="C_A_S_S" return-type="Collection">
 			<finder-column name="companyId" />
 			<finder-column name="active" />
@@ -216,7 +221,7 @@
 			<finder-column name="name" />
 		</finder>
 	</entity>
-	<entity local-service="true" name="ObjectFieldSetting" remote-service="true" uuid="true">
+	<entity local-service="true" name="ObjectFieldSetting" remote-service="false" uuid="true">
 
 		<!-- PK fields -->
 
@@ -234,7 +239,6 @@
 
 		<column name="objectFieldId" type="long" />
 		<column name="name" type="String" />
-		<column name="required" type="boolean" />
 		<column name="value" type="String" />
 
 		<!-- Finder methods -->
@@ -385,6 +389,9 @@
 		<finder name="ObjectLayoutId" return-type="Collection">
 			<finder-column name="objectLayoutId" />
 		</finder>
+		<finder name="ObjectRelationshipId" return-type="Collection">
+			<finder-column name="objectRelationshipId" />
+		</finder>
 	</entity>
 	<entity local-service="true" name="ObjectRelationship" remote-service="true" uuid="true">
 
@@ -459,8 +466,9 @@
 
 		<column name="objectDefinitionId" type="long" />
 		<column name="active" type="boolean" />
-		<column localized="true" name="errorLabel" type="String" />
 		<column name="engine" type="String" />
+		<column localized="true" name="errorLabel" type="String" />
+		<column localized="true" name="name" type="String" />
 		<column name="script" type="String" />
 
 		<!-- Finder methods -->
@@ -520,6 +528,7 @@
 		<!-- Other fields -->
 
 		<column name="objectViewId" type="long" />
+		<column localized="true" name="label" type="String" />
 		<column name="objectFieldName" type="String" />
 		<column name="priority" type="int" />
 
@@ -584,12 +593,15 @@
 		<exception>ObjectFieldLabel</exception>
 		<exception>ObjectFieldName</exception>
 		<exception>ObjectFieldRelationshipType</exception>
+		<exception>ObjectFieldSettingName</exception>
 		<exception>ObjectFieldSettingValue</exception>
 		<exception>ObjectLayoutColumnSize</exception>
 		<exception>ObjectRelationshipName</exception>
 		<exception>ObjectRelationshipReverse</exception>
 		<exception>ObjectRelationshipType</exception>
-		<exception>ObjectValidation</exception>
+		<exception>ObjectValidationRuleEngine</exception>
+		<exception>ObjectValidationRuleName</exception>
+		<exception>ObjectValidationRuleScript</exception>
 		<exception>ObjectViewSortColumn</exception>
 		<exception>RequiredObjectDefinition</exception>
 		<exception>RequiredObjectField</exception>

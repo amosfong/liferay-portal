@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -30,12 +31,12 @@ definition {
 		ObjectAdmin.openObjectAdmin();
 
 		ObjectAdmin.addNewObject(
-			fieldLabelName = "Custom Object",
-			pluralLabelName = "Custom Objects");
+			fieldLabelName = "Custom Object 314",
+			pluralLabelName = "Custom Objects 314");
 
 		ObjectAdmin.saveCustomObject();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 314");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -45,24 +46,24 @@ definition {
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 314");
 
 		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
 
 		CreateObject.saveObject();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject314");
 
 		ObjectAdmin.addObjectBoleanFieldEntryViaUI(
-			objectName = "CustomObject",
+			objectName = "CustomObject314",
 			value = "true");
 
 		ObjectAdmin.addObjectBoleanFieldEntryViaUI(
-			objectName = "CustomObject",
+			objectName = "CustomObject314",
 			value = "false");
 
 		ObjectAdmin.addObjectBoleanFieldEntryViaUI(
-			objectName = "CustomObject",
+			objectName = "CustomObject314",
 			value = "false");
 
 		Navigator.openURL();
@@ -75,7 +76,7 @@ definition {
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
-			infoListProviderName = "Custom Objects");
+			infoListProviderName = "Custom Objects 314");
 
 		PageEditor.gotoTab(tabName = "Fragments and Widgets");
 
@@ -93,7 +94,7 @@ definition {
 			fragmentName = "Collection Display",
 			listStyle = "Table",
 			option = "True",
-			selectedName = "Custom Objects");
+			selectedName = "Custom Objects 314");
 
 		PageEditor.clickPublish();
 
@@ -109,8 +110,6 @@ definition {
 	@description = "LPS-133867|LPS-135004 - Verify it is possible to define a fixed filters with Picklist type for table view on the Display Page"
 	@priority = "4"
 	test CanDefineFixedFilterForPicklistType {
-		property portal.upstream = "quarantine";
-
 		Picklist.addPicklistViaAPI(picklistName = "Custom Picklist");
 
 		for (var itemsName : list "1,2") {
@@ -121,13 +120,13 @@ definition {
 		}
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 315",
+			objectName = "CustomObject315",
+			pluralLabelName = "Custom Objects 315");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 315");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -138,10 +137,10 @@ definition {
 
 		Navigator.openURL();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject315");
 
 		for (var entryName : list "1,2") {
-			ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject315");
 
 			ObjectAdmin.addObjectPicklistFieldEntryViaUI(picklistOption = "Item Test ${entryName}");
 		}
@@ -156,16 +155,16 @@ definition {
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
-			infoListProviderName = "Custom Objects");
+			infoListProviderName = "Custom Objects 315");
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
 			listStyle = "Table",
-			selectedName = "Custom Objects");
+			selectedName = "Custom Objects 315");
 
 		PageEditor.gotoEllipsisMenuItemInItemSelector(
 			fieldLabel = "Collection",
-			menuItem = "Filter Collection");
+			menuItem = "Prefilter Collection");
 
 		VisualizeObjectDisplayPage.selectFilterCollection(
 			fieldLabel = "Field Picklist",
@@ -186,9 +185,9 @@ definition {
 	@priority = "4"
 	test CanSetPaginationNumeric {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 316",
+			objectName = "CustomObject316",
+			pluralLabelName = "Custom Objects 316");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -196,23 +195,23 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject316");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject316");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject316",
 			value = "Test text 1");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject316",
 			value = "Test text 2");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject316",
 			value = "Test text 3");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -223,7 +222,7 @@ definition {
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
-			infoListProviderName = "Custom Objects");
+			infoListProviderName = "Custom Objects 316");
 
 		PageEditor.gotoTab(tabName = "Fragments and Widgets");
 
@@ -238,7 +237,7 @@ definition {
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
 			pagination = "Numeric",
-			selectedName = "Custom Objects");
+			selectedName = "Custom Objects 316");
 
 		PageEditor.clickPublish();
 
@@ -253,9 +252,9 @@ definition {
 	@priority = "4"
 	test CanSetPaginationSimple {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 317",
+			objectName = "CustomObject317",
+			pluralLabelName = "Custom Objects 317");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -263,23 +262,23 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject317");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject317");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject317",
 			value = "Test text 1");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject317",
 			value = "Test text 2");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "text",
-			objectName = "CustomObject",
+			objectName = "CustomObject317",
 			value = "Test text 3");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -290,7 +289,7 @@ definition {
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
-			infoListProviderName = "Custom Objects");
+			infoListProviderName = "Custom Objects 317");
 
 		PageEditor.gotoTab(tabName = "Fragments and Widgets");
 
@@ -305,7 +304,7 @@ definition {
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
 			pagination = "Simple",
-			selectedName = "Custom Objects");
+			selectedName = "Custom Objects 317");
 
 		PageEditor.clickPublish();
 
@@ -320,9 +319,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryBigDecimal {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 318",
+			objectName = "CustomObject318",
+			pluralLabelName = "Custom Objects 318");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "PrecisionDecimal",
@@ -330,13 +329,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "BigDecimal",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject318");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject318");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject318",
 			value = "123.123456");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -349,7 +348,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 318");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "BigDecimal");
 
@@ -368,9 +367,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryBoolean {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 319",
+			objectName = "CustomObject319",
+			pluralLabelName = "Custom Objects 319");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Boolean",
@@ -378,13 +377,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Boolean",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject319");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject319");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject319",
 			value = "true");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -397,7 +396,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 319");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Boolean");
 
@@ -416,9 +415,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryDate {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 320",
+			objectName = "CustomObject320",
+			pluralLabelName = "Custom Objects 320");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Date",
@@ -426,13 +425,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Date",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject320");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject320");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject320",
 			value = "2021-01-01");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -445,7 +444,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 320");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Date");
 
@@ -464,9 +463,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryDouble {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 321",
+			objectName = "CustomObject321",
+			pluralLabelName = "Custom Objects 321");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Decimal",
@@ -474,13 +473,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Double",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject321");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject321");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject321",
 			value = "1.54");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -493,7 +492,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 321");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Double");
 
@@ -512,9 +511,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryInteger {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 322",
+			objectName = "CustomObject322",
+			pluralLabelName = "Custom Objects 322");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Integer",
@@ -522,13 +521,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Integer",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject322");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject322");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject322",
 			value = "123456789");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -541,7 +540,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 322");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Integer");
 
@@ -560,9 +559,9 @@ definition {
 	@priority = "4"
 	test DisplaySpecificEntryLong {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 323",
+			objectName = "CustomObject323",
+			pluralLabelName = "Custom Objects 323");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "LongInteger",
@@ -570,14 +569,14 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "Long",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject323");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject323");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
-			value = "123456789123456789");
+			objectName = "CustomObject323",
+			value = "1234567891234567");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
 
@@ -589,11 +588,11 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 323");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Long");
 
-		VisualizeObjectDisplayPage.assertDisplayEntry(entry = "123456789123456789");
+		VisualizeObjectDisplayPage.assertDisplayEntry(entry = "1234567891234567");
 
 		PageEditor.clickPublish();
 
@@ -601,7 +600,7 @@ definition {
 			menuItem = "View",
 			pageName = "Test Content Page Name");
 
-		VisualizeObjectDisplayPage.assertDisplayEntry(entry = "123456789123456789");
+		VisualizeObjectDisplayPage.assertDisplayEntry(entry = "1234567891234567");
 	}
 
 	@description = "LPS-133867|LPS-135004 - Verify it is possible to display a specific entry of String type for a specific Object"
@@ -610,9 +609,9 @@ definition {
 		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 324",
+			objectName = "CustomObject324",
+			pluralLabelName = "Custom Objects 324");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -620,13 +619,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject324");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject324");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject324",
 			value = "Test text");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -639,7 +638,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 324");
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "String");
 
@@ -660,9 +659,9 @@ definition {
 		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 325",
+			objectName = "CustomObject325",
+			pluralLabelName = "Custom Objects 325");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -670,9 +669,9 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject325");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject325");
 
 		VisualizeObjectDisplayPage.openPageTemplate();
 
@@ -684,9 +683,9 @@ definition {
 
 		Select(
 			locator1 = "VisualizeObjectDisplayPage#OBJECT_CONTENT_TYPE",
-			value1 = "Custom Object");
+			value1 = "Custom Object 325");
 
-		VisualizeObjectDisplayPage.validateObjectContentType(contentType = "Custom Object");
+		VisualizeObjectDisplayPage.validateObjectContentType(contentType = "Custom Object 325");
 	}
 
 	@description = "LPS-137105 - Verify if the Object entries are rendered when previewing it"
@@ -697,12 +696,12 @@ definition {
 		ObjectAdmin.openObjectAdmin();
 
 		ObjectAdmin.addNewObject(
-			fieldLabelName = "Custom Object",
-			pluralLabelName = "Custom Objects");
+			fieldLabelName = "Custom Object 326",
+			pluralLabelName = "Custom Objects 326");
 
 		ObjectAdmin.saveCustomObject();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 326");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -712,15 +711,15 @@ definition {
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 326");
 
 		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
 
 		CreateObject.saveObject();
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject326");
 
-		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject326");
 
 		ObjectPortlet.addSingleFieldEntryViaUI(entry = "Test Entry");
 
@@ -729,9 +728,9 @@ definition {
 		DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "guest");
 
 		DisplayPageTemplatesAdmin.addDisplayPage(
-			contentType = "Custom Object",
+			contentType = "Custom Object 326",
 			displayPageName = "Blank Display Page",
-			subtype = "Custom Object");
+			subtype = "Custom Object 326");
 
 		PageEditor.addFragment(
 			collectionName = "Basic Components",
@@ -741,7 +740,7 @@ definition {
 
 		VisualizeObjectCollectionDisplay.mapFragment(fieldLabel = "Field");
 
-		PageEditor.selectItemToPreviewWithObject(objectLabel = "Custom Object");
+		PageEditor.selectItemToPreviewWithObject(objectLabel = "Custom Object 326");
 
 		VisualizeObjectDisplayPage.assertDisplayEntry(entry = "Test Entry");
 	}
@@ -752,9 +751,9 @@ definition {
 		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 327",
+			objectName = "CustomObject327",
+			pluralLabelName = "Custom Objects 327");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -762,17 +761,17 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject327");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject327");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject327",
 			value = "Entry 1");
 
 		VisualizeObjectDisplayPage.createObjectPageTemplate(
-			contentType = "Custom Object",
+			contentType = "Custom Object 327",
 			pageTemplateName = "Blank Display Page");
 
 		PageEditor.addFragment(
@@ -795,7 +794,7 @@ definition {
 
 		PageEditor.editCollectionDisplay(
 			fragmentName = "Collection Display",
-			infoListProviderName = "Custom Objects");
+			infoListProviderName = "Custom Objects 327");
 
 		Refresh();
 
@@ -836,9 +835,9 @@ definition {
 	@priority = "4"
 	test ViewImageUserProfileFromSpecificEntry {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 327",
+			objectName = "CustomObject327",
+			pluralLabelName = "Custom Objects 327");
 
 		ObjectAdmin.addObjectFieldViaAPI(
 			fieldBusinessType = "Text",
@@ -846,13 +845,13 @@ definition {
 			fieldName = "customObjectField",
 			fieldType = "String",
 			isRequired = "false",
-			objectName = "CustomObject");
+			objectName = "CustomObject327");
 
-		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject327");
 
 		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
 			fieldName = "customObjectField",
-			objectName = "CustomObject",
+			objectName = "CustomObject327",
 			value = "Test text");
 
 		ContentPages.addPage(pageName = "Test Content Page Name");
@@ -867,7 +866,7 @@ definition {
 
 		VisualizeObjectDisplayPage.addItem(
 			frameTitle = "Select",
-			pluralLabelName = "Custom Objects");
+			pluralLabelName = "Custom Objects 327");
 
 		Select(
 			key_fieldLabel = "Field",

@@ -14,7 +14,7 @@
 
 /// <reference types="react" />
 
-import {TObjectViewSortColumn} from '../types';
+import {TObjectColumn} from '../types';
 import './BuilderScreen.scss';
 interface IProps {
 	emptyState: {
@@ -22,20 +22,30 @@ interface IProps {
 		description: string;
 		title: string;
 	};
+	firstColumnHeader: string;
+	hasDragAndDrop?: boolean;
 	isDefaultSort?: boolean;
-	objectColumns: TObjectViewSortColumn[];
+	objectColumns: TObjectColumn[];
+	onEditing?: (boolean: boolean) => void;
 	onEditingObjectFieldName?: (objectFieldName: string) => void;
-	onEditingSort?: (boolean: boolean) => void;
+	onVisibleEditModal: (boolean: boolean) => void;
 	onVisibleModal: (boolean: boolean) => void;
+	secondColumnHeader: string;
+	thirdColumnHeader?: string;
 	title: string;
 }
 export declare function BuilderScreen({
 	emptyState,
+	firstColumnHeader,
+	hasDragAndDrop,
 	isDefaultSort,
 	objectColumns,
+	onEditing,
 	onEditingObjectFieldName,
-	onEditingSort,
+	onVisibleEditModal,
 	onVisibleModal,
+	secondColumnHeader,
+	thirdColumnHeader,
 	title,
 }: IProps): JSX.Element;
 export {};

@@ -124,13 +124,15 @@ public class ObjectEntryServiceTest {
 				ServiceContextTestUtil.getServiceContext(
 					TestPropsValues.getGroupId(), _adminUser.getUserId())));
 
+		_setUser(_defaultUser);
+
+		_assertPrincipalException(ObjectActionKeys.ADD_OBJECT_ENTRY, null);
+
 		_setUser(_user);
 
 		_assertPrincipalException(ObjectActionKeys.ADD_OBJECT_ENTRY, null);
 
 		_setUser(_defaultUser);
-
-		_assertPrincipalException(ObjectActionKeys.ADD_OBJECT_ENTRY, null);
 
 		Role guestRole = _roleLocalService.getRole(
 			TestPropsValues.getCompanyId(), RoleConstants.GUEST);
@@ -140,6 +142,17 @@ public class ObjectEntryServiceTest {
 			ResourceConstants.SCOPE_COMPANY,
 			String.valueOf(TestPropsValues.getCompanyId()),
 			guestRole.getRoleId(), ObjectActionKeys.ADD_OBJECT_ENTRY);
+
+		Assert.assertNotNull(
+			_objectEntryService.addObjectEntry(
+				0, _objectDefinition.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					"firstName", RandomStringUtils.randomAlphabetic(5)
+				).build(),
+				ServiceContextTestUtil.getServiceContext(
+					TestPropsValues.getGroupId(), _defaultUser.getUserId())));
+
+		_setUser(_user);
 
 		Assert.assertNotNull(
 			_objectEntryService.addObjectEntry(

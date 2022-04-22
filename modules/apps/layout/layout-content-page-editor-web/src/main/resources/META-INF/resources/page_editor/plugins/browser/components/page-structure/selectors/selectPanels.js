@@ -16,7 +16,6 @@ import {COLLECTION_APPLIED_FILTERS_FRAGMENT_ENTRY_KEY} from '../../../../../app/
 import {COLLECTION_FILTER_FRAGMENT_ENTRY_KEY} from '../../../../../app/config/constants/collectionFilterFragmentEntryKey';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../app/config/constants/editableFragmentEntryProcessor';
 import {EDITABLE_TYPES} from '../../../../../app/config/constants/editableTypes';
-import {FRAGMENT_CONFIGURATION_ROLES} from '../../../../../app/config/constants/fragmentConfigurationRoles';
 import {ITEM_TYPES} from '../../../../../app/config/constants/itemTypes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../app/config/constants/layoutDataItemTypes';
 import {VIEWPORT_SIZES} from '../../../../../app/config/constants/viewportSizes';
@@ -25,7 +24,6 @@ import selectCanUpdateEditables from '../../../../../app/selectors/selectCanUpda
 import selectCanUpdateItemConfiguration from '../../../../../app/selectors/selectCanUpdateItemConfiguration';
 import {CollectionAppliedFiltersGeneralPanel} from '../components/item-configuration-panels/CollectionAppliedFiltersGeneralPanel';
 import {CollectionFilterGeneralPanel} from '../components/item-configuration-panels/CollectionFilterGeneralPanel';
-import {CollectionGeneralPanel} from '../components/item-configuration-panels/CollectionGeneralPanel';
 import ContainerAdvancedPanel from '../components/item-configuration-panels/ContainerAdvancedPanel';
 import ContainerGeneralPanel from '../components/item-configuration-panels/ContainerGeneralPanel';
 import {ContainerStylesPanel} from '../components/item-configuration-panels/ContainerStylesPanel';
@@ -35,9 +33,21 @@ import {FragmentGeneralPanel} from '../components/item-configuration-panels/Frag
 import {FragmentStylesPanel} from '../components/item-configuration-panels/FragmentStylesPanel';
 import ImageSourcePanel from '../components/item-configuration-panels/ImageSourcePanel';
 import {MappingPanel} from '../components/item-configuration-panels/MappingPanel';
-import {OldCollectionGeneralPanel} from '../components/item-configuration-panels/OldCollectionGeneralPanel';
+import {RowAdvancedPanel} from '../components/item-configuration-panels/RowAdvancedPanel';
 import {RowGeneralPanel} from '../components/item-configuration-panels/RowGeneralPanel';
 import {RowStylesPanel} from '../components/item-configuration-panels/RowStylesPanel';
+import {CollectionGeneralPanel} from '../components/item-configuration-panels/collection-general-panel/CollectionGeneralPanel';
+
+const FRAGMENT_WITH_CUSTOM_PANEL = [
+	COLLECTION_FILTER_FRAGMENT_ENTRY_KEY,
+	COLLECTION_APPLIED_FILTERS_FRAGMENT_ENTRY_KEY,
+];
+
+const PANEL_TYPES = {
+	advanced: 'advanced',
+	general: 'general',
+	styles: 'styles',
+};
 
 export const PANEL_IDS = {
 	collectionAppliedFiltersGeneral: 'collectionAppliedFiltersGeneral',
@@ -52,6 +62,7 @@ export const PANEL_IDS = {
 	fragmentGeneral: 'fragmentGeneral',
 	fragmentStyles: 'fragmentStyles',
 	imageSource: 'imageSource',
+	rowAdvanced: 'rowAdvanced',
 	rowGeneral: 'rowGeneral',
 	rowStyles: 'rowStyles',
 };
@@ -61,33 +72,37 @@ export const PANELS = {
 		component: CollectionAppliedFiltersGeneralPanel,
 		label: Liferay.Language.get('general'),
 		priority: 2,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.collectionFilterGeneral]: {
 		component: CollectionFilterGeneralPanel,
 		label: Liferay.Language.get('general'),
 		priority: 2,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.collectionGeneral]: {
-		component: config.paginationImprovementsEnabled
-			? CollectionGeneralPanel
-			: OldCollectionGeneralPanel,
+		component: CollectionGeneralPanel,
 		label: Liferay.Language.get('general'),
 		priority: 0,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.containerAdvanced]: {
 		component: ContainerAdvancedPanel,
 		label: Liferay.Language.get('advanced'),
 		priority: 0,
+		type: PANEL_TYPES.advanced,
 	},
 	[PANEL_IDS.containerGeneral]: {
 		component: ContainerGeneralPanel,
 		label: Liferay.Language.get('general'),
 		priority: 2,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.containerStyles]: {
 		component: ContainerStylesPanel,
 		label: Liferay.Language.get('styles'),
 		priority: 1,
+		type: PANEL_TYPES.styles,
 	},
 	[PANEL_IDS.editableLink]: {
 		component: EditableLinkPanel,
@@ -103,31 +118,42 @@ export const PANELS = {
 		component: FragmentAdvancedPanel,
 		label: Liferay.Language.get('advanced'),
 		priority: 0,
+		type: PANEL_TYPES.advanced,
 	},
 	[PANEL_IDS.fragmentGeneral]: {
 		component: FragmentGeneralPanel,
 		label: Liferay.Language.get('general'),
 		priority: 2,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.fragmentStyles]: {
 		component: FragmentStylesPanel,
 		label: Liferay.Language.get('styles'),
 		priority: 1,
+		type: PANEL_TYPES.styles,
 	},
 	[PANEL_IDS.imageSource]: {
 		component: ImageSourcePanel,
 		label: Liferay.Language.get('image-source'),
 		priority: 3,
 	},
+	[PANEL_IDS.rowAdvanced]: {
+		component: RowAdvancedPanel,
+		label: Liferay.Language.get('advanced'),
+		priority: 0,
+		type: PANEL_TYPES.advanced,
+	},
 	[PANEL_IDS.rowGeneral]: {
 		component: RowGeneralPanel,
 		label: Liferay.Language.get('general'),
-		priority: 1,
+		priority: 2,
+		type: PANEL_TYPES.general,
 	},
 	[PANEL_IDS.rowStyles]: {
 		component: RowStylesPanel,
 		label: Liferay.Language.get('styles'),
-		priority: 0,
+		priority: 1,
+		type: PANEL_TYPES.styles,
 	},
 };
 
@@ -189,6 +215,7 @@ export function selectPanels(activeItemId, activeItemType, state) {
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.collection) {
 		panelsIds = {
 			[PANEL_IDS.collectionGeneral]:
+				config.featureFlagLps119551 ||
 				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
 		};
 	}
@@ -206,26 +233,15 @@ export function selectPanels(activeItemId, activeItemType, state) {
 			state.fragmentEntryLinks[activeItem.config.fragmentEntryLinkId];
 
 		const fragmentEntryKey = fragmentEntryLink.fragmentEntryKey;
-		const fieldSets = fragmentEntryLink?.configuration?.fieldSets ?? [];
 
 		panelsIds = {
 			[PANEL_IDS.fragmentAdvanced]:
 				config.fragmentAdvancedOptionsEnabled &&
-				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
-				fieldSets.some(
-					(fieldSet) =>
-						fieldSet.configurationRole ===
-						FRAGMENT_CONFIGURATION_ROLES.advanced
-				),
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
 			[PANEL_IDS.fragmentStyles]: true,
-			[PANEL_IDS.fragmentGeneral]:
-				fragmentEntryKey !== COLLECTION_FILTER_FRAGMENT_ENTRY_KEY &&
-				fieldSets.some((fieldSet) =>
-					config.fragmentAdvancedOptionsEnabled
-						? !fieldSet.configurationRole
-						: fieldSet.configurationRole !==
-						  FRAGMENT_CONFIGURATION_ROLES.style
-				),
+			[PANEL_IDS.fragmentGeneral]: !FRAGMENT_WITH_CUSTOM_PANEL.includes(
+				fragmentEntryKey
+			),
 			[PANEL_IDS.collectionAppliedFiltersGeneral]:
 				fragmentEntryKey ===
 					COLLECTION_APPLIED_FILTERS_FRAGMENT_ENTRY_KEY &&
@@ -239,6 +255,9 @@ export function selectPanels(activeItemId, activeItemType, state) {
 		panelsIds = {
 			[PANEL_IDS.rowStyles]: true,
 			[PANEL_IDS.rowGeneral]: true,
+			[PANEL_IDS.rowAdvanced]:
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
+				config.fragmentAdvancedOptionsEnabled,
 		};
 	}
 

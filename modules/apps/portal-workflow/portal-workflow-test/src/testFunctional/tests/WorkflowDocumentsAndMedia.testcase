@@ -99,6 +99,7 @@ definition {
 	@priority = "5"
 	test ApproveInDMFolderCustomWorkflow {
 		property test.name.skip.portal.instance = "WorkflowDocumentsAndMedia#ApproveInDMFolderCustomWorkflow";
+		property test.run.environment = "EE";
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
@@ -168,9 +169,15 @@ definition {
 			panel = "Applications",
 			portlet = "Process Builder");
 
-		Workflow.uploadDefinition(
-			workflowDefinitionFile = "advanced-governors-review-workflow-definition.xml",
-			workflowDefinitionTitle = "Quarterly Reports Review Process");
+		Workflow.addNewDefinition(workflowDefinitionTitle = "Quarterly Reports Review Process");
+
+		ProcessBuilderKaleoDesignerReact.uploadDefinition(workflowDefinitionFile = "advanced-governors-review-workflow-definition.xml");
+
+		ProcessBuilderKaleoDesignerReact.diagramSourceSwitchView();
+
+		Button.clickPublish();
+
+		Navigator.gotoBack();
 
 		Workflow.viewDefinition(
 			workflowDefinitionName = "Quarterly Reports Review Process",

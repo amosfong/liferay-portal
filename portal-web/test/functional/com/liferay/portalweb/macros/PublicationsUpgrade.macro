@@ -1,11 +1,28 @@
 definition {
 
-	macro viewOutOfDatePublications {
-		AssertTextPresent(
-			key_publicationName = "Production",
-			locator1 = "Publications#PUBLICATIONS_INDICATOR_TITLE",
-			value1 = "Production");
+	macro viewAdminRoleName {
+		Publications.createNewPublication(
+			gotoPublicationsAdmin = "true",
+			publicationName = "Publication Name");
 
+		PublicationsNavigator._gotoPublicationEllipsisItem(
+			menuItem = "Invite Users",
+			publicationName = "Publication Name");
+
+		Click(
+			key_title = "Viewers can view. Viewers cannot edit, publish, or invite other users.",
+			locator1 = "Button#ANY_TITLE");
+
+		AssertElementNotPresent(
+			key_publicationRole = "Inviter",
+			locator1 = "Publications#PUBLICATION_ROLE_BUTTON");
+
+		AssertElementPresent(
+			key_publicationRole = "Admin",
+			locator1 = "Publications#PUBLICATION_ROLE_BUTTON");
+	}
+
+	macro viewOutOfDatePublications {
 		PublicationsNavigator.openPublicationsAdmin();
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
@@ -49,6 +66,14 @@ definition {
 			value1 = "Publications User");
 
 		Navigator.gotoNavItem(navItem = "Define Permissions");
+
+		Role.viewPermissionCP(
+			permissionDefinitionValue = "Access in Control Panel",
+			permissionNavigationValue = "Publications");
+
+		Role.viewPermissionCP(
+			permissionDefinitionValue = "View",
+			permissionNavigationValue = "Publications");
 
 		Role.viewPermissionCP(
 			permissionDefinitionValue = "View Control Panel Menu",

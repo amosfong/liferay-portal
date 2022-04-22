@@ -137,7 +137,7 @@
 </tr>
 <tr>
 	<td>TRASH_ENABLED</td>
-	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-trash')]]</td>
+	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-trash')]] | //a[contains(@class,'btn')]/*[name()='svg'][contains(@class,'trash')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -188,6 +188,11 @@
 <tr>
 	<td>CANCEL_CHECKOUT</td>
 	<td>//a[contains(@class,'btn') and contains(.,'Cancel Checkout')] | //button[contains(.,'Cancel Checkout')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CANCEL_SPECIAL</td>
+	<td>//div[contains(text(),'Cancel')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -527,7 +532,7 @@
 </tr>
 <tr>
 	<td>MOVE_TO_RECYCLE_BIN</td>
-	<td>//a[contains(@class,'btn') and contains(.,'Move to Recycle Bin')] | //button[contains(.,'Move to Recycle Bin')] | //*[contains(@class, 'icon-trash')]</td>
+	<td>//a[contains(@class,'btn') and contains(.,'Move to Recycle Bin')] | //button[contains(.,'Move to Recycle Bin')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -572,7 +577,7 @@
 </tr>
 <tr>
 	<td>PLUS</td>
-	<td>//a[contains(@class,'btn')][contains(@href,'new') or contains(@href,'redirect') or contains(@href,'mvc') or contains(@href,'javascript')][.//*[name()='svg'][contains(@class,'icon-plus')]][not(contains(@class,'borderless'))] | //button[*[contains(@class,'icon-plus')]]</td>
+	<td>//a[contains(@class,'btn')][contains(@href,'new') or contains(@href,'redirect') or contains(@href,'mvc') or contains(@href,'javascript')][.//*[name()='svg'][contains(@class,'icon-plus')]][not(contains(@class,'borderless'))] | //button[not(contains(@class,'borderless'))][*[contains(@class,'icon-plus')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -588,11 +593,6 @@
 <tr>
 	<td>PREVIOUS</td>
 	<td>//button[contains(.,'Previous')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>PROPAGATE</td>
-	<td>//button[@*='Propagate']</td>
 	<td></td>
 </tr>
 <tr>
@@ -848,6 +848,11 @@
 <tr>
 	<td>MODAL_ITEM_SUBMIT</td>
 	<td>//div[contains(@class,'modal-item')]//button[@type='submit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MODAL_IFRAME_FOOTER_SUBMIT</td>
+	<td>//div[@class='modal-iframe-footer']/button[@type='submit']</td>
 	<td></td>
 </tr>
 <tr>

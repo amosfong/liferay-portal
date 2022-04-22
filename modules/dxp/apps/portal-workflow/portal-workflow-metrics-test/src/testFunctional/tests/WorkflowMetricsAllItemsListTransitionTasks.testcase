@@ -124,6 +124,8 @@ definition {
 	@description = "LPS-108138 - Verify that tasks that are not assigned to the current users can't be transitioned via bulk transition action"
 	@priority = "4"
 	test CanNotBulkTransitionTasksNotAssignedToCurrentUser {
+		property portal.upstream = "quarantine";
+
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
 		JSONUser.addUser(
@@ -650,9 +652,9 @@ definition {
 
 		Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-		KaleoDesigner.selectNode(nodeNodeLabel = "update");
+		ProcessBuilderKaleoDesignerReact.selectNode(nodeType = "task");
 
-		KaleoDesigner.deleteNode(nodeNodeLabel = "update");
+		ProcessBuilderKaleoDesignerReact.deleteNodeOrConnection(title = "task");
 
 		Button.click(button = "Update");
 
@@ -705,9 +707,15 @@ definition {
 			panel = "Applications",
 			portlet = "Process Builder");
 
-		Workflow.uploadDefinition(
-			workflowDefinitionFile = "10-transitions-workflow-definition.xml",
-			workflowDefinitionTitle = "Transitions Definition");
+		Workflow.addNewDefinition(workflowDefinitionTitle = "Transitions Definition");
+
+		ProcessBuilderKaleoDesignerReact.uploadDefinition(workflowDefinitionFile = "10-transitions-workflow-definition.xml");
+
+		ProcessBuilderKaleoDesignerReact.diagramSourceSwitchView();
+
+		Button.clickPublish();
+
+		Navigator.gotoBack();
 
 		Navigator.gotoNavItem(navItem = "Configuration");
 

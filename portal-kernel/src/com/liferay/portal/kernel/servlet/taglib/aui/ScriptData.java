@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Brian Wing Shun Chan
@@ -57,27 +55,6 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 		PortletData portletData = _getPortletData(portletId);
 
 		portletData.append(contentSB, modules, modulesType);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 *             #append(String, StringBundler, String, ModulesType)}
-	 */
-	@Deprecated
-	public void append(
-		String portletId,
-		com.liferay.portal.kernel.util.StringBundler contentSB, String modules,
-		ModulesType modulesType) {
-
-		PortletData portletData = _getPortletData(portletId);
-
-		StringBundler sb = new StringBundler();
-
-		for (int i = 0; i < contentSB.index(); i++) {
-			sb.append(contentSB.stringAt(0));
-		}
-
-		portletData.append(sb, modules, modulesType);
 	}
 
 	public void mark() {
@@ -226,16 +203,14 @@ public class ScriptData implements Mergeable<ScriptData>, Serializable {
 			for (TagInvocationData tagInvocationData :
 					portletData._es6TagInvocationDatas) {
 
+				List<String> variables = new ArrayList<>();
+
 				List<String> modules = tagInvocationData.getModules();
 
-				Stream<String> stream = modules.stream();
-
-				List<String> variables = stream.map(
-					module -> VariableUtil.generateVariable(
-						module, usedVariables)
-				).collect(
-					Collectors.toList()
-				);
+				for (String module : modules) {
+					variables.add(
+						VariableUtil.generateVariable(module, usedVariables));
+				}
 
 				es6Modules.addAll(modules);
 				es6Variables.addAll(variables);

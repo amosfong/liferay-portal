@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
@@ -79,8 +78,8 @@ public class CommercePriceModifierModelImpl
 	public static final String TABLE_NAME = "CommercePriceModifier";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
-		{"externalReferenceCode", Types.VARCHAR},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
+		{"uuid_", Types.VARCHAR}, {"externalReferenceCode", Types.VARCHAR},
 		{"commercePriceModifierId", Types.BIGINT}, {"groupId", Types.BIGINT},
 		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
@@ -100,6 +99,7 @@ public class CommercePriceModifierModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("commercePriceModifierId", Types.BIGINT);
@@ -126,7 +126,7 @@ public class CommercePriceModifierModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CommercePriceModifier (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,commercePriceModifierId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commercePriceListId LONG,title VARCHAR(75) null,target VARCHAR(75) null,modifierAmount DECIMAL(30, 16) null,modifierType VARCHAR(75) null,priority DOUBLE,active_ BOOLEAN,displayDate DATE null,expirationDate DATE null,lastPublishDate DATE null,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
+		"create table CommercePriceModifier (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,commercePriceModifierId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,commercePriceListId LONG,title VARCHAR(75) null,target VARCHAR(75) null,modifierAmount DECIMAL(30, 16) null,modifierType VARCHAR(75) null,priority DOUBLE,active_ BOOLEAN,displayDate DATE null,expirationDate DATE null,lastPublishDate DATE null,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null,primary key (commercePriceModifierId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CommercePriceModifier";
@@ -319,34 +319,6 @@ public class CommercePriceModifierModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, CommercePriceModifier>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			CommercePriceModifier.class.getClassLoader(),
-			CommercePriceModifier.class, ModelWrapper.class);
-
-		try {
-			Constructor<CommercePriceModifier> constructor =
-				(Constructor<CommercePriceModifier>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<CommercePriceModifier, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<CommercePriceModifier, Object>>
@@ -368,6 +340,12 @@ public class CommercePriceModifierModelImpl
 			"mvccVersion",
 			(BiConsumer<CommercePriceModifier, Long>)
 				CommercePriceModifier::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CommercePriceModifier::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CommercePriceModifier, Long>)
+				CommercePriceModifier::setCtCollectionId);
 		attributeGetterFunctions.put("uuid", CommercePriceModifier::getUuid);
 		attributeSetterBiConsumers.put(
 			"uuid",
@@ -527,6 +505,21 @@ public class CommercePriceModifierModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
+	}
+
+	@JSON
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@JSON
@@ -1182,6 +1175,7 @@ public class CommercePriceModifierModelImpl
 			new CommercePriceModifierImpl();
 
 		commercePriceModifierImpl.setMvccVersion(getMvccVersion());
+		commercePriceModifierImpl.setCtCollectionId(getCtCollectionId());
 		commercePriceModifierImpl.setUuid(getUuid());
 		commercePriceModifierImpl.setExternalReferenceCode(
 			getExternalReferenceCode());
@@ -1221,6 +1215,8 @@ public class CommercePriceModifierModelImpl
 
 		commercePriceModifierImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commercePriceModifierImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		commercePriceModifierImpl.setUuid(
 			this.<String>getColumnOriginalValue("uuid_"));
 		commercePriceModifierImpl.setExternalReferenceCode(
@@ -1373,6 +1369,8 @@ public class CommercePriceModifierModelImpl
 			new CommercePriceModifierCacheModel();
 
 		commercePriceModifierCacheModel.mvccVersion = getMvccVersion();
+
+		commercePriceModifierCacheModel.ctCollectionId = getCtCollectionId();
 
 		commercePriceModifierCacheModel.uuid = getUuid();
 
@@ -1603,11 +1601,14 @@ public class CommercePriceModifierModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, CommercePriceModifier>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					CommercePriceModifier.class, ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private String _uuid;
 	private String _externalReferenceCode;
 	private long _commercePriceModifierId;
@@ -1663,6 +1664,7 @@ public class CommercePriceModifierModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put("uuid_", _uuid);
 		_columnOriginalValues.put(
 			"externalReferenceCode", _externalReferenceCode);
@@ -1714,51 +1716,53 @@ public class CommercePriceModifierModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("uuid_", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("externalReferenceCode", 4L);
+		columnBitmasks.put("uuid_", 4L);
 
-		columnBitmasks.put("commercePriceModifierId", 8L);
+		columnBitmasks.put("externalReferenceCode", 8L);
 
-		columnBitmasks.put("groupId", 16L);
+		columnBitmasks.put("commercePriceModifierId", 16L);
 
-		columnBitmasks.put("companyId", 32L);
+		columnBitmasks.put("groupId", 32L);
 
-		columnBitmasks.put("userId", 64L);
+		columnBitmasks.put("companyId", 64L);
 
-		columnBitmasks.put("userName", 128L);
+		columnBitmasks.put("userId", 128L);
 
-		columnBitmasks.put("createDate", 256L);
+		columnBitmasks.put("userName", 256L);
 
-		columnBitmasks.put("modifiedDate", 512L);
+		columnBitmasks.put("createDate", 512L);
 
-		columnBitmasks.put("commercePriceListId", 1024L);
+		columnBitmasks.put("modifiedDate", 1024L);
 
-		columnBitmasks.put("title", 2048L);
+		columnBitmasks.put("commercePriceListId", 2048L);
 
-		columnBitmasks.put("target", 4096L);
+		columnBitmasks.put("title", 4096L);
 
-		columnBitmasks.put("modifierAmount", 8192L);
+		columnBitmasks.put("target", 8192L);
 
-		columnBitmasks.put("modifierType", 16384L);
+		columnBitmasks.put("modifierAmount", 16384L);
 
-		columnBitmasks.put("priority", 32768L);
+		columnBitmasks.put("modifierType", 32768L);
 
-		columnBitmasks.put("active_", 65536L);
+		columnBitmasks.put("priority", 65536L);
 
-		columnBitmasks.put("displayDate", 131072L);
+		columnBitmasks.put("active_", 131072L);
 
-		columnBitmasks.put("expirationDate", 262144L);
+		columnBitmasks.put("displayDate", 262144L);
 
-		columnBitmasks.put("lastPublishDate", 524288L);
+		columnBitmasks.put("expirationDate", 524288L);
 
-		columnBitmasks.put("status", 1048576L);
+		columnBitmasks.put("lastPublishDate", 1048576L);
 
-		columnBitmasks.put("statusByUserId", 2097152L);
+		columnBitmasks.put("status", 2097152L);
 
-		columnBitmasks.put("statusByUserName", 4194304L);
+		columnBitmasks.put("statusByUserId", 4194304L);
 
-		columnBitmasks.put("statusDate", 8388608L);
+		columnBitmasks.put("statusByUserName", 8388608L);
+
+		columnBitmasks.put("statusDate", 16777216L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

@@ -95,7 +95,7 @@
 </tr>
 <tr>
 	<td>COLLECTION_ITEM_CONTENT_IN_BULLETED_LIST_AT_VIEW_MODE</td>
-	<td>//div[contains(@class,'layout-content')]//ul[not(contains(@class,'list-group'))]/li[${key_position}]${key_entryContent}</td>
+	<td>//div[contains(@class,'layout-content')]//ul[not(contains(@class,'list-group'))][not(contains(@class,'pagination'))]/li[${key_position}]${key_entryContent}</td>
 	<td></td>
 </tr>
 <tr>
@@ -499,12 +499,17 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_CENTER_TEXT</td>
-	<td>//div[contains(@class,'text-center')]/h1</td>
+	<td>//div[contains(@class,'text-center')]//span[@class='text-truncate']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_SECONDARY_TEXT</td>
 	<td>//*[contains(@class,'text-secondary')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENT_SIDEBAR_STATE_TEXT</td>
+	<td>//*[contains(@class,'state-text')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -600,6 +605,11 @@
 <tr>
 	<td>CONTAINER_CONTAINER_NESTED_ELEMENT</td>
 	<td>xpath=(//div[@aria-label='Container'])[${key_position}]/div[contains(@class,'page-editor__topper__content')]/div[contains(@class,'page-editor__container')]${key_elementHeader}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTAINER_CONTAINER_TYPE</td>
+	<td>xpath=(//div[@aria-label='Container'])[${key_position}]/div[contains(@class,'page-editor__topper__content')]/${key_type}[contains(@class,'page-editor__container')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -15,8 +15,11 @@
 package com.liferay.portal.security.sso.openid.connect.internal.util;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectProvider;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException;
+import com.liferay.portal.security.sso.openid.connect.internal.OpenIdConnectProviderImpl;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -103,12 +106,19 @@ public class OpenIdConnectTokenRequestUtil {
 
 		ClientID clientID = new ClientID(openIdConnectProvider.getClientId());
 		Secret secret = new Secret(openIdConnectProvider.getClientSecret());
+		OpenIdConnectProviderImpl openIdConnectProviderImpl =
+			(OpenIdConnectProviderImpl)openIdConnectProvider;
 
 		TokenRequest tokenRequest = new TokenRequest(
 			uri, new ClientSecretBasic(clientID, secret),
-			authorizationCodeGrant);
+			authorizationCodeGrant, null, null,
+			openIdConnectProviderImpl.getCustomTokenRequestParameters());
 
 		HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Query: " + httpRequest.getQuery());
+		}
 
 		try {
 			HTTPResponse httpResponse = httpRequest.send();
@@ -202,5 +212,8 @@ public class OpenIdConnectTokenRequestUtil {
 				exception);
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		OpenIdConnectTokenRequestUtil.class);
 
 }

@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -68,7 +67,7 @@ public class CPDefinitionLocalizationModelImpl
 	public static final String TABLE_NAME = "CPDefinitionLocalization";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"mvccVersion", Types.BIGINT},
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"cpDefinitionLocalizationId", Types.BIGINT},
 		{"companyId", Types.BIGINT}, {"CPDefinitionId", Types.BIGINT},
 		{"languageId", Types.VARCHAR}, {"name", Types.VARCHAR},
@@ -82,6 +81,7 @@ public class CPDefinitionLocalizationModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("cpDefinitionLocalizationId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("CPDefinitionId", Types.BIGINT);
@@ -95,7 +95,7 @@ public class CPDefinitionLocalizationModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CPDefinitionLocalization (mvccVersion LONG default 0 not null,cpDefinitionLocalizationId LONG not null primary key,companyId LONG,CPDefinitionId LONG,languageId VARCHAR(75) null,name STRING null,shortDescription STRING null,description TEXT null,metaTitle VARCHAR(255) null,metaDescription VARCHAR(255) null,metaKeywords VARCHAR(255) null)";
+		"create table CPDefinitionLocalization (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,cpDefinitionLocalizationId LONG not null,companyId LONG,CPDefinitionId LONG,languageId VARCHAR(75) null,name STRING null,shortDescription STRING null,description TEXT null,metaTitle VARCHAR(255) null,metaDescription VARCHAR(255) null,metaKeywords VARCHAR(255) null,primary key (cpDefinitionLocalizationId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CPDefinitionLocalization";
@@ -239,34 +239,6 @@ public class CPDefinitionLocalizationModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, CPDefinitionLocalization>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			CPDefinitionLocalization.class.getClassLoader(),
-			CPDefinitionLocalization.class, ModelWrapper.class);
-
-		try {
-			Constructor<CPDefinitionLocalization> constructor =
-				(Constructor<CPDefinitionLocalization>)
-					proxyClass.getConstructor(InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<CPDefinitionLocalization, Object>>
 		_attributeGetterFunctions;
 	private static final Map
@@ -289,6 +261,12 @@ public class CPDefinitionLocalizationModelImpl
 			"mvccVersion",
 			(BiConsumer<CPDefinitionLocalization, Long>)
 				CPDefinitionLocalization::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CPDefinitionLocalization::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CPDefinitionLocalization, Long>)
+				CPDefinitionLocalization::setCtCollectionId);
 		attributeGetterFunctions.put(
 			"cpDefinitionLocalizationId",
 			CPDefinitionLocalization::getCpDefinitionLocalizationId);
@@ -368,6 +346,20 @@ public class CPDefinitionLocalizationModelImpl
 		}
 
 		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -623,6 +615,7 @@ public class CPDefinitionLocalizationModelImpl
 			new CPDefinitionLocalizationImpl();
 
 		cpDefinitionLocalizationImpl.setMvccVersion(getMvccVersion());
+		cpDefinitionLocalizationImpl.setCtCollectionId(getCtCollectionId());
 		cpDefinitionLocalizationImpl.setCpDefinitionLocalizationId(
 			getCpDefinitionLocalizationId());
 		cpDefinitionLocalizationImpl.setCompanyId(getCompanyId());
@@ -647,6 +640,8 @@ public class CPDefinitionLocalizationModelImpl
 
 		cpDefinitionLocalizationImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
+		cpDefinitionLocalizationImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
 		cpDefinitionLocalizationImpl.setCpDefinitionLocalizationId(
 			this.<Long>getColumnOriginalValue("cpDefinitionLocalizationId"));
 		cpDefinitionLocalizationImpl.setCompanyId(
@@ -745,6 +740,8 @@ public class CPDefinitionLocalizationModelImpl
 			new CPDefinitionLocalizationCacheModel();
 
 		cpDefinitionLocalizationCacheModel.mvccVersion = getMvccVersion();
+
+		cpDefinitionLocalizationCacheModel.ctCollectionId = getCtCollectionId();
 
 		cpDefinitionLocalizationCacheModel.cpDefinitionLocalizationId =
 			getCpDefinitionLocalizationId();
@@ -903,11 +900,13 @@ public class CPDefinitionLocalizationModelImpl
 		private static final Function
 			<InvocationHandler, CPDefinitionLocalization>
 				_escapedModelProxyProviderFunction =
-					_getProxyProviderFunction();
+					ProxyUtil.getProxyProviderFunction(
+						CPDefinitionLocalization.class, ModelWrapper.class);
 
 	}
 
 	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _cpDefinitionLocalizationId;
 	private long _companyId;
 	private long _CPDefinitionId;
@@ -947,6 +946,7 @@ public class CPDefinitionLocalizationModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put(
 			"cpDefinitionLocalizationId", _cpDefinitionLocalizationId);
 		_columnOriginalValues.put("companyId", _companyId);
@@ -973,25 +973,27 @@ public class CPDefinitionLocalizationModelImpl
 
 		columnBitmasks.put("mvccVersion", 1L);
 
-		columnBitmasks.put("cpDefinitionLocalizationId", 2L);
+		columnBitmasks.put("ctCollectionId", 2L);
 
-		columnBitmasks.put("companyId", 4L);
+		columnBitmasks.put("cpDefinitionLocalizationId", 4L);
 
-		columnBitmasks.put("CPDefinitionId", 8L);
+		columnBitmasks.put("companyId", 8L);
 
-		columnBitmasks.put("languageId", 16L);
+		columnBitmasks.put("CPDefinitionId", 16L);
 
-		columnBitmasks.put("name", 32L);
+		columnBitmasks.put("languageId", 32L);
 
-		columnBitmasks.put("shortDescription", 64L);
+		columnBitmasks.put("name", 64L);
 
-		columnBitmasks.put("description", 128L);
+		columnBitmasks.put("shortDescription", 128L);
 
-		columnBitmasks.put("metaTitle", 256L);
+		columnBitmasks.put("description", 256L);
 
-		columnBitmasks.put("metaDescription", 512L);
+		columnBitmasks.put("metaTitle", 512L);
 
-		columnBitmasks.put("metaKeywords", 1024L);
+		columnBitmasks.put("metaDescription", 1024L);
+
+		columnBitmasks.put("metaKeywords", 2048L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

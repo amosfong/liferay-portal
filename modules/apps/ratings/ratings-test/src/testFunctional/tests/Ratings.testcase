@@ -326,6 +326,7 @@ definition {
 
 		Ratings.viewRateThumb(
 			ratingResult = "Rate this as good",
+			toolTip = "true",
 			voteCount = "0");
 
 		Ratings.viewRateThumb(
@@ -338,6 +339,7 @@ definition {
 
 		Ratings.viewRateThumb(
 			ratingResult = "You have rated this as good",
+			toolTip = "true",
 			voteCount = "1");
 
 		Ratings.viewRateThumb(
@@ -1010,6 +1012,37 @@ definition {
 		Ratings.rateLike();
 
 		Ratings.viewRateLike(ratingLikeCount = "2");
+	}
+
+	@description = "This is a test for LPS-84584. It checks that the rating tooltip can be translated to Japanese."
+	@priority = "4"
+	test ToolTipCanBeTranslatedToJapanese {
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Guest",
+			layoutName = "Blogs Page",
+			widgetName = "Blogs");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title",
+			groupName = "Guest");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "ja/web/guest/blogs-page");
+
+		Ratings.viewRateThumb(
+			ratingResult = "高評価",
+			toolTip = "true",
+			voteCount = "0");
+
+		Ratings.viewRateThumb(
+			ratingResult = "低評価",
+			toolTip = "true",
+			voteCount = "0");
 	}
 
 }

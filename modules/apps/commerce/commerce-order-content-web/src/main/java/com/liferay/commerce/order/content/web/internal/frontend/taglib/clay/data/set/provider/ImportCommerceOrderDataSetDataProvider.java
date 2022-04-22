@@ -84,8 +84,8 @@ public class ImportCommerceOrderDataSetDataProvider
 		}
 
 		return CommerceOrderClayTableUtil.getOrders(
-			commerceOrders, themeDisplay,
-			commerceChannel.getPriceDisplayType());
+			commerceOrders, null, null, commerceChannel.getPriceDisplayType(),
+			true, themeDisplay);
 	}
 
 	@Override

@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.TicketLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.Date;
@@ -61,20 +60,21 @@ public class OnDemandAdminTicketGeneratorImpl
 		throws PortalException {
 
 		User requestorUser = _userLocalService.getUser(userId);
-		String password = PropsValues.DEFAULT_ADMIN_PASSWORD;
+
 		Date date = requestorUser.getBirthday();
+
 		Role role = _roleLocalService.getRole(
 			company.getCompanyId(), RoleConstants.ADMINISTRATOR);
 
 		User user = _userLocalService.addUser(
-			requestorUser.getUserId(), company.getCompanyId(),
-			Validator.isNull(password), password, password, true, null,
+			requestorUser.getUserId(), company.getCompanyId(), false,
+			PropsValues.DEFAULT_ADMIN_PASSWORD,
+			PropsValues.DEFAULT_ADMIN_PASSWORD, true, null,
 			requestorUser.getEmailAddress(), requestorUser.getLocale(),
 			requestorUser.getFirstName(), requestorUser.getMiddleName(),
 			requestorUser.getLastName(), 0, 0, requestorUser.getMale(),
 			date.getMonth(), date.getDay(), date.getYear(), null, null, null,
-			new long[] {role.getRoleId()}, null, Validator.isNull(password),
-			new ServiceContext());
+			new long[] {role.getRoleId()}, null, false, new ServiceContext());
 
 		String screenName = _getScreenName(
 			requestorUser.getUserId(), user.getUserId());

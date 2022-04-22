@@ -24,7 +24,6 @@ import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
-import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
@@ -39,6 +38,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -54,32 +54,26 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Marcellus Tavares
  */
-@RunWith(PowerMockRunner.class)
-public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
+public class DDMFormFieldTemplateContextFactoryTest {
 
 	@ClassRule
 	@Rule
 	public static final LiferayUnitTestRule liferayUnitTestRule =
 		LiferayUnitTestRule.INSTANCE;
 
-	@Before
-	public void setUp() {
+	@BeforeClass
+	public static void setUpClass() {
 		_setUpDDMFormTemplateContextFactoryUtil();
 		setUpLanguageUtil();
 	}
@@ -306,6 +300,27 @@ public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
 			expectedName, MapUtil.getString(fieldTemplateContext, "name"));
 	}
 
+	protected static void setUpLanguageUtil() {
+		Language language = Mockito.mock(Language.class);
+
+		whenLanguageGet(
+			language, LocaleUtil.US, LanguageConstants.KEY_DIR, "ltr");
+
+		LanguageUtil languageUtil = new LanguageUtil();
+
+		languageUtil.setLanguage(language);
+	}
+
+	protected static void whenLanguageGet(
+		Language language, Locale locale, String key, String returnValue) {
+
+		Mockito.when(
+			language.get(Matchers.eq(locale), Matchers.eq(key))
+		).thenReturn(
+			returnValue
+		);
+	}
+
 	protected DDMFormFieldTypeServicesTracker
 		mockDDMFormFieldTypeServicesTracker(
 			DDMFormFieldRenderer ddmFormFieldRenderer,
@@ -332,24 +347,18 @@ public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
 		return ddmFormFieldTypeServicesTracker;
 	}
 
-	protected void setUpLanguageUtil() {
-		Language language = Mockito.mock(Language.class);
+	private static void _setUpDDMFormTemplateContextFactoryUtil() {
+		_httpServletRequest = Mockito.mock(HttpServletRequest.class);
 
-		whenLanguageGet(
-			language, LocaleUtil.US, LanguageConstants.KEY_DIR, "ltr");
+		ThemeDisplay themeDisplay = new ThemeDisplay();
 
-		LanguageUtil languageUtil = new LanguageUtil();
-
-		languageUtil.setLanguage(language);
-	}
-
-	protected void whenLanguageGet(
-		Language language, Locale locale, String key, String returnValue) {
+		themeDisplay.setPathThemeImages(StringPool.BLANK);
 
 		Mockito.when(
-			language.get(Matchers.eq(locale), Matchers.eq(key))
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY)
 		).thenReturn(
-			returnValue
+			themeDisplay
 		);
 	}
 
@@ -377,15 +386,12 @@ public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
 				ddmForm.getDDMFormFieldsMap(true), ddmFormFieldsPropertyChanges,
 				ddmFormFieldValues, ddmFormRenderingContext,
 				_ddmStructureLayoutLocalService, _ddmStructureLocalService,
-				_groupLocalService, new JSONFactoryImpl(), true,
+				_groupLocalService, _htmlParser, new JSONFactoryImpl(), true,
 				new DDMFormLayout());
 
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker =
-			mockDDMFormFieldTypeServicesTracker(
-				ddmFormFieldRenderer, ddmFormFieldTemplateContextContributor);
-
 		ddmFormFieldTemplateContextFactory.setDDMFormFieldTypeServicesTracker(
-			ddmFormFieldTypeServicesTracker);
+			mockDDMFormFieldTypeServicesTracker(
+				ddmFormFieldRenderer, ddmFormFieldTemplateContextContributor));
 
 		return ddmFormFieldTemplateContextFactory;
 	}
@@ -411,36 +417,14 @@ public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
 	private DDMFormFieldTemplateContextContributor
 		_getTextDDMFormFieldTemplateContextContributor() {
 
-		return new DDMFormFieldTemplateContextContributor() {
+		return (ddmFormField, ddmFormFieldRenderingContext) -> {
+			Map<String, Object> parameters = new HashMap<>();
 
-			public Map<String, Object> getParameters(
-				DDMFormField ddmFormField,
-				DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
+			parameters.put(
+				"displayStyle", ddmFormField.getProperty("displayStyle"));
 
-				Map<String, Object> parameters = new HashMap<>();
-
-				parameters.put(
-					"displayStyle", ddmFormField.getProperty("displayStyle"));
-
-				return parameters;
-			}
-
+			return parameters;
 		};
-	}
-
-	private void _setUpDDMFormTemplateContextFactoryUtil() {
-		_httpServletRequest = Mockito.mock(HttpServletRequest.class);
-
-		ThemeDisplay themeDisplay = new ThemeDisplay();
-
-		themeDisplay.setPathThemeImages(StringPool.BLANK);
-
-		Mockito.when(
-			(ThemeDisplay)_httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY)
-		).thenReturn(
-			themeDisplay
-		);
 	}
 
 	private static final String _FIELD_NAME_FORMAT =
@@ -450,18 +434,17 @@ public class DDMFormFieldTemplateContextFactoryTest extends PowerMockito {
 
 	private static final String _PORTLET_NAMESPACE = "_PORTLET_NAMESPACE_";
 
-	@Mock
-	private DDMFormEvaluator _ddmFormEvaluator;
+	private static HttpServletRequest _httpServletRequest;
 
-	@Mock
-	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
-
-	@Mock
-	private DDMStructureLocalService _ddmStructureLocalService;
-
-	@Mock
-	private GroupLocalService _groupLocalService;
-
-	private HttpServletRequest _httpServletRequest;
+	private final DDMFormEvaluator _ddmFormEvaluator = Mockito.mock(
+		DDMFormEvaluator.class);
+	private final DDMStructureLayoutLocalService
+		_ddmStructureLayoutLocalService = Mockito.mock(
+			DDMStructureLayoutLocalService.class);
+	private final DDMStructureLocalService _ddmStructureLocalService =
+		Mockito.mock(DDMStructureLocalService.class);
+	private final GroupLocalService _groupLocalService = Mockito.mock(
+		GroupLocalService.class);
+	private final HtmlParser _htmlParser = Mockito.mock(HtmlParser.class);
 
 }

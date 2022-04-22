@@ -181,6 +181,10 @@ public abstract class BaseSegmentResourceImpl
 		return null;
 	}
 
+	public String getVersion() {
+		return "v1.0";
+	}
+
 	@Override
 	public Page<Segment> read(
 			Filter filter, Pagination pagination, Sort[] sorts,
@@ -295,6 +299,14 @@ public abstract class BaseSegmentResourceImpl
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource) {
+
+		this.vulcanBatchEngineImportTaskResource =
+			vulcanBatchEngineImportTaskResource;
 	}
 
 	@Override

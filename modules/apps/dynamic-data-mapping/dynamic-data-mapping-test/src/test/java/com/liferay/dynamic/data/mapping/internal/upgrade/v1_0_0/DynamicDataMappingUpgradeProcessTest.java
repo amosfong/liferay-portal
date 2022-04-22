@@ -82,7 +82,6 @@ public class DynamicDataMappingUpgradeProcessTest extends BaseDDMTestCase {
 		setUpLocaleUtil();
 		setUpLocalizationUtil();
 		setUpPropsUtil();
-		setUpPropsValues();
 		setUpSAXReaderUtil();
 		_setUpSecureXMLFactoryProviderUtil();
 
@@ -788,10 +787,7 @@ public class DynamicDataMappingUpgradeProcessTest extends BaseDDMTestCase {
 
 			String name = dynamicElementElement.attributeValue("name");
 
-			Map<String, List<String>> localizedDataMap = _getLocalizedDataMap(
-				dynamicElementElement);
-
-			dataMap.put(name, localizedDataMap);
+			dataMap.put(name, _getLocalizedDataMap(dynamicElementElement));
 		}
 
 		return dataMap;

@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
@@ -92,14 +93,14 @@ public class ExpandoColumnLocalServiceImpl
 	}
 
 	@Override
-	public void deleteColumn(ExpandoColumn column) {
+	public void deleteColumn(ExpandoColumn column) throws PortalException {
 		addDeletionSystemEvent(column);
-
-		// Column
 
 		expandoColumnPersistence.remove(column);
 
-		// Values
+		resourceLocalService.deleteResource(
+			column.getCompanyId(), ExpandoColumn.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL, column.getColumnId());
 
 		expandoValueLocalService.deleteColumnValues(column.getColumnId());
 	}
@@ -124,7 +125,7 @@ public class ExpandoColumnLocalServiceImpl
 	}
 
 	@Override
-	public void deleteColumn(long tableId, String name) {
+	public void deleteColumn(long tableId, String name) throws PortalException {
 		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
 			tableId, name);
 
@@ -144,7 +145,7 @@ public class ExpandoColumnLocalServiceImpl
 	}
 
 	@Override
-	public void deleteColumns(long tableId) {
+	public void deleteColumns(long tableId) throws PortalException {
 		List<ExpandoColumn> columns = expandoColumnPersistence.findByTableId(
 			tableId);
 

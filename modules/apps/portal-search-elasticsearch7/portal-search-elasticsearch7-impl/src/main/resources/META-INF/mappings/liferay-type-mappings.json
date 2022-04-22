@@ -555,6 +555,81 @@
 					"match": "expando__*",
 					"match_mapping_type": "string"
 				}
+			},
+			{
+				"template_double": {
+					"mapping": {
+						"fields": {
+							"keyword": {
+								"store": true,
+								"type": "keyword"
+							}
+						},
+						"store": true,
+						"type": "double"
+					},
+					"match": "*_double"
+				}
+			},
+			{
+				"template_float": {
+					"mapping": {
+						"fields": {
+							"keyword": {
+								"store": true,
+								"type": "keyword"
+							}
+						},
+						"store": true,
+						"type": "float"
+					},
+					"match": "*_float"
+				}
+			},
+			{
+				"template_integer": {
+					"mapping": {
+						"fields": {
+							"keyword": {
+								"store": true,
+								"type": "keyword"
+							}
+						},
+						"store": true,
+						"type": "integer"
+					},
+					"match": "*_integer"
+				}
+			},
+			{
+				"template_long": {
+					"mapping": {
+						"fields": {
+							"keyword": {
+								"store": true,
+								"type": "keyword"
+							}
+						},
+						"store": true,
+						"type": "long"
+					},
+					"match": "*_long"
+				}
+			},
+			{
+				"template_short": {
+					"mapping": {
+						"fields": {
+							"keyword": {
+								"store": true,
+								"type": "keyword"
+							}
+						},
+						"store": true,
+						"type": "short"
+					},
+					"match": "*_short"
+				}
 			}
 		],
 		"properties": {
@@ -594,6 +669,7 @@
 			"assetTagNames": {
 				"fields": {
 					"raw": {
+						"store": true,
 						"type": "keyword"
 					}
 				},
@@ -764,6 +840,11 @@
 				"store": true,
 				"type": "keyword"
 			},
+			"lastLoginDate": {
+				"format": "yyyyMMddHHmmss",
+				"store": true,
+				"type": "date"
+			},
 			"layoutUuid": {
 				"store": true,
 				"type": "keyword"
@@ -890,6 +971,11 @@
 				"store": true,
 				"type": "keyword"
 			},
+			"roleNames": {
+				"normalizer": "lowercase",
+				"store": true,
+				"type": "keyword"
+			},
 			"rootEntryClassName": {
 				"store": true,
 				"type": "keyword"
@@ -948,6 +1034,11 @@
 				"type": "keyword"
 			},
 			"userGroupIds": {
+				"store": true,
+				"type": "keyword"
+			},
+			"userGroupRoleNames": {
+				"normalizer": "lowercase",
 				"store": true,
 				"type": "keyword"
 			},

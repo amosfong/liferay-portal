@@ -1,6 +1,5 @@
 {
 	"dependencies": {
-		"@liferay/amd-loader": "4.3.1",
 		"clay": "2.18.1",
 		"lodash.escape": "4.0.1",
 		"lodash.groupby": "4.6.0",
@@ -26,5 +25,5 @@
 		"test": "liferay-npm-scripts test",
 		"watch": "liferay-npm-scripts webpack --watch"
 	},
-	"version": "5.0.28"
+	"version": "5.0.35"
 }

@@ -78,6 +78,7 @@ definition {
 
 		task ("View the site page") {
 			ACUtils.navigateToSitePage(
+				actionType = "View WC",
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -112,6 +113,7 @@ definition {
 	@priority = "5"
 	test CanCreateMultipleCustomAssetReport {
 		property portal.acceptance = "true";
+		property portal.release = "true";
 
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
@@ -161,20 +163,15 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8095 | Test Summary: Can delete a custom asset report"
-	@ignore = "true"
 	@priority = "5"
 	test CanDeleteCustomAssetReport {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: Data doesn't appear on time
-		// AC Refactor ticket: LRAC-9174
-
 		task ("Access the Custom Asset") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
 				userLoginFullName = "userfn userln");
 
 			ACUtils.navigateToSitePage(
+				actionType = "View WC",
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -193,8 +190,6 @@ definition {
 			ACNavigation.goToAssets();
 
 			ACNavigation.switchTab(tabName = "Custom");
-
-			// Custom asset data doesn't appear, so the custom asset report cannot be added.
 
 			ACAssets.addCustomAssetReport(
 				assetName = "Custom Asset Analytics Cloud",

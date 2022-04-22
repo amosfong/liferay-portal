@@ -51,6 +51,7 @@ import com.liferay.layout.seo.service.LayoutSEOSiteLocalService;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
@@ -141,6 +142,10 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 		_group = GroupTestUtil.addGroup();
 
 		_layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		_layout.setDescriptionMap(RandomTestUtil.randomLocaleStringMap());
+
+		_layout = _layoutLocalService.updateLayout(_layout);
 
 		_serviceContext = ServiceContextTestUtil.getServiceContext(
 			_group.getGroupId());
@@ -1411,9 +1416,11 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 				localeAlternateLinkElements.get(0);
 
 			Assert.assertEquals(
-				_assetDisplayPageFriendlyURLProvider.getFriendlyURL(
-					FileEntry.class.getName(), fileEntry.getFileEntryId(),
-					locale, _getThemeDisplay()),
+				_portal.getAlternateURL(
+					_assetDisplayPageFriendlyURLProvider.getFriendlyURL(
+						FileEntry.class.getName(), fileEntry.getFileEntryId(),
+						locale, _getThemeDisplay()),
+					_getThemeDisplay(), locale, _layout),
 				localeAlternateLinkElement.attr("href"));
 		}
 	}
@@ -1839,6 +1846,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"description"
 					).build(),
@@ -1848,6 +1857,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"title"
 					).build(),
@@ -1857,6 +1868,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"mappedDescriptionFieldName"
 					).build(),
@@ -1866,6 +1879,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"mappedTitleFieldName"
 					).build(),
@@ -1875,6 +1890,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"mappedTitleFieldName"
 					).build(),
@@ -1884,6 +1901,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						ImageInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"mappedImageFieldName"
 					).build(),
@@ -1893,6 +1912,8 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 					InfoField.builder(
 					).infoFieldType(
 						TextInfoFieldType.INSTANCE
+					).namespace(
+						StringPool.BLANK
 					).name(
 						"mappedImageAltFieldName"
 					).build(),

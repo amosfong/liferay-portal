@@ -2035,6 +2035,76 @@ definition {
 		}
 	}
 
+	@description = "LPS-146550 Bug: Apostrophe in segment property value breaks filter"
+	@priority = "4"
+	test AddSegmentWithApostrophe {
+		task ("Create an User with an apostrophe") {
+			JSONUser.addUser(
+				userEmailAddress = "shaquille@liferay.com",
+				userFirstName = "Shaquille",
+				userLastName = "O'Neal",
+				userScreenName = "shaquille");
+		}
+
+		task ("Create a Segment that includes user created") {
+			LexiconEntry.gotoAdd();
+
+			Segmentation.fillTitle(titleField = "Segment with Apostrophe");
+
+			Segmentation.addProperties(propertyOption = "Last Name");
+
+			Segmentation.fillProperty(propertyField = "O'Neal");
+		}
+
+		task ("Check that segment includes user") {
+			AssertTextEquals(
+				locator1 = "Segmentation#MEMBERS_MATCHED",
+				value1 = "1 Member");
+
+			Segmentation.viewMembers(memberName = "Shaquille O'Neal");
+		}
+
+		task ("Save segment") {
+			Button.clickSave();
+		}
+
+		task ("Go to edit segment") {
+			Segmentation.editSegment(entry = "Segment with Apostrophe");
+		}
+
+		task ("Check that segment still includes user") {
+			AssertTextEquals(
+				locator1 = "Segmentation#MEMBERS_MATCHED",
+				value1 = "1 Member");
+
+			Segmentation.viewMembers(memberName = "Shaquille O'Neal");
+		}
+	}
+
+	@description = "LPS-130917 Given Instance Settings > Segments
+	When the user clicks on Analytics Cloud Segments tab
+	Then help text of Anonymous User Segments Cache Expiration Time will be: Define the time (in seconds) before clearing the Anonymous Segment cache."
+	@priority = "3"
+	test AnonymousUserSegmentsCacheExpirationCheckText {
+		task ("Go to Instance Settings > Segments") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Instance Settings");
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "Segments",
+				configurationName = "Analytics Cloud Segments",
+				configurationScope = "Virtual Instance Scope");
+		}
+
+		task ("Assert the text is present") {
+			AssertTextEquals(
+				locator1 = "FormFields#HELP_TEXT",
+				value1 = "Define the time (in seconds) before clearing the Anonymous Segment cache.");
+		}
+	}
+
 	@description = "LPS-135495 Validate if, The criteria default language must be tagged as such in the language selection dropdown."
 	@priority = "3"
 	test CheckDefaultLanguageTag {
@@ -2133,6 +2203,30 @@ definition {
 		}
 	}
 
+	@description = "LPS-130917 Given Instance Settings > Segments
+	When the user clicks on Analytics Cloud Segments tab
+	Then help text of Interest Terms Cache Expiration Time will be: Define the time (in seconds) before clearing the Interest Terms cache."
+	@priority = "3"
+	test InterestTermsCacheCacheExpirationCheckText {
+		task ("Go to Instance Settings > Segments") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Instance Settings");
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "Segments",
+				configurationName = "Analytics Cloud Segments",
+				configurationScope = "Virtual Instance Scope");
+		}
+
+		task ("Assert the text is present") {
+			AssertTextEquals(
+				locator1 = "FormFields#HELP_TEXT",
+				value1 = "Define the time (in seconds) before clearing the Interest Terms cache.");
+		}
+	}
+
 	@description = "LPS-132249 If vocabulary or value is deleted, in the segment editor the condition will keep working if the user go out without saving changes"
 	@priority = "4"
 	test KeepInfomationOfDeleteVocabularyInSegment {
@@ -2164,12 +2258,19 @@ definition {
 		}
 
 		task ("Create Segment with Vocabulary") {
-			JSONSegmentsentry.addSegment(
-				fieldName = "Browser",
-				groupName = "Guest",
-				operator = "equals",
-				segmentName = "KeepInfomationOfDeleteVocabularyInSegment Test",
-				text = "Audience Category 1");
+			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+
+			LexiconEntry.gotoAdd();
+
+			Segmentation.gotoSidebar(fieldType = "Session");
+
+			Segmentation.addProperties(propertyOption = "Browser");
+
+			Segmentation.fillTitle(titleField = "KeepInfomationOfDeleteVocabularyInSegment Test");
+
+			Segmentation.fillProperty(optionsValue = "Audience Category 1");
+
+			Button.clickSave();
 		}
 
 		task ("Delete category of vocabulary") {
@@ -2187,6 +2288,42 @@ definition {
 			AssertValue(
 				locator1 = "Segmentation#PROPERTY_FIELD",
 				value1 = "Audience Category 1");
+		}
+	}
+
+	@description = "LPS-150511 Bug: Can't scroll down in segments editor sidebar"
+	@priority = "4"
+	test ScrollDownSegmentsEditor {
+		property portal.acceptance = "true";
+
+		task ("Go to segments editor page") {
+			ProductMenu.gotoPortlet(
+				category = "People",
+				portlet = "Segments");
+
+			LexiconEntry.gotoAdd();
+		}
+
+		task ("Scroll down User session") {
+			ScrollWebElementIntoView(
+				key_propertyOption = "User Name",
+				locator1 = "Segmentation#ADD_FIELD_TYPE");
+		}
+
+		task ("Scroll down Organization session") {
+			Segmentation.gotoSidebar(fieldType = "Organization");
+
+			ScrollWebElementIntoView(
+				key_propertyOption = "Type",
+				locator1 = "Segmentation#ADD_FIELD_TYPE");
+		}
+
+		task ("Scroll down Session session") {
+			Segmentation.gotoSidebar(fieldType = "Session");
+
+			ScrollWebElementIntoView(
+				key_propertyOption = "User Agent",
+				locator1 = "Segmentation#ADD_FIELD_TYPE");
 		}
 	}
 

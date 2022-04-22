@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.model.CommerceAccount;
 import com.liferay.commerce.account.util.CommerceAccountHelper;
-import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.context.CommerceContext;
 import com.liferay.commerce.context.CommerceContextFactory;
 import com.liferay.commerce.frontend.internal.account.CommerceAccountResource;
@@ -40,7 +39,6 @@ import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.util.CPDefinitionHelper;
 import com.liferay.commerce.service.CommerceOrderService;
-import com.liferay.commerce.util.CommerceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -55,8 +53,9 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -131,7 +130,7 @@ public class CommerceSearchResource {
 			String url = _commerceSearchUtil.getSearchFriendlyURL(themeDisplay);
 
 			if (Validator.isNotNull(url)) {
-				url = _http.addParameter(url, "q", queryString);
+				url = HttpComponentsUtil.addParameter(url, "q", queryString);
 
 				SearchItemModel searchItemModel = new SearchItemModel(
 					"category",
@@ -175,33 +174,28 @@ public class CommerceSearchResource {
 	}
 
 	private SearchItemModel _getSearchItemModel(
-			CPCatalogEntry cpCatalogEntry, ThemeDisplay themeDisplay)
+			long commerceAccountId, CPCatalogEntry cpCatalogEntry,
+			ThemeDisplay themeDisplay)
 		throws PortalException {
 
 		SearchItemModel searchItemModel = new SearchItemModel(
 			"item", HtmlUtil.escape(cpCatalogEntry.getName()));
 
-		HttpServletRequest httpServletRequest = themeDisplay.getRequest();
-
 		searchItemModel.setImage(
 			_cpDefinitionHelper.getDefaultImageFileURL(
-				CommerceUtil.getCommerceAccountId(
-					(CommerceContext)httpServletRequest.getAttribute(
-						CommerceWebKeys.COMMERCE_CONTEXT)),
-				cpCatalogEntry.getCPDefinitionId()));
+				commerceAccountId, cpCatalogEntry.getCPDefinitionId()));
 
 		String subtitle = cpCatalogEntry.getShortDescription();
 
 		if (Validator.isNull(subtitle)) {
-			subtitle = HtmlUtil.extractText(cpCatalogEntry.getDescription());
+			subtitle = _htmlParser.extractText(cpCatalogEntry.getDescription());
 		}
 
 		searchItemModel.setSubtitle(subtitle);
 
-		String url = _cpDefinitionHelper.getFriendlyURL(
-			cpCatalogEntry.getCPDefinitionId(), themeDisplay);
-
-		searchItemModel.setUrl(url);
+		searchItemModel.setUrl(
+			_cpDefinitionHelper.getFriendlyURL(
+				cpCatalogEntry.getCPDefinitionId(), themeDisplay));
 
 		return searchItemModel;
 	}
@@ -247,7 +241,7 @@ public class CommerceSearchResource {
 			themeDisplay);
 
 		if (Validator.isNotNull(url)) {
-			url = _http.addParameter(url, "q", queryString);
+			url = HttpComponentsUtil.addParameter(url, "q", queryString);
 
 			SearchItemModel searchItemModel = new SearchItemModel(
 				"category",
@@ -301,7 +295,7 @@ public class CommerceSearchResource {
 		String url = _commerceSearchUtil.getOrdersFriendlyURL(themeDisplay);
 
 		if (Validator.isNotNull(url)) {
-			url = _http.addParameter(url, "q", queryString);
+			url = HttpComponentsUtil.addParameter(url, "q", queryString);
 
 			SearchItemModel searchItemModel = new SearchItemModel(
 				"category",
@@ -341,25 +335,24 @@ public class CommerceSearchResource {
 				"commerceChannelGroupId", commerceChannel.getGroupId());
 		}
 
+		long commerceAccountId = 0;
+
 		CommerceAccount commerceAccount =
 			_commerceAccountHelper.getCurrentCommerceAccount(
 				commerceChannel.getGroupId(), themeDisplay.getRequest());
 
-		long[] commerceAccountGroupIds = null;
-
 		if (commerceAccount != null) {
-			commerceAccountGroupIds =
-				_commerceAccountHelper.getCommerceAccountGroupIds(
-					commerceAccount.getCommerceAccountId());
-		}
+			commerceAccountId = commerceAccount.getCommerceAccountId();
 
-		searchContext.setAttribute(
-			"commerceAccountGroupIds", commerceAccountGroupIds);
+			attributes.put(
+				"commerceAccountGroupIds",
+				_commerceAccountHelper.getCommerceAccountGroupIds(
+					commerceAccountId));
+		}
 
 		searchContext.setAttributes(attributes);
 
 		searchContext.setCompanyId(companyId);
-
 		searchContext.setKeywords(queryString);
 
 		CPQuery cpQuery = new CPQuery();
@@ -382,13 +375,14 @@ public class CommerceSearchResource {
 				cpDataSourceResult.getCPCatalogEntries()) {
 
 			searchItemModels.add(
-				_getSearchItemModel(cpCatalogEntry, themeDisplay));
+				_getSearchItemModel(
+					commerceAccountId, cpCatalogEntry, themeDisplay));
 		}
 
 		String url = _commerceSearchUtil.getCatalogFriendlyURL(themeDisplay);
 
 		if (Validator.isNotNull(url)) {
-			url = _http.addParameter(url, "q", queryString);
+			url = HttpComponentsUtil.addParameter(url, "q", queryString);
 
 			SearchItemModel searchItemModel = new SearchItemModel(
 				"category", LanguageUtil.get(resourceBundle, "catalog"));
@@ -439,7 +433,7 @@ public class CommerceSearchResource {
 	private CPDefinitionHelper _cpDefinitionHelper;
 
 	@Reference
-	private Http _http;
+	private HtmlParser _htmlParser;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

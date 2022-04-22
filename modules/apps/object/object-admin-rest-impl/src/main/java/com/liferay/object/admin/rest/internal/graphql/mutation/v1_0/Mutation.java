@@ -17,16 +17,16 @@ package com.liferay.object.admin.rest.internal.graphql.mutation.v1_0;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectAction;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
-import com.liferay.object.admin.rest.dto.v1_0.ObjectFieldSetting;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectLayout;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectRelationship;
+import com.liferay.object.admin.rest.dto.v1_0.ObjectValidationRule;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectView;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectActionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
-import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldSettingResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
+import com.liferay.object.admin.rest.resource.v1_0.ObjectValidationRuleResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectViewResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 
@@ -80,14 +81,6 @@ public class Mutation {
 			objectFieldResourceComponentServiceObjects;
 	}
 
-	public static void setObjectFieldSettingResourceComponentServiceObjects(
-		ComponentServiceObjects<ObjectFieldSettingResource>
-			objectFieldSettingResourceComponentServiceObjects) {
-
-		_objectFieldSettingResourceComponentServiceObjects =
-			objectFieldSettingResourceComponentServiceObjects;
-	}
-
 	public static void setObjectLayoutResourceComponentServiceObjects(
 		ComponentServiceObjects<ObjectLayoutResource>
 			objectLayoutResourceComponentServiceObjects) {
@@ -102,6 +95,14 @@ public class Mutation {
 
 		_objectRelationshipResourceComponentServiceObjects =
 			objectRelationshipResourceComponentServiceObjects;
+	}
+
+	public static void setObjectValidationRuleResourceComponentServiceObjects(
+		ComponentServiceObjects<ObjectValidationRuleResource>
+			objectValidationRuleResourceComponentServiceObjects) {
+
+		_objectValidationRuleResourceComponentServiceObjects =
+			objectValidationRuleResourceComponentServiceObjects;
 	}
 
 	public static void setObjectViewResourceComponentServiceObjects(
@@ -417,95 +418,6 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public boolean deleteObjectFieldSetting(
-			@GraphQLName("objectFieldSettingId") Long objectFieldSettingId)
-		throws Exception {
-
-		_applyVoidComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.deleteObjectFieldSetting(
-					objectFieldSettingId));
-
-		return true;
-	}
-
-	@GraphQLField
-	public Response deleteObjectFieldSettingBatch(
-			@GraphQLName("callbackURL") String callbackURL,
-			@GraphQLName("object") Object object)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.deleteObjectFieldSettingBatch(
-					callbackURL, object));
-	}
-
-	@GraphQLField
-	public ObjectFieldSetting updateObjectFieldSetting(
-			@GraphQLName("objectFieldSettingId") Long objectFieldSettingId,
-			@GraphQLName("objectFieldSetting") ObjectFieldSetting
-				objectFieldSetting)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.putObjectFieldSetting(
-					objectFieldSettingId, objectFieldSetting));
-	}
-
-	@GraphQLField
-	public Response updateObjectFieldSettingBatch(
-			@GraphQLName("callbackURL") String callbackURL,
-			@GraphQLName("object") Object object)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.putObjectFieldSettingBatch(
-					callbackURL, object));
-	}
-
-	@GraphQLField
-	public ObjectFieldSetting createObjectFieldObjectFieldSetting(
-			@GraphQLName("objectFieldId") Long objectFieldId,
-			@GraphQLName("objectFieldSetting") ObjectFieldSetting
-				objectFieldSetting)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.postObjectFieldObjectFieldSetting(
-					objectFieldId, objectFieldSetting));
-	}
-
-	@GraphQLField
-	public Response createObjectFieldObjectFieldSettingBatch(
-			@GraphQLName("objectFieldId") Long objectFieldId,
-			@GraphQLName("callbackURL") String callbackURL,
-			@GraphQLName("object") Object object)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_objectFieldSettingResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			objectFieldSettingResource ->
-				objectFieldSettingResource.
-					postObjectFieldObjectFieldSettingBatch(
-						objectFieldId, callbackURL, object));
-	}
-
-	@GraphQLField
 	public ObjectLayout createObjectDefinitionObjectLayout(
 			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
 			@GraphQLName("objectLayout") ObjectLayout objectLayout)
@@ -679,6 +591,111 @@ public class Mutation {
 	}
 
 	@GraphQLField
+	public ObjectValidationRule createObjectDefinitionObjectValidationRule(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
+			@GraphQLName("objectValidationRule") ObjectValidationRule
+				objectValidationRule)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.
+					postObjectDefinitionObjectValidationRule(
+						objectDefinitionId, objectValidationRule));
+	}
+
+	@GraphQLField
+	public Response createObjectDefinitionObjectValidationRuleBatch(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.
+					postObjectDefinitionObjectValidationRuleBatch(
+						objectDefinitionId, callbackURL, object));
+	}
+
+	@GraphQLField
+	public boolean deleteObjectValidationRule(
+			@GraphQLName("objectValidationRuleId") Long objectValidationRuleId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.deleteObjectValidationRule(
+					objectValidationRuleId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public Response deleteObjectValidationRuleBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.deleteObjectValidationRuleBatch(
+					callbackURL, object));
+	}
+
+	@GraphQLField
+	public ObjectValidationRule patchObjectValidationRule(
+			@GraphQLName("objectValidationRuleId") Long objectValidationRuleId,
+			@GraphQLName("objectValidationRule") ObjectValidationRule
+				objectValidationRule)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.patchObjectValidationRule(
+					objectValidationRuleId, objectValidationRule));
+	}
+
+	@GraphQLField
+	public ObjectValidationRule updateObjectValidationRule(
+			@GraphQLName("objectValidationRuleId") Long objectValidationRuleId,
+			@GraphQLName("objectValidationRule") ObjectValidationRule
+				objectValidationRule)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.putObjectValidationRule(
+					objectValidationRuleId, objectValidationRule));
+	}
+
+	@GraphQLField
+	public Response updateObjectValidationRuleBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectValidationRuleResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectValidationRuleResource ->
+				objectValidationRuleResource.putObjectValidationRuleBatch(
+					callbackURL, object));
+	}
+
+	@GraphQLField
 	public ObjectView createObjectDefinitionObjectView(
 			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
 			@GraphQLName("objectView") ObjectView objectView)
@@ -760,6 +777,18 @@ public class Mutation {
 				callbackURL, object));
 	}
 
+	@GraphQLField
+	public ObjectView createObjectViewCopy(
+			@GraphQLName("objectViewId") Long objectViewId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectViewResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectViewResource -> objectViewResource.postObjectViewCopy(
+				objectViewId));
+	}
+
 	private <T, R, E1 extends Throwable, E2 extends Throwable> R
 			_applyComponentServiceObjects(
 				ComponentServiceObjects<T> componentServiceObjects,
@@ -811,6 +840,9 @@ public class Mutation {
 		objectActionResource.setContextUser(_user);
 		objectActionResource.setGroupLocalService(_groupLocalService);
 		objectActionResource.setRoleLocalService(_roleLocalService);
+
+		objectActionResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -827,6 +859,9 @@ public class Mutation {
 		objectDefinitionResource.setContextUser(_user);
 		objectDefinitionResource.setGroupLocalService(_groupLocalService);
 		objectDefinitionResource.setRoleLocalService(_roleLocalService);
+
+		objectDefinitionResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -841,22 +876,9 @@ public class Mutation {
 		objectFieldResource.setContextUser(_user);
 		objectFieldResource.setGroupLocalService(_groupLocalService);
 		objectFieldResource.setRoleLocalService(_roleLocalService);
-	}
 
-	private void _populateResourceContext(
-			ObjectFieldSettingResource objectFieldSettingResource)
-		throws Exception {
-
-		objectFieldSettingResource.setContextAcceptLanguage(_acceptLanguage);
-		objectFieldSettingResource.setContextCompany(_company);
-		objectFieldSettingResource.setContextHttpServletRequest(
-			_httpServletRequest);
-		objectFieldSettingResource.setContextHttpServletResponse(
-			_httpServletResponse);
-		objectFieldSettingResource.setContextUriInfo(_uriInfo);
-		objectFieldSettingResource.setContextUser(_user);
-		objectFieldSettingResource.setGroupLocalService(_groupLocalService);
-		objectFieldSettingResource.setRoleLocalService(_roleLocalService);
+		objectFieldResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -872,6 +894,9 @@ public class Mutation {
 		objectLayoutResource.setContextUser(_user);
 		objectLayoutResource.setGroupLocalService(_groupLocalService);
 		objectLayoutResource.setRoleLocalService(_roleLocalService);
+
+		objectLayoutResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -888,6 +913,28 @@ public class Mutation {
 		objectRelationshipResource.setContextUser(_user);
 		objectRelationshipResource.setGroupLocalService(_groupLocalService);
 		objectRelationshipResource.setRoleLocalService(_roleLocalService);
+
+		objectRelationshipResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
+	}
+
+	private void _populateResourceContext(
+			ObjectValidationRuleResource objectValidationRuleResource)
+		throws Exception {
+
+		objectValidationRuleResource.setContextAcceptLanguage(_acceptLanguage);
+		objectValidationRuleResource.setContextCompany(_company);
+		objectValidationRuleResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		objectValidationRuleResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		objectValidationRuleResource.setContextUriInfo(_uriInfo);
+		objectValidationRuleResource.setContextUser(_user);
+		objectValidationRuleResource.setGroupLocalService(_groupLocalService);
+		objectValidationRuleResource.setRoleLocalService(_roleLocalService);
+
+		objectValidationRuleResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(ObjectViewResource objectViewResource)
@@ -901,6 +948,9 @@ public class Mutation {
 		objectViewResource.setContextUser(_user);
 		objectViewResource.setGroupLocalService(_groupLocalService);
 		objectViewResource.setRoleLocalService(_roleLocalService);
+
+		objectViewResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private static ComponentServiceObjects<ObjectActionResource>
@@ -909,12 +959,12 @@ public class Mutation {
 		_objectDefinitionResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectFieldResource>
 		_objectFieldResourceComponentServiceObjects;
-	private static ComponentServiceObjects<ObjectFieldSettingResource>
-		_objectFieldSettingResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectLayoutResource>
 		_objectLayoutResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectRelationshipResource>
 		_objectRelationshipResourceComponentServiceObjects;
+	private static ComponentServiceObjects<ObjectValidationRuleResource>
+		_objectValidationRuleResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectViewResource>
 		_objectViewResourceComponentServiceObjects;
 
@@ -927,5 +977,7 @@ public class Mutation {
 	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
 	private com.liferay.portal.kernel.model.User _user;
+	private VulcanBatchEngineImportTaskResource
+		_vulcanBatchEngineImportTaskResource;
 
 }

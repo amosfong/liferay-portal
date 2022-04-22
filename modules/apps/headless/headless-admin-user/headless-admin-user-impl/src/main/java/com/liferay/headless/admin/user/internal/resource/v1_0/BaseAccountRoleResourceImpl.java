@@ -233,6 +233,10 @@ public abstract class BaseAccountRoleResourceImpl
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "page"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
@@ -262,6 +266,7 @@ public abstract class BaseAccountRoleResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("keywords")
 			String keywords,
+			@javax.ws.rs.core.Context Filter filter,
 			@javax.ws.rs.core.Context Pagination pagination,
 			@javax.ws.rs.core.Context Sort[] sorts)
 		throws Exception {
@@ -470,6 +475,10 @@ public abstract class BaseAccountRoleResourceImpl
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "page"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
@@ -497,6 +506,7 @@ public abstract class BaseAccountRoleResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("keywords")
 			String keywords,
+			@javax.ws.rs.core.Context Filter filter,
 			@javax.ws.rs.core.Context Pagination pagination,
 			@javax.ws.rs.core.Context Sort[] sorts)
 		throws Exception {
@@ -734,6 +744,10 @@ public abstract class BaseAccountRoleResourceImpl
 		return null;
 	}
 
+	public String getVersion() {
+		return "v1.0";
+	}
+
 	@Override
 	public Page<AccountRole> read(
 			Filter filter, Pagination pagination, Sort[] sorts,
@@ -742,7 +756,7 @@ public abstract class BaseAccountRoleResourceImpl
 
 		return getAccountAccountRolesPage(
 			Long.parseLong((String)parameters.get("accountId")),
-			(String)parameters.get("keywords"), pagination, sorts);
+			(String)parameters.get("keywords"), filter, pagination, sorts);
 	}
 
 	@Override
@@ -845,6 +859,14 @@ public abstract class BaseAccountRoleResourceImpl
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource) {
+
+		this.vulcanBatchEngineImportTaskResource =
+			vulcanBatchEngineImportTaskResource;
 	}
 
 	@Override

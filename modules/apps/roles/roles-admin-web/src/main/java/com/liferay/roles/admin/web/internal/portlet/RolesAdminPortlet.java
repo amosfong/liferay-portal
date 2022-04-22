@@ -61,7 +61,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -244,7 +244,7 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 			String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-			redirect = _http.setParameter(
+			redirect = HttpComponentsUtil.setParameter(
 				redirect, actionResponse.getNamespace() + "roleId",
 				role.getRoleId());
 
@@ -791,6 +791,22 @@ public class RolesAdminPortlet extends MVCPortlet {
 				}
 			}
 		}
+		else if (role.getType() == RoleConstants.TYPE_ACCOUNT) {
+			if (scope == ResourceConstants.SCOPE_GROUP_TEMPLATE) {
+				_resourcePermissionService.removeResourcePermissions(
+					groupId, companyId, selResource,
+					ResourceConstants.SCOPE_GROUP_TEMPLATE, roleId, actionId);
+			}
+			else {
+				_resourcePermissionService.removeResourcePermissions(
+					groupId, companyId, selResource,
+					ResourceConstants.SCOPE_COMPANY, roleId, actionId);
+
+				_resourcePermissionService.removeResourcePermissions(
+					groupId, companyId, selResource,
+					ResourceConstants.SCOPE_GROUP, roleId, actionId);
+			}
+		}
 		else {
 
 			// Remove company, group template, and group permissions
@@ -874,9 +890,6 @@ public class RolesAdminPortlet extends MVCPortlet {
 	private DepotConfiguration _depotConfiguration;
 
 	private GroupService _groupService;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private ItemSelector _itemSelector;

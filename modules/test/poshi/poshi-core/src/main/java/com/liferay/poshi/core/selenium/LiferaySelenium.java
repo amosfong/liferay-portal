@@ -223,9 +223,9 @@ public interface LiferaySelenium {
 
 	public String getNumberIncrement(String value);
 
-	public String getOcularResultImageDirName();
+	public String getOcularBaselineImageDirName();
 
-	public String getOcularSnapImageDirName();
+	public String getOcularResultImageDirName();
 
 	public String getOutputDirName();
 
@@ -333,6 +333,8 @@ public interface LiferaySelenium {
 	public void javaScriptDoubleClick(String locator);
 
 	public void javaScriptMouseDown(String locator);
+
+	public void javaScriptMouseOver(String locator);
 
 	public void javaScriptMouseUp(String locator);
 

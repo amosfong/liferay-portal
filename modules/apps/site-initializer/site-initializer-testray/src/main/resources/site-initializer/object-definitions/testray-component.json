@@ -2,10 +2,11 @@
 	"label": {
 		"en_US": "Testray Component"
 	},
-	"name": "TestrayComponent",
+	"name": "Component",
 	"objectFields": [
 		{
-			"indexed": false,
+			"DBType": "String",
+			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
 				"en_US": "Name"
@@ -13,16 +14,6 @@
 			"name": "name",
 			"required": false,
 			"type": "String"
-		},
-		{
-			"indexed": false,
-			"indexedAsKeyword": false,
-			"label": {
-				"en_US": "Origination Key"
-			},
-			"name": "originationKey",
-			"required": false,
-			"type": "Long"
 		}
 	],
 	"pluralLabel": {

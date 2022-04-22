@@ -82,22 +82,23 @@ public class ObjectDefinitionResourceTest
 			objectDefinitionResource.getObjectDefinitionsPage(
 				null, null, null, null, "name:asc");
 
-		List<ObjectDefinition> items =
+		List<ObjectDefinition> objectDefinitions =
 			(List<ObjectDefinition>)ascPage.getItems();
 
 		assertEquals(
 			Arrays.asList(objectDefinition1, objectDefinition2),
-			items.subList(0, 2));
+			objectDefinitions.subList(0, 2));
 
 		Page<ObjectDefinition> descPage =
 			objectDefinitionResource.getObjectDefinitionsPage(
 				null, null, null, null, "name:desc");
 
-		items = (List<ObjectDefinition>)descPage.getItems();
+		objectDefinitions = (List<ObjectDefinition>)descPage.getItems();
 
 		assertEquals(
 			Arrays.asList(objectDefinition2, objectDefinition1),
-			items.subList(items.size() - 2, items.size()));
+			objectDefinitions.subList(
+				objectDefinitions.size() - 2, objectDefinitions.size()));
 	}
 
 	@Ignore

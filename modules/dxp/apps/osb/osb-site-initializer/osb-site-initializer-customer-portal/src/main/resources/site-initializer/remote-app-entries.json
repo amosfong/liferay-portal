@@ -1,12 +1,12 @@
 [
 	{
 		"cssURLs": [
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/main.css$]"
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/osb-site-initializer-customer-portal/main.css$]"
 		],
 		"elementURLs": [
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/2.js$]",
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/main.js$]",
-			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/runtime-main.js$]"
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/osb-site-initializer-customer-portal/2.js$]",
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/osb-site-initializer-customer-portal/main.js$]",
+			"[$DOCUMENT_URL:/site-initializer/documents/company/remote-app/osb-site-initializer-customer-portal/runtime-main.js$]"
 		],
 		"externalReferenceCode": "ERC-001",
 		"htmlElementName": "liferay-remote-app-customer-portal",

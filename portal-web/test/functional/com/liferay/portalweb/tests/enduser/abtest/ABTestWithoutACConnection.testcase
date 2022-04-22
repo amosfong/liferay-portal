@@ -1,7 +1,7 @@
 @component-name = "portal-ab-test"
 definition {
 
-	property portal.release = "false";
+	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "A/B Test";
 
@@ -52,9 +52,7 @@ definition {
 		task ("Open Content Performance panel") {
 			ABTest.openABTestPanel();
 
-			AssertElementPresent(
-				key_title = "Connect to Liferay Analytics Cloud",
-				locator1 = "Header#H4_TITLE");
+			WaitForElementPresent(locator1 = "ABTest#AB_TEST_SIDE_BAR");
 		}
 
 		task ("Logout and login") {
@@ -64,9 +62,7 @@ definition {
 		}
 
 		task ("Check if panel is closed") {
-			AssertElementNotPresent(
-				key_title = "Connect to Liferay Analytics Cloud",
-				locator1 = "Header#H4_TITLE");
+			AssertNotVisible(locator1 = "ABTest#AB_TEST_SIDE_BAR");
 		}
 	}
 

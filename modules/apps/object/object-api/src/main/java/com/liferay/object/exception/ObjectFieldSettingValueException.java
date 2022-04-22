@@ -14,26 +14,66 @@
 
 package com.liferay.object.exception;
 
+import com.liferay.petra.string.StringPool;
+import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+
+import java.util.Set;
 
 /**
  * @author Marco Leo
  */
 public class ObjectFieldSettingValueException extends PortalException {
 
-	public ObjectFieldSettingValueException() {
+	public static class InvalidValue extends ObjectFieldSettingValueException {
+
+		public InvalidValue(
+			String objectFieldName, String objectFieldSettingName,
+			String objectFieldSettingValue) {
+
+			super(
+				String.format(
+					"The value %s of setting %s is invalid for object field %s",
+					objectFieldSettingValue, objectFieldSettingName,
+					objectFieldName));
+		}
+
+		public InvalidValue(
+			String objectFieldName, String objectFieldSettingName,
+			String objectFieldSettingValue, Throwable throwable) {
+
+			super(
+				String.format(
+					"The value %s of setting %s is invalid for object field %s",
+					objectFieldSettingValue, objectFieldSettingName,
+					objectFieldName),
+				throwable);
+		}
+
 	}
 
-	public ObjectFieldSettingValueException(String msg) {
+	public static class MissingRequiredValues
+		extends ObjectFieldSettingValueException {
+
+		public MissingRequiredValues(
+			String objectFieldName, Set<String> objectFieldSettingsNames) {
+
+			super(
+				String.format(
+					"The settings %s are required for object field %s",
+					StringUtil.merge(
+						objectFieldSettingsNames, StringPool.COMMA_AND_SPACE),
+					objectFieldName));
+		}
+
+	}
+
+	private ObjectFieldSettingValueException(String msg) {
 		super(msg);
 	}
 
-	public ObjectFieldSettingValueException(String msg, Throwable throwable) {
+	private ObjectFieldSettingValueException(String msg, Throwable throwable) {
 		super(msg, throwable);
-	}
-
-	public ObjectFieldSettingValueException(Throwable throwable) {
-		super(throwable);
 	}
 
 }

@@ -16,7 +16,6 @@ package com.liferay.jenkins.results.parser.testray;
 
 import com.liferay.jenkins.results.parser.AntException;
 import com.liferay.jenkins.results.parser.AntUtil;
-import com.liferay.jenkins.results.parser.BatchDependentJob;
 import com.liferay.jenkins.results.parser.Build;
 import com.liferay.jenkins.results.parser.Dom4JUtil;
 import com.liferay.jenkins.results.parser.GitWorkingDirectory;
@@ -46,6 +45,7 @@ import com.liferay.jenkins.results.parser.Retryable;
 import com.liferay.jenkins.results.parser.TopLevelBuild;
 import com.liferay.jenkins.results.parser.Workspace;
 import com.liferay.jenkins.results.parser.WorkspaceBuild;
+import com.liferay.jenkins.results.parser.WorkspaceGitRepository;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
 import com.liferay.jenkins.results.parser.job.property.JobPropertyFactory;
 import com.liferay.jenkins.results.parser.test.clazz.TestClass;
@@ -909,15 +909,10 @@ public class TestrayImporter {
 	public void recordTestrayCaseResults() {
 		final Job job = getJob();
 
-		List<AxisTestClassGroup> axisTestClassGroups =
-			job.getAxisTestClassGroups();
+		List<AxisTestClassGroup> axisTestClassGroups = new ArrayList<>(
+			job.getAxisTestClassGroups());
 
-		if (job instanceof BatchDependentJob) {
-			BatchDependentJob batchDependentJob = (BatchDependentJob)job;
-
-			axisTestClassGroups.addAll(
-				batchDependentJob.getDependentAxisTestClassGroups());
-		}
+		axisTestClassGroups.addAll(job.getDependentAxisTestClassGroups());
 
 		List<Callable<Void>> callables = new ArrayList<>();
 
@@ -1189,6 +1184,41 @@ public class TestrayImporter {
 			WorkspaceBuild workspaceBuild = (WorkspaceBuild)topLevelBuild;
 
 			Workspace workspace = workspaceBuild.getWorkspace();
+
+			for (WorkspaceGitRepository workspaceGitRepository :
+					workspace.getWorkspaceGitRepositories()) {
+
+				if (workspaceGitRepository == null) {
+					continue;
+				}
+
+				workspaceGitRepository.addPropertyOption(
+					String.valueOf(topLevelBuild.getBuildProfile()));
+				workspaceGitRepository.addPropertyOption(
+					topLevelBuild.getJobName());
+				workspaceGitRepository.addPropertyOption(
+					workspaceGitRepository.getUpstreamBranchName());
+
+				String dockerEnabled = System.getenv("DOCKER_ENABLED");
+
+				if ((dockerEnabled != null) && dockerEnabled.equals("true")) {
+					workspaceGitRepository.addPropertyOption("docker");
+				}
+
+				if (JenkinsResultsParserUtil.isWindows()) {
+					workspaceGitRepository.addPropertyOption("windows");
+				}
+				else {
+					workspaceGitRepository.addPropertyOption("unix");
+				}
+
+				PortalRelease portalRelease = getPortalRelease();
+
+				if (portalRelease != null) {
+					workspaceGitRepository.addPropertyOption(
+						portalRelease.getPortalVersion());
+				}
+			}
 
 			workspace.setUp();
 

@@ -44,6 +44,8 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.model.SegmentsExperience;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.List;
 import java.util.Objects;
@@ -67,10 +69,13 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 			ServiceContextThreadLocal.getServiceContext();
 
 		try {
+			SegmentsExperience segmentsExperience =
+				_addDefaultSegmentsExperience(layout, serviceContext);
+
 			_layoutPageTemplateStructureLocalService.
 				addLayoutPageTemplateStructure(
 					layout.getUserId(), layout.getGroupId(), layout.getPlid(),
-					SegmentsExperienceConstants.ID_DEFAULT,
+					segmentsExperience.getSegmentsExperienceId(),
 					_generateContentLayoutStructure(), serviceContext);
 		}
 		catch (PortalException portalException) {
@@ -124,11 +129,15 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 				deleteLayoutPageTemplateStructure(layoutPageTemplateStructure);
 		}
 
-		if (!layout.isTypeContent()) {
-			return;
-		}
-
 		try {
+			_segmentsExperienceLocalService.deleteSegmentsExperiences(
+				layout.getGroupId(), _portal.getClassNameId(Layout.class),
+				layout.getPlid());
+
+			if (!layout.isTypeContent()) {
+				return;
+			}
+
 			Indexer<Layout> indexer = IndexerRegistryUtil.getIndexer(
 				Layout.class);
 
@@ -141,6 +150,23 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 
 			throw new ModelListenerException(portalException);
 		}
+	}
+
+	private SegmentsExperience _addDefaultSegmentsExperience(
+			Layout layout, ServiceContext serviceContext)
+		throws PortalException {
+
+		SegmentsExperience segmentsExperience =
+			_segmentsExperienceLocalService.fetchSegmentsExperience(
+				layout.getGroupId(), SegmentsExperienceConstants.KEY_DEFAULT,
+				_portal.getClassNameId(Layout.class), layout.getPlid());
+
+		if (segmentsExperience != null) {
+			return segmentsExperience;
+		}
+
+		return _segmentsExperienceLocalService.addDefaultSegmentsExperience(
+			layout.getUserId(), layout.getPlid(), serviceContext);
 	}
 
 	private void _copySiteNavigationMenuId(
@@ -258,7 +284,7 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 	private void _reindexLayout(Layout layout) {
 		Indexer<Layout> indexer = IndexerRegistryUtil.getIndexer(Layout.class);
 
-		if (indexer == null) {
+		if ((indexer == null) || !layout.isApproved() || layout.isSystem()) {
 			return;
 		}
 
@@ -299,5 +325,8 @@ public class LayoutModelListener extends BaseModelListener<Layout> {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 }

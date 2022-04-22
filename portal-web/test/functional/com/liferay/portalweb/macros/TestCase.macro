@@ -38,6 +38,11 @@ definition {
 		var testFilePath = StringUtil.extractLast("${testFilePath}", "file:");
 		var testFileParentDir = StringUtil.extractFirst("${testFilePath}", "${testName}.testcase");
 		var dependenciesDir = "${testFileParentDir}${testDependenciesDir}";
+
+		if (isSet(filePath)) {
+			var dependenciesDir = "${dependenciesDir}/${filePath}";
+		}
+
 		var dependencyFilePath = "${dependenciesDir}/${fileName}";
 		var fileExists = FileUtil.exists("${dependencyFilePath}");
 
@@ -100,6 +105,23 @@ definition {
 		else {
 			return "${siteName}";
 		}
+	}
+
+	macro getTempFileContent {
+		var tempDir = PropsUtil.get("output.dir.name");
+		var tempFile = "${tempDir}/${fileName}";
+		var tempFileExists = FileUtil.exists("${tempFile}");
+
+		if ("${tempFileExists}" == "true") {
+			echo("Fetching ${fileName} content.");
+		}
+		else {
+			fail("Temp file not found at ${tempFile}");
+		}
+
+		var fileContent = FileUtil.read("${tempFile}");
+
+		return "${fileContent}";
 	}
 
 	macro getTestName {

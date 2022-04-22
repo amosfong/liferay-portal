@@ -721,9 +721,9 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 		Assert.assertEquals(1, page2.getTotalCount());
 
-		List<WorkflowTask> items = (List<WorkflowTask>)page2.getItems();
+		List<WorkflowTask> workflowTasks = (List<WorkflowTask>)page2.getItems();
 
-		equals(postWorkflowTask, items.get(0));
+		equals(postWorkflowTask, workflowTasks.get(0));
 
 		assertValid(page2);
 	}
@@ -757,9 +757,9 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 		Assert.assertEquals(1, page2.getTotalCount());
 
-		List<WorkflowTask> items = (List<WorkflowTask>)page2.getItems();
+		List<WorkflowTask> workflowTasks = (List<WorkflowTask>)page2.getItems();
 
-		equals(postWorkflowTask, items.get(0));
+		equals(postWorkflowTask, workflowTasks.get(0));
 
 		assertValid(page2);
 	}
@@ -791,9 +791,9 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 		Assert.assertEquals(1, page2.getTotalCount());
 
-		List<WorkflowTask> items = (List<WorkflowTask>)page2.getItems();
+		List<WorkflowTask> workflowTasks = (List<WorkflowTask>)page2.getItems();
 
-		equals(postWorkflowTask, items.get(0));
+		equals(postWorkflowTask, workflowTasks.get(0));
 
 		assertValid(page2);
 	}

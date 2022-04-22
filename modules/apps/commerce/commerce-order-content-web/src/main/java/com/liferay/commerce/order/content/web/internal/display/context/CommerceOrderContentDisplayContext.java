@@ -456,7 +456,8 @@ public class CommerceOrderContentDisplayContext {
 				_cpRequestHelper.getScopeGroupId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, "csv_template.csv",
 				MimeTypesUtil.getContentType(file), "csv_template",
-				StringPool.BLANK, StringPool.BLANK, file, null, null,
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, file,
+				null, null,
 				ServiceContextFactory.getInstance(
 					_cpRequestHelper.getRequest()));
 
@@ -700,6 +701,16 @@ public class CommerceOrderContentDisplayContext {
 
 		return portletName.equals(
 			CommercePortletKeys.COMMERCE_OPEN_ORDER_CONTENT);
+	}
+
+	public boolean isShowCommerceOrderCreateTime() throws PortalException {
+		CommerceOrderContentPortletInstanceConfiguration
+			commerceOrderContentPortletInstanceConfiguration =
+				_portletDisplay.getPortletInstanceConfiguration(
+					CommerceOrderContentPortletInstanceConfiguration.class);
+
+		return commerceOrderContentPortletInstanceConfiguration.
+			showCommerceOrderCreateTime();
 	}
 
 	public boolean isShowPurchaseOrderNumber() throws PortalException {

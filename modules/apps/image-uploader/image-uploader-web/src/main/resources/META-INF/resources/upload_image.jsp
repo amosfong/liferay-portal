@@ -36,7 +36,7 @@ String tempImageFileName = ParamUtil.getString(request, "tempImageFileName");
 		<%
 		FileEntry fileEntry = (FileEntry)SessionMessages.get(renderRequest, "imageUploaded");
 
-		previewURL = HttpUtil.addParameter(previewURL, liferayPortletResponse.getNamespace() + "tempImageFileName", tempImageFileName);
+		previewURL = HttpComponentsUtil.addParameter(previewURL, liferayPortletResponse.getNamespace() + "tempImageFileName", tempImageFileName);
 		%>
 
 		<aui:script>
@@ -110,7 +110,7 @@ String tempImageFileName = ParamUtil.getString(request, "tempImageFileName");
 										'<%= StringUtil.merge(dlConfiguration.fileExtensions()) %>'
 									</aui:validator>
 
-									<aui:validator name="maxFileSize">
+									<aui:validator errorMessage='<%= LanguageUtil.format(locale, "please-enter-a-file-with-a-valid-file-size-no-larger-than-x", LanguageUtil.formatStorageSize(maxFileSize, locale)) %>' name="maxFileSize">
 										'<%= String.valueOf(maxFileSize) %>'
 									</aui:validator>
 								</aui:input>

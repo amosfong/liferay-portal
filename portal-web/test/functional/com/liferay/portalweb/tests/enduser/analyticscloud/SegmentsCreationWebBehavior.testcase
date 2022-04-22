@@ -117,6 +117,11 @@ definition {
 	test CanCreateWebBehaviorSegmentCriteriaLeastMostTimes {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentCriteriaLeastMostTimes";
+
 		ACUtils.createWCAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -202,9 +207,7 @@ definition {
 	@description = "Create a segment with behavior of downloading a document"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentDownloadingDocument {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9707
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentDownloadingDocument";
 
 		ACUtils.createDMAndAddToPage();
 
@@ -243,7 +246,7 @@ definition {
 		ACSegments.addSegmentField(segmentField = "Downloaded Document & Media");
 
 		ACSegments.selectDocument(
-			documentTitle = "Document_1.jpg",
+			documentTitle = "DM AC Title",
 			indexField = "1");
 
 		ACSegments.setOccurence(occurenceNumber = "4");
@@ -352,7 +355,10 @@ definition {
 	test CanCreateWebBehaviorSegmentSubmittingForm {
 		property portal.upstream = "quarantine";
 
-		// AC Refactor ticket: LRAC-9707
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentSubmittingForm";
 
 		ACUtils.createFormAndAddToPage();
 
@@ -431,6 +437,11 @@ definition {
 	test CanCreateWebBehaviorSegmentUsingAfter {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingAfter";
+
 		ACUtils.createWCAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -507,6 +518,11 @@ definition {
 	test CanCreateWebBehaviorSegmentUsingBefore {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingBefore";
+
 		ACUtils.createWCAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -581,7 +597,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9218 | Test Summary: Add segment using a web behavior 'between' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingBetween {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingBetween";
 
 		ACUtils.createWCAndAddToPage();
 
@@ -662,7 +678,7 @@ definition {
 	@description = "Add segment using a web behavior 'ever' done"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentUsingEver {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingEver";
 
 		ACUtils.createWCAndAddToPage();
 
@@ -733,7 +749,7 @@ definition {
 	@description = "Create a Web Behavior using 'has not' segment"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentUsingHasNot {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingHasNot";
 
 		ACUtils.createBlogsAndAddToPage();
 
@@ -811,11 +827,11 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9219 | Test Summary: Add segment using a web behavior 'on' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingOn {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentUsingOn";
 
 		ACUtils.createWCAndAddToPage();
 
-		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		JSONUser.addUser(
 			userEmailAddress = "ac@liferay.com",
@@ -830,6 +846,7 @@ definition {
 			userLoginFullName = "ac ac");
 
 		ACUtils.navigateToSitePage(
+			actionType = "View WC",
 			documentTitleList = "1,2,3",
 			pageName = "AC Page",
 			siteName = "Site Name");
@@ -838,7 +855,7 @@ definition {
 
 		ACUtils.launchAC();
 
-		ACProperties.switchProperty(propertyName = "${propertyName}");
+		ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 
 		ACNavigation.goToSegments();
 
@@ -968,6 +985,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9223 | Test Summary: Create a Web Behavior Segment of Viewing a Blog"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingBlog {
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentViewingBlog";
+
 		ACUtils.createBlogsAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -1115,7 +1134,7 @@ definition {
 	@description = "Create a segment with behavior of viewing a form"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentViewingForm {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentViewingForm";
 
 		var username = "ac";
 
@@ -1193,13 +1212,13 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9225 | Test Summary: Create a Web Behavior Segment of Viewing a Page"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingPage {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentViewingPage";
 
 		var username = "ac";
 
-		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		ACUtils.createBlogsAndAddToPage();
 
-		var dataSource = StringUtil.extractFirst("${propertyName}", " ");
+		ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		JSONUser.addUser(
 			userEmailAddress = "${username}@liferay.com",
@@ -1214,6 +1233,8 @@ definition {
 			userLoginFullName = "${username} ${username}");
 
 		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -1221,7 +1242,7 @@ definition {
 
 		ACUtils.launchAC();
 
-		ACProperties.switchProperty(propertyName = "${propertyName}");
+		ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
 
 		ACNavigation.goToSegments();
 
@@ -1234,7 +1255,7 @@ definition {
 		ACSegments.editWebBehaviorCriterion(
 			indexField = "1",
 			occurenceNumber = "4",
-			searchTerm = "AC Page - Site Name - ${dataSource}");
+			searchTerm = "Blogs AC Title - Site Name - Liferay DXP");
 
 		ACSegments.saveSegment();
 
@@ -1244,11 +1265,11 @@ definition {
 
 		ACUtils.launchDXP(userEmailAddress = "${username}@liferay.com");
 
-		for (var n : list "1,2,3") {
-			ACUtils.navigateToSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title,Blogs AC Title,Blogs AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1266,6 +1287,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9226 | Test Summary: Create a Web Behavior Segment of Viewing a Web Content"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingWC {
+		property test.name.skip.portal.instance = "SegmentsCreationWebBehavior#CanCreateWebBehaviorSegmentViewingWC";
+
 		ACUtils.createWCAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");

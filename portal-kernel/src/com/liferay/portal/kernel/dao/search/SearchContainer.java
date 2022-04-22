@@ -486,21 +486,18 @@ public class SearchContainer<R> {
 		_orderByTypeParam = orderByTypeParam;
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 *             #setResultsAndTotal(UnsafeSupplier, int)}
-	 */
-	@Deprecated
-	public void setResults(List<R> results) {
-		_setResults(results);
-	}
-
 	public <T extends BaseModel<T>> void setResultsAndTotal(
 		BaseModelSearchResult<T> baseModelSearchResult) {
 
 		setResultsAndTotal(
 			() -> (List<R>)baseModelSearchResult.getBaseModels(),
 			baseModelSearchResult.getLength());
+	}
+
+	public void setResultsAndTotal(List<R> results) {
+		_setTotal(results.size());
+
+		_setResults(results.subList(_start, _resultEnd));
 	}
 
 	public <E extends Throwable> void setResultsAndTotal(
@@ -526,15 +523,6 @@ public class SearchContainer<R> {
 
 	public void setSummary(String summary) {
 		_summary = summary;
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 *             #setResultsAndTotal(UnsafeSupplier, int)}
-	 */
-	@Deprecated
-	public void setTotal(int total) {
-		_setTotal(total);
 	}
 
 	public void setTotalVar(String totalVar) {

@@ -1,7 +1,6 @@
 @component-name = "portal-upgrades"
 definition {
 
-	property app.server.types = "jboss,tomcat,weblogic,websphere,wildfly";
 	property database.types = "db2,mariadb,mysql,oracle,postgresql,sqlserver,sybase";
 	property portal.release = "true";
 	property portal.upstream = "true";
@@ -11,6 +10,54 @@ definition {
 		SignIn.signIn();
 
 		SearchAdministration.executeReindex();
+	}
+
+	@priority = "5"
+	test ViewAdminRoleNameArchive735 {
+		property data.archive.type = "data-archive-publications";
+		property database.types = "mariadb,mysql,postgresql";
+		property portal.version = "7.3.5";
+
+		PublicationsUpgrade.viewAdminRoleName();
+	}
+
+	@priority = "5"
+	test ViewAdminRoleNameArchive740 {
+		property data.archive.type = "data-archive-publications";
+		property database.types = "mariadb,mysql,postgresql";
+		property portal.version = "7.4.0";
+
+		PublicationsUpgrade.viewAdminRoleName();
+	}
+
+	@priority = "5"
+	test ViewAdminRoleNameArchive7310 {
+		property data.archive.type = "data-archive-publications";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+		property portal.version = "7.3.10";
+		property test.run.environment = "EE";
+
+		PublicationsUpgrade.viewAdminRoleName();
+	}
+
+	@priority = "5"
+	test ViewAdminRoleNameArchive7413 {
+		property data.archive.type = "data-archive-publications";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
+		property portal.version = "7.4.13";
+		property test.run.environment = "EE";
+
+		PublicationsUpgrade.viewAdminRoleName();
+	}
+
+	@priority = "5"
+	test ViewAdminRoleNameArchive73101 {
+		property data.archive.type = "data-archive-publications";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
+		property portal.version = "7.3.10.1";
+		property test.run.environment = "EE";
+
+		PublicationsUpgrade.viewAdminRoleName();
 	}
 
 	@priority = "5"

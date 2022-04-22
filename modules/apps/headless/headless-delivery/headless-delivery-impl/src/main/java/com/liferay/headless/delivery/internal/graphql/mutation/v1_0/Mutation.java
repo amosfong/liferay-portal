@@ -58,6 +58,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
@@ -677,6 +678,198 @@ public class Mutation {
 			this::_populateResourceContext,
 			commentResource -> commentResource.postDocumentCommentBatch(
 				documentId, callbackURL, object));
+	}
+
+	@GraphQLField(
+		description = "Deletes the blog posting's comment by blog posting's and comment's external reference codes."
+	)
+	public boolean
+			deleteSiteBlogPostingByExternalReferenceCodeBlogPostingExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("blogPostingExternalReferenceCode") String
+					blogPostingExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					deleteSiteBlogPostingByExternalReferenceCodeBlogPostingExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey), blogPostingExternalReferenceCode,
+						externalReferenceCode));
+
+		return true;
+	}
+
+	@GraphQLField(
+		description = "Updates the blog posting's comment given the blog posting's and comment's external reference codes, or creates it if it not exists."
+	)
+	public Comment
+			updateSiteBlogPostingByExternalReferenceCodeBlogPostingExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("blogPostingExternalReferenceCode") String
+					blogPostingExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("comment") Comment comment)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					putSiteBlogPostingByExternalReferenceCodeBlogPostingExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey), blogPostingExternalReferenceCode,
+						externalReferenceCode, comment));
+	}
+
+	@GraphQLField(
+		description = "Deletes the parent comment's comment by its parent comment's and comment's external reference codes."
+	)
+	public boolean
+			deleteSiteCommentByExternalReferenceCodeParentCommentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("parentCommentExternalReferenceCode") String
+					parentCommentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					deleteSiteCommentByExternalReferenceCodeParentCommentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey),
+						parentCommentExternalReferenceCode,
+						externalReferenceCode));
+
+		return true;
+	}
+
+	@GraphQLField(
+		description = "Updates the parent comment's comment given the parent comment's and comment's external reference codes, or creates it if it not exists."
+	)
+	public Comment
+			updateSiteCommentByExternalReferenceCodeParentCommentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("parentCommentExternalReferenceCode") String
+					parentCommentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("comment") Comment comment)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					putSiteCommentByExternalReferenceCodeParentCommentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey),
+						parentCommentExternalReferenceCode,
+						externalReferenceCode, comment));
+	}
+
+	@GraphQLField(
+		description = "Deletes the document's comment by document's and comment's external reference codes."
+	)
+	public boolean
+			deleteSiteDocumentByExternalReferenceCodeDocumentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("documentExternalReferenceCode") String
+					documentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					deleteSiteDocumentByExternalReferenceCodeDocumentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey), documentExternalReferenceCode,
+						externalReferenceCode));
+
+		return true;
+	}
+
+	@GraphQLField(
+		description = "Updates the document's comment given the document's and comment's external reference codes, or creates it if it not exists."
+	)
+	public Comment
+			updateSiteDocumentByExternalReferenceCodeDocumentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("documentExternalReferenceCode") String
+					documentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("comment") Comment comment)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					putSiteDocumentByExternalReferenceCodeDocumentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey), documentExternalReferenceCode,
+						externalReferenceCode, comment));
+	}
+
+	@GraphQLField(
+		description = "Deletes the structured content's comment by structured content's and comment's external reference codes."
+	)
+	public boolean
+			deleteSiteStructuredContentByExternalReferenceCodeStructuredContentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("structuredContentExternalReferenceCode") String
+					structuredContentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					deleteSiteStructuredContentByExternalReferenceCodeStructuredContentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey),
+						structuredContentExternalReferenceCode,
+						externalReferenceCode));
+
+		return true;
+	}
+
+	@GraphQLField(
+		description = "Updates the structured content's comment given the structured content's and comment's external reference codes, or creates it if it not exists."
+	)
+	public Comment
+			updateSiteStructuredContentByExternalReferenceCodeStructuredContentExternalReferenceCodeCommentByExternalReferenceCode(
+				@GraphQLName("siteKey") @NotEmpty String siteKey,
+				@GraphQLName("structuredContentExternalReferenceCode") String
+					structuredContentExternalReferenceCode,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("comment") Comment comment)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_commentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			commentResource ->
+				commentResource.
+					putSiteStructuredContentByExternalReferenceCodeStructuredContentExternalReferenceCodeCommentByExternalReferenceCode(
+						Long.valueOf(siteKey),
+						structuredContentExternalReferenceCode,
+						externalReferenceCode, comment));
 	}
 
 	@GraphQLField(
@@ -4110,6 +4303,9 @@ public class Mutation {
 		blogPostingResource.setContextUser(_user);
 		blogPostingResource.setGroupLocalService(_groupLocalService);
 		blogPostingResource.setRoleLocalService(_roleLocalService);
+
+		blogPostingResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4126,6 +4322,9 @@ public class Mutation {
 		blogPostingImageResource.setContextUser(_user);
 		blogPostingImageResource.setGroupLocalService(_groupLocalService);
 		blogPostingImageResource.setRoleLocalService(_roleLocalService);
+
+		blogPostingImageResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(CommentResource commentResource)
@@ -4139,6 +4338,9 @@ public class Mutation {
 		commentResource.setContextUser(_user);
 		commentResource.setGroupLocalService(_groupLocalService);
 		commentResource.setRoleLocalService(_roleLocalService);
+
+		commentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4155,6 +4357,9 @@ public class Mutation {
 		contentStructureResource.setContextUser(_user);
 		contentStructureResource.setGroupLocalService(_groupLocalService);
 		contentStructureResource.setRoleLocalService(_roleLocalService);
+
+		contentStructureResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(DocumentResource documentResource)
@@ -4168,6 +4373,9 @@ public class Mutation {
 		documentResource.setContextUser(_user);
 		documentResource.setGroupLocalService(_groupLocalService);
 		documentResource.setRoleLocalService(_roleLocalService);
+
+		documentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4184,6 +4392,9 @@ public class Mutation {
 		documentFolderResource.setContextUser(_user);
 		documentFolderResource.setGroupLocalService(_groupLocalService);
 		documentFolderResource.setRoleLocalService(_roleLocalService);
+
+		documentFolderResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4200,6 +4411,9 @@ public class Mutation {
 		knowledgeBaseArticleResource.setContextUser(_user);
 		knowledgeBaseArticleResource.setGroupLocalService(_groupLocalService);
 		knowledgeBaseArticleResource.setRoleLocalService(_roleLocalService);
+
+		knowledgeBaseArticleResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4218,6 +4432,9 @@ public class Mutation {
 		knowledgeBaseAttachmentResource.setGroupLocalService(
 			_groupLocalService);
 		knowledgeBaseAttachmentResource.setRoleLocalService(_roleLocalService);
+
+		knowledgeBaseAttachmentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4234,6 +4451,9 @@ public class Mutation {
 		knowledgeBaseFolderResource.setContextUser(_user);
 		knowledgeBaseFolderResource.setGroupLocalService(_groupLocalService);
 		knowledgeBaseFolderResource.setRoleLocalService(_roleLocalService);
+
+		knowledgeBaseFolderResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4251,6 +4471,9 @@ public class Mutation {
 		messageBoardAttachmentResource.setContextUser(_user);
 		messageBoardAttachmentResource.setGroupLocalService(_groupLocalService);
 		messageBoardAttachmentResource.setRoleLocalService(_roleLocalService);
+
+		messageBoardAttachmentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4267,6 +4490,9 @@ public class Mutation {
 		messageBoardMessageResource.setContextUser(_user);
 		messageBoardMessageResource.setGroupLocalService(_groupLocalService);
 		messageBoardMessageResource.setRoleLocalService(_roleLocalService);
+
+		messageBoardMessageResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4283,6 +4509,9 @@ public class Mutation {
 		messageBoardSectionResource.setContextUser(_user);
 		messageBoardSectionResource.setGroupLocalService(_groupLocalService);
 		messageBoardSectionResource.setRoleLocalService(_roleLocalService);
+
+		messageBoardSectionResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4299,6 +4528,9 @@ public class Mutation {
 		messageBoardThreadResource.setContextUser(_user);
 		messageBoardThreadResource.setGroupLocalService(_groupLocalService);
 		messageBoardThreadResource.setRoleLocalService(_roleLocalService);
+
+		messageBoardThreadResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4315,6 +4547,9 @@ public class Mutation {
 		navigationMenuResource.setContextUser(_user);
 		navigationMenuResource.setGroupLocalService(_groupLocalService);
 		navigationMenuResource.setRoleLocalService(_roleLocalService);
+
+		navigationMenuResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4331,6 +4566,9 @@ public class Mutation {
 		structuredContentResource.setContextUser(_user);
 		structuredContentResource.setGroupLocalService(_groupLocalService);
 		structuredContentResource.setRoleLocalService(_roleLocalService);
+
+		structuredContentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4349,6 +4587,9 @@ public class Mutation {
 		structuredContentFolderResource.setGroupLocalService(
 			_groupLocalService);
 		structuredContentFolderResource.setRoleLocalService(_roleLocalService);
+
+		structuredContentFolderResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(WikiNodeResource wikiNodeResource)
@@ -4362,6 +4603,9 @@ public class Mutation {
 		wikiNodeResource.setContextUser(_user);
 		wikiNodeResource.setGroupLocalService(_groupLocalService);
 		wikiNodeResource.setRoleLocalService(_roleLocalService);
+
+		wikiNodeResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(WikiPageResource wikiPageResource)
@@ -4375,6 +4619,9 @@ public class Mutation {
 		wikiPageResource.setContextUser(_user);
 		wikiPageResource.setGroupLocalService(_groupLocalService);
 		wikiPageResource.setRoleLocalService(_roleLocalService);
+
+		wikiPageResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private void _populateResourceContext(
@@ -4391,6 +4638,9 @@ public class Mutation {
 		wikiPageAttachmentResource.setContextUser(_user);
 		wikiPageAttachmentResource.setGroupLocalService(_groupLocalService);
 		wikiPageAttachmentResource.setRoleLocalService(_roleLocalService);
+
+		wikiPageAttachmentResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
 	}
 
 	private static ComponentServiceObjects<BlogPostingResource>
@@ -4441,5 +4691,7 @@ public class Mutation {
 	private BiFunction<Object, String, Sort[]> _sortsBiFunction;
 	private UriInfo _uriInfo;
 	private com.liferay.portal.kernel.model.User _user;
+	private VulcanBatchEngineImportTaskResource
+		_vulcanBatchEngineImportTaskResource;
 
 }

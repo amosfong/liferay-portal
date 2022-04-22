@@ -32,28 +32,10 @@ public class ObjectFieldSettingUtil {
 				objectFieldSettingLocalService.createObjectFieldSetting(0L);
 
 		serviceBuilderObjectFieldSetting.setName(objectFieldSetting.getName());
-		serviceBuilderObjectFieldSetting.setRequired(
-			objectFieldSetting.getRequired());
 		serviceBuilderObjectFieldSetting.setValue(
 			objectFieldSetting.getValue());
 
 		return serviceBuilderObjectFieldSetting;
-	}
-
-	public static ObjectFieldSetting toObjectFieldSetting(
-		com.liferay.object.model.ObjectFieldSetting
-			serviceBuilderObjectFieldSetting) {
-
-		return new ObjectFieldSetting() {
-			{
-				id = serviceBuilderObjectFieldSetting.getObjectFieldSettingId();
-				name = serviceBuilderObjectFieldSetting.getName();
-				objectFieldId =
-					serviceBuilderObjectFieldSetting.getObjectFieldId();
-				required = serviceBuilderObjectFieldSetting.getRequired();
-				value = serviceBuilderObjectFieldSetting.getValue();
-			}
-		};
 	}
 
 }

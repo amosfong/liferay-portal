@@ -12,79 +12,81 @@
  * details.
  */
 
-import ClayForm from '@clayui/form';
 import ClayLocalizedInput from '@clayui/localized-input';
 import classNames from 'classnames';
 import React from 'react';
 
-import ErrorFeedback from '../ErrorFeedback';
-import RequiredMask from '../RequiredMask';
+import FieldBase from '../FieldBase';
 
 import './InputLocalized.scss';
 
-const InputLocalized: React.FC<IInputLocalizedProps> = ({
-	className,
-	disabled = false,
+const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+
+export default function InputLocalized({
+	disabled,
 	error,
 	id,
 	label,
 	locales,
+	name,
 	onSelectedLocaleChange,
 	onTranslationsChange,
-	required = false,
+	required,
 	selectedLocale,
 	translations,
 	...otherProps
-}) => {
+}: IProps) {
 	return (
-		<ClayForm.Group
-			className={classNames(className, 'input-localized', {
-				'has-error': error,
-			})}
+		<FieldBase
+			className="lfr-objects__input-localized"
+			disabled={disabled}
+			errorMessage={error}
+			id={id}
+			label={label}
+			required={required}
 		>
-			<label className={classNames({disabled})} htmlFor={id}>
-				{label}
-
-				{required && <RequiredMask />}
-			</label>
-
 			<ClayLocalizedInput
 				{...otherProps}
+				className={classNames({
+					'lfr-objects__input-localized--rtl':
+
+						// @ts-ignore
+
+						Liferay.Language.direction[selectedLocale.label] ===
+						'rtl',
+				})}
+				disabled={disabled}
 				id={id}
 				label=""
-				locales={locales}
+				locales={locales.sort((a) =>
+					a.label === defaultLanguageId ? -1 : 1
+				)}
+				name={name}
 				onSelectedLocaleChange={onSelectedLocaleChange}
 				onTranslationsChange={onTranslationsChange}
 				selectedLocale={selectedLocale}
 				translations={translations}
 			/>
-
-			{error && <ErrorFeedback error={error} />}
-		</ClayForm.Group>
+		</FieldBase>
 	);
-};
+}
 
-interface IInputLocalizedProps {
+interface ILocale {
+	label: string;
+	symbol: string;
+}
+
+interface IProps {
 	className?: string;
 	disabled?: boolean;
 	error?: string;
-	id: string;
+	id?: string;
 	label: string;
-	locales: TLocale[];
-	onSelectedLocaleChange: (value: TLocale) => void;
-	onTranslationsChange: (value: TTranslations) => void;
+	locales: ILocale[];
+	name?: string;
+	onSelectedLocaleChange: (value: ILocale) => void;
+	onTranslationsChange: (value: LocalizedValue<string>) => void;
 	required?: boolean;
-	selectedLocale: TLocale;
-	translations: TTranslations;
+	selectedLocale: ILocale;
+	translations: LocalizedValue<string>;
 }
-
-type TTranslations = {
-	[key: string]: string;
-};
-
-type TLocale = {
-	label: string;
-	symbol: string;
-};
-
-export default InputLocalized;

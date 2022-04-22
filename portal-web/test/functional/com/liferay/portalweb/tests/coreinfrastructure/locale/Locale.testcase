@@ -63,6 +63,37 @@ definition {
 		Form.save(localeSaveForm = "Guardar");
 	}
 
+	@priority = "4"
+	test CanChangeDefaultCompanyLocale {
+		property test.name.skip.portal.instance = "Locale#CanChangeDefaultCompanyLocale";
+
+		User.firstLoginPG();
+
+		ContentPages.viewFragmentText(
+			fragmentName = "heading",
+			id = "element-text",
+			text = "Welcome to Liferay");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Instance Settings");
+
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Localization",
+			configurationName = "Language",
+			configurationScope = "Virtual Instance Scope");
+
+		PortalSettings.configureCurrentLanguagesCP(defaultPortalLanguage = "Spanish (Spain)");
+
+		User.logoutPG();
+
+		ContentPages.viewFragmentText(
+			fragmentName = "heading",
+			id = "element-text",
+			text = "Bienvenido a Liferay");
+	}
+
 	@priority = "3"
 	test CannotAccessDisabledLocale {
 		property custom.properties = "locales.enabled=en_US,zh_CN,es_ES,fr_FR";
@@ -163,7 +194,7 @@ definition {
 
 		Navigator.openWithAppendToBaseURL(urlAppend = "web/guest");
 
-		AssertLocation(value1 = "http://localhost:8080/en/web/guest");
+		AssertLocation(value1 = "http://localhost:8080/fr/web/guest");
 	}
 
 	@priority = "4"
@@ -236,6 +267,52 @@ definition {
 		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
 
 		Portlet.viewTitle(portletName = "IFrame");
+	}
+
+	@priority = "3"
+	test InstanceCreatedOnRestartPickUpNewCompanyLocale {
+		property test.name.skip.portal.instance = "Locale#InstanceCreatedOnRestartPickUpNewCompanyLocale";
+
+		User.firstLoginPG();
+
+		ContentPages.viewFragmentText(
+			fragmentName = "heading",
+			id = "element-text",
+			text = "Welcome to Liferay");
+
+		Portlet.shutdownServer();
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "portal-ext-properties-update -Dadd.new.properties=true -Dupdate.properties=company.default.locale=es_ES");
+
+		Portlet.startServer(deleteLiferayHome = "false");
+
+		HeadlessPortalInstanceAPI.addPortalInstance(
+			domain = "www.able.com",
+			portalInstanceId = "www.able.com",
+			virtualHost = "www.able.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "System",
+			panel = "Control Panel",
+			portlet = "Virtual Instances");
+
+		PortalInstances.viewCP(virtualHost = "www.able.com");
+
+		User.firstLoginUI(
+			localization = "ES",
+			localizedAgree = "Acepto",
+			localizedAnswer = "Respuesta",
+			localizedSaveButton = "Guardar",
+			password = "test",
+			specificURL = "http://www.able.com:8080",
+			userEmailAddress = "test@www.able.com");
+
+		ContentPages.viewFragmentText(
+			fragmentName = "heading",
+			id = "element-text",
+			text = "Bienvenido a Liferay");
 	}
 
 	@priority = "3"
@@ -766,7 +843,7 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Test Page");
+		PagesAdmin.addPage(pageName = "Test Page");
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",

@@ -54,7 +54,7 @@ public interface DLConfiguration {
 	 * default display templates for the Document Library portlet.
 	 */
 	@Meta.AD(
-		deflt = "com/liferay/document/library/web/template/dependencies/portlet-display-templates.xml",
+		deflt = "com/liferay/document/library/web/portlet/display/template/dependencies/portlet-display-templates.xml",
 		name = "display-templates-config", required = false
 	)
 	public String displayTemplatesConfig();
@@ -64,12 +64,6 @@ public interface DLConfiguration {
 		name = "file-extensions", required = false
 	)
 	public String[] fileExtensions();
-
-	@Meta.AD(
-		deflt = "0", description = "file-max-size-help",
-		name = "maximum-file-size", required = false
-	)
-	public long fileMaxSize();
 
 	@Meta.AD(
 		deflt = "audio|image|video", name = "multimedia-file-mime-types",

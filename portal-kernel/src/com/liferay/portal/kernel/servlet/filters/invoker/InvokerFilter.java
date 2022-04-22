@@ -26,7 +26,7 @@ import com.liferay.portal.kernel.servlet.NonSerializableObjectRequestWrapper;
 import com.liferay.portal.kernel.servlet.SanitizedServletResponse;
 import com.liferay.portal.kernel.util.BasePortalLifecycle;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -241,16 +241,6 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 		return uri;
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #getURI(String)}
-	 */
-	@Deprecated
-	protected String getURI(
-		HttpServletRequest httpServletRequest, String originalURI) {
-
-		return getURI(originalURI);
-	}
-
 	protected String getURI(String originalURI) {
 		if (Validator.isNotNull(_contextPath) &&
 			!_contextPath.equals(StringPool.SLASH) &&
@@ -259,7 +249,7 @@ public class InvokerFilter extends BasePortalLifecycle implements Filter {
 			originalURI = originalURI.substring(_contextPath.length());
 		}
 
-		return HttpUtil.normalizePath(originalURI);
+		return HttpComponentsUtil.normalizePath(originalURI);
 	}
 
 	protected boolean handleLongRequestURL(

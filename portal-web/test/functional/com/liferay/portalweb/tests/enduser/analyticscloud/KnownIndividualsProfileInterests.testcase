@@ -47,7 +47,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertIndividualsinterestActivePages {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9152
@@ -95,7 +94,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertIndividualsInterestInactivePages {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9151
@@ -139,7 +137,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test InterestsAssociatedWithIndividualAppearInList {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-9151

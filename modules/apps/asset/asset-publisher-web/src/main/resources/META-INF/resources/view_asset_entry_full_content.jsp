@@ -57,7 +57,7 @@ if (print) {
 	viewFullContentURL.setParameter("viewMode", Constants.PRINT);
 }
 
-String viewInContextURL = assetRenderer.getURLViewInContext(liferayPortletRequest, liferayPortletResponse, HttpUtil.setParameter(viewFullContentURL.toString(), "redirect", currentURL));
+String viewInContextURL = assetRenderer.getURLViewInContext(liferayPortletRequest, liferayPortletResponse, HttpComponentsUtil.setParameter(viewFullContentURL.toString(), "redirect", currentURL));
 
 Map<String, Object> fragmentsEditorData = HashMapBuilder.<String, Object>put(
 	"fragments-editor-item-id", PortalUtil.getClassNameId(assetRenderer.getClassName()) + "-" + assetRenderer.getClassPK()
@@ -270,7 +270,7 @@ Map<String, Object> fragmentsEditorData = HashMapBuilder.<String, Object>put(
 	%>
 
 	<c:if test="<%= showContextLink || showRatings || assetPublisherDisplayContext.isEnableFlags() || assetPublisherDisplayContext.isEnablePrint() || Validator.isNotNull(assetPublisherDisplayContext.getSocialBookmarksTypes()) %>">
-		<div class="separator"><!-- --></div>
+		<hr class="separator" />
 
 		<clay:content-row
 			cssClass="asset-details"
@@ -403,7 +403,7 @@ Map<String, Object> fragmentsEditorData = HashMapBuilder.<String, Object>put(
 	%>
 
 	<c:if test="<%= showConversions || showLocalization %>">
-		<div class="separator"><!-- --></div>
+		<hr class="separator" />
 
 		<clay:content-row
 			cssClass="asset-details"

@@ -52,7 +52,6 @@ import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferenceValueLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
@@ -162,7 +161,7 @@ public class LayoutPageTemplatesImporterTest {
 		Assert.assertNotNull(layoutPageTemplateStructure);
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(0));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem layoutStructureItem =
 			_getMainChildLayoutStructureItem(layoutStructure);
@@ -199,7 +198,7 @@ public class LayoutPageTemplatesImporterTest {
 		Assert.assertNotNull(layoutPageTemplateStructure);
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(0));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem layoutStructureItem =
 			_getMainChildLayoutStructureItem(layoutStructure);
@@ -252,7 +251,7 @@ public class LayoutPageTemplatesImporterTest {
 		Assert.assertNotNull(layoutPageTemplateStructure);
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(0));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem layoutStructureItem =
 			_getMainChildLayoutStructureItem(layoutStructure);
@@ -318,7 +317,7 @@ public class LayoutPageTemplatesImporterTest {
 		Assert.assertNotNull(layoutPageTemplateStructure);
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(0));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem layoutStructureItem =
 			_getMainChildLayoutStructureItem(layoutStructure);
@@ -346,16 +345,13 @@ public class LayoutPageTemplatesImporterTest {
 
 		Assert.assertNotNull(instanceId);
 
-		PortletPreferences portletPreferences =
-			_portletPreferencesLocalService.fetchPortletPreferences(
-				PortletKeys.PREFS_OWNER_ID_DEFAULT,
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
-				layoutPageTemplateEntry.getPlid(),
-				PortletIdCodec.encode(portletId, instanceId));
-
 		javax.portlet.PortletPreferences jxPortletPreferences =
 			_portletPreferenceValueLocalService.getPreferences(
-				portletPreferences);
+				_portletPreferencesLocalService.fetchPortletPreferences(
+					PortletKeys.PREFS_OWNER_ID_DEFAULT,
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+					layoutPageTemplateEntry.getPlid(),
+					PortletIdCodec.encode(portletId, instanceId)));
 
 		Assert.assertEquals(
 			configProperty1,
@@ -612,11 +608,9 @@ public class LayoutPageTemplatesImporterTest {
 			_getLayoutPageTemplateEntry(
 				layoutPageTemplatesImporterResultEntries, 0);
 
-		FileEntry portletFileEntry =
+		Assert.assertNotNull(
 			PortletFileRepositoryUtil.getPortletFileEntry(
-				layoutPageTemplateEntry.getPreviewFileEntryId());
-
-		Assert.assertNotNull(portletFileEntry);
+				layoutPageTemplateEntry.getPreviewFileEntryId()));
 	}
 
 	private void _addZipWriterEntry(
@@ -692,7 +686,7 @@ public class LayoutPageTemplatesImporterTest {
 		Assert.assertNotNull(layoutPageTemplateStructure);
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(0));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem layoutStructureItem =
 			_getMainChildLayoutStructureItem(layoutStructure);

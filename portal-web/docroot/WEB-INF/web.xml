@@ -59,8 +59,10 @@
 			<url-pattern>/ca/c/portal/protected</url-pattern>
 			<url-pattern>/ca-AD/c/portal/protected</url-pattern>
 			<url-pattern>/ca-ES/c/portal/protected</url-pattern>
+			<url-pattern>/ca-ES_VALENCIA/c/portal/protected</url-pattern>
 			<url-pattern>/ca_AD/c/portal/protected</url-pattern>
 			<url-pattern>/ca_ES/c/portal/protected</url-pattern>
+			<url-pattern>/ca_ES_VALENCIA/c/portal/protected</url-pattern>
 			<url-pattern>/cs/c/portal/protected</url-pattern>
 			<url-pattern>/cs-CZ/c/portal/protected</url-pattern>
 			<url-pattern>/cs_CZ/c/portal/protected</url-pattern>

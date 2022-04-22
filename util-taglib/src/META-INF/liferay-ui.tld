@@ -657,6 +657,12 @@
 			<type>boolean</type>
 		</attribute>
 		<attribute>
+			<description>A CSS class for styling the dropdown.</description>
+			<name>dropdownCssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>Whether to extend the icon menu trigger by wrapping it in a button. The default value is <![CDATA[<code>true</code>]]>.</description>
 			<name>extended</name>
 			<required>false</required>
@@ -2902,6 +2908,12 @@
 		<tag-class>com.liferay.taglib.ui.SearchContainerResultsTag</tag-class>
 		<tei-class>com.liferay.taglib.ui.SearchContainerResultsTei</tei-class>
 		<body-content>JSP</body-content>
+		<attribute>
+			<name>calculateStartAndEnd</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
 		<attribute>
 			<description>A list of objects to display in the search container.</description>
 			<name>results</name>

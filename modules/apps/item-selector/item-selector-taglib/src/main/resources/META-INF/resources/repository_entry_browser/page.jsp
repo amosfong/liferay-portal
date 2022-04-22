@@ -27,6 +27,7 @@ List<String> extensions = (List)request.getAttribute("liferay-item-selector:repo
 String itemSelectedEventName = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectedEventName"));
 ItemSelectorReturnTypeResolver<?, FileEntry> itemSelectorReturnTypeResolver = (ItemSelectorReturnTypeResolver<?, FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:itemSelectorReturnTypeResolver");
 long maxFileSize = GetterUtil.getLong(request.getAttribute("liferay-item-selector:repository-entry-browser:maxFileSize"));
+String mimeTypeRestriction = GetterUtil.getString(request.getAttribute("liferay-item-selector:repository-entry-browser:mimeTypeRestriction"));
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:portletURL");
 List<FileEntry> repositoryEntries = (List<FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
 int repositoryEntriesCount = GetterUtil.getInteger(request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntriesCount"));
@@ -114,7 +115,7 @@ SearchContainer<?> searchContainer = new SearchContainer(renderRequest, itemSele
 		/>
 	</c:if>
 
-	<c:if test="<%= showDragAndDropZone && !showSearchInfo && DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.ADD_DOCUMENT) %>">
+	<c:if test="<%= showDragAndDropZone && !showSearchInfo %>">
 		<c:choose>
 			<c:when test="<%= FFItemSelectorSingleFileUploaderConfigurationUtil.enabled() %>">
 				<div class="dropzone-wrapper <%= (repositoryEntriesCount == 0) ? "dropzone-wrapper-search-container-empty" : StringPool.BLANK %>">
@@ -137,6 +138,8 @@ SearchContainer<?> searchContainer = new SearchContainer(renderRequest, itemSele
 								"itemSelectedEventName", itemSelectedEventName
 							).put(
 								"maxFileSize", maxFileSize
+							).put(
+								"mimeTypeRestriction", mimeTypeRestriction
 							).put(
 								"uploadItemReturnType", HtmlUtil.escapeAttribute(returnType)
 							).put(
@@ -174,7 +177,7 @@ SearchContainer<?> searchContainer = new SearchContainer(renderRequest, itemSele
 
 	<c:if test="<%= (existingFileEntryReturnType != null) || (itemSelectorReturnTypeResolver != null) %>">
 		<liferay-ui:search-container
-			cssClass='<%= displayStyle.equals("list") ? "main-content-body" : StringPool.BLANK %>'
+			cssClass='<%= displayStyle.equals("list") ? "main-content-body mt-4" : StringPool.BLANK %>'
 			searchContainer="<%= searchContainer %>"
 			total="<%= repositoryEntriesCount %>"
 			var="listSearchContainer"

@@ -62,8 +62,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8483 | Test Summary: Add members from different pages"
 	@priority = "3"
 	test CanAddMembersFromDifferentPages {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "user1,user2,user3,user4,user5";
 		var emailList = "userea@liferay.com,user1@liferay.com,user2@liferay.com,user3@liferay.com,user4@liferay.com,user5@liferay.com";
 
@@ -211,10 +209,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8477 | Test Summary: Cancel creating a static segment"
 	@priority = "3"
 	test CanCancelCreatingStaticSegment {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9707
-
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
@@ -265,7 +259,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8478 | Test Summary: Create a Dynamic Individuals Segment By Date"
 	@priority = "4"
 	test CanCreateDynamicIndividualsSegmentByDate {
-		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateDynamicIndividualsSegmentByDate";
 
 		var fullNameList = "userfn userln,user1 user1";
@@ -360,6 +353,10 @@ definition {
 	@priority = "4"
 	test CanCreateDynamicSegmentWithIndividualCriteriaUsesBooleanAndDoesNotContain {
 		property portal.upstream = "quarantine";
+
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
 		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateDynamicSegmentWithIndividualCriteriaUsesBooleanAndDoesNotContain";
 
 		var usernameList = "user1,user2,user3";
@@ -476,6 +473,10 @@ definition {
 	@priority = "4"
 	test CanCreateDynamicSegmentWithIndividualCriteriaUsesIsKnownAndIsNot {
 		property portal.upstream = "quarantine";
+
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
 		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateDynamicSegmentWithIndividualCriteriaUsesIsKnownAndIsNot";
 
 		var usernameList = "user1,user2,user3";
@@ -593,6 +594,8 @@ definition {
 	test CanCreateDynamicSegmentWithIndividuals {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: Segment membership takes long time to load LRAC-10769
+
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
@@ -644,6 +647,8 @@ definition {
 	@priority = "5"
 	test CanCreateDynamicSegmentWithIndividualsUseUnknown {
 		property portal.upstream = "quarantine";
+
+		// AC Quarantine Reason: Segment membership takes long time to load LRAC-10769
 
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
@@ -697,7 +702,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8482 | Test Summary: Create a nested criteria"
 	@priority = "3"
 	test CanCreateNestedCriteria {
-		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateNestedCriteria";
 
 		// AC Refactor ticket: LRAC-9707
@@ -940,6 +944,11 @@ definition {
 	test CanCreateSegmentWithNumberProperty {
 		property portal.upstream = "quarantine";
 
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateSegmentWithNumberProperty";
+
 		var usernameList = "user1,user2,user3";
 		var emailList = "user1@liferay.com,user2@liferay.com,user3@liferay.com";
 		var membershipList = "user1 user1,user3 user3";
@@ -1043,7 +1052,7 @@ definition {
 	@description = "Create a static segment with individual"
 	@priority = "5"
 	test CanCreateStaticSegmentWithIndividuals {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreation#CanCreateStaticSegmentWithIndividuals";
 
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
@@ -1091,6 +1100,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8474 | Test Summary: Duplicate a criteria"
 	@priority = "3"
 	test CanDuplicateCriteria {
+		property test.name.skip.portal.instance = "SegmentsCreation#CanDuplicateCriteria";
+
 		task ("Switch to new property in AC") {
 			ACUtils.launchAC();
 
@@ -1160,6 +1171,11 @@ definition {
 	@priority = "3"
 	test CanPaginateSegmentProfileInMembershipList {
 		property portal.upstream = "quarantine";
+
+		// AC Quarantine Reason: The membership list takes a long time to update
+		// AC Refactor ticket: LRAC-10769
+
+		property test.name.skip.portal.instance = "SegmentsCreation#CanPaginateSegmentProfileInMembershipList";
 
 		var usernameList = "user1,user2,user3,user4,user5";
 		var emailList = "userea@liferay.com,user1@liferay.com,user2@liferay.com,user3@liferay.com,user4@liferay.com,user5@liferay.com";
@@ -1257,9 +1273,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8472 | Test Summary: Paginate static segment 'Add Members' creation model"
 	@priority = "3"
 	test CanPaginateStaticSegmentAddMembers {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9707
+		property test.name.skip.portal.instance = "SegmentsCreation#CanPaginateStaticSegmentAddMembers";
 
 		var usernameList = "user1,user2,user3,user4,user5";
 		var emailList = "userea@liferay.com,user1@liferay.com,user2@liferay.com,user3@liferay.com,user4@liferay.com,user5@liferay.com";
@@ -1337,7 +1351,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8475 | Test Summary: Dynamic segment members preview in real time"
 	@priority = "3"
 	test CanPreviewDynamicSegmentMembers {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreation#CanPreviewDynamicSegmentMembers";
 
 		var emailList = "userea@liferay.com,user1@liferay.com";
 		var usernameList = "userfn userln,user1 user1";
@@ -1423,7 +1437,7 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8473 | Test Summary: Filter the Segment 'Add Members' Modal"
 	@priority = "3"
 	test CanSearchUserInAddMembersModal {
-		property portal.upstream = "quarantine";
+		property test.name.skip.portal.instance = "SegmentsCreation#CanSearchUserInAddMembersModal";
 
 		var emailList = "userea@liferay.com,user1@liferay.com";
 
@@ -1492,6 +1506,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8133 | Test Summary: Create button shows option to create static or dynamic"
 	@priority = "5"
 	test CanSeeOptionsToCreateStaticOrDynamicSegment {
+		property test.name.skip.portal.instance = "SegmentsCreation#CanSeeOptionsToCreateStaticOrDynamicSegment";
+
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",
@@ -1540,6 +1556,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8484 | Test Summary: Segment Form Validation"
 	@priority = "5"
 	test ViewSegmentFormValidation {
+		property test.name.skip.portal.instance = "SegmentsCreation#ViewSegmentFormValidation";
+
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "userea@liferay.com",

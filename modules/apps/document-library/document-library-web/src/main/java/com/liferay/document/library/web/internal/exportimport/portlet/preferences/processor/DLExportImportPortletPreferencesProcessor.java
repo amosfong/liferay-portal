@@ -21,7 +21,9 @@ import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.PortletDataHandler;
@@ -35,13 +37,21 @@ import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryReg
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portlet.documentlibrary.constants.DLConstants;
 
@@ -102,14 +112,24 @@ public class DLExportImportPortletPreferencesProcessor
 			try {
 				Folder folder = _getFolder(rootFolderId, portletDataContext);
 
-				portletPreferences.setValue(
-					"selectedRepositoryId",
-					String.valueOf(folder.getRepositoryId()));
+				if (folder != null) {
+					portletPreferences.setValue(
+						"selectedRepositoryId",
+						String.valueOf(folder.getRepositoryId()));
 
-				if (folder.getGroupId() == portletDataContext.getGroupId()) {
-					StagedModelDataHandlerUtil.exportReferenceStagedModel(
-						portletDataContext, portletDataContext.getPortletId(),
-						folder);
+					if ((folder.getGroupId() ==
+							portletDataContext.getGroupId()) ||
+						!ExportImportThreadLocal.isStagingInProcess()) {
+
+						StagedModelDataHandlerUtil.exportReferenceStagedModel(
+							portletDataContext,
+							portletDataContext.getPortletId(), folder);
+					}
+					else {
+						_saveStagingPreferencesMapping(
+							folder.getRepositoryId(), folder.getUuid(),
+							portletDataContext);
+					}
 				}
 
 				return portletPreferences;
@@ -126,6 +146,11 @@ public class DLExportImportPortletPreferencesProcessor
 
 		if (!_exportImportHelper.isExportPortletData(portletDataContext) ||
 			(selectedRepositoryId != portletDataContext.getGroupId())) {
+
+			if (ExportImportThreadLocal.isStagingInProcess()) {
+				_saveStagingPreferencesMapping(
+					selectedRepositoryId, null, portletDataContext);
+			}
 
 			return portletPreferences;
 		}
@@ -283,12 +308,45 @@ public class DLExportImportPortletPreferencesProcessor
 			PortletPreferences portletPreferences)
 		throws PortletDataException {
 
+		JSONObject stagingPreferencesMappingJSONObject =
+			_fetchStagingPreferencesMappingJSONObject(portletDataContext);
+
+		if (stagingPreferencesMappingJSONObject != null) {
+			try {
+				long folderRepositoryId =
+					stagingPreferencesMappingJSONObject.getLong(
+						"folderRepositoryId");
+				String folderUuid =
+					stagingPreferencesMappingJSONObject.getString("folderUuid");
+
+				long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+
+				if (Validator.isNotNull(folderUuid)) {
+					DLFolder dlFolder =
+						_dlFolderLocalService.getDLFolderByUuidAndGroupId(
+							folderUuid, folderRepositoryId);
+
+					folderId = dlFolder.getFolderId();
+				}
+
+				portletPreferences.setValue(
+					"rootFolderId", String.valueOf(folderId));
+				portletPreferences.setValue(
+					"selectedRepositoryId", String.valueOf(folderRepositoryId));
+
+				return portletPreferences;
+			}
+			catch (PortalException | ReadOnlyException exception) {
+				throw new PortletDataException(exception);
+			}
+		}
+
 		// Root folder ID is set, only import that
 
 		long rootFolderId = GetterUtil.getLong(
 			portletPreferences.getValue("rootFolderId", null));
 
-		if (rootFolderId > 0) {
+		if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			Element foldersElement =
 				portletDataContext.getImportDataGroupElement(DLFolder.class);
 
@@ -314,9 +372,11 @@ public class DLExportImportPortletPreferencesProcessor
 					Folder folder = _getFolder(
 						importedRootFolderId, portletDataContext);
 
-					portletPreferences.setValue(
-						"selectedRepositoryId",
-						String.valueOf(folder.getRepositoryId()));
+					if (folder != null) {
+						portletPreferences.setValue(
+							"selectedRepositoryId",
+							String.valueOf(folder.getRepositoryId()));
+					}
 
 					return portletPreferences;
 				}
@@ -430,24 +490,98 @@ public class DLExportImportPortletPreferencesProcessor
 		return portletPreferences;
 	}
 
+	private JSONObject _fetchStagingPreferencesMappingJSONObject(
+			PortletDataContext portletDataContext)
+		throws PortletDataException {
+
+		try {
+			String stagingPreferencesMappingJSON =
+				portletDataContext.getZipEntryAsString(
+					String.format(
+						"%s/staging-preferences-mapping.json",
+						portletDataContext.getPortletId()));
+
+			if (Validator.isNull(stagingPreferencesMappingJSON)) {
+				return null;
+			}
+
+			return JSONFactoryUtil.createJSONObject(
+				stagingPreferencesMappingJSON);
+		}
+		catch (JSONException jsonException) {
+			throw new PortletDataException(jsonException);
+		}
+	}
+
 	private Folder _getFolder(
 			long folderId, PortletDataContext portletDataContext)
 		throws PortletDataException {
 
+		Folder folder = null;
+
 		try {
-			return _dlAppLocalService.getFolder(folderId);
+			folder = _dlAppLocalService.getFolder(folderId);
+
+			DLFolder dlFolder = _dlFolderLocalService.getDLFolder(folderId);
+
+			if (dlFolder.isInTrash()) {
+				return null;
+			}
 		}
 		catch (PortalException portalException) {
-			StringBundler sb = new StringBundler(4);
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					StringBundler.concat(
+						"Portlet ", portletDataContext.getPortletId(),
+						" refers to an invalid root folder ID ", folderId),
+					portalException);
+			}
+		}
 
-			sb.append("Portlet ");
-			sb.append(portletDataContext.getPortletId());
-			sb.append(" refers to an invalid root folder ID ");
-			sb.append(folderId);
+		return folder;
+	}
 
-			_log.error(sb.toString());
+	private long _getMirrorRepositoryId(long repositoryId) {
+		Group group = _groupLocalService.fetchGroup(repositoryId);
 
-			throw new PortletDataException(sb.toString(), portalException);
+		if (group == null) {
+			return repositoryId;
+		}
+
+		Group stagingGroup = group.getStagingGroup();
+
+		if (stagingGroup != null) {
+			return stagingGroup.getGroupId();
+		}
+
+		long liveGroupId = group.getLiveGroupId();
+
+		if (group.isStagedRemotely()) {
+			liveGroupId = group.getRemoteLiveGroupId();
+		}
+
+		if (liveGroupId == GroupConstants.DEFAULT_LIVE_GROUP_ID) {
+			liveGroupId = group.getGroupId();
+		}
+
+		return liveGroupId;
+	}
+
+	private void _saveStagingPreferencesMapping(
+		long folderRepositoryId, String folderUuid,
+		PortletDataContext portletDataContext) {
+
+		if (ExportImportThreadLocal.isStagingInProcess()) {
+			portletDataContext.addZipEntry(
+				String.format(
+					"%s/staging-preferences-mapping.json",
+					portletDataContext.getPortletId()),
+				JSONUtil.put(
+					"folderRepositoryId",
+					_getMirrorRepositoryId(folderRepositoryId)
+				).put(
+					"folderUuid", folderUuid
+				).toString());
 		}
 	}
 
@@ -461,6 +595,9 @@ public class DLExportImportPortletPreferencesProcessor
 	private DLCommentsAndRatingsExporterImporterCapability
 		_dlCommentsAndRatingsExporterImporterCapability;
 
+	@Reference
+	private DLFolderLocalService _dlFolderLocalService;
+
 	@Reference(
 		target = "(javax.portlet.name=" + DLPortletKeys.DOCUMENT_LIBRARY + ")"
 	)
@@ -471,6 +608,9 @@ public class DLExportImportPortletPreferencesProcessor
 
 	@Reference
 	private ExportImportHelper _exportImportHelper;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference(target = "(name=PortletDisplayTemplateImporter)")
 	private Capability _importCapability;

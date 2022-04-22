@@ -83,6 +83,17 @@ public class ModuleApplicationContextRegistrator {
 		_registerDataSource();
 	}
 
+	public void stop() {
+		ApplicationContextServicePublisherUtil.unregisterContext(
+			_serviceRegistrations);
+
+		if (_dataSourceServiceRegistration != null) {
+			_dataSourceServiceRegistration.unregister();
+
+			_dataSourceServiceRegistration = null;
+		}
+	}
+
 	protected void start() throws Exception {
 		try {
 			_moduleApplicationContext.refresh();

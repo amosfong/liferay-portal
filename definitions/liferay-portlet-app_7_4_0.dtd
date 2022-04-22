@@ -19,15 +19,15 @@ indexer-class*, open-search-class?, scheduler-entry*, portlet-url-class?,
 friendly-url-mapper-class?, friendly-url-mapping?, friendly-url-routes?,
 url-encoder-class?, portlet-data-handler-class?,
 staged-model-data-handler-class*, template-handler?,
-portlet-layout-listener-class?, poller-processor-class?,
-pop-message-listener-class?, social-activity-interpreter-class*,
-social-request-interpreter-class?, user-notification-definitions?,
-user-notification-handler-class*, webdav-storage-token?, webdav-storage-class?,
-xml-rpc-method-class?, application-type*, control-panel-entry-category?,
-control-panel-entry-weight?, control-panel-entry-class?,
-asset-renderer-factory*, atom-collection-adapter*, custom-attributes-display*,
-permission-propagator?, trash-handler*, workflow-handler*,
-preferences-company-wide?, preferences-unique-per-layout?,
+portlet-configuration-listener-class?, portlet-layout-listener-class?,
+poller-processor-class?, pop-message-listener-class?,
+social-activity-interpreter-class*, social-request-interpreter-class?,
+user-notification-definitions?, user-notification-handler-class*,
+webdav-storage-token?, webdav-storage-class?, xml-rpc-method-class?,
+application-type*, control-panel-entry-category?, control-panel-entry-weight?,
+control-panel-entry-class?, asset-renderer-factory*, atom-collection-adapter*,
+custom-attributes-display*, permission-propagator?, trash-handler*,
+workflow-handler*, preferences-company-wide?, preferences-unique-per-layout?,
 preferences-owned-by-group?, use-default-template?, show-portlet-access-denied?,
 show-portlet-inactive?, action-url-redirect?, restore-current-view?,
 maximize-edit?, maximize-help?, pop-up-print?, layout-cacheable?, instanceable?,
@@ -253,6 +253,8 @@ com.liferay.portal.kernel.lar.StagedModelDatahandler and is called to handle
 export and import logic for a staged model entity.
 -->
 <!ELEMENT staged-model-data-handler-class (#PCDATA)>
+
+<!ELEMENT portlet-configuration-listener-class (#PCDATA)>
 
 <!--
 The portlet-layout-listener-class value must be a class that implements

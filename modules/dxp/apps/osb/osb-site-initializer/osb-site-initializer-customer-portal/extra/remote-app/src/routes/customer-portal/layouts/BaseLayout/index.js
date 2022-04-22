@@ -12,7 +12,8 @@
 import {useCallback, useEffect, useRef} from 'react';
 import {Outlet, useLocation} from 'react-router-dom';
 import ProjectSupport from '../../components/ProjectSupport';
-import GenerateNewDXPKey from '../../containers/GenerateNewDXPKey';
+import DeactivateKeysTable from '../../containers/DeactivateKeysTable';
+import GenerateNewKey from '../../containers/GenerateNewKey';
 import QuickLinksPanel from '../../containers/QuickLinksPanel';
 import SideMenu from '../../containers/SideMenu';
 import {useCustomerPortal} from '../../context';
@@ -26,7 +27,8 @@ const PAGE_SKELETON_LAYOUT = {
 	[PAGE_TYPES.commerce]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.dxp]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.dxpCloud]: <ActivationKeys.Skeleton />,
-	[PAGE_TYPES.dxpNew]: <GenerateNewDXPKey.Skeleton />,
+	[PAGE_TYPES.dxpNew]: <GenerateNewKey.Skeleton />,
+	[PAGE_TYPES.dxpDeactivate]: <DeactivateKeysTable.Skeleton />,
 	[PAGE_TYPES.enterpriseSearch]: <ActivationKeys.Skeleton />,
 	[PAGE_TYPES.overview]: <Overview.Skeleton />,
 	[PAGE_TYPES.teamMembers]: <ActivationKeys.Skeleton />,
@@ -74,9 +76,14 @@ const Layout = () => {
 
 	const hasQuickLinksPanel =
 		currentPage !== PAGE_TYPES.teamMembers &&
-		currentProduct !== PAGE_TYPES.dxpNew;
+		currentProduct !== PAGE_TYPES.dxpNew &&
+		currentProduct !== PAGE_TYPES.portalNew &&
+		currentProduct !== PAGE_TYPES.dxpDeactivate;
 
-	const hasSideMenu = getCurrentProduct() !== PAGE_TYPES.dxpNew;
+	const hasSideMenu =
+		getCurrentProduct() !== PAGE_TYPES.dxpNew &&
+		getCurrentProduct() !== PAGE_TYPES.portalNew &&
+		currentProduct !== PAGE_TYPES.dxpDeactivate;
 
 	if (!project || !sessionId || !subscriptionGroups || !userAccount) {
 		return (
@@ -96,7 +103,11 @@ const Layout = () => {
 			{hasSideMenu && (
 				<SideMenu
 					getCurrentPage={getCurrentPage}
-					subscriptionGroups={subscriptionGroups}
+					subscriptionGroups={[...(subscriptionGroups || [])].sort(
+						(previousSubscriptionGroup, nextSubscriptionGroup) =>
+							previousSubscriptionGroup.menuOrder -
+							nextSubscriptionGroup.menuOrder
+					)}
 				/>
 			)}
 

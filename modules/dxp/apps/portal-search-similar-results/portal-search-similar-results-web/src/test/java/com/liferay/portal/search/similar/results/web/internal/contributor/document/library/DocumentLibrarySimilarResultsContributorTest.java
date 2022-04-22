@@ -16,10 +16,8 @@ package com.liferay.portal.search.similar.results.web.internal.contributor.docum
 
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.search.similar.results.web.internal.builder.DestinationBuilderImpl;
 import com.liferay.portal.search.similar.results.web.internal.builder.RouteBuilderImpl;
-import com.liferay.portal.search.similar.results.web.internal.builder.TestHttp;
 import com.liferay.portal.search.similar.results.web.internal.helper.HttpHelperImpl;
 import com.liferay.portal.search.similar.results.web.spi.contributor.SimilarResultsContributor;
 import com.liferay.portal.search.similar.results.web.spi.contributor.helper.DestinationHelper;
@@ -83,7 +81,7 @@ public class DocumentLibrarySimilarResultsContributorTest {
 		DestinationHelper destinationHelper) {
 
 		DestinationBuilderImpl destinationBuilderImpl =
-			new DestinationBuilderImpl(urlString, _http);
+			new DestinationBuilderImpl(urlString);
 
 		similarResultsContributor.writeDestination(
 			destinationBuilderImpl, destinationHelper);
@@ -99,15 +97,9 @@ public class DocumentLibrarySimilarResultsContributorTest {
 				new DocumentLibrarySimilarResultsContributor();
 
 		documentLibrarySimilarResultsContributor.setHttpHelper(
-			new HttpHelperImpl() {
-				{
-					setHttp(TestHttp.getInstance());
-				}
-			});
+			new HttpHelperImpl());
 
 		return documentLibrarySimilarResultsContributor;
 	}
-
-	private final Http _http = TestHttp.getInstance();
 
 }

@@ -12,24 +12,29 @@
  * details.
  */
 
+import {useParams} from 'react-router-dom';
+
 import Container from '../../../components/Layout/Container';
 import ListView from '../../../components/ListView/ListView';
 import ProgressBar from '../../../components/ProgressBar';
-import {getTestrayRoutines} from '../../../graphql/queries';
+import {getRoutines} from '../../../graphql/queries';
 import i18n from '../../../i18n';
-import {progress} from '../../../util/mock';
+import {getTimeFromNow} from '../../../util/date';
 import RoutineModal from './RoutineModal';
 import useRoutineActions from './useRoutineActions';
 
 const Routines = () => {
+	const {projectId} = useParams();
 	const {actions, formModal} = useRoutineActions();
 
 	return (
 		<Container title={i18n.translate('routines')}>
 			<ListView
 				forceRefetch={formModal.forceRefetch}
-				managementToolbarProps={{addButton: formModal.modal.open}}
-				query={getTestrayRoutines}
+				managementToolbarProps={{
+					addButton: () => formModal.modal.open(),
+				}}
+				query={getRoutines}
 				tableProps={{
 					actions,
 					columns: [
@@ -39,24 +44,55 @@ const Routines = () => {
 							value: i18n.translate('routine'),
 						},
 						{
-							key: 'execution_date',
+							clickable: true,
+							key: 'dateCreated',
+							render: getTimeFromNow,
 							value: i18n.translate('execution-date'),
 						},
-						{key: 'failed', value: i18n.translate('failed')},
-						{key: 'blocked', value: i18n.translate('blocked')},
-						{key: 'test_fix', value: i18n.translate('test-fix')},
 						{
+							clickable: true,
+							key: 'failed',
+							render: () => 0,
+							value: i18n.translate('failed'),
+						},
+						{
+							clickable: true,
+							key: 'blocked',
+							render: () => 0,
+							value: i18n.translate('blocked'),
+						},
+						{
+							clickable: true,
+							key: 'test_fix',
+							render: () => 0,
+							value: i18n.translate('test-fix'),
+						},
+						{
+							clickable: true,
 							key: 'metrics',
-							render: () => <ProgressBar items={progress[0]} />,
+							render: () => (
+								<ProgressBar
+									items={{
+										blocked: 0,
+										failed: 1,
+										passed: 70,
+									}}
+								/>
+							),
+							size: 'sm',
 							value: i18n.translate('metrics'),
 						},
 					],
 					navigateTo: ({id}) => id?.toString(),
 				}}
-				transformData={(data) => data?.c?.testrayRoutines}
+				transformData={(data) => data?.c?.routines}
+				variables={{filter: `projectId eq ${projectId}`}}
 			/>
 
-			<RoutineModal modal={formModal.modal} />
+			<RoutineModal
+				modal={formModal.modal}
+				projectId={Number(projectId)}
+			/>
 		</Container>
 	);
 };

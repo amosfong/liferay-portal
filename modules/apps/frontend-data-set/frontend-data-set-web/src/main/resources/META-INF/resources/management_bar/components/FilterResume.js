@@ -17,11 +17,14 @@ import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 
-import {Filter} from './filters/index';
+import DataSetContext from '../../DataSetContext';
+import Filter from './filters/Filter';
 
 function FilterResume(props) {
+	const {setFilters} = useContext(DataSetContext);
+
 	const [open, setOpen] = useState(false);
 
 	const label = (
@@ -34,7 +37,20 @@ function FilterResume(props) {
 			closeButtonProps={{
 				className: 'filter-resume-close',
 				disabled: props.disabled,
-				onClick: () => props.updateFilterState(props.id),
+				onClick: () => {
+					setFilters((filters) => {
+						return filters.map((filter) => ({
+							...filter,
+							...(filter.id === props.id
+								? {
+										active: false,
+										odataFilterString: undefined,
+										selectedData: undefined,
+								  }
+								: {}),
+						}));
+					});
+				},
 			}}
 			role="button"
 		>
@@ -45,7 +61,7 @@ function FilterResume(props) {
 				/>
 
 				<div className="label-section">
-					{props.label}: {props.formattedValue}
+					{props.label}: {props.selectedItemsLabel}
 				</div>
 			</div>
 		</ClayLabel>
@@ -69,9 +85,12 @@ function FilterResume(props) {
 
 FilterResume.propTypes = {
 	disabled: PropTypes.bool,
-	formattedValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 	id: PropTypes.string,
 	label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+	selectedItemsLabel: PropTypes.oneOfType([
+		PropTypes.string,
+		PropTypes.number,
+	]),
 };
 
 export default FilterResume;

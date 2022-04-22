@@ -57,7 +57,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.InheritableMap;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -65,7 +65,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
+import com.liferay.portal.kernel.workflow.permission.WorkflowPermission;
 
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +117,8 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 
 			String portalURL = _portal.getPortalURL(httpServletRequest);
 
-			themeDisplay.setPortalDomain(_http.getDomain(portalURL));
+			themeDisplay.setPortalDomain(
+				HttpComponentsUtil.getDomain(portalURL));
 			themeDisplay.setPortalURL(portalURL);
 
 			themeDisplay.setScopeGroupId(groupId);
@@ -331,7 +332,8 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 			}
 		}
 
-		String queryString = _http.parameterMapToString(actualParams, false);
+		String queryString = HttpComponentsUtil.parameterMapToString(
+			actualParams, false);
 
 		if (layoutActualURL.contains(StringPool.QUESTION)) {
 			layoutActualURL =
@@ -425,7 +427,7 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 					WorkflowConstants.STATUS_PENDING);
 
 			if ((journalArticle != null) &&
-				!WorkflowPermissionUtil.hasPermission(
+				!_workflowPermission.hasPermission(
 					permissionChecker, groupId,
 					"com.liferay.journal.model.JournalArticle",
 					journalArticle.getId(), ActionKeys.VIEW)) {
@@ -473,7 +475,7 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 					groupId, normalizedUrlTitle,
 					WorkflowConstants.STATUS_PENDING);
 
-			if (!WorkflowPermissionUtil.hasPermission(
+			if (!_workflowPermission.hasPermission(
 					permissionChecker, groupId,
 					"com.liferay.journal.model.JournalArticle",
 					journalArticle.getId(), ActionKeys.VIEW)) {
@@ -569,9 +571,6 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
 	@Reference
-	private Http _http;
-
-	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;
 
 	@Reference
@@ -579,5 +578,8 @@ public class DefaultAssetDisplayPageFriendlyURLResolver
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private WorkflowPermission _workflowPermission;
 
 }

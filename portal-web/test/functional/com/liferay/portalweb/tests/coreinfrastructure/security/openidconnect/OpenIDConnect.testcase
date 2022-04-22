@@ -4,6 +4,7 @@ definition {
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "OpenID Connect";
+	property user.time.zone = "UTC";
 
 	setUp {
 		TestCase.setUpPortalInstance();
@@ -63,10 +64,9 @@ definition {
 	@description = "This is a use case for LPS-105151. Users could configure multiple OpenID Connect providers."
 	@priority = "4"
 	test ConfigureMultipleOpenIDConnectProviders {
-		property dummy.socket.proxy.disabled = "true";
-		property test.name.skip.portal.instance = "OpenIDConnect#MultipleOpenIDConnectProvider";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
 		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property test.name.skip.portal.instance = "OpenIDConnect#ConfigureMultipleOpenIDConnectProviders";
 
 		var openIdConnectClientId = PropsUtil.get("google.client.id.2");
 		var openIdConnectClientSecret = PropsUtil.get("google.client.secret.2");
@@ -218,7 +218,6 @@ definition {
 	@description = "This is a use case for LPS-105151. Users could login with instance-level configured OpenID Connect provider."
 	@priority = "4"
 	test OpenIDConnectOnInstanceLevelSmoke {
-		property dummy.socket.proxy.disabled = "true";
 		property portal.acceptance = "true";
 		property portal.ssl.enabled = "true";
 		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectOnInstanceLevelSmoke";
@@ -287,7 +286,6 @@ definition {
 	@description = "This is a use case for LRQA-40911. Users could login and logout using OpenID Connect provider."
 	@priority = "4"
 	test OpenIDConnectSmoke {
-		property dummy.socket.proxy.disabled = "true";
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmoke";
 
@@ -334,11 +332,10 @@ definition {
 	@description = "This is a use case for LRQA-72792. Users could login and logout using Auth0 as OpenID Connect provider."
 	@priority = "5"
 	test OpenIDConnectSmokeWithAuth0 {
-		property dummy.socket.proxy.disabled = "true";
-		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithAuth0";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
 		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}tokenRefreshOffset=&quot;120&quot;";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithAuth0";
 
 		var userEmailAddress = PropsUtil.get("openid.provider.auth0.test.account.email.address");
 		var userPassword = PropsUtil.get("openid.provider.auth0.test.account.password");
@@ -365,12 +362,11 @@ definition {
 	@description = "This is a use case for LRQA-72792. Users could login and logout using Azure as OpenID Connect provider. Blocked by LRQA-73513."
 	@priority = "5"
 	test OpenIDConnectSmokeWithAzure {
-		property dummy.socket.proxy.disabled = "true";
+		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
+		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}tokenRefreshOffset=&quot;120&quot;";
 		property portal.release = "quarantine";
 		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithAzure";
-		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}tokenRefreshOffset=&quot;120&quot;";
 
 		var userEmailAddress = PropsUtil.get("openid.provider.azure.test.account.email.address");
 		var userPassword = PropsUtil.get("openid.provider.azure.test.account.password");
@@ -397,11 +393,10 @@ definition {
 	@description = "This is a use case for LRQA-72792. Users could login and logout using Okta as OpenID Connect provider."
 	@priority = "5"
 	test OpenIDConnectSmokeWithOkta {
-		property dummy.socket.proxy.disabled = "true";
-		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithOkta";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
 		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}tokenRefreshOffset=&quot;120&quot;";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithOkta";
 
 		var userEmailAddress = PropsUtil.get("openid.provider.okta.test.account.email.address");
 		var userPassword = PropsUtil.get("openid.provider.okta.test.account.password");
@@ -428,11 +423,10 @@ definition {
 	@description = "This is a use case for LRQA-72792. Users could login and logout using PingOne as OpenID Connect provider."
 	@priority = "5"
 	test OpenIDConnectSmokeWithPingOne {
-		property dummy.socket.proxy.disabled = "true";
-		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithPingOne";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration.config";
 		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}tokenRefreshOffset=&quot;120&quot;";
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "OpenIDConnect#OpenIDConnectSmokeWithPingOne";
 
 		var userName = PropsUtil.get("openid.provider.pingone.test.account.username");
 		var userPassword = PropsUtil.get("openid.provider.pingone.test.account.password");
@@ -453,6 +447,70 @@ definition {
 
 		task ("Logout and login") {
 			User.logoutAndLoginPG();
+		}
+	}
+
+	@description = "This is a use case for LPS-148619. User could log in and log out using Google as OpenID Connect provider, using custom parameters for the connection."
+	test OpenIDConnectWithGoogleCustomParameters {
+		property dummy.socket.proxy.disabled = "true";
+		property test.name.skip.portal.instance = "OpenIDConnect#EnabledOpenIDConnectOnSystemLevel";
+
+		var customTokenRequestParameters = "resource=https://contacts.google.com";
+		var customAuthorizationRequestParameters = "access_type=offline";
+		var openIdConnectClientId = PropsUtil.get("google.client.id.2");
+		var openIdConnectClientSecret = PropsUtil.get("google.client.secret.2");
+		var userEmailAddress = PropsUtil.get("email.address.2");
+		var userPassword = PropsUtil.get("email.password.2");
+
+		task ("Given the correct log levels are set to DEBUG") {
+			OpenIDConnect.enableOpenIDConnectDebugLogs();
+
+			OpenIDConnect.enableOpenIDConnectCustomParametersDebugLogs();
+		}
+
+		task ("When OpenID Connect provider is set to Google and the connection is established with custom parameters") {
+			SystemSettings.openSystemSettingsAdmin();
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "SSO",
+				configurationName = "OpenID Connect",
+				configurationScope = "System Scope");
+
+			PortalSettings.enableOpenIDConnectCP(systemLevel = "true");
+
+			SystemSettings.openSystemSettingsAdmin();
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "SSO",
+				configurationName = "OpenID Connect Provider Connection",
+				configurationScope = "Virtual Instance Scope");
+
+			OpenIDConnect.addProvider(
+				customAuthorizationRequestParameters = "${customAuthorizationRequestParameters}",
+				customTokenRequestParameters = "${customTokenRequestParameters}",
+				openIdConnectClientId = "${openIdConnectClientId}",
+				openIdConnectClientSecret = "${openIdConnectClientSecret}",
+				providerName = "Google");
+		}
+
+		task ("Then the user can log in and log out through the provider and the correct parameters are shown in the console") {
+			UserBar.signOut();
+
+			User.loginUserWithOpenIDConnectEnabledPG(
+				userEmailAddress = "${userEmailAddress}",
+				userPassword = "${userPassword}");
+
+			AssertConsoleTextPresent(value1 = "${customAuthorizationRequestParameters}");
+
+			AssertConsoleTextPresent(value1 = "resource");
+		}
+
+		task (" And the user is still logged in after the first access token's lifetime is over and they receive a new access token in the background") {
+			Pause(locator1 = "65000");
+
+			Refresh();
+
+			User.viewLoggedInPG();
 		}
 	}
 

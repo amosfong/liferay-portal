@@ -36,7 +36,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -206,6 +206,24 @@ public class CPSearchResultsDisplayContext {
 		return _displayStyleGroupId;
 	}
 
+	public String getNames() {
+		StringBundler sb = new StringBundler();
+
+		List<CPType> cpTypes = getCPTypes();
+
+		for (int i = 0; i < cpTypes.size(); i++) {
+			CPType cpType = cpTypes.get(i);
+
+			sb.append(cpType.getLabel(_cpRequestHelper.getLocale()));
+
+			if ((i + 1) < cpTypes.size()) {
+				sb.append(",");
+			}
+		}
+
+		return sb.toString();
+	}
+
 	public String getOrderByCol() {
 		HttpServletRequest originalHttpServletRequest =
 			PortalUtil.getOriginalServletRequest(_httpServletRequest);
@@ -326,7 +344,7 @@ public class CPSearchResultsDisplayContext {
 	}
 
 	private String _getURLString() {
-		return HttpUtil.removeParameter(
+		return HttpComponentsUtil.removeParameter(
 			PortalUtil.getCurrentURL(_cpRequestHelper.getRequest()), "start");
 	}
 

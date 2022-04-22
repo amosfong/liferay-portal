@@ -3,6 +3,7 @@ definition {
 
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Raylife";
 
 	setUp {
@@ -75,7 +76,7 @@ definition {
 			locator1 = "Raylife#TABLET_SECTION_TITLE",
 			title = "More about");
 
-		Raylife.dismissAlert();
+		Click(locator1 = "Raylife#BUTTON_CONTINUE");
 	}
 
 	@description = "LPS-148220 - Check that pressing the 'Purchase this policy' button on the 'Standard' quote redirects to another page (Smartphone)"

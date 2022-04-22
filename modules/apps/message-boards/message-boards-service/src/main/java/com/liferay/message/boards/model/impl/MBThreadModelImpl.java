@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -124,7 +123,7 @@ public class MBThreadModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table MBThread (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,threadId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,categoryId LONG,rootMessageId LONG,rootMessageUserId LONG,title VARCHAR(75) null,lastPostByUserId LONG,lastPostDate DATE null,priority DOUBLE,question BOOLEAN,lastPublishDate DATE null,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null,primary key (threadId, ctCollectionId))";
+		"create table MBThread (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,threadId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,categoryId LONG,rootMessageId LONG,rootMessageUserId LONG,title VARCHAR(255) null,lastPostByUserId LONG,lastPostDate DATE null,priority DOUBLE,question BOOLEAN,lastPublishDate DATE null,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null,primary key (threadId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table MBThread";
 
@@ -284,34 +283,6 @@ public class MBThreadModelImpl
 		getAttributeSetterBiConsumers() {
 
 		return _attributeSetterBiConsumers;
-	}
-
-	private static Function<InvocationHandler, MBThread>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			MBThread.class.getClassLoader(), MBThread.class,
-			ModelWrapper.class);
-
-		try {
-			Constructor<MBThread> constructor =
-				(Constructor<MBThread>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
 	}
 
 	private static final Map<String, Function<MBThread, Object>>
@@ -1607,7 +1578,9 @@ public class MBThreadModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, MBThread>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					MBThread.class, ModelWrapper.class);
 
 	}
 

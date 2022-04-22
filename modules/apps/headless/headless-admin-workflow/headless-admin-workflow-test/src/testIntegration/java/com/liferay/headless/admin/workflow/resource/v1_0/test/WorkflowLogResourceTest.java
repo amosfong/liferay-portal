@@ -338,9 +338,9 @@ public class WorkflowLogResourceTest extends BaseWorkflowLogResourceTestCase {
 				new String[] {WorkflowLog.Type.TASK_ASSIGN.getValue()},
 				Pagination.of(1, 2));
 
-		List<WorkflowLog> items = (List<WorkflowLog>)page.getItems();
+		List<WorkflowLog> workflowLogs = (List<WorkflowLog>)page.getItems();
 
-		return items.get(0);
+		return workflowLogs.get(0);
 	}
 
 	@Override

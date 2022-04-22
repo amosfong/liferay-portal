@@ -124,6 +124,22 @@ public class WorkflowDefinitionResourceTest
 			404,
 			workflowDefinitionResource.getWorkflowDefinitionByNameHttpResponse(
 				workflowDefinition.getName(), 2));
+
+		testPostWorkflowDefinitionDeploy_addWorkflowDefinition(
+			workflowDefinition);
+
+		assertHttpResponseStatusCode(
+			200,
+			workflowDefinitionResource.getWorkflowDefinitionByNameHttpResponse(
+				workflowDefinition.getName(), 2));
+
+		WorkflowDefinition latestWorkflowDefinition =
+			workflowDefinitionResource.getWorkflowDefinitionByName(
+				workflowDefinition.getName(), null);
+
+		Assert.assertEquals(
+			workflowDefinition.getDateCreated(),
+			latestWorkflowDefinition.getDateCreated());
 	}
 
 	@Override

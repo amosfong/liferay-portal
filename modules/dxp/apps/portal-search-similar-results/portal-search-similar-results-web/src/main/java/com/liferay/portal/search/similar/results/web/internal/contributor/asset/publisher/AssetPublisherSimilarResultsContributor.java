@@ -23,6 +23,7 @@ import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.portal.kernel.model.ClassedModel;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.search.model.uid.UIDFactory;
 import com.liferay.portal.search.similar.results.web.internal.builder.AssetTypeUtil;
 import com.liferay.portal.search.similar.results.web.internal.helper.HttpHelper;
@@ -54,7 +55,8 @@ public class AssetPublisherSimilarResultsContributor
 	public void detectRoute(
 		RouteBuilder routeBuilder, RouteHelper routeHelper) {
 
-		String urlString = routeHelper.getURLString();
+		String urlString = HttpComponentsUtil.decodePath(
+			routeHelper.getURLString());
 
 		String[] parameters = _httpHelper.getFriendlyURLParameters(urlString);
 

@@ -113,14 +113,11 @@ public class DLOpenerGoogleDriveManagerTest {
 					FileUtil.read(
 						dlOpenerGoogleDriveFileReference.getContentFile()));
 
-				ServiceContext serviceContext =
-					ServiceContextTestUtil.getServiceContext(
-						_company.getCompanyId(), _company.getGroupId(),
-						_user.getUserId());
-
 				_dlAppService.checkInFileEntry(
 					fileEntry.getFileEntryId(), RandomTestUtil.randomString(),
-					serviceContext);
+					ServiceContextTestUtil.getServiceContext(
+						_company.getCompanyId(), _company.getGroupId(),
+						_user.getUserId()));
 
 				Assert.assertFalse(
 					_dlOpenerGoogleDriveManager.isGoogleDriveFile(fileEntry));
@@ -146,6 +143,12 @@ public class DLOpenerGoogleDriveManagerTest {
 
 				Assert.assertTrue(
 					_dlOpenerGoogleDriveManager.isGoogleDriveFile(fileEntry));
+
+				_dlOpenerGoogleDriveManager.delete(
+					_user.getUserId(), fileEntry);
+
+				Assert.assertFalse(
+					_dlOpenerGoogleDriveManager.isGoogleDriveFile(fileEntry));
 			});
 	}
 
@@ -167,6 +170,12 @@ public class DLOpenerGoogleDriveManagerTest {
 						dlOpenerGoogleDriveFileReference.getContentFile()));
 
 				Assert.assertTrue(
+					_dlOpenerGoogleDriveManager.isGoogleDriveFile(fileEntry));
+
+				_dlOpenerGoogleDriveManager.delete(
+					_user.getUserId(), fileEntry);
+
+				Assert.assertFalse(
 					_dlOpenerGoogleDriveManager.isGoogleDriveFile(fileEntry));
 			});
 	}
@@ -245,7 +254,7 @@ public class DLOpenerGoogleDriveManagerTest {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
-			"liferay".getBytes(), null, null, serviceContext);
+			StringPool.BLANK, "liferay".getBytes(), null, null, serviceContext);
 	}
 
 	private String _getAuthorizationToken() throws Exception {

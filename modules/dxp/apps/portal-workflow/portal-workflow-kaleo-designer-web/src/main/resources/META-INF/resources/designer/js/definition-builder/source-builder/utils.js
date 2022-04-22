@@ -9,7 +9,6 @@
  * distribution rights of the Software.
  */
 
-import {removeNewLine, replaceTabSpaces} from '../util/utils';
 import {DEFAULT_LANGUAGE} from './constants';
 
 export function parseActions(node) {
@@ -43,6 +42,56 @@ export function parseAssignments(node) {
 		else if (itemKeys.includes('role-id')) {
 			assignments.assignmentType = ['roleId'];
 			assignments.roleId = parseInt(item['role-id'], 10);
+		}
+		else if (itemKeys.includes('role-type')) {
+			assignments.assignmentType = ['roleType'];
+			autoCreateValues.push(item['auto-create']);
+			roleNames.push(item.name);
+			roleTypes.push(item['role-type']);
+		}
+		else if (itemKeys.includes('script')) {
+			assignments.assignmentType = ['scriptedAssignment'];
+			assignments.script = [item.script];
+			assignments.scriptLanguage = item['script-language'];
+		}
+		else if (itemKeys.includes('user')) {
+			assignments.assignmentType = ['user'];
+		}
+		else if (itemKeys.includes('email-address')) {
+			assignments.assignmentType = ['user'];
+			users.push(item['email-address']);
+		}
+	});
+
+	if (users.length) {
+		assignments.emailAddress = users;
+	}
+
+	if (assignments.assignmentType[0] === 'roleType') {
+		assignments.autoCreate = autoCreateValues[0];
+		assignments.roleName = roleNames[0];
+		assignments.roleType = roleTypes[0];
+	}
+
+	return assignments;
+}
+
+export function parseReassignments(node) {
+	const assignments = {};
+	const autoCreateValues = [];
+	const roleNames = [];
+	const roleTypes = [];
+	const users = [];
+
+	node.assignments.forEach((item) => {
+		const itemKeys = Object.keys(item);
+		if (itemKeys.includes('resource-action')) {
+			assignments.assignmentType = ['resourceActions'];
+			assignments.resourceAction = item['resource-action'];
+		}
+		else if (itemKeys.includes('role')) {
+			assignments.assignmentType = ['roleId'];
+			assignments.roleId = parseInt(item['role'], 10);
 		}
 		else if (itemKeys.includes('role-type')) {
 			assignments.assignmentType = ['roleType'];
@@ -125,18 +174,37 @@ export function parseNotifications(node) {
 				assignmentType: ['taskAssignees'],
 			};
 		}
-		else if (item.roles) {
+		else if (
+			item['user'] &&
+			item['user'].some((item) => item['email-address'])
+		) {
+			const emailAddress = [];
+
+			item['user'].forEach((item) => {
+				emailAddress.push(item['email-address']);
+			});
+
+			notifications.recipients[index] = {
+				assignmentType: ['user'],
+				emailAddress,
+			};
+		}
+		else if (item['role-type']) {
+			notifications.recipients[index] = {
+				assignmentType: ['roleType'],
+				autoCreate: item['auto-create'],
+				roleName: item['role-name'],
+				roleType: item['role-type'],
+			};
+		}
+		else if (item['role-id']) {
 			notifications.recipients[index] = {
 				assignmentType: ['roleId'],
-				roleId: replaceTabSpaces(removeNewLine(item.roles[0])),
+				roleId: item['role-id'][0],
 			};
 		}
 		else if (item['scripted-recipient']) {
-			let script = item['scripted-recipient'][0];
-
-			script = replaceTabSpaces(
-				removeNewLine(script.substring(0, script.length - 13))
-			);
+			const script = item['scripted-recipient'][0].script;
 
 			notifications.recipients[index] = {
 				assignmentType: ['scriptedRecipient'],
@@ -144,7 +212,7 @@ export function parseNotifications(node) {
 				scriptLanguage: [DEFAULT_LANGUAGE],
 			};
 		}
-		else if (item.user) {
+		else {
 			notifications.recipients[index] = {
 				assignmentType: ['user'],
 			};
@@ -171,4 +239,39 @@ function parseProperty(data, item, property) {
 	}
 
 	return new Array(item[property]);
+}
+
+export function parseTimers(node) {
+	const taskTimers = {};
+	taskTimers.delay = [];
+	taskTimers.reassignments = [];
+	taskTimers.timerActions = [];
+	taskTimers.timerNotifications = [];
+
+	node.taskTimers.forEach((item, index) => {
+		taskTimers.delay.push({
+			duration: node.taskTimers[index].duration,
+			scale: node.taskTimers[index].scale,
+		});
+		taskTimers.reassignments.push(
+			node.taskTimers[index]['reassignments']
+				? parseReassignments({
+						assignments: node.taskTimers[index]['reassignments'],
+				  })
+				: {}
+		);
+		taskTimers.timerActions.push(
+			node.taskTimers[index]['timer-action']
+				? parseActions({
+						actions: node.taskTimers[index]['timer-action'],
+				  })
+				: {}
+		);
+		taskTimers.timerNotifications.push({});
+		taskTimers.name = parseProperty(taskTimers, item, 'name');
+		taskTimers.description = parseProperty(taskTimers, item, 'description');
+		taskTimers.blocking = parseProperty(taskTimers, item, 'blocking');
+	});
+
+	return taskTimers;
 }

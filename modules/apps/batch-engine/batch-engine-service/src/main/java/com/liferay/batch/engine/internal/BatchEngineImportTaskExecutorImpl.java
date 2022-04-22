@@ -19,29 +19,25 @@ import com.liferay.batch.engine.BatchEngineTaskContentType;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
 import com.liferay.batch.engine.configuration.BatchEngineTaskConfiguration;
-import com.liferay.batch.engine.constants.BatchEnginePortletKeys;
+import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.internal.item.BatchEngineTaskItemDelegateExecutor;
 import com.liferay.batch.engine.internal.item.BatchEngineTaskItemDelegateExecutorFactory;
-import com.liferay.batch.engine.internal.notification.BatchEngineNotificationSender;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReader;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderFactory;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderUtil;
 import com.liferay.batch.engine.internal.strategy.BatchEngineImportStrategyFactory;
 import com.liferay.batch.engine.internal.task.progress.BatchEngineTaskProgress;
 import com.liferay.batch.engine.internal.task.progress.BatchEngineTaskProgressFactory;
+import com.liferay.batch.engine.internal.util.ItemIndexThreadLocal;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineImportTaskErrorLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
@@ -68,7 +64,6 @@ import org.osgi.service.component.annotations.Reference;
 	service = BatchEngineImportTaskExecutor.class
 )
 public class BatchEngineImportTaskExecutorImpl
-	extends BatchEngineNotificationSender
 	implements BatchEngineImportTaskExecutor {
 
 	@Override
@@ -98,14 +93,6 @@ public class BatchEngineImportTaskExecutorImpl
 			_updateBatchEngineImportTask(
 				BatchEngineTaskExecuteStatus.COMPLETED, batchEngineImportTask,
 				null);
-
-			sendUserNotificationEvents(
-				batchEngineImportTask.getUserId(),
-				BatchEnginePortletKeys.BATCH_ENGINE,
-				UserNotificationDeliveryConstants.TYPE_WEBSITE,
-				getNotificationEventJSONObject(
-					BatchEngineTaskExecuteStatus.COMPLETED,
-					batchEngineImportTask.getClassName()));
 		}
 		catch (Throwable throwable) {
 			_log.error(
@@ -116,14 +103,6 @@ public class BatchEngineImportTaskExecutorImpl
 			_updateBatchEngineImportTask(
 				BatchEngineTaskExecuteStatus.FAILED, batchEngineImportTask,
 				throwable.getMessage());
-
-			sendUserNotificationEvents(
-				batchEngineImportTask.getUserId(),
-				BatchEnginePortletKeys.BATCH_ENGINE,
-				UserNotificationDeliveryConstants.TYPE_WEBSITE,
-				getNotificationEventJSONObject(
-					BatchEngineTaskExecuteStatus.FAILED,
-					batchEngineImportTask.getClassName()));
 		}
 	}
 
@@ -146,32 +125,13 @@ public class BatchEngineImportTaskExecutorImpl
 		_batchEngineTaskItemDelegateExecutorFactory =
 			new BatchEngineTaskItemDelegateExecutorFactory(
 				_batchEngineTaskMethodRegistry, null, null, null);
-
-		setUserNotificationEventLocalService(
-			_userNotificationEventLocalService);
-	}
-
-	@Override
-	protected String getTaskType() {
-		return "import";
-	}
-
-	protected JSONObject populateNotificationEventJSONObject(String className) {
-		JSONObject notificationEventJSONObject =
-			JSONFactoryUtil.createJSONObject();
-
-		return notificationEventJSONObject.put(
-			"batchEngineTaskType", "import"
-		).put(
-			"className", className
-		);
 	}
 
 	private void _commitItems(
 			BatchEngineImportTask batchEngineImportTask,
 			BatchEngineTaskItemDelegateExecutor
 				batchEngineTaskItemDelegateExecutor,
-			List<Object> items)
+			List<Object> items, int processedItemsCount)
 		throws Throwable {
 
 		TransactionInvokerUtil.invoke(
@@ -185,14 +145,31 @@ public class BatchEngineImportTaskExecutorImpl
 					items);
 
 				batchEngineImportTask.setProcessedItemsCount(
-					batchEngineImportTask.getProcessedItemsCount() +
-						items.size());
+					processedItemsCount);
 
 				_batchEngineImportTaskLocalService.updateBatchEngineImportTask(
 					batchEngineImportTask);
 
 				return null;
 			});
+	}
+
+	private void _handleException(
+			BatchEngineImportTask batchEngineImportTask, Exception exception,
+			int processedItemsCount)
+		throws Exception {
+
+		_batchEngineImportTaskErrorLocalService.addBatchEngineImportTaskError(
+			batchEngineImportTask.getCompanyId(),
+			batchEngineImportTask.getUserId(),
+			batchEngineImportTask.getBatchEngineImportTaskId(), null,
+			processedItemsCount, exception.getMessage());
+
+		if (batchEngineImportTask.getImportStrategy() ==
+				BatchEngineImportTaskConstants.IMPORT_STRATEGY_ON_ERROR_FAIL) {
+
+			throw exception;
+		}
 	}
 
 	private void _importItems(BatchEngineImportTask batchEngineImportTask)
@@ -228,37 +205,71 @@ public class BatchEngineImportTaskExecutorImpl
 			Class<?> itemClass = _batchEngineTaskMethodRegistry.getItemClass(
 				batchEngineImportTask.getClassName());
 
-			Map<String, Object> fieldNameValueMap = null;
+			int processedItemsCount = 0;
 
-			while ((fieldNameValueMap =
-						batchEngineImportTaskItemReader.read()) != null) {
-
+			while (true) {
 				if (Thread.interrupted()) {
 					throw new InterruptedException();
 				}
 
-				items.add(
-					BatchEngineImportTaskItemReaderUtil.convertValue(
-						itemClass,
-						BatchEngineImportTaskItemReaderUtil.mapFieldNames(
-							batchEngineImportTask.getFieldNameMapping(),
-							fieldNameValueMap)));
+				try {
+					Object item = _readItem(
+						batchEngineImportTaskItemReader,
+						batchEngineImportTask.getFieldNameMapping(), itemClass);
+
+					if (item == null) {
+						break;
+					}
+
+					items.add(item);
+
+					processedItemsCount++;
+
+					ItemIndexThreadLocal.put(item, processedItemsCount);
+				}
+				catch (Exception exception) {
+					processedItemsCount++;
+
+					_handleException(
+						batchEngineImportTask, exception, processedItemsCount);
+				}
 
 				if (items.size() == batchEngineImportTask.getBatchSize()) {
 					_commitItems(
 						batchEngineImportTask,
-						batchEngineTaskItemDelegateExecutor, items);
+						batchEngineTaskItemDelegateExecutor, items,
+						processedItemsCount);
 
 					items.clear();
+
+					ItemIndexThreadLocal.remove();
 				}
 			}
 
 			if (!items.isEmpty()) {
 				_commitItems(
 					batchEngineImportTask, batchEngineTaskItemDelegateExecutor,
-					items);
+					items, processedItemsCount);
 			}
 		}
+	}
+
+	private Object _readItem(
+			BatchEngineImportTaskItemReader batchEngineImportTaskItemReader,
+			Map<String, Serializable> fieldNameMapping, Class<?> itemClass)
+		throws Exception {
+
+		Map<String, Object> fieldNameValueMap =
+			batchEngineImportTaskItemReader.read();
+
+		if (fieldNameValueMap == null) {
+			return null;
+		}
+
+		return BatchEngineImportTaskItemReaderUtil.convertValue(
+			itemClass,
+			BatchEngineImportTaskItemReaderUtil.mapFieldNames(
+				fieldNameMapping, fieldNameValueMap));
 	}
 
 	private void _updateBatchEngineImportTask(
@@ -314,9 +325,5 @@ public class BatchEngineImportTaskExecutorImpl
 
 	@Reference
 	private UserLocalService _userLocalService;
-
-	@Reference
-	private UserNotificationEventLocalService
-		_userNotificationEventLocalService;
 
 }

@@ -17,16 +17,21 @@ package com.liferay.batch.planner.service.impl;
 import com.liferay.batch.planner.constants.BatchPlannerActionKeys;
 import com.liferay.batch.planner.constants.BatchPlannerConstants;
 import com.liferay.batch.planner.model.BatchPlannerPlan;
+import com.liferay.batch.planner.model.BatchPlannerPlanTable;
 import com.liferay.batch.planner.service.base.BatchPlannerPlanServiceBaseImpl;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelper;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.List;
 
@@ -113,11 +118,86 @@ public class BatchPlannerPlanServiceImpl
 
 	@Override
 	public List<BatchPlannerPlan> getBatchPlannerPlans(
+		long companyId, boolean export, boolean template,
+		String searchByKeyword, int start, int end,
+		OrderByComparator<BatchPlannerPlan> orderByComparator) {
+
+		searchByKeyword = StringUtil.quote(searchByKeyword, CharPool.PERCENT);
+
+		return batchPlannerPlanPersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				BatchPlannerPlanTable.INSTANCE
+			).from(
+				BatchPlannerPlanTable.INSTANCE
+			).where(
+				BatchPlannerPlanTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					BatchPlannerPlanTable.INSTANCE.export.eq(export)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.template.eq(template)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.internalClassName.like(
+						searchByKeyword
+					).or(
+						BatchPlannerPlanTable.INSTANCE.name.like(
+							searchByKeyword)
+					).withParentheses()
+				).and(
+					_inlineSQLHelper.getPermissionWherePredicate(
+						BatchPlannerPlan.class,
+						BatchPlannerPlanTable.INSTANCE.batchPlannerPlanId)
+				)
+			).orderBy(
+				BatchPlannerPlanTable.INSTANCE, orderByComparator
+			).limit(
+				start, end
+			));
+	}
+
+	@Override
+	public List<BatchPlannerPlan> getBatchPlannerPlans(
 		long companyId, boolean template, int start, int end,
 		OrderByComparator<BatchPlannerPlan> orderByComparator) {
 
 		return batchPlannerPlanPersistence.filterFindByC_T(
 			companyId, template, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<BatchPlannerPlan> getBatchPlannerPlans(
+		long companyId, boolean template, String searchByKeyword, int start,
+		int end, OrderByComparator<BatchPlannerPlan> orderByComparator) {
+
+		searchByKeyword = StringUtil.quote(searchByKeyword, CharPool.PERCENT);
+
+		return batchPlannerPlanPersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				BatchPlannerPlanTable.INSTANCE
+			).from(
+				BatchPlannerPlanTable.INSTANCE
+			).where(
+				BatchPlannerPlanTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					BatchPlannerPlanTable.INSTANCE.template.eq(template)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.internalClassName.like(
+						searchByKeyword
+					).or(
+						BatchPlannerPlanTable.INSTANCE.name.like(
+							searchByKeyword)
+					).withParentheses()
+				).and(
+					_inlineSQLHelper.getPermissionWherePredicate(
+						BatchPlannerPlan.class,
+						BatchPlannerPlanTable.INSTANCE.batchPlannerPlanId)
+				)
+			).orderBy(
+				BatchPlannerPlanTable.INSTANCE, orderByComparator
+			).limit(
+				start, end
+			));
 	}
 
 	@Override
@@ -157,6 +237,69 @@ public class BatchPlannerPlanServiceImpl
 	}
 
 	@Override
+	public int getBatchPlannerPlansCount(
+		long companyId, boolean export, boolean template,
+		String searchByKeyword) {
+
+		searchByKeyword = StringUtil.quote(searchByKeyword, CharPool.PERCENT);
+
+		return batchPlannerPlanPersistence.dslQueryCount(
+			DSLQueryFactoryUtil.count(
+			).from(
+				BatchPlannerPlanTable.INSTANCE
+			).where(
+				BatchPlannerPlanTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					BatchPlannerPlanTable.INSTANCE.export.eq(export)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.template.eq(template)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.internalClassName.like(
+						searchByKeyword
+					).or(
+						BatchPlannerPlanTable.INSTANCE.name.like(
+							searchByKeyword)
+					).withParentheses()
+				).and(
+					_inlineSQLHelper.getPermissionWherePredicate(
+						BatchPlannerPlan.class,
+						BatchPlannerPlanTable.INSTANCE.batchPlannerPlanId)
+				)
+			));
+	}
+
+	@Override
+	public int getBatchPlannerPlansCount(
+		long companyId, boolean template, String searchByKeyword) {
+
+		searchByKeyword = StringUtil.quote(searchByKeyword, CharPool.PERCENT);
+
+		return batchPlannerPlanPersistence.dslQueryCount(
+			DSLQueryFactoryUtil.count(
+			).from(
+				BatchPlannerPlanTable.INSTANCE
+			).where(
+				BatchPlannerPlanTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					BatchPlannerPlanTable.INSTANCE.template.eq(template)
+				).and(
+					BatchPlannerPlanTable.INSTANCE.internalClassName.like(
+						searchByKeyword
+					).or(
+						BatchPlannerPlanTable.INSTANCE.name.like(
+							searchByKeyword)
+					).withParentheses()
+				).and(
+					_inlineSQLHelper.getPermissionWherePredicate(
+						BatchPlannerPlan.class,
+						BatchPlannerPlanTable.INSTANCE.batchPlannerPlanId)
+				)
+			));
+	}
+
+	@Override
 	public BatchPlannerPlan updateBatchPlannerPlan(
 			long batchPlannerPlanId, String externalType,
 			String internalClassName, String name)
@@ -166,8 +309,7 @@ public class BatchPlannerPlanServiceImpl
 			getPermissionChecker(), batchPlannerPlanId, ActionKeys.UPDATE);
 
 		return batchPlannerPlanLocalService.updateBatchPlannerPlan(
-			getUserId(), batchPlannerPlanId, externalType, internalClassName,
-			name);
+			batchPlannerPlanId, externalType, internalClassName, name);
 	}
 
 	private static volatile ModelResourcePermission<BatchPlannerPlan>
@@ -176,6 +318,9 @@ public class BatchPlannerPlanServiceImpl
 				BatchPlannerPlanServiceImpl.class,
 				"_batchPlannerPlanModelResourcePermission",
 				BatchPlannerPlan.class);
+
+	@Reference
+	private InlineSQLHelper _inlineSQLHelper;
 
 	@Reference(
 		target = "(resource.name=" + BatchPlannerConstants.RESOURCE_NAME + ")"

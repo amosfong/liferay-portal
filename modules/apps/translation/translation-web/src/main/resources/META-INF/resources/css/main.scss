@@ -159,7 +159,7 @@ $productMenuWidth: 320px;
 			}
 		}
 
-		.separator {
+		hr {
 			border-color: $secondary;
 			margin-bottom: 2rem;
 			margin-top: 0.25rem;
@@ -167,6 +167,18 @@ $productMenuWidth: 320px;
 	}
 
 	&-export {
+		.custom-radio {
+			.custom-control {
+				margin-bottom: 0;
+			}
+
+			.form-text {
+				font-weight: normal;
+				margin-bottom: 1rem;
+				padding-left: 1.5rem;
+			}
+		}
+
 		.translation-experiences-wrapper {
 			margin-bottom: 1.5rem;
 			max-height: 40rem;

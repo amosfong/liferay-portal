@@ -9,7 +9,6 @@
  * distribution rights of the Software.
  */
 
-import PropTypes from 'prop-types';
 import React, {
 	useCallback,
 	useContext,
@@ -44,20 +43,21 @@ const getId = () => `item_${id++}`;
 
 const deserializeUtil = new DeserializeUtil();
 
-export default function DiagramBuilder({version}) {
+export default function DiagramBuilder() {
 	const {
 		currentEditor,
 		definitionId,
-		definitionTitle,
 		deserialize,
 		elements,
 		selectedLanguageId,
 		setActive,
 		setDefinitionDescription,
-		setDefinitionId,
-		setDefinitionTitle,
+		setDefinitionInfo,
+		setDefinitionName,
 		setDeserialize,
 		setElements,
+		setShowDefinitionInfo,
+		version,
 	} = useContext(DefinitionBuilderContext);
 	const reactFlowWrapperRef = useRef(null);
 	const [collidingElements, setCollidingElements] = useState(null);
@@ -243,6 +243,8 @@ export default function DiagramBuilder({version}) {
 			);
 		}
 
+		setShowDefinitionInfo(false);
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedItem]);
 
@@ -295,7 +297,7 @@ export default function DiagramBuilder({version}) {
 			const metadata = deserializeUtil.getMetadata();
 
 			setDefinitionDescription(metadata.description);
-			setDefinitionTitle(metadata.name);
+			setDefinitionName(metadata.name);
 
 			setElements(elements);
 
@@ -305,30 +307,43 @@ export default function DiagramBuilder({version}) {
 			setDeserialize(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentEditor, definitionTitle, deserialize, version]);
+	}, [currentEditor, deserialize, version]);
 
 	useEffect(() => {
-		if (version !== '0' && !deserialize) {
+		if (definitionId && version !== 0 && !deserialize) {
 			retrieveDefinitionRequest(definitionId)
 				.then((response) => response.json())
-				.then(({active, content, description, name}) => {
-					setActive(active);
-					setDefinitionDescription(description);
-					setDefinitionId(name);
+				.then(
+					({
+						active,
+						content,
+						dateCreated,
+						dateModified,
+						description,
+						version,
+					}) => {
+						setActive(active);
+						setDefinitionDescription(description);
+						setDefinitionInfo({
+							dateCreated,
+							dateModified,
+							totalModifications: version,
+						});
 
-					deserializeUtil.updateXMLDefinition(content);
+						deserializeUtil.updateXMLDefinition(content);
 
-					const elements = deserializeUtil.getElements();
+						const elements = deserializeUtil.getElements();
 
-					setElements(elements);
+						setElements(elements);
 
-					populateAssignmentsData(elements, setElements);
-					populateNotificationsData(elements, setElements);
-				});
+						populateAssignmentsData(elements, setElements);
+						populateNotificationsData(elements, setElements);
+					}
+				);
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [version]);
+	}, [definitionId, version]);
 
 	const contextProps = {
 		collidingElements,
@@ -371,7 +386,3 @@ export default function DiagramBuilder({version}) {
 		</DiagramBuilderContextProvider>
 	);
 }
-
-DiagramBuilder.propTypes = {
-	version: PropTypes.string.isRequired,
-};

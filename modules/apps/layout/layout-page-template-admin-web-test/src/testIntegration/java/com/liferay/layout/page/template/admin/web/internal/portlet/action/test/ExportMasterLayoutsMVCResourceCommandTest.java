@@ -43,7 +43,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.io.File;
 
@@ -95,7 +95,9 @@ public class ExportMasterLayoutsMVCResourceCommandTest {
 		_layoutPageTemplateStructureLocalService.
 			updateLayoutPageTemplateStructureData(
 				_group.getGroupId(), layoutPageTemplateEntry.getPlid(),
-				SegmentsExperienceConstants.ID_DEFAULT,
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(
+						layoutPageTemplateEntry.getPlid()),
 				_read("layout_data.json"));
 
 		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
@@ -319,6 +321,9 @@ public class ExportMasterLayoutsMVCResourceCommandTest {
 		filter = "mvc.command.name=/layout_page_template_admin/export_master_layouts"
 	)
 	private MVCResourceCommand _mvcResourceCommand;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	private ServiceContext _serviceContext;
 

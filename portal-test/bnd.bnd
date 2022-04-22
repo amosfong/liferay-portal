@@ -1,6 +1,6 @@
 Bundle-Name: ${manifest.bundle.name}
 Bundle-SymbolicName: ${manifest.bundle.symbolic.name}
-Bundle-Version: 11.1.2
+Bundle-Version: 11.1.5
 Export-Package:\
 	com.liferay.portal.kernel.dao.db.test,\
 	com.liferay.portal.kernel.test,\
@@ -34,6 +34,7 @@ Import-Package: *;resolution:=optional
 Include-Resource:\
 	classes,\
 	@${project.dir}/../lib/development/aspectj-rt.jar,\
+	@${project.dir}/../lib/development/commons-collections4.jar,\
 	@${project.dir}/../lib/development/commons-lang3.jar,\
 	@${project.dir}/../lib/development/dumbster.jar,\
 	@${project.dir}/../lib/development/hamcrest-core.jar,\

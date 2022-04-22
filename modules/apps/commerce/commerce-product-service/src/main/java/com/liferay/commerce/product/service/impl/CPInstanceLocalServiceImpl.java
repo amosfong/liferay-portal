@@ -203,13 +203,12 @@ public class CPInstanceLocalServiceImpl extends CPInstanceLocalServiceBaseImpl {
 		cpInstance.setExpandoBridgeAttributes(serviceContext);
 		cpInstance.setUnspsc(unspsc);
 		cpInstance.setDiscontinued(discontinued);
+		cpInstance.setDiscontinuedDate(
+			PortalUtil.getDate(
+				discontinuedDateMonth, discontinuedDateDay,
+				discontinuedDateYear));
 		cpInstance.setReplacementCPInstanceUuid(replacementCPInstanceUuid);
 		cpInstance.setReplacementCProductId(replacementCProductId);
-
-		Date discontinuedDate = PortalUtil.getDate(
-			discontinuedDateMonth, discontinuedDateDay, discontinuedDateYear);
-
-		cpInstance.setDiscontinuedDate(discontinuedDate);
 
 		cpInstance = cpInstancePersistence.update(cpInstance);
 
@@ -542,9 +541,19 @@ public class CPInstanceLocalServiceImpl extends CPInstanceLocalServiceBaseImpl {
 		}
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #checkCPInstances(long)}
+	 */
+	@Deprecated
 	@Override
 	public void checkCPInstances() throws PortalException {
 		checkCPInstancesByDisplayDate(0);
+		checkCPInstancesByExpirationDate();
+	}
+
+	@Override
+	public void checkCPInstances(long cpDefinitionId) throws PortalException {
+		checkCPInstancesByDisplayDate(cpDefinitionId);
 		checkCPInstancesByExpirationDate();
 	}
 
@@ -575,17 +584,18 @@ public class CPInstanceLocalServiceImpl extends CPInstanceLocalServiceBaseImpl {
 			serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
 
 			CPDefinition cpDefinition =
-				cpDefinitionLocalService.getCPDefinition(cpDefinitionId);
+				cpDefinitionLocalService.getCPDefinition(
+					cpInstance.getCPDefinitionId());
 
 			if (cpDefinition.isIgnoreSKUCombinations()) {
 				_expireApprovedSiblingCPInstances(
-					cpDefinitionId, cpInstance.getCPInstanceId(),
-					serviceContext);
+					cpInstance.getCPDefinitionId(),
+					cpInstance.getCPInstanceId(), serviceContext);
 			}
 			else {
 				_expireApprovedSiblingMatchingCPInstances(
-					cpDefinitionId, cpInstance.getCPInstanceId(),
-					serviceContext);
+					cpInstance.getCPDefinitionId(),
+					cpInstance.getCPInstanceId(), serviceContext);
 			}
 
 			cpInstanceLocalService.updateStatus(
@@ -1124,10 +1134,10 @@ public class CPInstanceLocalServiceImpl extends CPInstanceLocalServiceBaseImpl {
 		cpInstance.setReplacementCPInstanceUuid(replacementCPInstanceUuid);
 		cpInstance.setReplacementCProductId(replacementCProductId);
 
-		Date discontinuedDate = PortalUtil.getDate(
-			discontinuedDateMonth, discontinuedDateDay, discontinuedDateYear);
-
-		cpInstance.setDiscontinuedDate(discontinuedDate);
+		cpInstance.setDiscontinuedDate(
+			PortalUtil.getDate(
+				discontinuedDateMonth, discontinuedDateDay,
+				discontinuedDateYear));
 
 		cpInstance = cpInstancePersistence.update(cpInstance);
 

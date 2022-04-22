@@ -55,7 +55,11 @@ public class FunctionalBatchTestClassGroup extends BatchTestClassGroup {
 
 	@Override
 	public JSONObject getJSONObject() {
-		JSONObject jsonObject = super.getJSONObject();
+		if (jsonObject != null) {
+			return jsonObject;
+		}
+
+		jsonObject = super.getJSONObject();
 
 		StringBuilder sb = new StringBuilder();
 
@@ -72,6 +76,9 @@ public class FunctionalBatchTestClassGroup extends BatchTestClassGroup {
 		}
 
 		jsonObject.put("pql_query", sb.toString());
+
+		jsonObject.put(
+			"test_batch_run_property_queries", _testBatchRunPropertyQueries);
 
 		return jsonObject;
 	}
@@ -109,6 +116,25 @@ public class FunctionalBatchTestClassGroup extends BatchTestClassGroup {
 		}
 
 		return testClasses;
+	}
+
+	protected FunctionalBatchTestClassGroup(
+		JSONObject jsonObject, PortalTestClassJob portalTestClassJob) {
+
+		super(jsonObject, portalTestClassJob);
+
+		JSONObject testBatchRunPropertyQueriesJSONObject =
+			jsonObject.optJSONObject("test_batch_run_property_queries");
+
+		if (testBatchRunPropertyQueriesJSONObject == null) {
+			return;
+		}
+
+		for (String key : testBatchRunPropertyQueriesJSONObject.keySet()) {
+			_testBatchRunPropertyQueries.put(
+				new File(key),
+				testBatchRunPropertyQueriesJSONObject.getString(key));
+		}
 	}
 
 	protected FunctionalBatchTestClassGroup(
@@ -151,7 +177,7 @@ public class FunctionalBatchTestClassGroup extends BatchTestClassGroup {
 			return new ArrayList<>();
 		}
 
-		synchronized (portalTestClassJob) {
+		synchronized (_poshiTestCasePattern) {
 			PortalGitWorkingDirectory portalGitWorkingDirectory =
 				portalTestClassJob.getPortalGitWorkingDirectory();
 
@@ -179,6 +205,7 @@ public class FunctionalBatchTestClassGroup extends BatchTestClassGroup {
 			}
 
 			Properties properties = JenkinsResultsParserUtil.getProperties(
+				new File(portalWorkingDirectory, "portal-web/poshi.properties"),
 				new File(
 					portalWorkingDirectory, "portal-web/poshi-ext.properties"));
 

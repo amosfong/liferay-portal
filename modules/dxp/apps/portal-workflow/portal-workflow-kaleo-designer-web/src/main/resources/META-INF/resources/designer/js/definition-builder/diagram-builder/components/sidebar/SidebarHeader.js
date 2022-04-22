@@ -99,6 +99,7 @@ export default function SidebarHeader({
 				{showDeleteButton && (
 					<ClayButtonWithIcon
 						className="text-secondary trash-button"
+						disabled={contentName === 'assignments'}
 						displayType="unstyled"
 						onClick={() => setShowDeleteConfirmationModal(true)}
 						symbol="trash"

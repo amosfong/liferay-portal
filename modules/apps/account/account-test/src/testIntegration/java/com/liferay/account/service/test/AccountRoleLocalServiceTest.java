@@ -477,7 +477,7 @@ public class AccountRoleLocalServiceTest {
 			AccountRoleLocalServiceUtil.searchAccountRoles(
 				_accountEntry1.getCompanyId(),
 				new long[] {_accountEntry1.getAccountEntryId()}, keywords, null,
-				0, 2, null);
+				0, 2, new RoleNameComparator(true));
 
 		Assert.assertEquals(
 			expectedAccountRoles.toString(), 5,
@@ -505,23 +505,18 @@ public class AccountRoleLocalServiceTest {
 	public void testSearchAccountRolesWithParams() throws Exception {
 		AccountRole accountRole1 = _accountRoleLocalService.addAccountRole(
 			TestPropsValues.getUserId(), _accountEntry1.getAccountEntryId(),
-			RandomTestUtil.randomString(), null, null);
+			RandomTestUtil.randomString() + " " + RandomTestUtil.randomString(),
+			null, null);
 		AccountRole accountRole2 = _accountRoleLocalService.addAccountRole(
 			TestPropsValues.getUserId(), _accountEntry1.getAccountEntryId(),
-			RandomTestUtil.randomString(), null, null);
+			RandomTestUtil.randomString() + " " + RandomTestUtil.randomString(),
+			null, null);
 
 		_testSearchAccountRolesWithParams(
 			accountRole1.getCompanyId(),
-			new long[] {accountRole1.getAccountEntryId()},
+			new long[] {_accountEntry1.getAccountEntryId()},
 			LinkedHashMapBuilder.<String, Object>put(
 				"excludedRoleNames", new String[] {accountRole1.getRoleName()}
-			).build(),
-			Collections.singletonList(accountRole2));
-		_testSearchAccountRolesWithParams(
-			accountRole1.getCompanyId(),
-			new long[] {accountRole1.getAccountEntryId()},
-			LinkedHashMapBuilder.<String, Object>put(
-				"excludedRoleIds", new Long[] {accountRole1.getRoleId()}
 			).build(),
 			Collections.singletonList(accountRole2));
 	}
@@ -569,7 +564,7 @@ public class AccountRoleLocalServiceTest {
 
 	private void _testDeleteAccountRole(
 			UnsafeFunction<AccountRole, AccountRole, PortalException>
-				deleteAccountRoleFunction)
+				deleteAccountRoleUnsafeFunction)
 		throws Exception {
 
 		AccountRole accountRole = _addAccountRole(
@@ -586,7 +581,7 @@ public class AccountRoleLocalServiceTest {
 		Assert.assertTrue(
 			ArrayUtil.contains(_getRoleIds(user), accountRole.getRoleId()));
 
-		deleteAccountRoleFunction.apply(accountRole);
+		deleteAccountRoleUnsafeFunction.apply(accountRole);
 
 		Assert.assertFalse(
 			ArrayUtil.contains(

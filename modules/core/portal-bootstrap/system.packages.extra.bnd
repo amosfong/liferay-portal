@@ -96,16 +96,6 @@ Export-Package:\
 	\
 	com.ibm.crypto.provider,\
 	\
-	com.rometools.rome;version='1.16.0',\
-	com.rometools.rome.feed;version='1.16.0',\
-	com.rometools.rome.feed.atom;version='1.16.0',\
-	com.rometools.rome.feed.impl;version='1.16.0',\
-	com.rometools.rome.feed.module;version='1.16.0',\
-	com.rometools.rome.feed.rss;version='1.16.0',\
-	com.rometools.rome.feed.synd;version='1.16.0',\
-	com.rometools.rome.io;version='1.16.0',\
-	com.rometools.utils;version='1.16.0',\
-	\
 	com.sun.security.auth.module,\
 	\
 	java_cup.runtime.*;version='2.7.1',\
@@ -222,27 +212,18 @@ Export-Package:\
 	org.apache.xml.res.*;version='2.7.1',\
 	org.apache.xml.security.*;version='1.4.5',\
 	org.apache.xml.serialize;version='2.11.0',\
-	org.apache.xml.serializer;version='2.7.1',\
 	org.apache.xml.utils.*;version='2.7.1',\
 	org.apache.xmlcommons;version='1.4.01',\
 	org.apache.xpath.*;version='2.7.1',\
 	\
 	org.dom4j.*;version='2.1.3',\
 	\
-	org.hibernate.*;version='3.6.10',\
+	org.hibernate.engine.jdbc.batch.internal;version='5.6.7',\
+	org.hibernate.*;version='5.6.7',\
 	\
 	org.jaxen.*;version='1.1.6',\
 	\
-	org.jdom2.*;version='2.0.6',\
-	\
 	org.json.*;version='20180813',\
-	\
-	org.objectweb.asm;version='7.0',\
-	org.objectweb.asm.commons;version='7.0',\
-	org.objectweb.asm.signature;version='7.0',\
-	org.objectweb.asm.tree;version='7.0',\
-	org.objectweb.asm.tree.analysis;version='7.0',\
-	org.objectweb.asm.util;version='7.0',\
 	\
 	org.slf4j;version='1.7.2',\
 	org.slf4j.helpers;version='1.7.2',\
@@ -293,11 +274,6 @@ Provide-Capability:\
 	@../../../lib/development/activation.jar,\
 	@../../../lib/development/mail.jar,\
 	@../../../lib/development/servlet-api.jar,\
-	@../../../lib/portal/asm-analysis.jar,\
-	@../../../lib/portal/asm-commons.jar,\
-	@../../../lib/portal/asm-tree.jar,\
-	@../../../lib/portal/asm-util.jar,\
-	@../../../lib/portal/asm.jar,\
 	@../../../lib/portal/commons-beanutils.jar,\
 	@../../../lib/portal/commons-codec.jar,\
 	@../../../lib/portal/commons-collections.jar,\
@@ -308,7 +284,6 @@ Provide-Capability:\
 	@../../../lib/portal/hibernate-core.jar,\
 	@../../../lib/portal/jaxen.jar,\
 	@../../../lib/portal/jaxrpc.jar,\
-	@../../../lib/portal/jdom2.jar!/org/**,\
 	@../../../lib/portal/jodd-json.jar,\
 	@../../../lib/portal/jodd-proxetta.jar,\
 	@../../../lib/portal/jodd-util.jar,\
@@ -319,23 +294,16 @@ Provide-Capability:\
 	@../../../lib/portal/persistence.jar,\
 	@../../../lib/portal/portlet.jar,\
 	@../../../lib/portal/portletmvc4spring-framework.jar,\
-	@../../../lib/portal/rometools-utils.jar,\
-	@../../../lib/portal/rometools.jar,\
 	@../../../lib/portal/slf4j-api.jar,\
 	@../../../lib/portal/spring-aop.jar,\
-	@../../../lib/portal/spring-aspects.jar,\
 	@../../../lib/portal/spring-beans.jar,\
-	@../../../lib/portal/spring-context-support.jar,\
 	@../../../lib/portal/spring-context.jar,\
 	@../../../lib/portal/spring-core.jar,\
 	@../../../lib/portal/spring-expression.jar,\
 	@../../../lib/portal/spring-jdbc.jar,\
-	@../../../lib/portal/spring-jms.jar,\
 	@../../../lib/portal/spring-orm.jar,\
-	@../../../lib/portal/spring-oxm.jar,\
 	@../../../lib/portal/spring-tx.jar,\
 	@../../../lib/portal/spring-web.jar,\
-	@../../../lib/portal/spring-webmvc.jar,\
 	@../../../lib/portal/xercesImpl.jar,\
 	@../../../lib/portal/xml-apis.jar,\
 	@../../../lib/portal/xmlsec.jar,\

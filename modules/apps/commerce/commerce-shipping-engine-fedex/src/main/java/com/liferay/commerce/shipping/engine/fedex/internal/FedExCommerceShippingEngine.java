@@ -66,6 +66,48 @@ public class FedExCommerceShippingEngine implements CommerceShippingEngine {
 			Locale locale)
 		throws CommerceShippingEngineException {
 
+		return _getCommerceShippingOptions(
+			commerceContext, commerceOrder, locale);
+	}
+
+	@Override
+	public String getDescription(Locale locale) {
+		return LanguageUtil.get(
+			_getResourceBundle(locale), "fedex-description");
+	}
+
+	@Override
+	public List<CommerceShippingOption> getEnabledCommerceShippingOptions(
+			CommerceContext commerceContext, CommerceOrder commerceOrder,
+			Locale locale)
+		throws CommerceShippingEngineException {
+
+		return _getCommerceShippingOptions(
+			commerceContext, commerceOrder, locale);
+	}
+
+	@Override
+	public String getName(Locale locale) {
+		return LanguageUtil.get(_getResourceBundle(locale), "fedex");
+	}
+
+	private long _getCommerceShippingMethodId(CommerceOrder commerceOrder) {
+		CommerceShippingMethod commerceShippingMethod =
+			_commerceShippingMethodLocalService.fetchCommerceShippingMethod(
+				commerceOrder.getGroupId(), KEY);
+
+		if (commerceShippingMethod == null) {
+			return 0;
+		}
+
+		return commerceShippingMethod.getCommerceShippingMethodId();
+	}
+
+	private List<CommerceShippingOption> _getCommerceShippingOptions(
+			CommerceContext commerceContext, CommerceOrder commerceOrder,
+			Locale locale)
+		throws CommerceShippingEngineException {
+
 		try {
 			CommerceAddress commerceAddress =
 				commerceOrder.getShippingAddress();
@@ -100,29 +142,6 @@ public class FedExCommerceShippingEngine implements CommerceShippingEngine {
 		catch (Exception exception) {
 			throw new CommerceShippingEngineException(exception);
 		}
-	}
-
-	@Override
-	public String getDescription(Locale locale) {
-		return LanguageUtil.get(
-			_getResourceBundle(locale), "fedex-description");
-	}
-
-	@Override
-	public String getName(Locale locale) {
-		return LanguageUtil.get(_getResourceBundle(locale), "fedex");
-	}
-
-	private long _getCommerceShippingMethodId(CommerceOrder commerceOrder) {
-		CommerceShippingMethod commerceShippingMethod =
-			_commerceShippingMethodLocalService.fetchCommerceShippingMethod(
-				commerceOrder.getGroupId(), KEY);
-
-		if (commerceShippingMethod == null) {
-			return 0;
-		}
-
-		return commerceShippingMethod.getCommerceShippingMethodId();
 	}
 
 	private ResourceBundle _getResourceBundle(Locale locale) {

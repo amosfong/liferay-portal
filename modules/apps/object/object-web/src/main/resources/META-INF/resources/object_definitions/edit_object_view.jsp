@@ -28,8 +28,6 @@ ObjectView objectView = (ObjectView)request.getAttribute(ObjectWebKeys.OBJECT_VI
 		module="js/components/ObjectView/index"
 		props='<%=
 			HashMapBuilder.<String, Object>put(
-				"isFFObjectViewSortColumnConfigurationEnabled", objectDefinitionsViewsDisplayContext.isFFObjectViewSortColumnConfigurationEnabled()
-			).put(
 				"isViewOnly", !objectDefinitionsViewsDisplayContext.hasUpdateObjectDefinitionPermission()
 			).put(
 				"objectViewId", objectView.getObjectViewId()

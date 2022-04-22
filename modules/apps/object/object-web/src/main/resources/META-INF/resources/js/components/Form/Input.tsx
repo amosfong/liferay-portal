@@ -12,60 +12,61 @@
  * details.
  */
 
-import ClayForm, {ClayInput} from '@clayui/form';
-import classNames from 'classnames';
+import {ClayInput} from '@clayui/form';
 import React from 'react';
 
-import ErrorFeedback from './ErrorFeedback';
-import FeedbackMessage from './FeedbackMessage';
-import RequiredMask from './RequiredMask';
+import FieldBase from './FieldBase';
 
-export default function Input({
-	className,
-	component,
-	disabled = false,
-	error,
-	feedbackMessage,
-	id,
-	label,
-	name,
-	onChange,
-	required = false,
-	type,
-	value,
-	...otherProps
-}: IProps) {
-	return (
-		<ClayForm.Group
-			className={classNames(className, {
-				'has-error': error,
-			})}
-		>
-			<label className={classNames({disabled})} htmlFor={id}>
-				{label}
-
-				{required && <RequiredMask />}
-			</label>
-
-			<ClayInput
-				{...otherProps}
-				component={component}
+const Input: React.ForwardRefExoticComponent<
+	IProps & React.RefAttributes<HTMLInputElement>
+> = React.forwardRef(
+	(
+		{
+			className,
+			component,
+			disabled,
+			error,
+			feedbackMessage,
+			id,
+			label,
+			name,
+			onChange,
+			onInput,
+			required,
+			type,
+			value,
+			...otherProps
+		},
+		forwardRef
+	) => {
+		return (
+			<FieldBase
+				className={className}
 				disabled={disabled}
+				errorMessage={error}
+				helpMessage={feedbackMessage}
 				id={id}
-				name={name}
-				onChange={onChange}
-				type={type}
-				value={value}
-			/>
+				label={label}
+				required={required}
+			>
+				<ClayInput
+					{...otherProps}
+					component={component}
+					disabled={disabled}
+					id={id}
+					name={name}
+					onChange={onChange}
+					onInput={onInput}
+					ref={forwardRef}
+					type={type}
+					value={value}
+				/>
+			</FieldBase>
+		);
+	}
+);
 
-			{error && <ErrorFeedback error={error} />}
-
-			{feedbackMessage && (
-				<FeedbackMessage feedbackMessage={feedbackMessage} />
-			)}
-		</ClayForm.Group>
-	);
-}
+export default Input;
 
 interface IProps
 	extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
@@ -75,7 +76,7 @@ interface IProps
 	feedbackMessage?: string;
 	id?: string;
 	label: string;
-	name: string;
+	name?: string;
 	required?: boolean;
 	type?: 'number' | 'text';
 	value?: string | number | string[];

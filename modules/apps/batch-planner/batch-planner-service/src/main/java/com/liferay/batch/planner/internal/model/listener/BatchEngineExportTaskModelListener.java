@@ -16,16 +16,21 @@ package com.liferay.batch.planner.internal.model.listener;
 
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
-import com.liferay.batch.planner.constants.BatchPlannerLogConstants;
-import com.liferay.batch.planner.model.BatchPlannerLog;
-import com.liferay.batch.planner.service.BatchPlannerLogLocalService;
+import com.liferay.batch.planner.constants.BatchPlannerPlanConstants;
+import com.liferay.batch.planner.constants.BatchPlannerPortletKeys;
+import com.liferay.batch.planner.internal.notification.BatchPlannerNotificationSender;
+import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.service.BatchPlannerPlanLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,13 +43,6 @@ public class BatchEngineExportTaskModelListener
 	extends BaseModelListener<BatchEngineExportTask> {
 
 	@Override
-	public void onAfterCreate(BatchEngineExportTask batchEngineExportTask)
-		throws ModelListenerException {
-
-		_updateStatus(batchEngineExportTask);
-	}
-
-	@Override
 	public void onAfterRemove(BatchEngineExportTask batchEngineExportTask)
 		throws ModelListenerException {
 
@@ -52,8 +50,7 @@ public class BatchEngineExportTaskModelListener
 			_batchPlannerPlanLocalService.updateActive(
 				false,
 				String.valueOf(
-					batchEngineExportTask.getBatchEngineExportTaskId()),
-				true);
+					batchEngineExportTask.getBatchEngineExportTaskId()));
 		}
 		catch (Exception exception) {
 			_log.error(exception);
@@ -66,42 +63,84 @@ public class BatchEngineExportTaskModelListener
 			BatchEngineExportTask batchEngineExportTask)
 		throws ModelListenerException {
 
-		_updateStatus(batchEngineExportTask);
-	}
+		BatchPlannerPlan batchPlannerPlan = _updateStatus(
+			batchEngineExportTask);
 
-	private void _updateStatus(BatchEngineExportTask batchEngineExportTask) {
-		BatchPlannerLog batchPlannerLog =
-			_batchPlannerLogLocalService.fetchBatchPlannerLog(
-				String.valueOf(
-					batchEngineExportTask.getBatchEngineExportTaskId()),
-				true);
-
-		if (batchPlannerLog == null) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"No batch planner log found for batch engine export task " +
-						"ID " +
-							batchEngineExportTask.getBatchEngineExportTaskId());
-			}
-
+		if (batchPlannerPlan == null) {
 			return;
 		}
 
-		batchPlannerLog.setStatus(
-			BatchPlannerLogConstants.getStatus(
+		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus =
+			BatchEngineTaskExecuteStatus.valueOf(
+				batchEngineExportTask.getExecuteStatus());
+
+		if ((batchEngineTaskExecuteStatus ==
+				BatchEngineTaskExecuteStatus.COMPLETED) ||
+			(batchEngineTaskExecuteStatus ==
+				BatchEngineTaskExecuteStatus.FAILED)) {
+
+			_notify(batchEngineTaskExecuteStatus, batchPlannerPlan);
+		}
+	}
+
+	@Activate
+	protected void activate() {
+		_batchPlannerNotificationSender.setUserNotificationEventLocalService(
+			_userNotificationEventLocalService);
+	}
+
+	private void _notify(
+		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus,
+		BatchPlannerPlan batchPlannerPlan) {
+
+		_batchPlannerNotificationSender.sendUserNotificationEvents(
+			batchPlannerPlan.getUserId(), BatchPlannerPortletKeys.BATCH_PLANNER,
+			UserNotificationDeliveryConstants.TYPE_WEBSITE,
+			_batchPlannerNotificationSender.getNotificationEventJSONObject(
+				batchEngineTaskExecuteStatus,
+				batchPlannerPlan.getBatchPlannerPlanId(),
+				batchPlannerPlan.getInternalClassName()));
+	}
+
+	private BatchPlannerPlan _updateStatus(
+		BatchEngineExportTask batchEngineExportTask) {
+
+		BatchPlannerPlan batchPlannerPlan =
+			_batchPlannerPlanLocalService.fetchBatchPlannerPlan(
+				GetterUtil.getLong(
+					batchEngineExportTask.getExternalReferenceCode()));
+
+		if (batchPlannerPlan == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"No batch planner plan found for ID " +
+						batchEngineExportTask.getExternalReferenceCode());
+			}
+
+			return null;
+		}
+
+		batchPlannerPlan.setStatus(
+			BatchPlannerPlanConstants.getStatus(
 				BatchEngineTaskExecuteStatus.valueOf(
 					batchEngineExportTask.getExecuteStatus())));
 
-		_batchPlannerLogLocalService.updateBatchPlannerLog(batchPlannerLog);
+		return _batchPlannerPlanLocalService.updateBatchPlannerPlan(
+			batchPlannerPlan);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BatchEngineExportTaskModelListener.class);
 
-	@Reference
-	private BatchPlannerLogLocalService _batchPlannerLogLocalService;
+	private final BatchPlannerNotificationSender
+		_batchPlannerNotificationSender = new BatchPlannerNotificationSender(
+			"export");
 
 	@Reference
 	private BatchPlannerPlanLocalService _batchPlannerPlanLocalService;
+
+	@Reference
+	private UserNotificationEventLocalService
+		_userNotificationEventLocalService;
 
 }

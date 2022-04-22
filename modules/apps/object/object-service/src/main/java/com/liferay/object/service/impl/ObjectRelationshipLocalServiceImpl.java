@@ -30,6 +30,7 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.base.ObjectRelationshipLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.object.service.persistence.ObjectFieldPersistence;
+import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -162,6 +163,9 @@ public class ObjectRelationshipLocalServiceImpl
 
 		objectRelationship = objectRelationshipPersistence.remove(
 			objectRelationship);
+
+		_objectLayoutTabPersistence.removeByObjectRelationshipId(
+			objectRelationship.getObjectRelationshipId());
 
 		if (Objects.equals(
 				objectRelationship.getType(),
@@ -306,8 +310,8 @@ public class ObjectRelationshipLocalServiceImpl
 	}
 
 	private ObjectField _addObjectField(
-			User user, String name, long objectDefinitionId1,
-			long objectDefinitionId2, String type)
+			User user, Map<Locale, String> labelMap, String name,
+			long objectDefinitionId1, long objectDefinitionId2, String type)
 		throws PortalException {
 
 		ObjectField objectField = _objectFieldPersistence.create(
@@ -344,8 +348,7 @@ public class ObjectRelationshipLocalServiceImpl
 		objectField.setIndexed(true);
 		objectField.setIndexedAsKeyword(false);
 		objectField.setIndexedLanguageId(null);
-		objectField.setLabelMap(
-			objectDefinition1.getLabelMap(), LocaleUtil.getSiteDefault());
+		objectField.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
 		objectField.setName(dbColumnName);
 		objectField.setRelationshipType(type);
 		objectField.setRequired(false);
@@ -400,7 +403,8 @@ public class ObjectRelationshipLocalServiceImpl
 				type, ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
 
 			ObjectField objectField = _addObjectField(
-				user, name, objectDefinitionId1, objectDefinitionId2, type);
+				user, objectRelationship.getLabelMap(), name,
+				objectDefinitionId1, objectDefinitionId2, type);
 
 			objectRelationship.setObjectFieldId2(
 				objectField.getObjectFieldId());
@@ -538,6 +542,9 @@ public class ObjectRelationshipLocalServiceImpl
 
 	@Reference
 	private ObjectFieldPersistence _objectFieldPersistence;
+
+	@Reference
+	private ObjectLayoutTabPersistence _objectLayoutTabPersistence;
 
 	@Reference
 	private UserLocalService _userLocalService;

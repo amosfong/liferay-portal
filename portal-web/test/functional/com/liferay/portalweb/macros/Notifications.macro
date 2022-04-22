@@ -18,12 +18,28 @@ definition {
 			value1 = "${key_notificationsTitle}");
 	}
 
+	macro deleteAllNotifications {
+		Refresh();
+
+		if (IsElementPresent(locator1 = "Notifications#PROFILE_BADGE_COUNT")) {
+			Navigator.gotoNotifications();
+
+			PortletEntry.selectAll();
+
+			ClickNoError(locator1 = "Icon#DELETE");
+
+			Alert.viewSuccessMessage();
+		}
+	}
+
 	macro deleteNotification {
 		var key_contentBody = "${contentBody}";
 
 		Click(locator1 = "Notifications#NOTIFICATIONS_VERTICAL_ELLIPSIS");
 
 		MenuItem.clickNoError(menuItem = "Delete");
+
+		Alert.viewSuccessMessage();
 
 		AssertElementNotPresent(locator1 = "Notifications#NOTIFICATIONS_CONTENT");
 	}
@@ -153,6 +169,23 @@ definition {
 		AssertTextEquals(
 			locator1 = "Message#EMPTY_INFO",
 			value1 = "You do not have any notifications.");
+	}
+
+	macro viewDeletedContent {
+		AssertTextEquals(
+			locator1 = "Notifications#NOTIFICATIONS_TITLE",
+			value1 = "Notification no longer applies.");
+
+		AssertTextEquals(
+			key_contentBody = "${contentBody}",
+			locator1 = "Notifications#NOTIFICATIONS_CONTENT",
+			value1 = "${contentBody}");
+
+		if (isSet(noOptions)) {
+			AssertElementNotPresent(
+				key_contentBody = "${contentBody}",
+				locator1 = "Notifications#NOTIFICATIONS_VERTICAL_ELLIPSIS");
+		}
 	}
 
 	macro viewExpiredContent {

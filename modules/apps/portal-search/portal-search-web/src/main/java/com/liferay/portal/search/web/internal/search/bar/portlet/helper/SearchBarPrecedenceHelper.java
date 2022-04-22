@@ -31,7 +31,6 @@ import com.liferay.portal.search.web.internal.search.bar.portlet.SearchBarPortle
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,14 +41,20 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = SearchBarPrecedenceHelper.class)
 public class SearchBarPrecedenceHelper {
 
-	public Optional<Portlet> findHeaderSearchBarPortletOptional(
-		ThemeDisplay themeDisplay) {
+	public Portlet findHeaderSearchBarPortlet(ThemeDisplay themeDisplay) {
+		List<Portlet> portlets = _getPortlets(themeDisplay);
 
-		Stream<Portlet> stream = _getPortletsStream(themeDisplay);
+		Portlet headerSearchBarPortlet = null;
 
-		return stream.filter(
-			this::_isHeaderSearchBar
-		).findAny();
+		for (Portlet portlet : portlets) {
+			if (_isHeaderSearchBar(portlet)) {
+				headerSearchBarPortlet = portlet;
+
+				break;
+			}
+		}
+
+		return headerSearchBarPortlet;
 	}
 
 	public boolean isDisplayWarningIgnoredConfiguration(
@@ -88,21 +93,18 @@ public class SearchBarPrecedenceHelper {
 	public boolean isSearchBarInBodyWithHeaderSearchBarAlreadyPresent(
 		ThemeDisplay themeDisplay, String portletId) {
 
-		Optional<Portlet> optional = findHeaderSearchBarPortletOptional(
+		Portlet headerSearchBarPortlet = findHeaderSearchBarPortlet(
 			themeDisplay);
 
-		if (!optional.isPresent()) {
-			return false;
-		}
+		if ((headerSearchBarPortlet == null) ||
+			_isSamePortlet(headerSearchBarPortlet, portletId)) {
 
-		Portlet portlet = optional.get();
-
-		if (_isSamePortlet(portlet, portletId)) {
 			return false;
 		}
 
 		SearchBarPortletPreferences searchBarPortletPreferences1 =
-			_getSearchBarPortletPreferences(portlet, themeDisplay);
+			_getSearchBarPortletPreferences(
+				headerSearchBarPortlet, themeDisplay);
 
 		if (!SearchBarPortletDestinationUtil.isSameDestination(
 				searchBarPortletPreferences1, themeDisplay)) {
@@ -137,15 +139,13 @@ public class SearchBarPrecedenceHelper {
 		_portletPreferencesLookup = portletPreferencesLookup;
 	}
 
-	private Stream<Portlet> _getPortletsStream(ThemeDisplay themeDisplay) {
+	private List<Portlet> _getPortlets(ThemeDisplay themeDisplay) {
 		Layout layout = themeDisplay.getLayout();
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
 
-		List<Portlet> portlets = layoutTypePortlet.getAllPortlets(false);
-
-		return portlets.stream();
+		return layoutTypePortlet.getAllPortlets(false);
 	}
 
 	private SearchBarPortletPreferences _getSearchBarPortletPreferences(

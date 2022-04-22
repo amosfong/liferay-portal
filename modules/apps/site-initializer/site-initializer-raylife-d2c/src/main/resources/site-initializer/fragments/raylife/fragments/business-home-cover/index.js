@@ -51,10 +51,13 @@ const retrieveQuoteButton = fragmentElement.querySelector(
 const retrieveQuoteContainer = fragmentElement.querySelector('#retrieve-quote');
 const scopeGroupId = Liferay.ThemeDisplay.getScopeGroupId();
 const zipContainer = fragmentElement.querySelector('#zip-container');
+const zipElement = document.getElementById('zip');
 
-window.onload = function () {
-	document.getElementById('zip').focus();
-};
+if (zipElement !== null) {
+	window.onload = function () {
+		zipElement.focus();
+	};
+}
 
 document.getElementById('zip').focus();
 
@@ -92,7 +95,7 @@ continueQuoteButton.onclick = async function () {
 	}
 
 	const raylifeApplicationResponse = await fetchHeadless(
-		`o/c/raylifeapplications/scopes/${scopeGroupId}?filter=email eq '${emailInput.value}'`
+		`o/c/raylifeapplications/?filter=email eq '${emailInput.value}'`
 	);
 
 	if (!raylifeApplicationResponse.items.length) {

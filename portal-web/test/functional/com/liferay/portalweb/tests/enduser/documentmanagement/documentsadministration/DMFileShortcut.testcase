@@ -95,6 +95,55 @@ definition {
 		DMDocument.viewCP(dmDocumentTitle = "Document_4.jpg");
 	}
 
+	@description = "This validates LPS-68795. It ensures that a shortcut can be moved into a folder."
+	@priority = "4"
+	test CanMoveShortcutIntoFolder {
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_1.jpg");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Site Name",
+			layoutName = "Documents and Media Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "1",
+			groupName = "Site Name",
+			layoutName = "Documents and Media Page",
+			widgetName = "Documents and Media");
+
+		Navigator.gotoSitePage(
+			pageName = "Documents and Media Page",
+			siteName = "Site Name");
+
+		DMDocument.enableActionsMenuOnPortlet();
+
+		JSONDocument.addShortcut(
+			dmDocumentTitle = "DM Document Title",
+			sourceGroupName = "Guest",
+			targetGroupName = "Site Name");
+
+		JSONFolder.addFolder(
+			dmFolderDescription = "DM Folder Description",
+			dmFolderName = "DM Folder Name",
+			groupName = "Site Name");
+
+		Navigator.gotoSitePage(
+			pageName = "Documents and Media Page",
+			siteName = "Site Name");
+
+		DMDocument.moveToFolderPG(
+			dmDocumentTitle = "DM Document Title",
+			dmFolderName = "DM Folder Name");
+
+		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
+
+		DMDocument.viewPG(dmDocumentTitle = "DM Document Title");
+	}
+
 	@description = "This ensures that the user can edit the shortcut."
 	@priority = "4"
 	@refactorneeded

@@ -1,6 +1,7 @@
 {
 	"dependencies": {
 		"dagre": "0.8.2",
+		"moment": "2.24.0",
 		"react-flow-renderer": "9.7.0"
 	},
 	"jest": {
@@ -22,5 +23,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "5.0.50"
+	"version": "5.0.57"
 }

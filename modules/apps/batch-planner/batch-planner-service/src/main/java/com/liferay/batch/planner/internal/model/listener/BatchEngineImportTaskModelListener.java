@@ -16,16 +16,22 @@ package com.liferay.batch.planner.internal.model.listener;
 
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
-import com.liferay.batch.planner.constants.BatchPlannerLogConstants;
-import com.liferay.batch.planner.model.BatchPlannerLog;
-import com.liferay.batch.planner.service.BatchPlannerLogLocalService;
+import com.liferay.batch.planner.constants.BatchPlannerPlanConstants;
+import com.liferay.batch.planner.constants.BatchPlannerPortletKeys;
+import com.liferay.batch.planner.internal.notification.BatchPlannerNotificationSender;
+import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.service.BatchPlannerPlanLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,13 +44,6 @@ public class BatchEngineImportTaskModelListener
 	extends BaseModelListener<BatchEngineImportTask> {
 
 	@Override
-	public void onAfterCreate(BatchEngineImportTask batchEngineImportTask)
-		throws ModelListenerException {
-
-		_updateStatus(batchEngineImportTask);
-	}
-
-	@Override
 	public void onAfterRemove(BatchEngineImportTask batchEngineImportTask)
 		throws ModelListenerException {
 
@@ -52,8 +51,7 @@ public class BatchEngineImportTaskModelListener
 			_batchPlannerPlanLocalService.updateActive(
 				false,
 				String.valueOf(
-					batchEngineImportTask.getBatchEngineImportTaskId()),
-				true);
+					batchEngineImportTask.getBatchEngineImportTaskId()));
 		}
 		catch (Exception exception) {
 			_log.error(exception);
@@ -66,42 +64,91 @@ public class BatchEngineImportTaskModelListener
 			BatchEngineImportTask batchEngineImportTask)
 		throws ModelListenerException {
 
-		_updateStatus(batchEngineImportTask);
-	}
+		BatchPlannerPlan batchPlannerPlan = _updateStatus(
+			batchEngineImportTask);
 
-	private void _updateStatus(BatchEngineImportTask batchEngineImportTask) {
-		BatchPlannerLog batchPlannerLog =
-			_batchPlannerLogLocalService.fetchBatchPlannerLog(
-				String.valueOf(
-					batchEngineImportTask.getBatchEngineImportTaskId()),
-				false);
-
-		if (batchPlannerLog == null) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"No batch planner log found for batch engine import task " +
-						"ID " +
-							batchEngineImportTask.getBatchEngineImportTaskId());
-			}
-
+		if (batchPlannerPlan == null) {
 			return;
 		}
 
-		batchPlannerLog.setStatus(
-			BatchPlannerLogConstants.getStatus(
+		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus =
+			BatchEngineTaskExecuteStatus.valueOf(
+				batchEngineImportTask.getExecuteStatus());
+
+		if ((batchEngineTaskExecuteStatus ==
+				BatchEngineTaskExecuteStatus.COMPLETED) ||
+			(batchEngineTaskExecuteStatus ==
+				BatchEngineTaskExecuteStatus.FAILED)) {
+
+			_notify(batchEngineTaskExecuteStatus, batchPlannerPlan);
+		}
+	}
+
+	@Activate
+	protected void activate() {
+		_batchPlannerNotificationSender.setUserNotificationEventLocalService(
+			_userNotificationEventLocalService);
+	}
+
+	private String _getFileName(String externalURL) {
+		String fileName = FileUtil.getShortFileName(externalURL);
+
+		return fileName.replaceAll("(.+)-(.+)\\.(\\w+)", "$1.$3");
+	}
+
+	private void _notify(
+		BatchEngineTaskExecuteStatus batchEngineTaskExecuteStatus,
+		BatchPlannerPlan batchPlannerPlan) {
+
+		_batchPlannerNotificationSender.sendUserNotificationEvents(
+			batchPlannerPlan.getUserId(), BatchPlannerPortletKeys.BATCH_PLANNER,
+			UserNotificationDeliveryConstants.TYPE_WEBSITE,
+			_batchPlannerNotificationSender.getNotificationEventJSONObject(
+				batchEngineTaskExecuteStatus,
+				batchPlannerPlan.getBatchPlannerPlanId(),
+				batchPlannerPlan.getInternalClassName(),
+				_getFileName(batchPlannerPlan.getExternalURL())));
+	}
+
+	private BatchPlannerPlan _updateStatus(
+		BatchEngineImportTask batchEngineImportTask) {
+
+		BatchPlannerPlan batchPlannerPlan =
+			_batchPlannerPlanLocalService.fetchBatchPlannerPlan(
+				GetterUtil.getLong(
+					batchEngineImportTask.getExternalReferenceCode()));
+
+		if (batchPlannerPlan == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"No batch planner plan found for ID " +
+						batchEngineImportTask.getExternalReferenceCode());
+			}
+
+			return null;
+		}
+
+		batchPlannerPlan.setStatus(
+			BatchPlannerPlanConstants.getStatus(
 				BatchEngineTaskExecuteStatus.valueOf(
 					batchEngineImportTask.getExecuteStatus())));
 
-		_batchPlannerLogLocalService.updateBatchPlannerLog(batchPlannerLog);
+		return _batchPlannerPlanLocalService.updateBatchPlannerPlan(
+			batchPlannerPlan);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BatchEngineImportTaskModelListener.class);
 
-	@Reference
-	private BatchPlannerLogLocalService _batchPlannerLogLocalService;
+	private final BatchPlannerNotificationSender
+		_batchPlannerNotificationSender = new BatchPlannerNotificationSender(
+			"import");
 
 	@Reference
 	private BatchPlannerPlanLocalService _batchPlannerPlanLocalService;
+
+	@Reference
+	private UserNotificationEventLocalService
+		_userNotificationEventLocalService;
 
 }

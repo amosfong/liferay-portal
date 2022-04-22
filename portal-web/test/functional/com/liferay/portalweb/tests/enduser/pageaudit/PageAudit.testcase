@@ -17,6 +17,10 @@ definition {
 				groupName = "Test Site Name",
 				layoutName = "Content Page",
 				type = "content");
+
+			JSONLayout.publishLayout(
+				groupName = "Test Site Name",
+				layoutName = "Content Page");
 		}
 	}
 
@@ -218,7 +222,7 @@ definition {
 		task ("Create Widget Page") {
 			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
 
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 		}
@@ -322,7 +326,7 @@ definition {
 		task ("Create Widget Page") {
 			Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name");
 
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "Widget Page Name",
 				sitePageType = "Widget Page");
 		}
@@ -1031,6 +1035,8 @@ definition {
 	Then the reload button won't be visible."
 	@priority = "3"
 	test CheckNotVisibleReloadbButtonInPrivatePage {
+		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
+
 		task ("Create a Private Page") {
 			JSONLayout.addPrivateLayout(
 				groupName = "Test Site Name",
@@ -1060,9 +1066,7 @@ definition {
 		task ("Open Content Performance panel") {
 			PageAudit.openPanelBeforeConfiguration();
 
-			AssertElementPresent(
-				key_text = "Configure",
-				locator1 = "Button#ANY");
+			AssertVisible(locator1 = "PageAudit#SIDEBAR");
 		}
 
 		task ("Logout and login") {
@@ -1072,7 +1076,7 @@ definition {
 		}
 
 		task ("Check if panel is closed") {
-			AssertElementNotPresent(locator1 = "PageAudit#CONNECT_TO_GOOGLE_PAGESPEED_BUTTON");
+			AssertNotVisible(locator1 = "PageAudit#SIDEBAR");
 		}
 	}
 
@@ -3469,6 +3473,8 @@ definition {
 		}
 
 		task ("Assert if cached data is displayed") {
+			PageAudit.openPanelBeforeConfiguration();
+
 			AssertElementPresent(
 				failingCheckName = "Small Tap Targets",
 				locator1 = "PageAudit#FAILING_CHECK_NAME");

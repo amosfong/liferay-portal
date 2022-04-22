@@ -66,7 +66,6 @@ import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.model.PortletConstants;
-import com.liferay.portal.kernel.model.PortletPreferencesIds;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactory;
@@ -759,10 +758,10 @@ public class FileSystemImporter extends BaseImporter {
 		try {
 			try {
 				fileEntry = dlAppLocalService.addFileEntry(
-					userId, groupId, parentFolderId, fileName,
+					null, userId, groupId, parentFolderId, fileName,
 					mimeTypes.getContentType(fileName), fileName,
-					StringPool.BLANK, StringPool.BLANK, inputStream, length,
-					serviceContext);
+					StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+					inputStream, length, null, null, serviceContext);
 			}
 			catch (DuplicateFileEntryException duplicateFileEntryException) {
 
@@ -780,7 +779,7 @@ public class FileSystemImporter extends BaseImporter {
 				fileEntry = dlAppLocalService.updateFileEntry(
 					userId, fileEntry.getFileEntryId(), fileName,
 					mimeTypes.getContentType(fileName), fileName,
-					StringPool.BLANK, StringPool.BLANK,
+					StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
 					DLVersionNumberIncrease.MAJOR, inputStream, length,
 					fileEntry.getExpirationDate(), fileEntry.getReviewDate(),
 					serviceContext);
@@ -1525,13 +1524,10 @@ public class FileSystemImporter extends BaseImporter {
 		}
 
 		if (portletPreferencesTranslator != null) {
-			PortletPreferencesIds portletPreferencesIds =
-				PortletPreferencesFactoryUtil.getPortletPreferencesIds(
-					layout.getGroupId(), 0, layout, portletId, false);
-
 			PortletPreferences portletSetup =
 				PortletPreferencesLocalServiceUtil.getPreferences(
-					portletPreferencesIds);
+					PortletPreferencesFactoryUtil.getPortletPreferencesIds(
+						layout.getGroupId(), 0, layout, portletId, false));
 
 			Iterator<String> iterator = portletPreferencesJSONObject.keys();
 

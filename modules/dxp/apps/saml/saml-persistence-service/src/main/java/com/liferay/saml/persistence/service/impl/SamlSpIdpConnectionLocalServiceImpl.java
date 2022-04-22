@@ -88,8 +88,6 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		samlSpIdpConnection.setForceAuthn(forceAuthn);
 		samlSpIdpConnection.setLdapImportEnabled(ldapImportEnabled);
 		samlSpIdpConnection.setMetadataUpdatedDate(new Date());
-		samlSpIdpConnection.setUnknownUsersAreStrangers(
-			unknownUsersAreStrangers);
 
 		if ((metadataXmlInputStream == null) &&
 			Validator.isNotNull(metadataUrl)) {
@@ -119,6 +117,8 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		samlSpIdpConnection.setNameIdFormat(nameIdFormat);
 		samlSpIdpConnection.setSamlIdpEntityId(samlIdpEntityId);
 		samlSpIdpConnection.setSignAuthnRequest(signAuthnRequest);
+		samlSpIdpConnection.setUnknownUsersAreStrangers(
+			unknownUsersAreStrangers);
 		samlSpIdpConnection.setUserAttributeMappings(userAttributeMappings);
 		samlSpIdpConnection.setUserIdentifierExpression(
 			userIdentifierExpression);
@@ -254,7 +254,7 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		samlSpIdpConnection.setUnknownUsersAreStrangers(
 			unknownUsersAreStrangers);
 
-		if (enabled && (metadataXmlInputStream == null) &&
+		if ((metadataXmlInputStream == null) &&
 			Validator.isNotNull(metadataUrl)) {
 
 			samlSpIdpConnection.setMetadataUrl(metadataUrl);
@@ -263,12 +263,17 @@ public class SamlSpIdpConnectionLocalServiceImpl
 				metadataXmlInputStream = _metadataUtil.getMetadata(metadataUrl);
 			}
 			catch (Exception exception) {
-				throw new SamlSpIdpConnectionMetadataUrlException(
-					StringBundler.concat(
-						"Unable to get metadata from ", metadataUrl, ": ",
-						exception.getMessage()),
-					exception);
+				if (enabled) {
+					throw new SamlSpIdpConnectionMetadataUrlException(
+						StringBundler.concat(
+							"Unable to get metadata from ", metadataUrl, ": ",
+							exception.getMessage()),
+						exception);
+				}
 			}
+		}
+		else {
+			samlSpIdpConnection.setMetadataUrl(StringPool.BLANK);
 		}
 
 		String metadataXml = StringPool.BLANK;

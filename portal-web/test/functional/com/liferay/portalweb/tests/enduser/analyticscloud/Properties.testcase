@@ -380,10 +380,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9112 | Test Summary: New properties generated IDs are not incremental"
 	@priority = "4"
 	test NewPropertiesGeneratedIDsAreNotIncremental {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor ticket: LRAC-9599
-
 		task ("Sign in AC") {
 			ACUtils.launchAC();
 		}
@@ -533,6 +529,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8159 | Test Summary: The properties list in settings shows a list of all properties in the workspace"
 	@priority = "5"
 	test PropertiesListInSettingsShowsListOfAllPropertiesInTheWorkspace {
+		property portal.acceptance = "true";
+
 		ACDXPSettings.connectDXPtoAnalyticsCloud();
 
 		ACUtils.launchAC();

@@ -18,13 +18,16 @@ import {
 import {PRODUCT_TYPES} from '../../utils/constants/productTypes';
 import {STATUS_TAG_TYPE_NAMES} from '../../utils/constants/statusTag';
 import ManageProductButton from '../ManageProductButton';
+
 const ManageProductUser = ({project, subscriptionGroups}) => {
 	const [dxpCloudProjectId, setDxpCloudProjectId] = useState('');
 	const [analyctsCloudGroupId, setAnalyctsCloudGroupId] = useState('');
+
 	const activatedLinkDXPC = `https://console.liferay.cloud/projects/${dxpCloudProjectId}/overview`;
 	const activatedLinkAC = `https://analytics.liferay.com/workspace/${analyctsCloudGroupId}/sites`;
+
 	useEffect(() => {
-		const getOnboardingFormData = async () => {
+		const getDxpCloudEnvimentProjectId = async () => {
 			const {data} = await client.query({
 				query: getDXPCloudEnvironment,
 				variables: {
@@ -39,7 +42,8 @@ const ManageProductUser = ({project, subscriptionGroups}) => {
 				setDxpCloudProjectId(dxpProjectId);
 			}
 		};
-		getOnboardingFormData();
+
+		getDxpCloudEnvimentProjectId();
 
 		const getAnalyticsCloudWorkspaces = async () => {
 			const {data} = await client.query({
@@ -51,7 +55,8 @@ const ManageProductUser = ({project, subscriptionGroups}) => {
 			});
 			if (data) {
 				const analyticsCloudWorkspacesGroupID =
-					data?.c.analyticsCloudWorkspaces.items[0].workspaceGroupId;
+					data?.c?.analyticsCloudWorkspaces?.items[0]
+						?.workspaceGroupId;
 				setAnalyctsCloudGroupId(analyticsCloudWorkspacesGroupID);
 			}
 		};

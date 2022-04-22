@@ -74,12 +74,12 @@ definition {
 
 		task ("Assert appears on metric") {
 			var portalURL = PropsUtil.get("portal.url");
-			var dataSourceName = StringUtil.replace("${assignedPropertyName}", " Combined Property", "");
+			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
 
 			ACAssets.viewAssetAppearsOnMetric(
 				canonicalURL = "${portalURL}/web/site-name/ac-page/-/blogs/blogs-ac-title",
 				cardTitle = "Asset Appears On",
-				pageNmae = "Blogs AC Title - Site Name - ${dataSourceName}");
+				pageName = "Blogs AC Title - Site Name - ${dataSourceName}");
 		}
 	}
 
@@ -87,7 +87,6 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test AssertBlogsPageTImeFilter180Days {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: It is not possible to perform the assert because this test needs data from the past.
 		// AC Refactor ticket: LRAC-8930
@@ -274,7 +273,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test BlogsLocationCardShowsViewsByExpectedLocation {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: The location data should show the name of the country but it's actually showing "Local network"
 		// AC Refactor: Personas
@@ -536,7 +534,6 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test CanUseCustomRangeBlogsAssetsPage {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: It is not possible to perform the assert because this test needs data from the past.
 		// AC Refactor ticket: LRAC-8931
@@ -596,8 +593,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8114 | Test Summary: Blogs known individuals list shows individuals who have viewed the blog"
 	@priority = "5"
 	test KnownIndividualsListShowsIndividualsWhoHaveViewedBlog {
-		property portal.upstream = "quarantine";
-
 		var usernameList = "ac,dxp,liferay";
 		var emailList = "ac@liferay.com,dxp@liferay.com,liferay@liferay.com";
 		var nameList = "ac ac,liferay liferay,dxp dxp";
@@ -768,6 +763,9 @@ definition {
 	@description = "View all blogs in the property in assets"
 	@priority = "5"
 	test ViewAllBlogsShownInAssetList {
+		property portal.acceptance = "true";
+		property portal.release = "true";
+
 		ACUtils.createBlogsAndAddToPage(entryTitle = "Test 2");
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");

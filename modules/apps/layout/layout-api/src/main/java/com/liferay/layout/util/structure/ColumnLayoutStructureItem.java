@@ -58,7 +58,7 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 	public JSONObject getItemConfigJSONObject() {
 		JSONObject jsonObject = JSONUtil.put("size", _size);
 
-		for (ViewportSize viewportSize : ViewportSize.values()) {
+		for (ViewportSize viewportSize : _viewportSizes) {
 			if (viewportSize.equals(ViewportSize.DESKTOP)) {
 				continue;
 			}
@@ -69,7 +69,7 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 					"size",
 					() -> {
 						JSONObject viewportConfigurationJSONObject =
-							_viewportConfigurations.getOrDefault(
+							_viewportConfigurationJSONObjects.getOrDefault(
 								viewportSize.getViewportSizeId(),
 								JSONFactoryUtil.createJSONObject());
 
@@ -89,8 +89,8 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 		return _size;
 	}
 
-	public Map<String, JSONObject> getViewportConfigurations() {
-		return _viewportConfigurations;
+	public Map<String, JSONObject> getViewportConfigurationJSONObjects() {
+		return _viewportConfigurationJSONObjects;
 	}
 
 	@Override
@@ -105,9 +105,9 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 	public void setViewportConfiguration(
 		String viewportSizeId, JSONObject configurationJSONObject) {
 
-		_viewportConfigurations.put(
+		_viewportConfigurationJSONObjects.put(
 			viewportSizeId,
-			_viewportConfigurations.getOrDefault(
+			_viewportConfigurationJSONObjects.getOrDefault(
 				viewportSizeId, JSONFactoryUtil.createJSONObject()
 			).put(
 				"size",
@@ -127,7 +127,7 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 			setSize(itemConfigJSONObject.getInt("size"));
 		}
 
-		for (ViewportSize viewportSize : ViewportSize.values()) {
+		for (ViewportSize viewportSize : _viewportSizes) {
 			if (viewportSize.equals(ViewportSize.DESKTOP)) {
 				continue;
 			}
@@ -141,8 +141,10 @@ public class ColumnLayoutStructureItem extends LayoutStructureItem {
 		}
 	}
 
+	private static final ViewportSize[] _viewportSizes = ViewportSize.values();
+
 	private int _size;
-	private final Map<String, JSONObject> _viewportConfigurations =
+	private final Map<String, JSONObject> _viewportConfigurationJSONObjects =
 		new HashMap<>();
 
 }

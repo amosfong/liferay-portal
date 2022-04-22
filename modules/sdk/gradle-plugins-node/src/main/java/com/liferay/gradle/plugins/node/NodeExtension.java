@@ -105,7 +105,10 @@ public class NodeExtension {
 
 					String processorArchitecture = "-x";
 
-					if (OSDetector.isAppleARM()) {
+					int nodeMajorVersion = NodePluginUtil.getNodeMajorVersion(
+						nodeVersion);
+
+					if (OSDetector.isAppleARM() && (nodeMajorVersion > 15)) {
 						processorArchitecture = "-arm";
 					}
 

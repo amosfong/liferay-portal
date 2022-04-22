@@ -22,7 +22,7 @@
 </tr>
 <tr>
 	<td>EMPTY_SEARCH_CONTAINER</td>
-	<td>//div[contains (@class,'empty-result-message-header')]</td>
+	<td>//div[contains (@class,'empty-result-message-header')] | //div[contains(@class,'empty-state-text')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -98,6 +98,16 @@
 <tr>
 	<td>DATA_SET_ENTRY_NAME</td>
 	<td>//div[@class='data-set-content-wrapper']//a[text()='${key_entryName}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SEARCH_CONTAINER_WRAPPER</td>
+	<td>//div[contains(@class,'search-container-wrapper')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGINATION_ANY_PAGE</td>
+	<td>//ul[contains(@class,'pagination')]//li[contains(@class,'page-item')]//*[(contains(@class,'page-link')) and (contains(.,'${key_pageNumber}'))]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -151,4 +151,28 @@ definition {
 		}
 	}
 
+	macro viewCPIsNotPresent {
+		var key_resourceName = "${resourceName}";
+
+		AssertClick(
+			locator1 = "CustomFields#RESOURCE_TABLE_RESOURCE_LINK",
+			value1 = "${resourceName}");
+
+		var key_customFieldName = "${customFieldName}";
+
+		AssertElementNotPresent(locator1 = "CustomFieldsEditResource#CUSTOM_FIELDS_TABLE_NAME");
+	}
+
+	macro viewCPIsPresent {
+		var key_resourceName = "${resourceName}";
+
+		AssertClick(
+			locator1 = "CustomFields#RESOURCE_TABLE_RESOURCE_LINK",
+			value1 = "${resourceName}");
+
+		var key_customFieldName = "${customFieldName}";
+
+		AssertElementPresent(locator1 = "CustomFieldsEditResource#CUSTOM_FIELDS_TABLE_NAME");
+	}
+
 }

@@ -107,14 +107,14 @@ const SetupDXPCloudPage = ({
 			return false;
 		};
 
-		const alreadySubmited = await getDXPCloudActivationSubmitedStatus(
+		const alreadySubmitted = await getDXPCloudActivationSubmitedStatus(
 			project.accountKey
 		);
-		if (alreadySubmited) {
+		if (alreadySubmitted) {
 			setFormAlreadySubmitted(true);
 		}
 
-		if (!alreadySubmited && dxp) {
+		if (!alreadySubmitted && dxp) {
 			const {data} = await client.mutate({
 				mutation: addDXPCloudEnvironment,
 				variables: {
@@ -264,7 +264,10 @@ const SetupDXPCloudPage = ({
 							<Button
 								className="ml-3 my-2 text-brandy-secondary"
 								displayType="secondary"
-								onClick={() => pop()}
+								onClick={() => {
+									pop();
+									setBaseButtonDisabled(false);
+								}}
 								prependIcon="hr"
 								small
 							>

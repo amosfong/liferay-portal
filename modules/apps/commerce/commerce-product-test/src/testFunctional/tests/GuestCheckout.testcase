@@ -1,37 +1,18 @@
 @component-name = "portal-commerce"
 definition {
 
+	property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
 	property portal.release = "true";
 	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 	property testray.main.component.name = "Shopping Experience";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
-
-		PortalSettings.gotoConfiguration(
-			configurationCategory = "User Authentication",
-			configurationName = "General",
-			configurationScope = "Virtual Instance Scope");
-
-		Uncheck(locator1 = "PortalSettingsAuthentication#AUTHENTICATION_GENERAL_REQUIRE_STRANGERS_TO_VERIFY_THEIR_EMAIL_ADDRESS_CHECKBOX");
-
-		PortletEntry.save();
+		CommerceConfiguration.commerceSetUp();
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown(userScreenName = "buyer");
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	test AssertGuestCartIsTransferredToAccount {

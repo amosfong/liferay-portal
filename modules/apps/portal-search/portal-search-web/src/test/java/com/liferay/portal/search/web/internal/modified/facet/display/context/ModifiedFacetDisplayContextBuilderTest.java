@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CalendarFactory;
 import com.liferay.portal.kernel.util.DateFormatFactory;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -41,7 +42,6 @@ import com.liferay.portal.search.web.internal.modified.facet.display.context.bui
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.portal.util.CalendarFactoryImpl;
 import com.liferay.portal.util.DateFormatFactoryImpl;
-import com.liferay.portal.util.HttpImpl;
 
 import java.util.List;
 
@@ -78,7 +78,6 @@ public class ModifiedFacetDisplayContextBuilderTest {
 
 		_dateRangeFactory = new DateRangeFactory(_dateFormatFactory);
 
-		_httpImpl = new HttpImpl();
 		_jsonFactoryImpl = new JSONFactoryImpl();
 
 		_setUpPortalUtil();
@@ -358,12 +357,14 @@ public class ModifiedFacetDisplayContextBuilderTest {
 
 	private void _assertDoesNotHasParameter(String url, String name) {
 		Assert.assertTrue(
-			Validator.isNull(_httpImpl.getParameter(url, name, false)));
+			Validator.isNull(
+				HttpComponentsUtil.getParameter(url, name, false)));
 	}
 
 	private void _assertHasParameter(String url, String name) {
 		Assert.assertTrue(
-			Validator.isNotNull(_httpImpl.getParameter(url, name, false)));
+			Validator.isNotNull(
+				HttpComponentsUtil.getParameter(url, name, false)));
 	}
 
 	private void _assertTermDisplayContextsDoNotHaveFromAndToParameters(
@@ -399,8 +400,7 @@ public class ModifiedFacetDisplayContextBuilderTest {
 
 		try {
 			return new ModifiedFacetDisplayContextBuilder(
-				_calendarFactory, _dateFormatFactory, _httpImpl,
-				_getRenderRequest());
+				_calendarFactory, _dateFormatFactory, _getRenderRequest());
 		}
 		catch (ConfigurationException configurationException) {
 			throw new RuntimeException(configurationException);
@@ -518,7 +518,6 @@ public class ModifiedFacetDisplayContextBuilderTest {
 	@Mock
 	private FacetCollector _facetCollector;
 
-	private HttpImpl _httpImpl;
 	private JSONFactoryImpl _jsonFactoryImpl;
 
 }

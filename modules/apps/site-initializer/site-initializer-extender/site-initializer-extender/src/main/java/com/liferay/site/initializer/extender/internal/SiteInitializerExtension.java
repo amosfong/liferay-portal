@@ -17,6 +17,7 @@ package com.liferay.site.initializer.extender.internal;
 import com.liferay.account.service.AccountRoleLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
+import com.liferay.commerce.initializer.util.PortletSettingsImporter;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
@@ -28,6 +29,7 @@ import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResourc
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
 import com.liferay.headless.admin.user.resource.v1_0.AccountResource;
 import com.liferay.headless.admin.user.resource.v1_0.AccountRoleResource;
+import com.liferay.headless.admin.user.resource.v1_0.OrganizationResource;
 import com.liferay.headless.admin.user.resource.v1_0.UserAccountResource;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.headless.delivery.resource.v1_0.DocumentFolderResource;
@@ -40,6 +42,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocal
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
+import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -70,7 +73,6 @@ import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @author Preston Crary
@@ -83,7 +85,6 @@ public class SiteInitializerExtension {
 		AccountRoleResource.Factory accountRoleResourceFactory,
 		AssetCategoryLocalService assetCategoryLocalService,
 		AssetListEntryLocalService assetListEntryLocalService, Bundle bundle,
-		BundleContext bundleContext,
 		DDMStructureLocalService ddmStructureLocalService,
 		DDMTemplateLocalService ddmTemplateLocalService,
 		DefaultDDMStructureHelper defaultDDMStructureHelper,
@@ -104,16 +105,19 @@ public class SiteInitializerExtension {
 		ListTypeDefinitionResource.Factory listTypeDefinitionResourceFactory,
 		ListTypeEntryResource listTypeEntryResource,
 		ListTypeEntryResource.Factory listTypeEntryResourceFactory,
+		ObjectActionLocalService objectActionLocalService,
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectDefinitionResource.Factory objectDefinitionResourceFactory,
 		ObjectRelationshipResource.Factory objectRelationshipResourceFactory,
-		ObjectEntryLocalService objectEntryLocalService, Portal portal,
+		ObjectEntryLocalService objectEntryLocalService,
+		OrganizationResource.Factory organizationResourceFactory, Portal portal,
+		PortletSettingsImporter portletSettingsImporter,
 		RemoteAppEntryLocalService remoteAppEntryLocalService,
 		ResourceActionLocalService resourceActionLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
 		RoleLocalService roleLocalService,
 		SAPEntryLocalService sapEntryLocalService,
-		SettingsFactory settingsFactory,
+		ServletContext servletContext, SettingsFactory settingsFactory,
 		SiteNavigationMenuItemLocalService siteNavigationMenuItemLocalService,
 		SiteNavigationMenuItemTypeRegistry siteNavigationMenuItemTypeRegistry,
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
@@ -132,34 +136,34 @@ public class SiteInitializerExtension {
 
 		_component = _dependencyManager.createComponent();
 
-		_component.setImplementation(
-			new BundleSiteInitializer(
-				accountResourceFactory, accountRoleLocalService,
-				accountRoleResourceFactory, assetCategoryLocalService,
-				assetListEntryLocalService, bundle, ddmStructureLocalService,
-				ddmTemplateLocalService, defaultDDMStructureHelper, dlURLHelper,
-				documentFolderResourceFactory, documentResourceFactory,
-				fragmentsImporter, groupLocalService,
-				journalArticleLocalService, jsonFactory, layoutCopyHelper,
-				layoutLocalService, layoutPageTemplateEntryLocalService,
-				layoutPageTemplatesImporter,
-				layoutPageTemplateStructureLocalService, layoutSetLocalService,
-				listTypeDefinitionResource, listTypeDefinitionResourceFactory,
-				listTypeEntryResource, listTypeEntryResourceFactory,
-				objectDefinitionLocalService, objectDefinitionResourceFactory,
-				objectRelationshipResourceFactory, objectEntryLocalService,
-				portal, remoteAppEntryLocalService, resourceActionLocalService,
-				resourcePermissionLocalService, roleLocalService,
-				sapEntryLocalService, settingsFactory,
-				siteNavigationMenuItemLocalService,
-				siteNavigationMenuItemTypeRegistry,
-				siteNavigationMenuLocalService,
-				structuredContentFolderResourceFactory,
-				styleBookEntryZipProcessor, taxonomyCategoryResourceFactory,
-				taxonomyVocabularyResourceFactory, themeLocalService,
-				userAccountResourceFactory, userLocalService,
-				workflowDefinitionLinkLocalService,
-				workflowDefinitionResourceFactory));
+		BundleSiteInitializer bundleSiteInitializer = new BundleSiteInitializer(
+			accountResourceFactory, accountRoleLocalService,
+			accountRoleResourceFactory, assetCategoryLocalService,
+			assetListEntryLocalService, bundle, ddmStructureLocalService,
+			ddmTemplateLocalService, defaultDDMStructureHelper, dlURLHelper,
+			documentFolderResourceFactory, documentResourceFactory,
+			fragmentsImporter, groupLocalService, journalArticleLocalService,
+			jsonFactory, layoutCopyHelper, layoutLocalService,
+			layoutPageTemplateEntryLocalService, layoutPageTemplatesImporter,
+			layoutPageTemplateStructureLocalService, layoutSetLocalService,
+			listTypeDefinitionResource, listTypeDefinitionResourceFactory,
+			listTypeEntryResource, listTypeEntryResourceFactory,
+			objectActionLocalService, objectDefinitionLocalService,
+			objectDefinitionResourceFactory, objectRelationshipResourceFactory,
+			objectEntryLocalService, organizationResourceFactory, portal,
+			portletSettingsImporter, remoteAppEntryLocalService,
+			resourceActionLocalService, resourcePermissionLocalService,
+			roleLocalService, sapEntryLocalService, settingsFactory,
+			siteNavigationMenuItemLocalService,
+			siteNavigationMenuItemTypeRegistry, siteNavigationMenuLocalService,
+			structuredContentFolderResourceFactory, styleBookEntryZipProcessor,
+			taxonomyCategoryResourceFactory, taxonomyVocabularyResourceFactory,
+			themeLocalService, userAccountResourceFactory, userLocalService,
+			workflowDefinitionLinkLocalService,
+			workflowDefinitionResourceFactory);
+
+		_component.setImplementation(bundleSiteInitializer);
+
 		_component.setInterface(
 			SiteInitializer.class,
 			MapUtil.singletonDictionary(
@@ -174,15 +178,20 @@ public class SiteInitializerExtension {
 
 		_component.add(serviceDependency);
 
-		serviceDependency = _dependencyManager.createServiceDependency();
+		if (servletContext == null) {
+			serviceDependency = _dependencyManager.createServiceDependency();
 
-		serviceDependency.setCallbacks("setServletContext", null);
-		serviceDependency.setRequired(true);
-		serviceDependency.setService(
-			ServletContext.class,
-			"(osgi.web.symbolicname=" + bundle.getSymbolicName() + ")");
+			serviceDependency.setCallbacks("setServletContext", null);
+			serviceDependency.setRequired(true);
+			serviceDependency.setService(
+				ServletContext.class,
+				"(osgi.web.symbolicname=" + bundle.getSymbolicName() + ")");
 
-		_component.add(serviceDependency);
+			_component.add(serviceDependency);
+		}
+		else {
+			bundleSiteInitializer.setServletContext(servletContext);
+		}
 	}
 
 	public void destroy() {

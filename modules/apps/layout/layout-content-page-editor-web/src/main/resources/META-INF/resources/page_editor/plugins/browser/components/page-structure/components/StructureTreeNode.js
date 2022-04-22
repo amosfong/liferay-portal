@@ -102,7 +102,7 @@ export default function StructureTreeNode({node}) {
 	useEffect(() => {
 		if (node.type === LAYOUT_DATA_ITEM_TYPES.collection) {
 			const item =
-				layoutData.items[node.id] || masterLayoutData.items[node.id];
+				layoutData.items[node.id] || masterLayoutData?.items[node.id];
 
 			if (!item?.config?.collection) {
 				return;
@@ -314,7 +314,12 @@ function StructureTreeNodeContent({
 				ref={nodeRef}
 			/>
 
-			<div>
+			<div
+				className={classNames({
+					'page-editor__page-structure__tree-node__buttons--hidden':
+						node.hidden || node.hiddenAncestor,
+				})}
+			>
 				{(node.removable || node.hidden) && (
 					<VisibilityButton
 						dispatch={dispatch}
@@ -373,7 +378,7 @@ const VisibilityButton = ({
 	return (
 		<ClayButton
 			aria-label={Liferay.Util.sub(
-				node.hidden
+				node.hidden || node.hiddenAncestor
 					? Liferay.Language.get('show-x')
 					: Liferay.Language.get('hide-x'),
 				[node.name]
@@ -384,7 +389,7 @@ const VisibilityButton = ({
 					'page-editor__page-structure__tree-node__visibility-button--visible': visible,
 				}
 			)}
-			disabled={node.isMasterItem}
+			disabled={node.isMasterItem || node.hiddenAncestor}
 			displayType="unstyled"
 			onClick={() =>
 				updateItemStyle({
@@ -397,7 +402,9 @@ const VisibilityButton = ({
 				})
 			}
 		>
-			<ClayIcon symbol={node.hidden ? 'hidden' : 'view'} />
+			<ClayIcon
+				symbol={node.hidden || node.hiddenAncestor ? 'hidden' : 'view'}
+			/>
 		</ClayButton>
 	);
 };
@@ -424,7 +431,7 @@ const RemoveButton = ({node, visible}) => {
 				dispatch(deleteItem({itemId: node.id, selectItem}));
 			}}
 		>
-			<ClayIcon symbol="times-circle" />
+			<ClayIcon symbol="trash" />
 		</ClayButton>
 	);
 };

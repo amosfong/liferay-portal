@@ -43,14 +43,18 @@ import com.liferay.portal.kernel.captcha.CaptchaException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.security.auth.Authenticator;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
@@ -310,15 +314,85 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 		UserAccount userAccount3 = userAccountResource.getUserAccount(
 			_testUser.getUserId());
 
-		Page<UserAccount> page = userAccountResource.getUserAccountsPage(
-			null, null, Pagination.of(1, 3), null);
+		String idFilterString = String.format(
+			"id in ('%s','%s','%s')", userAccount1.getId(),
+			userAccount2.getId(), userAccount3.getId());
 
-		Assert.assertEquals(3, page.getTotalCount());
+		_testGetUserAccountsPage(
+			idFilterString, userAccount1, userAccount2, userAccount3);
 
-		assertEqualsIgnoringOrder(
-			Arrays.asList(userAccount1, userAccount2, userAccount3),
-			(List<UserAccount>)page.getItems());
-		assertValid(page);
+		_userLocalService.updateLastLogin(userAccount2.getId(), null);
+		_userLocalService.updateLastLogin(userAccount3.getId(), null);
+
+		_testGetUserAccountsPage(
+			String.format(
+				"%s and %s", idFilterString,
+				"lastLoginDate gt 1900-01-01T01:01:28Z"),
+			userAccount2, userAccount3);
+		_testGetUserAccountsPage(
+			String.format("%s and %s", idFilterString, "lastLoginDate ne null"),
+			userAccount2, userAccount3);
+		_testGetUserAccountsPage(
+			String.format(
+				"%s and %s", idFilterString,
+				"not (lastLoginDate gt 1900-01-01T01:01:28Z)"),
+			userAccount1);
+		_testGetUserAccountsPage(
+			String.format("%s and %s", idFilterString, "lastLoginDate eq null"),
+			userAccount1);
+
+		_testGetUserAccountsPage(
+			String.format("name eq '%s'", userAccount1.getName()),
+			userAccount1);
+
+		String familyName = RandomTestUtil.randomString();
+
+		UserAccount userAccount4 = randomUserAccount();
+
+		userAccount4.setFamilyName(familyName);
+
+		userAccount4 = testGetUserAccountsPage_addUserAccount(userAccount4);
+
+		UserAccount userAccount5 = randomUserAccount();
+
+		userAccount5.setFamilyName(familyName);
+
+		userAccount5 = testGetUserAccountsPage_addUserAccount(userAccount5);
+
+		_testGetUserAccountsPage(
+			String.format("contains(name, '%s')", familyName), userAccount4,
+			userAccount5);
+
+		String roleName = "Test role " + RandomTestUtil.randomString();
+
+		Role role = RoleTestUtil.addRole(roleName, RoleConstants.TYPE_REGULAR);
+
+		_userLocalService.addRoleUser(role.getRoleId(), userAccount1.getId());
+
+		_testGetUserAccountsPage(
+			String.format("roleNames/any(f:f eq '%s')", roleName),
+			userAccount1);
+		_testGetUserAccountsPage(
+			"roleNames/any(f:contains(f, 'Test role '))", userAccount1);
+		_testGetUserAccountsPage("roleNames/any(f:f eq 'Test Role')");
+
+		String groupRoleName =
+			"Test group role " + RandomTestUtil.randomString();
+
+		Role groupRole = RoleTestUtil.addRole(
+			groupRoleName, RoleConstants.TYPE_SITE);
+
+		UserGroupRoleLocalServiceUtil.addUserGroupRole(
+			userAccount2.getId(), TestPropsValues.getGroupId(),
+			groupRole.getRoleId());
+
+		_testGetUserAccountsPage(
+			String.format("userGroupRoleNames/any(f:f eq '%s')", groupRoleName),
+			userAccount2);
+		_testGetUserAccountsPage(
+			"userGroupRoleNames/any(f:contains(f, 'Test group role '))",
+			userAccount2);
+		_testGetUserAccountsPage("userGroupRoleNames/any(f:f eq 'Test Role')");
 	}
 
 	@Override
@@ -385,12 +459,9 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 	@Override
 	@Test
 	public void testGraphQLGetMyUserAccount() throws Exception {
-		UserAccount userAccount = userAccountResource.getUserAccount(
-			_testUser.getUserId());
-
 		Assert.assertTrue(
 			equals(
-				userAccount,
+				userAccountResource.getUserAccount(_testUser.getUserId()),
 				UserAccountSerDes.toDTO(
 					JSONUtil.getValueAsString(
 						invokeGraphQLQuery(
@@ -699,7 +770,9 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 
 	@Override
 	protected String[] getIgnoredEntityFieldNames() {
-		return new String[] {"alternateName", "emailAddress"};
+		return new String[] {
+			"alternateName", "emailAddress", "lastLoginDate", "name"
+		};
 	}
 
 	@Override
@@ -1062,6 +1135,25 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 				setUrlType("personal");
 			}
 		};
+	}
+
+	private void _testGetUserAccountsPage(
+			String filterString, UserAccount... expectedUserAccounts)
+		throws Exception {
+
+		Page<UserAccount> page = userAccountResource.getUserAccountsPage(
+			null, filterString,
+			Pagination.of(1, expectedUserAccounts.length + 1), null);
+
+		Assert.assertEquals(expectedUserAccounts.length, page.getTotalCount());
+
+		assertEqualsIgnoringOrder(
+			Arrays.asList(expectedUserAccounts),
+			(List<UserAccount>)page.getItems());
+
+		if (expectedUserAccounts.length > 0) {
+			assertValid(page);
+		}
 	}
 
 	private void _testPostUserAccount(Captcha captcha, boolean enableCaptcha)

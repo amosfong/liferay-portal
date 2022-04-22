@@ -98,7 +98,7 @@
 </tr>
 <tr>
 	<td>SEPARATOR_FIELD</td>
-	<td>//div[@class='separator']</td>
+	<td>//div[@class='separator'] | //hr[@class='separator']</td>
 	<td></td>
 </tr>
 <tr>

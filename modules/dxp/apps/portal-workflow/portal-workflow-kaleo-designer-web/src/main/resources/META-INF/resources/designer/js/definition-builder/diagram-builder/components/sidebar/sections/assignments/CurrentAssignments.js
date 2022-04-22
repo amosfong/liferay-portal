@@ -131,6 +131,7 @@ const CurrentAssignments = ({assignments, setContentName}) => {
 
 				<ClayButtonWithIcon
 					className="delete-button text-secondary trash-button"
+					disabled
 					displayType="unstyled"
 					onClick={deleteCurrentAssignments}
 					symbol="trash"

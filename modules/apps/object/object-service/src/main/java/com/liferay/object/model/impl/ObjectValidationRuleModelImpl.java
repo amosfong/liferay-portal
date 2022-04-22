@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
 import java.sql.Blob;
@@ -87,8 +86,8 @@ public class ObjectValidationRuleModelImpl
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
 		{"objectDefinitionId", Types.BIGINT}, {"active_", Types.BOOLEAN},
-		{"errorLabel", Types.VARCHAR}, {"engine", Types.VARCHAR},
-		{"script", Types.VARCHAR}
+		{"engine", Types.VARCHAR}, {"errorLabel", Types.VARCHAR},
+		{"name", Types.VARCHAR}, {"script", Types.CLOB}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -105,13 +104,14 @@ public class ObjectValidationRuleModelImpl
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("objectDefinitionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("active_", Types.BOOLEAN);
-		TABLE_COLUMNS_MAP.put("errorLabel", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("engine", Types.VARCHAR);
-		TABLE_COLUMNS_MAP.put("script", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("errorLabel", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("script", Types.CLOB);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ObjectValidationRule (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,objectValidationRuleId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,active_ BOOLEAN,errorLabel STRING null,engine VARCHAR(75) null,script VARCHAR(75) null)";
+		"create table ObjectValidationRule (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,objectValidationRuleId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,active_ BOOLEAN,engine VARCHAR(75) null,errorLabel STRING null,name STRING null,script TEXT null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table ObjectValidationRule";
@@ -258,34 +258,6 @@ public class ObjectValidationRuleModelImpl
 		return _attributeSetterBiConsumers;
 	}
 
-	private static Function<InvocationHandler, ObjectValidationRule>
-		_getProxyProviderFunction() {
-
-		Class<?> proxyClass = ProxyUtil.getProxyClass(
-			ObjectValidationRule.class.getClassLoader(),
-			ObjectValidationRule.class, ModelWrapper.class);
-
-		try {
-			Constructor<ObjectValidationRule> constructor =
-				(Constructor<ObjectValidationRule>)proxyClass.getConstructor(
-					InvocationHandler.class);
-
-			return invocationHandler -> {
-				try {
-					return constructor.newInstance(invocationHandler);
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new InternalError(reflectiveOperationException);
-				}
-			};
-		}
-		catch (NoSuchMethodException noSuchMethodException) {
-			throw new InternalError(noSuchMethodException);
-		}
-	}
-
 	private static final Map<String, Function<ObjectValidationRule, Object>>
 		_attributeGetterFunctions;
 	private static final Map<String, BiConsumer<ObjectValidationRule, Object>>
@@ -359,17 +331,22 @@ public class ObjectValidationRuleModelImpl
 			"active",
 			(BiConsumer<ObjectValidationRule, Boolean>)
 				ObjectValidationRule::setActive);
+		attributeGetterFunctions.put("engine", ObjectValidationRule::getEngine);
+		attributeSetterBiConsumers.put(
+			"engine",
+			(BiConsumer<ObjectValidationRule, String>)
+				ObjectValidationRule::setEngine);
 		attributeGetterFunctions.put(
 			"errorLabel", ObjectValidationRule::getErrorLabel);
 		attributeSetterBiConsumers.put(
 			"errorLabel",
 			(BiConsumer<ObjectValidationRule, String>)
 				ObjectValidationRule::setErrorLabel);
-		attributeGetterFunctions.put("engine", ObjectValidationRule::getEngine);
+		attributeGetterFunctions.put("name", ObjectValidationRule::getName);
 		attributeSetterBiConsumers.put(
-			"engine",
+			"name",
 			(BiConsumer<ObjectValidationRule, String>)
-				ObjectValidationRule::setEngine);
+				ObjectValidationRule::setName);
 		attributeGetterFunctions.put("script", ObjectValidationRule::getScript);
 		attributeSetterBiConsumers.put(
 			"script",
@@ -611,6 +588,26 @@ public class ObjectValidationRuleModelImpl
 
 	@JSON
 	@Override
+	public String getEngine() {
+		if (_engine == null) {
+			return "";
+		}
+		else {
+			return _engine;
+		}
+	}
+
+	@Override
+	public void setEngine(String engine) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_engine = engine;
+	}
+
+	@JSON
+	@Override
 	public String getErrorLabel() {
 		if (_errorLabel == null) {
 			return "";
@@ -723,22 +720,109 @@ public class ObjectValidationRuleModelImpl
 
 	@JSON
 	@Override
-	public String getEngine() {
-		if (_engine == null) {
+	public String getName() {
+		if (_name == null) {
 			return "";
 		}
 		else {
-			return _engine;
+			return _name;
 		}
 	}
 
 	@Override
-	public void setEngine(String engine) {
+	public String getName(Locale locale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getName(languageId);
+	}
+
+	@Override
+	public String getName(Locale locale, boolean useDefault) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return getName(languageId, useDefault);
+	}
+
+	@Override
+	public String getName(String languageId) {
+		return LocalizationUtil.getLocalization(getName(), languageId);
+	}
+
+	@Override
+	public String getName(String languageId, boolean useDefault) {
+		return LocalizationUtil.getLocalization(
+			getName(), languageId, useDefault);
+	}
+
+	@Override
+	public String getNameCurrentLanguageId() {
+		return _nameCurrentLanguageId;
+	}
+
+	@JSON
+	@Override
+	public String getNameCurrentValue() {
+		Locale locale = getLocale(_nameCurrentLanguageId);
+
+		return getName(locale);
+	}
+
+	@Override
+	public Map<Locale, String> getNameMap() {
+		return LocalizationUtil.getLocalizationMap(getName());
+	}
+
+	@Override
+	public void setName(String name) {
 		if (_columnOriginalValues == Collections.EMPTY_MAP) {
 			_setColumnOriginalValues();
 		}
 
-		_engine = engine;
+		_name = name;
+	}
+
+	@Override
+	public void setName(String name, Locale locale) {
+		setName(name, locale, LocaleUtil.getDefault());
+	}
+
+	@Override
+	public void setName(String name, Locale locale, Locale defaultLocale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+		String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+
+		if (Validator.isNotNull(name)) {
+			setName(
+				LocalizationUtil.updateLocalization(
+					getName(), "Name", name, languageId, defaultLanguageId));
+		}
+		else {
+			setName(
+				LocalizationUtil.removeLocalization(
+					getName(), "Name", languageId));
+		}
+	}
+
+	@Override
+	public void setNameCurrentLanguageId(String languageId) {
+		_nameCurrentLanguageId = languageId;
+	}
+
+	@Override
+	public void setNameMap(Map<Locale, String> nameMap) {
+		setNameMap(nameMap, LocaleUtil.getDefault());
+	}
+
+	@Override
+	public void setNameMap(Map<Locale, String> nameMap, Locale defaultLocale) {
+		if (nameMap == null) {
+			return;
+		}
+
+		setName(
+			LocalizationUtil.updateLocalization(
+				nameMap, getName(), "Name",
+				LocaleUtil.toLanguageId(defaultLocale)));
 	}
 
 	@JSON
@@ -820,6 +904,17 @@ public class ObjectValidationRuleModelImpl
 			}
 		}
 
+		Map<Locale, String> nameMap = getNameMap();
+
+		for (Map.Entry<Locale, String> entry : nameMap.entrySet()) {
+			Locale locale = entry.getKey();
+			String value = entry.getValue();
+
+			if (Validator.isNotNull(value)) {
+				availableLanguageIds.add(LocaleUtil.toLanguageId(locale));
+			}
+		}
+
 		return availableLanguageIds.toArray(
 			new String[availableLanguageIds.size()]);
 	}
@@ -870,6 +965,15 @@ public class ObjectValidationRuleModelImpl
 			setErrorLabel(
 				getErrorLabel(defaultLocale), defaultLocale, defaultLocale);
 		}
+
+		String name = getName(defaultLocale);
+
+		if (Validator.isNull(name)) {
+			setName(getName(modelDefaultLanguageId), defaultLocale);
+		}
+		else {
+			setName(getName(defaultLocale), defaultLocale, defaultLocale);
+		}
 	}
 
 	@Override
@@ -903,8 +1007,9 @@ public class ObjectValidationRuleModelImpl
 		objectValidationRuleImpl.setModifiedDate(getModifiedDate());
 		objectValidationRuleImpl.setObjectDefinitionId(getObjectDefinitionId());
 		objectValidationRuleImpl.setActive(isActive());
-		objectValidationRuleImpl.setErrorLabel(getErrorLabel());
 		objectValidationRuleImpl.setEngine(getEngine());
+		objectValidationRuleImpl.setErrorLabel(getErrorLabel());
+		objectValidationRuleImpl.setName(getName());
 		objectValidationRuleImpl.setScript(getScript());
 
 		objectValidationRuleImpl.resetOriginalValues();
@@ -937,10 +1042,12 @@ public class ObjectValidationRuleModelImpl
 			this.<Long>getColumnOriginalValue("objectDefinitionId"));
 		objectValidationRuleImpl.setActive(
 			this.<Boolean>getColumnOriginalValue("active_"));
-		objectValidationRuleImpl.setErrorLabel(
-			this.<String>getColumnOriginalValue("errorLabel"));
 		objectValidationRuleImpl.setEngine(
 			this.<String>getColumnOriginalValue("engine"));
+		objectValidationRuleImpl.setErrorLabel(
+			this.<String>getColumnOriginalValue("errorLabel"));
+		objectValidationRuleImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
 		objectValidationRuleImpl.setScript(
 			this.<String>getColumnOriginalValue("script"));
 
@@ -1071,6 +1178,14 @@ public class ObjectValidationRuleModelImpl
 
 		objectValidationRuleCacheModel.active = isActive();
 
+		objectValidationRuleCacheModel.engine = getEngine();
+
+		String engine = objectValidationRuleCacheModel.engine;
+
+		if ((engine != null) && (engine.length() == 0)) {
+			objectValidationRuleCacheModel.engine = null;
+		}
+
 		objectValidationRuleCacheModel.errorLabel = getErrorLabel();
 
 		String errorLabel = objectValidationRuleCacheModel.errorLabel;
@@ -1079,12 +1194,12 @@ public class ObjectValidationRuleModelImpl
 			objectValidationRuleCacheModel.errorLabel = null;
 		}
 
-		objectValidationRuleCacheModel.engine = getEngine();
+		objectValidationRuleCacheModel.name = getName();
 
-		String engine = objectValidationRuleCacheModel.engine;
+		String name = objectValidationRuleCacheModel.name;
 
-		if ((engine != null) && (engine.length() == 0)) {
-			objectValidationRuleCacheModel.engine = null;
+		if ((name != null) && (name.length() == 0)) {
+			objectValidationRuleCacheModel.name = null;
 		}
 
 		objectValidationRuleCacheModel.script = getScript();
@@ -1183,7 +1298,9 @@ public class ObjectValidationRuleModelImpl
 	private static class EscapedModelProxyProviderFunctionHolder {
 
 		private static final Function<InvocationHandler, ObjectValidationRule>
-			_escapedModelProxyProviderFunction = _getProxyProviderFunction();
+			_escapedModelProxyProviderFunction =
+				ProxyUtil.getProxyProviderFunction(
+					ObjectValidationRule.class, ModelWrapper.class);
 
 	}
 
@@ -1198,9 +1315,11 @@ public class ObjectValidationRuleModelImpl
 	private boolean _setModifiedDate;
 	private long _objectDefinitionId;
 	private boolean _active;
+	private String _engine;
 	private String _errorLabel;
 	private String _errorLabelCurrentLanguageId;
-	private String _engine;
+	private String _name;
+	private String _nameCurrentLanguageId;
 	private String _script;
 
 	public <T> T getColumnValue(String columnName) {
@@ -1243,8 +1362,9 @@ public class ObjectValidationRuleModelImpl
 		_columnOriginalValues.put("modifiedDate", _modifiedDate);
 		_columnOriginalValues.put("objectDefinitionId", _objectDefinitionId);
 		_columnOriginalValues.put("active_", _active);
-		_columnOriginalValues.put("errorLabel", _errorLabel);
 		_columnOriginalValues.put("engine", _engine);
+		_columnOriginalValues.put("errorLabel", _errorLabel);
+		_columnOriginalValues.put("name", _name);
 		_columnOriginalValues.put("script", _script);
 	}
 
@@ -1290,11 +1410,13 @@ public class ObjectValidationRuleModelImpl
 
 		columnBitmasks.put("active_", 512L);
 
-		columnBitmasks.put("errorLabel", 1024L);
+		columnBitmasks.put("engine", 1024L);
 
-		columnBitmasks.put("engine", 2048L);
+		columnBitmasks.put("errorLabel", 2048L);
 
-		columnBitmasks.put("script", 4096L);
+		columnBitmasks.put("name", 4096L);
+
+		columnBitmasks.put("script", 8192L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

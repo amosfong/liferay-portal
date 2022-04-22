@@ -191,34 +191,34 @@ public class Layout implements Cloneable, Serializable {
 
 	protected ContentDisplay contentDisplay;
 
-	public HtmlTag getHtmlTag() {
-		return htmlTag;
+	public FlexWrap getFlexWrap() {
+		return flexWrap;
 	}
 
-	public String getHtmlTagAsString() {
-		if (htmlTag == null) {
+	public String getFlexWrapAsString() {
+		if (flexWrap == null) {
 			return null;
 		}
 
-		return htmlTag.toString();
+		return flexWrap.toString();
 	}
 
-	public void setHtmlTag(HtmlTag htmlTag) {
-		this.htmlTag = htmlTag;
+	public void setFlexWrap(FlexWrap flexWrap) {
+		this.flexWrap = flexWrap;
 	}
 
-	public void setHtmlTag(
-		UnsafeSupplier<HtmlTag, Exception> htmlTagUnsafeSupplier) {
+	public void setFlexWrap(
+		UnsafeSupplier<FlexWrap, Exception> flexWrapUnsafeSupplier) {
 
 		try {
-			htmlTag = htmlTagUnsafeSupplier.get();
+			flexWrap = flexWrapUnsafeSupplier.get();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected HtmlTag htmlTag;
+	protected FlexWrap flexWrap;
 
 	public Justify getJustify() {
 		return justify;
@@ -682,17 +682,16 @@ public class Layout implements Cloneable, Serializable {
 
 	}
 
-	public static enum HtmlTag {
+	public static enum FlexWrap {
 
-		ARTICLE("Article"), ASIDE("Aside"), DIV("Div"), FOOTER("Footer"),
-		HEADER("Header"), MAIN("Main"), NAV("Nav"), SECTION("Section");
+		NO_WRAP("NoWrap"), WRAP("Wrap"), WRAP_REVERSE("WrapReverse");
 
-		public static HtmlTag create(String value) {
-			for (HtmlTag htmlTag : values()) {
-				if (Objects.equals(htmlTag.getValue(), value) ||
-					Objects.equals(htmlTag.name(), value)) {
+		public static FlexWrap create(String value) {
+			for (FlexWrap flexWrap : values()) {
+				if (Objects.equals(flexWrap.getValue(), value) ||
+					Objects.equals(flexWrap.name(), value)) {
 
-					return htmlTag;
+					return flexWrap;
 				}
 			}
 
@@ -708,7 +707,7 @@ public class Layout implements Cloneable, Serializable {
 			return _value;
 		}
 
-		private HtmlTag(String value) {
+		private FlexWrap(String value) {
 			_value = value;
 		}
 

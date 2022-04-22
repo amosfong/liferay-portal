@@ -46,6 +46,8 @@ definition {
 
 		if (selenium.isNotChecked()) {
 			selenium.clickAt();
+
+			selenium.pause("1000");
 		}
 
 		selenium.assertChecked();
@@ -53,6 +55,18 @@ definition {
 		selenium.assertJavaScriptErrors();
 
 		selenium.assertLiferayErrors();
+	}
+
+	function checkNotVisibleNoErrors {
+		WaitForSPARefresh();
+
+		selenium.waitForElementPresent();
+
+		selenium.mouseOver();
+
+		if (selenium.isNotChecked()) {
+			selenium.clickAt();
+		}
 	}
 
 	function checkToggleSwitch {

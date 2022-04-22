@@ -49,7 +49,7 @@ definition {
 
 		AccountUsers.setUserPassword(
 			accountUser = "userfn",
-			accountUserPassword = "pass");
+			accountUserPassword = "test");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -214,25 +214,9 @@ definition {
 		}
 
 		task ("Assign new user the role of 'Account Administrator'") {
-			Navigator.gotoNavTab(navTab = "Users");
-
-			Accounts.goToEntryMenuItem(
-				menuItem = "Assign Roles",
-				rowEntry = "user1 user1");
-
-			SelectFrame(
-				key_title = "Assign Roles",
-				locator1 = "IFrame#MODAL_ANY");
-
-			Check(
-				key_tableEntry = "Account Administrator",
-				locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
-
-			SelectFrameTop();
-
-			Button.click(button = "Done");
-
-			Alert.viewSuccessMessage();
+			Accounts.addAssigneeToRoleViaUsersTab(
+				accountRoleTitle = "Account Administrator",
+				accountUserName = "user1 user1");
 		}
 
 		task ("Assert that the new user has 'Account Administator' listed in their role") {
@@ -402,7 +386,7 @@ definition {
 		}
 
 		task ("Attempt to add user using the email domain blocked previously and assert that the new user is not added into the account") {
-			Accounts.addNewUserWithBlockedDomain(
+			Accounts.viewErrorWhenAddingUserWithBlockedDomain(
 				accountName = "Account Name",
 				assigneeName = "gmailUser",
 				emailDomainName = "gmail.com",
@@ -487,7 +471,7 @@ definition {
 		}
 
 		task ("As account admin attempt to add user using the invalid domain and assert that the new user is not added into the account") {
-			Accounts.addNewUserWithInvalidDomain(
+			Accounts.viewErrorWhenAddingUserWithInvalidDomain(
 				accountName = "Account Name",
 				asAccountAdmin = "true",
 				assigneeName = "9teenUser",
@@ -681,6 +665,61 @@ definition {
 		Accounts.viewNoAssignee(
 			accountName = "Account Name",
 			assigneeType = "Organizations");
+	}
+
+	@description = "This test asserts that an Account Admin can unassign roles to users."
+	@priority = "5"
+	test AccountAdminCanUnassignRolesToUsers {
+		task ("Given an Account User is given a role by the Account Administrator") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Accounts.addOwnedAccountRole(accountRoleTitle = "Account Specific Role");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			JSONAccountEntryUser.addAccountEntryUser(
+				accountEntryName = "Account Name",
+				userEmailAddress = "user1@liferay.com",
+				userFirstName = "user1",
+				userLastName = "user1",
+				userScreenName = "user1");
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Accounts.addAssigneeToRoleViaUsersTab(
+				accountRoleTitle = "Account Specific Role",
+				accountUserName = "user1 user1");
+
+			AssertTextEquals(
+				key_columnName = "lfr-account-roles-column",
+				key_rowEntry = "user1 user1",
+				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
+				value1 = "Account Specific Role");
+		}
+
+		task ("When the Account Administrator unassigns that role") {
+			Accounts.unassignUserRole(
+				accountRoleTitle = "Account Specific Role",
+				accountUserName = "user1 user1");
+		}
+
+		task ("Then that user should no longer have that role associated with them") {
+			AssertTextNotEquals(
+				key_columnName = "lfr-account-roles-column",
+				key_rowEntry = "user1 user1",
+				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
+				value1 = "Account Specific Role");
+		}
 	}
 
 	@description = "This test asserts that account users can be ordered by First Name, Last Name, Email."
@@ -953,7 +992,7 @@ definition {
 				category = "Site Builder",
 				portlet = "Pages");
 
-			PagesAdmin.addPublicPage(
+			PagesAdmin.addPage(
 				pageName = "2B New Site",
 				sitePageType = "Widget Page");
 
@@ -976,6 +1015,50 @@ definition {
 			LexiconEntry.viewEntryName(rowEntry = "Account Name");
 
 			LexiconEntry.viewEntryName(rowEntry = "Person Account");
+		}
+	}
+
+	@description = "This is a test for LRQA-73702 and asserts that a user can see all accounts that they belong to"
+	@priority = "5"
+	test CanAccessAListOfAccountsTheUserBelongsTo {
+		task ("Given two accounts are created") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Test Account Member",
+				accountEntryType = "Business");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Test Account Non-Member",
+				accountEntryType = "Business");
+
+			task ("And given a user is added to one of the accounts") {
+				Navigator.gotoPage(pageName = "2B Account Page");
+
+				LexiconEntry.gotoEntry(rowEntry = "Test Account Member");
+
+				Accounts.assignUsers(
+					accountName = "Test Account Member",
+					assigneeName = "userfn userln");
+			}
+		}
+
+		task ("When that user logs in and views the account page") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+		}
+
+		task ("Then the user should only see accounts they belong to") {
+			for (var accountName : list "Account Name,Test Account Member") {
+				LexiconEntry.viewEntryName(rowEntry = "${accountName}");
+			}
+
+			LexiconEntry.viewNoEntry(rowEntry = "Test Account Non-Member");
 		}
 	}
 
@@ -1546,6 +1629,61 @@ definition {
 				LexiconEntry.viewEntryName(rowEntry = "Person Account");
 
 				LexiconEntry.viewNoEntry(rowEntry = "Account Name");
+			}
+		}
+	}
+
+	@description = "This test asserts that multiple users can be assigned to roles simultaneously."
+	@priority = "5"
+	test ManyToManyRelationshipAssignmentIsPossible {
+		task ("Given an additional account user is created") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			JSONAccountEntryUser.addAccountEntryUser(
+				accountEntryName = "Account Name",
+				userEmailAddress = "userea2@liferay.com",
+				userFirstName = "userfn2",
+				userLastName = "userln2",
+				userScreenName = "usersn2");
+
+			task ("And given a new account role is created") {
+				Accounts.openAccountsAdmin();
+
+				LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+				Accounts.addOwnedAccountRole(accountRoleTitle = "Test Account Role");
+			}
+		}
+
+		task ("When both account users are assigned to the default 'Account Administrator' role and the newly created role") {
+			Navigator.gotoPage(pageName = "2B Account Page");
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Accounts.addAssigneeToRoleViaUsersTab(
+				accountRoleTitle = "Account Administrator",
+				accountUserName = "userfn2");
+
+			for (var accountUserName : list "userfn,userfn2") {
+				Accounts.openAccountsAdmin();
+
+				LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+				Accounts.addAssigneeToRoleViaUsersTab(
+					accountRoleTitle = "Test Account Role",
+					accountUserName = "${accountUserName}");
+			}
+		}
+
+		task ("Then the accounts table should display both users holding both roles simultaneously") {
+			for (var user : list "userfn userln,userfn2 userln2") {
+				AssertTextEquals(
+					key_columnName = "lfr-account-roles-column",
+					key_rowEntry = "${user}",
+					locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
+					value1 = "Account Administrator, Test Account Role");
 			}
 		}
 	}

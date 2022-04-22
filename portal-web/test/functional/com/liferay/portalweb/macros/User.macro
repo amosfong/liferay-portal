@@ -311,6 +311,12 @@ definition {
 				value1 = "${userComment}");
 		}
 
+		if (isSet(lat) && isSet(lng)) {
+			Geolocation.setMarkerPosition(
+				lat = "${lat}",
+				lng = "${lng}");
+		}
+
 		var browserType = PropsUtil.get("browser.type");
 
 		if ("${browserType}" == "safari") {
@@ -771,6 +777,34 @@ definition {
 
 			Button.viewNotPresent(button = "${localizedSaveButton}");
 		}
+	}
+
+	macro assignAccountCP {
+		User.openUsersAdmin();
+
+		UserNavigator.gotoUser(userScreenName = "${userScreenName}");
+
+		UserNavigator.gotoMemberships();
+
+		AssertClick(
+			locator1 = "UsersAndOrganizationsEditUser#ACCOUNTS_SELECT_LINK",
+			value1 = "SELECT");
+
+		SelectFrame(
+			key_title = "Select Account",
+			locator1 = "IFrame#MODAL_ANY");
+
+		for (var accountName : list "${accountName}") {
+			Check(
+				key_tableEntry = "${accountName}",
+				locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
+		}
+
+		SelectFrame(value1 = "relative=top");
+
+		Button.clickAdd();
+
+		PortletEntry.save();
 	}
 
 	macro assignAssetLibraryRole {
@@ -2019,6 +2053,12 @@ definition {
 			SignIn.agreeToTermsOfUse();
 		}
 
+		if (IsElementPresent(locator1 = "TextInput#PASSWORD_2")) {
+			User.resetPassword(
+				localizedSaveButton = "${localizedSaveButton}",
+				newPassword = "${newPassword}");
+		}
+
 		if (isSet(localizedAnswer)) {
 			User.answerPasswordReminderLocalized(
 				localizedAnswer = "${localizedAnswer}",
@@ -2441,9 +2481,14 @@ definition {
 					value1 = "test");
 			}
 
-			Button.clickSubmitButton();
+			if (isSet(localizedSaveButton)) {
+				Button.click(button = "${localizedSaveButton}");
+			}
+			else {
+				Button.clickSubmitButton();
 
-			AssertElementNotPresent(locator1 = "TextInput#ENTER_AGAIN");
+				AssertElementNotPresent(locator1 = "TextInput#ENTER_AGAIN");
+			}
 		}
 	}
 

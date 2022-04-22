@@ -22,7 +22,7 @@
 	</tr>
 	<tr>
 		<td>OBJECT_VIEWS_TAB</td>
-		<td>//a[contains(text(),'Views')]</td>
+		<td>//*[contains(@class,'nav-link')]//span[contains(text(),'Views')]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -53,6 +53,11 @@
 	<tr>
 		<td>CHECKBOX_COLUMN_OPTION</td>
 		<td>//label[contains(.,'${key_columnOption}')]/input[@type='checkbox']</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>VIEW_BUILDER_DROPDOWN_SPECIFIC_COLUMN</td>
+		<td>//p[contains(@class,'list-group-title') and contains(text(),'${key_columnName}')]/../..//div[contains(@class,'dropdown')]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -92,7 +97,22 @@
 	</tr>
 	<tr>
 		<td>VIEW_COLUMN_ENTRIES</td>
-		<td>//div[${key_position}][contains(text(),'${key_columnName}')]</td>
+		<td>//div[${key_position}]//button[contains(text(),'${key_columnName}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SELECT_PERMISSIONS_TO_REGULAR_ROLE</td>
+		<td>//input[@id='regular-role_ACTION_${key_permissionName}']</td>
+		<td></td>
+	</tr>
+	 <tr>
+		<td>CUSTOM_VIEW_FIELD_REQUIRED</td>
+		<td>//input[@id='listObjectCustomViewName']/..//div[contains(@class, 'form-feedback-group') and contains(.,'Required')]</td>
+		<td></td>
+	</tr>
+	 <tr>
+		<td>SELECT_ANY_PERMISSIONS</td>
+		<td>//input[@id='${key_roleName}_ACTION_${key_permissionName}']</td>
 		<td></td>
 	</tr>
 </tbody>

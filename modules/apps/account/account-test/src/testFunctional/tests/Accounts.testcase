@@ -190,6 +190,10 @@ definition {
 			accountName = "Person Account",
 			accountUserName = "userfn2 userln2");
 
+		LexiconEntry.viewNoEntry(rowEntry = "userfn1 userln1");
+
+		ManagementBar.setFilterAndOrder(filterBy = "No Assigned Account");
+
 		AccountUsers.viewEntryAccounts(
 			accountName = "No Assigned Account",
 			accountUserName = "userfn1 userln1");
@@ -355,6 +359,49 @@ definition {
 		}
 	}
 
+	@description = "Use case for LPS-139430. Asserts a user can be assigned to an account through the Users Admin portlet"
+	@priority = "3"
+	test AssignUserToAccountViaUsersAdmin {
+		task ("Given two accounts are created") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Test 1",
+				accountEntryType = "Business");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Test 2",
+				accountEntryType = "Business");
+
+			task ("And given an account user is added to one of those accounts") {
+				JSONAccountEntryUser.addAccountEntryUser(
+					accountEntryName = "Account Test 1",
+					userEmailAddress = "userea@liferay.com",
+					userFirstName = "userfn",
+					userLastName = "userln",
+					userScreenName = "usersn");
+			}
+		}
+
+		task ("When assigning the second account through the Users Admin to the same user") {
+			User.assignAccountCP(
+				accountName = "Account Test 2",
+				userScreenName = "usersn");
+		}
+
+		task ("Then both accounts should be listed when viewing the user's memberships via Users Admin") {
+			User.openUsersAdmin();
+
+			UserNavigator.gotoUser(userScreenName = "usersn");
+
+			UserNavigator.gotoMemberships();
+
+			for (var accountName : list "Account Test 1,Account Test 2") {
+				AssertElementPresent(
+					key_accountName = "${accountName}",
+					locator1 = "UsersAndOrganizationsEditUser#ACCOUNTS_TABLE_ACCOUNT_NAMES");
+			}
+		}
+	}
+
 	@description = "This test asserts that a domain blocked in one instance will not be blocked when creating a separate virtual instance."
 	@priority = "4"
 	test BlockedDomainsAreInstanceWide {
@@ -368,12 +415,12 @@ definition {
 				accountEntryType = "Business");
 		}
 
-		task ("Add a user using an email with the domain and assert the warning label appears signaling that the domain is blocked") {
+		task ("Attempt to add a user with a blocked domain and assert the warning and error") {
 			Accounts.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Business Account");
 
-			Accounts.addNewUserWithBlockedDomain(
+			Accounts.viewErrorWhenAddingUserWithBlockedDomain(
 				accountName = "Business Account",
 				assigneeName = "userfn",
 				emailDomainName = "google.com",
@@ -384,6 +431,8 @@ definition {
 		}
 
 		task ("Set up a new virtual instance and create a new account") {
+			Navigator.openURL();
+
 			SAML.addVirtualInstances(virtualHosts = "www.able.com");
 
 			User.firstLoginUI(
@@ -1239,28 +1288,30 @@ definition {
 				Pagination.changePagination(itemsPerPage = "${listEntries}");
 
 				if ("${listEntries}" == "4") {
-					Pagination.viewResults(results = "Showing 1 to 4 of 5 entries.");
+					Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
 
-					LexiconEntry.viewNoEntry(rowEntry = "userfn5 userln5");
+					LexiconEntry.viewNoEntry(rowEntry = "userfn4 userln4");
 
-					for (var accountUsers : list "userfn1 userln1,userfn2 userln2,userfn3 userln3,userfn4 userln4") {
+					for (var accountUsers : list "Test Test,userfn1 userln1,userfn2 userln2,userfn3 userln3") {
 						LexiconEntry.viewEntryName(rowEntry = "${accountUsers}");
 					}
 
 					Click(locator1 = "Pagination#NEXT_LINK");
 
-					Pagination.viewResults(results = "Showing 5 to 5 of 5 entries.");
+					Pagination.viewResults(results = "Showing 5 to 6 of 6 entries.");
+
+					LexiconEntry.viewEntryName(rowEntry = "userfn4 userln4");
 
 					LexiconEntry.viewEntryName(rowEntry = "userfn5 userln5");
 
-					for (var accountUsers : list "userfn1 userln1,userfn2 userln2,userfn3 userln3,userfn4 userln4") {
+					for (var accountUsers : list "Test Test,userfn1 userln1,userfn2 userln2,userfn3 userln3") {
 						LexiconEntry.viewNoEntry(rowEntry = "${accountUsers}");
 					}
 				}
 				else {
-					Pagination.viewResults(results = "Showing 1 to 5 of 5 entries.");
+					Pagination.viewResults(results = "Showing 1 to 6 of 6 entries.");
 
-					for (var allUsers : list "userfn1 userln1,userfn2 userln2,userfn3 userln3,userfn4 userln4,userfn5 userln5") {
+					for (var allUsers : list "Test Test,userfn1 userln1,userfn2 userln2,userfn3 userln3,userfn4 userln4,userfn5 userln5") {
 						LexiconEntry.viewEntryName(rowEntry = "${allUsers}");
 					}
 				}
@@ -1269,7 +1320,6 @@ definition {
 	}
 
 	@description = "This test adds more than 3 Owned Roles to an account and asserts correct pagination in the Roles list."
-	@ignore = "true"
 	@priority = "3"
 	test CanChangePaginationInRolesList {
 		JSONAccountEntry.addAccountEntry(
@@ -1280,7 +1330,7 @@ definition {
 
 		LexiconEntry.gotoEntry(rowEntry = "Account with Role");
 
-		for (var accountRoleNumber : list "1,2,3") {
+		for (var accountRoleNumber : list "1,2,3,4") {
 			Accounts.addOwnedAccountRole(accountRoleTitle = "Account Role ${accountRoleNumber}");
 
 			Navigator.gotoBack();
@@ -1298,23 +1348,19 @@ definition {
 			LexiconEntry.viewEntryName(rowEntry = "${accountRoleName}");
 		}
 
-		for (var accountRoleName : list "Buyer,Order Manager") {
-			LexiconEntry.viewNoEntry(rowEntry = "${accountRoleName}");
-		}
+		LexiconEntry.viewNoEntry(rowEntry = "Account Role 4");
 
-		Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
+		Pagination.viewResults(results = "Showing 1 to 4 of 5 entries.");
 
 		Click(locator1 = "Pagination#NEXT_LINK");
 
-		for (var accountRoleName : list "Buyer,Order Manager") {
-			LexiconEntry.viewEntryName(rowEntry = "${accountRoleName}");
-		}
+		LexiconEntry.viewEntryName(rowEntry = "Account Role 4");
 
 		for (var accountRoleName : list "Account Administrator,Account Role 1,Account Role 2,Account Role 3") {
 			LexiconEntry.viewNoEntry(rowEntry = "${accountRoleName}");
 		}
 
-		Pagination.viewResults(results = "Showing 5 to 6 of 6 entries.");
+		Pagination.viewResults(results = "Showing 5 to 5 of 5 entries.");
 	}
 
 	@description = "This test deactivates an active account and asserts account displays in correct filter."
@@ -2123,6 +2169,11 @@ definition {
 				key_rowNumber = "3",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
 				value1 = "C-user");
+
+			AssertTextEquals.assertPartialText(
+				key_rowNumber = "4",
+				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
+				value1 = "Test");
 		}
 
 		task ("Assert users can be ordered by Last Name and are in correct order") {
@@ -2131,15 +2182,20 @@ definition {
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "1",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
-				value1 = "userln1");
+				value1 = "Test");
 
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "2",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
-				value1 = "userln2");
+				value1 = "userln1");
 
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "3",
+				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
+				value1 = "userln2");
+
+			AssertTextEquals.assertPartialText(
+				key_rowNumber = "4",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
 				value1 = "userln3");
 		}
@@ -2150,15 +2206,20 @@ definition {
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "1",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
-				value1 = "x-ea@liferay.com");
+				value1 = "test@liferay.com");
 
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "2",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
-				value1 = "y-ea@liferay.com");
+				value1 = "x-ea@liferay.com");
 
 			AssertTextEquals.assertPartialText(
 				key_rowNumber = "3",
+				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
+				value1 = "y-ea@liferay.com");
+
+			AssertTextEquals.assertPartialText(
+				key_rowNumber = "4",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER",
 				value1 = "z-ea@liferay.com");
 		}
@@ -2260,6 +2321,120 @@ definition {
 		AssertTextEquals(
 			locator1 = "Message#EMPTY_INFO",
 			value1 = "No addresses were found.");
+	}
+
+	@description = "This test adds a blocked domain in instance settings and asserts that a user with a blocked domain cannot be added to an account."
+	@priority = "4"
+	test CannotAddUserWithBlockedEmailDomain {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Given an account is created and is configured to have blocked domains") {
+			AccountConfiguration.enableAccountEmailDomain();
+
+			AccountConfiguration.addBlockedEmailDomain(settingValues = "yahoo.com,blocked.com");
+
+			Accounts.openAccountsAdmin();
+
+			Accounts.addAccountWithDomain(
+				accountName = "AM Account",
+				domainNames = "liferay.com,Google.com");
+		}
+
+		task ("When an account manager is added to the account and attempts to create a new account user using a blocked email domain an error should display") {
+			AccountConfiguration.addAccountManager(
+				accountName = "AM Account",
+				orgName = "AM Organization",
+				orgRoleTitle = "Account Manager",
+				userEmailAddress = "useramea@liferay.com",
+				userFirstName = "useramfn",
+				userLastName = "useramln",
+				userScreenName = "useramsn");
+
+			User.logoutPG();
+
+			User.loginUserPG(
+				password = "test",
+				userEmailAddress = "useramea@liferay.com");
+
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+			Accounts.viewErrorWhenAddingUserWithBlockedDomain(
+				accountName = "AM Account",
+				assigneeName = "userfn",
+				emailDomainName = "blocked.com",
+				userEmailAddress = "userea@blocked.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+		}
+
+		task ("Then the user should not be added or listed in that account") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
+		}
+	}
+
+	@description = "This test sets a valid domain for a business account. It attempts to add a user with a different domain and asserts that a warning displays and the user is not added."
+	@priority = "3"
+	test CannotAddUserWithInvalidEmailDomain {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Given an account is created and is configured to have valid email domains") {
+			AccountConfiguration.enableAccountEmailDomain();
+
+			Accounts.openAccountsAdmin();
+
+			Accounts.addAccountWithDomain(
+				accountName = "AM Account",
+				domainNames = "liferay.com,Google.com,9teen.com");
+		}
+
+		task ("When an account manager is added to the account and attempts to create a new account user using an invalid email domain an error should display") {
+			AccountConfiguration.addAccountManager(
+				accountName = "AM Account",
+				orgName = "AM Organization",
+				orgRoleTitle = "Account Manager",
+				userEmailAddress = "useramea@liferay.com",
+				userFirstName = "useramfn",
+				userLastName = "useramln",
+				userScreenName = "useramsn");
+
+			User.logoutPG();
+
+			User.loginUserPG(
+				password = "test",
+				userEmailAddress = "useramea@liferay.com");
+
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+			Accounts.viewErrorWhenAddingUserWithInvalidDomain(
+				accountName = "AM Account",
+				assigneeName = "userfn",
+				emailDomainName = "nodomain.com",
+				userEmailAddress = "userea@nodomain.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+		}
+
+		task ("Then the user should not be added or listed in that account") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
+		}
 	}
 
 	@description = "This test adds an address, sets it as default, and removes it as default"
@@ -2767,23 +2942,9 @@ definition {
 			locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
 			value1 = "Account Administrator");
 
-		LexiconEntry.gotoEntryMenuItemNoError(
-			menuItem = "Assign Roles",
-			rowEntry = "userfn userln");
-
-		SelectFrame(
-			key_title = "Assign Roles",
-			locator1 = "IFrame#MODAL_ANY");
-
-		Uncheck(
-			key_tableEntry = "Account Administrator",
-			locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
-
-		SelectFrameTop();
-
-		Button.click(button = "Done");
-
-		Alert.viewSuccessMessage();
+		Accounts.unassignUserRole(
+			accountRoleTitle = "Account Administrator",
+			accountUserName = "userfn userln");
 
 		Accounts.openAccountsAdmin();
 
@@ -2796,6 +2957,37 @@ definition {
 			key_rowEntry = "userfn userln",
 			locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
 			value1 = "");
+	}
+
+	@description = "This test view the account user via Manage Users in account list view"
+	@priority = "3"
+	test CanViewAccountUsersViaManageUsersInAccountsListView {
+		task ("Given A new Account and add new Account User to it") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Name",
+				accountEntryType = "Business");
+
+			JSONAccountEntryUser.addAccountEntryUser(
+				accountEntryName = "Account Name",
+				userEmailAddress = "userfn@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+		}
+
+		task ("When Navigate to the account menu item Manage Users") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Account Name");
+		}
+
+		task ("Then the assigned account user displays") {
+			Navigator.viewActivatedNavTab(navTab = "Users");
+
+			Accounts.viewAssignee(assigneeName = "userfn");
+		}
 	}
 
 	@description = "This tests canceling account creation will not save it."
@@ -3451,7 +3643,7 @@ definition {
 
 		Accounts.gotoAssigneeTab(assigneeTab = "Users");
 
-		LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
+		LexiconEntry.viewNoEntry(rowEntry = "userfn1 userln1");
 
 		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
 	}
@@ -3470,108 +3662,6 @@ definition {
 		Accounts.gotoEdit(accountName = "Person Account");
 
 		AssertElementNotPresent(locator1 = "Account#VALID_DOMAINS_HEADING");
-	}
-
-	@description = "This test sets a valid domain for a business account. It adds a user with a different domain and asserts that warning displays when a user attempts to do so."
-	@priority = "3"
-	test WarningDisplaysWhenAddingAUserWithInvalidDomain {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
-
-		AccountConfiguration.enableAccountEmailDomain();
-
-		Accounts.openAccountsAdmin();
-
-		Accounts.addAccountWithDomain(
-			accountName = "AM Account",
-			domainNames = "liferay.com,Google.com,9teen.com");
-
-		AccountConfiguration.addAccountManager(
-			accountName = "AM Account",
-			orgName = "AM Organization",
-			orgRoleTitle = "Account Manager",
-			userEmailAddress = "useramea@liferay.com",
-			userFirstName = "useramfn",
-			userLastName = "useramln",
-			userScreenName = "useramsn");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "useramea@liferay.com");
-
-		Accounts.openAccountsAdmin();
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.addNewUserWithInvalidDomain(
-			accountName = "AM Account",
-			assigneeName = "userfn",
-			emailDomainName = "nodomain.com",
-			userEmailAddress = "userea@nodomain.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		Accounts.openAccountsAdmin();
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
-	}
-
-	@description = "This test adds a blocked domain in instance settings. Warning will display when adding a user with blocked domain."
-	@priority = "4"
-	test WarningDisplaysWhenAddingUserWithBlockedEmailDomain {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
-
-		AccountConfiguration.enableAccountEmailDomain();
-
-		AccountConfiguration.addBlockedEmailDomain(settingValues = "yahoo.com,blocked.com");
-
-		Accounts.openAccountsAdmin();
-
-		Accounts.addAccountWithDomain(
-			accountName = "AM Account",
-			domainNames = "liferay.com,Google.com");
-
-		AccountConfiguration.addAccountManager(
-			accountName = "AM Account",
-			orgName = "AM Organization",
-			orgRoleTitle = "Account Manager",
-			userEmailAddress = "useramea@liferay.com",
-			userFirstName = "useramfn",
-			userLastName = "useramln",
-			userScreenName = "useramsn");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "useramea@liferay.com");
-
-		Accounts.openAccountsAdmin();
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.addNewUserWithBlockedDomain(
-			accountName = "AM Account",
-			assigneeName = "userfn",
-			emailDomainName = "blocked.com",
-			userEmailAddress = "userea@blocked.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		Accounts.openAccountsAdmin();
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
 	}
 
 }

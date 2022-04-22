@@ -21,17 +21,36 @@ import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.json.JSONObject;
 
 /**
  * @author Michael Hashimoto
  */
 public class JUnitTestClass extends BaseTestClass {
 
-	public Properties getTestProperties() {
-		return _testProperties;
+	@Override
+	public JSONObject getJSONObject() {
+		JSONObject jsonObject = super.getJSONObject();
+
+		if ((_testPropertiesFile != null) && _testPropertiesFile.exists()) {
+			jsonObject.put("test_properties_file", _testPropertiesFile);
+		}
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(
+				_testrayMainComponentName)) {
+
+			jsonObject.put(
+				"testray_main_component_name", _testrayMainComponentName);
+		}
+
+		return jsonObject;
+	}
+
+	public String getTestrayMainComponentName() {
+		return _testrayMainComponentName;
 	}
 
 	@Override
@@ -44,24 +63,54 @@ public class JUnitTestClass extends BaseTestClass {
 
 		super(batchTestClassGroup, testClassFile);
 
+		File testPropertiesBaseDir = _getTestPropertiesBaseDir(
+			getTestClassFile());
+
+		if ((testPropertiesBaseDir != null) && testPropertiesBaseDir.exists()) {
+			_testPropertiesFile = new File(
+				testPropertiesBaseDir, "test.properties");
+
+			_testrayMainComponentName = JenkinsResultsParserUtil.getProperty(
+				JenkinsResultsParserUtil.getProperties(_testPropertiesFile),
+				"testray.main.component.name");
+		}
+		else {
+			_testPropertiesFile = null;
+			_testrayMainComponentName = null;
+		}
+
 		String testClassFileName = testClassFile.getName();
 
 		if (!testClassFileName.endsWith(".java")) {
-			_fileContent = "";
-
 			return;
 		}
 
-		_setTestProperties(_getTestPropertiesBaseDir(getTestClassFile()));
-
 		try {
-			_fileContent = JenkinsResultsParserUtil.read(getTestClassFile());
-
-			_initTestClassMethods();
+			_initTestClassMethods(
+				JenkinsResultsParserUtil.read(getTestClassFile()));
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
+	}
+
+	protected JUnitTestClass(
+		BatchTestClassGroup batchTestClassGroup, JSONObject jsonObject) {
+
+		super(batchTestClassGroup, jsonObject);
+
+		_classIgnored = jsonObject.getBoolean("ignored");
+
+		if (jsonObject.has("test_properties_file")) {
+			_testPropertiesFile = new File(
+				jsonObject.getString("test_properties_file"));
+		}
+		else {
+			_testPropertiesFile = null;
+		}
+
+		_testrayMainComponentName = jsonObject.optString(
+			"testray_main_component_name");
 	}
 
 	private String _getClassName() {
@@ -85,14 +134,14 @@ public class JUnitTestClass extends BaseTestClass {
 		return testClassFilePath.replaceAll("/", ".");
 	}
 
-	private String _getParentClassName() {
+	private String _getParentClassName(String fileContent) {
 		Pattern classHeaderPattern = Pattern.compile(
 			JenkinsResultsParserUtil.combine(
 				"public\\s+(abstract\\s+)?(class|interface)\\s+",
 				_getClassName(),
 				"(\\<[^\\<]+\\>)?(?<classHeaderEntities>[^\\{]+)\\{"));
 
-		Matcher classHeaderMatcher = classHeaderPattern.matcher(_fileContent);
+		Matcher classHeaderMatcher = classHeaderPattern.matcher(fileContent);
 
 		if (!classHeaderMatcher.find()) {
 			throw new RuntimeException(
@@ -116,8 +165,8 @@ public class JUnitTestClass extends BaseTestClass {
 		return null;
 	}
 
-	private String _getParentFullClassName() {
-		String parentClassName = _getParentClassName();
+	private String _getParentFullClassName(String fileContent) {
+		String parentClassName = _getParentClassName(fileContent);
 
 		if (parentClassName == null) {
 			return null;
@@ -133,7 +182,8 @@ public class JUnitTestClass extends BaseTestClass {
 			return parentClassName;
 		}
 
-		String parentPackageName = _getParentPackageName(parentClassName);
+		String parentPackageName = _getParentPackageName(
+			fileContent, parentClassName);
 
 		if (parentPackageName == null) {
 			return null;
@@ -142,14 +192,16 @@ public class JUnitTestClass extends BaseTestClass {
 		return parentPackageName + "." + parentClassName;
 	}
 
-	private String _getParentPackageName(String parentClassName) {
+	private String _getParentPackageName(
+		String fileContent, String parentClassName) {
+
 		Pattern parentImportClassPattern = Pattern.compile(
 			JenkinsResultsParserUtil.combine(
 				"import\\s+(?<parentPackageName>[^;]+)\\.", parentClassName,
 				";"));
 
 		Matcher parentImportClassMatcher = parentImportClassPattern.matcher(
-			_fileContent);
+			fileContent);
 
 		if (parentImportClassMatcher.find()) {
 			String parentPackageName = parentImportClassMatcher.group(
@@ -191,8 +243,8 @@ public class JUnitTestClass extends BaseTestClass {
 		return canonicalFile;
 	}
 
-	private void _initTestClassMethods() {
-		Matcher classHeaderMatcher = _classHeaderPattern.matcher(_fileContent);
+	private void _initTestClassMethods(String fileContent) {
+		Matcher classHeaderMatcher = _classHeaderPattern.matcher(fileContent);
 
 		_classIgnored = false;
 
@@ -204,8 +256,7 @@ public class JUnitTestClass extends BaseTestClass {
 			}
 		}
 
-		Matcher methodHeaderMatcher = _methodHeaderPattern.matcher(
-			_fileContent);
+		Matcher methodHeaderMatcher = _methodHeaderPattern.matcher(fileContent);
 
 		while (methodHeaderMatcher.find()) {
 			String annotations = methodHeaderMatcher.group("annotations");
@@ -223,7 +274,7 @@ public class JUnitTestClass extends BaseTestClass {
 			}
 		}
 
-		String parentFullClassName = _getParentFullClassName();
+		String parentFullClassName = _getParentFullClassName(fileContent);
 
 		if (parentFullClassName == null) {
 			return;
@@ -257,11 +308,6 @@ public class JUnitTestClass extends BaseTestClass {
 		}
 	}
 
-	private void _setTestProperties(File testPropertiesBaseDir) {
-		_testProperties = JenkinsResultsParserUtil.getProperties(
-			new File(testPropertiesBaseDir, "test.properties"));
-	}
-
 	private static final Pattern _classHeaderPattern = Pattern.compile(
 		JenkinsResultsParserUtil.combine(
 			"\\*/(?<annotations>[^/]*)public\\s+class\\s+",
@@ -272,7 +318,7 @@ public class JUnitTestClass extends BaseTestClass {
 			"(?<methodName>[^\\(\\s]+)"));
 
 	private boolean _classIgnored;
-	private final String _fileContent;
-	private Properties _testProperties;
+	private final File _testPropertiesFile;
+	private final String _testrayMainComponentName;
 
 }

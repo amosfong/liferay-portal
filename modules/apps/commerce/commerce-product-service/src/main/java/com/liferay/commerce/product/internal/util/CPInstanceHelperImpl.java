@@ -202,7 +202,7 @@ public class CPInstanceHelperImpl implements CPInstanceHelper {
 
 	@Override
 	public Map<CPDefinitionOptionRel, List<CPDefinitionOptionValueRel>>
-		getCPDefinitionOptionRelsMap(
+		getCPDefinitionOptionValueRelsMap(
 			long cpDefinitionId, boolean skuContributor, boolean publicStore) {
 
 		List<CPDefinitionOptionRel> cpDefinitionOptionRels;
@@ -249,7 +249,7 @@ public class CPInstanceHelperImpl implements CPInstanceHelper {
 
 	@Override
 	public Map<CPDefinitionOptionRel, List<CPDefinitionOptionValueRel>>
-			getCPDefinitionOptionRelsMap(long cpDefinitionId, String json)
+			getCPDefinitionOptionValueRelsMap(long cpDefinitionId, String json)
 		throws PortalException {
 
 		Map<CPDefinitionOptionRel, List<CPDefinitionOptionValueRel>>
@@ -438,14 +438,10 @@ public class CPInstanceHelperImpl implements CPInstanceHelper {
 			return null;
 		}
 
-		Map<String, List<String>>
-			cpDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys =
-				_cpDefinitionOptionRelLocalService.
-					getCPDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys(
-						cpInstanceId);
-
 		JSONArray keyValuesJSONArray = _jsonHelper.toJSONArray(
-			cpDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys);
+			_cpDefinitionOptionRelLocalService.
+				getCPDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys(
+					cpInstanceId));
 
 		List<CPAttachmentFileEntry> cpAttachmentFileEntries =
 			_cpAttachmentFileEntryLocalService.getCPAttachmentFileEntries(
@@ -492,14 +488,10 @@ public class CPInstanceHelperImpl implements CPInstanceHelper {
 			return StringPool.BLANK;
 		}
 
-		Map<String, List<String>>
-			cpDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys =
-				_cpDefinitionOptionRelLocalService.
-					getCPDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys(
-						cpInstanceId);
-
 		JSONArray keyValuesJSONArray = _jsonHelper.toJSONArray(
-			cpDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys);
+			_cpDefinitionOptionRelLocalService.
+				getCPDefinitionOptionRelKeysCPDefinitionOptionValueRelKeys(
+					cpInstanceId));
 
 		List<CPAttachmentFileEntry> cpAttachmentFileEntries =
 			_cpAttachmentFileEntryLocalService.getCPAttachmentFileEntries(

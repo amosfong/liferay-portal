@@ -100,7 +100,7 @@ AUI.add(
 		var TPL_REQUIRED_MARK =
 			'<span class="reference-mark">' +
 			Liferay.Util.getLexiconIconTpl('asterisk') +
-			'<span class="hide-accessible">' +
+			'<span class="hide-accessible sr-only">' +
 			Liferay.Language.get('required') +
 			'</span></span>';
 
@@ -1834,7 +1834,7 @@ AUI.add(
 							layoutValue && layoutValue.privateLayout
 						);
 
-						var groupId = themeDisplay.getScopeGroupIdOrLiveGroupId();
+						var groupId = instance._getGroupId();
 
 						var layoutsRoot = {
 							groupId,
@@ -1950,6 +1950,16 @@ AUI.add(
 					}
 
 					return cache;
+				},
+
+				_getGroupId() {
+					var groupId = themeDisplay.getScopeGroupId();
+
+					if (!themeDisplay.isStagedPortlet()) {
+						groupId = themeDisplay.getScopeGroupIdOrLiveGroupId();
+					}
+
+					return groupId;
 				},
 
 				_getModalConfig() {
@@ -2220,7 +2230,7 @@ AUI.add(
 
 					var delta = instance.get('delta');
 
-					var groupId = themeDisplay.getScopeGroupIdOrLiveGroupId();
+					var groupId = instance._getGroupId();
 
 					var parentLayoutId = instance._currentParentLayoutId;
 
@@ -2545,7 +2555,7 @@ AUI.add(
 
 					var selectedLayout = instance.get('selectedLayout');
 
-					var groupId = themeDisplay.getScopeGroupIdOrLiveGroupId();
+					var groupId = instance._getGroupId();
 
 					if (selectedLayout && selectedLayout.layoutId) {
 						instance._requestSiblingLayouts(

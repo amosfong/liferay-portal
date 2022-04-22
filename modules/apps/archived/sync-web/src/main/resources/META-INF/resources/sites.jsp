@@ -109,7 +109,7 @@ PortletURL portletURL = PortletURLBuilder.createRenderURL(
 			).build(),
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-		List<String> resourceActions = ListUtil.toList(SyncPermissionsConstants.getFileResourceActions(SyncPermissionsConstants.PERMISSIONS_FULL_ACCESS));
+		List<String> resourceActions = ListUtil.fromArray(SyncPermissionsConstants.getFileResourceActions(SyncPermissionsConstants.PERMISSIONS_FULL_ACCESS));
 
 		List<String> localizedResourceActions = new ArrayList<String>(resourceActions.size());
 
@@ -142,7 +142,8 @@ PortletURL portletURL = PortletURLBuilder.createRenderURL(
 			total="<%= groups.size() %>"
 		>
 			<liferay-ui:search-container-results
-				results="<%= ListUtil.subList(groups, searchContainer.getStart(), searchContainer.getEnd()) %>"
+				calculateStartAndEnd="<%= true %>"
+				results="<%= groups %>"
 			/>
 
 			<liferay-ui:search-container-row

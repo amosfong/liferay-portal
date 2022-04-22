@@ -142,6 +142,10 @@ public abstract class BaseShippingMethodResourceImpl
 		return null;
 	}
 
+	public String getVersion() {
+		return "v1.0";
+	}
+
 	@Override
 	public Page<ShippingMethod> read(
 			Filter filter, Pagination pagination, Sort[] sorts,
@@ -252,6 +256,14 @@ public abstract class BaseShippingMethodResourceImpl
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource) {
+
+		this.vulcanBatchEngineImportTaskResource =
+			vulcanBatchEngineImportTaskResource;
 	}
 
 	@Override

@@ -45,7 +45,9 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.template.info.item.provider.TemplateInfoItemFieldSetProvider;
@@ -188,6 +190,8 @@ public class ObjectEntryInfoItemFieldValuesProvider
 						InfoField.builder(
 						).infoFieldType(
 							_getInfoFieldType(objectField)
+						).namespace(
+							ObjectField.class.getSimpleName()
 						).name(
 							objectField.getName()
 						).labelInfoLocalizedValue(
@@ -218,7 +222,7 @@ public class ObjectEntryInfoItemFieldValuesProvider
 
 	private Object _getValue(
 			ObjectField objectField, Map<String, Serializable> values)
-		throws PortalException {
+		throws Exception {
 
 		Object value = values.get(objectField.getName());
 
@@ -252,7 +256,9 @@ public class ObjectEntryInfoItemFieldValuesProvider
 
 			return listTypeEntry.getName(serviceContext.getLocale());
 		}
-		else if (Validator.isNotNull(objectField.getRelationshipType())) {
+		else if (Validator.isNotNull(objectField.getRelationshipType()) &&
+				 (GetterUtil.getLong(value) > 0)) {
+
 			ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
 				(Long)values.get(objectField.getName()));
 
@@ -264,7 +270,12 @@ public class ObjectEntryInfoItemFieldValuesProvider
 			Format dateFormat = FastDateFormatFactoryUtil.getDate(
 				serviceContext.getLocale());
 
-			return dateFormat.format((Date)values.get(objectField.getName()));
+			Serializable dateValue = values.get(objectField.getName());
+
+			Date date = DateUtil.parseDate(
+				"yyyy-MM-dd", dateValue.toString(), serviceContext.getLocale());
+
+			return dateFormat.format(date);
 		}
 
 		return values.get(objectField.getName());

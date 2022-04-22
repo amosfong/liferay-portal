@@ -26,17 +26,19 @@ import {titleCase} from '../../../../../util/utils';
 const BaseRoleType = ({
 	autoCreate = false,
 	buttonName,
+	errors,
 	identifier,
 	index,
 	inputLabel,
-	roleName = '',
+	roleName = null,
 	roleType = '',
 	sectionsLength,
+	setErrors,
 	setSections,
+	notificationIndex,
 	updateSelectedItem = () => {},
 }) => {
 	const [accountRoles, setAccountRoles] = useState([]);
-	const [checked, setChecked] = useState(autoCreate);
 	const [filterRoleName, setFilterRoleName] = useState(true);
 	const [filterRoleType, setFilterRoleType] = useState(true);
 	const [networkStatus, setNetworkStatus] = useState(4);
@@ -46,6 +48,11 @@ const BaseRoleType = ({
 	const [selectedRoleType, setSelectedRoleType] = useState(
 		titleCase(roleType)
 	);
+	if (autoCreate === 'false') {
+		autoCreate = false;
+	}
+
+	const [checked, setChecked] = useState(autoCreate);
 
 	const {resource} = useResource({
 		fetchOptions: {
@@ -78,6 +85,27 @@ const BaseRoleType = ({
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	const checkRoleTypeErrors = (errors, selectedRoleName) => {
+		const temp = errors?.roleName ? [...errors.roleName] : [];
+
+		if (!temp[notificationIndex]) {
+			temp[notificationIndex] = [];
+		}
+		if (!temp[notificationIndex][index]) {
+			temp[notificationIndex][index] = [];
+		}
+		temp[notificationIndex][index] = selectedRoleName === '';
+
+		return {...errors, roleName: temp};
+	};
+
+	useEffect(() => {
+		if (selectedRoleName !== null) {
+			setErrors(checkRoleTypeErrors(errors, selectedRoleName));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedRoleName]);
 
 	const deleteSection = () => {
 		setSections((prevSections) => {
@@ -177,13 +205,13 @@ const BaseRoleType = ({
 
 		setFilterRoleType(true);
 		setSelectedRoleType(event.target.value);
-		setSelectedRoleName('');
+		setSelectedRoleName(null);
 	};
 
 	const roleTypeItemClick = (item) => {
 		setSelectedRoleType(item);
 		setRoleTypeDropdownActive(false);
-		setSelectedRoleName('');
+		setSelectedRoleName(null);
 	};
 
 	const initialLoading = networkStatus === 1;
@@ -236,7 +264,13 @@ const BaseRoleType = ({
 					{loading && <ClayAutocomplete.LoadingIndicator />}
 				</ClayAutocomplete>
 			</ClayForm.Group>
-			<ClayForm.Group>
+			<ClayForm.Group
+				className={
+					errors?.roleName?.[notificationIndex]?.[index]
+						? 'has-error'
+						: ''
+				}
+			>
 				<ClayAutocomplete>
 					<label htmlFor="role-name">
 						{Liferay.Language.get('role-name')}
@@ -256,6 +290,9 @@ const BaseRoleType = ({
 									roleType: selectedRoleType.toLowerCase(),
 								});
 							}
+							setErrors(
+								checkRoleTypeErrors(errors, selectedRoleName)
+							);
 						}}
 						onChange={(event) => roleNameInputChange(event)}
 						onFocus={() => roleNameInputFocus()}
@@ -297,14 +334,41 @@ const BaseRoleType = ({
 
 					{loading && <ClayAutocomplete.LoadingIndicator />}
 				</ClayAutocomplete>
+
+				<ClayForm.FeedbackItem>
+					{errors?.roleName?.[notificationIndex]?.[index] && (
+						<>
+							<ClayForm.FeedbackIndicator symbol="exclamation-full" />
+
+							{Liferay.Language.get('this-field-is-required')}
+						</>
+					)}
+				</ClayForm.FeedbackItem>
 			</ClayForm.Group>
 			<ClayForm.Group>
 				<div className="spaced-items">
 					<div className="auto-create">
 						<ClayCheckbox
+							checked={checked}
 							className="mt-2"
-							defaultChecked={checked}
-							onClick={() => setChecked(!checked)}
+							onChange={() => {
+								setChecked((value) => {
+									setSections((prev) => {
+										prev[index] = {
+											...prev[index],
+											autoCreate: !value,
+											roleName: selectedRoleName,
+											roleType: selectedRoleType,
+										};
+
+										updateSelectedItem(prev);
+
+										return prev;
+									});
+
+									return !value;
+								});
+							}}
 						/>
 
 						<span className="ml-2">

@@ -397,7 +397,7 @@ public class ObjectField implements Cloneable, Serializable {
 		DECIMAL("Decimal"), INTEGER("Integer"), LONG_INTEGER("LongInteger"),
 		LONG_TEXT("LongText"), PICKLIST("Picklist"),
 		PRECISION_DECIMAL("PrecisionDecimal"), RELATIONSHIP("Relationship"),
-		TEXT("Text");
+		RICH_TEXT("RichText"), TEXT("Text");
 
 		public static BusinessType create(String value) {
 			for (BusinessType businessType : values()) {

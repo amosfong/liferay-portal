@@ -11,17 +11,18 @@
 
 import React, {useEffect, useState} from 'react';
 
+import useClipboardJS from '../hooks/useClipboardJS';
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ThemeContext from '../shared/ThemeContext';
 import {COPY_BUTTON_CSS_CLASS} from '../utils/constants';
 import {fetchData} from '../utils/fetch';
 import {openInitialSuccessToast} from '../utils/toasts';
-import useClipboardJS from '../utils/useClipboardJS';
 import EditSXPBlueprintForm from './EditSXPBlueprintForm';
 
 export default function ({
 	contextPath,
 	defaultLocale,
+	jsonAutocompleteEnabled,
 	learnMessages,
 	locale,
 	namespace,
@@ -52,6 +53,7 @@ export default function ({
 				availableLanguages: Liferay.Language.available,
 				contextPath,
 				defaultLocale,
+				jsonAutocompleteEnabled,
 				learnMessages,
 				locale,
 				namespace,

@@ -80,7 +80,7 @@ public class DDMXMLImpl implements DDMXML {
 		}
 		catch (DocumentException documentException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(documentException.getMessage(), documentException);
+				_log.debug(documentException);
 			}
 
 			return null;
@@ -136,11 +136,8 @@ public class DDMXMLImpl implements DDMXML {
 							"default-locale");
 					}
 
-					Locale defaultLocale = LocaleUtil.fromLanguageId(
-						defaultLanguageId);
-
-					field.setDefaultLocale(defaultLocale);
-
+					field.setDefaultLocale(
+						LocaleUtil.fromLanguageId(defaultLanguageId));
 					field.setDDMStructureId(structure.getStructureId());
 					field.setName(fieldName);
 					field.setValue(locale, fieldValueSerializable);

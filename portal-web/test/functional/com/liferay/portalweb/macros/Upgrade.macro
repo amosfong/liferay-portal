@@ -213,7 +213,7 @@ definition {
 		task ("Add a content page in Test Site Name site") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
-			ContentPages.addPage(pageName = "Test Content Page Name");
+			ContentPages.addPublicPage(pageName = "Test Content Page Name");
 		}
 
 		task ("Add a Title fragment to the content page") {
@@ -1668,6 +1668,7 @@ definition {
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		Translations.importTranslation(
+			archive = "true",
 			dependencyfile = "true",
 			fileName = "WebContentTitle-en_US.zip",
 			webContentTitle = "WebContentTitle");
@@ -2960,6 +2961,11 @@ definition {
 
 	macro viewAndAddImageResolution {
 		AdaptiveMedia.openAdaptiveMediaAdmin();
+
+		AdaptiveMedia.viewImageResolutionTableEntry(
+			imageName = "Preview",
+			maxHeight = "Auto",
+			maxWidth = "1000");
 
 		AdaptiveMedia.selectAdaptiveMediaImage(imageName = "Thumbnail 300x300");
 

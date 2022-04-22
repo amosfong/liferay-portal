@@ -59,7 +59,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.List;
 
@@ -108,9 +108,13 @@ public class ResponsiveLayoutStructureUtilTest {
 				0, FragmentConstants.TYPE_COMPONENT,
 				WorkflowConstants.STATUS_APPROVED, serviceContext);
 
+		_defaultSegmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				_layout.getPlid());
+
 		_fragmentEntryLink = _fragmentEntryLinkService.addFragmentEntryLink(
 			_group.getGroupId(), 0, fragmentEntry.getFragmentEntryId(),
-			SegmentsExperienceConstants.ID_DEFAULT, _layout.getPlid(),
+			_defaultSegmentsExperienceId, _layout.getPlid(),
 			fragmentEntry.getCss(), fragmentEntry.getHtml(),
 			fragmentEntry.getJs(), fragmentEntry.getConfiguration(), null,
 			StringPool.BLANK, 0, null, serviceContext);
@@ -145,8 +149,7 @@ public class ResponsiveLayoutStructureUtilTest {
 					_layout.getGroupId(), _layout.getPlid());
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(
-				SegmentsExperienceConstants.ID_DEFAULT));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		LayoutStructureItem rowStyledLayoutStructureItem =
 			layoutStructure.addRowStyledLayoutStructureItem(
@@ -163,8 +166,7 @@ public class ResponsiveLayoutStructureUtilTest {
 		_layoutPageTemplateStructureLocalService.
 			updateLayoutPageTemplateStructureData(
 				_layout.getGroupId(), _layout.getPlid(),
-				SegmentsExperienceConstants.ID_DEFAULT,
-				layoutStructure.toString());
+				_defaultSegmentsExperienceId, layoutStructure.toString());
 
 		MockHttpServletRequest httpServletRequest =
 			new MockHttpServletRequest();
@@ -209,8 +211,7 @@ public class ResponsiveLayoutStructureUtilTest {
 					_layout.getGroupId(), _layout.getPlid());
 
 		LayoutStructure layoutStructure = LayoutStructure.of(
-			layoutPageTemplateStructure.getData(
-				SegmentsExperienceConstants.ID_DEFAULT));
+			layoutPageTemplateStructure.getDefaultSegmentsExperienceData());
 
 		StyledLayoutStructureItem rowStyledLayoutStructureItem =
 			(StyledLayoutStructureItem)
@@ -283,6 +284,7 @@ public class ResponsiveLayoutStructureUtilTest {
 	@Inject
 	private CompanyLocalService _companyLocalService;
 
+	private long _defaultSegmentsExperienceId;
 	private FragmentEntryLink _fragmentEntryLink;
 
 	@Inject
@@ -302,6 +304,9 @@ public class ResponsiveLayoutStructureUtilTest {
 	@Inject
 	private LayoutPageTemplateStructureLocalService
 		_layoutPageTemplateStructureLocalService;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	private ThemeDisplay _themeDisplay;
 

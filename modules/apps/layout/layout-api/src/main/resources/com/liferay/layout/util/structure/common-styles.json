@@ -3,6 +3,7 @@
 		"label": "margin",
 		"styles": [
 			{
+				"cssTemplate": "margin-top: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -59,6 +60,7 @@
 				]
 			},
 			{
+				"cssTemplate": "margin-bottom: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -115,6 +117,7 @@
 				]
 			},
 			{
+				"cssTemplate": "margin-left: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -171,6 +174,7 @@
 				]
 			},
 			{
+				"cssTemplate": "margin-right: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -232,6 +236,7 @@
 		"label": "padding",
 		"styles": [
 			{
+				"cssTemplate": "padding-top: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -288,6 +293,7 @@
 				]
 			},
 			{
+				"cssTemplate": "padding-bottom: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -344,6 +350,7 @@
 				]
 			},
 			{
+				"cssTemplate": "padding-left: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -400,6 +407,7 @@
 				]
 			},
 			{
+				"cssTemplate": "padding-right: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "0",
 				"displaySize": "small",
@@ -462,6 +470,7 @@
 		"label": "frame",
 		"styles": [
 			{
+				"cssTemplate": "width: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -471,6 +480,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "height: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -480,6 +490,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "min-width: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -489,6 +500,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "max-width: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -498,6 +510,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "min-height: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -507,6 +520,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "max-height: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"displaySize": "small",
@@ -516,6 +530,7 @@
 				"type": "text"
 			},
 			{
+				"cssTemplate": "overflow: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"label": "overflow",
@@ -546,13 +561,14 @@
 				]
 			},
 			{
+				"cssTemplate": "display: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "block",
 				"label": "hide-fragment",
 				"name": "display",
 				"responsive": true,
 				"responsiveTemplate": "d{viewport}{value}",
-				"type": "checkbox",
+				"type": "hideFragment",
 				"typeOptions": {
 					"customValues": {
 						"checked": "none",
@@ -566,6 +582,7 @@
 		"label": "text",
 		"styles": [
 			{
+				"cssTemplate": "font-family: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"label": "font-family",
@@ -595,6 +612,7 @@
 				]
 			},
 			{
+				"cssTemplate": "font-weight: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"label": "font-weight",
@@ -634,6 +652,7 @@
 				]
 			},
 			{
+				"cssTemplate": "font-size: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"label": "font-size",
@@ -663,6 +682,7 @@
 				]
 			},
 			{
+				"cssTemplate": "color: {value} !important;",
 				"dataType": "string",
 				"label": "text-color",
 				"name": "textColor",
@@ -670,6 +690,7 @@
 				"type": "colorPicker"
 			},
 			{
+				"cssTemplate": "text-align: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "left",
 				"label": "text-align",
@@ -702,6 +723,7 @@
 		"label": "background",
 		"styles": [
 			{
+				"cssTemplate": "background-color: {value} !important;",
 				"dataType": "string",
 				"label": "background-color",
 				"name": "backgroundColor",
@@ -709,6 +731,7 @@
 				"type": "colorPicker"
 			},
 			{
+				"cssTemplate": "background-position: 50% 50%; background-repeat:no-repeat; background-size: cover; background-image: {value} !important;",
 				"dataType": "object",
 				"defaultValue": {
 				},
@@ -723,6 +746,7 @@
 		"label": "borders",
 		"styles": [
 			{
+				"cssTemplate": "border-style: solid; border-width: {value}px !important;",
 				"dataType": "number",
 				"defaultValue": 0,
 				"label": "border-width",
@@ -736,6 +760,7 @@
 				}
 			},
 			{
+				"cssTemplate": "border-radius: {value} !important;",
 				"dataType": "string",
 				"defaultValue": "",
 				"label": "border-radius",
@@ -770,6 +795,7 @@
 				]
 			},
 			{
+				"cssTemplate": "border-color: {value} !important;",
 				"dataType": "string",
 				"label": "border-color",
 				"name": "borderColor",
@@ -782,6 +808,7 @@
 		"label": "effects",
 		"styles": [
 			{
+				"cssTemplate": "opacity: {value} !important;",
 				"dataType": "number",
 				"defaultValue": "",
 				"label": "opacity",
@@ -795,6 +822,7 @@
 				}
 			},
 			{
+				"cssTemplate": "box-shadow: {value} !important;",
 				"dataType": "object",
 				"defaultValue": "",
 				"label": "shadow",

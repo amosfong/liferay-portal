@@ -36,14 +36,17 @@ function retrieveAccountRoles(accountId) {
 	});
 }
 
-function retrieveDefinitionRequest(definitionId) {
-	return fetch(
-		`${workflowBaseURL}/workflow-definitions/by-name/${definitionId}`,
-		{
-			headers,
-			method: 'GET',
-		}
-	);
+function retrieveDefinitionRequest(definitionId, versionNumber) {
+	let url = `${workflowBaseURL}/workflow-definitions/by-name/${definitionId}`;
+
+	if (versionNumber) {
+		url = `${url}?version=${versionNumber}`;
+	}
+
+	return fetch(url, {
+		headers,
+		method: 'GET',
+	});
 }
 
 function retrieveRolesBy(filterType, keywords) {

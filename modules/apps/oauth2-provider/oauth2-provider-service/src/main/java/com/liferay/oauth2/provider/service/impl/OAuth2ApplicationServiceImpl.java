@@ -49,13 +49,14 @@ public class OAuth2ApplicationServiceImpl
 
 	@Override
 	public OAuth2Application addOAuth2Application(
-			List<GrantType> allowedGrantTypesList, long clientCredentialUserId,
+			List<GrantType> allowedGrantTypesList,
+			String clientAuthenticationMethod, long clientCredentialUserId,
 			String clientId, int clientProfile, String clientSecret,
 			String description, List<String> featuresList, String homePageURL,
-			long iconFileEntryId, String name, String privacyPolicyURL,
-			List<String> redirectURIsList, boolean rememberDevice,
-			List<String> scopeAliasesList, boolean trustedApplication,
-			ServiceContext serviceContext)
+			long iconFileEntryId, String jwks, String name,
+			String privacyPolicyURL, List<String> redirectURIsList,
+			boolean rememberDevice, List<String> scopeAliasesList,
+			boolean trustedApplication, ServiceContext serviceContext)
 		throws PortalException {
 
 		ModelResourcePermissionUtil.check(
@@ -86,69 +87,11 @@ public class OAuth2ApplicationServiceImpl
 
 		return oAuth2ApplicationLocalService.addOAuth2Application(
 			user.getCompanyId(), user.getUserId(), user.getFullName(),
-			allowedGrantTypesList, clientCredentialUserId, clientId,
-			clientProfile, clientSecret, description, featuresList, homePageURL,
-			iconFileEntryId, name, privacyPolicyURL, redirectURIsList,
-			rememberDevice, scopeAliasesList, trustedApplication,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 *             #addOAuth2Application(List, long, String, int, String,
-	 *             String, List, String, long, String, String, List, boolean,
-	 *             List, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public OAuth2Application addOAuth2Application(
-			List<GrantType> allowedGrantTypesList, long clientCredentialUserId,
-			String clientId, int clientProfile, String clientSecret,
-			String description, List<String> featuresList, String homePageURL,
-			long iconFileEntryId, String name, String privacyPolicyURL,
-			List<String> redirectURIsList, List<String> scopeAliasesList,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		ModelResourcePermissionUtil.check(
-			_oAuth2ApplicationModelResourcePermission, getPermissionChecker(),
-			0, 0, OAuth2ProviderActionKeys.ACTION_ADD_APPLICATION);
-
-		User user = getUser();
-
-		return oAuth2ApplicationLocalService.addOAuth2Application(
-			user.getCompanyId(), user.getUserId(), user.getFullName(),
-			allowedGrantTypesList, clientCredentialUserId, clientId,
-			clientProfile, clientSecret, description, featuresList, homePageURL,
-			iconFileEntryId, name, privacyPolicyURL, redirectURIsList, false,
-			scopeAliasesList, false, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x)
-	 */
-	@Deprecated
-	@Override
-	public OAuth2Application addOAuth2Application(
-			List<GrantType> allowedGrantTypesList, String clientId,
-			int clientProfile, String clientSecret, String description,
-			List<String> featuresList, String homePageURL, long iconFileEntryId,
-			String name, String privacyPolicyURL, List<String> redirectURIsList,
-			List<String> scopeAliasesList, ServiceContext serviceContext)
-		throws PortalException {
-
-		ModelResourcePermissionUtil.check(
-			_oAuth2ApplicationModelResourcePermission, getPermissionChecker(),
-			0, 0, OAuth2ProviderActionKeys.ACTION_ADD_APPLICATION);
-
-		User user = getUser();
-
-		return oAuth2ApplicationLocalService.addOAuth2Application(
-			user.getCompanyId(), user.getUserId(), user.getFullName(),
-			allowedGrantTypesList, clientId, clientProfile, clientSecret,
-			description, featuresList, homePageURL, iconFileEntryId, name,
-			privacyPolicyURL, redirectURIsList, scopeAliasesList,
-			serviceContext);
+			allowedGrantTypesList, clientAuthenticationMethod,
+			clientCredentialUserId, clientId, clientProfile, clientSecret,
+			description, featuresList, homePageURL, iconFileEntryId, jwks, name,
+			privacyPolicyURL, redirectURIsList, rememberDevice,
+			scopeAliasesList, trustedApplication, serviceContext);
 	}
 
 	@Override
@@ -240,76 +183,16 @@ public class OAuth2ApplicationServiceImpl
 			oAuth2ApplicationId, inputStream);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 *             #updateOAuth2Application(long, long, List, long, String, int,
-	 *             String, String, List, String, long, String, String, List,
-	 *             boolean, boolean)}
-	 */
-	@Deprecated
-	@Override
-	public OAuth2Application updateOAuth2Application(
-			long oAuth2ApplicationId, List<GrantType> allowedGrantTypesList,
-			long clientCredentialUserId, String clientId, int clientProfile,
-			String clientSecret, String description, List<String> featuresList,
-			String homePageURL, long iconFileEntryId, String name,
-			String privacyPolicyURL, List<String> redirectURIsList,
-			long oAuth2ApplicationScopeAliasesId, ServiceContext serviceContext)
-		throws PortalException {
-
-		OAuth2Application oAuth2Application =
-			oAuth2ApplicationLocalService.getOAuth2Application(
-				oAuth2ApplicationId);
-
-		_oAuth2ApplicationModelResourcePermission.check(
-			getPermissionChecker(), oAuth2Application, ActionKeys.UPDATE);
-
-		return oAuth2ApplicationLocalService.updateOAuth2Application(
-			oAuth2ApplicationId, oAuth2ApplicationScopeAliasesId,
-			allowedGrantTypesList, clientCredentialUserId, clientId,
-			clientProfile, clientSecret, description, featuresList, homePageURL,
-			iconFileEntryId, name, privacyPolicyURL, redirectURIsList, false,
-			false);
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x)
-	 */
-	@Deprecated
-	@Override
-	public OAuth2Application updateOAuth2Application(
-			long oAuth2ApplicationId, List<GrantType> allowedGrantTypesList,
-			String clientId, int clientProfile, String clientSecret,
-			String description, List<String> featuresList, String homePageURL,
-			long iconFileEntryId, String name, String privacyPolicyURL,
-			List<String> redirectURIsList, long oAuth2ApplicationScopeAliasesId,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		OAuth2Application oAuth2Application =
-			oAuth2ApplicationLocalService.getOAuth2Application(
-				oAuth2ApplicationId);
-
-		_oAuth2ApplicationModelResourcePermission.check(
-			getPermissionChecker(), oAuth2Application, ActionKeys.UPDATE);
-
-		return oAuth2ApplicationLocalService.updateOAuth2Application(
-			oAuth2ApplicationId, allowedGrantTypesList,
-			oAuth2Application.getClientCredentialUserId(), clientId,
-			clientProfile, clientSecret, description, featuresList, homePageURL,
-			iconFileEntryId, name, privacyPolicyURL, redirectURIsList,
-			oAuth2ApplicationScopeAliasesId, serviceContext);
-	}
-
 	@Override
 	public OAuth2Application updateOAuth2Application(
 			long oAuth2ApplicationId, long oAuth2ApplicationScopeAliasesId,
-			List<GrantType> allowedGrantTypesList, long clientCredentialUserId,
+			List<GrantType> allowedGrantTypesList,
+			String clientAuthenticationMethod, long clientCredentialUserId,
 			String clientId, int clientProfile, String clientSecret,
 			String description, List<String> featuresList, String homePageURL,
-			long iconFileEntryId, String name, String privacyPolicyURL,
-			List<String> redirectURIsList, boolean rememberDevice,
-			boolean trustedApplication)
+			long iconFileEntryId, String jwks, String name,
+			String privacyPolicyURL, List<String> redirectURIsList,
+			boolean rememberDevice, boolean trustedApplication)
 		throws PortalException {
 
 		_oAuth2ApplicationModelResourcePermission.check(
@@ -338,10 +221,11 @@ public class OAuth2ApplicationServiceImpl
 
 		return oAuth2ApplicationLocalService.updateOAuth2Application(
 			oAuth2ApplicationId, oAuth2ApplicationScopeAliasesId,
-			allowedGrantTypesList, clientCredentialUserId, clientId,
-			clientProfile, clientSecret, description, featuresList, homePageURL,
-			iconFileEntryId, name, privacyPolicyURL, redirectURIsList,
-			rememberDevice, trustedApplication);
+			allowedGrantTypesList, clientAuthenticationMethod,
+			clientCredentialUserId, clientId, clientProfile, clientSecret,
+			description, featuresList, homePageURL, iconFileEntryId, jwks, name,
+			privacyPolicyURL, redirectURIsList, rememberDevice,
+			trustedApplication);
 	}
 
 	@Override

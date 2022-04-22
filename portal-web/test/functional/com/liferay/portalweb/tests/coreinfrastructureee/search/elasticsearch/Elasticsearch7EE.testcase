@@ -32,7 +32,7 @@ definition {
 	test LearningToRankSmoke {
 		property elastic.override.version = "7.13.4";
 		property elasticsearch.ltr.enabled = "true";
-		property portal.upstream = "quarantine";
+		property environment.acceptance = "false";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#LearningToRankSmoke";
 
@@ -111,8 +111,8 @@ definition {
 	test PortalClusterSmokeTest {
 		property app.server.bundles.size = "1";
 		property cluster.enabled = "true";
+		property environment.acceptance = "false";
 		property minimum.slave.ram = "24";
-		property portal.upstream = "quarantine";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#PortalClusterSmokeTest";
 
@@ -203,7 +203,7 @@ definition {
 	test XPackPkiAuthenticationSmokeTest {
 		property elastic.pki.authentication.enabled = "true";
 		property elastic.xpack.enabled = "true";
-		property portal.upstream = "quarantine";
+		property environment.acceptance = "false";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#XPackPkiAuthenticationSmokeTest";
 
@@ -228,8 +228,9 @@ definition {
 		property elastic.pki.authentication.enabled = "true";
 		property elastic.xpack.enabled = "true";
 		property elasticsearch.jdk11.enabled = "true";
+		property environment.acceptance = "false";
 		property portal.suite.search.engine = "";
-		property portal.upstream = "quarantine";
+		property portal.upstream = "jdk11";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#XPackPkiAuthenticationWithJDK11";
 
@@ -252,7 +253,7 @@ definition {
 	@priority = "5"
 	test XPackSmokeTest {
 		property elastic.xpack.enabled = "true";
-		property portal.upstream = "quarantine";
+		property environment.acceptance = "false";
 		property remote.elasticsearch.enabled = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#XPackSmokeTest";
 
@@ -271,14 +272,13 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Elasticsearch Monitoring Page",
 			sitePageType = "Widget Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Elasticsearch Monitoring Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoPage(pageName = "Elasticsearch Monitoring Page");
@@ -298,8 +298,9 @@ definition {
 	test XPackWithJDK11 {
 		property elastic.xpack.enabled = "true";
 		property elasticsearch.jdk11.enabled = "true";
+		property environment.acceptance = "false";
 		property portal.suite.search.engine = "";
-		property portal.upstream = "quarantine";
+		property portal.upstream = "jdk11";
 		property remote.elasticsearch.enabled = "true";
 		property test.assert.warning.exceptions = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7EE#XPackWithJDK11";
@@ -319,14 +320,13 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(
+		PagesAdmin.addPage(
 			pageName = "Elasticsearch Monitoring Page",
 			sitePageType = "Widget Page");
 
 		PagesAdmin.configurePage(
 			columnName = "1 Column",
 			pageName = "Elasticsearch Monitoring Page",
-			privacy = "Public Pages",
 			sitePageType = "Widget Page");
 
 		Navigator.gotoPage(pageName = "Elasticsearch Monitoring Page");

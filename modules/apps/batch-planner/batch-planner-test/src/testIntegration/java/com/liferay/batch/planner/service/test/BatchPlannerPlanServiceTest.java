@@ -111,8 +111,7 @@ public class BatchPlannerPlanServiceTest {
 		}
 		catch (BatchPlannerPlanNameException batchPlannerPlanNameException) {
 			Assert.assertEquals(
-				"Batch planner plan name is null for company " +
-					TestPropsValues.getCompanyId(),
+				"Batch planner plan name is null",
 				batchPlannerPlanNameException.getMessage());
 		}
 
@@ -137,7 +136,12 @@ public class BatchPlannerPlanServiceTest {
 			_batchPlannerPlanService.addBatchPlannerPlan(
 				true, BatchPlannerPlanConstants.EXTERNAL_TYPE_CSV,
 				"/" + RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(), name, null, false);
+				RandomTestUtil.randomString(), name, null, true);
+
+			_batchPlannerPlanService.addBatchPlannerPlan(
+				true, BatchPlannerPlanConstants.EXTERNAL_TYPE_CSV,
+				"/" + RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), name, null, true);
 
 			Assert.fail();
 		}

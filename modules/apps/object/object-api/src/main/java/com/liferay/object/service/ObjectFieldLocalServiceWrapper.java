@@ -148,6 +148,14 @@ public class ObjectFieldLocalServiceWrapper
 		return _objectFieldLocalService.deleteObjectField(objectField);
 	}
 
+	@Override
+	public void deleteObjectFieldByObjectDefinitionId(Long objectDefinitionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectFieldLocalService.deleteObjectFieldByObjectDefinitionId(
+			objectDefinitionId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -305,6 +313,16 @@ public class ObjectFieldLocalServiceWrapper
 		getActionableDynamicQuery() {
 
 		return _objectFieldLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public java.util.List<com.liferay.object.model.ObjectField>
+			getActiveObjectFields(
+				java.util.List<com.liferay.object.model.ObjectField>
+					objectFields)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectFieldLocalService.getActiveObjectFields(objectFields);
 	}
 
 	@Override

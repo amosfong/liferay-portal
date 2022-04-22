@@ -48,7 +48,7 @@ import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.Mergeable;
@@ -547,14 +547,6 @@ public class ThemeDisplay
 	}
 
 	/**
-	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
-	 */
-	@Deprecated
-	public String getPathFlash() {
-		return _pathFlash;
-	}
-
-	/**
 	 * Returns the URL for the site's private layout set. This method typically
 	 * returns <code>/group</code>.
 	 *
@@ -712,7 +704,7 @@ public class ThemeDisplay
 	}
 
 	public String getProtocol() {
-		return HttpUtil.getProtocol(_secure);
+		return HttpComponentsUtil.getProtocol(_secure);
 	}
 
 	public String getRealCompanyLogo() {
@@ -1468,14 +1460,6 @@ public class ThemeDisplay
 		_pathContext = pathContext;
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
-	 */
-	@Deprecated
-	public void setPathFlash(String pathFlash) {
-		_pathFlash = pathFlash;
-	}
-
 	public void setPathFriendlyURLPrivateGroup(
 		String pathFriendlyURLPrivateGroup) {
 
@@ -1901,7 +1885,6 @@ public class ThemeDisplay
 	private String _pathCms = StringPool.BLANK;
 	private String _pathColorSchemeImages = StringPool.BLANK;
 	private String _pathContext = StringPool.BLANK;
-	private String _pathFlash = StringPool.BLANK;
 	private String _pathFriendlyURLPrivateGroup = StringPool.BLANK;
 	private String _pathFriendlyURLPrivateUser = StringPool.BLANK;
 	private String _pathFriendlyURLPublic = StringPool.BLANK;

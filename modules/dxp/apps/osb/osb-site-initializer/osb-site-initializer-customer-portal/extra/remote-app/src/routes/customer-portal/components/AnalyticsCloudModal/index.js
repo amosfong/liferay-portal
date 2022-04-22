@@ -9,7 +9,20 @@
  * distribution rights of the Software.
  */
 import ClayModal from '@clayui/modal';
+import {useMemo, useState} from 'react';
 import SetupAnalyticsCloud from '../../../../common/containers/setup-forms/SetupAnalyticsCloudForm';
+import ConfirmationMessageModal from '../../../../common/containers/setup-forms/SetupAnalyticsCloudForm/ConfirmationMessageModal';
+import {ANALYTICS_STEPS_TYPES} from '../../utils/constants';
+import AlreadySubmittedFormModal from '../ActivationStatus/AlreadySubmittedModal';
+
+const submittedModalTexts = {
+	paragraph:
+		'Return to the product activation page to view the current Activation Status',
+	subtitle: `We'll need a few details to finish building your Analytics Cloud workspace(s).`,
+	text:
+		'Another user already submitted the Analytics Cloud activation request.',
+	title: 'Set up Analytics Cloud',
+};
 
 const AnalyticsCloudModal = ({
 	observer,
@@ -17,14 +30,48 @@ const AnalyticsCloudModal = ({
 	project,
 	subscriptionGroupId,
 }) => {
+	const [currentProcess, setCurrentProcess] = useState(
+		ANALYTICS_STEPS_TYPES.setupForm
+	);
+	const [formAlreadySubmitted, setFormAlreadySubmitted] = useState(false);
+
+	const handleChangeForm = (isSuccess) => {
+		if (isSuccess) {
+			return setCurrentProcess(ANALYTICS_STEPS_TYPES.confirmationForm);
+		}
+		onClose();
+	};
+
+	const currentModalForm = useMemo(
+		() => ({
+			[ANALYTICS_STEPS_TYPES.confirmationForm]: (
+				<ConfirmationMessageModal handlePage={onClose} />
+			),
+			[ANALYTICS_STEPS_TYPES.setupForm]: (
+				<SetupAnalyticsCloud
+					handlePage={handleChangeForm}
+					leftButton="Cancel"
+					project={project}
+					setFormAlreadySubmitted={setFormAlreadySubmitted}
+					subscriptionGroupId={subscriptionGroupId}
+				/>
+			),
+		}),
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[onClose, project, subscriptionGroupId]
+	);
+
 	return (
 		<ClayModal center observer={observer}>
-			<SetupAnalyticsCloud
-				handlePage={onClose}
-				leftButton="Cancel"
-				project={project}
-				subscriptionGroupId={subscriptionGroupId}
-			/>
+			{formAlreadySubmitted ? (
+				<AlreadySubmittedFormModal
+					onClose={onClose}
+					submittedModalTexts={submittedModalTexts}
+				/>
+			) : (
+				currentModalForm[currentProcess]
+			)}
 		</ClayModal>
 	);
 };

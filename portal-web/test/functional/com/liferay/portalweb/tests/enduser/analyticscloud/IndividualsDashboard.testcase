@@ -62,7 +62,9 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8907 | Test Summary: Expand activity in individual overview"
 	@priority = "3"
 	test CanExpandActivityInIndividualOverview {
-		property portal.upstream = "quarantine";
+		task ("Create Blog to Add to Page") {
+			ACUtils.createBlogsAndAddToPage();
+		}
 
 		task ("Sign in as new user") {
 			User.logoutAndLoginPG(
@@ -70,8 +72,10 @@ definition {
 				userLoginFullName = "userfn userln");
 		}
 
-		task ("View the site page") {
+		task ("View the blog page") {
 			ACUtils.navigateToSitePage(
+				actionType = "View Blog",
+				documentTitleList = "Blogs AC Title",
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -105,7 +109,7 @@ definition {
 		}
 
 		task ("Expand access timeline") {
-			Click(locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE");
+			ACIndividualsDashboard.expandActivity(eventName = "pageViewed");
 
 			AssertElementPresent(
 				locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE_ATTRIBUTES_TITLE",
@@ -113,9 +117,13 @@ definition {
 		}
 	}
 
-	@description = "Feature ID: Legacy | Automation ID: LRAC-8901 | Test Summary: As a Business User, I should be able to change individual overview time filter to Custom Range"
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8901 | Test Summary: Assert Individuals Overview time filter Custom Range"
+	@ignore = "true"
 	@priority = "5"
 	test CanUseCustomRangeTimeFilterOnActiveIndividualsChart {
+
+		// Tests with custom range are not possible to automate now. These cases will be automated on personas.
+
 		task ("Switch to new property in AC") {
 			ACUtils.launchAC();
 
@@ -237,77 +245,10 @@ definition {
 			count = "1");
 	}
 
-	@description = "Feature ID: Legacy | Automation ID: LRAC-8906 | Test Summary: As a Business User, I should be able to select a point on individual overview activities graph"
-	@priority = "3"
-	test SelectDataOnIndividualsActivitiesChart {
-		property portal.upstream = "quarantine";
-
-		task ("Sign in as new user") {
-			User.logoutAndLoginPG(
-				userLoginEmailAddress = "userea@liferay.com",
-				userLoginFullName = "userfn userln");
-		}
-
-		task ("View the site page") {
-			ACUtils.navigateToSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
-
-		task ("Close sessions") {
-			ACUtils.closeAllSessionsAndWait();
-		}
-
-		task ("Switch to new property in AC") {
-			ACUtils.launchAC();
-
-			ACProperties.switchProperty(propertyName = "${assignedPropertyName}");
-		}
-
-		task ("Navigate to the Known Individuals on the Individuals dashboard") {
-			ACNavigation.goToIndividuals();
-
-			ACIndividualsDashboard.goToKnownIndividualsTab();
-		}
-
-		task ("Navigate to the individuals page of new user") {
-			ACUtils.searchBar(searchItem = "userfn userln");
-
-			ACNavigation.openItem(itemName = "userfn userln");
-		}
-
-		task ("Select Last 24 hours time period in Individuals Events chart") {
-			ACTimeFilter.clickTimeFilterButton(cardName = "Individual Events");
-
-			ACTimeFilter.setLast24Hours();
-		}
-
-		task ("Select the data on Individuals Activities chart") {
-			ACIndividualsDashboard.selectDataOnIndividualsActivitiesChart();
-		}
-
-		task ("View the Clear Data Selection button shown") {
-			Button.viewPresent(button = "Clear Date Selection");
-		}
-
-		task ("Hover on the Individual Events graph and assert the elements that are shown on the tooltip") {
-			for (var current : list "Events-1,Sessions-1") {
-				var item = StringUtil.extractFirst("${current}", "-");
-				var value = StringUtil.extractLast("${current}", "-");
-
-				AssertElementPresent(
-					key_value = "${value}",
-					key_visitors = "${item}",
-					locator1 = "ACSites#TOOLTIP_UNIQUE_VISITORS");
-			}
-		}
-	}
-
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8905 | Test Summary: As a Business User, I should be able to see the last 5 activity entries of an individual when set pagination to 5"
 	@ignore = "true"
 	@priority = "3"
 	test ShowLast5ActivitiesOnIndividualsActivitiesChartWhenSetPaginationTo5 {
-		property portal.upstream = "quarantine";
 
 		// AC Refactor: data doesn't appear on time
 		// AC Refactor ticket: LRAC-8951
@@ -416,8 +357,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8902 | Test Summary: As an Business User, I should be able to assert the cards on the Overview tab of an Individual's page"
 	@priority = "4"
 	test ViewCardsInTheOverviewTabOfIndividualsPage {
-		property portal.upstream = "quarantine";
-
 		task ("View the site page with new user") {
 			ACUtils.navigateToSitePageWithUser(
 				emailList = "userea@liferay.com",

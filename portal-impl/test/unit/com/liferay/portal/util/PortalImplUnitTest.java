@@ -15,18 +15,20 @@
 package com.liferay.portal.util;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.security.auth.AlwaysAllowDoAsUser;
 import com.liferay.portal.kernel.servlet.PersistentHttpServletRequestWrapper;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -643,35 +645,15 @@ public class PortalImplUnitTest {
 
 		Assert.assertFalse(_portalImpl.isValidResourceId(sb.toString()));
 
-		Assert.assertFalse(_portalImpl.isValidResourceId("%view.jsp"));
+		try (LogCapture logCapture = LoggerTestUtil.configureJDKLogger(
+				HttpComponentsUtil.class.getName(), Level.OFF)) {
+
+			Assert.assertFalse(_portalImpl.isValidResourceId("%view.jsp"));
+		}
 	}
 
 	@Test
 	public void testUpdateRedirectRemoveLayoutURL() {
-		HttpUtil httpUtil = new HttpUtil();
-
-		httpUtil.setHttp(
-			new HttpImpl() {
-
-				@Override
-				public String getParameter(
-					String url, String name, boolean escaped) {
-
-					return StringPool.BLANK;
-				}
-
-				@Override
-				public String getPath(String url) {
-					return url;
-				}
-
-				@Override
-				public String getQueryString(String url) {
-					return StringPool.BLANK;
-				}
-
-			});
-
 		Assert.assertEquals(
 			"/web/group",
 			_portalImpl.updateRedirect(
@@ -687,9 +669,7 @@ public class PortalImplUnitTest {
 		return (HttpServletRequest)requestWrapper.getRequest();
 	}
 
-	protected void setPropsValuesValue(String fieldName, Object value)
-		throws Exception {
-
+	protected void setPropsValuesValue(String fieldName, Object value) {
 		ReflectionTestUtil.setFieldValue(PropsValues.class, fieldName, value);
 	}
 

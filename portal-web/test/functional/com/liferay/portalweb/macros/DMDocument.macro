@@ -286,10 +286,17 @@ definition {
 		else if (isSet(requiredFieldValidation)) {
 			Button.clickPublish();
 
-			AssertTextEquals.assertPartialText(
+			AssertElementPresent(
 				key_fieldFieldLabel = "${fieldFieldLabel}",
 				locator1 = "DocumentsAndMediaDocument#CUSTOM_FIELD_REQUIRED_ALERT",
 				value1 = "This field is required.");
+		}
+		else if (isSet(warningForSizeLimits)) {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#WARNING_FEEDBACK",
+				value1 = "${warningForSizeLimits}");
+
+			PortletEntry.publish();
 		}
 		else {
 			PortletEntry.publish();
@@ -534,9 +541,31 @@ definition {
 			locator1 = "Button#PUBLISH",
 			value1 = "Publish");
 
-		AssertElementPresent.pauseAssertVisible(locator1 = "DocumentsAndMedia#BREADCRUMB_HOME");
+		if (isSet(validationError)) {
+			var list1 = ListUtil.newListFromString("${dmDocumentFileFailed}");
+			var list2 = ListUtil.newListFromString("${validationError}");
+			var size = ListUtil.size("${list1}");
+			var i = "0";
 
-		VerifyElementPresent(locator1 = "Message#SUCCESS");
+			while ("${i}" != "${size}") {
+				var dmDocumentFileFailed = ListUtil.get("${list1}", "${i}");
+				var validationError = ListUtil.get("${list2}", "${i}");
+
+				AssertTextEquals.assertPartialText(
+					dmDocumentFile = "${dmDocumentFileFailed}",
+					key_alertMessage = "${validationError}",
+					locator1 = "Message#ERROR_MULTIPLE_UPLOAD_INVALID",
+					value1 = "${validationError}");
+
+				var i = ${i} + 1;
+				var i = StringUtil.valueOf("${i}");
+			}
+		}
+		else {
+			AssertElementPresent.pauseAssertVisible(locator1 = "DocumentsAndMedia#BREADCRUMB_HOME");
+
+			VerifyElementPresent(locator1 = "Message#SUCCESS");
+		}
 	}
 
 	macro addMultiplePG {
@@ -1062,6 +1091,101 @@ definition {
 			value1 = "You now have a lock on this document. No one else can edit this document until you unlock it. This lock will automatically expire in 1 day.");
 	}
 
+	macro configureCacheControl {
+		if (isSet(systemSettingsInstanceScope)) {
+			DMNavigator.openToConfigInSystemSettings(portlet = "Cache Control");
+		}
+		else {
+			DMNavigator.openToConfigInInstanceSettings(portlet = "Cache Control");
+		}
+
+		if (isSet(cacheControl)) {
+			AssertTextEquals(
+				key_fieldName = "cacheControl",
+				locator1 = "FormFields#HELP_TEXT",
+				value1 = "Set the cache control policy for documents with view permissions for guests.");
+
+			Click(locator1 = "Dropdown#TRIGGER");
+
+			DropdownMenuItem.click(menuItem = "${cacheControl}");
+
+			AssertTextEquals(
+				locator1 = "Dropdown#SELECTED_VALUE",
+				value1 = "${cacheControl}");
+		}
+
+		if (isSet(maxAge)) {
+			AssertTextEquals(
+				key_fieldName = "maxAge",
+				locator1 = "FormFields#HELP_TEXT",
+				value1 = "Set the number of seconds after a response is generated in which a response will be considered fresh.");
+
+			Type(
+				key_text = "Max Age",
+				locator1 = "TextInput#ANY",
+				value1 = "${maxAge}");
+		}
+
+		if (isSet(uncacheableMimeTypes)) {
+			AssertTextEquals(
+				key_fieldName = "notCacheableMimeTypes",
+				locator1 = "FormFields#HELP_TEXT",
+				value1 = "Set a list of mime types that will be uncacheable.");
+
+			var count = "1";
+
+			for (var uncacheableMimeType : list "${uncacheableMimeTypes}") {
+				if ("${count}" != "1") {
+					Click(locator1 = "Icon#PLUS_LAST");
+				}
+
+				Type(
+					key_position = "${count}",
+					locator1 = "DDMField#CUSTOM_TEXT_BOX",
+					value1 = "${uncacheableMimeType}");
+
+				var count = ${count} + 1;
+			}
+		}
+
+		SystemSettings.saveConfiguration();
+	}
+
+	macro configureDocumentEmailSenderInfo {
+		Portlet.gotoPortletOptions(portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+		Click(
+			key_navTab = "Email From",
+			locator1 = "DocumentsAndMediaConfiguration#CONFIGURATION_NAV_ITEM");
+
+		if (isSet(senderName)) {
+			Type(
+				key_text = "Name",
+				locator1 = "TextInput#ANY",
+				value1 = "${senderName}");
+		}
+
+		if (isSet(senderEmail)) {
+			Type(
+				key_text = "Address",
+				locator1 = "TextInput#ANY",
+				value1 = "${senderEmail}");
+		}
+
+		SelectFrame(value1 = "relative=top");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		if (isSet(cancel)) {
+			Button.clickCancel();
+		}
+		else {
+			PortletEntry.save();
+		}
+	}
+
 	macro configureDocumentEmailTemplate {
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "${siteURLKey}");
 
@@ -1094,6 +1218,19 @@ definition {
 	macro deleteCP {
 		if (isSet(recycleBinDisabled)) {
 			LexiconEntry.delete(rowEntry = "${dmDocumentTitle}");
+		}
+		else if (isSet(deleteAll)) {
+			PortletEntry.selectAll();
+
+			Button.click(button = "Select All");
+
+			AssertTextEquals(
+				locator1 = "ManagementBar#NAVBAR_TEXT",
+				value1 = "All Selected");
+
+			Click(locator1 = "Icon#DELETE");
+
+			Alert.viewSuccessMessage();
 		}
 		else {
 			LexiconEntry.gotoEntryMenuItem(
@@ -1187,7 +1324,7 @@ definition {
 
 		Click(
 			key_text = "download",
-			locator1 = "Icon#ANY");
+			locator1 = "ManagementBar#ANY_ICON");
 
 		DownloadTempFile();
 	}
@@ -1720,6 +1857,27 @@ definition {
 		return "${dmDocumentURL}";
 	}
 
+	macro getFileResponseHeader {
+		WaitForElementPresent(
+			key_dmDocumentFileName = "${dmDocumentFileName}",
+			locator1 = "DocumentsAndMediaDocument#DOCUMENT_DETAILS_IMAGE_PREVIEW");
+
+		var dmDocumentURL = selenium.getAttribute("//img[contains(@class,'preview-file-image') and contains(@src,'${dmDocumentFileName}')]@src");
+
+		var curl = '''${dmDocumentURL} -I''';
+		var responseHeader = JSONCurlUtil.post("${curl}");
+
+		return "${responseHeader}";
+	}
+
+	macro getLatestVersionURL {
+		var latestVersionURL = selenium.getAttribute("//input[contains(@id,'urlInput')]@value");
+
+		return "${latestVersionURL}";
+
+		echo("## * latestVersionURL: ${latestVersionURL}");
+	}
+
 	macro gotoEntry {
 		Click(
 			key_card = "${dmDocumentTitle}",
@@ -2174,10 +2332,25 @@ definition {
 			LexiconCard.clickCard(card = "${depotName}");
 		}
 
-		AssertClick(
-			key_dmFolderName = "${dmRootFolderName}",
-			locator1 = "DocumentsAndMedia#SELECT_FOLDER_BUTTON",
-			value1 = "Select");
+		if (isSet(selectRootFolder)) {
+			AssertClick(
+				key_text = "Select This Folder",
+				locator1 = "Button#ANY",
+				value1 = "Select This Folder");
+		}
+		else {
+			if (isSet(selectBreadcrumb)) {
+				AssertClick(
+					key_breadcrumbName = "${breadcrumbName}",
+					locator1 = "BreadcrumbPortlet#BREADCRUMB_FOLDER",
+					value1 = "${breadcrumbName}");
+			}
+
+			AssertClick(
+				key_dmFolderName = "${dmRootFolderName}",
+				locator1 = "DocumentsAndMedia#SELECT_FOLDER_BUTTON",
+				value1 = "Select");
+		}
 
 		SelectFrame(locator1 = "relative=top");
 
@@ -2331,7 +2504,12 @@ definition {
 	}
 
 	macro updateMaximumFileSize {
-		DMNavigator.openToConfigInSystemSettings(portlet = "Service");
+		if (isSet(instanceSettings)) {
+			DMNavigator.openToConfigInInstanceSettings(portlet = "Documents and Media Size Limits");
+		}
+		else {
+			DMNavigator.openToConfigInSystemSettings(portlet = "Documents and Media Size Limits");
+		}
 
 		Type(
 			key_fieldLabel = "Maximum File Size",
@@ -2348,6 +2526,31 @@ definition {
 			key_fieldLabel = "Maximum Number Of Versions",
 			locator1 = "TextInput#GENERIC_TEXT_INPUT",
 			value1 = "${fieldValue}");
+
+		SystemSettings.saveConfiguration();
+	}
+
+	macro updateMimeTypeSizeLimit {
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Documents and Media",
+			configurationName = "Documents and Media Size Limits",
+			configurationScope = "Site Scope");
+
+		if ("${indexNumber}" == "2") {
+			Click(locator1 = "Button#DUPLICATE");
+
+			Type(
+				key_indexNumber = "${indexNumber}",
+				key_label = "Mime Type Size Limit",
+				locator1 = "TextArea#ANY_LABELED_N",
+				value1 = "${fieldValue}");
+		}
+		else {
+			Type(
+				key_label = "Mime Type Size Limit",
+				locator1 = "TextArea#ANY_LABELED",
+				value1 = "${fieldValue}");
+		}
 
 		SystemSettings.saveConfiguration();
 	}
@@ -2406,6 +2609,27 @@ definition {
 				Pause(locator1 = "1000");
 
 				Refresh();
+			}
+		}
+	}
+
+	macro viewCacheControlConfigurationInConsole {
+		if (isSet(uncacheableMimeType)) {
+			if (contains("${responseHeader}", "Cache-Control: private, no-cache, no-store, must-revalidate")) {
+				echo("This file can not be cached");
+			}
+			else {
+				fail("The cache control setting is incorrect");
+			}
+		}
+		else {
+			var cacheControlAttribute = "Cache-Control: ${cacheControl}, max-age: ${maxAge}";
+
+			if (contains("${responseHeader}", "${cacheControlAttribute}")) {
+				echo("The cache control setting is correct");
+			}
+			else {
+				fail("The cache control setting is incorrect");
 			}
 		}
 	}
@@ -3043,6 +3267,15 @@ definition {
 		AssertElementNotPresent(locator1 = "Button#PLUS");
 	}
 
+	macro viewNoCacheControlConfigurationInConsole {
+		if (!(contains("${responseHeader}", "${cacheControlAttribute}"))) {
+			echo("No configured cache control property in the console.");
+		}
+		else {
+			fail("The configured cache control property can be viewed in the console.");
+		}
+	}
+
 	macro viewNoCategoriesPG {
 		if (isSet(categoryNameList)) {
 			for (var categoryName : list "${categoryNameList}") {
@@ -3069,6 +3302,16 @@ definition {
 				key_mgDocumentTitle = "${mgDocumentTitle}",
 				locator1 = "MediaGallery#IMAGE_TITLE");
 		}
+	}
+
+	macro viewNoItemInVersionMenu {
+		DMNavigator.gotoDocumentVersion();
+
+		var key_dmDocumentVersionNumber = "Version ${dmDocumentVersionNumber}";
+
+		Click(locator1 = "DocumentsAndMedia#DOCUMENT_VERSION_VERTICAL_ELLIPSIS");
+
+		MenuItem.viewNotPresent(menuItem = "${menuItem}");
 	}
 
 	macro viewNoPermission {

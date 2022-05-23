@@ -362,7 +362,9 @@ definition {
 			locator1 = "TextInput#DISCOUNT",
 			value1 = "TEST");
 
-		Button.click(button = "Apply");
+		Click(
+			key_tab = "Apply",
+			locator1 = "Button#TAB_SUBMIT_BTN");
 
 		Type(
 			key_fieldName = "Name",
@@ -426,7 +428,9 @@ definition {
 			locator1 = "TextInput#DISCOUNT",
 			value1 = "TEST");
 
-		Button.click(button = "Apply");
+		Click(
+			key_tab = "Apply",
+			locator1 = "Button#TAB_SUBMIT_BTN");
 
 		Type(
 			key_fieldName = "Name",
@@ -490,7 +494,9 @@ definition {
 			locator1 = "TextInput#DISCOUNT",
 			value1 = "TEST");
 
-		Button.click(button = "Apply");
+		Click(
+			key_tab = "Apply",
+			locator1 = "Button#TAB_SUBMIT_BTN");
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "Message#ERROR",
@@ -643,6 +649,7 @@ definition {
 			discountType = "Percentage");
 
 		var timeString = selenium.getElementValue("TextInput#EXPIRATION_DATE_TIME");
+
 		var ampm = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "3");
 		var hours = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "1");
 		var minutes = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "2");

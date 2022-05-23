@@ -1,7 +1,6 @@
 @component-name = "portal-object"
 definition {
 
-	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -1699,6 +1698,8 @@ definition {
 	@description = "LPS-140082 - Verify it is possible to search for a partial Object entry on the Relationship field"
 	@priority = "4"
 	test CanSearchPartialOnRelationshipField {
+		property portal.upstream = "quarantine";
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 264",
 			objectName = "CustomObject264",

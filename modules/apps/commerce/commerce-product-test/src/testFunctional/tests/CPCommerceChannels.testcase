@@ -1223,8 +1223,8 @@ definition {
 		Refresh();
 
 		AssertVisible(
-			key_productQuantity = "Test Notification Template",
-			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_QUANTITY");
+			key_entryName = "Test Notification Template",
+			locator1 = "CommerceNavigation#ENTRY_NAME");
 
 		Click(
 			key_text = "Test Notification Template",
@@ -1254,8 +1254,8 @@ definition {
 		Refresh();
 
 		AssertVisible(
-			key_productQuantity = "Notification Template",
-			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_QUANTITY");
+			key_entryName = "Notification Template",
+			locator1 = "CommerceNavigation#ENTRY_NAME");
 	}
 
 	@description = "This is a test for COMMERCE-6106. EditPaypalPaymentMethod"
@@ -2171,33 +2171,24 @@ definition {
 	test UseSearchBar {
 		property portal.acceptance = "false";
 
-		CommerceNavigator.gotoPortlet(
-			category = "Store Management",
-			portlet = "Channels");
-
-		Click(locator1 = "Button#PLUS");
-
-		CommerceEntry.addNewChannelsEntry(
-			channelCurrency = "US Dollar",
+		CommerceJSONChannelsAPI._addChannel(
 			channelName = "Test Channel",
-			channelType = "Site");
+			channelType = "Site",
+			currencyCode = "USD");
 
-		Click(locator1 = "Icon#BACK");
-
-		Click(locator1 = "Button#PLUS");
-
-		CommerceEntry.addNewChannelsEntry(
-			channelCurrency = "US Dollar",
+		CommerceJSONChannelsAPI._addChannel(
 			channelName = "Minium",
-			channelType = "Site");
+			channelType = "Site",
+			currencyCode = "USD");
 
-		Click(locator1 = "Icon#BACK");
+		CommerceChannels.openChannelsAdmin();
 
 		CommerceNavigator.searchEntry(entryName = "Test Channel");
 
-		AssertElementPresent(
-			key_nameChannel = "Test Channel",
-			locator1 = "CommerceEntry#CHECK_FIRST_ELEMENT_SEARCHED");
+		AssertTextEquals(
+			key_rowNumber = "1",
+			locator1 = "CommerceNavigation#ENTRY_NAME_N",
+			value1 = "Test Channel");
 
 		CommerceNavigator.searchEntry(entryName = "1111");
 
@@ -2305,14 +2296,68 @@ definition {
 			locator1 = "CommerceEntry#ASSERT_NOTIFICATION_QUEUE");
 	}
 
-	@description = "[Please Update]"
-	@ignore = "Test Stub"
-	@priority = "4"
+	@description = "Verify users can view the priority of shipping options"
+	@priority = "3"
 	test VerifyPriorityColumnForShippingOption {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-8663 VerifyPriorityColumnForShippingOption pending implementation
+		task ("Given a Minium site") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
 
+		task ("When the Sales Manager goes into the Minium channel and opens the Flat Rate shipping method's options tab") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			CommerceEntry.clickTableEntryEditButton(
+				entryName = "Flat Rate",
+				table = "Shipping Methods");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Shipping Options");
+		}
+
+		task ("And the Sales Manager edits the priority for Standard Delivery to 1 and Expedited Delivery to 2") {
+			CommerceChannels.editShippingOption(
+				priority = "1",
+				shippingOption = "Standard Delivery");
+
+			CommerceChannels.editShippingOption(
+				priority = "2",
+				shippingOption = "Expedited Delivery");
+		}
+
+		task ("Then the priority values will be shown in the priority column") {
+			AssertElementPresent(
+				key_text = "Priority",
+				locator1 = "Button#ANY");
+
+			AssertTextEquals(
+				key_columnNumber = "3",
+				key_entryName = "Standard Delivery",
+				locator1 = "CommerceEntry#TABLE_CELL_BY_COLUMN_ORDER",
+				value1 = "1");
+
+			AssertTextEquals(
+				key_columnNumber = "3",
+				key_entryName = "Expedited Delivery",
+				locator1 = "CommerceEntry#TABLE_CELL_BY_COLUMN_ORDER",
+				value1 = "2");
+		}
+
+		task ("And the shipping options will be re-ordered based on the priority") {
+			AssertTextEquals(
+				key_rowNumber = "1",
+				locator1 = "CommerceEntry#TABLE_ENTRY_ROW_NUMBER",
+				value1 = "Standard Delivery");
+
+			AssertTextEquals(
+				key_rowNumber = "2",
+				locator1 = "CommerceEntry#TABLE_ENTRY_ROW_NUMBER",
+				value1 = "Expedited Delivery");
+		}
 	}
 
 }

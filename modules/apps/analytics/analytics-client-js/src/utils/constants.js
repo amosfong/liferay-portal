@@ -14,7 +14,7 @@
 
 // AC Version
 
-export const ANALYTICS_CLIENT_VERSION = '1.0.4';
+export const ANALYTICS_CLIENT_VERSION = '1.0.5';
 
 // Default Config
 
@@ -43,6 +43,9 @@ export const STORAGE_KEY_CONTEXTS = 'ac_client_context';
 export const STORAGE_KEY_EVENTS = 'ac_client_batch';
 
 export const STORAGE_KEY_IDENTITY = 'ac_client_identity';
+
+export const STORAGE_KEY_IDENTITY_LAST_UPDATED_DATE =
+	'ac_client_identity_last_updated_date';
 
 export const STORAGE_KEY_MESSAGES = 'ac_message_queue';
 

@@ -1,5 +1,63 @@
 definition {
 
+	macro addNewCategory {
+		Click(locator1 = "TestrayManage#ADD_OPTIONS");
+
+		Type(
+			locator1 = "TestrayManage#NEW_OPTION_NAME",
+			value1 = "New Category Test");
+
+		Click(locator1 = "TestrayManage#SAVE_BUTTON");
+	}
+
+	macro assertCreatedCategories {
+		AssertElementPresent(
+			key_title = "${key_name}",
+			locator1 = "TestrayManage#PROJECT_NAME_MODAL");
+	}
+
+	macro assertCreatedOptions {
+		AssertElementPresent(
+			locator1 = "TestrayManage#OPTIONS_NAME",
+			value = "${key_value}");
+	}
+
+	macro assertNameCaseTypes {
+		AssertElementPresent(
+			locator1 = "TestrayManage#OPTIONS_NAME",
+			value = "${key_value}");
+	}
+
+	macro assertTitleModal {
+		AssertElementPresent(
+			key_title = "${key_itemvalue}",
+			locator1 = "TestrayManage#TITLE_MODAL_ITEM");
+	}
+
+	macro closeModalInOptions {
+		Click(locator1 = "TestrayManage#CLOSE_MODAL");
+	}
+
+	macro createNewCaseTypes {
+		Click(locator1 = "TestrayManage#ADD_OPTIONS");
+
+		Type(
+			locator1 = "TestrayManage#NEW_OPTION_NAME",
+			value1 = "${key_value}");
+
+		Click(locator1 = "TestrayManage#SAVE_BUTTON");
+	}
+
+	macro createNewOption {
+		Click(locator1 = "TestrayManage#ADD_OPTIONS");
+
+		Type(
+			locator1 = "TestrayManage#NEW_OPTION_NAME",
+			value1 = "${key_value}");
+
+		Click(locator1 = "TestrayManage#SAVE_BUTTON");
+	}
+
 	macro selectOptionsManage {
 		Click(
 			key_itemvalue = "${key_itemvalue}",

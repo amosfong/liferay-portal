@@ -27,4 +27,5 @@ declare module 'frontend-js-web' {
 		ok: boolean;
 		status: number;
 	}>;
+	const createResourceURL: any;
 }

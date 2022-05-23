@@ -49,6 +49,126 @@ definition {
 		LexiconCard.viewNoCardThumbnail(card = "Commerce_Blue.jpg");
 	}
 
+	@description = "This test ensures that a file that exceed the set maximum size cannot be uploaded via Media Gallery."
+	@priority = "3"
+	test CanLimitMaxFileSizeInMediaGallery {
+		property test.name.skip.portal.instance = "DMFileSizeLimits#CanLimitMaxFileSizeInMediaGallery";
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Media Gallery Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			column = "2",
+			groupName = "Guest",
+			layoutName = "Media Gallery Page",
+			widgetName = "Media Gallery");
+
+		Navigator.gotoPage(pageName = "Media Gallery Page");
+
+		MGPortlet.configureShowAllPG(pageName = "Media Gallery Page");
+
+		DMDocument.updateMaximumFileSize(fieldValue = "2000");
+
+		DMDocument.addPGViaMG(
+			groupName = "Guest",
+			layoutName = "media-gallery-page",
+			mediaGallery = "true",
+			mgDocumentDescription = "DM Document Description",
+			mgDocumentFile = "Document_2.jpeg",
+			mgDocumentTitle = "Document_2.jpeg",
+			siteURLKey = "guest",
+			warningFeedback = "Please enter a file with a valid file size no larger than 2 KB.");
+
+		Navigator.gotoPage(pageName = "Media Gallery Page");
+
+		DMDocument.viewNoFilesViaMG(mgImagePreview = "Document_2.jpeg");
+	}
+
+	@description = "This test ensures that the size limit setting only take effects in current site."
+	@priority = "4"
+	@uitest
+	test CanLimitSizeOnlyInCurrentSite {
+		JSONGroup.addGroup(groupName = "Site Name");
+
+		DMDocument.updateMaximumFileSize(
+			fieldValue = "20480",
+			siteSettings = "true",
+			siteURLKey = "site-name");
+
+		DMDocument.addCP(
+			dmDocumentFile = "Document_1.png",
+			dmDocumentTitle = "Document_1.png",
+			groupName = "Site Name",
+			siteURLKey = "site-name",
+			warningForSizeLimits = "Please enter a file with a valid file size no larger than 20 KB");
+
+		DMDocument.addCP(
+			dmDocumentFile = "Document_2.png",
+			dmDocumentTitle = "Document_2.png",
+			groupName = "Site Name",
+			siteURLKey = "site-name");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
+
+		LexiconCard.viewNoCardThumbnail(card = "Document_1.png");
+
+		LexiconCard.viewCardThumbnail(card = "Document_2.png");
+
+		Navigator.openSiteURL(siteName = "Guest");
+
+		DMDocument.addCP(
+			dmDocumentFile = "Document_4.jpg",
+			dmDocumentTitle = "Document_4.jpg",
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		LexiconCard.viewCardThumbnail(card = "Document_4.jpg");
+	}
+
+	@description = "This test ensures that when setting a system/instance maximum file size, the limits in site settings will take effect if it is smaller than the system/instance setting."
+	@priority = "4"
+	@uitest
+	test SiteSizeLimitTakesPrecedenceOverSystemAndInstanceSettings {
+		property test.name.skip.portal.instance = "DMFileSizeLimits#SiteSizeLimitTakesPrecedenceOverSystemAndInstanceSettings";
+
+		DMDocument.updateMaximumFileSize(fieldValue = "51200");
+
+		DMNavigator.openToConfigInInstanceSettings(portlet = "Documents and Media Size Limits");
+
+		SystemSettings.viewInputText(
+			fieldLabel = "Maximum File Size",
+			fieldValue = "51200");
+
+		DMDocument.updateMaximumFileSize(
+			fieldValue = "30720",
+			instanceSettings = "true");
+
+		DMNavigator.openToConfigInSiteSettings(
+			portlet = "Documents and Media Size Limits",
+			siteURLKey = "guest");
+
+		SystemSettings.viewInputText(
+			fieldLabel = "Maximum File Size",
+			fieldValue = "30720");
+
+		DMDocument.updateMaximumFileSize(
+			fieldValue = "20480",
+			siteSettings = "true",
+			siteURLKey = "guest");
+
+		DMDocument.addCP(
+			dmDocumentFile = "Document_2.jpeg",
+			dmDocumentTitle = "Document_2.jpeg",
+			groupName = "Guest",
+			siteURLKey = "guest",
+			warningForSizeLimits = "Please enter a file with a valid file size no larger than 20 KB");
+
+		LexiconCard.viewNoCardThumbnail(card = "Document_2.jpeg");
+	}
+
 	@description = "This test ensures that the size limits in the servlet take effect when the instance setting is default."
 	@priority = "4"
 	test WhenInstanceIsDefaultItIsOverriddenByServlet {

@@ -21,7 +21,9 @@ import {ITEM_TYPES} from '../../../../../app/config/constants/itemTypes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../app/config/constants/layoutDataItemTypes';
 import {VIEWPORT_SIZES} from '../../../../../app/config/constants/viewportSizes';
 import selectCanUpdateEditables from '../../../../../app/selectors/selectCanUpdateEditables';
+import selectCanUpdateItemAdvancedConfiguration from '../../../../../app/selectors/selectCanUpdateItemAdvancedConfiguration';
 import selectCanUpdateItemConfiguration from '../../../../../app/selectors/selectCanUpdateItemConfiguration';
+import selectCanUpdateItemStyles from '../../../../../app/selectors/selectCanUpdateItemStyles';
 import {CollectionAppliedFiltersGeneralPanel} from '../components/item-configuration-panels/CollectionAppliedFiltersGeneralPanel';
 import {CollectionFilterGeneralPanel} from '../components/item-configuration-panels/CollectionFilterGeneralPanel';
 import ContainerAdvancedPanel from '../components/item-configuration-panels/ContainerAdvancedPanel';
@@ -212,7 +214,11 @@ export function selectPanels(activeItemId, activeItemType, state) {
 	}
 
 	const canUpdateEditables = selectCanUpdateEditables(state);
+	const canUpdateItemAdvancedConfiguration = selectCanUpdateItemAdvancedConfiguration(
+		state
+	);
 	const canUpdateItemConfiguration = selectCanUpdateItemConfiguration(state);
+	const canUpdateItemStyles = selectCanUpdateItemStyles(state);
 
 	if (canUpdateEditables && activeItem.editableId) {
 		panelsIds = {
@@ -243,18 +249,20 @@ export function selectPanels(activeItemId, activeItemType, state) {
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.container) {
 		panelsIds = {
 			[PANEL_IDS.containerAdvanced]:
-				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
+				canUpdateItemAdvancedConfiguration,
 			[PANEL_IDS.containerGeneral]: true,
-			[PANEL_IDS.containerStyles]: true,
+			[PANEL_IDS.containerStyles]: canUpdateItemStyles,
 		};
 	}
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.form) {
 		panelsIds = {
 			[PANEL_IDS.formAdvancedPanel]:
-				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
+				canUpdateItemAdvancedConfiguration,
 			[PANEL_IDS.formGeneral]:
 				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
-			[PANEL_IDS.containerStyles]: true,
+			[PANEL_IDS.containerStyles]: canUpdateItemStyles,
 		};
 	}
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
@@ -264,8 +272,9 @@ export function selectPanels(activeItemId, activeItemType, state) {
 
 		panelsIds = {
 			[PANEL_IDS.fragmentAdvanced]:
-				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
-			[PANEL_IDS.fragmentStyles]: true,
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
+				canUpdateItemAdvancedConfiguration,
+			[PANEL_IDS.fragmentStyles]: canUpdateItemStyles,
 			[PANEL_IDS.fragmentGeneral]:
 				fragmentEntryType !== FRAGMENT_ENTRY_TYPES.input &&
 				!FRAGMENT_WITH_CUSTOM_PANEL.includes(fragmentEntryKey),
@@ -283,10 +292,11 @@ export function selectPanels(activeItemId, activeItemType, state) {
 	}
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.row) {
 		panelsIds = {
-			[PANEL_IDS.rowStyles]: true,
+			[PANEL_IDS.rowStyles]: canUpdateItemStyles,
 			[PANEL_IDS.rowGeneral]: true,
 			[PANEL_IDS.rowAdvanced]:
-				state.selectedViewportSize === VIEWPORT_SIZES.desktop,
+				state.selectedViewportSize === VIEWPORT_SIZES.desktop &&
+				canUpdateItemAdvancedConfiguration,
 		};
 	}
 

@@ -17,7 +17,10 @@ package com.liferay.analytics.reports.web.internal.display.context;
 import com.liferay.analytics.reports.info.item.ClassNameClassPKInfoItemIdentifier;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Props;
 
 import java.util.Collections;
 import java.util.Map;
@@ -46,12 +49,16 @@ public class AnalyticsReportsDisplayContext<T> {
 			return _data;
 		}
 
-		_data = Collections.singletonMap(
+		_data = HashMapBuilder.<String, Object>put(
 			"context",
 			Collections.singletonMap(
 				"analyticsReportsDataURL",
-				String.valueOf(
-					_getResourceURL("/analytics_reports/get_data"))));
+				String.valueOf(_getResourceURL("/analytics_reports/get_data")))
+		).put(
+			"featureFlag",
+			Boolean.valueOf(
+				GetterUtil.getBoolean(_props.get("feature.flag.LPS-149256")))
+		).build();
 
 		return _data;
 	}
@@ -99,6 +106,7 @@ public class AnalyticsReportsDisplayContext<T> {
 
 	private Map<String, Object> _data;
 	private final InfoItemReference _infoItemReference;
+	private Props _props;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 

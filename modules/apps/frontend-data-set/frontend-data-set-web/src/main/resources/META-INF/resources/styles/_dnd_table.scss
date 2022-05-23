@@ -4,6 +4,16 @@
 
 .dnd-tbody {
 	display: table-row-group;
+
+	.dnd-tr {
+		&:hover {
+			background-color: $primary-l3;
+		}
+
+		&:nth-child(odd):not(:hover) {
+			background-color: $table-accent-bg;
+		}
+	}
 }
 
 .dnd-td,
@@ -44,10 +54,6 @@
 
 	.dnd-tbody &:last-child {
 		border-bottom: none;
-	}
-
-	&.with-bg {
-		background-color: $table-accent-bg;
 	}
 
 	&::before {
@@ -140,6 +146,7 @@
 
 	&.fixed {
 		display: block;
+		overflow: auto;
 	}
 
 	&.is-dragging {

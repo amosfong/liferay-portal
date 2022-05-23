@@ -14,10 +14,12 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import {useIsMounted, useLiferayState} from '@liferay/frontend-js-react-web';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useState} from 'react';
 
+import cartAtom from '../../utilities/atoms/cartAtom';
 import {showErrorNotification} from '../../utilities/notifications';
 import {addToCart} from './data';
 
@@ -31,12 +33,16 @@ function AddToCartButton({
 	cpInstances,
 	disabled,
 	hideIcon,
-	invalid,
+	notAllowed,
 	onAdd,
 	onClick,
 	onError,
 	settings,
 }) {
+	const [cartAtomState, setCartAtomState] = useLiferayState(cartAtom);
+	const [isTriggeringCartUpdate, setIsTriggeringCartUpdate] = useState(false);
+	const isMounted = useIsMounted();
+
 	return (
 		<ClayButton
 			block={settings.alignment === 'full-width'}
@@ -44,13 +50,19 @@ function AddToCartButton({
 				[`btn-${settings.size}`]: settings.size,
 				'btn-add-to-cart': true,
 				'icon-only': settings.iconOnly,
-				invalid,
 				'is-added': cpInstances.length === 1 && cpInstances[0].inCart,
+				'not-allowed':
+					notAllowed ||
+					(cartAtomState.updating && !isTriggeringCartUpdate),
 			})}
 			disabled={disabled}
 			displayType="primary"
 			monospaced={settings.iconOnly && settings.inline}
 			onClick={(event) => {
+				if (cartAtomState.updating) {
+					return;
+				}
+
 				if (onClick) {
 					return onClick(
 						event,
@@ -61,6 +73,10 @@ function AddToCartButton({
 					);
 				}
 
+				setIsTriggeringCartUpdate(true);
+
+				setCartAtomState({updating: true});
+
 				return addToCart(cpInstances, cartId, channel, accountId)
 					.then(onAdd)
 					.catch((error) => {
@@ -69,15 +85,22 @@ function AddToCartButton({
 						const errorMessage =
 							cpInstances.length > 1
 								? Liferay.Language.get(
-										'unable-to-add-the-products-to-the-cart'
+										'unable-to-add-products-to-the-cart'
 								  )
 								: Liferay.Language.get(
-										'unable-to-add-the-product-to-the-cart'
+										'unable-to-add-product-to-the-cart'
 								  );
 
 						showErrorNotification(errorMessage);
 
 						onError(error);
+					})
+					.finally(() => {
+						if (isMounted()) {
+							setCartAtomState({updating: false});
+
+							setIsTriggeringCartUpdate(false);
+						}
 					});
 			}}
 		>
@@ -143,6 +166,7 @@ AddToCartButton.propTypes = {
 	).isRequired,
 	disabled: PropTypes.bool,
 	hideIcon: PropTypes.bool,
+	notAllowed: PropTypes.bool,
 	onAdd: PropTypes.func.isRequired,
 	onError: PropTypes.func.isRequired,
 	settings: PropTypes.shape({

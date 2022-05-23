@@ -285,6 +285,7 @@ definition {
 			PortletEntry.save();
 
 			var i = ${i} + 1;
+
 			var i = StringUtil.valueOf("${i}");
 		}
 	}
@@ -319,6 +320,7 @@ definition {
 			}
 
 			var i = ${i} + 1;
+
 			var i = StringUtil.valueOf("${i}");
 		}
 	}
@@ -338,6 +340,7 @@ definition {
 				localizedName = "${localizedName}");
 
 			var i = ${i} + 1;
+
 			var i = StringUtil.valueOf("${i}");
 		}
 
@@ -481,7 +484,7 @@ definition {
 		}
 
 		if (IsElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB")) {
-			PagesAdmin.gotoAddFirstPage(pageType = "Page");
+			PagesAdmin.gotoAddFirstPage(pageType = "Public Page");
 		}
 		else {
 			AssertClick(
@@ -489,7 +492,7 @@ definition {
 				locator1 = "Breadcrumb#BREADCRUMB_ENTRY_EXACT_MATCH",
 				value1 = "Pages");
 
-			LexiconEntry.gotoAddMenuItem(menuItem = "Page");
+			LexiconEntry.gotoAddMenuItem(menuItem = "Public Page");
 		}
 
 		PagesAdmin._addPage(
@@ -577,10 +580,12 @@ definition {
 	}
 
 	macro changeSiteCurrentTheme {
-		if (IsElementPresent(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS")) {
-			Click(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
+		WaitForPageLoad();
 
-			MenuItem.click(menuItem = "Configuration");
+		Click.waitForMenuToggleJSClick(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
+
+		if (IsElementPresent(key_menuItem = "Configuration", locator1 = "MenuItem#DROPDOWN_MENU_ITEM")) {
+			DropdownMenuItem.click(menuItem = "Configuration");
 		}
 		else {
 			PagesAdmin.togglePrivacy(privacy = "${privacy}");
@@ -941,6 +946,7 @@ definition {
 
 	macro openPagesAdmin {
 		var siteURLKey = StringUtil.replace("${siteURLKey}", " ", "-");
+
 		var siteURLKey = StringUtil.lowerCase("${siteURLKey}");
 
 		Navigator.openWithAppendToBaseURL(
@@ -1003,7 +1009,9 @@ definition {
 
 		WaitForPageLoad();
 
-		if (IsElementPresent(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS")) {
+		Click.waitForMenuToggleJSClick(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
+
+		if (IsElementPresent(key_menuItem = "Configuration", locator1 = "MenuItem#DROPDOWN_MENU_ITEM")) {
 			while (IsElementPresent(key_index = "3", locator1 = "PagesAdmin#LIST_GROUP_ITEM_ROW_ELLIPSIS")) {
 				Click.waitForMenuToggleJSClick(
 					key_index = "3",

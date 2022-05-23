@@ -26,8 +26,9 @@ import './BuilderListItem.scss';
 
 interface IProps {
 	aliasColumnText?: string;
-	defaultFilter?: boolean;
 	defaultSort?: boolean;
+	disableEdit?: boolean;
+	filter?: boolean;
 	hasDragAndDrop?: boolean;
 	index: number;
 	label?: string;
@@ -55,8 +56,9 @@ type TDraggedOffset = {
 
 const BuilderListItem: React.FC<IProps> = ({
 	aliasColumnText,
-	defaultFilter,
 	defaultSort,
+	disableEdit,
+	filter,
 	hasDragAndDrop,
 	index,
 	label,
@@ -126,7 +128,7 @@ const BuilderListItem: React.FC<IProps> = ({
 
 	const handleDeleteColumn = (
 		objectFieldName: string,
-		defaultFilter?: boolean,
+		filter?: boolean,
 		defaultSort?: boolean
 	) => {
 		if (defaultSort) {
@@ -135,7 +137,7 @@ const BuilderListItem: React.FC<IProps> = ({
 				type: TYPES.DELETE_OBJECT_VIEW_SORT_COLUMN,
 			});
 		}
-		else if (defaultFilter) {
+		else if (filter) {
 			dispatch({
 				payload: {objectFieldName},
 				type: TYPES.DELETE_OBJECT_VIEW_FILTER_COLUMN,
@@ -180,28 +182,33 @@ const BuilderListItem: React.FC<IProps> = ({
 			)}
 
 			<ClayList.ItemField
-				className={classNames({
-					'lfr-object__object-builder-list-item-first-column--not-draggable': !hasDragAndDrop,
-				})}
+				className={classNames(
+					'lfr-object__object-builder-list-item-first-column',
+					!hasDragAndDrop &&
+						'lfr-object__object-builder-list-item-first-column--not-draggable'
+				)}
 				expand
 			>
 				<ClayList.ItemTitle>{label}</ClayList.ItemTitle>
 			</ClayList.ItemField>
 
 			<ClayList.ItemField
-				className={classNames({
-					'lfr-object__object-builder-list-item-second-column': hasDragAndDrop,
-					'lfr-object__object-builder-list-item-second-column--not-draggable': !hasDragAndDrop,
-				})}
+				className={classNames(
+					'lfr-object__object-builder-list-item-second-column',
+					!hasDragAndDrop &&
+						'lfr-object__object-builder-list-item-second-column--not-draggable'
+				)}
 				expand
 			>
 				<ClayList.ItemText>{aliasColumnText}</ClayList.ItemText>
 			</ClayList.ItemField>
 
 			<ClayList.ItemField
-				className={classNames({
-					'lfr-object__object-builder-list-item-third-column--not-draggable': !hasDragAndDrop,
-				})}
+				className={classNames(
+					'lfr-object__object-builder-list-item-third-column',
+					!hasDragAndDrop &&
+						'lfr-object__object-builder-list-item-third-column--not-draggable'
+				)}
 				expand
 			>
 				<ClayList.ItemText>
@@ -228,6 +235,7 @@ const BuilderListItem: React.FC<IProps> = ({
 			>
 				<ClayDropDown.ItemList>
 					<ClayDropDown.Item
+						disabled={disableEdit}
 						onClick={() => handleEnableEditModal(objectFieldName)}
 					>
 						<ClayIcon
@@ -242,7 +250,7 @@ const BuilderListItem: React.FC<IProps> = ({
 						onClick={() =>
 							handleDeleteColumn(
 								objectFieldName,
-								defaultFilter,
+								filter,
 								defaultSort
 							)
 						}

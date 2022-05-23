@@ -419,6 +419,18 @@ definition {
 			value1 = "${price}");
 	}
 
+	macro addProductDescription {
+		Type(
+			locator1 = "CommerceEntry#SHORT_DESCRIPTION_FIELD",
+			value1 = "${productShortDescription}");
+
+		CommerceEntry.addFullDescriptionViaCKEditor(entryFullDescription = "${productFullDescription}");
+
+		Click(
+			key_text = "Save as Draft",
+			locator1 = "Button#ANY");
+	}
+
 	macro addProductsEntry {
 		WaitForElementPresent(locator1 = "IFrame#MODAL_BODY");
 
@@ -436,6 +448,10 @@ definition {
 
 		WaitForPageLoad();
 
+		AssertElementPresent(
+			key_status = "Draft",
+			locator1 = "CommerceEntry#WORKFLOW_STATUS");
+
 		AssertSelectedLabel(
 			key_fieldLabel = "Catalog",
 			locator1 = "Select#GENERIC_SELECT_FIELD",
@@ -445,11 +461,27 @@ definition {
 			locator1 = "CommerceEntry#NAME_FIELD",
 			value1 = "${productName}");
 
-		Type(
-			locator1 = "CommerceEntry#SHORT_DESCRIPTION_FIELD",
-			value1 = "${productShortDescription}");
+		if (!(isSet(compileDescription))) {
+			var compileDescription = "true";
+		}
 
-		CommerceEntry.addFullDescriptionViaCKEditor(entryFullDescription = "${productFullDescription}");
+		if ("${compileDescription}" == "true") {
+			echo("compileDescription enabled");
+
+			CommerceEntry.addProductDescription(
+				productFullDescription = "${productFullDescription}",
+				productShortDescription = "${productShortDescription}");
+		}
+
+		if (!(isSet(publishProduct))) {
+			var publishProduct = "true";
+		}
+
+		if ("${publishProduct}" == "true") {
+			echo("publishProduct enabled");
+
+			CommerceEntry.publishEntry(status = "Approved");
+		}
 	}
 
 	macro AddShippingOptionSettingsVariableRate {
@@ -753,7 +785,9 @@ definition {
 		WaitForElementPresent(locator1 = "CommerceEntry#PAGINATION_RESULTS");
 
 		var paginationResults = selenium.getText("CommerceEntry#PAGINATION_RESULTS");
+
 		var numberOfEntries = StringUtil.extractLast("${paginationResults}", " ");
+
 		var numberOfEntriesAfterDeletion = ${numberOfEntries} - 1;
 
 		if (!(isSet(entryName))) {
@@ -933,17 +967,9 @@ definition {
 	macro publishEntry {
 		Button.clickPublish();
 
-		if (IsElementPresent(locator1 = "Message#SUCCESS")) {
-			AssertElementPresent(locator1 = "Message#SUCCESS");
-		}
-		else {
-			AssertTextEquals(
-				key_status = "${status}",
-				locator1 = "CommerceEntry#WORKFLOW_STATUS",
-				value1 = "${status}");
-		}
-
-		Pause(locator1 = "3000");
+		AssertElementPresent(
+			key_status = "${status}",
+			locator1 = "CommerceEntry#WORKFLOW_STATUS");
 	}
 
 	macro publishProductImage {
@@ -1081,11 +1107,14 @@ definition {
 
 	macro setExpirationTime {
 		var timeString = selenium.getElementValue("TextInput#DISPLAY_DATE_TIME");
+
 		var ampm = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "3");
 		var hours = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "1");
 		var minutes = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "2");
 		var minutesToExpire = "${minutesToExpire}";
+
 		var minutes = ${minutes} + ${minutesToExpire};
+
 		var changeHour = MathUtil.isGreaterThan("${minutes}", "59");
 
 		if ("${changeHour}" == "true") {
@@ -1120,11 +1149,14 @@ definition {
 
 	macro setPublishTime {
 		var timeString = selenium.getElementValue("TextInput#DISPLAY_DATE_TIME");
+
 		var ampm = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "3");
 		var hours = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "1");
 		var minutes = RegexUtil.replace("${timeString}", "([0-9]*):([0-9]*) ([A-Z]*)", "2");
 		var minutesToPublish = "${minutesToPublish}";
+
 		var minutes = ${minutes} + ${minutesToPublish};
+
 		var changeHour = MathUtil.isGreaterThan("${minutes}", "59");
 
 		if ("${changeHour}" == "true") {

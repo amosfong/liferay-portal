@@ -129,7 +129,7 @@ public class CountryResourceTest extends BaseCountryResourceTestCase {
 	public void testPostCountry() throws Exception {
 		super.testPostCountry();
 
-		Country existingCountry = _addCountry(randomCountry());
+		Country existingCountry = countryResource.getCountryByA2("us");
 
 		Country country = randomCountry();
 
@@ -190,6 +190,81 @@ public class CountryResourceTest extends BaseCountryResourceTestCase {
 		country.setNumber(existingCountry.getNumber());
 
 		_testPostCountryProblem(country, DuplicateCountryException.class);
+	}
+
+	@Override
+	@Test
+	public void testPutCountry() throws Exception {
+		super.testPutCountry();
+
+		Country country = _addCountry(randomCountry());
+		Country existingCountry = countryResource.getCountryByA2("us");
+
+		Country randomCountry = randomCountry();
+
+		randomCountry.setA2((String)null);
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setA2("");
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setA2("too long");
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, CountryA2Exception.class);
+
+		randomCountry.setA2(existingCountry.getA2());
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, DuplicateCountryException.class);
+
+		randomCountry = randomCountry();
+
+		randomCountry.setA3((String)null);
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setA3("");
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setA3("too long");
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, CountryA3Exception.class);
+
+		randomCountry.setA3(existingCountry.getA3());
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, DuplicateCountryException.class);
+
+		randomCountry = randomCountry();
+
+		randomCountry.setName((String)null);
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setName("");
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setName(existingCountry.getName());
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, DuplicateCountryException.class);
+
+		randomCountry = randomCountry();
+
+		randomCountry.setNumber((Integer)null);
+
+		_testPutCountryProblem(country.getId(), randomCountry, null);
+
+		randomCountry.setNumber(existingCountry.getNumber());
+
+		_testPutCountryProblem(
+			country.getId(), randomCountry, DuplicateCountryException.class);
 	}
 
 	@Override
@@ -342,11 +417,20 @@ public class CountryResourceTest extends BaseCountryResourceTestCase {
 		return _addCountry(randomCountry());
 	}
 
+	protected Country testPatchCountry_addCountry() throws Exception {
+		return _addCountry(randomCountry());
+	}
+
 	@Override
 	protected Country testPostCountry_addCountry(Country country)
 		throws Exception {
 
 		return _addCountry(country);
+	}
+
+	@Override
+	protected Country testPutCountry_addCountry() throws Exception {
+		return _addCountry(randomCountry());
 	}
 
 	private Country _addCountry(Country country) throws Exception {
@@ -380,6 +464,26 @@ public class CountryResourceTest extends BaseCountryResourceTestCase {
 
 		HttpInvoker.HttpResponse httpResponse =
 			countryResource.postCountryHttpResponse(country);
+
+		Assert.assertEquals(
+			Response.Status.BAD_REQUEST.getStatusCode(),
+			httpResponse.getStatusCode());
+
+		if (exceptionClass != null) {
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
+				httpResponse.getContent());
+
+			Assert.assertEquals(
+				exceptionClass.getSimpleName(), jsonObject.get("type"));
+		}
+	}
+
+	private <T extends Exception> void _testPutCountryProblem(
+			Long countryId, Country country, Class<T> exceptionClass)
+		throws Exception {
+
+		HttpInvoker.HttpResponse httpResponse =
+			countryResource.putCountryHttpResponse(countryId, country);
 
 		Assert.assertEquals(
 			Response.Status.BAD_REQUEST.getStatusCode(),

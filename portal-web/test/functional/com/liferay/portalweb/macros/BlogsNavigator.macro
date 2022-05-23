@@ -10,6 +10,8 @@ definition {
 				locator1 = "Button#ANY");
 		}
 
+		WaitForPageLoad();
+
 		AssertVisible(locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE");
 	}
 
@@ -262,7 +264,6 @@ definition {
 			friendlyURL = "${friendlyURL}",
 			groupName = "${groupName}",
 			site = "${site}");
-
 		var baseURL = "${baseURL}";
 
 		if (!(isSet(baseURL))) {
@@ -284,7 +285,6 @@ definition {
 		var stagingId = JSONGroupAPI._getGroupIdByName(
 			groupName = "${groupName}",
 			site = "${site}");
-
 		var baseURL = "${baseURL}";
 
 		if (!(isSet(baseURL))) {

@@ -46,8 +46,10 @@ import com.liferay.portal.kernel.service.permission.OrganizationPermissionUtil;
 import com.liferay.portal.kernel.service.permission.UserGroupPermissionUtil;
 import com.liferay.portal.kernel.service.permission.UserPermissionUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
 import com.liferay.portal.util.LayoutTypeControllerTracker;
+import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.sites.kernel.util.SitesUtil;
 
@@ -129,6 +131,27 @@ public class LayoutPermissionImpl
 	}
 
 	@Override
+	public void checkLayoutUpdatePermission(
+			PermissionChecker permissionChecker, Layout layout)
+		throws PortalException {
+
+		if (!containsLayoutUpdatePermission(permissionChecker, layout)) {
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, Layout.class.getName(), layout.getPlid(),
+				ActionKeys.UPDATE);
+		}
+	}
+
+	@Override
+	public void checkLayoutUpdatePermission(
+			PermissionChecker permissionChecker, long plid)
+		throws PortalException {
+
+		checkLayoutUpdatePermission(
+			permissionChecker, LayoutLocalServiceUtil.getLayout(plid));
+	}
+
+	@Override
 	public boolean contains(
 			PermissionChecker permissionChecker, Layout layout,
 			boolean checkViewableGroup, String actionId)
@@ -181,6 +204,48 @@ public class LayoutPermissionImpl
 		return contains(
 			permissionChecker, LayoutLocalServiceUtil.getLayout(plid),
 			actionId);
+	}
+
+	@Override
+	public boolean containsLayoutUpdatePermission(
+			PermissionChecker permissionChecker, Layout layout)
+		throws PortalException {
+
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-132571"))) {
+			if (contains(permissionChecker, layout, ActionKeys.UPDATE) ||
+				contains(
+					permissionChecker, layout,
+					ActionKeys.UPDATE_LAYOUT_BASIC) ||
+				contains(
+					permissionChecker, layout,
+					ActionKeys.UPDATE_LAYOUT_CONTENT) ||
+				contains(
+					permissionChecker, layout,
+					ActionKeys.UPDATE_LAYOUT_LIMITED)) {
+
+				return true;
+			}
+
+			return false;
+		}
+
+		if (contains(permissionChecker, layout, ActionKeys.UPDATE) ||
+			contains(
+				permissionChecker, layout, ActionKeys.UPDATE_LAYOUT_CONTENT)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean containsLayoutUpdatePermission(
+			PermissionChecker permissionChecker, long plid)
+		throws PortalException {
+
+		return containsLayoutUpdatePermission(
+			permissionChecker, LayoutLocalServiceUtil.getLayout(plid));
 	}
 
 	@Override

@@ -123,7 +123,9 @@ function EditSXPElementForm({
 	type,
 	sxpElementId,
 }) {
-	const {defaultLocale, redirectURL} = useContext(ThemeContext);
+	const {defaultLocale, featureFlagLps148749, redirectURL} = useContext(
+		ThemeContext
+	);
 
 	const formRef = useRef();
 	const elementJSONEditorRef = useRef();
@@ -503,6 +505,42 @@ function EditSXPElementForm({
 
 					<LearnMessage resourceKey="element-source" />
 				</div>
+
+				{!readOnly && (
+					<>
+						<div className="sidebar-header">
+							<h4 className="component-title">
+								<span className="text-truncate-inline">
+									<span className="text-truncate">
+										{Liferay.Language.get(
+											'json-autocomplete'
+										)}
+									</span>
+								</span>
+							</h4>
+						</div>
+
+						<div className="container-fluid">
+							<div className="help-text text-secondary">
+								{Liferay.Language.get(
+									'begin-typing-inside-double-quotes-to-see-the-autocomplete-options'
+								)}
+							</div>
+
+							<div className="help-text text-secondary">
+								{Liferay.Language.get(
+									'use-the-arrow-keys-or-the-mouse-to-navigate-the-menu'
+								)}
+							</div>
+
+							<div className="help-text text-secondary">
+								{Liferay.Language.get(
+									'use-the-enter-key-to-select-a-menu-item'
+								)}
+							</div>
+						</div>
+					</>
+				)}
 			</Sidebar>
 
 			<div
@@ -631,7 +669,11 @@ function EditSXPElementForm({
 									size={showVariablesSidebar ? 9 : 12}
 								>
 									<CodeMirrorEditor
-										autocompleteSchema={sxpElementSchema}
+										autocompleteSchema={
+											featureFlagLps148749
+												? sxpElementSchema
+												: null
+										}
 										onChange={(value) =>
 											setElementJSONEditorValue(value)
 										}

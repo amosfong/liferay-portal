@@ -335,6 +335,18 @@ definition {
 			locator1 = "Button#ANY_WITH_ARIA_LABEL");
 	}
 
+	macro getCommonStylesClass {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		var class = selenium.getAttribute("xpath=(//div[contains(@class,'${fragmentName}')])[${index}]//ancestor::div[contains(@class,'lfr-layout-structure-item-')]@class");
+
+		var commonStylesClass = StringUtil.extractFirst("${class}", " lfr-layout-structure-item-");
+
+		return "${commonStylesClass}";
+	}
+
 	macro gotoPageEditor {
 		Click(locator1 = "Icon#EDIT_PENCIL");
 
@@ -372,6 +384,33 @@ definition {
 			image = "${image}",
 			index = "${position}",
 			locator1 = "Fragment#FRAGMENT_BACKGROUND_IMAGE");
+	}
+
+	macro viewFragmentCommonStyle {
+		if (isSet(className)) {
+			var fragmentName = "${className}";
+		}
+		else {
+			var fragmentName = StringUtil.replace("${fragmentName}", " ", "-");
+
+			var fragmentName = StringUtil.lowerCase("${fragmentName}");
+		}
+
+		var commonStylesClass = ContentPages.getCommonStylesClass(
+			fragmentName = "${fragmentName}",
+			index = "${index}");
+
+		var actualStyleValue = Css.getStyleValue(
+			className = "${commonStylesClass}",
+			id = "layout-common-styles",
+			styleName = "${styleName}");
+
+		if (contains("${actualStyleValue}", "${styleValue}")) {
+			echo("PASSED");
+		}
+		else {
+			TestUtils.fail(message = "FAILED: expected '${styleValue}', actual was '${actualStyleValue}'");
+		}
 	}
 
 	macro viewFragmentImage {

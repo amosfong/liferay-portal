@@ -73,7 +73,7 @@ export function ModalAddDefaultSortColumn({
 
 	useEffect(() => {
 		const newAvailableViewColumns = objectViewColumns.filter(
-			(viewColumn) => !viewColumn.isDefaultSort
+			(viewColumn) => !viewColumn.defaultSort
 		);
 
 		setAvailableViewColumns(newAvailableViewColumns);
@@ -151,7 +151,7 @@ export function ModalAddDefaultSortColumn({
 
 					<CustomSelect
 						label={Liferay.Language.get('sorting')}
-						onChange={(item: any) => {
+						onChange={(item: TSortOptions) => {
 							setSelectedObjetSort(item);
 						}}
 						options={SORT_OPTIONS}

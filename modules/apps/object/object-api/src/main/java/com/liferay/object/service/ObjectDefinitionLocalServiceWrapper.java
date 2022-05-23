@@ -42,13 +42,13 @@ public class ObjectDefinitionLocalServiceWrapper
 			long userId, java.util.Map<java.util.Locale, String> labelMap,
 			String name, String panelAppOrder, String panelCategoryKey,
 			java.util.Map<java.util.Locale, String> pluralLabelMap,
-			String scope,
+			String scope, String storageType,
 			java.util.List<com.liferay.object.model.ObjectField> objectFields)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectDefinitionLocalService.addCustomObjectDefinition(
 			userId, labelMap, name, panelAppOrder, panelCategoryKey,
-			pluralLabelMap, scope, objectFields);
+			pluralLabelMap, scope, storageType, objectFields);
 	}
 
 	/**
@@ -476,6 +476,12 @@ public class ObjectDefinitionLocalServiceWrapper
 		getSystemObjectDefinitions() {
 
 		return _objectDefinitionLocalService.getSystemObjectDefinitions();
+	}
+
+	@Override
+	public boolean hasObjectRelationship(long objectDefinitionId) {
+		return _objectDefinitionLocalService.hasObjectRelationship(
+			objectDefinitionId);
 	}
 
 	@Override

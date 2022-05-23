@@ -8,9 +8,12 @@
 		padding: 10px;
 	}
 
+	.nav-underline {
+		margin-bottom: 1rem;
+	}
+
 	.info-group {
 		display: grid;
-		margin-top: 25px;
 
 		button {
 			height: 32px;
@@ -49,6 +52,10 @@
 		}
 	}
 
+	.node.selected {
+		background-color: transparent;
+	}
+
 	.sidebar-body {
 		overflow: hidden;
 
@@ -77,6 +84,7 @@
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
+			margin-bottom: 1.5rem;
 		}
 
 		#timers-buttons-area {

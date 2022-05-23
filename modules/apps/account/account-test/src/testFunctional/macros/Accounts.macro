@@ -19,19 +19,19 @@ definition {
 				value1 = "Billing and Shipping");
 		}
 
-		Type(
+		Type.type(
 			locator1 = "TextInput#STREET_1",
 			value1 = "${addressStreet1}");
 
 		if (isSet(addressStreet2)) {
-			Type(
+			Type.type(
 				key_streetNumber = "2",
 				locator1 = "TextInput#STREET_N",
 				value1 = "${addressStreet2}");
 		}
 
 		if (isSet(addressStreet3)) {
-			Type(
+			Type.type(
 				key_streetNumber = "3",
 				locator1 = "TextInput#STREET_N",
 				value1 = "${addressStreet3}");
@@ -995,6 +995,14 @@ definition {
 		AssertTextEquals(
 			locator1 = "Account#DEFAULT_ACCOUNT_ADDRESSES_DEFAULT_BILLING_ADDRESS",
 			value1 = "Not Set");
+	}
+
+	macro removeDefaultDeliveryCommerceTerms {
+		Click(locator1 = "Account#DEFAULT_ACCOUNT_TERMS_AND_CONDITION_REMOVE_DEFAULT_DELIVERY");
+
+		AssertElementPresent(
+			locator1 = "Account#DEFAULT_ACCOUNT_TERMS_AND_CONDITION_DEFAULT_DELIVERY_USE_PRIORITY_SETTINGS",
+			value1 = "Use Priority Settings");
 	}
 
 	macro removeDefaultShippingAddress {

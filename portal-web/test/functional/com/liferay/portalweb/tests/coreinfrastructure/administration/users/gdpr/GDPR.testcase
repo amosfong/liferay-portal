@@ -1648,7 +1648,7 @@ definition {
 			totalItemsCount = "1");
 
 		GDPR.editEntryCP(
-			applications = "Documents and Media",
+			applicationsTitle = "DM Document Title",
 			rowEntry = "Document_1.txt");
 
 		DMDocument.editCmd(
@@ -1946,6 +1946,12 @@ definition {
 			GDPR.viewEntryRowInApplicationCP(
 				tableEntry = "${tableEntry}",
 				tableEntryPartialTextList = "${tableEntry},Create Date,Completion Date");
+		}
+
+		LexiconEntry.gotoAdd();
+
+		for (var key_tableHeader : list "Application,Items,Last Available Export") {
+			AssertElementPresent(locator1 = "LexiconTable#TABLE_HEADER");
 		}
 	}
 

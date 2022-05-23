@@ -275,6 +275,7 @@ definition {
 			WaitForElementPresent(locator1 = "CommerceEntry#WAREHOUSE_INVENTORY_ITEM_QUANTITY");
 
 			var aux = selenium.getElementValue("CommerceEntry#WAREHOUSE_INVENTORY_ITEM_QUANTITY");
+
 			var previousTotal = ${previousTotal} + ${aux};
 		}
 
@@ -397,6 +398,7 @@ definition {
 			WaitForElementPresent(locator1 = "CommerceEntry#WAREHOUSE_INVENTORY_ITEM_QUANTITY");
 
 			var aux = selenium.getElementValue("CommerceEntry#WAREHOUSE_INVENTORY_ITEM_QUANTITY");
+
 			var newTotal = ${newTotal} + ${aux};
 		}
 
@@ -764,6 +766,7 @@ definition {
 		for (var warehouse : list "Italy,United States - Northeast,United States - Southwest") {
 			var key_inventoryName = "${warehouse}";
 			var inventoryValue = selenium.getElementValue("CommerceEntry#INVENTORY_INPUT");
+
 			var quantity = ${quantity} + ${inventoryValue};
 		}
 
@@ -854,7 +857,7 @@ definition {
 		}
 
 		Uncheck.uncheckToggleSwitch(
-			key_toggleSwitchLabel = "${channel2}",
+			key_toggleSwitchLabel = "${commerceChannel2}",
 			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 
 		Button.clickSave();
@@ -870,7 +873,7 @@ definition {
 		}
 
 		Uncheck.uncheckToggleSwitch(
-			key_toggleSwitchLabel = "${channel1}",
+			key_toggleSwitchLabel = "${commerceChannel1}",
 			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 
 		Button.clickSave();
@@ -934,6 +937,7 @@ definition {
 
 		while (IsElementPresent(key_value1 = "${count1}", locator1 = "CommerceEntry#WAREHOUSE_INVENTORY_ITEM_QUANTITY")) {
 			var temp1 = selenium.getAttribute("//input[contains(@id,'_com_liferay_commerce_product_definitions_web_internal_portlet_CPDefinitionsPortlet_commerceInventoryWarehouseItemQuantity${count1}')]@value");
+
 			var amount = ${temp1} + ${amount};
 			var count1 = ${count1} + 1;
 		}
@@ -1145,20 +1149,6 @@ definition {
 
 		Button.clickSave();
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			panel = "Commerce",
-			portlet = "Catalogs");
-
-		Click(locator1 = "Button#PLUS");
-
-		CommerceEntry.addNewCatalogsEntry(
-			catalogCurrency = "US Dollar",
-			catalogLanguage = "English (United States)",
-			catalogName = "Master");
-
-		Button.click(button = "Submit");
-
 		ApplicationsMenu.gotoPortlet(
 			category = "Product Management",
 			panel = "Commerce",
@@ -1196,9 +1186,15 @@ definition {
 
 		Search.searchCP(searchTerm = "default");
 
-		AssertVisible(
-			key_productQuantity = "50",
-			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_QUANTITY");
+		AssertElementPresent(
+			key_quantity = "50",
+			key_sku = "default",
+			locator1 = "CommerceInventory#INVENTORY_SKU_ON_HAND_QUANTITY");
+
+		AssertElementPresent(
+			key_quantity = "50",
+			key_sku = "default",
+			locator1 = "CommerceInventory#INVENTORY_SKU_AVAILABLE_QUANTITY");
 	}
 
 }

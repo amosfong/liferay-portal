@@ -12,11 +12,42 @@
  * details.
  */
 
-import {openModal} from 'frontend-js-web';
+import {addParams, navigate, openModal} from 'frontend-js-web';
 
 const ACTIONS = {
 	checkin({checkinURL}, portletNamespace) {
-		window[`${portletNamespace}showVersionDetailsDialog`](checkinURL);
+		Liferay.componentReady(
+			`${portletNamespace}DocumentLibraryCheckinModal`
+		).then((documentLibraryCheckinModal) => {
+			documentLibraryCheckinModal.open((versionIncrease, changeLog) => {
+				let portletURL = checkinURL;
+
+				if (versionIncrease) {
+					portletURL = addParams(
+						`${portletNamespace}versionIncrease=${encodeURIComponent(
+							versionIncrease
+						)}`,
+						portletURL
+					);
+				}
+
+				if (changeLog) {
+					portletURL = addParams(
+						`${portletNamespace}changeLog=${encodeURIComponent(
+							changeLog
+						)}`,
+						portletURL
+					);
+				}
+
+				portletURL = addParams(
+					`${portletNamespace}updateVersionDetails=true`,
+					portletURL
+				);
+
+				navigate(portletURL);
+			});
+		});
 	},
 
 	delete({deleteURL}) {

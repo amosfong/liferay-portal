@@ -12,10 +12,24 @@
 import ClayForm from '@clayui/form';
 import ClayLayout from '@clayui/layout';
 import getCN from 'classnames';
-import React from 'react';
+import React, {useContext} from 'react';
 
+import advancedConfigurationSchema from '../../../schemas/advanced-configuration.schema.json';
+import aggregationConfigurationSchema from '../../../schemas/aggregation-configuration.schema.json';
+import highlightConfigurationSchema from '../../../schemas/highlight-configuration.schema.json';
+import parameterConfigurationSchema from '../../../schemas/parameter-configuration.schema.json';
+import sortConfigurationSchema from '../../../schemas/sort-configuration.schema.json';
 import CodeMirrorEditor from '../../shared/CodeMirrorEditor';
 import LearnMessage from '../../shared/LearnMessage';
+import ThemeContext from '../../shared/ThemeContext';
+
+const CONFIGURATION_SCHEMAS = {
+	advancedConfig: advancedConfigurationSchema,
+	aggregationConfig: aggregationConfigurationSchema,
+	highlightConfig: highlightConfigurationSchema,
+	parameterConfig: parameterConfigurationSchema,
+	sortConfig: sortConfigurationSchema,
+};
 
 function ConfigurationTab({
 	advancedConfig,
@@ -28,6 +42,8 @@ function ConfigurationTab({
 	sortConfig,
 	touched,
 }) {
+	const {featureFlagLps143720} = useContext(ThemeContext);
+
 	const _renderEditor = (configName, configValue) => (
 		<div
 			className={getCN({
@@ -36,6 +52,11 @@ function ConfigurationTab({
 			onBlur={() => setFieldTouched(configName)}
 		>
 			<CodeMirrorEditor
+				autocompleteSchema={
+					featureFlagLps143720
+						? CONFIGURATION_SCHEMAS[configName]
+						: null
+				}
 				onChange={(value) => setFieldValue(configName, value)}
 				value={configValue}
 			/>

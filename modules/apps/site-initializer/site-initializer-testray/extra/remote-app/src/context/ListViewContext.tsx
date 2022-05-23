@@ -13,7 +13,7 @@
  * details.
  */
 
-import {createContext, useReducer} from 'react';
+import {ReactNode, createContext, useReducer} from 'react';
 
 import {ActionMap, SortOption} from '../types';
 
@@ -24,7 +24,7 @@ export type Sort = {
 	key: string;
 };
 
-type InitialState = {
+export type InitialState = {
 	filters: any;
 	keywords: string;
 	page: number;
@@ -158,10 +158,9 @@ const reducer = (state: InitialState, action: AppActions) => {
 
 export type ListViewContextProviderProps = Partial<InitialState>;
 
-const ListViewContextProvider: React.FC<ListViewContextProviderProps> = ({
-	children,
-	...initialStateProps
-}) => {
+const ListViewContextProvider: React.FC<
+	ListViewContextProviderProps & {children: ReactNode}
+> = ({children, ...initialStateProps}) => {
 	const [state, dispatch] = useReducer(reducer, {
 		...initialState,
 		...initialStateProps,

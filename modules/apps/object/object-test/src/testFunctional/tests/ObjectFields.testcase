@@ -1,7 +1,6 @@
 @component-name = "portal-object"
 definition {
 
-	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -180,6 +179,33 @@ definition {
 			fieldType = "LongText");
 	}
 
+	@description = "LPS-148112 - Verify that File Size and Format defined by admin are working correctly when using the 'Show Files' option"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanDefineMaximumFileSizeOnShowFilesOption {
+
+		// TODO LPS-153423 CanDefineMaximumFileSizeOnShowFilesOption pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if turn off the 'Show files' option on field settings"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanDisableShowFilesOptionOnFieldSettings {
+
+		// TODO LPS-153419 CanDisableShowFilesOptionOnFieldSettings pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify that admin can edit the Storage Folder path in Published objects"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanEditStorageFolderAndPublishObject {
+
+		// TODO LPS-153424 CanEditStorageFolderAndPublishObject pending implementation
+
+	}
+
 	@description = "LPS-146889 - Verify that when turn on the 'Set the Maximum Number of Characters' the user is not allowed to type any value outside the informed range on the help text"
 	@priority = "4"
 	test CannotTypeValueOutsideRange {
@@ -215,9 +241,38 @@ definition {
 		ObjectField.assertValueOnLimitCharacters(maxValue = "28");
 	}
 
+	@description = "LPS-148112 - Verify that attchment field is working fine to the selecting Request Files: Directly from User's Computer when 'Show files' option is off"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanSaveDirectlyFromUsersComputerOptionWithShowFilesDisable {
+
+		// TODO LPS-153414 CanSaveDirectlyFromUsersComputerOptionWithShowFilesDisable pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if on the side panel the 'Show files' path can be edited"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanUpdateShowFilesOption {
+
+		// TODO LPS-153420 CanUpdateShowFilesOption pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if on the side panel that only valid paths can be used on the 'Show files' settings"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanValidOnlyPathsDefinedOnShowFilesOption {
+
+		// TODO LPS-153421 CanValidOnlyPathsDefinedOnShowFilesOption pending implementation
+
+	}
+
 	@description = "LPS-143065 - Verify if the 'Attachment' option is shown on the 'Type' dropdown"
 	@priority = "5"
 	test CanViewAttachmentOption {
+		property portal.acceptance = "true";
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151557",
 			objectName = "CustomObject151557",
@@ -266,6 +321,8 @@ definition {
 	@description = "LPS-146523 - Verify if there's an option on Request Files: Upload and Select from Documents and Media Item Selector"
 	@priority = "5"
 	test CanViewDocumentsAndMediaOption {
+		property portal.acceptance = "true";
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151562",
 			objectName = "CustomObject151562",
@@ -354,10 +411,28 @@ definition {
 		}
 	}
 
+	@description = "LPS-148112 - Verify if when selecting the option on Request Files: Directly from User's Computer the toggle is OFF by default"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewOptionsDisableWhenSelectDirectlyFromUsersComputerOption {
+
+		// TODO LPS-153413 CanViewOptionsDisableWhenSelectDirectlyFromUsersComputerOption pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if when selecting the option on Request Files: Directly from User's Computer there is a Toggle"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewOptionsWhenSelectDirectlyFromUsersComputerOption {
+
+		// TODO LPS-153411 CanViewOptionsWhenSelectDirectlyFromUsersComputerOption pending implementation
+
+	}
+
 	@description = "LPS-146889 - Verify that 'Set the Maximum Number of Characters' toggle is available for Text and Long Text fields"
 	@priority = "5"
 	test CanViewSetMaximumCharactersOption {
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151569",
@@ -433,6 +508,24 @@ definition {
 		AssertElementPresent(locator1 = "ObjectField#LABEL_MAXIMUM_FILE_SIZE");
 	}
 
+	@description = "LPS-148112 - Verify if after create a attachment field with option Request Files: Directly from User's Computer selected and when the 'Show files' is enabled there is a new configuration field called Storage Folder"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewStorageFolderWhenShowFilesIsEnable {
+
+		// TODO LPS-153415 CanViewStorageFolderWhenShowFilesIsEnable pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if when selecting the option on Request Files: Directly from User's Computer there is a tooltip on the Toggle"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanViewTootipWhenSelectDirectlyFromUsersComputerOption {
+
+		// TODO LPS-153412 CanViewTootipWhenSelectDirectlyFromUsersComputerOption pending implementation
+
+	}
+
 	@description = "LPS-144902 - Verify there is a description of each Field Type"
 	@priority = "4"
 	test DescriptionForEachFieldType {
@@ -460,6 +553,8 @@ definition {
 	@description = "LPS-146523 - Verify if the default folder will be the Documents and Media Home Folder of that specific site"
 	@priority = "4"
 	test DocumentsAndMediaHomeFolderIsDefaultWhenScopedBySite {
+		var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151568",
 			objectName = "CustomObject151568",
@@ -492,7 +587,7 @@ definition {
 
 		ObjectField.assertDocumentsAndMediaHomeFolder(
 			infoText = "There are no documents or media files in this folder.",
-			viewHomeFolder = "Liferay DXP");
+			viewHomeFolder = "${siteName}");
 	}
 
 	@description = "LPS-146523 - Verify if the default folder will be the Global Documents and Media Home Folder"
@@ -584,6 +679,15 @@ definition {
 			value1 = "An unexpected error occurred while uploading your file.");
 	}
 
+	@description = "LPS-148112 - Verify that Path/Folder is working fine when using the Show File option"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test PathOrFolderWorkingOnShowFileOption {
+
+		// TODO LPS-153422 PathOrFolderWorkingOnShowFileOption pending implementation
+
+	}
+
 	@description = "LPS-143065 - Verify that the Request Files option is a required field"
 	@priority = "4"
 	test RequestFilesIsRequired {
@@ -609,6 +713,33 @@ definition {
 		AssertElementPresent(
 			key_fieldName = "Request Files",
 			locator1 = "ObjectField#ERROR_REQUIRED_FIELD_SPECIFIC");
+	}
+
+	@description = "LPS-148112 - Verify if field called Storage Folder have a default value"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test StorageFolderFieldHaveDefaultValue {
+
+		// TODO LPS-153417 StorageFolderFieldHaveDefaultValue pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if field called Storage Folder have help text"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test StorageFolderFieldHaveHelpText {
+
+		// TODO LPS-153418 StorageFolderFieldHaveHelpText pending implementation
+
+	}
+
+	@description = "LPS-148112 - Verify if field called Storage Folder is required"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test StorageFolderFieldIsRequired {
+
+		// TODO LPS-153416 StorageFolderFieldIsRequired pending implementation
+
 	}
 
 }

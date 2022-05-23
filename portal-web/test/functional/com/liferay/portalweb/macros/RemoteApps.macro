@@ -4,6 +4,7 @@ definition {
 		var currentURL = Navigator.getCurrentURL();
 
 		var findWhereIdBegins = StringUtil.extractLast("${currentURL}", "clientExtensionEntryId=");
+
 		var clientExtensionEntryIdValue = StringUtil.extractFirst("${findWhereIdBegins}", "&_com_liferay_client_extension_web_internal_portlet_ClientExtensionAdminPortlet_redirect");
 
 		JSONRemoteApp.deleteIFrameRemoteAppEntry(clientExtensionEntryId = "${clientExtensionEntryIdValue}");
@@ -202,7 +203,7 @@ definition {
 		PortletEntry.publish();
 	}
 
-	macro getRemoteAppEntryIdValue {
+	macro getClientExtensionEntryIdValue {
 		WaitForSPARefresh();
 
 		RemoteApps.goToRemoteAppsPortlet();
@@ -213,10 +214,11 @@ definition {
 
 		var currentURL = Navigator.getCurrentURL();
 
-		var findWhereIdBegins = StringUtil.extractLast("${currentURL}", "remoteAppEntryId=");
-		var remoteAppEntryIdValue = StringUtil.extractFirst("${findWhereIdBegins}", "&_com_liferay_client_extension_web_internal_portlet_ClientExtensionAdminPortlet_redirect");
+		var findWhereIdBegins = StringUtil.extractLast("${currentURL}", "clientExtensionEntryId=");
 
-		return "${remoteAppEntryIdValue}";
+		var clientExtensionEntryIdValue = StringUtil.extractFirst("${findWhereIdBegins}", "&_com_liferay_client_extension_web_internal_portlet_ClientExtensionAdminPortlet_redirect");
+
+		return "${clientExtensionEntryIdValue}";
 	}
 
 	macro getRemoteAppEntryName {

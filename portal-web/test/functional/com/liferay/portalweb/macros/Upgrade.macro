@@ -450,7 +450,14 @@ definition {
 			category = "Site Builder",
 			portlet = "Pages");
 
-		PagesAdmin.addPublicPage(pageName = "Form Page");
+		LexiconEntry.gotoAdd();
+
+		if (IsElementPresent(key_menuItem = "Page", locator1 = "MenuItem#ANY_MENU_ITEM")) {
+			PagesAdmin.addPage(pageName = "Form Page");
+		}
+		else if (IsElementPresent(key_menuItem = "Public Page", locator1 = "MenuItem#ANY_MENU_ITEM")) {
+			PagesAdmin.addPublicPage(pageName = "Form Page");
+		}
 
 		Navigator.gotoPage(pageName = "Form Page");
 
@@ -3323,7 +3330,6 @@ definition {
 
 	macro viewAndEditOpenGraph {
 		var portalURL = PropsUtil.get("portal.url");
-
 		var siteId = JSONGroupSetter.setGroupId(groupName = "Test Site Name");
 
 		Navigator.openToGroupPagesPortlet(
@@ -3881,6 +3887,18 @@ definition {
 		AssertElementNotPresent(locator1 = "SearchResults#USER_FACET_ANY_USER");
 	}
 
+	macro viewConfigurationChecked {
+		ContentPagesNavigator.openEditContentPage(
+			pageName = "Content Page Name",
+			siteName = "Test Site Name");
+
+		PageEditor.gotoAdvanced(fragmentName = "Button");
+
+		AssertChecked.assertCheckedNotVisible(
+			checkboxName = "Hide from Site Search Results",
+			locator1 = "Checkbox#ANY_CHECKBOX");
+	}
+
 	macro viewContributedFragmentStyle {
 		task ("Navigate to page in view mode") {
 			ApplicationsMenu.gotoSite(site = "Test Site Name");
@@ -4261,7 +4279,6 @@ definition {
 
 	macro viewDocuments {
 		var portalURL = PropsUtil.get("portal.url");
-
 		var siteId = JSONGroupAPI._getGroupIdByName(
 			groupName = "Guest",
 			site = "true");
@@ -4630,7 +4647,6 @@ definition {
 
 	macro viewMatchingCalendarIndexesInPartitionedDatabase {
 		var baseSchemaIndex = SQL.executeMySQLStatement(mysqlStatement = "SHOW INDEX FROM lportal.Calendar;");
-
 		var partitionSchemaIndex = SQL.executeMySQLStatement(mysqlStatement = "SHOW INDEX FROM lpartition_41246.Calendar;");
 
 		if ("${baseSchemaIndex}" == "${partitionSchemaIndex}") {
@@ -4801,6 +4817,16 @@ definition {
 		NestedPortlets.viewPG(
 			nestedColumnNumber = "1",
 			portletName = "Web Content Display");
+	}
+
+	macro viewNoSearchResults {
+		ContentPagesNavigator.openViewContentPage(
+			pageName = "Content Page Name",
+			siteName = "Test Site Name");
+
+		SearchPortlets.searchEmbedded(searchTerm = "Awesome Button");
+
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "Awesome Button");
 	}
 
 	macro viewNoShareOptionAfterDisabled {
@@ -5326,8 +5352,6 @@ definition {
 		FormFields.viewCheckboxNotChecked(fieldName = "databaseContentKeywordSearchEnabled");
 
 		FormFields.viewCheckboxNotChecked(fieldName = "expireAllArticleVersionsEnabled");
-
-		FormFields.viewCheckboxNotChecked(fieldName = "articleViewPermissionsCheckEnabled");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",

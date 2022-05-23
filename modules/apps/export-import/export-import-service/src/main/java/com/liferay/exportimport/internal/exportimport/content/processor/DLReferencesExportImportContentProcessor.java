@@ -473,9 +473,16 @@ public class DLReferencesExportImportContentProcessor
 
 				exportedReferenceSB.append("[$dl-reference=");
 				exportedReferenceSB.append(path);
-				exportedReferenceSB.append("$,$include-uuid=");
-				exportedReferenceSB.append(
-					dlReferenceParameters.containsKey("uuid"));
+
+				if (dlReferenceParameters.containsKey("friendlyURL")) {
+					exportedReferenceSB.append("$,$include-friendly-url=true");
+				}
+				else {
+					exportedReferenceSB.append("$,$include-uuid=");
+					exportedReferenceSB.append(
+						dlReferenceParameters.containsKey("uuid"));
+				}
+
 				exportedReferenceSB.append("$]");
 
 				if (fileEntry.isInTrash()) {
@@ -483,9 +490,17 @@ public class DLReferencesExportImportContentProcessor
 
 					exportedReferenceSB.append("[#dl-reference=");
 					exportedReferenceSB.append(originalReference);
-					exportedReferenceSB.append("#,#include-uuid=");
-					exportedReferenceSB.append(
-						dlReferenceParameters.containsKey("uuid"));
+
+					if (dlReferenceParameters.containsKey("friendlyURL")) {
+						exportedReferenceSB.append(
+							"#,#include-friendly-url=true");
+					}
+					else {
+						exportedReferenceSB.append("#,#include-uuid=");
+						exportedReferenceSB.append(
+							dlReferenceParameters.containsKey("uuid"));
+					}
+
 					exportedReferenceSB.append("#]");
 				}
 
@@ -556,7 +571,10 @@ public class DLReferencesExportImportContentProcessor
 			}
 
 			while (content.contains(
-						"[$dl-reference=" + path + "$,$include-uuid=false$]") ||
+						"[$dl-reference=" + path +
+							"$,$include-friendly-url=true$]") ||
+				   content.contains(
+					   "[$dl-reference=" + path + "$,$include-uuid=false$]") ||
 				   content.contains(
 					   "[$dl-reference=" + path + "$,$include-uuid=true$]")) {
 
@@ -648,14 +666,28 @@ public class DLReferencesExportImportContentProcessor
 				String urlWithoutUUID = url.substring(
 					0, url.lastIndexOf(StringPool.SLASH));
 
+				String exportedReferenceFriendlyURL =
+					"[$dl-reference=" + path + "$,$include-friendly-url=true$]";
 				String exportedReferenceWithoutUUID =
 					"[$dl-reference=" + path + "$,$include-uuid=false$]";
 				String exportedReferenceWithUUID =
 					"[$dl-reference=" + path + "$,$include-uuid=true$]";
 
 				if (content.startsWith("[#dl-reference=", endPos)) {
-					endPos = content.indexOf("#,#include-uuid=", beginPos) + 2;
+					if (content.contains("include-friendly-url=true")) {
+						int friendlyURLPosition = content.indexOf(
+							"#,#include-friendly-url=true", beginPos);
 
+						endPos = friendlyURLPosition + 2;
+					}
+					else {
+						endPos =
+							content.indexOf("#,#include-uuid=", beginPos) + 2;
+					}
+
+					exportedReferenceFriendlyURL =
+						content.substring(beginPos, endPos) +
+							"#include-friendly-url=true#]";
 					exportedReferenceWithoutUUID =
 						content.substring(beginPos, endPos) +
 							"#include-uuid=false#]";
@@ -664,6 +696,8 @@ public class DLReferencesExportImportContentProcessor
 							"#include-uuid=true#]";
 				}
 
+				content = StringUtil.replace(
+					content, exportedReferenceFriendlyURL, url);
 				content = StringUtil.replace(
 					content, exportedReferenceWithUUID, url);
 				content = StringUtil.replace(

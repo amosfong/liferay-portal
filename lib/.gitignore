@@ -93,18 +93,14 @@
 /development/xmlresolver.jar
 /portal/activation.jar
 /portal/commons-beanutils.jar
-/portal/commons-codec.jar
 /portal/commons-collections.jar
-/portal/commons-compress.jar
 /portal/commons-configuration.jar
-/portal/commons-io.jar
 /portal/commons-lang.jar
 /portal/commons-logging.jar
 /portal/dom4j.jar
 /portal/hibernate-core.jar
 /portal/hikaricp.jar
 /portal/isoparser.jar
-/portal/istack-commons-runtime.jar
 /portal/jabsorb.jar
 /portal/jackson-annotations.jar
 /portal/jackson-core.jar
@@ -112,9 +108,7 @@
 /portal/jackson-module-jaxb-annotations.jar
 /portal/javassist.jar
 /portal/jaxb-api.jar
-/portal/jaxb-runtime.jar
 /portal/jaxen.jar
-/portal/jaxrpc.jar
 /portal/jaxrs-api.jar
 /portal/jaxws-api.jar
 /portal/jcl-over-slf4j.jar
@@ -130,7 +124,6 @@
 /portal/log4j-core.jar
 /portal/persistence.jar
 /portal/portlet.jar
-/portal/portletmvc4spring-framework.jar
 /portal/simplecaptcha.jar
 /portal/slf4j-api.jar
 /portal/soap-api.jar
@@ -148,5 +141,3 @@
 /portal/wstx.jar
 /portal/xercesImpl.jar
 /portal/xml-apis.jar
-/portal/xmlsec.jar
-/portal/xz.jar

@@ -35,6 +35,11 @@ renderResponse.setTitle(objectDefinition.getLabel(locale, true));
 	fdsActionDropdownItems="<%= objectDefinitionsRelationshipsDisplayContext.getFDSActionDropdownItems() %>"
 	formName="fm"
 	id="<%= ObjectDefinitionsFDSNames.OBJECT_RELATIONSHIPS %>"
+	itemsPerPage="<%= 20 %>"
+	namespace="<%= liferayPortletResponse.getNamespace() %>"
+	pageNumber="<%= 1 %>"
+	portletURL="<%= liferayPortletResponse.createRenderURL() %>"
+	propsTransformer="js/ObjectDefinitionsRelationshipsFDSPropsTransformer"
 	style="fluid"
 />
 
@@ -52,6 +57,17 @@ renderResponse.setTitle(objectDefinition.getLabel(locale, true));
 				"objectDefinitionId", objectDefinition.getObjectDefinitionId()
 			).put(
 				"system", objectDefinition.isSystem()
+			).build()
+		%>'
+	/>
+</div>
+
+<div id="<portlet:namespace />DeleteObjectRelationship">
+	<react:component
+		module="js/components/ModalDeleteObjectRelationship"
+		props='<%=
+			HashMapBuilder.<String, Object>put(
+				"isApproved", objectDefinition.isApproved()
 			).build()
 		%>'
 	/>

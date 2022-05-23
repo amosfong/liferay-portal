@@ -17,11 +17,14 @@ import ClayLayout from '@clayui/layout';
 import ClayPopover from '@clayui/popover';
 import classNames from 'classnames';
 import {ALIGN_POSITIONS, align} from 'frontend-js-web';
-import React, {useContext, useLayoutEffect, useRef, useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 
 import PreviewSelector from './PreviewSelector';
 import PublishButton from './PublishButton';
-import {StyleBookContext} from './StyleBookContext';
+import {useDraftStatus, usePreviewLayout} from './StyleBookContext';
+import Undo from './Undo';
+import UndoHistory from './UndoHistory';
+import {config} from './config';
 import {DRAFT_STATUS} from './constants/draftStatusConstants';
 
 const STATUS_TO_LABEL = {
@@ -31,7 +34,7 @@ const STATUS_TO_LABEL = {
 };
 
 export default function Toolbar() {
-	const {previewLayout} = useContext(StyleBookContext);
+	const previewLayout = usePreviewLayout();
 
 	return (
 		<div className="management-bar navbar style-book-editor__toolbar">
@@ -53,6 +56,18 @@ export default function Toolbar() {
 						<DraftStatus />
 					</li>
 
+					{config.featureFlagLps142363 ? (
+						<li className="nav-item">
+							<Undo />
+						</li>
+					) : null}
+
+					{config.featureFlagLps142363 ? (
+						<li className="nav-item">
+							<UndoHistory />
+						</li>
+					) : null}
+
 					<li className="mx-2 nav-item">
 						<HelpInformation />
 					</li>
@@ -67,7 +82,7 @@ export default function Toolbar() {
 }
 
 function DraftStatus() {
-	const {draftStatus} = useContext(StyleBookContext);
+	const draftStatus = useDraftStatus();
 
 	return (
 		<div>

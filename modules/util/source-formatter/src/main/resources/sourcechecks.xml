@@ -317,6 +317,10 @@
 		</check>
 	</source-processor>
 	<source-processor name="GroovySourceProcessor">
+		<check name="GroovyImportsCheck">
+			<category name="Styling" />
+			<description name="Sorts and groups imports in `.groovy` files." />
+		</check>
 		<check name="WhitespaceCheck">
 			<category name="Styling" />
 			<description name="Finds missing and unnecessary whitespace." />
@@ -773,6 +777,11 @@
 			<category name="Bug Prevention" />
 			<description name="Finds cases where `DataAccess.getConnection` is used (instead of using the available global variable `connection`)." />
 		</check>
+		<check name="JavaUpgradeDropTableCheck">
+			<category name="Bug Prevention" />
+			<description name="Finds cases where `DROP_TABLE_IF_EXISTS` should be used (instead of `drop table if exists`)." />
+			<property name="enabled" value="false" />
+		</check>
 		<check name="JavaUpgradeIndexCheck">
 			<category name="Bug Prevention" />
 			<description name="Finds cases where the service builder indexes are updated manually in Upgrade classes. This is not needed because Liferay takes care of it." />
@@ -1152,6 +1161,12 @@
 			<description name="Finds missing language keys in `Language.properties`." />
 		</check>
 	</source-processor>
+	<source-processor name="LDIFSourceProcessor">
+		<check name="LDIFEntryOrderCheck">
+			<category name="Styling" />
+			<description name="Checks the order of entries and attributes in `.ldif` file." />
+		</check>
+	</source-processor>
 	<source-processor name="LFRBuildSourceProcessor">
 		<check name="LFRBuildContentCheck">
 			<category name="Bug Prevention" />
@@ -1373,6 +1388,12 @@
 		<check name="WhitespaceCheck">
 			<category name="Styling" />
 			<description name="Finds missing and unnecessary whitespace." />
+		</check>
+	</source-processor>
+	<source-processor name="TFSourceProcessor">
+		<check name="TFBlockOrderCheck">
+			<category name="Styling" />
+			<description name="Checks the order of blocks in `.tf` file." />
 		</check>
 	</source-processor>
 	<source-processor name="TLDSourceProcessor">

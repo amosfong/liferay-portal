@@ -13,6 +13,7 @@
  */
 
 declare module Liferay {
+	export const FeatureFlags: any;
 	namespace Address {
 
 		/* Returns a list of countries */
@@ -232,6 +233,9 @@ declare module Liferay {
 	namespace ThemeDisplay {
 		export function getDefaultLanguageId(): string;
 		export function getLanguageId(): Language.Locale;
+		export function getPathThemeImages(): string;
+		export function getSiteGroupId(): number;
+		export function isControlPanel(): boolean;
 	}
 
 	namespace Util {
@@ -348,6 +352,11 @@ declare module Liferay {
 		export function getURLWithSessionId(url: string): string;
 
 		export function getWindow(windowId?: string): Window;
+
+		export function getSelectedOptionValues(
+			select: HTMLSelectElement,
+			delimiter?: string
+		): string;
 
 		/**
 		 * Performs navigation to the given url. If SPA is enabled, it will route the

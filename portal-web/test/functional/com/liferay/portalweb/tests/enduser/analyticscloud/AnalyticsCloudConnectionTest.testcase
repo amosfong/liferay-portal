@@ -139,6 +139,7 @@ definition {
 			Click(locator1 = "ACDXPSettings#SYNC_CONTACTS_OPTION");
 
 			var currentContacts = selenium.getText("ACDXPSettings#SYNC_ALL_CONTACTS_NUMBER");
+
 			var numberContacts = StringUtil.extractDigits("${currentContacts}");
 		}
 
@@ -154,7 +155,9 @@ definition {
 
 		task ("Add 1 into the value of the variable and format the string") {
 			var numberContacts = ${numberContacts} + 1;
+
 			var newContacts = StringUtil.add("Sync All (", "${numberContacts}", "");
+
 			var newContacts = StringUtil.add("${newContacts}", " Contacts)", "");
 		}
 
@@ -187,7 +190,7 @@ definition {
 
 			ACDXPSettings.connectAnalyticsCloud();
 
-			ACDXPSettings.assertSuccessfulConnection();
+			Alert.viewSuccessMessage();
 
 			ACDXPSettings.navToSyncedSitesMenu();
 
@@ -228,6 +231,7 @@ definition {
 					status = "${status}");
 
 				var i = ${i} + 1;
+
 				var i = StringUtil.valueOf("${i}");
 			}
 		}
@@ -266,6 +270,7 @@ definition {
 					status = "${status}");
 
 				var i = ${i} + 1;
+
 				var i = StringUtil.valueOf("${i}");
 			}
 		}
@@ -284,6 +289,7 @@ definition {
 					status = "${status}");
 
 				var i = ${i} + 1;
+
 				var i = StringUtil.valueOf("${i}");
 			}
 		}
@@ -376,12 +382,24 @@ definition {
 		ACIndividualsDashboard.assertIndividualAttribute(individualAttribute = "userfn");
 	}
 
+	@description = "Bug: LRAC-11140 | Automation ID: LRAC-11141 | Test Summary: Check the AC connection success message with the DXP"
+	@priority = "3"
+	test CheckConnectionSuccessMessage {
+		property portal.release = "true";
+
+		ACDXPSettings.goToInstanceSettingsAC();
+
+		ACDXPSettings.connectAnalyticsCloud();
+
+		ACDXPSettings.assertSuccessfulConnection();
+	}
+
 	@description = "Validate if the user can connect AC to DXP"
 	@priority = "5"
 	test ConnectACtoDXP {
 		property portal.release = "true";
 
-		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud();
+		ACDXPSettings.connectDXPtoAnalyticsCloud();
 	}
 
 	@description = "Automation ID: LRAC-8821 | Test Summary: Data Source list is searchable"
@@ -408,9 +426,7 @@ definition {
 		task ("Assert that a data source that doesn't exist is not found") {
 			ACUtils.searchBar(searchItem = "Analytics Cloud");
 
-			AssertTextPresent(
-				locator1 = "//body",
-				value1 = "There are no Data Sources found.");
+			ACUtils.viewGenericText(textValueList = "There are no results found.,Please try a different search term.");
 		}
 	}
 
@@ -471,6 +487,7 @@ definition {
 			Click(locator1 = "ACDXPSettings#SYNC_CONTACTS_OPTION");
 
 			var entrieOrg = selenium.getText("ACDXPSettings#SYNC_BY_ORGANIZATIONS_PREVIEW");
+
 			var numberOrg = StringUtil.extractDigits("${entrieOrg}");
 
 			AssertTextEquals(
@@ -522,6 +539,7 @@ definition {
 			Click(locator1 = "ACDXPSettings#SYNC_CONTACTS_OPTION");
 
 			var newNumberOrg = ${numberOrg} + 1;
+
 			var newEntrieOrg = StringUtil.add("${newNumberOrg}", " Organizations Selected", "");
 
 			AssertTextEquals(
@@ -720,6 +738,7 @@ definition {
 			Click(locator1 = "ACDXPSettings#SYNC_CONTACTS_OPTION");
 
 			var entrieGrup = selenium.getText("ACDXPSettings#SYNC_BY_USER_GROUPS_PREVIEW");
+
 			var numberGrup = StringUtil.extractDigits("${entrieGrup}");
 
 			AssertTextEquals(
@@ -737,6 +756,7 @@ definition {
 			Click(locator1 = "ACDXPSettings#SYNC_CONTACTS_OPTION");
 
 			var newNumberGrup = ${numberGrup} + 1;
+
 			var newEntrieGrup = StringUtil.add("${newNumberGrup}", " User Groups Selected", "");
 
 			AssertTextEquals(

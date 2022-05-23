@@ -79,7 +79,7 @@ function getCodeMirrorHints(cm, autocompleteSchema, availableLanguages) {
 	const start = token.start - 1;
 	const end = token.end;
 
-	if (token.type !== 'string property') {
+	if (token.type !== 'string property' && token.type !== 'string') {
 		return;
 	}
 
@@ -118,6 +118,23 @@ function getCodeMirrorHints(cm, autocompleteSchema, availableLanguages) {
 			...linePropertyBracketList,
 		];
 	}
+
+	// Get the property on current line to check for an enum list later.
+
+	const currentProperty = cm
+		.getLineTokens(cursor.line)
+		.filter((token) => {
+			if (token.end > cursor.ch) {
+				return false;
+			}
+
+			return (
+				token.string.length > 1 &&
+				token.string.startsWith('"') &&
+				token.string.endsWith('"')
+			);
+		})
+		.map((token) => removeQuotes(token.string));
 
 	// Filter the `propertyBracketList` to get only the parent properties.
 
@@ -179,14 +196,49 @@ function getCodeMirrorHints(cm, autocompleteSchema, availableLanguages) {
 		availableLanguages
 	);
 
-	// Filter matched strings.
-
 	const search = token.string.match(/[@]?\w+/);
 
+	// Return a filtered enum list if the property on the current line
+	// matches a property inside schemaProperties with an enum.
+
+	if (token.type === 'string') {
+		const property = list.find(
+			(item) => item.name === currentProperty.at(-1)
+		);
+
+		if (property?.enum) {
+			let enumList = property.enum;
+
+			if (search !== null) {
+				enumList = property.enum.filter(
+					(item) =>
+						item.toLowerCase().indexOf(search[0].toLowerCase()) > -1
+				);
+			}
+
+			return {
+				from: CodeMirror.Pos(cursor.line, start + 2),
+				list: enumList.map((item) => {
+					return {
+						displayText: `${item}`,
+						text: `${item}"`,
+					};
+				}),
+
+				to: CodeMirror.Pos(cursor.line, end),
+			};
+		}
+
+		return;
+	}
+
+	// Filter matched strings.
+
 	if (search !== null) {
-		list = list.filter((item) => {
-			return item.name.indexOf(search) > -1;
-		});
+		list = list.filter(
+			(item) =>
+				item.name.toLowerCase().indexOf(search[0].toLowerCase()) > -1
+		);
 	}
 
 	return {
@@ -197,7 +249,9 @@ function getCodeMirrorHints(cm, autocompleteSchema, availableLanguages) {
 				// The `#` character is used to pass the `type` to the `render`
 				// method.
 
-				displayText: `${item.name}#${item.type}`,
+				displayText: `${item.name}#${
+					Array.isArray(item.type) ? item.type.join('|') : item.type
+				}`,
 				render: (element, cm, data) => {
 					const [propertyName, propertyType] = data.displayText.split(
 						'#'
@@ -238,19 +292,37 @@ function getCustomHintProperties(item, endToken) {
 			// Check characters after if any property value is defined already.
 
 			if (endToken.string?.startsWith('"') || endToken.string === '') {
-				switch (item.type) {
-					case 'array':
-						text = `${item.name}": []`;
-						break;
-					case 'object':
-						text = `${item.name}": {}`;
-						break;
-					case 'string':
-						text = `${item.name}": ""`;
-						break;
-					default:
-						text = `${item.name}": `;
-						break;
+
+				// For special case "aggs" within aggregation configuration, autofill
+				// with this snippet to show how aggregation types are structured.
+
+				if (item.name === 'aggs') {
+					const indentedTabs =
+						endToken.state.indented / cm.getOption('indentUnit');
+
+					const aggsText = JSON.stringify(
+						{NAME: {AGG_TYPE: {}}},
+						null,
+						'\t'
+					).replace(/\n/g, '\n' + '\t'.repeat(indentedTabs));
+
+					text = `aggs": ${aggsText}`;
+				}
+				else {
+					switch (item.type) {
+						case 'array':
+							text = `${item.name}": []`;
+							break;
+						case 'object':
+							text = `${item.name}": {}`;
+							break;
+						case 'string':
+							text = `${item.name}": ""`;
+							break;
+						default:
+							text = `${item.name}": `;
+							break;
+					}
 				}
 			}
 
@@ -317,6 +389,39 @@ function getSchemaProperties(
 		return [];
 	}
 
+	// Set fullSchema for recursive calls that might need to reference it.
+	// This will only be called on the first `getSchemaProperties` call.
+
+	if (!fullSchema) {
+		fullSchema = schema;
+	}
+
+	// If an `allOf` or `anyOf` property is available, separate the schema
+	// and getSchemaProperties from each one.
+
+	if (schema.allOf || schema.anyOf) {
+		const {allOf, anyOf, ...restOfSchema} = schema;
+
+		const ofProperties = (allOf || anyOf).map((item) =>
+			getSchemaProperties(
+				item,
+				propertyPathList,
+				availableLanguages,
+				fullSchema
+			)
+		);
+
+		return [
+			...getSchemaProperties(
+				restOfSchema,
+				propertyPathList,
+				availableLanguages,
+				fullSchema
+			),
+			...removeDuplicateProperties(ofProperties.flat()),
+		];
+	}
+
 	// If the schema links to a reference ($ref), forward to the referenced
 	// schema.
 
@@ -366,6 +471,7 @@ function getSchemaProperties(
 
 			// Get `type` value, forward $ref reference if defined.
 
+			let enumList = schema.properties[name].enum;
 			let type = schema.properties[name].type || '';
 
 			if (
@@ -382,7 +488,12 @@ function getSchemaProperties(
 					schema.properties[name].$ref.substring(2)
 				);
 
+				enumList = refSchema.enum;
 				type = refSchema.type || '';
+			}
+
+			if (type === 'string' && enumList) {
+				return {enum: enumList, name, type};
 			}
 
 			return {
@@ -397,14 +508,6 @@ function getSchemaProperties(
 	const property = propertyPathList[0];
 
 	if (schema.properties && schema.properties[property.name]) {
-
-		// Set fullSchema for recursive calls that might need to reference it.
-		// This will only be called on the first `getSchemaProperties` call.
-
-		if (!fullSchema) {
-			fullSchema = schema;
-		}
-
 		if (property.type === 'array') {
 			return getSchemaProperties(
 				schema.properties[property.name].items,
@@ -423,6 +526,18 @@ function getSchemaProperties(
 		}
 	}
 
+	// If property is not available in schema's properties, persist with
+	// schema's additionalProperties instead.
+
+	if (schema.additionalProperties) {
+		return getSchemaProperties(
+			schema.additionalProperties,
+			propertyPathList.slice(1),
+			availableLanguages,
+			fullSchema
+		);
+	}
+
 	return [];
 }
 
@@ -439,6 +554,32 @@ function isObjectProperty(token) {
 		token.string.startsWith('"') &&
 		token.string.endsWith('"')
 	);
+}
+
+/**
+ * Removes any duplicate properties in an array with the same type and name.
+ * This could happen in some cases like when flattening properties from `anyOf`
+ * in a schema.
+ * @param {Array} properties An array of object properties. Each property should
+ * have a name and type.
+ * @returns {Array}
+ */
+function removeDuplicateProperties(properties) {
+	const uniqueProperties = [];
+
+	properties.forEach((property) => {
+		if (
+			uniqueProperties.findIndex(
+				({name, type}) =>
+					name === property.name &&
+					type.toString() === property.type.toString()
+			) === -1
+		) {
+			uniqueProperties.push(property);
+		}
+	});
+
+	return uniqueProperties;
 }
 
 /**
@@ -526,9 +667,7 @@ const CodeMirrorEditor = React.forwardRef(
 		const innerRef = useRef(ref);
 		const editorWrapperRef = useRef();
 		const editorRef = useCombinedRefs(ref, innerRef);
-		const {availableLanguages, jsonAutocompleteEnabled} = useContext(
-			ThemeContext
-		);
+		const {availableLanguages} = useContext(ThemeContext);
 
 		useEffect(() => {
 			if (editorWrapperRef.current) {
@@ -564,21 +703,20 @@ const CodeMirrorEditor = React.forwardRef(
 
 				// Enable autocomplete if `autocompleteSchema` is defined.
 
-				if (autocompleteSchema && jsonAutocompleteEnabled) {
-					CodeMirror.registerHelper('hint', 'json', (cm) =>
-						getCodeMirrorHints(
-							cm,
-							autocompleteSchema,
-							availableLanguages
-						)
-					);
-
+				if (autocompleteSchema) {
 					codeMirror.on('keyup', (cm, event) => {
+						const hint = () =>
+							getCodeMirrorHints(
+								cm,
+								autocompleteSchema,
+								availableLanguages
+							);
+
 						if (
 							!cm.state.completionActive &&
 							!AUTOCOMPLETE_EXCLUDED_KEYS.has(event.key)
 						) {
-							codeMirror.showHint();
+							codeMirror.showHint({hint});
 						}
 					});
 				}

@@ -96,7 +96,7 @@ const Search = memo(({setSearchTerm}) => {
 					className="border-brand-primary-lighten-5 font-weight-semi-bold text-neutral-10 text-paragraph-sm"
 					insetAfter
 					onChange={(event) => setValue(event.target.value)}
-					placeholder="Search"
+					placeholder={Liferay.Language.get('search')}
 					type="text"
 					value={value}
 				/>
@@ -146,7 +146,8 @@ const AllProjectButton = memo(({onClick}) => {
 			>
 				<ClayIcon spritemap={spritemap} symbol="angle-left" />
 			</span>
-			All Projects
+
+			{Liferay.Language.get('all-projects')}
 		</a>
 	);
 });
@@ -198,8 +199,9 @@ const DropDown = memo(
 							active={isSelected}
 							className="align-items-center d-flex font-weight-semi-bold pl-3 pr-5 py-1 text-paragraph-sm"
 							href={
-								!isSelected &&
-								getHref(koroneikiAccount.accountKey)
+								!isSelected
+									? getHref(koroneikiAccount.accountKey)
+									: ''
 							}
 							key={`${koroneikiAccount.code}-${index}`}
 							spritemap={spritemap}
@@ -243,10 +245,12 @@ const DropDown = memo(
 					</div>
 				)}
 
-				{!koroneikiAccounts.length && (
+				{!koroneikiAccounts.length && initialTotalCount > 1 && (
 					<div className="dropdown-section px-3">
 						<div className="font-weight-semi-bold text-neutral-5 text-paragraph-sm">
-							No projects match that name.
+							{Liferay.Language.get(
+								'no-projects-match-that-name'
+							)}
 						</div>
 					</div>
 				)}
@@ -261,7 +265,7 @@ const DropDown = memo(
 									className="font-weight-semi-bold text-neutral-5 text-paragraph-sm"
 									ref={trackedRef}
 								>
-									Loading more...
+									{Liferay.Language.get('loading')}
 								</div>
 							</ClayDropDown.Section>
 						)}

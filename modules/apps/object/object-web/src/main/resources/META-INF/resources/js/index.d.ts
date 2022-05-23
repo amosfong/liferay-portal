@@ -14,11 +14,13 @@
 
 interface ObjectAction {
 	active: boolean;
+	description?: string;
 	id?: number;
 	name: string;
 	objectActionExecutorKey: string;
 	objectActionTriggerKey: string;
 	parameters?: {
+		script?: string;
 		secret?: string;
 		url?: string;
 	};
@@ -72,7 +74,7 @@ interface ObjectValidation {
 	engineLabel: string;
 	errorLabel: LocalizedValue<string>;
 	id: number;
-	name: any;
+	name: LocalizedValue<string>;
 	script: string;
 }
 
@@ -82,9 +84,21 @@ interface ObjectValidationRuleElement {
 }
 
 interface ObjectValidationRuleElementItem {
-	content?: string;
+	content: string;
 	label: string;
 	tooltip: string;
+}
+interface ObjectRelationship {
+	deletionType: string;
+	id: string;
+	label: LocalizedValue<string>;
+	name: string;
+	objectDefinitionId1: number;
+	objectDefinitionId2: number;
+	objectDefinitionName2: string;
+	objectRelationshipId: number;
+	reverse?: boolean;
+	type: string;
 }
 
 type ObjectValidationType = {

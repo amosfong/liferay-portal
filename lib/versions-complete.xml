@@ -290,18 +290,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>com.liferay.commerce.order.content.web.jar!commons-csv.jar</file-name>
-				<version>1.8</version>
-				<project-name>Apache Commons CSV</project-name>
-				<project-url>https://commons.apache.org/proper/commons-csv/</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License, Version 2.0</license-name>
-						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>com.liferay.commerce.payment.method.authorize.net.jar!anet-java-sdk.jar</file-name>
 				<version>1.9.9</version>
 				<project-name>Authorize.Net Java SDK</project-name>
@@ -3142,7 +3130,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!jackson-dataformat-smile.jar</file-name>
-				<version>2.10.4</version>
+				<version>2.13.2</version>
 				<project-name>Jackson dataformat: Smile</project-name>
 				<project-url>http://github.com/FasterXML/jackson-dataformats-binary</project-url>
 				<licenses>
@@ -4328,6 +4316,17 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>com.liferay.portal.tika.jar!istack-commons-runtime.jar</file-name>
+				<version>3.0.7</version>
+				<project-name>istack common utility code runtime</project-name>
+				<project-url>http://www.oracle.com/</project-url>
+				<licenses>
+					<license>
+						<license-name>https://glassfish.java.net/public/CDDL+GPL_1_1.html, https://glassfish.java.net/public/CDDL+GPL_1_1.html</license-name>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>com.liferay.portal.tika.jar!java-libpst.jar</file-name>
 				<version>0.8.1</version>
 				<project-name>java-libpst</project-name>
@@ -4336,6 +4335,17 @@
 					<license>
 						<license-name>The Apache Software License, Version 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.tika.jar!jaxb-runtime.jar</file-name>
+				<version>2.3.1</version>
+				<project-name>JAXB Implementation</project-name>
+				<licenses>
+					<license>
+						<license-name>CDDL+GPL License</license-name>
+						<license-url>http://glassfish.java.net/public/CDDL+GPL_1_1.html</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -5164,6 +5174,42 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>com.liferay.shared.dependencies.apache.commons.jar!commons-codec.jar</file-name>
+				<version>1.13</version>
+				<project-name>Apache Commons Codec</project-name>
+				<project-url>https://commons.apache.org/proper/commons-codec/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.apache.commons.jar!commons-compress.jar</file-name>
+				<version>1.21</version>
+				<project-name>Apache Commons Compress</project-name>
+				<project-url>https://commons.apache.org/proper/commons-compress/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.apache.commons.jar!commons-csv.jar</file-name>
+				<version>1.9.0</version>
+				<project-name>Apache Commons CSV</project-name>
+				<project-url>https://commons.apache.org/proper/commons-csv/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>com.liferay.shared.dependencies.apache.commons.jar!commons-digester.jar</file-name>
 				<version>1.8.1</version>
 				<project-name>Commons Digester</project-name>
@@ -5184,6 +5230,17 @@
 					<license>
 						<license-name>Apache License, Version 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.apache.commons.jar!xz.jar</file-name>
+				<version>1.8</version>
+				<project-name>XZ data compression</project-name>
+				<project-url>https://tukaani.org/xz/java.html</project-url>
+				<licenses>
+					<license>
+						<license-name>Public Domain</license-name>
 					</license>
 				</licenses>
 			</library>
@@ -5606,18 +5663,6 @@
 					<license>
 						<license-name>The Apache Software License, Version 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>com.liferay.translation.web.jar!commons-csv.jar</file-name>
-				<version>1.8</version>
-				<project-name>Apache Commons CSV</project-name>
-				<project-url>https://commons.apache.org/proper/commons-csv/</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License, Version 2.0</license-name>
-						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -6818,34 +6863,10 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/commons-codec.jar</file-name>
-				<version>1.13</version>
-				<project-name>Commons Codec</project-name>
-				<project-url>http://commons.apache.org/codec</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/commons-collections.jar</file-name>
 				<version>3.2.2</version>
 				<project-name>Commons Collections</project-name>
 				<project-url>http://commons.apache.org/collections</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/commons-compress.jar</file-name>
-				<version>1.21</version>
-				<project-name>Commons Compress</project-name>
-				<project-url>http://commons.apache.org/compress</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -6862,19 +6883,6 @@
 					<license>
 						<license-name>Apache License 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/commons-io.jar</file-name>
-				<version>2.8.0</version>
-				<project-name>Commons IO</project-name>
-				<project-url>http://commons.apache.org/io</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2001-2007 The Apache Software Foundation</copyright-notice>
 					</license>
 				</licenses>
 			</library>
@@ -6941,18 +6949,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/istack-commons-runtime.jar</file-name>
-				<version>3.0.7</version>
-				<project-name>Jaxb Istack Commons</project-name>
-				<project-url>https://javaee.github.io/jaxb-istack-commons</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.1</license-name>
-						<license-url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/jabsorb.jar</file-name>
 				<version>1.3.2.LIFERAY-PATCHED-1</version>
 				<project-name>jabsorb</project-name>
@@ -7002,18 +6998,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/jaxb-runtime.jar</file-name>
-				<version>2.3.1</version>
-				<project-name>Java Architecture for XML Binding</project-name>
-				<project-url>https://javaee.github.io/jaxb-v2/</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.0</license-name>
-						<license-url>http://glassfish.java.net/public/CDDLv1.0.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/jaxen.jar</file-name>
 				<version>1.1.6</version>
 				<project-name>Jaxen</project-name>
@@ -7023,18 +7007,6 @@
 						<license-name>Jaxen License</license-name>
 						<license-url>http://jaxen.codehaus.org/license.html</license-url>
 						<copyright-notice>Copyright (c) 2003 The Werken Company. All Rights Reserved.</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/jaxrpc.jar</file-name>
-				<version>1.1</version>
-				<project-name>Java API for XML-based RPC</project-name>
-				<project-url>http://jax-rpc.dev.java.net</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.0</license-name>
-						<license-url>http://glassfish.java.net/public/CDDLv1.0.html</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -7202,18 +7174,6 @@
 				<version>3.0.1</version>
 				<project-name>JSR 362 Portlet Specification 3.0</project-name>
 				<project-url>https://jcp.org/en/jsr/detail?id=362</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/portletmvc4spring-framework.jar</file-name>
-				<version>5.2.0</version>
-				<project-name>PortletMVC4Spring</project-name>
-				<project-url>https://github.com/liferay/portletmvc4spring</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -7438,41 +7398,6 @@
 						<license-name>Apache License 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 						<copyright-notice>Copyright (c) 2000 World Wide Web Consortium, http://www.w3.org</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/xmlsec.jar</file-name>
-				<version>2.1.7</version>
-				<project-name>XML Security</project-name>
-				<project-url>http://santuario.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 1999-2006 The Apache Software Foundation.</copyright-notice>
-					</license>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.</copyright-notice>
-					</license>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>(c) 2001, Institute for Data Communications Systems, http://www.nue.et-inf.uni-siegen.de</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/xz.jar</file-name>
-				<version>1.8</version>
-				<project-name>XZ</project-name>
-				<project-url>http://tukaani.org/xz/java.html</project-url>
-				<licenses>
-					<license>
-						<license-name>Public Domain</license-name>
-						<license-url>http://en.wikipedia.org/wiki/Public_domain</license-url>
 					</license>
 				</licenses>
 			</library>

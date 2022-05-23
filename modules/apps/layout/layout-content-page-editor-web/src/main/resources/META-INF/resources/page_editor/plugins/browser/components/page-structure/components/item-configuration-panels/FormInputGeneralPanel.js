@@ -13,33 +13,128 @@
  */
 
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {openToast} from 'frontend-js-web';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 
 import {ALLOWED_INPUT_TYPES} from '../../../../../../app/config/constants/allowedInputTypes';
-import {COMMON_STYLES_ROLES} from '../../../../../../app/config/constants/commonStylesRoles';
-import {EDITABLE_TYPES} from '../../../../../../app/config/constants/editableTypes';
-import {FORM_MAPPING_SOURCES} from '../../../../../../app/config/constants/formMappingSources';
 import {FREEMARKER_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../../app/config/constants/freemarkerFragmentEntryProcessor';
-import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../../app/config/constants/layoutDataItemTypes';
-import {LAYOUT_TYPES} from '../../../../../../app/config/constants/layoutTypes';
-import {config} from '../../../../../../app/config/index';
 import {
 	useDispatch,
 	useSelector,
 	useSelectorCallback,
+	useSelectorRef,
 } from '../../../../../../app/contexts/StoreContext';
+import selectFormConfiguration from '../../../../../../app/selectors/selectFormConfiguration';
+import selectFragmentEntryLink from '../../../../../../app/selectors/selectFragmentEntryLink';
+import selectLanguageId from '../../../../../../app/selectors/selectLanguageId';
 import selectSegmentsExperienceId from '../../../../../../app/selectors/selectSegmentsExperienceId';
-import InfoItemService from '../../../../../../app/services/InfoItemService';
+import FormService from '../../../../../../app/services/FormService';
 import updateEditableValues from '../../../../../../app/thunks/updateEditableValues';
+import {CACHE_KEYS} from '../../../../../../app/utils/cache';
 import {setIn} from '../../../../../../app/utils/setIn';
+import useCache from '../../../../../../app/utils/useCache';
 import Collapse from '../../../../../../common/components/Collapse';
 import MappingFieldSelector from '../../../../../../common/components/MappingFieldSelector';
-import {CommonStyles} from './CommonStyles';
+import {FieldSet} from './FieldSet';
+import {FragmentGeneralPanel} from './FragmentGeneralPanel';
+
+const DEFAULT_CONFIGURATION_VALUES = {};
+const DEFAULT_FORM_CONFIGURATION = {classNameId: null, classTypeId: null};
 
 const FIELD_ID_CONFIGURATION_KEY = 'inputFieldId';
+const HELP_TEXT_CONFIGURATION_KEY = 'inputHelpText';
+const SHOW_HELP_TEXT_CONFIGURATION_KEY = 'inputShowHelpText';
+
+const INPUT_COMMON_CONFIGURATION = [
+	{
+		defaultValue: false,
+		label: Liferay.Language.get('mark-as-required'),
+		name: 'inputRequired',
+		type: 'checkbox',
+	},
+	{
+		defaultValue: true,
+		label: Liferay.Language.get('show-label'),
+		name: 'inputShowLabel',
+		type: 'checkbox',
+		typeOptions: {displayType: 'toggle'},
+	},
+	{
+		defaultValue: '',
+		label: Liferay.Language.get('label'),
+		localizable: true,
+		name: 'inputLabel',
+		type: 'text',
+	},
+	{
+		defaultValue: true,
+		label: Liferay.Language.get('show-help-text'),
+		name: SHOW_HELP_TEXT_CONFIGURATION_KEY,
+		type: 'checkbox',
+		typeOptions: {displayType: 'toggle'},
+	},
+	{
+		defaultValue: '',
+		label: Liferay.Language.get('help-text'),
+		localizable: true,
+		name: HELP_TEXT_CONFIGURATION_KEY,
+		type: 'text',
+	},
+];
 
 export function FormInputGeneralPanel({item}) {
+	const dispatch = useDispatch();
+	const languageId = useSelector(selectLanguageId);
+	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
+
+	const fragmentEntryLinkRef = useSelectorRef((state) =>
+		selectFragmentEntryLink(state, item)
+	);
+
+	const configurationValues = useSelectorCallback(
+		(state) =>
+			selectFragmentEntryLink(state, item).editableValues[
+				FREEMARKER_FRAGMENT_ENTRY_PROCESSOR
+			] || DEFAULT_CONFIGURATION_VALUES,
+		[item.itemId]
+	);
+
+	const fields = useMemo(() => {
+		let nextFields = INPUT_COMMON_CONFIGURATION;
+
+		if (configurationValues[SHOW_HELP_TEXT_CONFIGURATION_KEY] === false) {
+			nextFields = nextFields.filter(
+				(field) => field.name !== HELP_TEXT_CONFIGURATION_KEY
+			);
+		}
+
+		return nextFields;
+	}, [configurationValues]);
+
+	const handleValueSelect = (key, value) => {
+		const keyPath = [FREEMARKER_FRAGMENT_ENTRY_PROCESSOR, key];
+
+		const localizable =
+			fields.find((field) => field.name === key)?.localizable || false;
+
+		if (localizable) {
+			keyPath.push(languageId);
+		}
+
+		dispatch(
+			updateEditableValues({
+				editableValues: setIn(
+					fragmentEntryLinkRef.current.editableValues,
+					keyPath,
+					value
+				),
+				fragmentEntryLinkId:
+					fragmentEntryLinkRef.current.fragmentEntryLinkId,
+				languageId,
+				segmentsExperienceId,
+			})
+		);
+	};
+
 	return (
 		<>
 			<div className="mb-3">
@@ -47,177 +142,83 @@ export function FormInputGeneralPanel({item}) {
 					label={Liferay.Language.get('form-input-options')}
 					open
 				>
-					<FormInputOptions item={item} />
+					<FormInputMappingOptions
+						configurationValues={configurationValues}
+						item={item}
+						onValueSelect={handleValueSelect}
+					/>
+
+					<FieldSet
+						fields={fields}
+						item={item}
+						label=""
+						languageId={languageId}
+						onValueSelect={handleValueSelect}
+						values={configurationValues}
+					/>
 				</Collapse>
 			</div>
 
-			<CommonStyles
-				commonStylesValues={item.config.styles || {}}
-				item={item}
-				role={COMMON_STYLES_ROLES.general}
-			/>
+			<FragmentGeneralPanel item={item} />
 		</>
 	);
 }
 
-function FormInputOptions({item}) {
-	const dispatch = useDispatch();
-	const [fields, setFields] = useState(null);
-	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
-
-	const layoutDataItem = useSelectorCallback(
-		(state) => state.layoutData.items[item.itemId],
+function FormInputMappingOptions({configurationValues, item, onValueSelect}) {
+	const {classNameId, classTypeId} = useSelectorCallback(
+		(state) =>
+			selectFormConfiguration(item, state.layoutData) ||
+			DEFAULT_FORM_CONFIGURATION,
 		[item.itemId]
 	);
 
-	const fragmentEntryLink = useSelectorCallback(
-		(state) =>
-			state.fragmentEntryLinks[
-				layoutDataItem?.config.fragmentEntryLinkId
-			],
-		[layoutDataItem?.config.fragmentEntryLinkId]
-	);
-
-	const formConfiguration = useSelectorCallback(
+	const inputType = useSelectorCallback(
 		(state) => {
-			const findFormConfiguration = (childItem) => {
-				const parentItem = state.layoutData.items[childItem?.parentId];
+			const element = document.createElement('div');
+			element.innerHTML = selectFragmentEntryLink(state, item).content;
 
-				if (!parentItem) {
-					return null;
-				}
+			if (element.querySelector('select')) {
+				return 'select';
+			}
+			else if (element.querySelector('textarea')) {
+				return 'textarea';
+			}
 
-				if (parentItem.type === LAYOUT_DATA_ITEM_TYPES.form) {
-					const classNameId = parentItem.config?.classNameId;
-					const mappingSource = parentItem.config?.formConfig;
-
-					if (classNameId && classNameId !== '0') {
-						return parentItem.config;
-					}
-					else if (
-						config.layoutType === LAYOUT_TYPES.display &&
-						(!mappingSource ||
-							mappingSource === FORM_MAPPING_SOURCES.displayPage)
-					) {
-						const {selectedMappingTypes} = config;
-
-						return {
-							classNameId: selectedMappingTypes?.type.id,
-							classTypeId: selectedMappingTypes?.subtype.id,
-						};
-					}
-					else {
-						return {};
-					}
-				}
-
-				return findFormConfiguration(parentItem);
-			};
-
-			return findFormConfiguration(state.layoutData.items[item.itemId]);
+			return element.querySelector('input')?.type || 'text';
 		},
 		[item.itemId]
 	);
 
-	const inputType = useMemo(() => {
-		const element = document.createElement('div');
-		element.innerHTML = fragmentEntryLink.content;
+	const fields = useCache({
+		fetcher: () => FormService.getFormFields({classNameId, classTypeId}),
+		key: [CACHE_KEYS.formFields, classNameId, classTypeId],
+	});
 
-		if (element.querySelector('select')) {
-			return 'select';
-		}
-		else if (element.querySelector('textarea')) {
-			return 'textarea';
-		}
-
-		return element.querySelector('input')?.type || 'text';
-	}, [fragmentEntryLink.content]);
-
-	const handleValueSelect = (event) =>
-		dispatch(
-			updateEditableValues({
-				editableValues: setIn(
-					fragmentEntryLink.editableValues,
-					[
-						FREEMARKER_FRAGMENT_ENTRY_PROCESSOR,
-						FIELD_ID_CONFIGURATION_KEY,
-					],
-					event.target.value
-				),
-				fragmentEntryLinkId: fragmentEntryLink.fragmentEntryLinkId,
-				languageId: config.defaultLanguageId,
-				segmentsExperienceId,
-			})
-		);
-
-	useEffect(() => {
-		const {classNameId, classTypeId} = formConfiguration || {};
-
-		if (!classNameId || !classTypeId) {
-			return;
-		}
-
-		InfoItemService.getAvailableStructureMappingFields({
-			classNameId,
-			classTypeId,
-			onNetworkStatus: () => {},
-		})
-			.then((nextFields) =>
-				setFields(
-					nextFields
-						.map((fieldset) => ({
-							...fieldset,
-							fields: fieldset.fields.filter((field) =>
-								ALLOWED_INPUT_TYPES[field.type]?.includes(
-									inputType
-								)
-							),
-						}))
-						.filter((fieldset) => fieldset.fields.length)
-				)
-			)
-			.catch((error) => {
-				if (process.env.NODE_ENV === 'development') {
-					console.error(error);
-				}
-
-				openToast({
-					message: Liferay.Language.get(
-						'an-unexpected-error-occurred'
+	const filteredFields = useMemo(
+		() =>
+			fields
+				?.map((fieldset) => ({
+					...fieldset,
+					fields: fieldset.fields.filter((field) =>
+						ALLOWED_INPUT_TYPES[field.type]?.includes(inputType)
 					),
-					type: 'danger',
-				});
+				}))
+				.filter((fieldset) => fieldset.fields.length),
+		[fields, inputType]
+	);
 
-				setFields([]);
-			});
-	}, [formConfiguration, inputType]);
-
-	if (!formConfiguration) {
-		return (
-			<p className="alert alert-info text-center" role="alert">
-				you-need-to-put-inputs-inside-a-form-item
-			</p>
-		);
+	if (!classNameId || !classTypeId) {
+		return null;
 	}
 
-	if (!formConfiguration.classNameId || !formConfiguration.classTypeId) {
-		return (
-			<p className="alert alert-info text-center" role="alert">
-				you-need-to-select-a-form-item-type-first
-			</p>
-		);
-	}
-
-	return fields ? (
+	return filteredFields ? (
 		<MappingFieldSelector
-			fieldType={EDITABLE_TYPES.text}
-			fields={fields}
-			onValueSelect={handleValueSelect}
-			value={
-				fragmentEntryLink.editableValues[
-					FREEMARKER_FRAGMENT_ENTRY_PROCESSOR
-				][FIELD_ID_CONFIGURATION_KEY] || ''
+			fieldType={inputType}
+			fields={filteredFields}
+			onValueSelect={(event) =>
+				onValueSelect(FIELD_ID_CONFIGURATION_KEY, event.target.value)
 			}
+			value={configurationValues[FIELD_ID_CONFIGURATION_KEY] || ''}
 		/>
 	) : (
 		<ClayLoadingIndicator />

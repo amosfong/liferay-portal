@@ -12,21 +12,20 @@
  * details.
  */
 
-import ClayIcon from '@clayui/icon';
-import {useFeatureFlag} from 'data-engine-js-components-web';
-import React, {ChangeEventHandler, useState} from 'react';
+import 'codemirror/mode/groovy/groovy';
+import {ClayToggle} from '@clayui/form';
+import {FieldFeedback, useFeatureFlag} from 'data-engine-js-components-web';
+import React, {ChangeEventHandler, useRef, useState} from 'react';
 
 import Card from '../Card/Card';
-import Editor from '../Editor/Editor';
 import Sidebar from '../Editor/Sidebar/Sidebar';
-import {useChannel} from '../Editor/Sidebar/useChannel';
 import InputLocalized from '../Form/InputLocalized/InputLocalized';
 import Select from '../Form/Select';
-import ObjectValidationFormBase, {
-	ObjectValidationErrors,
-} from '../ObjectValidationFormBase';
+import {ObjectValidationErrors} from '../ObjectValidationFormBase';
 
-import '../Editor/Editor.scss';
+import './ObjectValidationTabs.scss';
+import CodeMirrorEditor from '../CodeMirrorEditor';
+import Input from '../Form/Input';
 
 function BasicInfo({
 	componentLabel,
@@ -54,17 +53,23 @@ function BasicInfo({
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
 					onTranslationsChange={(label) => setValues({name: label})}
+					placeholder={Liferay.Language.get('add-a-label')}
 					required
 					selectedLocale={locale}
 					translations={values.name as LocalizedValue<string>}
 				/>
 
-				<ObjectValidationFormBase
+				<Input
+					disabled
+					label={Liferay.Language.get('type')}
+					value={values.engineLabel}
+				/>
+
+				<ClayToggle
 					disabled={disabled}
-					errors={errors}
-					objectValidationTypeLabel={values.engineLabel!}
-					setValues={setValues}
-					values={values}
+					label={Liferay.Language.get('active-validation')}
+					onToggle={(active) => setValues({active})}
+					toggled={values.active}
 				/>
 			</Card>
 
@@ -91,48 +96,69 @@ function Conditions({
 			symbol: string;
 		}
 	);
-	const inputChannel = useChannel();
+	const editorRef = useRef<CodeMirror.Editor>();
 	const flags = useFeatureFlag();
+	const emptyScriptError = errors.script;
+	const engine = values.engine;
+	const ddmTooltip = {
+		content: Liferay.Language.get(
+			'use-the-expression-builder-to-define-the-format-of-a-valid-object-entry'
+		),
+		symbol: 'question-circle-full',
+	};
+	let placeholder;
+
+	if (engine === 'groovy') {
+		placeholder = Liferay.Language.get(
+			'insert-a-groovy-script-to-define-your-validation'
+		);
+	}
+	else if (engine === 'ddm') {
+		placeholder = Liferay.Language.get(
+			'add-elements-from-the-sidebar-to-define-your-validation'
+		);
+	}
+	else {
+		placeholder = '';
+	}
 
 	return (
 		<>
-			<div className="lfr-objects__object-data-validation-alt-sheet">
-				<div className="lfr-objects__object-data-validation-title-container">
-					<h2 className="sheet-title">{values.engineLabel}</h2>
-					&nbsp;
-					{values.engine === 'ddm' && (
-						<span
-							data-tooltip-align="top"
-							title={Liferay.Language.get(
-								'use-the-expression-builder-to-define-the-format-of-a-valid-object-entry'
-							)}
-						>
-							<ClayIcon
-								className="lfr-objects__edit-object-field-tooltip-icon"
-								symbol="question-circle-full"
-							/>
-						</span>
-					)}
-				</div>
+			<Card
+				title={values.engineLabel!}
+				tooltip={engine === 'ddm' ? ddmTooltip : null}
+				viewMode="no-padding"
+			>
+				<div className="lfr-objects__object-validation-editor-sidebar-container">
+					<div className="lfr-objects__object-validation-editor-container">
+						<CodeMirrorEditor
+							editorRef={editorRef}
+							error={emptyScriptError}
+							onChange={(script) => setValues({script})}
+							options={{
+								lineWrapping: true,
+								mode: engine === 'groovy' ? 'groovy' : 'null',
+								readOnly: disabled,
+								value: values.script ?? '',
+							}}
+							placeholder={placeholder}
+						/>
 
-				<div className="lfr-objects__object-data-validation-editor-container">
-					<Editor
-						content={values.script}
-						disabled={disabled}
-						inputChannel={inputChannel}
-						setValues={setValues}
-					/>
+						<div className="has-error mb-3">
+							<FieldFeedback errorMessage={emptyScriptError} />
+						</div>
+					</div>
 
 					{flags['LPS-147651'] && (
 						<Sidebar
-							inputChannel={inputChannel}
+							editorRef={editorRef}
 							objectValidationRuleElements={
 								objectValidationRuleElements
 							}
 						/>
 					)}
 				</div>
-			</div>
+			</Card>
 
 			<Card title={Liferay.Language.get('error-message')}>
 				<InputLocalized
@@ -144,6 +170,7 @@ function Conditions({
 					onTranslationsChange={(message) =>
 						setValues({errorLabel: message})
 					}
+					placeholder={Liferay.Language.get('add-an-error-message')}
 					required
 					selectedLocale={locale}
 					translations={values.errorLabel as LocalizedValue<string>}
@@ -157,10 +184,10 @@ function TriggerEventContainer({disabled, eventTypes}: ITriggerEventProps) {
 	return (
 		<Card title={Liferay.Language.get('trigger-event')}>
 			<Select
+				defaultValue={0}
 				disabled={disabled}
 				label={Liferay.Language.get('event')}
 				options={eventTypes}
-				value={0}
 			/>
 		</Card>
 	);

@@ -9,6 +9,7 @@ create table ObjectAction (
 	modifiedDate DATE null,
 	objectDefinitionId LONG,
 	active_ BOOLEAN,
+	description VARCHAR(75) null,
 	name VARCHAR(75) null,
 	objectActionExecutorKey VARCHAR(75) null,
 	objectActionTriggerKey VARCHAR(75) null,
@@ -38,6 +39,7 @@ create table ObjectDefinition (
 	pluralLabel STRING null,
 	portlet BOOLEAN,
 	scope VARCHAR(75) null,
+	storageType VARCHAR(75) null,
 	system_ BOOLEAN,
 	version INTEGER,
 	status INTEGER
@@ -83,7 +85,8 @@ create table ObjectField (
 	label STRING null,
 	name VARCHAR(75) null,
 	relationshipType VARCHAR(75) null,
-	required BOOLEAN
+	required BOOLEAN,
+	system_ BOOLEAN
 );
 
 create table ObjectFieldSetting (

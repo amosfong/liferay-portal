@@ -25,6 +25,7 @@ import {
 	markAsAnswerMessageBoardMessageQuery,
 } from '../utils/client.es';
 import lang from '../utils/lang.es';
+import {getDateFormatted} from '../utils/time.es';
 import ArticleBodyRenderer from './ArticleBodyRenderer.es';
 import Comments from './Comments.es';
 import Link from './Link.es';
@@ -40,11 +41,12 @@ export default withRouter(
 		deleteAnswer,
 		editable = true,
 		match: {url},
+		onSubscription,
+		question,
 	}) => {
 		const [comments, setComments] = useState(
 			answer.messageBoardMessages.items
 		);
-		const [dateModified, setDateModified] = useState('');
 		const [showAsAnswer, setShowAsAnswer] = useState(answer.showAsAnswer);
 		const [showNewComment, setShowNewComment] = useState(false);
 		const [showDeleteAnswerModal, setShowDeleteAnswerModal] = useState(
@@ -64,10 +66,6 @@ export default withRouter(
 		useEffect(() => {
 			setShowAsAnswer(answer.showAsAnswer);
 		}, [answer.showAsAnswer]);
-
-		useEffect(() => {
-			setDateModified(new Date(answer.dateModified).toLocaleDateString());
-		}, [answer.dateModified]);
 
 		return (
 			<>
@@ -107,7 +105,7 @@ export default withRouter(
 
 							<span className="text-secondary">
 								{lang.sub(Liferay.Language.get('answered-x'), [
-									dateModified,
+									getDateFormatted(answer.dateCreated),
 								])}
 							</span>
 
@@ -133,10 +131,11 @@ export default withRouter(
 											{answer.actions[
 												'reply-to-message'
 											] &&
-												answer.status !== 'pending' && (
+												answer.status !== 'pending' &&
+												comments.length === 0 && (
 													<ClayButton
-														className="text-reset"
-														displayType="unstyled"
+														className="btn-sm c-px-2 c-py-1 text-reset text-secondary"
+														displayType="secondary"
 														onClick={() =>
 															setShowNewComment(
 																true
@@ -144,7 +143,7 @@ export default withRouter(
 														}
 													>
 														{Liferay.Language.get(
-															'reply'
+															'add-comment'
 														)}
 													</ClayButton>
 												)}
@@ -225,31 +224,34 @@ export default withRouter(
 														});
 													}}
 												>
-													{Liferay.Language.get(
-														showAsAnswer
-															? 'Unmark as answer'
-															: 'Mark as answer'
-													)}
+													{showAsAnswer
+														? Liferay.Language.get(
+																'unmark-as-answer'
+														  )
+														: Liferay.Language.get(
+																'mark-as-answer'
+														  )}
 												</ClayButton>
 											)}
 
 											{/* this is an extra double check, remove it without creating 2 clay-group-item */}
 
-											{answer.actions.replace && (
-												<ClayButton
-													className="text-reset"
-													displayType="unstyled"
-												>
-													<Link
+											{editable &&
+												answer.actions.replace && (
+													<ClayButton
 														className="text-reset"
-														to={`${url}/answers/${answer.friendlyUrlPath}/edit`}
+														displayType="unstyled"
 													>
-														{Liferay.Language.get(
-															'edit'
-														)}
-													</Link>
-												</ClayButton>
-											)}
+														<Link
+															className="text-reset"
+															to={`${url}/answers/${answer.friendlyUrlPath}/edit`}
+														>
+															{Liferay.Language.get(
+																'edit'
+															)}
+														</Link>
+													</ClayButton>
+												)}
 										</ClayButton.Group>
 									)}
 								</div>
@@ -272,12 +274,33 @@ export default withRouter(
 							commentsChange={_commentsChange}
 							editable={editable}
 							entityId={answer.id}
+							onSubscription={onSubscription}
+							question={question}
 							showNewComment={showNewComment}
 							showNewCommentChange={(value) =>
 								setShowNewComment(value)
 							}
 						/>
 					</div>
+				</div>
+				<div className="c-mb-3 col-md-9 offset-md-1">
+					{editable && !!comments.length && !showNewComment && (
+						<ClayButton.Group
+							className="font-weight-bold text-secondary"
+							spaced
+						>
+							{answer.actions['reply-to-message'] &&
+								answer.status !== 'pending' && (
+									<ClayButton
+										className="btn-sm c-px-2 c-py-1 text-reset text-secondary"
+										displayType="secondary"
+										onClick={() => setShowNewComment(true)}
+									>
+										{Liferay.Language.get('add-comment')}
+									</ClayButton>
+								)}
+						</ClayButton.Group>
+					)}
 				</div>
 			</>
 		);

@@ -58,7 +58,11 @@ long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 			</clay:content-section>
 		</clay:content-col>
 
-		<c:if test="<%= !hideActions %>">
+		<%
+		DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(dlRequestHelper);
+		%>
+
+		<c:if test="<%= !hideActions && dlPortletInstanceSettingsHelper.isShowActions() %>">
 			<clay:content-col>
 				<ul class="autofit-padded-no-gutters autofit-row">
 					<li class="autofit-col">
@@ -375,10 +379,10 @@ long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 				</dd>
 
 				<%
-				request.setAttribute("info_panel_location.jsp-parentFolder", fileEntry.getFolder());
+				Folder parentFolder = fileEntry.getFolder();
 				%>
 
-				<liferay-util:include page="/document_library/info_panel_location.jsp" servletContext="<%= application %>" />
+				<%@ include file="/document_library/info_panel_location.jspf" %>
 
 				<liferay-asset:asset-tags-available
 					className="<%= DLFileEntryConstants.getClassName() %>"
@@ -566,12 +570,7 @@ long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 
 		<c:if test="<%= dlViewFileVersionDisplayContext.isVersionInfoVisible() %>">
 			<liferay-ui:section>
-
-				<%
-				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
-				%>
-
-				<liferay-util:include page="/document_library/file_entry_history.jsp" servletContext="<%= application %>" />
+				<%@ include file="/document_library/file_entry_history.jspf" %>
 			</liferay-ui:section>
 		</c:if>
 	</liferay-ui:tabs>

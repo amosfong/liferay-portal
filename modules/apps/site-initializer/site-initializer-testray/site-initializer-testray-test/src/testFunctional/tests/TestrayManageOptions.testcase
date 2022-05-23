@@ -27,40 +27,46 @@ definition {
 		}
 	}
 
-	@description = "LPS-150348 - Verify that User can access category modal."
+	@description = "This is a test for LPS-150348 - Verify that User can access category modal."
 	@priority = "5"
 	test CanAcessOptionModal {
-		ApplicationsMenu.gotoSite(key_site = "Testray 2");
+		task ("Go to Testray") {
+			ApplicationsMenu.gotoSite(site = "Testray 2");
+		}
 
-		TestrayLayout.clickManageOnSidebar();
+		task ("Go to Options on Manage Sidebar") {
+			TestrayLayout.clickManageOnSidebar();
 
-		TestrayManage.selectOptionsManage(key_itemvalue = "Options");
+			TestrayManage.selectOptionsManage(key_itemvalue = "Options");
+		}
 
-		AssertElementPresent(locator1 = "TestrayManage#OPTIONS_MODAL");
+		task ("Verify that User can access category modal") {
+			TestrayManage.assertTitleModal(key_itemvalue = "Options");
 
-		Click(locator1 = "TestrayManage#CLOSE_MODAL");
+			TestrayManage.closeModalInOptions();
+		}
 	}
 
-	@description = "LPS-150349 - Verify that User can add new option."
+	@description = "This is a test for LPS-150349 - Verify that User can add new option."
 	@priority = "5"
 	test CanAddNewOption {
-		ApplicationsMenu.gotoSite(key_site = "Testray 2");
+		task ("Go to Testray") {
+			ApplicationsMenu.gotoSite(site = "Testray 2");
+		}
 
-		TestrayLayout.clickManageOnSidebar();
+		task ("Go to Options on Manage Sidebar") {
+			TestrayLayout.clickManageOnSidebar();
 
-		TestrayManage.selectOptionsManage(key_itemvalue = "Options");
+			TestrayManage.selectOptionsManage(key_itemvalue = "Options");
+		}
 
-		Click(locator1 = "TestrayManage#ADD_OPTIONS");
+		task ("Created New Option") {
+			TestrayManage.createNewOption(key_value = "Test");
+		}
 
-		Type(
-			locator1 = "TestrayManage#NEW_OPTION_NAME",
-			value1 = "Test");
-
-		Click(locator1 = "TestrayManage#SAVE_BUTTON");
-
-		AssertElementPresent(
-			locator1 = "TestrayManage#OPTIONS_NAME",
-			value = "Test");
+		task ("Verify if the new option was created") {
+			TestrayManage.assertCreatedOptions(key_value = "Test");
+		}
 	}
 
 }

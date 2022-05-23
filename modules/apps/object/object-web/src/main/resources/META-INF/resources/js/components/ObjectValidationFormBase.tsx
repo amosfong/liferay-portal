@@ -12,43 +12,10 @@
  * details.
  */
 
-import {ClayInput, ClayToggle} from '@clayui/form';
-import React from 'react';
-
 import useForm, {FormError, invalidateRequired} from '../hooks/useForm';
 import {defaultLanguageId} from '../utils/locale';
 
 const REQUIRED_MSG = Liferay.Language.get('required');
-
-export default function ObjectValidationFormBase({
-	disabled,
-	objectValidationTypeLabel,
-	setValues,
-	values,
-}: IProps) {
-	return (
-		<>
-			<label className="text-muted" htmlFor="validationTypeInput">
-				{Liferay.Language.get('type')}
-			</label>
-
-			<ClayInput
-				className="mb-3"
-				disabled
-				id="validationTypeInput"
-				value={objectValidationTypeLabel}
-			/>
-
-			<ClayToggle
-				disabled={disabled}
-				label={Liferay.Language.get('active-validation')}
-				name="required"
-				onToggle={(active) => setValues({active})}
-				toggled={values.active}
-			/>
-		</>
-	);
-}
 
 export function useObjectValidationForm({
 	initialValues,
@@ -59,6 +26,7 @@ export function useObjectValidationForm({
 
 		const label = validation.name?.[defaultLanguageId];
 		const errorMessage = validation.errorLabel?.[defaultLanguageId];
+		const script = validation.script;
 
 		if (invalidateRequired(label)) {
 			errors.name = REQUIRED_MSG;
@@ -66,6 +34,10 @@ export function useObjectValidationForm({
 
 		if (invalidateRequired(errorMessage)) {
 			errors.errorLabel = REQUIRED_MSG;
+		}
+
+		if (invalidateRequired(script)) {
+			errors.script = REQUIRED_MSG;
 		}
 
 		return errors;
@@ -84,13 +56,6 @@ export function useObjectValidationForm({
 interface IUseObjectValidationForm {
 	initialValues: Partial<ObjectValidation>;
 	onSubmit: (validation: ObjectValidation) => void;
-}
-interface IProps {
-	disabled: boolean;
-	errors: ObjectValidationErrors;
-	objectValidationTypeLabel: string;
-	setValues: (values: Partial<ObjectValidation>) => void;
-	values: Partial<ObjectValidation>;
 }
 
 export type ObjectValidationErrors = FormError<ObjectValidation>;

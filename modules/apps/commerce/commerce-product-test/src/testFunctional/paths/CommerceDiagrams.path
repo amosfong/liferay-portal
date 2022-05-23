@@ -87,6 +87,11 @@
 	<td>//label[contains(.,'Type')]/../select[contains(@id,'typeInput')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>CHECK_DIAGRAM_IMAGE_FOR_DRAG</td>
+	<td>//div[contains(@class,'shop-by-diagram')]//*[name()='svg']//*[name()='g' and @class='zoom-handler']</td>
+	<td></td>
+</tr>
 <!--DIAGRAM_PRODUCT_DETAIL-->
 <tr>
 	<td>DIAGRAM_PRODUCT_DETAIL_NAME</td>
@@ -123,6 +128,12 @@
 <tr>
 	<td>DIAGRAM_SETTINGS_SELECTED_TYPE</td>
 	<td>//select[contains(@id,'type')]//option[@selected and contains(.,'${key_selectedType}')]</td>
+	<td></td>
+</tr>
+<!--DIAGRAM_ZOOM-->
+<tr>
+	<td>CHECK_DIAGRAM_ZOOM_VALUE</td>
+	<td>//select[contains(@class,'form-control ml-1')]//option[contains(.,'${key_zoomValue}')]</td>
 	<td></td>
 </tr>
 </tbody>

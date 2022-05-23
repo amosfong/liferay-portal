@@ -92,7 +92,7 @@ public class ObjectRelationshipLocalServiceImpl
 		throws PortalException {
 
 		ObjectRelationship objectRelationship =
-			objectRelationshipLocalService.getObjectRelationship(
+			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
 		ObjectDefinition objectDefinition2 =
@@ -207,7 +207,7 @@ public class ObjectRelationshipLocalServiceImpl
 		throws PortalException {
 
 		ObjectRelationship objectRelationship =
-			objectRelationshipLocalService.getObjectRelationship(
+			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
 		if (Objects.equals(
@@ -232,7 +232,7 @@ public class ObjectRelationshipLocalServiceImpl
 		throws PortalException {
 
 		ObjectRelationship objectRelationship =
-			objectRelationshipLocalService.getObjectRelationship(
+			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
 		if (Objects.equals(
@@ -273,6 +273,15 @@ public class ObjectRelationshipLocalServiceImpl
 			objectRelationship.getObjectDefinitionId1(),
 			objectRelationship.getName(), reverse,
 			objectRelationship.getType());
+	}
+
+	@Override
+	public ObjectRelationship getObjectRelationship(
+			long objectDefinitionId1, String name)
+		throws PortalException {
+
+		return objectRelationshipPersistence.findByODI1_N(
+			objectDefinitionId1, name);
 	}
 
 	@Override

@@ -12,23 +12,119 @@
  * details.
  */
 
-import React from 'react';
+import {openToast} from 'frontend-js-web';
+import React, {useCallback, useContext, useReducer} from 'react';
 
-export const StyleBookContext = React.createContext({
+import {
+	LOADING,
+	SET_DRAFT_STATUS,
+	SET_PREVIEW_LAYOUT,
+	SET_PREVIEW_LAYOUT_TYPE,
+	SET_TOKEN_VALUE,
+} from './constants/actionTypes';
+import {DRAFT_STATUS} from './constants/draftStatusConstants';
+import reducer from './reducer';
+import saveDraft from './saveDraft';
+
+const StyleBookDispatchContext = React.createContext(() => {});
+export const StyleBookStoreContext = React.createContext({
+	draftStatus: null,
 	frontendTokensValues: {},
 	loading: true,
 	previewLayout: {},
 	previewLayoutType: null,
-	setFrontendTokensValues: () => {},
-	setLoading: () => {},
-	setPreviewLayout: () => {},
-	setPreviewLayoutType: () => {},
 });
 
-export function StyleBookContextProvider({children, value}) {
+export function StyleBookContextProvider({children, initialState}) {
+	const [state, dispatch] = useReducer(reducer, initialState);
+
 	return (
-		<StyleBookContext.Provider value={value}>
-			{children}
-		</StyleBookContext.Provider>
+		<StyleBookDispatchContext.Provider value={dispatch}>
+			<StyleBookStoreContext.Provider value={state}>
+				{children}
+			</StyleBookStoreContext.Provider>
+		</StyleBookDispatchContext.Provider>
 	);
+}
+
+export function useDispatch() {
+	return useContext(StyleBookDispatchContext);
+}
+
+export function useDraftStatus() {
+	return useContext(StyleBookStoreContext).draftStatus;
+}
+
+export function useFrontendTokensValues() {
+	return useContext(StyleBookStoreContext).frontendTokensValues;
+}
+
+export function useLoading() {
+	return useContext(StyleBookStoreContext).loading;
+}
+
+export function usePreviewLayout() {
+	return useContext(StyleBookStoreContext).previewLayout;
+}
+
+export function usePreviewLayoutType() {
+	return useContext(StyleBookStoreContext).previewLayoutType;
+}
+
+export function useSaveTokenValue() {
+	const dispatch = useDispatch();
+	const frontendTokensValues = useFrontendTokensValues();
+
+	return (name, value) => {
+		dispatch({
+			name,
+			type: SET_TOKEN_VALUE,
+			value,
+		});
+
+		saveDraft({...frontendTokensValues, [name]: value})
+			.then(() => {
+				dispatch({
+					type: SET_DRAFT_STATUS,
+					value: DRAFT_STATUS.draftSaved,
+				});
+			})
+			.catch((error) => {
+				if (process.env.NODE_ENV === 'development') {
+					console.error(error);
+				}
+
+				dispatch({
+					type: SET_DRAFT_STATUS,
+					value: DRAFT_STATUS.notSaved,
+				});
+
+				openToast({
+					message: error.message,
+					type: 'danger',
+				});
+			});
+	};
+}
+
+export function useSetLoading() {
+	const dispatch = useDispatch();
+
+	return useCallback((value) => dispatch({type: LOADING, value}), [dispatch]);
+}
+
+export function useSetPreviewLayout() {
+	const dispatch = useDispatch();
+
+	return useCallback(
+		(layout) => dispatch({layout, type: SET_PREVIEW_LAYOUT}),
+		[dispatch]
+	);
+}
+
+export function useSetPreviewLayoutType() {
+	const dispatch = useDispatch();
+
+	return (layoutType) =>
+		dispatch({layoutType, type: SET_PREVIEW_LAYOUT_TYPE});
 }

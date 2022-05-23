@@ -20,13 +20,16 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
+import com.liferay.portal.kernel.service.permission.LayoutPermission;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.util.PropsUtil;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -61,7 +64,25 @@ public class FragmentsContentPageEditorSidebarPanel
 		PermissionChecker permissionChecker, long plid, int layoutType) {
 
 		try {
-			if (LayoutPermissionUtil.contains(
+			if (GetterUtil.getBoolean(
+					PropsUtil.get("feature.flag.LPS-132571"))) {
+
+				if (_layoutPermission.contains(
+						permissionChecker, plid, ActionKeys.UPDATE) ||
+					_layoutPermission.contains(
+						permissionChecker, plid,
+						ActionKeys.UPDATE_LAYOUT_BASIC) ||
+					_layoutPermission.contains(
+						permissionChecker, plid,
+						ActionKeys.UPDATE_LAYOUT_LIMITED)) {
+
+					return true;
+				}
+
+				return false;
+			}
+
+			if (_layoutPermission.contains(
 					permissionChecker, plid, ActionKeys.UPDATE)) {
 
 				return true;
@@ -78,5 +99,8 @@ public class FragmentsContentPageEditorSidebarPanel
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		FragmentsContentPageEditorSidebarPanel.class);
+
+	@Reference
+	private LayoutPermission _layoutPermission;
 
 }

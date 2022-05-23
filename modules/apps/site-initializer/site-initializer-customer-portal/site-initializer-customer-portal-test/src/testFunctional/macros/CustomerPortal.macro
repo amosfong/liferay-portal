@@ -1,12 +1,16 @@
 definition {
 
+	macro accountTableProject {
+		Click(locator1 = "CustomerPortalSite#ACCOUNTS_PROJECTS");
+	}
+
 	macro activeContactRole {
 		ApplicationsMenu.gotoPortlet(
 			category = "Object",
 			panel = "Control Panel",
 			portlet = "Koroneiki Accounts");
 
-		CustomerPortal.viewKoroneikiInfo();
+		CustomerPortal.viewCPObjectInfo();
 
 		Type(
 			locator1 = "CP2LiferayContact#CONTACT_ROLE",
@@ -93,11 +97,15 @@ definition {
 	}
 
 	macro clickOnSkipForNowButton {
-		Click(locator1 = "CustomerPortalSite#START_PROJECT_SETUP_BUTTON");
+		Click(locator1 = "CustomerPortalSite#SKIP_FOR_NOW_BUTTON");
 	}
 
 	macro clickOnStartProjectSetup {
 		Click(locator1 = "CustomerPortalSite#START_PROJECT_SETUP_BUTTON");
+	}
+
+	macro clickOnSubmitButton {
+		Click(locator1 = "CP2DXPCloudSetup#SUBMIT_BUTTON");
 	}
 
 	macro createCPSite {
@@ -134,7 +142,9 @@ definition {
 			locator1 = "SitesEditSite#DETAILS_NAME",
 			value1 = "${siteName}");
 
-		CustomerPortal.showCPObject();
+		CustomerPortal.showCPObject(title = "Account Flag");
+
+		CustomerPortal.showCPObject(title = "Koroneiki Account");
 	}
 
 	macro customerPortalApisTearDown {
@@ -148,6 +158,12 @@ definition {
 	}
 
 	macro customerPortalTearDown {
+		CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
+
+		CustomerPortal.deleteCPObject(title = "Account Flag");
+
+		CustomerPortal.deleteCPObject(title = "Koroneiki Account");
+
 		ApplicationsMenu.gotoPortlet(
 			category = "Sites",
 			panel = "Control Panel",
@@ -168,10 +184,53 @@ definition {
 		CustomerPortal.customerPortalApisTearDown();
 	}
 
+	macro deactivateKoroneikiAccount {
+		ApplicationsMenu.gotoPortlet(
+			category = "Object",
+			panel = "Control Panel",
+			portlet = "Koroneiki Accounts");
+
+		CustomerPortal.viewCPObjectInfo();
+
+		Click(locator1 = "CP2TeamMembers#SELECT_PARTNER");
+
+		Click(locator1 = "Button#SAVE");
+
+		Alert.viewSuccessMessage();
+	}
+
+	macro deleteCPObject {
+		ApplicationsMenu.gotoPortlet(
+			category = "Object",
+			panel = "Control Panel",
+			portlet = "Objects");
+
+		ObjectPortlet.selectObject(label = "${title}");
+
+		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Choose an Option");
+
+		CustomerPortal.uncheckToggleHideInactiveWidget();
+
+		CreateObject.saveObject();
+	}
+
+	macro deleteEntryAccountFlag {
+		ApplicationsMenu.gotoPortlet(
+			category = "Object",
+			panel = "Control Panel",
+			portlet = "Account Flags");
+
+		ObjectPortlet.deleteEntry(entry = "${entry}");
+	}
+
 	macro enterOnProject {
+		if (!(isSet(status))) {
+			var status = "Active";
+		}
+
 		Click(
-			key_projectName = "${projectName}",
-			locator1 = "CustomerPortalSite#PROJECT_TABLE_NAME");
+			locator1 = "CP2LiferayContact#PROJECT_CARD",
+			title = "${title}");
 	}
 
 	macro loginOktaToUpdateCP {
@@ -242,6 +301,10 @@ definition {
 		AssertElementPresent(
 			key_certificateUsage = "${certificateUsage}",
 			locator1 = "CPSAMLAdmin#REPLACE_CERTIFICATE");
+	}
+
+	macro selectNavigatorWindow {
+		SelectWindow(locator1 = "title=${navigatorWidow}");
 	}
 
 	macro setUpForCP20 {
@@ -318,7 +381,7 @@ definition {
 			panel = "Control Panel",
 			portlet = "Objects");
 
-		ObjectPortlet.selectCustomObject(label = "Koroneiki Account");
+		ObjectPortlet.selectObject(label = "${title}");
 
 		CreateObject.checkToggleActive();
 
@@ -359,8 +422,29 @@ definition {
 		}
 	}
 
+	macro uncheckToggleHideInactiveWidget {
+		Uncheck.uncheckToggleSwitch(locator1 = "CP2LiferayContact#HIDE_WIDGET");
+	}
+
 	macro viewAllProjectsTitlePage {
 		AssertElementPresent(locator1 = "CustomerPortalSite#PROJECT_TITLE_MAIN_PAGE");
+	}
+
+	macro viewCPObjectCustomInfo {
+		Click(
+			key_index = "${index}",
+			key_text = "",
+			locator1 = "Icon#VERTICAL_ELLIPSIS_INDEXED");
+
+		MenuItem.click(menuItem = "View");
+	}
+
+	macro viewCPObjectInfo {
+		Click(
+			key_text = "",
+			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "View");
 	}
 
 	macro viewGetStartedModal {
@@ -371,10 +455,11 @@ definition {
 		AssertElementPresent(locator1 = "CustomerPortalSite#INVITE_TEAM_MEMBERS_TITLE");
 	}
 
-	macro viewKoroneikiInfo {
+	macro viewObjectInfo {
 		Click(
+			key_index = "4",
 			key_text = "",
-			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+			locator1 = "Icon#VERTICAL_ELLIPSIS_INDEXED");
 
 		MenuItem.click(menuItem = "View");
 	}

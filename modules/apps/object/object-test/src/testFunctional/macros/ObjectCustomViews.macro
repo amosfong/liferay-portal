@@ -12,6 +12,35 @@ definition {
 			locator1 = "Button#TAB_SUBMIT_BTN");
 	}
 
+	macro addDefaultSort {
+		if (IsElementPresent(key_text = "No default sort was created yet", locator1 = "ObjectCustomViews#VIEW_BUILDER_EMPTY_STATE_TEXT")) {
+			ObjectCustomViews.addNewDefaultSort();
+		}
+		else {
+			Click(locator1 = "ObjectCustomViews#DEFAULT_SORT_ADD_BUTTON");
+		}
+
+		Click(locator1 = "ObjectCustomViews#SELECT_COLUMN_ON_DEFAULT_SORT");
+
+		Click(
+			key_columnOption = "${columnOption}",
+			locator1 = "ObjectCustomViews#DEFAULT_SORT_COLUMN_OPTION");
+
+		Click(locator1 = "ObjectCustomViews#SELECT_SORTING_ON_DEFAULT_SORT");
+
+		Click(
+			key_sortOption = "${sortOption}",
+			locator1 = "ObjectCustomViews#SORT_OPTION");
+
+		Click(
+			key_tab = "Save",
+			locator1 = "Button#TAB_SUBMIT_BTN");
+	}
+
+	macro addNewDefaultSort {
+		Click(locator1 = "ObjectCustomViews#ADD_NEW_DEFAULT_SORT");
+	}
+
 	macro addObjectViewViaUI {
 		LexiconEntry.gotoAdd();
 
@@ -22,6 +51,12 @@ definition {
 		Button.clickSave();
 
 		WaitForPageLoad();
+	}
+
+	macro assertColumnLabelPresent {
+		AssertElementPresent(
+			key_columnLabel = "${columnLabel}",
+			locator1 = "ObjectCustomViews#BUILDER_SEARCH_RESULT_COLUMN_LABEL");
 	}
 
 	macro assertColumnNotPresent {
@@ -42,6 +77,17 @@ definition {
 			locator1 = "ObjectCustomViews#VIEW_BUILDER_SEARCH_RESULT");
 	}
 
+	macro assertColumnPresentOnDefaultSort {
+		AssertElementPresent(
+			key_columnName = "${colunmName}",
+			locator1 = "ObjectCustomViews#DEFAULT_SORT_SEARCH_RESULT");
+
+		AssertTextEquals(
+			key_sortingLabel = "${sortingLabel}",
+			locator1 = "ObjectCustomViews#DEFAULT_SORT_SORTING_LABEL",
+			value1 = "${sortingLabel}");
+	}
+
 	macro assertColumnVisibleOnAddColumnModal {
 		AssertVisible(
 			key_columnName = "${columnOption}",
@@ -52,6 +98,14 @@ definition {
 		AssertElementPresent(
 			key_text = "${text}",
 			locator1 = "ObjectCustomViews#VIEW_BUILDER_EMPTY_STATE_TEXT");
+	}
+
+	macro assertNoColumnPresentInDefaultSort {
+		ObjectCustomViews.addNewDefaultSort();
+
+		Click(locator1 = "ObjectCustomViews#SELECT_COLUMN_ON_DEFAULT_SORT");
+
+		AssertElementPresent(locator1 = "ObjectCustomViews#DEFAULT_SORT_NO_COLUMN_OPTION");
 	}
 
 	macro assertObjectView {
@@ -102,6 +156,18 @@ definition {
 			value1 = "${name}");
 	}
 
+	macro editSpecificColumn {
+		Click(
+			key_columnName = "${columnName}",
+			locator1 = "ObjectCustomViews#VIEW_BUILDER_DROPDOWN_SPECIFIC_COLUMN");
+
+		DropdownMenuItem.click(menuItem = "Edit");
+	}
+
+	macro goToDefaultSortTab {
+		Click(locator1 = "ObjectCustomViews#DEFAULT_SORT_TAB");
+	}
+
 	macro gotoPermissions {
 		Click(
 			key_objectLabel = "${entryName}",
@@ -147,6 +213,14 @@ definition {
 
 		Type(
 			locator1 = "ObjectCustomViews#ADD_COLUMNS_SEARCH_BAR",
+			value1 = "${colunmName}");
+	}
+
+	macro searchOnDefaultSort {
+		Click(locator1 = "ObjectCustomViews#DEFAULT_SORT_SEARCH_BAR");
+
+		Type(
+			locator1 = "ObjectCustomViews#DEFAULT_SORT_SEARCH_BAR",
 			value1 = "${colunmName}");
 	}
 

@@ -24,6 +24,13 @@ definition {
 			locator1 = "ObjectPortlet#ENTRY_VALUE");
 	}
 
+	macro assertColumnLabelEntries {
+		AssertElementPresent(
+			key_sortFieldName = "${columnLabelName}",
+			locator1 = "ObjectPortlet#SORT_FIELD",
+			value1 = "${columnLabelName}");
+	}
+
 	macro assertDeleteEntryButtonNotPresent {
 		AssertElementNotPresent(
 			key_entry = "${entry}",
@@ -322,6 +329,12 @@ definition {
 		Click(
 			key_label = "${label}",
 			locator1 = "ObjectPortlet#SELECT_CUSTOM_OBJECT");
+	}
+
+	macro selectObject {
+		Click(
+			key_label = "${label}",
+			locator1 = "ObjectPortlet#SELECT_OBJECT");
 	}
 
 	macro selectRelationshipFieldEntry {

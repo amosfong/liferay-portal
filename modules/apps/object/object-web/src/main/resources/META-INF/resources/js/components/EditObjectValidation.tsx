@@ -14,7 +14,7 @@
 
 import ClayTabs from '@clayui/tabs';
 import {fetch} from 'frontend-js-web';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
 	availableLocales,
@@ -79,10 +79,17 @@ export default function EditObjectValidation({
 		values,
 	} = useObjectValidationForm({initialValues, onSubmit});
 
+	useEffect(() => {
+		if (initialValues.script === 'script_placeholder') {
+			initialValues.script = '';
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<SidePanelForm
 			onSubmit={handleSubmit}
-			title={initialValues.name?.[defaultLanguageId]}
+			title={initialValues.name?.[defaultLanguageId] as string}
 		>
 			<ClayTabs className="side-panel-iframe__tabs">
 				{TABS.map(({label}, index) => (
@@ -97,23 +104,27 @@ export default function EditObjectValidation({
 			</ClayTabs>
 
 			<ClayTabs.Content activeIndex={activeIndex} fade>
-				{TABS.map(({Component, label}, index) => (
-					<ClayTabs.TabPane key={index}>
-						<Component
-							componentLabel={label}
-							defaultLocale={defaultLocale!}
-							disabled={readOnly}
-							errors={errors}
-							handleChange={handleChange}
-							locales={availableLocales}
-							objectValidationRuleElements={
-								objectValidationRuleElements
-							}
-							setValues={setValues}
-							values={values}
-						/>
-					</ClayTabs.TabPane>
-				))}
+				{TABS.map(({Component, label}, index) =>
+					activeIndex === index ? (
+						<ClayTabs.TabPane key={index}>
+							<Component
+								componentLabel={label}
+								defaultLocale={defaultLocale!}
+								disabled={readOnly}
+								errors={errors}
+								handleChange={handleChange}
+								locales={availableLocales}
+								objectValidationRuleElements={
+									objectValidationRuleElements
+								}
+								setValues={setValues}
+								values={values}
+							/>
+						</ClayTabs.TabPane>
+					) : (
+						<React.Fragment key={index} />
+					)
+				)}
 			</ClayTabs.Content>
 		</SidePanelForm>
 	);

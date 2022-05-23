@@ -22,6 +22,7 @@ import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.ServiceContext;
 
 import java.util.List;
 import java.util.Locale;
@@ -64,6 +65,25 @@ public class ObjectRelationshipServiceImpl
 	}
 
 	@Override
+	public void addObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1, long primaryKey2,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipPersistence.findByPrimaryKey(
+				objectRelationshipId);
+
+		_objectDefinitionModelResourcePermission.check(
+			getPermissionChecker(), objectRelationship.getObjectDefinitionId1(),
+			ActionKeys.UPDATE);
+
+		objectRelationshipLocalService.addObjectRelationshipMappingTableValues(
+			getUserId(), objectRelationshipId, primaryKey1, primaryKey2,
+			serviceContext);
+	}
+
+	@Override
 	public ObjectRelationship deleteObjectRelationship(
 			long objectRelationshipId)
 		throws PortalException {
@@ -94,6 +114,18 @@ public class ObjectRelationshipServiceImpl
 
 		return objectRelationshipLocalService.getObjectRelationship(
 			objectRelationshipId);
+	}
+
+	@Override
+	public ObjectRelationship getObjectRelationship(
+			long objectDefinitionId1, String name)
+		throws PortalException {
+
+		_objectDefinitionModelResourcePermission.check(
+			getPermissionChecker(), objectDefinitionId1, ActionKeys.VIEW);
+
+		return objectRelationshipPersistence.findByODI1_N(
+			objectDefinitionId1, name);
 	}
 
 	@Override

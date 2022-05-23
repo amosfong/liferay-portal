@@ -17,13 +17,14 @@
 import {TObjectColumn} from '../types';
 import './BuilderScreen.scss';
 interface IProps {
-	defaultFilter?: boolean;
 	defaultSort?: boolean;
+	disableEdit?: (businessType: string) => boolean;
 	emptyState: {
 		buttonText: string;
 		description: string;
 		title: string;
 	};
+	filter?: boolean;
 	firstColumnHeader: string;
 	hasDragAndDrop?: boolean;
 	objectColumns: TObjectColumn[];
@@ -36,9 +37,10 @@ interface IProps {
 	title: string;
 }
 export declare function BuilderScreen({
-	defaultFilter,
 	defaultSort,
+	disableEdit,
 	emptyState,
+	filter,
 	firstColumnHeader,
 	hasDragAndDrop,
 	objectColumns,

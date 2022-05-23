@@ -18,7 +18,7 @@
 
 <div class="frontend-js-components-sample-web">
 	<liferay-ui:tabs
-		names="Translation Manager, Management Toolbar"
+		names="Translation Manager, Management Toolbar, Walkable"
 		refresh="<%= false %>"
 	>
 		<liferay-ui:section>
@@ -27,6 +27,10 @@
 
 		<liferay-ui:section>
 			<liferay-util:include page="/partials/management_toolbar.jsp" servletContext="<%= application %>" />
+		</liferay-ui:section>
+
+		<liferay-ui:section>
+			<liferay-util:include page="/partials/walkable.jsp" servletContext="<%= application %>" />
 		</liferay-ui:section>
 	</liferay-ui:tabs>
 </div>

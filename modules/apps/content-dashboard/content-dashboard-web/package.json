@@ -4,6 +4,9 @@
 	"jest": {
 		"modulePathIgnorePatterns": [
 			"test/js/mocks/*"
+		],
+		"setupFilesAfterEnv": [
+			"<rootDir>/jest-setup.config.js"
 		]
 	},
 	"name": "content-dashboard-web",
@@ -14,5 +17,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "2.0.51"
+	"version": "2.0.52"
 }

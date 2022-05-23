@@ -58,9 +58,7 @@ definition {
 		Portlet.addPG(portletName = "Asset Publisher");
 
 		var companyId = JSONCompany.getCompanyId();
-
 		var port = Elasticsearch.getServerPort();
-
 		var portalHostname = PropsUtil.get("portal.hostname");
 
 		var curl = '''
@@ -126,6 +124,13 @@ definition {
 			key_searchAssetTitle = "WC WebContent Title",
 			key_searchAssetType = "Web Content Article",
 			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC");
+
+		SearchPortlets.searchEmbedded(searchTerm = "Home");
+
+		VerifyElementPresent(
+			key_searchAssetTitle = "Home",
+			key_searchAssetType = "Page",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE_SPECIFIC");
 	}
 
 	@priority = "5"
@@ -138,7 +143,6 @@ definition {
 			portlet = "Search");
 
 		var clientVersion = Elasticsearch.getClientVersion();
-
 		var serverVersion = Elasticsearch.getServerVersion();
 
 		SearchAdministration.assertEngineVendorAndVersions(
@@ -650,7 +654,6 @@ definition {
 			value1 = "NODES (1)");
 
 		var clientVersion = Elasticsearch.getClientVersion();
-
 		var serverVersion = Elasticsearch.getServerVersion();
 
 		SearchAdministration.assertEngineVendorAndVersions(

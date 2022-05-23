@@ -15,7 +15,9 @@
 package com.liferay.headless.admin.address.internal.graphql.mutation.v1_0;
 
 import com.liferay.headless.admin.address.dto.v1_0.Country;
+import com.liferay.headless.admin.address.dto.v1_0.Region;
 import com.liferay.headless.admin.address.resource.v1_0.CountryResource;
+import com.liferay.headless.admin.address.resource.v1_0.RegionResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.search.Sort;
@@ -51,6 +53,14 @@ public class Mutation {
 
 		_countryResourceComponentServiceObjects =
 			countryResourceComponentServiceObjects;
+	}
+
+	public static void setRegionResourceComponentServiceObjects(
+		ComponentServiceObjects<RegionResource>
+			regionResourceComponentServiceObjects) {
+
+		_regionResourceComponentServiceObjects =
+			regionResourceComponentServiceObjects;
 	}
 
 	@GraphQLField
@@ -98,6 +108,133 @@ public class Mutation {
 			_countryResourceComponentServiceObjects,
 			this::_populateResourceContext,
 			countryResource -> countryResource.deleteCountryBatch(
+				callbackURL, object));
+	}
+
+	@GraphQLField
+	public Country patchCountry(
+			@GraphQLName("countryId") Long countryId,
+			@GraphQLName("country") Country country)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_countryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			countryResource -> countryResource.patchCountry(
+				countryId, country));
+	}
+
+	@GraphQLField
+	public Country updateCountry(
+			@GraphQLName("countryId") Long countryId,
+			@GraphQLName("country") Country country)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_countryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			countryResource -> countryResource.putCountry(countryId, country));
+	}
+
+	@GraphQLField
+	public Response updateCountryBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_countryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			countryResource -> countryResource.putCountryBatch(
+				callbackURL, object));
+	}
+
+	@GraphQLField
+	public Region createCountryRegion(
+			@GraphQLName("countryId") Long countryId,
+			@GraphQLName("region") Region region)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.postCountryRegion(
+				countryId, region));
+	}
+
+	@GraphQLField
+	public Response createCountryRegionBatch(
+			@GraphQLName("countryId") Long countryId,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.postCountryRegionBatch(
+				countryId, callbackURL, object));
+	}
+
+	@GraphQLField
+	public boolean deleteRegion(@GraphQLName("regionId") Long regionId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.deleteRegion(regionId));
+
+		return true;
+	}
+
+	@GraphQLField
+	public Response deleteRegionBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.deleteRegionBatch(
+				callbackURL, object));
+	}
+
+	@GraphQLField
+	public Region patchRegion(
+			@GraphQLName("regionId") Long regionId,
+			@GraphQLName("region") Region region)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.patchRegion(regionId, region));
+	}
+
+	@GraphQLField
+	public Region updateRegion(
+			@GraphQLName("regionId") Long regionId,
+			@GraphQLName("region") Region region)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.putRegion(regionId, region));
+	}
+
+	@GraphQLField
+	public Response updateRegionBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_regionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			regionResource -> regionResource.putRegionBatch(
 				callbackURL, object));
 	}
 
@@ -155,8 +292,26 @@ public class Mutation {
 			_vulcanBatchEngineImportTaskResource);
 	}
 
+	private void _populateResourceContext(RegionResource regionResource)
+		throws Exception {
+
+		regionResource.setContextAcceptLanguage(_acceptLanguage);
+		regionResource.setContextCompany(_company);
+		regionResource.setContextHttpServletRequest(_httpServletRequest);
+		regionResource.setContextHttpServletResponse(_httpServletResponse);
+		regionResource.setContextUriInfo(_uriInfo);
+		regionResource.setContextUser(_user);
+		regionResource.setGroupLocalService(_groupLocalService);
+		regionResource.setRoleLocalService(_roleLocalService);
+
+		regionResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
+	}
+
 	private static ComponentServiceObjects<CountryResource>
 		_countryResourceComponentServiceObjects;
+	private static ComponentServiceObjects<RegionResource>
+		_regionResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;

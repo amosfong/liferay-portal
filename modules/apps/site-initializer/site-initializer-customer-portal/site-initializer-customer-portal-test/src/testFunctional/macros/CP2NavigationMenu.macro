@@ -38,6 +38,10 @@ definition {
 		Click(locator1 = "CP2NavigationMenu#BUTTON_SAVE");
 	}
 
+	macro cancelTeamMembersInvitation {
+		Click(locator1 = "CP2NavigationMenu#INVITE_MEMBERS_CANCEL_BUTTON");
+	}
+
 	macro goToCP2 {
 		Refresh();
 
@@ -46,6 +50,10 @@ definition {
 		Click(
 			key_site = "${site}",
 			locator1 = "ApplicationsMenu#SITE_LINK");
+	}
+
+	macro goToTeamMembers {
+		Click(locator1 = "CP2NavigationMenu#TEAM_MEMBERS");
 	}
 
 	macro openLastIdCreated {

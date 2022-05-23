@@ -1029,6 +1029,7 @@ definition {
 		}
 		else {
 			var fragmentName = StringUtil.replace("${fragmentName}", " ", "-");
+
 			var fragmentName = StringUtil.lowerCase("${fragmentName}");
 		}
 
@@ -1042,10 +1043,14 @@ definition {
 
 	macro clickManagementBar {
 		var elementHeight = selenium.getElementHeight("PageEditor#FRAGMENT_SIDEBAR_BODY");
+
 		var offSetY = 25 * ${elementHeight};
+
 		var offSetY = ${offSetY} / 100;
 		var elementWidth = selenium.getElementWidth("PageEditor#FRAGMENT_SIDEBAR_BODY");
+
 		var offSetX = 0 * ${elementWidth};
+
 		var offSetX = ${offSetX} / 100;
 
 		Click.clickAt(
@@ -1729,28 +1734,28 @@ definition {
 				key_fieldLabel = "Pagination",
 				locator1 = "Select#GENERIC_SELECT_FIELD",
 				value1 = "${pagination}");
+		}
 
-			if ("${displayAllPages}" == "true") {
-				Check.checkNotVisible(
-					checkboxName = "Display All Pages",
-					locator1 = "Checkbox#ANY_CHECKBOX");
-			}
-			else if ("${displayAllPages}" == "false") {
-				Uncheck.uncheckNotVisible(
-					checkboxName = "Display All Pages",
-					locator1 = "Checkbox#ANY_CHECKBOX");
-			}
+		if ("${displayAllPages}" == "true") {
+			Check.checkNotVisible(
+				checkboxName = "Display All Pages",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+		}
+		else if ("${displayAllPages}" == "false") {
+			Uncheck.uncheckNotVisible(
+				checkboxName = "Display All Pages",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+		}
 
-			if ("${displayAllCollectionItems}" == "true") {
-				Check.checkNotVisible(
-					checkboxName = "Display All Collection Items",
-					locator1 = "Checkbox#ANY_CHECKBOX");
-			}
-			else if ("${displayAllCollectionItems}" == "false") {
-				Uncheck.uncheckNotVisible(
-					checkboxName = "Display All Collection Items",
-					locator1 = "Checkbox#ANY_CHECKBOX");
-			}
+		if ("${displayAllCollectionItems}" == "true") {
+			Check.checkNotVisible(
+				checkboxName = "Display All Collection Items",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+		}
+		else if ("${displayAllCollectionItems}" == "false") {
+			Uncheck.uncheckNotVisible(
+				checkboxName = "Display All Collection Items",
+				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 
 		if (isSet(maxNumberOfItemsToDisplay)) {
@@ -2201,7 +2206,7 @@ definition {
 			var content = TestCase.getFileContent(fileName = "${fileName}");
 		}
 
-		Type.typeAceEditorNoError(
+		Type.typeCodeMirrorEditorNoError(
 			locator1 = "Fragment#EDITABLE_HTML_FRAGMENT_FIELD",
 			value1 = "${content}");
 
@@ -3052,13 +3057,31 @@ definition {
 			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL_EXPANDED");
 	}
 
+	macro getCommonStylesClass {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		var class = selenium.getAttribute("xpath=(//div[@aria-label='${fragmentName}'])[${index}]@class");
+
+		var class = StringUtil.extractFirst("${class}", " page-editor__topper");
+
+		var class = StringUtil.extractLast("${class}", "lfr-layout-structure-item-topper-");
+
+		var commonStylesClass = StringUtil.add("lfr-layout-structure-item-", "${class}", "");
+
+		return "${commonStylesClass}";
+	}
+
 	macro getFileSizeOfSelectedImageResolution {
 		var key_resolutionLabel = "File Size";
 
 		WaitForElementPresent(locator1 = "PageEditor#IMAGE_RESOLUTION_LABEL");
 
 		var fileSize = selenium.getText("PageEditor#IMAGE_RESOLUTION_LABEL");
+
 		var fileSize = StringUtil.extractFirst("${fileSize}", ".");
+
 		var fileSize = StringUtil.extractDigits("${fileSize}");
 
 		return "${fileSize}";
@@ -3070,6 +3093,7 @@ definition {
 		WaitForElementPresent(locator1 = "PageEditor#IMAGE_RESOLUTION_LABEL");
 
 		var width = selenium.getText("PageEditor#IMAGE_RESOLUTION_LABEL");
+
 		var width = StringUtil.extractDigits("${width}");
 
 		return "${width}";
@@ -3152,6 +3176,7 @@ definition {
 		}
 		else {
 			var fragmentName = StringUtil.replace("${fragmentName}", " ", "-");
+
 			var fragmentName = StringUtil.lowerCase("${fragmentName}");
 		}
 
@@ -4052,6 +4077,24 @@ definition {
 			locator1 = "Fragment#FRAGMENT_LABEL");
 	}
 
+	macro viewFragmentCommonStyle {
+		var commonStylesClass = PageEditor.getCommonStylesClass(
+			fragmentName = "${fragmentName}",
+			index = "${index}");
+
+		var actualStyleValue = Css.getStyleValue(
+			className = "${commonStylesClass}",
+			id = "layout-common-styles",
+			styleName = "${styleName}");
+
+		if (contains("${actualStyleValue}", "${styleValue}")) {
+			echo("PASSED");
+		}
+		else {
+			TestUtils.fail(message = "FAILED: expected '${styleValue}', actual was '${actualStyleValue}'");
+		}
+	}
+
 	macro viewFragmentEditableImage {
 		if ("${contributed}" == "false") {
 			AssertVisible(
@@ -4082,6 +4125,7 @@ definition {
 		}
 		else {
 			var fragmentName = StringUtil.replace("${fragmentName}", " ", "-");
+
 			var fragmentName = StringUtil.lowerCase("${fragmentName}");
 		}
 

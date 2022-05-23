@@ -15,28 +15,26 @@
 import ClayEmptyState from '@clayui/empty-state';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import classNames from 'classnames';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
-import {StyleBookContext} from './StyleBookContext';
+import {
+	useFrontendTokensValues,
+	useLoading,
+	usePreviewLayout,
+	usePreviewLayoutType,
+	useSetLoading,
+} from './StyleBookContext';
 import {LAYOUT_TYPES} from './constants/layoutTypes';
 
 export default function LayoutPreview() {
+	const frontendTokensValues = useFrontendTokensValues();
+	const loading = useLoading();
+	const previewLayout = usePreviewLayout();
+	const previewLayoutType = usePreviewLayoutType();
+	const setLoading = useSetLoading();
+
 	const iframeRef = useRef();
 	const [iframeLoaded, setIframeLoaded] = useState(false);
-
-	const {
-		frontendTokensValues = {},
-		previewLayout,
-		previewLayoutType,
-		loading,
-		setLoading,
-	} = useContext(StyleBookContext);
 
 	const loadFrontendTokenValues = useCallback(() => {
 		if (iframeLoaded) {
@@ -55,7 +53,7 @@ export default function LayoutPreview() {
 				setLoading(false);
 			}
 		}
-	}, [frontendTokensValues, setLoading, iframeLoaded]);
+	}, [frontendTokensValues, iframeLoaded, setLoading]);
 
 	useEffect(() => {
 		loadFrontendTokenValues();

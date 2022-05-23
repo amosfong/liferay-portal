@@ -3,7 +3,6 @@ definition {
 
 	property osgi.module.configuration.file.names = "com.liferay.object.web.internal.configuration.FFObjectViewConfiguration.config";
 	property osgi.module.configurations = "enabled=&quot;true&quot;";
-	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -119,12 +118,36 @@ definition {
 	}
 
 	@description = "LPS-147792 - Verify it is possible to cancel the rename of a Column Label"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanCancelRenameColumnLabel {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152067",
+			objectName = "CustomObject152067",
+			pluralLabelName = "Custom Objects 152067");
 
-		// TODO LPS-152067 CanCancelRenameColumnLabel pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152067");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		ObjectCustomViews.addColumnsViaUI(
+			columnOption = "Author",
+			viewLabel = "Custom Views");
+
+		ObjectCustomViews.editSpecificColumn(columnName = "Author");
+
+		CreateObject.editLabel(labelName = "Publishing House");
+
+		Button.clickCancel();
+
+		ObjectCustomViews.assertColumnLabelPresent(columnLabel = "Author");
 	}
 
 	@description = "LPS-135394 - Verify it is possible to cancel the creation of a View"
@@ -151,12 +174,38 @@ definition {
 	}
 
 	@description = "LPS-144472 - Verify it is possible to create a Default Sort when there is column (Ascending or Descending)"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanCreateDefaultSort {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152053",
+			objectName = "CustomObject152053",
+			pluralLabelName = "Custom Objects 152053");
 
-		// TODO LPS-152053 CanCreateDefaultSort pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152053");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.markViewAsDefault();
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		ObjectCustomViews.addColumnsViaUI(columnOption = "Author");
+
+		ObjectCustomViews.goToDefaultSortTab();
+
+		ObjectCustomViews.addDefaultSort(
+			columnOption = "Author",
+			sortOption = "Ascending");
+
+		ObjectCustomViews.assertColumnPresentOnDefaultSort(
+			colunmName = "Author",
+			sortingLabel = "Ascending");
 	}
 
 	@description = "LPS-135394 - Verify it is possible to create a View"
@@ -265,12 +314,91 @@ definition {
 	}
 
 	@description = "LPS-144472 - Verify it is possible the user to delete the pre-order column"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanDeletePreOrderColumn {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152057",
+			objectName = "CustomObject152057",
+			pluralLabelName = "Custom Objects 152057");
 
-		// TODO LPS-152057 CanDeletePreOrderColumn pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152057");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		LexiconEntry.gotoAdd();
+
+		Click.clickAtNotVisible(
+			key_columnOption = "Author",
+			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
+
+		ObjectCustomViews.saveColumnsModal();
+
+		Button.clickSave();
+
+		Navigator.openURL();
+
+		JSONRole.addRegularRole(
+			roleKey = "Regular Role",
+			roleTitle = "Regular Role");
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONRole.assignRoleToUser(
+			roleTitle = "Regular Role",
+			userEmailAddress = "userea@liferay.com");
+
+		for (var resourceAction : list "ACCESS_IN_CONTROL_PANEL,VIEW") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceAction}",
+				resourceName = "com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet",
+				roleTitle = "Regular Role");
+		}
+
+		for (var resourceAction : list "DELETE,VIEW") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceAction}",
+				resourceName = "com.liferay.object.model.ObjectDefinition",
+				roleTitle = "Regular Role");
+		}
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152057");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		ObjectCustomViews.assertColumnPresent(colunmName = "Author");
+
+		ObjectCustomViews.deleteSpecificColumn(columnName = "Author");
+
+		ObjectCustomViews.assertColumnNotPresent(colunmName = "Author");
+
+		ObjectCustomViews.assertEmptyStateTextOnViewBuilder(text = "No columns added yet.");
 	}
 
 	@description = "LPS-135394 - Verify it is possible to delete a View"
@@ -385,12 +513,30 @@ definition {
 	}
 
 	@description = "LPS-144472 - Verify it is not is possible to create a Default Sort when there isn't column"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CannotCreateDefaultSortWhenNoColumn {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152054",
+			objectName = "CustomObject152054",
+			pluralLabelName = "Custom Objects 152054");
 
-		// TODO LPS-152054 CannotCreateDefaultSortWhenNoColumn pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152054");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom View 152054");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom View 152054");
+
+		ObjectCustomViews.goToDefaultSortTab();
+
+		ObjectCustomViews.assertNoColumnPresentInDefaultSort();
+
+		AssertElementPresent(
+			key_text = "Save",
+			locator1 = "Button#ANY_DISABLED");
 	}
 
 	@description = "LPS-135394 - Verify the Name is required when creating a View"
@@ -560,12 +706,46 @@ definition {
 	}
 
 	@description = "LPS-144472 - Verify it is possible to search columns to Default Sort"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanSearchColumns {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152062",
+			objectName = "CustomObject152062",
+			pluralLabelName = "Custom Objects 152062");
 
-		// TODO LPS-152062 CanSearchColumns pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152062");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.markViewAsDefault();
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		for (var columnName : list "Author,Creation Date,Modified Date,Workflow Status,ID") {
+			ObjectCustomViews.addColumnsViaUI(columnOption = "${columnName}");
+		}
+
+		ObjectCustomViews.goToDefaultSortTab();
+
+		for (var columnName : list "Author,Creation Date,Modified Date,Workflow Status,ID") {
+			ObjectCustomViews.addDefaultSort(
+				columnOption = "${columnName}",
+				sortOption = "Ascending");
+		}
+
+		for (var columnName : list "Author,Creation Date,Modified Date,Workflow Status,ID") {
+			ObjectCustomViews.searchOnDefaultSort(colunmName = "${columnName}");
+
+			ObjectCustomViews.assertColumnPresentOnDefaultSort(
+				colunmName = "${columnName}",
+				sortingLabel = "Ascending");
+		}
 	}
 
 	@description = "LPS-135394 - Verify it is possible to search for a View"
@@ -612,22 +792,94 @@ definition {
 	}
 
 	@description = "LPS-147792 - Verify that the new column name will be displayed on the entries list"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test CanSeeRenamedColumnNameOnObjectView {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152070",
+			objectName = "CustomObject152070",
+			pluralLabelName = "Custom Objects 152070");
 
-		// TODO LPS-152070 CanSeeRenamedColumnNameOnObjectView pending implementation
+		ObjectAdmin.addObjectFieldViaAPI(
+			fieldBusinessType = "Text",
+			fieldLabelName = "Custom Field 152070",
+			fieldName = "customObjectField152070",
+			fieldType = "String",
+			isRequired = "false",
+			objectName = "CustomObject152070");
 
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152070");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.markViewAsDefault();
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		ObjectCustomViews.addColumnsViaUI(
+			columnOption = "Custom Field 152070",
+			viewLabel = "Custom Views");
+
+		ObjectCustomViews.editSpecificColumn(columnName = "Custom Field 152070");
+
+		CreateObject.editLabel(labelName = "Column Label 152070");
+
+		Button.clickEdit();
+
+		Button.clickSave();
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject152070");
+
+		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+			fieldName = "Custom Field 152070",
+			objectName = "CustomObject152070",
+			value = "Entry Test");
+
+		Navigator.openURL();
+
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject152070");
+
+		ObjectPortlet.assertColumnLabelEntries(columnLabelName = "Column Label 152070");
 	}
 
 	@description = "LPS-147792 - Verify it is possible to see the column label as the alias on the view builder column list"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanSeeRenamedColumnOnViewBuilder {
 		property portal.acceptance = "true";
 
-		// TODO LPS-152068 CanSeeRenamedColumnOnViewBuilder pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152068",
+			objectName = "CustomObject152068",
+			pluralLabelName = "Custom Objects 152068");
 
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152068");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		ObjectCustomViews.addColumnsViaUI(
+			columnOption = "Author",
+			viewLabel = "Custom Views");
+
+		ObjectCustomViews.editSpecificColumn(columnName = "Author");
+
+		CreateObject.editLabel(labelName = "Publishing House");
+
+		Button.clickEdit();
+
+		ObjectCustomViews.assertColumnLabelPresent(columnLabel = "Publishing House");
 	}
 
 	@description = "LPS-144472 - Verify it is possible to sort the column entries as ascending or descending"
@@ -1263,12 +1515,28 @@ definition {
 	}
 
 	@description = "LPS-146028 - Verify that when the user duplicate a view, the Mark As Default option comes inactivated"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test DuplicatedViewIsNotDefault {
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 152052",
+			objectName = "CustomObject152052",
+			pluralLabelName = "Custom Objects 152052");
 
-		// TODO LPS-152052 DuplicatedViewIsNotDefault pending implementation
+		ObjectAdmin.openObjectAdmin();
 
+		ObjectPortlet.selectCustomObject(label = "Custom Object 152052");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom View 152052");
+
+		ObjectCustomViews.duplicateObjectCustomView(viewLabel = "Custom View 152052");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom View 152052 (Copy)");
+
+		AssertNotChecked.assertNotCheckedNotVisible(
+			checkboxName = "Mark as Default",
+			locator1 = "Checkbox#ANY_CHECKBOX");
 	}
 
 	@description = "LPS-135394 - Verify the empty state for the View Builder tab"

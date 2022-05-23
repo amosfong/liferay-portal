@@ -9,7 +9,9 @@
  * distribution rights of the Software.
  */
 
+import i18n from '../../../../common/I18n';
 import {useCustomerPortal} from '../../context';
+import getKebabCase from '../../utils/getKebabCase';
 import SlaCard from '../SlaCard';
 import ProjectSupportSkeleton from './Skeleton';
 
@@ -25,7 +27,7 @@ const ProjectSupport = () => {
 
 				<div className="col-7">
 					<h5 className="mb-4 rounded-sm text-neutral-10">
-						Liferay Contact
+						{i18n.translate('liferay-contact')}
 					</h5>
 
 					{project.liferayContactName && (
@@ -36,7 +38,9 @@ const ProjectSupport = () => {
 
 					{project.liferayContactRole && (
 						<div className="rounded-sm text-neutral-10 text-paragraph">
-							{project.liferayContactRole}
+							{i18n.translate(
+								getKebabCase(project.liferayContactRole)
+							)}
 						</div>
 					)}
 

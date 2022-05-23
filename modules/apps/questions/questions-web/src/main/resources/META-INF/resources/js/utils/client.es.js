@@ -72,6 +72,7 @@ export const createCommentQuery = `
 			creator {
 				name
 			}
+			dateCreated
 			dateModified
 			id
 		}
@@ -402,11 +403,12 @@ export const getMessagesQuery = `
 					postsNumber
 					rank
 				}
+				dateCreated
 				dateModified
 				encodingFormat
 				friendlyUrlPath
 				id
-				messageBoardMessages(flatten: true) {
+				messageBoardMessages(flatten: true, sort: "dateCreated:asc") {
 					items {
 						actions
 						articleBody
@@ -415,9 +417,11 @@ export const getMessagesQuery = `
 							image
 							name
 						}
+						dateCreated
 						dateModified
 						encodingFormat
 						id
+						friendlyUrlPath
 						showAsAnswer
 						status
 					}

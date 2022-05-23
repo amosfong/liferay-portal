@@ -49,12 +49,13 @@ public class ObjectDefinitionLocalServiceUtil {
 			long userId, Map<java.util.Locale, String> labelMap, String name,
 			String panelAppOrder, String panelCategoryKey,
 			Map<java.util.Locale, String> pluralLabelMap, String scope,
+			String storageType,
 			List<com.liferay.object.model.ObjectField> objectFields)
 		throws PortalException {
 
 		return getService().addCustomObjectDefinition(
 			userId, labelMap, name, panelAppOrder, panelCategoryKey,
-			pluralLabelMap, scope, objectFields);
+			pluralLabelMap, scope, storageType, objectFields);
 	}
 
 	/**
@@ -418,6 +419,10 @@ public class ObjectDefinitionLocalServiceUtil {
 
 	public static List<ObjectDefinition> getSystemObjectDefinitions() {
 		return getService().getSystemObjectDefinitions();
+	}
+
+	public static boolean hasObjectRelationship(long objectDefinitionId) {
+		return getService().hasObjectRelationship(objectDefinitionId);
 	}
 
 	public static ObjectDefinition publishCustomObjectDefinition(

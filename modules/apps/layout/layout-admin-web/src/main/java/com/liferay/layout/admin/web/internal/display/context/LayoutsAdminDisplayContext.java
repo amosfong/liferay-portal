@@ -1292,17 +1292,19 @@ public class LayoutsAdminDisplayContext {
 	}
 
 	public boolean hasLayouts() {
-		int privatePagesCount = LayoutServiceUtil.getLayoutsCount(
-			getSelGroupId(), true, 0);
-
-		int publicPagesCount = LayoutServiceUtil.getLayoutsCount(
-			getSelGroupId(), false, 0);
-
-		if ((privatePagesCount + publicPagesCount) > 0) {
-			return true;
+		if (_hasLayouts != null) {
+			return _hasLayouts;
 		}
 
-		return false;
+		boolean hasLayouts = false;
+
+		if ((_getLayoutsCount(true) > 0) || (_getLayoutsCount(false) > 0)) {
+			hasLayouts = true;
+		}
+
+		_hasLayouts = hasLayouts;
+
+		return _hasLayouts;
 	}
 
 	public boolean hasRequiredVocabularies() {
@@ -1408,12 +1410,7 @@ public class LayoutsAdminDisplayContext {
 
 		Boolean privateLayout = false;
 
-		int publicLayoutsCount = LayoutServiceUtil.getLayoutsCount(
-			getSelGroupId(), false, 0);
-		int privateLayoutsCount = LayoutServiceUtil.getLayoutsCount(
-			getSelGroupId(), true, 0);
-
-		if ((privateLayoutsCount > 0) && (publicLayoutsCount <= 0)) {
+		if ((_getLayoutsCount(true) > 0) && (_getLayoutsCount(false) <= 0)) {
 			privateLayout = true;
 		}
 
@@ -1886,6 +1883,28 @@ public class LayoutsAdminDisplayContext {
 		return new long[0];
 	}
 
+	private int _getLayoutsCount(boolean privateLayouts) {
+		try {
+			if (GroupPermissionUtil.contains(
+					themeDisplay.getPermissionChecker(), getSelGroupId(),
+					ActionKeys.MANAGE_LAYOUTS)) {
+
+				return LayoutLocalServiceUtil.getLayoutsCount(
+					getSelGroup(), privateLayouts, 0);
+			}
+
+			return LayoutServiceUtil.getLayoutsCount(
+				getSelGroupId(), privateLayouts, 0);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+		}
+
+		return 0;
+	}
+
 	private String _getOrderByCol() {
 		if (Validator.isNotNull(_orderByCol)) {
 			return _orderByCol;
@@ -1998,6 +2017,7 @@ public class LayoutsAdminDisplayContext {
 	private String _displayStyle;
 	private Boolean _firstColumn;
 	private final GroupDisplayContextHelper _groupDisplayContextHelper;
+	private Boolean _hasLayouts;
 	private String _keywords;
 	private final LayoutConverterRegistry _layoutConverterRegistry;
 	private final LayoutCopyHelper _layoutCopyHelper;

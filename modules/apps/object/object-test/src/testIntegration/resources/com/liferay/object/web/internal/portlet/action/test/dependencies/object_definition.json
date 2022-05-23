@@ -19,6 +19,7 @@
 	"objectActions": [
 		{
 			"active": true,
+			"description": "",
 			"name": "Action",
 			"objectActionExecutorKey": "webhook",
 			"objectActionTriggerKey": "onAfterAdd",
@@ -125,6 +126,18 @@
 				}
 			],
 			"objectViewFilterColumns": [
+				{
+					"objectFieldName": "dateCreated"
+				},
+				{
+					"objectFieldName": "dateModified"
+				},
+				{
+					"filterType": "excludes",
+					"json": "{ \"excludes\": [0, 1]}",
+					"objectFieldName": "status",
+					"valueSummary": "Approved, Pending"
+				}
 			],
 			"objectViewSortColumns": [
 				{

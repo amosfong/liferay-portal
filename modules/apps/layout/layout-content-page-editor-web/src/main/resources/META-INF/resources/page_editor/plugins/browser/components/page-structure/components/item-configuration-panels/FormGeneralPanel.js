@@ -109,7 +109,12 @@ function MappingSource({item, onValueSelect}) {
 			onValueSelect={(_name, formConfig) => {
 				onValueSelect({formConfig});
 			}}
-			value={item.config.formConfig}
+			value={
+				item.config.formConfig === FORM_MAPPING_SOURCES.default &&
+				config.layoutType === LAYOUT_TYPES.display
+					? FORM_MAPPING_SOURCES.displayPage
+					: item.config.formConfig
+			}
 		/>
 	);
 }
@@ -147,12 +152,17 @@ function OtherTypeMapping({item, onValueSelect}) {
 							validValues: availableItemTypes,
 						},
 					}}
-					onValueSelect={(_name, classNameId) =>
-						onValueSelect({
+					onValueSelect={(_name, classNameId) => {
+						const type = availableItemTypes.find(
+							({value}) => value === classNameId
+						);
+
+						return onValueSelect({
 							classNameId,
+							classTypeId: type?.subtypes?.[0].value || '0',
 							formConfig: FORM_MAPPING_SOURCES.otherContentType,
-						})
-					}
+						});
+					}}
 					value={item.config.classNameId}
 				/>
 			)}

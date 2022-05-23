@@ -30,6 +30,8 @@ definition {
 	@description = "LPS-149615 - Verify that user can can go to the 'Manage Users' page."
 	@priority = "5"
 	test CanAcessManageUser {
+		property portal.upstream = "quarantine";
+
 		ApplicationsMenu.gotoSite(site = "Testray 2");
 
 		TestrayLayout.clickUserOnSidebar();
@@ -37,7 +39,7 @@ definition {
 		Click(locator1 = "TestrayUser#MANAGE_ACCOUNT");
 
 		AssertElementPresent(
-			key_projectName = "Project Directory",
+			key_projectName = "Project",
 			locator1 = "TestrayDropdown#PROJECT_NAME_BREADCRUMBS");
 	}
 

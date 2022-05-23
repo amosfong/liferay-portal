@@ -15,13 +15,17 @@
 package com.liferay.portal.language.override.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.language.LanguageResources;
+import com.liferay.portal.language.override.exception.PLOEntryKeyException;
+import com.liferay.portal.language.override.exception.PLOEntryValueException;
 import com.liferay.portal.language.override.model.PLOEntry;
 import com.liferay.portal.language.override.service.PLOEntryLocalService;
 import com.liferay.portal.test.rule.Inject;
@@ -72,6 +76,38 @@ public class PLOEntryLocalServiceTest {
 			RandomTestUtil.randomString());
 
 		_assertTranslationValue(key, ploEntry.getValue());
+	}
+
+	@Test(expected = PLOEntryKeyException.MustBeShorter.class)
+	public void testAddPLOEntryWhenKeyTooLong() throws Exception {
+		int keyMaxLength =
+			ModelHintsUtil.getMaxLength(PLOEntry.class.getName(), "key") + 1;
+
+		_ploEntryLocalService.addOrUpdatePLOEntry(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			RandomTestUtil.randomString(keyMaxLength),
+			LanguageUtil.getLanguageId(LocaleUtil.getDefault()),
+			RandomTestUtil.randomString());
+	}
+
+	@Test(expected = PLOEntryKeyException.MustNotBeNull.class)
+	public void testAddPLOEntryWithEmptyKey() throws Exception {
+		String key = StringPool.BLANK;
+
+		_ploEntryLocalService.addOrUpdatePLOEntry(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(), key,
+			LanguageUtil.getLanguageId(LocaleUtil.getDefault()),
+			RandomTestUtil.randomString());
+	}
+
+	@Test(expected = PLOEntryValueException.MustNotBeNull.class)
+	public void testAddPLOEntryWithEmptyValue() throws Exception {
+		String value = StringPool.BLANK;
+
+		_ploEntryLocalService.addOrUpdatePLOEntry(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			RandomTestUtil.randomString(),
+			LanguageUtil.getLanguageId(LocaleUtil.getDefault()), value);
 	}
 
 	private void _assertTranslationValue(String key, String value) {

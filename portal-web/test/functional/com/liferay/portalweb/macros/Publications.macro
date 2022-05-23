@@ -239,9 +239,7 @@ definition {
 		}
 
 		var publishDateDay = Time.getUTCDay();
-
 		var publishDateMonth = Time.getUTCMonth();
-
 		var publishDateYear = Time.getUTCYear();
 
 		var publishDate = "${publishDateYear}-${publishDateMonth}-${publishDateDay}";
@@ -251,7 +249,6 @@ definition {
 			value1 = "${publishDate}");
 
 		var publishTimeHours = Time.getUTCHours();
-
 		var publishTimeMinutes = Time.getUTCMinutes();
 
 		if ("${utcMinutes}" == "58") {
@@ -364,10 +361,6 @@ definition {
 	}
 
 	macro viewPublicationOrderInHistory {
-		PublicationsNavigator.openPublicationsHistory();
-
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
 		var resultOrder = "0";
 
 		for (var publicationName : list "${publicationList}") {
@@ -399,7 +392,11 @@ definition {
 	macro workOnProduction {
 		Click(locator1 = "Publications#PUBLICATIONS_INDICATOR_BUTTON");
 
-		MenuItem.click(menuItem = "Work on Production");
+		ClickNoError(
+			key_menuItem = "Work on Production",
+			locator1 = "MenuItem#ANY_MENU_ITEM");
+
+		AssertConfirm(value1 = "Any changes made in production will immediately be live. Continue to production?");
 	}
 
 }

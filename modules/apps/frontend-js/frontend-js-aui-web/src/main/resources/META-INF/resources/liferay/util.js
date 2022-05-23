@@ -247,6 +247,9 @@
 			}
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+		 */
 		disableElements(element) {
 			const currentElement = Util.getElement(element);
 
@@ -297,6 +300,9 @@
 			}
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by `toggleDisabled`
+		 */
 		disableToggleBoxes(checkBoxId, toggleBoxId, checkDisabled) {
 			const checkBox = document.getElementById(checkBoxId);
 			const toggleBox = document.getElementById(toggleBoxId);
@@ -483,6 +489,9 @@
 			return Util.listCheckboxesExcept(form, except, name, true);
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by `import {getSelectedOptionValues} from 'frontend-js-web';`
+		 */
 		listSelect(select, delimeter) {
 			select = Util.getElement(select);
 
@@ -503,6 +512,9 @@
 			return Util.listCheckboxesExcept(form, except, name, false);
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by `Liferay.Util.openWindow()`
+		 */
 		openInDialog(event, config) {
 			event.preventDefault();
 
@@ -708,9 +720,6 @@
 
 		submitCountdown: 0,
 
-		/**
-		 * @deprecated As of Cavanaugh (7.4.x), replaced by `form.submit()`
-		 */
 		submitForm(form) {
 			form.submit();
 		},

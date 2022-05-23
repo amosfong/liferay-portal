@@ -33,9 +33,11 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletURLFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -396,6 +398,9 @@ public class AnalyticsReportsProductNavigationControlMenuEntry
 						"analyticsReportsDataURL",
 						_getAnalyticsReportsURL(httpServletRequest))
 				).put(
+					"featureFlag",
+					GetterUtil.getBoolean(_props.get("feature.flag.LPS-149256"))
+				).put(
 					"portletNamespace", _portletNamespace
 				).build(),
 				httpServletRequest, jspWriter);
@@ -436,6 +441,9 @@ public class AnalyticsReportsProductNavigationControlMenuEntry
 
 	@Reference
 	private PortletURLFactory _portletURLFactory;
+
+	@Reference
+	private Props _props;
 
 	@Reference
 	private ReactRenderer _reactRenderer;

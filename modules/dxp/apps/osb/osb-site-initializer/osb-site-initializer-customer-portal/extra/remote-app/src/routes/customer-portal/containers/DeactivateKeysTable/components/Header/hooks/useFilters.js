@@ -230,6 +230,7 @@ export default function useFilters(setFilterTerm, productName) {
 			}
 
 			if (filters.keyType.value.maxNodes) {
+				hasFilterPill = true;
 				filtersKeyType.push(
 					`maxClusterNodes le ${filters.keyType.value.maxNodes}`
 				);
@@ -237,6 +238,7 @@ export default function useFilters(setFilterTerm, productName) {
 			}
 
 			if (filters.keyType.value.minNodes) {
+				hasFilterPill = true;
 				filtersKeyType.push(
 					`maxClusterNodes ge ${filters.keyType.value.minNodes}`
 				);

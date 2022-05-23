@@ -12,10 +12,28 @@ definition {
 			locator1 = "Testray#ITEMS_PER_PAGE_VALUE_BUTTON");
 	}
 
+	macro assertNameTitle {
+		AssertElementPresent(
+			key_title = "${key_name}",
+			locator1 = "Testray#NAME_TITLE");
+	}
+
 	macro assertPageNumber {
 		AssertElementPresent(
 			key_pageNumber = "${pageNumber}",
 			locator1 = "Testray#NUMBER_PAGE_BUTTON");
+	}
+
+	macro assertProjectDescription {
+		AssertElementPresent(
+			key_value = "${value}",
+			locator1 = "Testray#DESCRIPTION_PROJECT");
+	}
+
+	macro assertProjectName {
+		AssertElementPresent(
+			key_projectName = "${key_name}",
+			locator1 = "Testray#PROJECT_NAME_BUTTON");
 	}
 
 	macro assertProjectTitleHeader {
@@ -136,12 +154,6 @@ definition {
 	macro goToProjectPage {
 		Click(
 			key_projectName = "${projectName}",
-			locator1 = "Testray#PROJECT_NAME_BUTTON");
-	}
-
-	macro goToRoutine {
-		Click(
-			key_projectName = "${key_name}",
 			locator1 = "Testray#PROJECT_NAME_BUTTON");
 	}
 

@@ -270,6 +270,14 @@ export default class Blogs {
 		return document.getElementById(`${this._config.namespace}${id}`);
 	}
 
+	_getValuesByName(name) {
+		const nodes = document.querySelectorAll(
+			`input[name=${this._config.namespace + name}]`
+		);
+
+		return [...nodes].map((node) => node.value);
+	}
+
 	_getTempImages() {
 		return this._rootNode.querySelectorAll('img[data-random-id]');
 	}
@@ -359,13 +367,14 @@ export default class Blogs {
 				const allowPingbacks = this._getElementById('allowPingbacks');
 				const allowTrackbacks = this._getElementById('allowTrackbacks');
 
-				const assetTagNames = this._getElementById('assetTagNames');
-
 				const bodyData = addNamespace(
 					{
 						allowPingbacks: allowPingbacks?.value,
 						allowTrackbacks: allowTrackbacks?.value,
-						assetTagNames: assetTagNames?.value || '',
+						assetCategoryIds: this._getValuesByName(
+							'assetCategoryIds'
+						),
+						assetTagNames: this._getValuesByName('assetTagNames'),
 						cmd: constants.ADD,
 						content,
 						coverImageCaption,
@@ -468,14 +477,15 @@ export default class Blogs {
 							saveStatus.classList.add('hide');
 							saveStatus.hidden = true;
 						}
-
+					})
+					.catch(() => {
+						this._updateStatus(strings.saveDraftError);
+					})
+					.finally(() => {
 						Liferay.Util.toggleDisabled(
 							this._getElementById('publishButton'),
 							false
 						);
-					})
-					.catch(() => {
-						this._updateStatus(strings.saveDraftError);
 					});
 			}
 		}

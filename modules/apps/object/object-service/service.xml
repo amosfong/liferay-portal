@@ -22,6 +22,7 @@
 
 		<column name="objectDefinitionId" type="long" />
 		<column name="active" type="boolean" />
+		<column name="description" type="String" />
 		<column name="name" type="String" />
 		<column name="objectActionExecutorKey" type="String" />
 		<column name="objectActionTriggerKey" type="String" />
@@ -68,6 +69,7 @@
 		<column localized="true" name="pluralLabel" type="String" />
 		<column name="portlet" type="boolean" />
 		<column name="scope" type="String" />
+		<column name="storageType" type="String" />
 		<column name="system" type="boolean" />
 		<column name="version" type="int" />
 		<column name="status" type="int" />
@@ -161,7 +163,7 @@
 			<finder-column name="objectDefinitionId" />
 			<finder-column comparator="!=" name="status" />
 		</finder>
-		<finder name="G_C_ERC" return-type="ObjectEntry">
+		<finder name="G_C_ERC" return-type="ObjectEntry" unique="true">
 			<finder-column name="groupId" />
 			<finder-column name="companyId" />
 			<finder-column name="externalReferenceCode" />
@@ -201,6 +203,7 @@
 		<column name="name" type="String" />
 		<column name="relationshipType" type="String" />
 		<column name="required" type="boolean" />
+		<column name="system" type="boolean" />
 
 		<!-- Order -->
 
@@ -223,6 +226,11 @@
 		<finder name="ODI_N" return-type="ObjectDefinition">
 			<finder-column name="objectDefinitionId" />
 			<finder-column name="name" />
+		</finder>
+		<finder name="ODI_DBT_I" return-type="Collection">
+			<finder-column name="objectDefinitionId" />
+			<finder-column name="dbType" />
+			<finder-column name="indexed" />
 		</finder>
 	</entity>
 	<entity local-service="true" name="ObjectFieldSetting" remote-service="false" uuid="true">

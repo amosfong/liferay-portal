@@ -33,6 +33,8 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.fragment.importer.FragmentsImporter;
 import com.liferay.headless.admin.list.type.dto.v1_0.ListTypeDefinition;
 import com.liferay.headless.admin.list.type.dto.v1_0.ListTypeEntry;
@@ -375,6 +377,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			_invoke(() -> _addAccounts(serviceContext));
 			_invoke(() -> _addDDMStructures(serviceContext));
+			_invoke(() -> _addExpandoColumns(serviceContext));
 
 			Map<String, String> assetListEntryIdsStringUtilReplaceValues =
 				_invoke(
@@ -1078,6 +1081,40 @@ public class BundleSiteInitializer implements SiteInitializer {
 		).build();
 	}
 
+	private void _addExpandoColumns(ServiceContext serviceContext)
+		throws Exception {
+
+		String json = SiteInitializerUtil.read(
+			"/site-initializer/expando-columns.json", _servletContext);
+
+		if (json == null) {
+			return;
+		}
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			ExpandoBridge expandoBridge =
+				ExpandoBridgeFactoryUtil.getExpandoBridge(
+					serviceContext.getCompanyId(),
+					jsonObject.getString("modelResource"));
+
+			if (expandoBridge == null) {
+				continue;
+			}
+
+			if (expandoBridge.getAttribute(jsonObject.getString("name")) ==
+					null) {
+
+				expandoBridge.addAttribute(
+					jsonObject.getString("name"),
+					jsonObject.getInt("dataType"));
+			}
+		}
+	}
+
 	private void _addFragmentEntries(
 			Map<String, String> assetListEntryIdsStringUtilReplaceValues,
 			Map<String, String> documentsStringUtilReplaceValues,
@@ -1418,13 +1455,14 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 	}
 
-	private Layout _addLayout(
-			String resourcePath, ServiceContext serviceContext)
+	private Map<String, Layout> _addLayout(
+			long parentLayoutId, String parentResourcePath,
+			ServiceContext serviceContext)
 		throws Exception {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
 			SiteInitializerUtil.read(
-				resourcePath + "page.json", _servletContext));
+				parentResourcePath + "page.json", _servletContext));
 
 		String type = StringUtil.toLowerCase(jsonObject.getString("type"));
 
@@ -1432,10 +1470,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 			type = LayoutConstants.TYPE_PORTLET;
 		}
 
-		return _layoutLocalService.addLayout(
+		Layout layout = _layoutLocalService.addLayout(
 			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-			jsonObject.getBoolean("private"),
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			jsonObject.getBoolean("private"), parentLayoutId,
 			SiteInitializerUtil.toMap(jsonObject.getString("name_i18n")),
 			SiteInitializerUtil.toMap(jsonObject.getString("title_i18n")),
 			SiteInitializerUtil.toMap(jsonObject.getString("description_i18n")),
@@ -1445,6 +1482,34 @@ public class BundleSiteInitializer implements SiteInitializer {
 			jsonObject.getBoolean("system"),
 			SiteInitializerUtil.toMap(jsonObject.getString("friendlyURL_i18n")),
 			serviceContext);
+
+		Map<String, Layout> layouts = HashMapBuilder.put(
+			parentResourcePath, layout
+		).build();
+
+		Set<String> resourcePaths = _servletContext.getResourcePaths(
+			parentResourcePath);
+
+		if (SetUtil.isEmpty(resourcePaths)) {
+			return layouts;
+		}
+
+		Set<String> sortedResourcePaths = new TreeSet<>(
+			new NaturalOrderStringComparator());
+
+		sortedResourcePaths.addAll(resourcePaths);
+
+		resourcePaths = sortedResourcePaths;
+
+		for (String resourcePath : resourcePaths) {
+			if (resourcePath.endsWith("/")) {
+				layouts.putAll(
+					_addLayout(
+						layout.getLayoutId(), resourcePath, serviceContext));
+			}
+		}
+
+		return layouts;
 	}
 
 	private void _addLayoutContent(
@@ -1678,9 +1743,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		for (String resourcePath : resourcePaths) {
 			if (resourcePath.endsWith("/")) {
-				Layout layout = _addLayout(resourcePath, serviceContext);
-
-				layouts.put(resourcePath, layout);
+				layouts.putAll(
+					_addLayout(
+						LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, resourcePath,
+						serviceContext));
 			}
 		}
 
@@ -1932,6 +1998,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 				_objectActionLocalService.addObjectAction(
 					serviceContext.getUserId(), objectDefinition.getId(),
 					jsonObject.getBoolean("active"),
+					jsonObject.getString("description"),
 					jsonObject.getString("name"),
 					jsonObject.getString("objectActionExecutorKey"),
 					jsonObject.getString("objectActionTriggerKey"),

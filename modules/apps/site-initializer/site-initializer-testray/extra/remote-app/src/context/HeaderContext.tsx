@@ -12,7 +12,7 @@
  * details.
  */
 
-import {createContext, useReducer} from 'react';
+import {ReactNode, createContext, useReducer} from 'react';
 
 import i18n from '../i18n';
 import {ActionMap} from '../types';
@@ -48,6 +48,7 @@ type InitialState = {
 	actions: Dropdown;
 	dropdown: Dropdown;
 	heading: HeaderTitle[];
+	symbol: string;
 	tabs: HeaderTabs[];
 };
 
@@ -60,6 +61,7 @@ export const initialState: InitialState = {
 			title: i18n.translate('project-directory'),
 		},
 	],
+	symbol: '',
 	tabs: [],
 };
 
@@ -72,6 +74,7 @@ export enum HeaderTypes {
 	SET_DROPDOWN = 'SET_DROPDOWN',
 	SET_HEADING = 'SET_HEADING',
 	SET_RESET_HEADER = 'SET_RESET_HEADER',
+	SET_SYMBOL = 'SET_SYMBOL',
 	SET_TABS = 'SET_TABS',
 }
 
@@ -80,6 +83,7 @@ export type HeaderActionsPayload = {
 	[HeaderTypes.SET_DROPDOWN]: Dropdown;
 	[HeaderTypes.SET_HEADING]: {append?: boolean; heading: HeaderTitle[]};
 	[HeaderTypes.SET_RESET_HEADER]: null;
+	[HeaderTypes.SET_SYMBOL]: string;
 	[HeaderTypes.SET_TABS]: HeaderTabs[];
 };
 
@@ -123,12 +127,19 @@ const reducer = (state: InitialState, action: AppActions): InitialState => {
 			return initialState;
 		}
 
+		case HeaderTypes.SET_SYMBOL: {
+			return {
+				...state,
+				symbol: action.payload,
+			};
+		}
+
 		default:
 			return state;
 	}
 };
 
-const HeaderContextProvider: React.FC = ({children}) => {
+const HeaderContextProvider: React.FC<{children: ReactNode}> = ({children}) => {
 	const [state, dispatch] = useReducer(reducer, initialState);
 
 	return (

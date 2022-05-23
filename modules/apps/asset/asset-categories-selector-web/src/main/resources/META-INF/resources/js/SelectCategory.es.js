@@ -113,7 +113,7 @@ function OldSelectTree({
 	);
 }
 
-const Tree = Liferay.__FF__.enableClayTreeView ? SelectTree : OldSelectTree;
+const Tree = Liferay.FeatureFlags['LPS-144630'] ? SelectTree : OldSelectTree;
 
 function SelectCategory({
 	addCategoryURL,

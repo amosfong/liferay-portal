@@ -14,10 +14,10 @@
 
 import {Collapse} from '@liferay/layout-content-page-editor-web';
 import PropTypes from 'prop-types';
-import React, {useContext} from 'react';
+import React from 'react';
 
 import {config} from '../style-book-editor/config';
-import {StyleBookContext} from './StyleBookContext';
+import {useFrontendTokensValues, useSaveTokenValue} from './StyleBookContext';
 import {FRONTEND_TOKEN_TYPES} from './constants/frontendTokenTypes';
 import BooleanFrontendToken from './frontend_tokens/BooleanFrontendToken';
 import ColorFrontendToken from './frontend_tokens/ColorFrontendToken';
@@ -55,9 +55,8 @@ const getColorFrontendTokens = (
 };
 
 export default function FrontendTokenSet({frontendTokens, label, open}) {
-	const {frontendTokensValues = {}, setFrontendTokensValues} = useContext(
-		StyleBookContext
-	);
+	const frontendTokensValues = useFrontendTokensValues();
+	const saveTokenValue = useSaveTokenValue();
 
 	const tokenValues = getColorFrontendTokens(
 		config.frontendTokenDefinition,
@@ -72,13 +71,10 @@ export default function FrontendTokenSet({frontendTokens, label, open}) {
 		);
 
 		if (value) {
-			setFrontendTokensValues({
-				...frontendTokensValues,
-				[name]: {
-					cssVariableMapping: cssVariableMapping.value,
-					name: tokenValues[value]?.name,
-					value: tokenValues[value]?.value || value,
-				},
+			saveTokenValue(name, {
+				cssVariableMapping: cssVariableMapping.value,
+				name: tokenValues[value]?.name,
+				value: tokenValues[value]?.value || value,
 			});
 		}
 	};
@@ -144,5 +140,5 @@ FrontendTokenSet.propTypes = {
 			name: PropTypes.string.isRequired,
 		})
 	),
-	name: PropTypes.string.isRequired,
+	name: PropTypes.string,
 };

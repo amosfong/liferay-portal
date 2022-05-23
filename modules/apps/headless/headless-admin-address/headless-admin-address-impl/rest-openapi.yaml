@@ -62,6 +62,7 @@ components:
                     type: boolean
                 countryId:
                     format: int64
+                    readOnly: true
                     type: integer
                 id:
                     format: int64
@@ -85,7 +86,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.address.client', and version '1.0.2'."
+        'com.liferay.headless.admin.address.client', and version '1.0.4'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -264,6 +265,60 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Country"
             tags: ["Country"]
+        patch:
+            operationId: patchCountry
+            parameters:
+                - in: path
+                  name: countryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Country"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Country"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Country"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Country"
+            tags: ["Country"]
+        put:
+            operationId: putCountry
+            parameters:
+                - in: path
+                  name: countryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Country"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Country"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Country"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Country"
+            tags: ["Country"]
     "/countries/{countryId}/regions":
         get:
             operationId: getCountryRegionsPage
@@ -308,6 +363,58 @@ paths:
                                     $ref: "#/components/schemas/Region"
                                 type: array
             tags: ["Region"]
+        post:
+            operationId: postCountryRegion
+            parameters:
+                - in: path
+                  name: countryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+            responses:
+                201:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+            tags: ["Region"]
+    "/countries/{countryId}/regions/by-region-code/{regionCode}":
+        get:
+            operationId: getCountryRegionByRegionCode
+            parameters:
+                - in: path
+                  name: countryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: regionCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+            tags: ["Region"]
     "/regions":
         get:
             operationId: getRegionsPage
@@ -345,4 +452,93 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/Region"
                                 type: array
+            tags: ["Region"]
+    "/regions/{regionId}":
+        delete:
+            operationId: deleteRegion
+            parameters:
+                - in: path
+                  name: regionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Region"]
+        get:
+            operationId: getRegion
+            parameters:
+                - in: path
+                  name: regionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+            tags: ["Region"]
+        patch:
+            operationId: patchRegion
+            parameters:
+                - in: path
+                  name: regionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+            tags: ["Region"]
+        put:
+            operationId: putRegion
+            parameters:
+                - in: path
+                  name: regionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Region"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Region"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Region"
             tags: ["Region"]

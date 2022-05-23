@@ -77,6 +77,7 @@ import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -94,6 +95,8 @@ import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelper;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -104,8 +107,8 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -344,18 +347,19 @@ public class ObjectEntryLocalServiceImpl
 			long groupId, long objectDefinitionId, long primaryKey)
 		throws PortalException {
 
-		ObjectDefinition objectDefinition =
-			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
-
 		List<ObjectRelationship> objectRelationships =
 			_objectRelationshipPersistence.findByObjectDefinitionId1(
 				objectDefinitionId);
 
 		for (ObjectRelationship objectRelationship : objectRelationships) {
+			ObjectDefinition objectDefinition2 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectRelationship.getObjectDefinitionId2());
+
 			ObjectRelatedModelsProvider objectRelatedModelsProvider =
 				_objectRelatedModelsProviderRegistry.
 					getObjectRelatedModelsProvider(
-						objectDefinition.getClassName(),
+						objectDefinition2.getClassName(),
 						objectRelationship.getType());
 
 			objectRelatedModelsProvider.deleteRelatedModel(
@@ -472,6 +476,70 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		return objectEntryPersistence.dslQueryCount(dslQuery);
+	}
+
+	public Map<String, Object> getSystemModelAttributes(
+			ObjectDefinition objectDefinition, long objectEntryId)
+		throws PortalException {
+
+		if (!objectDefinition.isSystem()) {
+			return new HashMap<>();
+		}
+
+		DynamicObjectDefinitionTable dynamicObjectDefinitionTable =
+			_getDynamicObjectDefinitionTable(
+				objectDefinition.getObjectDefinitionId());
+
+		Column<DynamicObjectDefinitionTable, Long> primaryKeyColumn =
+			dynamicObjectDefinitionTable.getPrimaryKeyColumn();
+
+		DSLQuery dslQuery = DSLQueryFactoryUtil.select(
+		).from(
+			dynamicObjectDefinitionTable
+		).where(
+			primaryKeyColumn.eq(objectEntryId)
+		);
+
+		PersistedModelLocalService persistedModelLocalService =
+			_persistedModelLocalServiceRegistry.getPersistedModelLocalService(
+				objectDefinition.getClassName());
+
+		List<BaseModel<?>> baseModels = persistedModelLocalService.dslQuery(
+			dslQuery);
+
+		if (baseModels.isEmpty()) {
+			return new HashMap<>();
+		}
+
+		BaseModel<?> baseModel = baseModels.get(0);
+
+		Map<String, Object> baseModelAttributes =
+			baseModel.getModelAttributes();
+
+		Map<String, Object> modelAttributes =
+			HashMapBuilder.<String, Object>put(
+				"createDate", baseModelAttributes.get("createDate")
+			).put(
+				"externalReferenceCode",
+				baseModelAttributes.get("externalReferenceCode")
+			).put(
+				"modifiedDate", baseModelAttributes.get("modifiedDate")
+			).put(
+				"objectDefinitionId", objectDefinition.getObjectDefinitionId()
+			).put(
+				"uuid", baseModelAttributes.get("uuid")
+			).build();
+
+		for (ObjectField objectField :
+				_objectFieldLocalService.getObjectFields(
+					objectDefinition.getObjectDefinitionId())) {
+
+			modelAttributes.put(
+				objectField.getName(),
+				baseModelAttributes.get(objectField.getDBColumnName()));
+		}
+
+		return modelAttributes;
 	}
 
 	@Override
@@ -921,17 +989,13 @@ public class ObjectEntryLocalServiceImpl
 				continue;
 			}
 
-			if (GetterUtil.getBoolean(
-					PropsUtil.get("feature.flag.LPS-148112"))) {
+			objectFieldSetting = _objectFieldSettingPersistence.fetchByOFI_N(
+				objectField.getObjectFieldId(), "showFilesInDocumentsAndMedia");
 
-				objectFieldSetting =
-					_objectFieldSettingPersistence.fetchByOFI_N(
-						objectField.getObjectFieldId(),
-						"showFilesInDocumentsAndMedia");
+			if ((objectFieldSetting != null) &&
+				GetterUtil.getBoolean(objectFieldSetting.getValue())) {
 
-				if (GetterUtil.getBoolean(objectFieldSetting.getValue())) {
-					continue;
-				}
+				continue;
 			}
 
 			try {
@@ -965,9 +1029,7 @@ public class ObjectEntryLocalServiceImpl
 
 		Long dlFolderId = null;
 
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-148112")) &&
-			showFilesInDocumentsAndMedia) {
-
+		if (showFilesInDocumentsAndMedia) {
 			dlFolderId = _getStorageDLFolderId(
 				companyId, groupId, serviceContext, storageDLFolderPath);
 		}
@@ -1897,7 +1959,6 @@ public class ObjectEntryLocalServiceImpl
 			objectFieldSetting.getValue());
 
 		if (defaultUser &&
-			GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-148112")) &&
 			(_objectConfiguration.maximumFileSizeForGuestUsers() <
 				maximumFileSize)) {
 
@@ -2005,9 +2066,7 @@ public class ObjectEntryLocalServiceImpl
 	private void _validateSubmissionLimit(long objectDefinitionId, User user)
 		throws PortalException {
 
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-148112")) ||
-			!user.isDefaultUser()) {
-
+		if (!user.isDefaultUser()) {
 			return;
 		}
 
@@ -2242,6 +2301,10 @@ public class ObjectEntryLocalServiceImpl
 
 	@Reference
 	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+
+	@Reference
+	private PersistedModelLocalServiceRegistry
+		_persistedModelLocalServiceRegistry;
 
 	@Reference
 	private PortletFileRepository _portletFileRepository;

@@ -16,10 +16,11 @@ import {useQuery} from '@apollo/client';
 import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClayLayout from '@clayui/layout';
-import classNames from 'classnames';
+import {ReactNode} from 'react';
 import {useForm} from 'react-hook-form';
 
 import Input from '../../../components/Input';
+import InputSelect from '../../../components/Input/InputSelect';
 import Container from '../../../components/Layout/Container';
 import MarkdownPreview from '../../../components/Markdown';
 import Modal from '../../../components/Modal';
@@ -58,7 +59,10 @@ const descriptionTypes = Object.values(
 	DescriptionType
 ).map((descriptionType) => ({label: descriptionType, value: descriptionType}));
 
-const FormRow: React.FC<{title: string}> = ({children, title}) => (
+const FormRow: React.FC<{children: ReactNode; title: string}> = ({
+	children,
+	title,
+}) => (
 	<>
 		<ClayLayout.Row justify="start">
 			<ClayLayout.Col size={3} sm={12} xl={3}>
@@ -147,132 +151,70 @@ const CaseModal: React.FC<CaseModalProps> = ({
 			<Container>
 				<ClayForm>
 					<FormRow title={i18n.translate('case-name')}>
-						<ClayForm.Group className="form-group-sm">
-							<Input
-								label={i18n.translate('name')}
-								name="name"
-								{...inputProps}
-							/>
-						</ClayForm.Group>
+						<Input
+							{...inputProps}
+							label={i18n.translate('name')}
+							name="name"
+						/>
 					</FormRow>
 
 					<FormRow title={i18n.translate('details')}>
-						<ClayForm.Group className="form-group-sm">
-							<label
-								className={classNames(
-									'font-weight-normal mx-0 text-paragraph'
-								)}
-								htmlFor="priority"
-							>
-								{i18n.translate('priority')}
-							</label>
+						<InputSelect
+							{...inputProps}
+							label="priority"
+							name="priority"
+							options={priorities}
+							required={false}
+						/>
 
-							<select
-								className="form-control"
-								id="priority"
-								{...register('priority')}
-							>
-								<option>
-									{i18n.translate('choose-an-option')}
-								</option>
+						<InputSelect
+							{...inputProps}
+							label="type"
+							name="type"
+							options={testrayCaseTypes.map(
+								({id: value, name: label}) => ({
+									label,
+									value,
+								})
+							)}
+						/>
 
-								{priorities.map(({label, value}) => (
-									<option key={label} value={value}>
-										{value}
-									</option>
-								))}
-							</select>
+						<InputSelect
+							{...inputProps}
+							label="main-component"
+							name="componentId"
+							options={testrayComponents.map(
+								({id: value, name: label}) => ({
+									label,
+									value,
+								})
+							)}
+						/>
 
-							<label
-								className={classNames(
-									'font-weight-normal mx-0 text-paragraph'
-								)}
-								htmlFor="type"
-							>
-								{i18n.translate('type')}
-							</label>
-
-							<select
-								className="form-control"
-								id="type"
-								{...register('caseTypeId')}
-							>
-								<option>
-									{i18n.translate('choose-an-option')}
-								</option>
-
-								{testrayCaseTypes.map(({id, name}) => (
-									<option key={id} value={id}>
-										{name}
-									</option>
-								))}
-							</select>
-
-							<label
-								className={classNames(
-									'font-weight-normal mx-0 text-paragraph'
-								)}
-								htmlFor="componentId"
-							>
-								{i18n.translate('main-component')}
-							</label>
-
-							<select
-								className="form-control"
-								id="componentId"
-								{...register('componentId')}
-							>
-								<option>
-									{i18n.translate('choose-an-option')}
-								</option>
-
-								{testrayComponents.map(({id, name}) => (
-									<option key={id} value={id}>
-										{name}
-									</option>
-								))}
-							</select>
-
-							<Input
-								label={i18n.translate('enter-the-case-name')}
-								name="estimatedDuration"
-								{...inputProps}
-							/>
-						</ClayForm.Group>
+						<Input
+							{...inputProps}
+							label={i18n.translate('enter-the-case-name')}
+							name="estimatedDuration"
+							required={false}
+						/>
 					</FormRow>
 
 					<FormRow title={i18n.translate('description')}>
 						<ClayForm.Group className="form-group-sm">
-							<label
-								className={classNames(
-									'font-weight-normal mx-0 text-paragraph'
-								)}
-								htmlFor="descriptionType"
-							>
-								{i18n.translate('description-type')}
-							</label>
-
-							<select
-								className="form-control"
-								id="descriptionType"
-								{...register('descriptionType')}
-							>
-								<option>
-									{i18n.translate('choose-an-option')}
-								</option>
-
-								{descriptionTypes.map(({label, value}) => (
-									<option key={label} value={value}>
-										{value}
-									</option>
-								))}
-							</select>
+							<InputSelect
+								{...inputProps}
+								label="description-type"
+								name="descriptionType"
+								options={descriptionTypes}
+								required={false}
+							/>
 
 							<Input
+								{...inputProps}
 								label={i18n.translate('description')}
 								name="description"
+								required={false}
 								type="textarea"
-								{...inputProps}
 							/>
 						</ClayForm.Group>
 
@@ -280,39 +222,21 @@ const CaseModal: React.FC<CaseModalProps> = ({
 					</FormRow>
 
 					<FormRow title={i18n.translate('steps')}>
-						<ClayForm.Group className="form-group-sm">
-							<label
-								className={classNames(
-									'font-weight-normal mx-0 text-paragraph'
-								)}
-								htmlFor="stepsType"
-							>
-								{i18n.translate('steps-type')}
-							</label>
+						<InputSelect
+							{...inputProps}
+							label="steps-type"
+							name="stepsType"
+							options={descriptionTypes}
+							required={false}
+						/>
 
-							<select
-								className="form-control"
-								id="stepsType"
-								{...register('stepsType')}
-							>
-								<option>
-									{i18n.translate('choose-an-option')}
-								</option>
-
-								{descriptionTypes.map(({label, value}) => (
-									<option key={label} value={value}>
-										{value}
-									</option>
-								))}
-							</select>
-
-							<Input
-								label={i18n.translate('steps')}
-								name="steps"
-								type="textarea"
-								{...inputProps}
-							/>
-						</ClayForm.Group>
+						<Input
+							{...inputProps}
+							label={i18n.translate('steps')}
+							name="steps"
+							required={false}
+							type="textarea"
+						/>
 
 						<MarkdownPreview markdown={steps} />
 					</FormRow>

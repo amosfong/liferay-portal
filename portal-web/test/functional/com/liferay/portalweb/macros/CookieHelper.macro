@@ -13,6 +13,7 @@ definition {
                         		}
                         	}
                         	return value;''';
+
 		var cookieValue = selenium.getEval("${javascript}");
 
 		if ("${cookieValue}" != "empty") {
@@ -27,6 +28,7 @@ definition {
 		}
 	}
 
+	@description = "Verifying if all Cookies are saved with true as value"
 	macro checkAllCookieAreAcceptedAndSaved {
 		CookieHelper._checkSelectedCookieValue(
 			cookieName = "CONSENT_TYPE_PERFORMANCE",
@@ -45,6 +47,7 @@ definition {
 			expectedCookieValue = "true");
 	}
 
+	@description = "Verifying if all Cookies are saved with false as value"
 	macro checkAllCookieAreDeclinedAndSaved {
 		CookieHelper._checkSelectedCookieValue(
 			cookieName = "CONSENT_TYPE_PERFORMANCE",
@@ -68,8 +71,8 @@ definition {
 		Variables.assertDefined(parameterList = "${cookieName}");
 
 		var javascriptForTargetDate = '''var targetDate = new Date( Date.now() - 1000 * (60 * 5) ); targetDate.setMonth(targetDate.getMonth() + 6); return targetDate.toISOString().slice(0,13);''';
-		var targetDate = selenium.getEval("${javascriptForTargetDate}");
 
+		var targetDate = selenium.getEval("${javascriptForTargetDate}");
 		var javascriptForCookieExpirationDate = '''var cookieName = "${cookieName}";
 													async function getCookieExpirationDate(){
 													try {
@@ -82,6 +85,7 @@ definition {
 												 }
 
 			return getCookieExpirationDate();''';
+
 		var cookieExpirationDate = selenium.getEval("${javascriptForCookieExpirationDate}");
 
 		if ("${targetDate}" != "${cookieExpirationDate}") {
@@ -102,6 +106,7 @@ definition {
                                 	}
                                 }
                                 return value;''';
+
 		var cookieValue = selenium.getEval("${javascript}");
 
 		if ("${cookieValue}" == "empty") {
@@ -114,6 +119,7 @@ definition {
 		}
 	}
 
+	@description = "Adding site with Cookie Banner Configuration portlet"
 	macro createSitePageWithCookieBannerConfigurationPortlet {
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
@@ -129,16 +135,37 @@ definition {
 			siteName = "Guest");
 	}
 
+	@description = "Delete all cookies and Refresh page"
 	macro deleteAllCookiesAndRefreshPage {
 		var javascript = '''var allCookies = document.cookie.split(';');
     							for (var i = 0; i < allCookies.length; i++)
     								document.cookie = allCookies[i] + "=;expires="
     								+ new Date(0).toUTCString();''';
+
 		var deleted = selenium.getEval("${javascript}");
 
 		echo("${deleted}");
 
 		Refresh();
+	}
+
+	@description = "Navigate to home page"
+	macro siteVisit {
+		if (isSet(virtualHostsURL)) {
+			Navigator.openSpecificURL(
+				domain = "${domain}",
+				url = "${virtualHostsURL}");
+		}
+		else {
+			Navigator.openURL();
+		}
+	}
+
+	@description = "Verify if Policy Page is visible"
+	macro verifyPolicyPageIsVisible {
+		Variables.assertDefined(parameterList = "${policyLink}");
+
+		AssertElementPresent(locator1 = "//h2[contains(.,'Type Facet')]");
 	}
 
 }

@@ -257,6 +257,37 @@ public class ResourceOpenAPIParser {
 		return sb.toString();
 	}
 
+	public static boolean hasResourceBatchJavaMethodSignatures(
+		List<JavaMethodSignature> javaMethodSignatures) {
+
+		for (JavaMethodSignature javaMethodSignature : javaMethodSignatures) {
+			String methodName = javaMethodSignature.getMethodName();
+
+			if (methodName.endsWith("Batch")) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean hasResourceGetPageJavaMethodSignature(
+		String javaDataType, List<JavaMethodSignature> javaMethodSignatures) {
+
+		String pageJavaDataType = StringBundler.concat(
+			Page.class.getName(), "<", javaDataType, ">");
+
+		for (JavaMethodSignature javaMethodSignature : javaMethodSignatures) {
+			if (StringUtil.equals(
+					pageJavaDataType, javaMethodSignature.getReturnType())) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static void _addBatchJavaMethodSignature(
 		JavaMethodSignature javaMethodSignature,
 		List<JavaMethodSignature> javaMethodSignatures) {
@@ -882,13 +913,22 @@ public class ResourceOpenAPIParser {
 	private static String _getParentSchema(
 		String path, Map<String, PathItem> pathItems, String schemaName) {
 
-		int lastIndexOfSlash = path.lastIndexOf("/");
+		String basePath = path;
+
+		if (basePath.endsWith(
+				"/by-external-reference-code/{externalReferenceCode}")) {
+
+			basePath = StringUtil.removeLast(
+				path, "/by-external-reference-code/{externalReferenceCode}");
+		}
+
+		int lastIndexOfSlash = basePath.lastIndexOf("/");
 
 		if (lastIndexOfSlash < 1) {
 			return null;
 		}
 
-		String basePath = path.substring(0, lastIndexOfSlash);
+		basePath = basePath.substring(0, lastIndexOfSlash);
 
 		if (basePath.equals("/asset-libraries/{assetLibraryId}")) {
 			return "AssetLibrary";

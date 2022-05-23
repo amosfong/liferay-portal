@@ -13,11 +13,13 @@
  */
 
 import ClayTabs from '@clayui/tabs';
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {Outlet, useNavigate} from 'react-router-dom';
 
-import CompareRuns from '.';
+import CompareRunDetails from '.';
 import Container from '../../components/Layout/Container';
+import client from '../../graphql/apolloClient';
+import {TestrayRun, getRun} from '../../graphql/queries/testrayRun';
 import useHeader from '../../hooks/useHeader';
 import i18n from '../../i18n';
 import useCompareRuns from './useCompareRuns';
@@ -25,9 +27,31 @@ import useCompareRuns from './useCompareRuns';
 const COMPARE_RUNS_ROOT_PATH = '/compare-runs';
 
 const CompareRunsOutlet: React.FC = () => {
-	const {setHeading, setTabs} = useHeader();
-	const {comparableTabs, currentTab} = useCompareRuns();
 	const navigate = useNavigate();
+	const {setDropdownIcon, setHeading, setTabs} = useHeader();
+	const {comparableTabs, currentTab} = useCompareRuns();
+
+	const [runs, setRuns] = useState<TestrayRun[]>([]);
+
+	const searchParams = new URLSearchParams(window.location.search);
+	const runA = searchParams.get('runA');
+	const runB = searchParams.get('runB');
+
+	useEffect(() => {
+		const title = runs[0]?.build?.project?.name;
+
+		if (title) {
+			setTimeout(() => {
+				setHeading([
+					{
+						category: i18n.translate('project'),
+						title,
+					},
+				]);
+			});
+		}
+		setDropdownIcon('drop');
+	}, [runs, setDropdownIcon, setHeading]);
 
 	useEffect(() => {
 		setTimeout(() => {
@@ -40,11 +64,28 @@ const CompareRunsOutlet: React.FC = () => {
 		});
 
 		setTabs([]);
-	}, [setHeading, setTabs]);
+	}, [runs, setHeading, setTabs]);
+
+	useEffect(() => {
+		if (runA && runB) {
+			Promise.allSettled([
+				client.query({query: getRun, variables: {runId: runA}}),
+				client.query({query: getRun, variables: {runId: runB}}),
+			])
+				.then((runs) =>
+					runs.map((run) =>
+						run.status === 'fulfilled'
+							? run.value.data.run
+							: run.reason
+					)
+				)
+				.then(setRuns);
+		}
+	}, [runA, runB]);
 
 	return (
 		<>
-			<CompareRuns />
+			<CompareRunDetails runs={runs} />
 
 			<Container className="mt-3">
 				<ClayTabs className="header-container-tabs">

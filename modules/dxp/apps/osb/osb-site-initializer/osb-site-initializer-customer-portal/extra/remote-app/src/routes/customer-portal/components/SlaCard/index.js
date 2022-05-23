@@ -12,9 +12,11 @@
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import {useEffect, useState} from 'react';
+import i18n from '../../../../common/I18n';
 import {FORMAT_DATE} from '../../../../common/utils/constants/slaCardDate';
 import {SLA_CARD_NAMES} from '../../../../common/utils/constants/slaCardNames';
 import getDateCustomFormat from '../../utils/getDateCustomFormat';
+import getKebabCase from '../../utils/getKebabCase';
 import SlaCardLayout from './Layout';
 
 const SlaCard = ({project}) => {
@@ -39,44 +41,26 @@ const SlaCard = ({project}) => {
 
 		const slaRawData = {
 			current: {
-				dateEnd: getDateCustomFormat(
-					slaCurrentEndDate,
-					FORMAT_DATE,
-					'en-US'
-				),
+				dateEnd: getDateCustomFormat(slaCurrentEndDate, FORMAT_DATE),
 				dateStart: getDateCustomFormat(
 					slaCurrentStartDate,
-					FORMAT_DATE,
-					'en-US'
+					FORMAT_DATE
 				),
 				label: SLA_CARD_NAMES.current,
 				title: slaCurrent?.split(' ')[0],
 			},
 			expired: {
-				dateEnd: getDateCustomFormat(
-					slaExpiredEndDate,
-					FORMAT_DATE,
-					'en-US'
-				),
+				dateEnd: getDateCustomFormat(slaExpiredEndDate, FORMAT_DATE),
 				dateStart: getDateCustomFormat(
 					slaExpiredStartDate,
-					FORMAT_DATE,
-					'en-US'
+					FORMAT_DATE
 				),
 				label: SLA_CARD_NAMES.expired,
 				title: slaExpired?.split(' ')[0],
 			},
 			future: {
-				dateEnd: getDateCustomFormat(
-					slaFutureEndDate,
-					FORMAT_DATE,
-					'en-US'
-				),
-				dateStart: getDateCustomFormat(
-					slaFutureStartDate,
-					FORMAT_DATE,
-					'en-US'
-				),
+				dateEnd: getDateCustomFormat(slaFutureEndDate, FORMAT_DATE),
+				dateStart: getDateCustomFormat(slaFutureStartDate, FORMAT_DATE),
 				label: SLA_CARD_NAMES.future,
 				title: slaFuture?.split(' ')[0],
 			},
@@ -130,7 +114,7 @@ const SlaCard = ({project}) => {
 
 	return (
 		<div className="cp-sla-container position-absolute">
-			<h5 className="mb-4">Support Level</h5>
+			<h5 className="mb-4">{i18n.translate('support-level')}</h5>
 
 			{slaData?.length ? (
 				<div>
@@ -153,8 +137,12 @@ const SlaCard = ({project}) => {
 									key={sla.title}
 									slaDateEnd={sla.dateEnd}
 									slaDateStart={sla.dateStart}
-									slaLabel={sla.label}
-									slaSelected={slaSelected}
+									slaLabel={i18n.translate(
+										getKebabCase(sla.label)
+									)}
+									slaSelected={i18n.translate(
+										getKebabCase(slaSelected)
+									)}
 									slaTitle={sla.title}
 								/>
 							))}
@@ -173,8 +161,9 @@ const SlaCard = ({project}) => {
 			) : (
 				<div className="bg-neutral-1 cp-n-sla-card rounded-lg">
 					<p className="px-3 py-2 text-neutral-7 text-paragraph-sm">
-						The project&apos;s Support Level is displayed here for
-						projects with ticketing support.
+						{i18n.translate(
+							"the-project's-support-level-is-displayed-here-for-projects-with-ticketing-support"
+						)}
 					</p>
 				</div>
 			)}

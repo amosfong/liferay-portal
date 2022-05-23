@@ -202,33 +202,45 @@ definition {
 	}
 
 	macro reviewOrder {
-		Click(
-			key_orderAuthor = "${orderAuthor}",
-			locator1 = "CommerceAccelerators#ORDERS_ENTRY_VIEW_BUTTON");
+		if (IsElementPresent(key_orderAuthor = "${orderAuthor}", locator1 = "CommerceAccelerators#ORDERS_ENTRY_VIEW_BUTTON")) {
+			Click(
+				key_orderAuthor = "${orderAuthor}",
+				locator1 = "CommerceAccelerators#ORDERS_ENTRY_VIEW_BUTTON");
+		}
+
+		WaitForElementPresent(
+			key_productName = "${productName}",
+			locator1 = "CommerceAccelerators#ORDER_DETAILS_SKU");
 
 		AssertTextEquals(
+			key_productName = "${productName}",
 			locator1 = "CommerceAccelerators#ORDER_DETAILS_SKU",
 			value1 = "${productSku}");
 
 		AssertTextEquals(
+			key_productName = "${productName}",
 			locator1 = "CommerceAccelerators#ORDER_DETAILS_NAME",
 			value1 = "${productName}");
 
 		AssertTextEquals(
+			key_productName = "${productName}",
 			locator1 = "CommerceAccelerators#ORDER_DETAILS_UNIT_PRICE",
 			value1 = "$ ${productUnitPrice}");
 
 		if (isSet(productDiscount)) {
 			AssertTextEquals(
+				key_productName = "${productName}",
 				locator1 = "CommerceAccelerators#ORDER_DETAILS_DISCOUNT",
 				value1 = "$ ${productDiscount}");
 		}
 
 		AssertTextEquals(
+			key_productName = "${productName}",
 			locator1 = "CommerceAccelerators#ORDER_DETAILS_QUANTITY",
 			value1 = "${productQuantity}");
 
 		AssertTextEquals(
+			key_productName = "${productName}",
 			locator1 = "CommerceAccelerators#ORDER_DETAILS_PRICE",
 			value1 = "$ ${productPrice}");
 	}

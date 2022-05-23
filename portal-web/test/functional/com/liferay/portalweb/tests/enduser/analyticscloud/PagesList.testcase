@@ -46,6 +46,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8336 | Test Summary: Search for a Page in Pages list"
 	@priority = "5"
 	test CanSearchPageInPagesList {
+		property analytics.cloud.upstream = "false";
+
 		task ("Add pages") {
 			for (var layoutName : list "AC Page 2,AC Page 3") {
 				ACUtils.addPage(layoutName = "${layoutName}");
@@ -117,6 +119,7 @@ definition {
 
 		task ("Search the Pages") {
 			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
+
 			var pageNameList = "AC Page - Site Name - ${dataSourceName},AC Page 2 - Site Name - ${dataSourceName},AC Page 3 - Site Name - ${dataSourceName}";
 
 			ACUtils.searchBar(searchItem = "AC Page");
@@ -309,6 +312,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8111 | Test Summary: Assert the pages list shows a list of pages"
 	@priority = "5"
 	test ShowsListOfPages {
+		property analytics.cloud.upstream = "false";
+
 		task ("Add pages") {
 			for (var layoutName : list "AC Page 2,AC Page 3") {
 				ACUtils.addPage(layoutName = "${layoutName}");
@@ -376,6 +381,7 @@ definition {
 
 		task ("Assert that the page list is beeing showed") {
 			var dataSourceName = StringUtil.extractFirst("${assignedPropertyName}", " ");
+
 			var pageNameList = "AC Page - Site Name - ${dataSourceName},AC Page 2 - Site Name - ${dataSourceName},AC Page 3 - Site Name - ${dataSourceName}";
 
 			ACUtils.viewNameList(nameList = "${pageNameList}");

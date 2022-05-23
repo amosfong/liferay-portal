@@ -219,7 +219,7 @@ public class ObjectDefinitionsValidationsDisplayContext
 	private enum DDMExpressionFunction {
 
 		COMPARE_DATES("compareDates(field_name, parameter)", "compare-dates"),
-		CONCAT("concat(parameters)", "concat"),
+		CONCAT("concat(parameter1, parameter2, parameterN)", "concat"),
 		CONDITION("condition(condition, parameter1, parameter2)", "condition"),
 		CONTAINS("contains(field_name, parameter)", "contains"),
 		DOES_NOT_CONTAIN(
@@ -238,13 +238,13 @@ public class ObjectDefinitionsValidationsDisplayContext
 		IS_LESS_THAN_OR_EQUAL_TO(
 			"field_name <= parameter", "is-less-than-or-equal-to"),
 		IS_NOT_EQUAL_TO("field_name != parameter", "is-not-equal-to"),
-		MATCHES("match(field_name, parameter)", "matches"),
+		MATCH("match(field_name, parameter)", "match"),
 		PAST_DATES("pastDates(field_name, parameter)", "past-dates"),
 		RANGE(
 			"futureDates(field_name, parameter) AND pastDates(" +
 				"field_name, parameter)",
 			"range"),
-		SUM("sum(parameter)", "sum");
+		SUM("sum(parameter1, parameter2, parameterN)", "sum");
 
 		public static List<HashMap<String, String>> getItems(Locale locale) {
 			List<HashMap<String, String>> values = new ArrayList<>();

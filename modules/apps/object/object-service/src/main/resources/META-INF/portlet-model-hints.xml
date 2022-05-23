@@ -12,6 +12,7 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="objectDefinitionId" type="long" />
 		<field name="active" type="boolean" />
+		<field name="description" type="String" />
 		<field name="name" type="String" />
 		<field name="objectActionExecutorKey" type="String" />
 		<field name="objectActionTriggerKey" type="String" />
@@ -48,6 +49,7 @@
 		</field>
 		<field name="portlet" type="boolean" />
 		<field name="scope" type="String" />
+		<field name="storageType" type="String" />
 		<field name="system" type="boolean" />
 		<field name="version" type="int" />
 		<field name="status" type="int" />
@@ -92,6 +94,7 @@
 		<field name="name" type="String" />
 		<field name="relationshipType" type="String" />
 		<field name="required" type="boolean" />
+		<field name="system" type="boolean" />
 	</model>
 	<model name="com.liferay.object.model.ObjectFieldSetting">
 		<field name="mvccVersion" type="long" />

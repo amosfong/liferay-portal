@@ -23,15 +23,24 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Gabriel Albuquerque
  */
+@ProviderType
 public interface ObjectEntryManager {
 
 	public ObjectEntry addObjectEntry(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 			String scopeKey)
+		throws Exception;
+
+	public ObjectEntry addObjectRelationshipMappingTableValues(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition, String objectRelationshipName,
+			long primaryKey1, long primaryKey2)
 		throws Exception;
 
 	public ObjectEntry addOrUpdateObjectEntry(

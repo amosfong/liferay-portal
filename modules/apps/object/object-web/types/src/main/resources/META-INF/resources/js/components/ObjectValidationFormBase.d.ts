@@ -12,34 +12,22 @@
  * details.
  */
 
-import React from 'react';
+/// <reference types="react" />
+
 import {FormError} from '../hooks/useForm';
-export default function ObjectValidationFormBase({
-	disabled,
-	objectValidationTypeLabel,
-	setValues,
-	values,
-}: IProps): JSX.Element;
 export declare function useObjectValidationForm({
 	initialValues,
 	onSubmit,
 }: IUseObjectValidationForm): {
 	errors: FormError<ObjectValidation>;
-	handleChange: React.ChangeEventHandler<HTMLInputElement>;
-	handleSubmit: React.FormEventHandler<HTMLFormElement>;
+	handleChange: import('react').ChangeEventHandler<HTMLInputElement>;
+	handleSubmit: import('react').FormEventHandler<HTMLFormElement>;
 	setValues: (values: Partial<ObjectValidation>) => void;
 	values: Partial<ObjectValidation>;
 };
 interface IUseObjectValidationForm {
 	initialValues: Partial<ObjectValidation>;
 	onSubmit: (validation: ObjectValidation) => void;
-}
-interface IProps {
-	disabled: boolean;
-	errors: ObjectValidationErrors;
-	objectValidationTypeLabel: string;
-	setValues: (values: Partial<ObjectValidation>) => void;
-	values: Partial<ObjectValidation>;
 }
 export declare type ObjectValidationErrors = FormError<ObjectValidation>;
 export {};

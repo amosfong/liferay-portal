@@ -29,10 +29,8 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -65,11 +63,6 @@ public class AttachmentObjectFieldBusinessType
 
 	@Override
 	public Set<String> getAllowedObjectFieldSettingsNames() {
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-148112"))) {
-			return ObjectFieldBusinessType.super.
-				getAllowedObjectFieldSettingsNames();
-		}
-
 		return SetUtil.fromArray(
 			"showFilesInDocumentsAndMedia", "storageDLFolderPath");
 	}
@@ -164,23 +157,11 @@ public class AttachmentObjectFieldBusinessType
 		throws PortalException {
 
 		if (Objects.equals(fileSource, "documentsAndMedia")) {
-			if (!GetterUtil.getBoolean(
-					PropsUtil.get("feature.flag.LPS-148112"))) {
-
-				return;
-			}
-
 			_validateObjectFieldSettingFileSourceDocumentsAndMedia(
 				objectFieldName, showFilesInDocumentsAndMedia,
 				storageDLFolderPath);
 		}
 		else if (Objects.equals(fileSource, "userComputer")) {
-			if (!GetterUtil.getBoolean(
-					PropsUtil.get("feature.flag.LPS-148112"))) {
-
-				return;
-			}
-
 			_validateObjectFieldSettingFileSourceUserComputer(
 				objectFieldName, showFilesInDocumentsAndMedia,
 				storageDLFolderPath);
@@ -218,7 +199,8 @@ public class AttachmentObjectFieldBusinessType
 			String storageDLFolderPath)
 		throws PortalException {
 
-		if (StringUtil.equalsIgnoreCase(
+		if (Validator.isNull(showFilesInDocumentsAndMedia) ||
+			StringUtil.equalsIgnoreCase(
 				showFilesInDocumentsAndMedia, StringPool.FALSE)) {
 
 			if (Validator.isNotNull(storageDLFolderPath)) {
@@ -243,11 +225,6 @@ public class AttachmentObjectFieldBusinessType
 
 				DLValidatorUtil.validateDirectoryName(directoryName);
 			}
-		}
-		else if (Validator.isNull(showFilesInDocumentsAndMedia)) {
-			throw new ObjectFieldSettingValueException.MissingRequiredValues(
-				objectFieldName,
-				Collections.singleton("showFilesInDocumentsAndMedia"));
 		}
 		else {
 			throw new ObjectFieldSettingValueException.InvalidValue(

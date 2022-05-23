@@ -19,6 +19,8 @@ components:
                     format: date
                     readOnly: true
                     type: string
+                description:
+                    type: string
                 id:
                     format: int64
                     readOnly: true
@@ -97,6 +99,8 @@ components:
                 status:
                     $ref: "#/components/schemas/Status"
                     readOnly: true
+                storageType:
+                    type: string
                 system:
                     readOnly: true
                     type: boolean
@@ -414,6 +418,9 @@ components:
                     type: string
                 objectFieldName:
                     type: string
+                valueSummary:
+                    readOnly: true
+                    type: string
         ObjectViewSortColumn:
             properties:
                 id:
@@ -442,7 +449,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.object.admin.rest.client', and version '1.0.23'."
+        'com.liferay.object.admin.rest.client', and version '1.0.24'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

@@ -8,9 +8,10 @@
  * permissions and limitations under the License, including but not limited to
  * distribution rights of the Software.
  */
+import il8n from '../../../../common/I18n';
 
 export const SUBSCRIPTIONS_STATUS = {
-	active: 'Active',
-	expired: 'Expired',
-	future: 'Future',
+	active: il8n.translate('active'),
+	expired: il8n.translate('expired'),
+	future: il8n.translate('future'),
 };

@@ -6,6 +6,7 @@ definition {
 		var buildNumberCurl = '''
 				${portalURL}/api/jsonws/portal/get-build-number -H 'Authorization: Bearer ${accessToken}'
 			''';
+
 		var buildNumberOutput = JSONCurlUtil.post("${buildNumberCurl}");
 
 		if (!(contains("${buildNumberOutput}", "${portalBuild}"))) {
@@ -19,6 +20,7 @@ definition {
 		var portalVersionCurl = '''
 			${portalURL}/api/jsonws/portal/get-version -H 'Authorization: Bearer ${accessToken}'
 		''';
+
 		var portalVersionOutput = JSONCurlUtil.post("${portalVersionCurl}");
 
 		if (!(contains("${portalVersionOutput}", "${portalVersion}"))) {
@@ -170,6 +172,7 @@ definition {
 
 	macro getConfigFileContent {
 		var liferayHome = PropsUtil.get("liferay.home.dir.name");
+
 		var fileContent = FileUtil.read("${liferayHome}/osgi/configs/${configFileName}");
 
 		return "${fileContent}";
@@ -202,7 +205,7 @@ definition {
 
 		var output = JSONCurlUtil.post("${curl}");
 
-		if (contains("${output}", ""agreedToTermsOfUse":true") && contains("${output}", ""companyId":"${companyId}"")) {
+		if (contains("${output}", "\"agreedToTermsOfUse\":true") && contains("${output}", "\"companyId\":\"${companyId}\"")) {
 			echo("Get current user successful.");
 		}
 		else {
@@ -301,6 +304,13 @@ definition {
 			key_configurationName = "${configurationName}",
 			key_configurationScope = "${configurationScope}",
 			locator1 = "SystemSettings#SCOPED_CONFIGURATION_NAME");
+	}
+
+	macro viewInputText {
+		AssertTextEquals(
+			key_fieldLabel = "${fieldLabel}",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "${fieldValue}");
 	}
 
 	macro viewSettingsText {

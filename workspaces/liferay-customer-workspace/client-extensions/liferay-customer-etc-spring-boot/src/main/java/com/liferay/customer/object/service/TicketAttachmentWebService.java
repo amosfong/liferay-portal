@@ -83,6 +83,40 @@ public class TicketAttachmentWebService {
 		return new TicketAttachment(jsonObject);
 	}
 
+	public TicketAttachment approveTicketAttachment(
+			Jwt jwt, long ticketAttachmentId)
+		throws Exception {
+
+		JSONObject requestJSONObject = new JSONObject();
+
+		JSONObject statusJSONObject = new JSONObject();
+
+		statusJSONObject.put("code", TicketAttachment.STATUS_APPROVED);
+
+		requestJSONObject.put("status", statusJSONObject);
+
+		JSONObject jsonObject = new JSONObject(
+			WebClient.create(
+				_lxcDXPServerProtocol + "://" + _lxcDXPMainDomain
+			).patch(
+			).uri(
+				"/o/c/ticketattachments/" + ticketAttachmentId
+			).accept(
+				MediaType.APPLICATION_JSON
+			).contentType(
+				MediaType.APPLICATION_JSON
+			).header(
+				HttpHeaders.AUTHORIZATION, "Bearer " + jwt.getTokenValue()
+			).body(
+				BodyInserters.fromValue(requestJSONObject.toString())
+			).retrieve(
+			).bodyToMono(
+				String.class
+			).block());
+
+		return new TicketAttachment(jsonObject);
+	}
+
 	public void deleteTicketAttachment(Jwt jwt, long ticketAttachmentId)
 		throws Exception {
 

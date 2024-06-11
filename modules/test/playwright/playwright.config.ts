@@ -40,6 +40,7 @@ import {config as messageBoardsConfig} from './tests/message-boards-web/config';
 import {config as notificationWebConfig} from './tests/notification-web/config';
 import {config as objectWebConfig} from './tests/object-web/config';
 import {config as osbFaroWebConfig} from './tests/osb-faro-web/config';
+import {config as osbSiteInitializerCustomerPortalConfig} from './tests/osb-site-initializer-customer-portal/config';
 import {config as portalDefaultPermissionsWebConfig} from './tests/portal-default-permissions-web/config';
 import {config as portalSearchAdminWebConfig} from './tests/portal-search-admin-web/config';
 import {config as portalSearchWebConfig} from './tests/portal-search-web/config';
@@ -98,6 +99,7 @@ export default defineConfig({
 		notificationWebConfig,
 		objectWebConfig,
 		osbFaroWebConfig,
+		osbSiteInitializerCustomerPortalConfig,
 		portalDefaultPermissionsWebConfig,
 		portalSearchAdminWebConfig,
 		portalSearchWebConfig,

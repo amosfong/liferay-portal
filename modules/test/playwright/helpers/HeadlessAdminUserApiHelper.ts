@@ -139,6 +139,12 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
+	async getAccountByExternalReferenceCode(externalReferenceCode: string) {
+		return this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/by-external-reference-code/${externalReferenceCode}`
+		);
+	}
+
 	async getSiteByFriendlyUrlPath(friendlyUrlPath: string) {
 		return this.apiHelpers.get(
 			`${this.apiHelpers.baseUrl}${this.basePath}/sites/by-friendly-url-path/${friendlyUrlPath}`

@@ -24,6 +24,7 @@ import {HeadlessCommerceAdminPricingApiHelper} from './HeadlessCommerceAdminPric
 import {HeadlessCommerceDeliveryCartApiHelper} from './HeadlessCommerceDeliveryCartApiHelper';
 import {HeadlessCommerceDeliveryCatalogApiHelper} from './HeadlessCommerceDeliveryCatalogApiHelper';
 import {HeadlessDeliveryApiHelper} from './HeadlessDeliveryApiHelper';
+import {HeadlessPortalInstancesApiHelper} from './HeadlessPortalInstancesApiHelper';
 import {HeadlessSiteApiHelper} from './HeadlessSiteApiHelper';
 import {ListTypeAdminApiHelper} from './ListTypeAdminApiHelper';
 import {NotificationApiHelper} from './NotificationApiHelper';
@@ -73,6 +74,7 @@ export class ApiHelpers {
 	readonly headlessCommerceDeliveryCatalog: HeadlessCommerceDeliveryCatalogApiHelper;
 	readonly headlessCommerceDeliveryCart: HeadlessCommerceDeliveryCartApiHelper;
 	readonly headlessDelivery: HeadlessDeliveryApiHelper;
+	readonly headlessPortalInstances: HeadlessPortalInstancesApiHelper;
 	readonly headlessSite: HeadlessSiteApiHelper;
 	readonly jsonWebServicesAnnouncementsEntryApiHelper: JSONWebServicesAnnouncementsEntryApiHelper;
 	readonly jsonWebServicesClassName: JSONWebServicesClassNameApiHelper;
@@ -124,6 +126,7 @@ export class ApiHelpers {
 		this.headlessCommerceDeliveryCart =
 			new HeadlessCommerceDeliveryCartApiHelper(this);
 		this.headlessDelivery = new HeadlessDeliveryApiHelper(this);
+		this.headlessPortalInstances = new HeadlessPortalInstancesApiHelper(this);
 		this.headlessSite = new HeadlessSiteApiHelper(this);
 		this.jsonWebServicesAnnouncementsEntryApiHelper =
 			new JSONWebServicesAnnouncementsEntryApiHelper(this);

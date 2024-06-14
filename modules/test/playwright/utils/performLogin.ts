@@ -38,7 +38,8 @@ const userData = {
 
 async function performLogin(
 	page: Page,
-	screenName: LoginScreenName
+	screenName: LoginScreenName,
+	domain: string = 'liferay'
 ): Promise<Cookie[]> {
 	const {name, password, surname} = userData[screenName];
 
@@ -46,7 +47,7 @@ async function performLogin(
 
 	await page.getByRole('button', {name: 'Sign In'}).click();
 
-	await page.getByLabel('Email Address').fill(`${screenName}@liferay.com`);
+	await page.getByLabel('Email Address').fill(`${screenName}@${domain}.com`);
 	await page.getByLabel('Password').fill(password);
 	await page.getByLabel('Remember Me').check();
 

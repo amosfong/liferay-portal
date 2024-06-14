@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {loginTest} from '../../fixtures/loginTest';
 import getRandomString from '../../utils/getRandomString';
+import performLogin from '../../utils/performLogin';
 
 export const test = mergeTests(
 	apiHelpersTest,
@@ -18,47 +19,44 @@ const accountERC = 'ERC-001';
 const portalInstanceId = getRandomString();
 let site;
 
-test.beforeEach(async ({apiHelpers}) => {
-	await apiHelpers.headlessPortalInstances.createPortalInstance({
+test.beforeEach(async ({apiHelpers, context}) => {
+
+	/*await apiHelpers.headlessPortalInstances.createPortalInstance({
 		domain: 'able.com',
 		portalInstanceId: portalInstanceId,
 		virtualHost: 'www.able.com'
 	});
 
-	// update page to now use www.able.com
-	// create newApiHelpers var to use www.able.com?
-	// login to www.able.com as test@able.com/test
 
-	site = await apiHelpers.headlessSite.createSite({
+	let newPage = await context.newPage(
+		{
+			baseUrl: "http://www.able.com:8080"
+		});
+
+	await performLogin(newPage, 'test', 'able.com');
+
+	await newPage.goto('/');
+
+	await expect(newPage.getByText('testfirst testlast')).toBeVisible();
+
+	let newApiHelpers = new ApiHelpers(newPage);
+
+	site = await newApiHelpers.headlessSite.createSite({
 		externalReferenceCode: getRandomString(),
 		name: 'Test Customer Portal Site ' + getRandomString(),
 		templateKey: 'com.liferay.osb.site.initializer.customer.portal',
 		templateType: 'site-initializer'
 	});
 
-	const account = await apiHelpers.headlessAdminUser.getAccountByExternalReferenceCode(accountERC);
+	newPage.goto('/');
+*/
+	// update page to now use www.able.com
+	// create new apiHelpers to use www.able.com?
+	// login to www.able.com as test@able.com/test
 
-	await apiHelpers.headlessAdminUser.assignUserToAccountByEmailAddress(
-		account.id,
-		['test@liferay.com']
-	);
-
-	const rolesResponse = await apiHelpers.headlessAdminUser.getAccountRoles(
-		account.id
-	);
-
-	const accountAdministratorRole = rolesResponse?.items?.filter((role) => {
-		return role.name === 'Account Administrator';
-	});
-
-	await apiHelpers.headlessAdminUser.assignAccountRoles(
-		accountERC,
-		accountAdministratorRole[0].id,
-		'test@liferay.com'
-	);
 });
 
-test('test mock', async ({page}) => {
+test('test mock', async ({page, context}) => {
 	 await page.route('https://login-dev.liferay.com/api/v1/sessions/me', async route => {
 		const json = {"id":"VALIDSESSIONID"};
 
@@ -72,31 +70,29 @@ test('test mock', async ({page}) => {
 		  });
 	  });
 
-	await page.goto('/web' + site.friendlyUrlPath + '/project/#/' + accountERC);
+	let newPage = await context.newPage(
+		{
+			baseURL: "http://www.able.com:8080"
+		});
 
-	await expect(page.getByRole('button', {name: 'Start Project Setup'})).toBeVisible();
+//	await performLogin(newPage, 'test', 'able.com');
 
-	await page.goto('/web' + site.friendlyUrlPath + '/project/#/' + accountERC + '/team-members');
+	await newPage.bringToFront();
 
-	await page.getByRole('button', {name: 'invite'}).click();
+	await newPage.goto('/');
 
-	await page.getByLabel('First Name').fill('testfirst');
-	await page.getByLabel('Last Name').fill('testlast');
+	await expect(newPage.getByText('testfirst testlast')).toBeVisible();
 
-	await page.getByLabel('Email').fill('email@email.com');
+//	await page.goto('http://www.able.com:8080');
 
-	await page.getByLabel('Role').selectOption({ label: 'User' });
+//	await page.goto('/home');
 
-	await page.getByRole('button', {name: 'Send Invitations'}).click();
-
-	await page.goto('/web' + site.friendlyUrlPath + '/project/#/' + accountERC + '/team-members');
-
-	await expect(page.getByText('testfirst testlast')).toBeVisible();
+//	await expect(page.getByText('testfirst testlast')).toBeVisible();
 });
 
 test.afterEach(async ({apiHelpers}) => {
 	//Don't need if deleting portal instance
 	//await apiHelpers.headlessSite.deleteSiteByERC(site.externalReferenceCode);
 
-	await apiHelpers.headlessPortalInstances.deletePortalInstance(portalInstanceId);
+	//await apiHelpers.headlessPortalInstances.deletePortalInstance(portalInstanceId);
 });

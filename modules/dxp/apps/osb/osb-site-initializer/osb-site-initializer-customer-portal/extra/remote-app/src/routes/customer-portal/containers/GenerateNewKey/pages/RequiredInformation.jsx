@@ -603,7 +603,7 @@ const RequiredInformation = ({
 								</div>
 							) : (
 								<div className="mx-6">
-									{!isComplimentaryKey || !isOemOrEnterprise && (
+									{!isComplimentaryKey && !isOemOrEnterprise && (
 										<div className="cp-input-generate-label">
 											<KeySelect
 												avaliableKeysMaximumCount={

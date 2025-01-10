@@ -32,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author Amos Fong
@@ -44,8 +45,9 @@ public class GoogleCloudStorageService extends BaseService {
 
 		delete(
 			"Bearer " + _getAccessToken(), "",
-			uriBuilder -> uriBuilder.path(
-				"/storage/v1/b/{bucketName}/o/{objectName}"
+			UriComponentsBuilder.fromUriString(
+				getWebClientBaseURL() +
+					"/storage/v1/b/{bucketName}/o/{objectName}"
 			).build(
 				bucketName, objectName
 			));

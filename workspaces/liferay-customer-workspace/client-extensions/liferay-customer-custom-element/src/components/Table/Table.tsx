@@ -68,7 +68,7 @@ interface IProps {
 }
 
 const Table: React.FC<IProps> = ({
-	checkboxConfig,
+	checkboxConfig = {checkboxesChecked: [], setCheckboxesChecked: () => {}},
 	columns,
 	handleSortChange,
 	hasCheckbox,

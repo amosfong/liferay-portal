@@ -10,6 +10,7 @@ export const actionTypes = {
 	UPDATE_QUICK_LINKS_EXPANDED_PANEL: 'UPDATE_QUICK_LINKS_EXPANDED_PANEL',
 	UPDATE_STRUCTURED_CONTENTS: 'UPDATE_STRUCTURED_CONTENTS',
 	UPDATE_SUBSCRIPTION_GROUPS: 'UPDATE_SUBSCRIPTION_GROUPS',
+	UPDATE_SUBSCRIPTIONS: 'UPDATE_SUBSCRIPTIONS',
 	UPDATE_USER_ACCOUNT: 'UPDATE_USER_ACCOUNT',
 	UPDATE_USER_PROJECT_ACCESS: 'UPDATE_USER_PROJECT_ACCESS'
 };
@@ -50,6 +51,12 @@ const reducer = (state, action) => {
 			return {
 				...state,
 				subscriptionGroups: action.payload,
+			};
+		}
+		case actionTypes.UPDATE_SUBSCRIPTIONS: {
+			return {
+				...state,
+				subscriptions: action.payload,
 			};
 		}
 		case actionTypes.UPDATE_PAGE: {

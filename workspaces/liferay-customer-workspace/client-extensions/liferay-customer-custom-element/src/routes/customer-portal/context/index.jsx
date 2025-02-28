@@ -14,6 +14,7 @@ import {Liferay} from '../../../common/services/liferay';
 import {
 	getAccountByExternalReferenceCode,
 	getAccountSubscriptionGroups,
+	getAccountSubscriptions,
 	getKoroneikiAccounts,
 	getStructuredContentFolders,
 	getUserAccount,
@@ -34,6 +35,7 @@ const AppContextProvider = ({children}) => {
 		quickLinks: undefined,
 		structuredContents: undefined,
 		subscriptionGroups: undefined,
+		subscriptions: undefined,
 		userAccount: undefined,
 		userProjectAccess: undefined
 	});
@@ -154,6 +156,24 @@ const AppContextProvider = ({children}) => {
 			}
 		};
 
+		const getSubscriptions = async (accountKey) => {
+			const {data: dataSubscriptions} = await client.query({
+				query: getAccountSubscriptions,
+				variables: {
+					filter: `accountKey eq '${accountKey}'`,
+				},
+			});
+
+			if (dataSubscriptions) {
+				const items = dataSubscriptions?.c?.accountSubscriptions?.items;
+
+				dispatch({
+					payload: items,
+					type: actionTypes.UPDATE_SUBSCRIPTIONS,
+				});
+			}
+		};
+
 		const getSubscriptionGroups = async (accountKey) => {
 			const {data: dataSubscriptionGroups} = await client.query({
 				query: getAccountSubscriptionGroups,
@@ -237,6 +257,9 @@ const AppContextProvider = ({children}) => {
 
 						if (accountBrief) {
 							getProject(projectExternalReferenceCode, accountBrief);
+							getSubscriptions(
+								accountBrief.externalReferenceCode
+							);
 							getSubscriptionGroups(projectExternalReferenceCode);
 						}
 

@@ -35,6 +35,9 @@ const PopoverIconButton: React.FC<PopoverIconButtonProps> = ({
 					className="text-brand-primary-darken-2"
 					displayType={null}
 					onClick={(event) => event.stopPropagation()}
+					onPointerEnterCapture={undefined}
+					onPointerLeaveCapture={undefined}
+					placeholder={undefined}
 					size={iconSize}
 					symbol={
 						isSubscriptionCard ? 'question-circle' : 'info-circle'

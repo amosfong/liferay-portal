@@ -18,7 +18,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +27,6 @@ import java.util.Map;
  */
 public class DeleteDuplicateUniqueFinderRowsUpgradeProcess
 	extends UpgradeProcess {
-
-	public DeleteDuplicateUniqueFinderRowsUpgradeProcess(
-		String tableName, String[] columnNames) {
-
-		this(tableName, columnNames, null);
-	}
 
 	public DeleteDuplicateUniqueFinderRowsUpgradeProcess(
 		String tableName, String[] columnNames, String orderByClause) {
@@ -131,10 +124,8 @@ public class DeleteDuplicateUniqueFinderRowsUpgradeProcess
 
 		sb.setIndex(sb.index() - 1);
 
-		if (_orderByClause != null) {
-			sb.append("order by ");
-			sb.append(_orderByClause);
-		}
+		sb.append("order by ");
+		sb.append(_orderByClause);
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				sb.toString())) {
@@ -186,10 +177,6 @@ public class DeleteDuplicateUniqueFinderRowsUpgradeProcess
 					duplicateRows.add(duplicateRow);
 				}
 			}
-		}
-
-		if (_orderByClause == null) {
-			Collections.reverse(duplicateRows);
 		}
 
 		return duplicateRows;

@@ -46,8 +46,7 @@ public class GoogleCloudStorageService extends BaseService {
 		delete(
 			"Bearer " + _getAccessToken(), "",
 			UriComponentsBuilder.fromUriString(
-				getWebClientBaseURL() +
-					"/storage/v1/b/{bucketName}/o/{objectName}"
+				getBaseURL() + "/storage/v1/b/{bucketName}/o/{objectName}"
 			).build(
 				bucketName, objectName
 			));
@@ -89,7 +88,7 @@ public class GoogleCloudStorageService extends BaseService {
 		).post(
 		).uri(
 			StringBundler.concat(
-				getWebClientBaseURL(), "/upload/storage/v1/b/", bucketName,
+				getBaseURL(), "/upload/storage/v1/b/", bucketName,
 				"/o?uploadType=resumable&name=", objectName)
 		).accept(
 			MediaType.APPLICATION_JSON
@@ -109,8 +108,7 @@ public class GoogleCloudStorageService extends BaseService {
 		return uri.toString();
 	}
 
-	@Override
-	protected String getWebClientBaseURL() {
+	protected String getBaseURL() {
 		return "https://storage.googleapis.com";
 	}
 

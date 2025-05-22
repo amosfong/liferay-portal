@@ -11,7 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.json.JSONObject;
-
+import java.net.URI;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,7 +42,7 @@ public class WorkflowAction1RestController extends BaseRestController {
 		String response = post(
 			"Bearer " + jwt.getTokenValue(),
 			"{\"transitionName\": \"approve\"}",
-			jsonObject.getString("transitionURL"));
+			URI.create(jsonObject.getString("transitionURL")));
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Output: " + response);

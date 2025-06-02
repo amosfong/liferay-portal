@@ -27,7 +27,12 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -43,6 +48,10 @@ import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,10 +60,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
-
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -207,20 +212,19 @@ public class DDMFormTemplateContextFactoryImpl
 			DDMFormRenderingContext ddmFormRenderingContext)
 		throws PortalException {
 
+		_setDDMFormFieldsEvaluableProperty(ddmForm, ddmFormLayout);
+
 		Map<String, Object> templateContext = new HashMap<>();
-
-		String containerId = ddmFormRenderingContext.getContainerId();
-
-		if (Validator.isNull(containerId)) {
-			containerId = StringUtil.randomId();
-		}
 
 		templateContext.put(
 			"activePage",
 			ParamUtil.getInteger(
 				ddmFormRenderingContext.getHttpServletRequest(), "activePage"));
-
-		_setDDMFormFieldsEvaluableProperty(ddmForm, ddmFormLayout);
+		templateContext.put(
+			"availableLocales",
+			JSONUtil.toJSONArray(
+				LanguageUtil.getAvailableLocales(),
+				locale -> _getLocaleJSONObject(locale), _log));
 
 		Locale locale = ddmFormRenderingContext.getLocale();
 
@@ -230,13 +234,17 @@ public class DDMFormTemplateContextFactoryImpl
 
 		ResourceBundle resourceBundle = getResourceBundle(locale);
 
-		String cancelLabel = GetterUtil.getString(
-			ddmFormRenderingContext.getCancelLabel(),
-			_language.get(resourceBundle, "cancel"));
+		templateContext.put(
+			"cancelLabel",
+			GetterUtil.getString(
+				ddmFormRenderingContext.getCancelLabel(),
+				_language.get(resourceBundle, "cancel")));
 
-		templateContext.put("cancelLabel", cancelLabel);
-
-		templateContext.put("containerId", containerId);
+		templateContext.put(
+			"containerId",
+			GetterUtil.getString(
+				ddmFormRenderingContext.getContainerId(),
+				StringUtil.randomId()));
 
 		String contentType = GetterUtil.getString(
 			ddmFormRenderingContext.getProperty("contentType"));
@@ -366,6 +374,19 @@ public class DDMFormTemplateContextFactoryImpl
 		).build();
 	}
 
+	private JSONObject _getLocaleJSONObject(Locale locale) {
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		return JSONUtil.put(
+			"displayName", locale.getDisplayName(locale)
+		).put(
+			"icon",
+			StringUtil.toLowerCase(StringUtil.replace(languageId, '_', "-"))
+		).put(
+			"localeId", languageId
+		);
+	}
+
 	private List<Object> _getPages(
 		DDMForm ddmForm, DDMFormLayout ddmFormLayout,
 		DDMFormRenderingContext ddmFormRenderingContext) {
@@ -453,6 +474,9 @@ public class DDMFormTemplateContextFactoryImpl
 
 		return TransformUtil.transform(ddmFormRules, this::_toMap);
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DDMFormTemplateContextFactoryImpl.class);
 
 	@Reference
 	private DDM _ddm;

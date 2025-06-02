@@ -7,6 +7,7 @@
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -19,9 +20,9 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @author Cheryl Tang
@@ -42,9 +43,35 @@ public class EditCategoryDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
+	public String getBackURL() throws PortalException {
+		if (getParentCategoryId() == 0) {
+			return HttpComponentsUtil.addParameter(
+				_portal.getLayoutFullURL(
+					_layoutLocalService.getLayoutByFriendlyURL(
+						_themeDisplay.getScopeGroupId(), false,
+						"/categorization/view_categories"),
+					_themeDisplay),
+				"vocabularyId", getVocabularyId());
+		}
+
+		return HttpComponentsUtil.addParameters(
+			_portal.getLayoutFullURL(
+				_layoutLocalService.getLayoutByFriendlyURL(
+					_themeDisplay.getScopeGroupId(), false,
+					"/categorization/view_categories"),
+				_themeDisplay),
+			"categoryId", getParentCategoryId(), "vocabularyId",
+			getVocabularyId());
+	}
+
 	public String getCategoryByCategoryIdAPIURL() {
 		return "/o/headless-admin-taxonomy/v1.0/taxonomy-categories/" +
 			getCategoryId();
+	}
+
+	public String getCategoryByParentCategoryIdAPIURL() {
+		return "/o/headless-admin-taxonomy/v1.0/taxonomy-categories/" +
+			getParentCategoryId() + "/taxonomy-categories/";
 	}
 
 	public String getCategoryByVocabularyIdAPIURL() {
@@ -74,22 +101,27 @@ public class EditCategoryDisplayContext {
 			getCategoryId(), "/permissions");
 	}
 
+	public long getParentCategoryId() {
+		if (_parentCategoryId != null) {
+			return _parentCategoryId;
+		}
+
+		_parentCategoryId = ParamUtil.getLong(
+			_httpServletRequest, "parentCategoryId");
+
+		return _parentCategoryId;
+	}
+
 	public Map<String, Object> getReactData() throws Exception {
 		return HashMapBuilder.<String, Object>put(
-			"backURL",
-			HttpComponentsUtil.addParameter(
-				_portal.getLayoutFullURL(
-					_layoutLocalService.getLayoutByFriendlyURL(
-						_themeDisplay.getScopeGroupId(), false,
-						"/categorization/view_categories"),
-					_themeDisplay),
-				"vocabularyId", getVocabularyId())
+			"backURL", getBackURL()
 		).put(
 			"categoryByCategoryIdAPIURL", getCategoryByCategoryIdAPIURL()
 		).put(
-			"categoryByVocabularyIdAPIURL", getCategoryByVocabularyIdAPIURL()
+			"categoryByParentCategoryIdAPIURL",
+			getCategoryByParentCategoryIdAPIURL()
 		).put(
-			"categoryId", getCategoryId()
+			"categoryByVocabularyIdAPIURL", getCategoryByVocabularyIdAPIURL()
 		).put(
 			"categoryPermissionsAPIURL", getCategoryPermissionsAPIURL()
 		).put(
@@ -116,6 +148,8 @@ public class EditCategoryDisplayContext {
 					);
 				})
 		).put(
+			"parentCategoryId", getParentCategoryId()
+		).put(
 			"spritemap", _themeDisplay.getPathThemeSpritemap()
 		).put(
 			"vocabularyId", getVocabularyId()
@@ -136,6 +170,7 @@ public class EditCategoryDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final Language _language;
 	private final LayoutLocalService _layoutLocalService;
+	private Long _parentCategoryId;
 	private final Portal _portal;
 	private final ThemeDisplay _themeDisplay;
 	private Long _vocabularyId;

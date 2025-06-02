@@ -10,6 +10,7 @@ import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.layout.set.prototype.helper.LayoutSetPrototypeHelper;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.model.Group;
@@ -21,6 +22,8 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -28,6 +31,7 @@ import com.liferay.sites.kernel.util.Sites;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,7 +58,18 @@ public class LayoutSetPrototypeHelperPerformanceTest {
 		_layoutSetPrototype = LayoutTestUtil.addLayoutSetPrototype(
 			RandomTestUtil.randomString());
 
-		for (int i = 0; i < _NUMBER_GROUPS; i++) {
+		Class<?> clazz = LayoutSetPrototypeHelperPerformanceTest.class;
+
+		_properties = PropertiesUtil.load(
+			clazz.getResourceAsStream(
+				"dependencies/layout-set-prototype-helper-performance." +
+					"properties"),
+			"UTF-8");
+
+		_groupsCount = GetterUtil.getInteger(
+			_properties.getProperty("groups.count"));
+
+		for (int i = 0; i < _groupsCount; i++) {
 			Group group = GroupTestUtil.addGroup();
 
 			setLinkEnabled(group);
@@ -84,7 +99,12 @@ public class LayoutSetPrototypeHelperPerformanceTest {
 
 		long[] conflictPlids = null;
 
-		try (PerformanceTimer performanceTimer = new PerformanceTimer(1000)) {
+		try (PerformanceTimer performanceTimer = new PerformanceTimer(
+				GetterUtil.getInteger(
+					_properties.getProperty("layouts.get.max.time")),
+				StringBundler.concat(
+					"Get ", _groupsCount, " duplicated layouts"))) {
+
 			conflictPlids = TransformUtil.transformToLongArray(
 				_layoutSetPrototypeHelper.getDuplicatedFriendlyURLLayouts(
 					layoutSetPrototypeLayout),
@@ -107,13 +127,13 @@ public class LayoutSetPrototypeHelperPerformanceTest {
 			false);
 	}
 
-	private static final int _NUMBER_GROUPS = 5;
-
 	@Inject
 	private EntityCache _entityCache;
 
 	@DeleteAfterTestRun
 	private List<Group> _groups = new ArrayList<>();
+
+	private int _groupsCount;
 
 	@DeleteAfterTestRun
 	private LayoutSetPrototype _layoutSetPrototype;
@@ -123,6 +143,8 @@ public class LayoutSetPrototypeHelperPerformanceTest {
 
 	@Inject
 	private MultiVMPool _multiVMPool;
+
+	private Properties _properties;
 
 	@Inject
 	private Sites _sites;

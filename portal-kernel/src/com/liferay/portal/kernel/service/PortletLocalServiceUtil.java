@@ -432,15 +432,15 @@ public class PortletLocalServiceUtil {
 	}
 
 	public static void initEAR(
-		javax.servlet.ServletContext servletContext, String[] xmls,
+		jakarta.servlet.ServletContext servletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
 		getService().initEAR(servletContext, xmls, pluginPackage);
 	}
 
 	public static List<Portlet> initWAR(
-		String servletContextName, javax.servlet.ServletContext servletContext,
-		String[] xmls,
+		String servletContextName,
+		jakarta.servlet.ServletContext servletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
 		return getService().initWAR(

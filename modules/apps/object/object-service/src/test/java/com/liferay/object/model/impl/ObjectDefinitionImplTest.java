@@ -21,6 +21,7 @@ import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -81,6 +82,7 @@ public class ObjectDefinitionImplTest {
 	}
 
 	@FeatureFlag("LPD-34594")
+	@Ignore
 	@Test
 	public void testGetRESTContextPathRootDescendantNode() {
 

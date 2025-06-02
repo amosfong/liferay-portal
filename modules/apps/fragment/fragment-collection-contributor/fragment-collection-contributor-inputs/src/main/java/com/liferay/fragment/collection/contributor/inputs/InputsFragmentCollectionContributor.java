@@ -12,10 +12,10 @@ import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 
+import jakarta.servlet.ServletContext;
+
 import java.util.List;
 import java.util.Objects;
-
-import javax.servlet.ServletContext;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,17 +51,27 @@ public class InputsFragmentCollectionContributor
 	}
 
 	private List<FragmentEntry> _filter(List<FragmentEntry> fragmentEntries) {
-		if (FeatureFlagManagerUtil.isEnabled(
+		if (!FeatureFlagManagerUtil.isEnabled(
 				CompanyThreadLocal.getCompanyId(), "LPD-21926")) {
 
-			return fragmentEntries;
+			fragmentEntries = ListUtil.filter(
+				fragmentEntries,
+				fragmentEntry -> !Objects.equals(
+					fragmentEntry.getFragmentEntryKey(),
+					"INPUTS-friendly-url-input"));
 		}
 
-		return ListUtil.filter(
-			fragmentEntries,
-			fragmentEntry -> !Objects.equals(
-				fragmentEntry.getFragmentEntryKey(),
-				"INPUTS-friendly-url-input"));
+		if (!FeatureFlagManagerUtil.isEnabled(
+				CompanyThreadLocal.getCompanyId(), "LPD-17564")) {
+
+			fragmentEntries = ListUtil.filter(
+				fragmentEntries,
+				fragmentEntry -> !Objects.equals(
+					fragmentEntry.getFragmentEntryKey(),
+					"INPUTS-video-previewer-input"));
+		}
+
+		return fragmentEntries;
 	}
 
 	@Reference(

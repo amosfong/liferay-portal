@@ -38,12 +38,12 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import jakarta.portlet.ActionRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
-
-import javax.portlet.ActionRequest;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Marco Galluzzi
@@ -58,7 +58,7 @@ public abstract class BaseSectionDisplayContext {
 		ObjectDefinitionSettingLocalService
 			objectDefinitionSettingLocalService) {
 
-		_depotEntryLocalService = depotEntryLocalService;
+		this.depotEntryLocalService = depotEntryLocalService;
 		_groupLocalService = groupLocalService;
 
 		this.httpServletRequest = httpServletRequest;
@@ -183,7 +183,8 @@ public abstract class BaseSectionDisplayContext {
 							GroupConstants.CMS_FRIENDLY_URL,
 							"/add_structured_content_item?objectDefinitionId=",
 							objectDefinition.getObjectDefinitionId(), "&plid=",
-							themeDisplay.getPlid()));
+							themeDisplay.getPlid(), "&redirect=",
+							themeDisplay.getURLCurrent()));
 					dropdownItem.putData(
 						"title",
 						objectDefinition.getLabel(themeDisplay.getLocale()));
@@ -220,6 +221,7 @@ public abstract class BaseSectionDisplayContext {
 
 	protected abstract String[] getObjectFolderExternalReferenceCodes();
 
+	protected final DepotEntryLocalService depotEntryLocalService;
 	protected final HttpServletRequest httpServletRequest;
 	protected final Language language;
 	protected final ThemeDisplay themeDisplay;
@@ -234,7 +236,7 @@ public abstract class BaseSectionDisplayContext {
 
 		if (objectDefinitionSetting != null) {
 			return getDepotEntriesJSONArray(
-				_depotEntryLocalService.getDepotEntries(
+				depotEntryLocalService.getDepotEntries(
 					QueryUtil.ALL_POS, QueryUtil.ALL_POS));
 		}
 
@@ -247,18 +249,17 @@ public abstract class BaseSectionDisplayContext {
 			Validator.isNull(objectDefinitionSetting.getValue())) {
 
 			return getDepotEntriesJSONArray(
-				_depotEntryLocalService.getDepotEntries(
+				depotEntryLocalService.getDepotEntries(
 					QueryUtil.ALL_POS, QueryUtil.ALL_POS));
 		}
 
 		return getDepotEntriesJSONArray(
 			TransformUtil.transform(
 				StringUtil.split(objectDefinitionSetting.getValue()),
-				groupId -> _depotEntryLocalService.fetchGroupDepotEntry(
+				groupId -> depotEntryLocalService.fetchGroupDepotEntry(
 					GetterUtil.getLong(groupId))));
 	}
 
-	private final DepotEntryLocalService _depotEntryLocalService;
 	private final GroupLocalService _groupLocalService;
 	private final ObjectDefinitionService _objectDefinitionService;
 	private final ObjectDefinitionSettingLocalService

@@ -6,6 +6,8 @@
 package com.liferay.site.cms.site.initializer.internal.struts;
 
 import com.liferay.fragment.listener.FragmentEntryLinkListenerRegistry;
+import com.liferay.fragment.renderer.FragmentRendererRegistry;
+import com.liferay.fragment.service.FragmentEntryLinkService;
 import com.liferay.layout.manager.FormManager;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
@@ -24,10 +26,10 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 
-import java.util.Objects;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -102,6 +104,7 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 		httpServletResponse.sendRedirect(
 			ActionUtil.getEditURL(
 				_formManager, _fragmentEntryLinkListenerRegistry,
+				_fragmentEntryLinkService, _fragmentRendererRegistry,
 				httpServletRequest, String.valueOf(objectEntry.getId()),
 				objectDefinition));
 
@@ -114,6 +117,12 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 	@Reference
 	private FragmentEntryLinkListenerRegistry
 		_fragmentEntryLinkListenerRegistry;
+
+	@Reference
+	private FragmentEntryLinkService _fragmentEntryLinkService;
+
+	@Reference
+	private FragmentRendererRegistry _fragmentRendererRegistry;
 
 	@Reference
 	private ObjectDefinitionService _objectDefinitionService;

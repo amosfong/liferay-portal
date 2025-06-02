@@ -6,11 +6,15 @@
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.model.DepotEntryPin;
+import com.liferay.depot.service.DepotEntryPinLocalService;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -23,12 +27,12 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import jakarta.portlet.ActionRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
-
-import javax.portlet.ActionRequest;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Marco Leo
@@ -36,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AllSpacesSectionDisplayContext {
 
 	public AllSpacesSectionDisplayContext(
+		DepotEntryPinLocalService entryPinLocalService,
 		HttpServletRequest httpServletRequest, Language language,
 		Portal portal) {
 
@@ -43,8 +48,21 @@ public class AllSpacesSectionDisplayContext {
 		_language = language;
 		_portal = portal;
 
+		_depotEntryPinLocalService = entryPinLocalService;
+
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+	}
+
+	public Map<String, Object> getAdditionalProps() {
+		return HashMapBuilder.<String, Object>put(
+			"pinnedAssetLibraryIds",
+			TransformUtil.transformToArray(
+				_depotEntryPinLocalService.getUserDepotEntryPins(
+					_themeDisplay.getUserId(), QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
+				DepotEntryPin::getDepotEntryId, Long.class)
+		).build();
 	}
 
 	public String getAPIURL() {
@@ -63,16 +81,10 @@ public class AllSpacesSectionDisplayContext {
 	public CreationMenu getCreationMenu() {
 		return CreationMenuBuilder.addPrimaryDropdownItem(
 			dropdownItem -> {
-				dropdownItem.putData("action", "createSpace");
-				dropdownItem.putData(
-					"redirect",
+				dropdownItem.setHref(
 					StringBundler.concat(
-						_themeDisplay.getPortalURL(),
-						_themeDisplay.getPathMain(),
-						GroupConstants.CMS_FRIENDLY_URL, "/e/space-settings/",
-						_portal.getClassNameId(DepotEntry.class), "/{id}"));
-				dropdownItem.putData(
-					"title", _language.get(_httpServletRequest, "new-space"));
+						_themeDisplay.getPathFriendlyURLPublic(),
+						GroupConstants.CMS_FRIENDLY_URL, "/new-space"));
 				dropdownItem.setIcon("forms");
 				dropdownItem.setLabel(
 					_language.get(_httpServletRequest, "space"));
@@ -94,6 +106,15 @@ public class AllSpacesSectionDisplayContext {
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		return ListUtil.fromArray(
+			new FDSActionDropdownItem(
+				"#", "pin", "pin",
+				LanguageUtil.get(_httpServletRequest, "pin-to-product-menu"),
+				"pin", "pin", "headless"),
+			new FDSActionDropdownItem(
+				"#", "unpin", "unpin",
+				LanguageUtil.get(
+					_httpServletRequest, "unpin-from-product-menu"),
+				"unpin", "unpin", "headless"),
 			new FDSActionDropdownItem(
 				StringBundler.concat(
 					_themeDisplay.getPathFriendlyURLPublic(),
@@ -138,6 +159,7 @@ public class AllSpacesSectionDisplayContext {
 				"delete", "headless"));
 	}
 
+	private final DepotEntryPinLocalService _depotEntryPinLocalService;
 	private final HttpServletRequest _httpServletRequest;
 	private final Language _language;
 	private final Portal _portal;

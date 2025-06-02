@@ -26,11 +26,13 @@ import com.liferay.asset.publisher.web.internal.display.context.AssetPublisherDi
 import com.liferay.asset.publisher.web.internal.helper.AssetPublisherWebHelper;
 import com.liferay.asset.publisher.web.internal.util.AssetPublisherCustomizer;
 import com.liferay.asset.publisher.web.internal.util.AssetPublisherCustomizerRegistry;
+import com.liferay.asset.publisher.web.internal.util.FF_LPD_39304_CompanyTemporarySwapper;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.item.selector.ItemSelector;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
@@ -68,21 +70,21 @@ import com.liferay.portlet.display.template.portlet.action.BaseConfigurationActi
 import com.liferay.segments.SegmentsEntryRetriever;
 import com.liferay.segments.context.RequestContextMapper;
 
+import jakarta.portlet.ActionRequest;
+import jakarta.portlet.ActionResponse;
+import jakarta.portlet.PortletConfig;
+import jakarta.portlet.PortletPreferences;
+import jakarta.portlet.PortletRequest;
+import jakarta.portlet.RenderRequest;
+import jakarta.portlet.RenderResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletPreferences;
-import javax.portlet.PortletRequest;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.text.StrMatcher;
 import org.apache.commons.lang.text.StrTokenizer;
@@ -98,7 +100,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfiguration",
-	property = "javax.portlet.name=" + AssetPublisherPortletKeys.ASSET_PUBLISHER,
+	property = "jakarta.portlet.name=" + AssetPublisherPortletKeys.ASSET_PUBLISHER,
 	service = ConfigurationAction.class
 )
 public class AssetPublisherConfigurationAction extends BaseConfigurationAction {
@@ -234,7 +236,17 @@ public class AssetPublisherConfigurationAction extends BaseConfigurationAction {
 					actionRequest, "selectionStyle");
 
 				if (Validator.isNull(selectionStyle)) {
-					selectionStyle = getDefaultSelectionStyle();
+					ThemeDisplay themeDisplay =
+						(ThemeDisplay)actionRequest.getAttribute(
+							WebKeys.THEME_DISPLAY);
+
+					try (SafeCloseable safeCloseable =
+							FF_LPD_39304_CompanyTemporarySwapper.
+								setCompanyIdWithSafeCloseable(
+									themeDisplay.getCompanyId())) {
+
+						selectionStyle = getDefaultSelectionStyle();
+					}
 				}
 
 				if (selectionStyle.equals(
@@ -906,9 +918,19 @@ public class AssetPublisherConfigurationAction extends BaseConfigurationAction {
 	private void _updateSelectionStyle(ActionRequest actionRequest) {
 		String selectionStyle = getParameter(actionRequest, "selectionStyle");
 
-		if (Validator.isNull(selectionStyle)) {
-			setPreference(
-				actionRequest, "selectionStyle", getDefaultSelectionStyle());
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		try (SafeCloseable safeCloseable =
+				FF_LPD_39304_CompanyTemporarySwapper.
+					setCompanyIdWithSafeCloseable(
+						themeDisplay.getCompanyId())) {
+
+			if (Validator.isNull(selectionStyle)) {
+				setPreference(
+					actionRequest, "selectionStyle",
+					getDefaultSelectionStyle());
+			}
 		}
 	}
 

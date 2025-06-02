@@ -9,12 +9,15 @@ import {formatDistance} from 'date-fns';
 import useSWR from 'swr';
 
 import ListView, {ListViewProps} from '../../../components/ListView';
+import {FilterOption} from '../../../components/ListView/components/ManagementToolbar';
+import {ListViewTypes} from '../../../components/ListView/hooks/ListViewContext';
 import Page from '../../../components/Page';
 import SearchBuilder from '../../../core/SearchBuilder';
 import {
 	OrderTypes,
 	OrderWorkflowDisplayType,
 	PaymentWorkflowDisplayType,
+	orderTypeLabel,
 } from '../../../enums/Order';
 import i18n from '../../../i18n';
 import {Liferay} from '../../../liferay/liferay';
@@ -45,6 +48,31 @@ type AdministratorOrdersListViewProps = {
 	listViewProps?: Partial<ListViewProps<Order>>;
 };
 
+const orderTypes = [
+	OrderTypes.CLIENT_EXTENSION,
+	OrderTypes.CLOUDAPP,
+	OrderTypes.COMPOSITE_APP,
+	OrderTypes.DXPAPP,
+	OrderTypes.LOW_CODE_CONFIGURATION,
+	OrderTypes.OTHER,
+];
+
+const orderTypeFilters: FilterOption[] = orderTypes.map((orderType) => ({
+	name: orderTypeLabel[orderType] || '',
+	onClick: (dispatch) => {
+		dispatch({
+			payload: {
+				filters: {
+					filter: {
+						orderTypeExternalReferenceCode: orderType,
+					},
+				},
+			},
+			type: ListViewTypes.SET_FILTERS,
+		});
+	},
+}));
+
 export function AdministratorOrdersListView({
 	listViewProps,
 }: AdministratorOrdersListViewProps) {
@@ -52,25 +80,51 @@ export function AdministratorOrdersListView({
 		<ListView<Order>
 			emptyStateProps={{title: i18n.translate('no-orders-yet')}}
 			id="administrator-orders"
+			managementToolbarProps={{
+				filterItems: [
+					{
+						children: orderTypeFilters,
+						name: i18n.translate('app-type'),
+					},
+				],
+				visible: true,
+			}}
 			paginationOptions={{displayType: 'always'}}
-			resource={function getAdministratorOrders({page, pageSize}) {
+			resource={function getAdministratorOrders({
+				filters,
+				keywords,
+				page,
+				pageSize,
+				sort,
+			}) {
+				const searchBuilder = new SearchBuilder();
+
+				if (filters.filter) {
+					for (const [key, value] of Object.entries(filters.filter)) {
+						searchBuilder.contains(key, String(value));
+					}
+				}
+				else {
+					searchBuilder.in('orderTypeExternalReferenceCode', [
+						OrderTypes.CLIENT_EXTENSION,
+						OrderTypes.CLOUDAPP,
+						OrderTypes.DXPAPP,
+						OrderTypes.COMPOSITE_APP,
+						OrderTypes.LOW_CODE_CONFIGURATION,
+						OrderTypes.OTHER,
+					]);
+				}
+
 				return HeadlessCommerceAdminOrder.getOrders(
 					new URLSearchParams({
-						filter: SearchBuilder.in(
-							'orderTypeExternalReferenceCode',
-							[
-								OrderTypes.CLIENT_EXTENSION,
-								OrderTypes.CLOUDAPP,
-								OrderTypes.DXPAPP,
-								OrderTypes.COMPOSITE_APP,
-								OrderTypes.LOW_CODE_CONFIGURATION,
-							]
-						),
-
+						filter: searchBuilder.build(),
 						nestedFields: 'account,orderItems',
 						page: page.toString(),
 						pageSize: pageSize.toString(),
-						sort: 'createDate:desc',
+						search: keywords,
+						sort: sort.key
+							? `${sort.key}:${sort.direction}`
+							: 'createDate:desc',
 					})
 				);
 			}}
@@ -86,7 +140,7 @@ export function AdministratorOrdersListView({
 					},
 
 					{
-						name: i18n.translate('order-panel'),
+						name: i18n.translate('order-details'),
 						onClick: (order: Order) => {
 							window.open(
 								`/group/guest/~/control_panel/manage?p_p_id=com_liferay_commerce_order_web_internal_portlet_CommerceOrderPortlet&p_p_lifecycle=0&p_p_state=maximized&_com_liferay_commerce_order_web_internal_portlet_CommerceOrderPortlet_mvcRenderCommandName=%2Fcommerce_order%2Fedit_commerce_order&_com_liferay_commerce_order_web_internal_portlet_CommerceOrderPortlet_commerceOrderId=${order.id}`,
@@ -99,6 +153,9 @@ export function AdministratorOrdersListView({
 					{
 						id: 'id',
 						name: i18n.translate('id'),
+						render: (id) => (
+							<span className="font-weight-bold">{id}</span>
+						),
 					},
 					{
 						id: 'orderItems',
@@ -113,6 +170,15 @@ export function AdministratorOrdersListView({
 					{
 						id: 'orderTypeExternalReferenceCode',
 						name: i18n.translate('app-type'),
+						render: (orderTypeExternalReferenceCode) => (
+							<span>
+								{
+									orderTypeLabel[
+										orderTypeExternalReferenceCode as keyof typeof OrderTypes
+									]
+								}
+							</span>
+						),
 					},
 					{
 						id: 'totalFormatted',
@@ -162,6 +228,7 @@ export function AdministratorOrdersListView({
 								)}
 							</span>
 						),
+						sortable: true,
 					},
 				],
 			}}
@@ -261,7 +328,10 @@ export default function Orders() {
 				</div>
 			</div>
 
-			<Page title={i18n.translate('orders')}>
+			<Page
+				pageRendererProps={{className: 'border py-2'}}
+				title={i18n.translate('orders')}
+			>
 				<AdministratorOrdersListView />
 			</Page>
 		</>

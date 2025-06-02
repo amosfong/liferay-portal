@@ -12,15 +12,16 @@ import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Jürgen Kappler
@@ -45,6 +46,19 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 	public CreationMenu getCreationMenu() {
 		return new CreationMenu() {
 			{
+				addPrimaryDropdownItem(
+					dropdownItem -> {
+						dropdownItem.putData("action", "uploadMultipleFiles");
+						dropdownItem.putData(
+							"assetLibraries",
+							getDepotEntriesJSONArray(
+								depotEntryLocalService.getDepotEntries(
+									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
+						dropdownItem.setIcon("upload-multiple");
+						dropdownItem.setLabel(
+							language.get(httpServletRequest, "multiple-files"));
+					});
+
 				addStructureContentDropdownItems(this);
 			}
 		};

@@ -43,13 +43,13 @@ import com.liferay.portal.kernel.workflow.BaseWorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 
+import jakarta.portlet.PortletRequest;
+
 import java.io.Serializable;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.portlet.PortletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -66,6 +66,24 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class JournalArticleWorkflowHandler
 	extends BaseWorkflowHandler<JournalArticle> {
+
+	@Override
+	public void contributeWorkflowContext(
+			Map<String, Serializable> workflowContext)
+		throws PortalException {
+
+		ServiceContext serviceContext = (ServiceContext)workflowContext.get(
+			WorkflowConstants.CONTEXT_SERVICE_CONTEXT);
+
+		ThemeDisplay themeDisplay = serviceContext.getThemeDisplay();
+
+		if (themeDisplay == null) {
+			return;
+		}
+
+		serviceContext.setAttribute(
+			"scopeGroupId", themeDisplay.getScopeGroupId());
+	}
 
 	@Override
 	public String getClassName() {

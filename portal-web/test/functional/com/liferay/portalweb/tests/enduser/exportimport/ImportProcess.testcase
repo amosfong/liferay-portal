@@ -10,6 +10,8 @@ definition {
 		TestCase.setUpPortalInstance();
 
 		User.firstLoginPG();
+
+		Staging.enableDeleteApplicationDataBeforeImport();
 	}
 
 	tearDown {
@@ -331,6 +333,8 @@ definition {
 				password = PropsUtil.get("default.admin.password"),
 				userEmailAddress = "test@liferay.com",
 				virtualHostsURL = "http://www.able.com:8080");
+
+			Staging.enableDeleteApplicationDataBeforeImport();
 
 			JSONWebcontent.addWebContent(
 				content = "WC WebContent Content",

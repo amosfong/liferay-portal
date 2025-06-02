@@ -514,6 +514,8 @@ components:
                     format: uri
                     readOnly: true
                     type: string
+                imageBase64:
+                    type: string
                 imageExternalReferenceCode:
                     description:
                         The organization's image external reference code.
@@ -528,7 +530,6 @@ components:
                         A list of keywords describing the organization.
                     items:
                         type: string
-                    readOnly: true
                     type: array
                 location:
                     description:
@@ -919,7 +920,6 @@ components:
                 name:
                     description:
                         The role's name.
-                    readOnly: true
                     type: string
                 name_i18n:
                     additionalProperties:

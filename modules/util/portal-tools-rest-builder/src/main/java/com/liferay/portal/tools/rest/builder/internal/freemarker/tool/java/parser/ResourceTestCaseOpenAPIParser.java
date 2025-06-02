@@ -44,8 +44,7 @@ public class ResourceTestCaseOpenAPIParser {
 				javaMethodSignature.getJavaMethodParameters(),
 				_getMethodName(javaMethodSignature),
 				_getReturnType(
-					configYAML.getApiPackagePath(),
-					javaMethodSignature.getReturnType(),
+					configYAML, javaMethodSignature.getReturnType(),
 					_getVersion(openAPIYAML)),
 				javaMethodSignature.getParentSchemaName()));
 	}
@@ -116,7 +115,9 @@ public class ResourceTestCaseOpenAPIParser {
 	}
 
 	private static String _getReturnType(
-		String apiPackage, String returnType, String version) {
+		ConfigYAML configYAML, String returnType, String version) {
+
+		String apiPackage = configYAML.getApiPackagePath();
 
 		String versionPackage = StringUtil.replace(version, '.', '_');
 
@@ -140,7 +141,8 @@ public class ResourceTestCaseOpenAPIParser {
 		}
 		else if (returnType.contains(".") &&
 				 !returnType.equals("com.liferay.portal.vulcan") &&
-				 !returnType.equals("javax.ws.rs.core.Response") &&
+				 !returnType.equals(
+					 configYAML.getJavaEEPackage() + ".ws.rs.core.Response") &&
 				 !returnType.startsWith("java.lang") &&
 				 !returnType.startsWith("java.util") &&
 				 !returnType.startsWith(apiPackage)) {

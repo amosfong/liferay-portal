@@ -44,6 +44,7 @@ const test = mergeTests(
 	displayPageTemplatesPagesTest,
 	documentLibraryPagesTest,
 	featureFlagsTest({
+		'LPD-17564': {enabled: true},
 		'LPD-21926': {enabled: true},
 		'LPD-32050': {enabled: true},
 		'LPD-37927': {enabled: true},
@@ -197,6 +198,7 @@ test.describe('Form Configuration', () => {
 			await pageEditorPage.mapFormFragment(formId, 'Lemon', [
 				'Lemon Size',
 				'Lemon Basket to Lemons',
+				'Lemon Weight',
 			]);
 
 			await pageEditorPage.selectFragment(formId);
@@ -225,6 +227,12 @@ test.describe('Form Configuration', () => {
 			await page.goto(
 				`/web${pageManagementSite.friendlyUrlPath}${layout.friendlyUrlPath}`
 			);
+
+			const lemonWeightInput = page.getByRole('spinbutton', {
+				name: 'Lemon Weight',
+			});
+
+			await lemonWeightInput.fill('100');
 
 			// Submit form
 
@@ -4668,6 +4676,39 @@ test.describe('Numeric input field', () => {
 		pageManagementSite,
 	}) => {
 
+		// Create a new object validation rule
+
+		const objectValidationRuleAPIClient = await apiHelpers.buildRestClient(
+			ObjectValidationRuleAPI
+		);
+
+		const {body: objectValidationRule} =
+			await objectValidationRuleAPIClient.postObjectDefinitionByExternalReferenceCodeObjectValidationRule(
+				getObjectERC('Lemon'),
+				{
+					active: true,
+					engine: 'ddm',
+					engineLabel: 'Expression Builder',
+					errorLabel: {
+						en_US: 'The lemon weight must be greater than 0',
+					},
+					externalReferenceCode: 'lemon-weight-validation-erc',
+					name: {
+						en_US: 'Lemon Weight Validation',
+					},
+					objectDefinitionExternalReferenceCode: 'lemon-object-erc',
+					objectValidationRuleSettings: [
+						{
+							name: 'outputObjectFieldExternalReferenceCode',
+							value: 'lemon-weight-erc' as any,
+						},
+					],
+					outputType: 'partialValidation',
+					script: 'isEmpty(lemonWeight) OR lemonWeight > 0',
+					system: false,
+				}
+			);
+
 		// Create a page with a Form fragment
 
 		const formId = getRandomString();
@@ -4725,6 +4766,12 @@ test.describe('Numeric input field', () => {
 				'Thank you. Your information was successfully received.'
 			)
 		).toBeVisible();
+
+		// Delete validation
+
+		await objectValidationRuleAPIClient.deleteObjectValidationRule(
+			objectValidationRule.id
+		);
 	});
 });
 
@@ -8395,6 +8442,39 @@ test.describe('View mode form errors', () => {
 		},
 		async ({apiHelpers, page, pageManagementSite}) => {
 
+			// Create a new object validation rule
+
+			const objectValidationRuleAPIClient =
+				await apiHelpers.buildRestClient(ObjectValidationRuleAPI);
+
+			const {body: objectValidationRule} =
+				await objectValidationRuleAPIClient.postObjectDefinitionByExternalReferenceCodeObjectValidationRule(
+					getObjectERC('Lemon'),
+					{
+						active: true,
+						engine: 'ddm',
+						engineLabel: 'Expression Builder',
+						errorLabel: {
+							en_US: 'The lemon weight must be greater than 0',
+						},
+						externalReferenceCode: 'lemon-weight-validation-erc',
+						name: {
+							en_US: 'Lemon Weight Validation',
+						},
+						objectDefinitionExternalReferenceCode:
+							'lemon-object-erc',
+						objectValidationRuleSettings: [
+							{
+								name: 'outputObjectFieldExternalReferenceCode',
+								value: 'lemon-weight-erc' as any,
+							},
+						],
+						outputType: 'partialValidation',
+						script: 'isEmpty(lemonWeight) OR lemonWeight > 0',
+						system: false,
+					}
+				);
+
 			// Create a default display page for lemon object
 
 			const objectDefinitionAPIClient =
@@ -8525,6 +8605,12 @@ test.describe('View mode form errors', () => {
 					layoutPageTemplateEntryId:
 						displayPage.layoutPageTemplateEntryId,
 				}
+			);
+
+			// Delete validation
+
+			await objectValidationRuleAPIClient.deleteObjectValidationRule(
+				objectValidationRule.id
 			);
 		}
 	);
@@ -8850,3 +8936,332 @@ async function chooseFileFromDocumentLibrary({
 		trigger: iframe.locator('.card', {hasText: fileName}).locator('img'),
 	});
 }
+
+test.describe('URL Video Previewer Fragment', () => {
+	test(
+		'Configure URL Video Previewer fragment',
+		{
+			tag: '@LPD-55079',
+		},
+		async ({apiHelpers, page, pageEditorPage, pageManagementSite}) => {
+
+			// Create a page with a form fragment with a URL Video Previewer fragment
+
+			const objectDefinitionAPIClient =
+				await apiHelpers.buildRestClient(ObjectDefinitionAPI);
+
+			const {className: objectDefinitionClassName} = (
+				await objectDefinitionAPIClient.getObjectDefinitionByExternalReferenceCode(
+					getObjectERC('All Fields')
+				)
+			).body;
+
+			const videoPreviewerId = getRandomString();
+
+			const videoPreviewerDefinition = getFragmentDefinition({
+				fragmentConfig: {
+					inputFieldId: 'ObjectField_text',
+				},
+				id: videoPreviewerId,
+				key: 'INPUTS-video-previewer-input',
+			});
+
+			const formDefinition = getFormContainerDefinition({
+				id: getRandomString(),
+				objectDefinitionClassName,
+				pageElements: [videoPreviewerDefinition],
+			});
+
+			const layout = await apiHelpers.headlessDelivery.createSitePage({
+				pageDefinition: getPageDefinition([formDefinition]),
+				siteId: pageManagementSite.id,
+				title: getRandomString(),
+			});
+
+			// Go to edit mode
+
+			await pageEditorPage.goto(
+				layout,
+				pageManagementSite.friendlyUrlPath
+			);
+
+			// Change label
+
+			const inputLabel = page.locator('label', {
+				hasText: 'Type your video url here!',
+			});
+
+			await expect(inputLabel).not.toBeAttached();
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Label',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: 'Type your video url here!',
+			});
+
+			await expect(inputLabel).toBeAttached();
+
+			// Hide label
+
+			await expect(inputLabel).not.toHaveClass(/sr-only/);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Show Label',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: false,
+			});
+
+			await expect(inputLabel).toHaveClass(/sr-only/);
+
+			// Show help text
+
+			const videoPreviewerFragment = page.locator(
+				'.video-previewer-input'
+			);
+
+			await expect(videoPreviewerFragment).not.toContainText(
+				/Add your help text here./
+			);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Show Help Text',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: true,
+			});
+
+			await expect(videoPreviewerFragment).toContainText(
+				/Add your help text here./
+			);
+
+			// Add placeholder
+
+			await expect(page.getByPlaceholder('https://')).not.toBeAttached();
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Placeholder',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: 'https://',
+			});
+
+			await expect(page.getByPlaceholder('https://')).toBeAttached();
+
+			// Show characters count
+
+			await expect(page.getByText('0 / 280')).toHaveClass(/sr-only/);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Show Characters Count',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: true,
+			});
+
+			await expect(page.getByText('0 / 280')).not.toHaveClass(/sr-only/);
+
+			// Change preview label
+
+			const previewLabel = page.locator('label', {
+				hasText: 'This is my video preview',
+			});
+
+			await expect(previewLabel).not.toBeAttached();
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Preview Label',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: 'This is my video preview',
+			});
+
+			await expect(previewLabel).toBeAttached();
+
+			// Hide preview label
+
+			await expect(previewLabel).not.toHaveClass(/sr-only/);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Show Preview Label',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: false,
+			});
+
+			await expect(previewLabel).toHaveClass(/sr-only/);
+		}
+	);
+
+	test(
+		'Preview a video taking into account the localizable field',
+		{
+			tag: '@LPD-55079',
+		},
+		async ({apiHelpers, page, pageEditorPage, pageManagementSite}) => {
+
+			// Create a page with a form fragment with a URL Video Previewer fragment
+
+			const objectDefinitionAPIClient =
+				await apiHelpers.buildRestClient(ObjectDefinitionAPI);
+
+			const {className: objectDefinitionClassName} = (
+				await objectDefinitionAPIClient.getObjectDefinitionByExternalReferenceCode(
+					getObjectERC('All Fields')
+				)
+			).body;
+
+			const localizationSelectDefinition = getFragmentDefinition({
+				id: getRandomString(),
+				key: 'localization-select',
+			});
+
+			const submitButtonDefinition = getFragmentDefinition({
+				id: getRandomString(),
+				key: 'INPUTS-submit-button',
+			});
+
+			const videoPreviewerId = getRandomString();
+
+			const videoPreviewerDefinition = getFragmentDefinition({
+				fragmentConfig: {
+					inputFieldId: 'ObjectField_text',
+				},
+				id: videoPreviewerId,
+				key: 'INPUTS-video-previewer-input',
+			});
+
+			const formDefinition = getFormContainerDefinition({
+				id: getRandomString(),
+				objectDefinitionClassName,
+				pageElements: [
+					localizationSelectDefinition,
+					videoPreviewerDefinition,
+					submitButtonDefinition,
+				],
+			});
+
+			const layout = await apiHelpers.headlessDelivery.createSitePage({
+				pageDefinition: getPageDefinition([formDefinition]),
+				siteId: pageManagementSite.id,
+				title: getRandomString(),
+			});
+
+			// Go to view mode and check the preview for the default language
+
+			await page.goto(
+				`/web${pageManagementSite.friendlyUrlPath}${layout.friendlyUrlPath}`
+			);
+
+			const input = page.getByLabel('Text');
+
+			const fillAndBlurInput = async (value: string) => {
+				await input.waitFor();
+				await input.fill(value);
+				await input.blur();
+			};
+
+			const iframe = page.locator('.video-preview iframe');
+
+			await expect(iframe).not.toBeAttached();
+
+			await fillAndBlurInput(
+				'https://www.youtube.com/watch?v=2EPZxIC5ogU'
+			);
+
+			await expect(iframe).toBeAttached();
+
+			await expect(iframe).toHaveAttribute(
+				'title',
+				'Life at Liferay - A Look into Liferay Culture'
+			);
+
+			// Fill the form for other language
+
+			const translationSelector = page.getByLabel(
+				'Select a language, current language:'
+			);
+
+			const japaneseOption = page
+				.getByRole('option')
+				.filter({hasText: 'ja-JP'});
+
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: japaneseOption,
+				trigger: translationSelector,
+			});
+
+			await fillAndBlurInput(
+				'https://www.youtube.com/watch?v=nlNUEBl53BI'
+			);
+
+			await expect(iframe).toHaveAttribute(
+				'title',
+				/Hello! from Liferay Japan/
+			);
+
+			// Change the language again and check that the video updates
+
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: page.getByRole('option').filter({hasText: 'en-US'}),
+				trigger: translationSelector,
+			});
+
+			await expect(iframe).toHaveAttribute(
+				'title',
+				'Life at Liferay - A Look into Liferay Culture'
+			);
+
+			await clickAndExpectToBeVisible({
+				autoClick: true,
+				target: japaneseOption,
+				trigger: translationSelector,
+			});
+
+			await expect(iframe).toHaveAttribute(
+				'title',
+				/Hello! from Liferay Japan/
+			);
+
+			// Go to edit mode and change the video title
+
+			await pageEditorPage.goto(
+				layout,
+				pageManagementSite.friendlyUrlPath
+			);
+
+			await pageEditorPage.changeFragmentConfiguration({
+				fieldLabel: 'Video Title',
+				fragmentId: videoPreviewerId,
+				tab: 'General',
+				value: 'This is my super cool video',
+			});
+
+			await pageEditorPage.publishPage();
+
+			// Check the video title
+
+			await page.goto(
+				`/web${pageManagementSite.friendlyUrlPath}${layout.friendlyUrlPath}`
+			);
+
+			await fillAndBlurInput(
+				'https://www.youtube.com/watch?v=2EPZxIC5ogU'
+			);
+
+			await expect(iframe).toHaveAttribute(
+				'title',
+				'This is my super cool video'
+			);
+
+			// Clear the video preview
+
+			await fillAndBlurInput('');
+
+			await expect(iframe).not.toBeAttached();
+		}
+	);
+});

@@ -35,13 +35,13 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -141,10 +141,31 @@ public class ImageDDMFormFieldTemplateContextContributor
 	}
 
 	private FileEntry _getFileEntry(JSONObject valueJSONObject) {
+		if ((valueJSONObject == null) || (valueJSONObject.length() <= 0)) {
+			return null;
+		}
+
+		String uuid = valueJSONObject.getString("uuid");
+		long groupId = valueJSONObject.getLong("groupId");
+
 		try {
-			return _dlAppService.getFileEntryByUuidAndGroupId(
-				valueJSONObject.getString("uuid"),
-				valueJSONObject.getLong("groupId"));
+			return _dlAppService.getFileEntryByUuidAndGroupId(uuid, groupId);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to get file entry", portalException);
+			}
+
+			return _getFileEntryByExternalReferenceCode(uuid, groupId);
+		}
+	}
+
+	private FileEntry _getFileEntryByExternalReferenceCode(
+		String uuid, long groupId) {
+
+		try {
+			return _dlAppService.getFileEntryByExternalReferenceCode(
+				uuid, groupId);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {

@@ -64,9 +64,17 @@ const renderComponent = ({state}: Props = {}) => {
 
 describe('StructureBuilderManagementBar', () => {
 	beforeAll(() => {
-		StructureService.createStructure = jest.fn().mockResolvedValue({id: 1});
-		StructureService.updateStructure = jest.fn();
-		StructureService.publishStructure = jest.fn();
+		StructureService.createStructure = jest
+			.fn()
+			.mockResolvedValue({data: {id: 1}});
+
+		StructureService.updateStructure = jest
+			.fn()
+			.mockResolvedValue({error: null});
+
+		StructureService.publishStructure = jest
+			.fn()
+			.mockResolvedValue({error: null});
 	});
 
 	beforeEach(() => {
@@ -112,7 +120,7 @@ describe('StructureBuilderManagementBar', () => {
 	it('Publish button calls correct endpoint when status is new', async () => {
 		renderComponent({state: {status: 'new'}});
 
-		const publishButton = screen.getByText('publish');
+		const publishButton = screen.getByRole('button', {name: 'publish'});
 
 		await userEvent.click(publishButton);
 

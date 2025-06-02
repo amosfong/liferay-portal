@@ -8,12 +8,12 @@ package com.liferay.commerce.order;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.portal.kernel.exception.PortalException;
 
+import jakarta.portlet.ActionRequest;
+import jakarta.portlet.PortletURL;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.math.BigDecimal;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.PortletURL;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Marco Leo
@@ -64,6 +64,14 @@ public interface CommerceOrderHttpHelper {
 
 	public boolean hasCommerceOrderPortlet(
 			HttpServletRequest httpServletRequest, String portletKey)
+		throws PortalException;
+
+	public boolean hasCommerceOrderReturns(
+			HttpServletRequest httpServletRequest)
+		throws PortalException;
+
+	public boolean hasCommerceOrderShipments(
+			HttpServletRequest httpServletRequest)
 		throws PortalException;
 
 	public boolean isGuestCheckoutEnabled(HttpServletRequest httpServletRequest)

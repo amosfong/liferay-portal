@@ -707,7 +707,7 @@ public class DefaultObjectEntryManagerImplTest
 		_objectDefinition3 =
 			objectDefinitionLocalService.addCustomObjectDefinition(
 				adminUser.getUserId(), 0, null, false, false, true, true, false,
-				false,
+				false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -2248,6 +2248,11 @@ public class DefaultObjectEntryManagerImplTest
 		ObjectDefinition objectDefinition =
 			ObjectDefinitionTestUtil.publishObjectDefinition();
 
+		objectDefinition.setFriendlyURLSeparator("test");
+
+		objectDefinition = objectDefinitionLocalService.updateObjectDefinition(
+			objectDefinition);
+
 		ObjectEntry objectEntry = _defaultObjectEntryManager.addObjectEntry(
 			_simpleDTOConverterContext, objectDefinition,
 			new ObjectEntry() {
@@ -2447,6 +2452,47 @@ public class DefaultObjectEntryManagerImplTest
 	}
 
 	@Test
+	public void testCopyObjectEntryByVersion() throws Exception {
+		_enableObjectEntryVersioning();
+
+		ObjectEntry objectEntry1 = new ObjectEntry() {
+			{
+				externalReferenceCode = RandomTestUtil.randomString();
+				keywords = new String[] {RandomTestUtil.randomString()};
+				properties = HashMapBuilder.<String, Object>put(
+					"textObjectFieldName", RandomTestUtil.randomString()
+				).build();
+				systemProperties = new SystemProperties() {
+					{
+						version = new Version() {
+							{
+								number = 1;
+							}
+						};
+					}
+				};
+			}
+		};
+
+		objectEntry1 = _defaultObjectEntryManager.addObjectEntry(
+			dtoConverterContext, _objectDefinition1, objectEntry1,
+			ObjectDefinitionConstants.SCOPE_COMPANY);
+
+		objectEntry1 = _updateObjectEntryVersion(objectEntry1, 2);
+
+		ObjectEntry objectEntry2 =
+			_defaultObjectEntryManager.copyObjectEntryByVersion(
+				dtoConverterContext, _objectDefinition1, objectEntry1.getId(),
+				2);
+
+		assertEquals(
+			_defaultObjectEntryManager.getObjectEntryByVersion(
+				dtoConverterContext, objectEntry1.getExternalReferenceCode(),
+				_objectDefinition1, 2),
+			objectEntry2);
+	}
+
+	@Test
 	public void testDeleteObjectEntry() throws Exception {
 		ObjectDefinition objectDefinition1 = _createObjectDefinition(
 			Collections.singletonList(
@@ -2592,11 +2638,7 @@ public class DefaultObjectEntryManagerImplTest
 
 	@Test
 	public void testDeleteObjectEntryVersion() throws Exception {
-		_objectDefinition1.setEnableObjectEntryVersioning(true);
-
-		_objectDefinition1 =
-			objectDefinitionLocalService.updateObjectDefinition(
-				_objectDefinition1);
+		_enableObjectEntryVersioning();
 
 		ObjectEntry objectEntry = new ObjectEntry() {
 			{
@@ -4311,11 +4353,7 @@ public class DefaultObjectEntryManagerImplTest
 	@FeatureFlag("LPD-17564")
 	@Test
 	public void testGetObjectEntryByVersion() throws Exception {
-		_objectDefinition1.setEnableObjectEntryVersioning(true);
-
-		_objectDefinition1 =
-			objectDefinitionLocalService.updateObjectDefinition(
-				_objectDefinition1);
+		_enableObjectEntryVersioning();
 
 		ObjectEntry objectEntry1 = new ObjectEntry() {
 			{
@@ -6829,7 +6867,7 @@ public class DefaultObjectEntryManagerImplTest
 		ObjectDefinition objectDefinition =
 			objectDefinitionLocalService.addCustomObjectDefinition(
 				adminUser.getUserId(), 0, null, false, false, true, true, false,
-				false,
+				false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),

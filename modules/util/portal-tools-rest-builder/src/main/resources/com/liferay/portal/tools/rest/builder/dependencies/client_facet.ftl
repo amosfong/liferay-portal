@@ -1,9 +1,9 @@
 package ${configYAML.apiPackagePath}.client.aggregation;
 
+import ${configYAML.javaEEPackage}.annotation.Generated;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Generated;
 
 /**
  * @author ${configYAML.author}

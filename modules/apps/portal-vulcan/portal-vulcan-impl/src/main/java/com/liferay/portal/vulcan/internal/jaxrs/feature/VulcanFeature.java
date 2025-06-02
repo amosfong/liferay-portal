@@ -5,8 +5,8 @@
 
 package com.liferay.portal.vulcan.internal.jaxrs.feature;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
 
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.portal.kernel.language.Language;
@@ -76,9 +76,9 @@ import com.liferay.portal.vulcan.internal.param.converter.provider.DateParamConv
 import com.liferay.portal.vulcan.jaxrs.context.ContextDataInjectorBuilderFactory;
 import com.liferay.portal.vulcan.pagination.provider.PaginationProvider;
 
-import javax.ws.rs.Priorities;
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.core.Feature;
+import jakarta.ws.rs.core.FeatureContext;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

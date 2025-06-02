@@ -2911,9 +2911,8 @@ sendPasswordCaptchaEnabled=&quot;false&quot;</echo>
 		<resource-root path="${jdbc.driver}" />
 	</resources>
 	<dependencies>
-		<module name="javax.api" />
-		<module name="javax.servlet.api" optional="true" />
-		<module name="javax.transaction.api" />
+		<module name="jakarta.servlet.api" optional="true" />
+		<module name="jakarta.transaction.api" />
 	</dependencies>
 </module>]]></echo>
 
@@ -3046,7 +3045,7 @@ sendPasswordCaptchaEnabled=&quot;false&quot;</echo>
 				<equals arg1="${app.server.type}" arg2="jboss" />
 				<then>
 					<echo file="${liferay.home}/tools/portal-tools-db-upgrade-client/app-server.properties">dir=${app.server.dir}
-extra.lib.dirs=modules/system/layers/base/javax/mail,modules/system/layers/base/javax/persistence,modules/system/layers/base/javax/servlet,modules/system/layers/base/javax/transaction
+extra.lib.dirs=modules/system/layers/base/jakarta/mail,modules/system/layers/base/jakarta/persistence,modules/system/layers/base/jakarta/servlet,modules/system/layers/base/jakarta/transaction
 global.lib.dir=modules/com/liferay/portal/main
 portal.dir=standalone/deployments/ROOT.war
 server.detector.server.id=jboss</echo>
@@ -3087,7 +3086,7 @@ server.detector.server.id=weblogic</echo>
 					<equals arg1="${app.server.type}" arg2="wildfly" />
 					<then>
 						<echo file="${liferay.home}/tools/portal-tools-db-upgrade-client/app-server.properties">dir=${app.server.dir}
-extra.lib.dirs=modules/system/layers/base/javax/mail,modules/system/layers/base/javax/persistence,modules/system/layers/base/javax/servlet,modules/system/layers/base/javax/transaction
+extra.lib.dirs=modules/system/layers/base/jakarta/mail,modules/system/layers/base/jakarta/persistence,modules/system/layers/base/jakarta/servlet,modules/system/layers/base/jakarta/transaction
 global.lib.dir=modules/com/liferay/portal/main
 portal.dir=standalone/deployments/ROOT.war
 server.detector.server.id=wildfly</echo>
@@ -6660,7 +6659,7 @@ ${custom.upgrade.properties}</echo>
 					<var name="app.server.lib.global.dir" value="${app.server.dir}/modules/com/liferay/portal/main" />
 					<var name="app.server.lib.portal.dir" value="${app.server.dir}/standalone/deployments/ROOT.war/WEB-INF/lib/" />
 					<var name="app.server.shielded-container-lib.portal.dir" value="${app.server.dir}/standalone/deployments/ROOT.war/WEB-INF/shielded-container-lib/" />
-					<var name="app.server.zip.url" value="http://download.jboss.org/wildfly/@{app.server.version}.Final/${app.server.zip.name}" />
+					<var name="app.server.zip.url" value="https://github.com/wildfly/wildfly/releases/download/${app.server.wildfly.version}.Final/${app.server.wildfly.zip.name}" />
 				</then>
 			</if>
 
@@ -7093,7 +7092,7 @@ log.sanitizer.enabled=false</echo>
 					</then>
 				</elseif>
 				<else>
-					<var name="app.server.tomcat.version" value="9.0.104" />
+					<var name="app.server.tomcat.version" value="10.1.40" />
 				</else>
 			</if>
 
@@ -8148,6 +8147,126 @@ ${docker.start.error}</fail>
 				<isset property="env.JENKINS_HOME" />
 			</condition>
 
+			<var name="env.osb.asah.api.token" value="" />
+
+			<if>
+				<isset property="env.OSB_ASAH_API_TOKEN" />
+				<then>
+					<var name="env.osb.asah.api.token" value="--env=OSB_ASAH_API_TOKEN=${env.OSB_ASAH_API_TOKEN}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.asah.api.token" />
+					<then>
+						<var name="env.osb.asah.api.token" value="--env=OSB_ASAH_API_TOKEN=${analytics.cloud.asah.api.token}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.asah.backend.url" value="" />
+
+			<if>
+				<isset property="env.OSB_ASAH_BACKEND_URL" />
+				<then>
+					<var name="env.osb.asah.backend.url" value="--env=OSB_ASAH_BACKEND_URL=${env.OSB_ASAH_BACKEND_URL}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.asah.backend.url" />
+					<then>
+						<var name="env.osb.asah.backend.url" value="--env=OSB_ASAH_BACKEND_URL=${analytics.cloud.asah.backend.url}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.asah.batch.curator.url" value="" />
+
+			<if>
+				<isset property="env.OSB_ASAH_BATCH_CURATOR_URL" />
+				<then>
+					<var name="env.osb.asah.batch.curator.url" value="--env=OSB_ASAH_BATCH_CURATOR_URL=${env.OSB_ASAH_BATCH_CURATOR_URL}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.asah.batch.curator.url" />
+					<then>
+						<var name="env.osb.asah.batch.curator.url" value="--env=OSB_ASAH_BATCH_CURATOR_URL=${analytics.cloud.asah.batch.curator.url}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.asah.project.id" value="" />
+
+			<if>
+				<isset property="env.OSB_ASAH_PROJECT_ID" />
+				<then>
+					<var name="env.osb.asah.batch.curator.url" value="--env=OSB_ASAH_PROJECT_ID=${env.OSB_ASAH_PROJECT_ID}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.asah.project.id" />
+					<then>
+						<var name="env.osb.asah.batch.curator.url" value="--env=OSB_ASAH_PROJECT_ID=${analytics.cloud.asah.project.id}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.faro.password" value="" />
+
+			<if>
+				<isset property="env.OSB_FARO_PASSWORD" />
+				<then>
+					<var name="env.osb.faro.password" value="--env=OSB_FARO_PASSWORD=${env.OSB_FARO_PASSWORD}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.faro.password" />
+					<then>
+						<var name="env.osb.faro.password" value="--env=OSB_FARO_PASSWORD=${analytics.cloud.faro.password}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.faro.url" value="" />
+
+			<if>
+				<isset property="env.OSB_FARO_URL" />
+				<then>
+					<var name="env.osb.faro.url" value="--env=OSB_FARO_URL=${env.OSB_FARO_URL}" />
+				</then>
+				<elseif>
+					<isset property="test.analytics.cloud.url" />
+					<then>
+						<var name="env.osb.faro.url" value="--env=OSB_FARO_URL=${test.analytics.cloud.url}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.faro.user.login" value="" />
+
+			<if>
+				<isset property="env.OSB_FARO_USER_LOGIN" />
+				<then>
+					<var name="env.osb.faro.user.login" value="--env=OSB_FARO_USER_LOGIN=${env.OSB_FARO_USER_LOGIN}" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.faro.user.login" />
+					<then>
+						<var name="env.osb.faro.user.login" value="--env=OSB_FARO_USER_LOGIN=${analytics.cloud.faro.user.login}" />
+					</then>
+				</elseif>
+			</if>
+
+			<var name="env.osb.faro.workspace.name" value="" />
+
+			<if>
+				<isset property="env.OSB_FARO_WORKSPACE_NAME" />
+				<then>
+					<var name="env.osb.faro.user.login" value="--env=OSB_FARO_WORKSPACE_NAME='${env.OSB_FARO_WORKSPACE_NAME}'" />
+				</then>
+				<elseif>
+					<isset property="analytics.cloud.faro.workspace.name" />
+					<then>
+						<var name="env.osb.faro.user.login" value="--env=OSB_FARO_WORKSPACE_NAME=${analytics.cloud.faro.workspace.name}" />
+					</then>
+				</elseif>
+			</if>
+
 			<local name="env.portal.url.arg" />
 
 			<condition else="" property="env.portal.url.arg" value="--env=PORTAL_URL=http://${env.NODE_NAME}:8080">
@@ -8172,6 +8291,14 @@ ${docker.start.error}</fail>
 				--add-host www.easy.com:${ip.address} \
 				--add-host www.fox.com:${ip.address} \
 				${env.ci.arg} \
+				${env.osb.asah.api.token} \
+				${env.osb.asah.backend.url} \
+				${env.osb.asah.batch.curator.url} \
+				${env.osb.asah.project.id} \
+				${env.osb.faro.password} \
+				${env.osb.faro.url} \
+				${env.osb.faro.user.login} \
+				${env.osb.faro.workspace.name} \
 				${env.portal.url.arg} \
 				${env.testray.cloud.storage.base.url} \
 				--mount type=bind,source=${host.git.dir}/${portal.dir.name},target=${portal.dir} \
@@ -9925,8 +10052,8 @@ org.apache.catalina.ha.session.level=INFO]]>
 			failOnNoReplacements="true"
 			file="${app.server.tomcat.dir}/webapps/ROOT/WEB-INF/web.xml"
 		>
-			<replacetoken><![CDATA[xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">]]></replacetoken>
-			<replacevalue><![CDATA[xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+			<replacetoken><![CDATA[xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">]]></replacetoken>
+			<replacevalue><![CDATA[xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
 	<distributable />]]></replacevalue>
 		</replace>
 	</target>
@@ -11982,23 +12109,14 @@ ${update.properties}</echo>
 	${log4j.appenders}
 	<Loggers>
 		<Logger level="DEBUG" name="com.liferay.frontend.js.spa.web.internal.servlet.taglib" />
-
 		<Logger level="INFO" name="com.liferay.portal.dao.orm.hibernate.VerifySessionFactoryWrapper" />
-
 		<Logger level="DEBUG" name="com.liferay.portal.bootstrap.log" />
-
 		${invoker.filter.helper.log.level}
-
 		<Logger level="INFO" name="com.liferay.portal.security.audit.router.internal.LoggingAuditMessageProcessor" />
-
 		<Logger level="${release.local.service.impl.log.level}" name="com.liferay.portal.service.impl.ReleaseLocalServiceImpl" />
-
 		<Logger level="${dialect.detector.log.level}" name="com.liferay.portal.spring.hibernate.DialectDetector" />
-
 		<Logger level="ERROR" name="com.zaxxer.hikari.pool.PoolBase" />
-
 		<Logger level="ERROR" name="org.apache.http.client.protocol.ResponseProcessCookies" />
-
 		${log4j.logggers.root}
 	</Loggers>
 </Configuration>]]></echo>
@@ -12007,7 +12125,6 @@ ${update.properties}</echo>
 <Configuration strict="true">
 	<Loggers>
 		<Logger level="ERROR" name="com.liferay.portal.osgi.web.wab.generator.internal.WabGenerator" />
-
 		<Logger level="WARN" name="com.liferay.portal.osgi.web.wab.generator.internal.processor.WabProcessor" />
 	</Loggers>
 </Configuration>]]></echo>
@@ -12022,9 +12139,9 @@ ${update.properties}</echo>
 		<echo file="${liferay.home}/osgi/log4j/com.liferay.portal.search.elasticsearch7.impl-log4j-ext.xml"><![CDATA[<?xml version="1.0"?>
 <Configuration strict="true">
 	<Loggers>
-		<Logger level="ERROR" name="com.liferay.portal.search.elasticsearch7.internal.sidecar.SidecarManager" />
-
+		<Logger level="ERROR" name="com.liferay.portal.search.elasticsearch7.internal.ElasticsearchSearchEngine" />
 		<Logger level="INFO" name="com.liferay.portal.search.elasticsearch7.internal.index.CompanyIndexFactory" />
+		<Logger level="ERROR" name="com.liferay.portal.search.elasticsearch7.internal.sidecar.SidecarManager" />
 	</Loggers>
 </Configuration>]]></echo>
 
@@ -12032,7 +12149,6 @@ ${update.properties}</echo>
 <Configuration strict="true">
 	<Loggers>
 		<Logger level="ERROR" name="com.liferay.oauth2.provider.rest.internal.endpoint.liferay.LiferayOAuthDataProvider" />
-
 		<Logger level="ERROR" name="org.apache.cxf.rs.security.oauth2.services.AbstractOAuthService" />
 	</Loggers>
 </Configuration>]]></echo>
@@ -12823,7 +12939,7 @@ captcha.enforce.disabled=true</echo>
 				<replace
 					file="${app.server.dir}/conf/server.xml"
 					token="&lt;Service name=&quot;Catalina&quot;&gt;"
-					value="&lt;Service name= &quot;Catalina&quot;&gt;${line.separator}    &lt;Connector port=&quot;8443&quot; protocol=&quot;org.apache.coyote.http11.Http11NioProtocol&quot;${line.separator}           maxThreads=&quot;150&quot; SSLEnabled=&quot;true&quot; scheme=&quot;https&quot; secure=&quot;true&quot;${line.separator}           clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; keystoreFile=&quot;${app.server.parent.dir}/keystore.jks&quot; keystorePass=&quot;liferay&quot; /&gt;"
+					value="&lt;Service name=&quot;Catalina&quot;&gt;${line.separator}    &lt;Connector port=&quot;8443&quot; protocol=&quot;org.apache.coyote.http11.Http11NioProtocol&quot;${line.separator}               maxThreads=&quot;150&quot; SSLEnabled=&quot;true&quot; scheme=&quot;https&quot; secure=&quot;true&quot;${line.separator}               clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot;&gt;${line.separator}        &lt;SSLHostConfig&gt;${line.separator}            &lt;Certificate certificateKeystoreFile=&quot;${app.server.parent.dir}/keystore.jks&quot;${line.separator}                          certificateKeystorePassword=&quot;liferay&quot;${line.separator}                          type=&quot;RSA&quot; /&gt;${line.separator}        &lt;/SSLHostConfig&gt;${line.separator}    &lt;/Connector&gt;"
 				/>
 			</then>
 			<else>

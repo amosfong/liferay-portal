@@ -32,21 +32,20 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLTypeExtension;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import ${configYAML.javaEEPackage}.annotation.Generated;
+
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletRequest;
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletResponse;
+
+import ${configYAML.javaEEPackage}.validation.constraints.NotEmpty;
+
+import ${configYAML.javaEEPackage}.ws.rs.core.Response;
+import ${configYAML.javaEEPackage}.ws.rs.core.UriInfo;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-
-import javax.annotation.Generated;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.validation.constraints.NotEmpty;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
 

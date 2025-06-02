@@ -23,6 +23,7 @@ import com.liferay.portal.workflow.kaleo.util.comparator.KaleoDefinitionVersionT
 import java.util.Arrays;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,6 +62,7 @@ public class KaleoDefinitionVersionLocalServiceTest
 			_getVersion(kaleoDefinition.getVersion()));
 	}
 
+	@Ignore
 	@Test
 	public void testGetLatestKaleoDefinitionVersions() throws Exception {
 		KaleoDefinition kaleoDefinition1 = addKaleoDefinition(

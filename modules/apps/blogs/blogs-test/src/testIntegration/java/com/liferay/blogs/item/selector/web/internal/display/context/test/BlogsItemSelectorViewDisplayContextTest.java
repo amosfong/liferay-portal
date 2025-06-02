@@ -25,7 +25,7 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,7 +65,7 @@ public class BlogsItemSelectorViewDisplayContextTest {
 	@Test
 	public void testShowDragAndDropZoneWithWorkflowEnabled() throws Exception {
 		_workflowDefinitionLinkLocalService.addWorkflowDefinitionLink(
-			TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+			null, TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
 			_group.getGroupId(), BlogsEntry.class.getName(), 0, 0,
 			"Single Approver", 1);
 
@@ -82,7 +82,7 @@ public class BlogsItemSelectorViewDisplayContextTest {
 		throws Exception {
 
 		_workflowDefinitionLinkLocalService.addWorkflowDefinitionLink(
-			TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+			null, TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
 			_group.getGroupId(), BlogsEntry.class.getName(), 0, 0,
 			"Single Approver", 1);
 

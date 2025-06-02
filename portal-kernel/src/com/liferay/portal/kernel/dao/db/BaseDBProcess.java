@@ -14,6 +14,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
@@ -47,10 +48,12 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -293,6 +296,13 @@ public abstract class BaseDBProcess implements DBProcess {
 		_closeConnections(connectionsMap);
 	}
 
+	protected void closeConnections(Thread thread) {
+		Map<Thread, Connection> connectionsMap = _connectionsMaps.get(
+			CompanyThreadLocal.getCompanyId());
+
+		_closeConnections(connectionsMap, thread);
+	}
+
 	/**
 	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #hasTable(String)}
 	 */
@@ -527,6 +537,31 @@ public abstract class BaseDBProcess implements DBProcess {
 		}
 	}
 
+	private void _closeConnections(
+		Map<Thread, Connection> connectionsMap, Thread thread) {
+
+		if (MapUtil.isEmpty(connectionsMap)) {
+			return;
+		}
+
+		try {
+			for (Map.Entry<Thread, Connection> entry :
+					connectionsMap.entrySet()) {
+
+				if (entry.getKey() == thread) {
+					Connection connection = entry.getValue();
+
+					connectionsMap.remove(entry.getKey());
+
+					connection.close();
+				}
+			}
+		}
+		catch (SQLException sqlException) {
+			_log.error(sqlException);
+		}
+	}
+
 	private PreparedStatement _getConcurrentPreparedStatement(
 		String updateSQL,
 		Map<Thread, PreparedStatement> preparedStatementHashMap) {
@@ -586,16 +621,40 @@ public abstract class BaseDBProcess implements DBProcess {
 		}
 	}
 
-	private int _getConnectionsCount() {
-		int connectionsCount = 0;
-
-		for (Map<Thread, Connection> connectionsMap :
-				_connectionsMaps.values()) {
-
-			connectionsCount += connectionsMap.size();
+	private int _getFixedThreadPoolSize() {
+		if (_fixedThreadPoolSize.get() != 0) {
+			return _fixedThreadPoolSize.get();
 		}
 
-		return connectionsCount;
+		long[] companyIds = PortalInstancePool.getCompanyIds();
+
+		int maximumPoolSize = GetterUtil.getInteger(
+			PropsUtil.get("jdbc.default.maximumPoolSize"));
+
+		Runtime runtime = Runtime.getRuntime();
+
+		int expectedMaxConnectionsCount =
+			Math.min(companyIds.length - 1, runtime.availableProcessors()) *
+				runtime.availableProcessors();
+
+		if (expectedMaxConnectionsCount > (0.9 * maximumPoolSize)) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					StringBundler.concat(
+						"The database is close to reaching ", maximumPoolSize,
+						" connections. Consider increasing the property ",
+						"\"jdbc.default.maximumPoolSize\" to improve ",
+						"performance. Upgrade processes will continue in ",
+						"single threaded mode."));
+			}
+
+			_fixedThreadPoolSize.set(1);
+		}
+		else {
+			_fixedThreadPoolSize.set(runtime.availableProcessors());
+		}
+
+		return _fixedThreadPoolSize.get();
 	}
 
 	private InputStream _getInputStream(String path) {
@@ -635,17 +694,14 @@ public abstract class BaseDBProcess implements DBProcess {
 			Objects.requireNonNull(unsafeBiConsumer);
 		}
 
-		Runtime runtime = Runtime.getRuntime();
-
 		ExecutorService executorService = Executors.newFixedThreadPool(
-			runtime.availableProcessors());
-
-		ThrowableCollector throwableCollector = new ThrowableCollector();
+			_getFixedThreadPoolSize());
 
 		List<Future<Void>> futures = new ArrayList<>();
-
 		Map<Thread, PreparedStatement> preparedStatementHashMap =
 			new ConcurrentHashMap<>();
+		Set<Thread> threads = new HashSet<>();
+		ThrowableCollector throwableCollector = new ThrowableCollector();
 
 		try {
 			boolean notificationEnabled = NotificationThreadLocal.isEnabled();
@@ -664,6 +720,8 @@ public abstract class BaseDBProcess implements DBProcess {
 							WorkflowThreadLocal.setEnabled(workflowEnabled);
 
 							try {
+								threads.add(Thread.currentThread());
+
 								if (Validator.isNull(updateSQL)) {
 									unsafeConsumer.accept(current);
 								}
@@ -699,43 +757,52 @@ public abstract class BaseDBProcess implements DBProcess {
 			}
 		}
 		finally {
-			executorService.shutdown();
+			try {
+				executorService.shutdown();
 
-			for (Future<Void> future : futures) {
-				future.get();
+				for (Future<Void> future : futures) {
+					future.get();
+				}
+
+				Throwable throwable = throwableCollector.getThrowable();
+
+				if (throwable != null) {
+					if (exceptionMessage != null) {
+						throw new Exception(exceptionMessage, throwable);
+					}
+
+					ReflectionUtil.throwException(throwable);
+				}
+
+				try {
+					for (PreparedStatement preparedStatement :
+							preparedStatementHashMap.values()) {
+
+						preparedStatement.executeBatch();
+
+						preparedStatement.close();
+					}
+				}
+				catch (Exception exception) {
+					_log.error(exceptionMessage, exception);
+
+					throw exception;
+				}
 			}
-		}
-
-		Throwable throwable = throwableCollector.getThrowable();
-
-		if (throwable != null) {
-			if (exceptionMessage != null) {
-				throw new Exception(exceptionMessage, throwable);
+			finally {
+				for (Thread thread : threads) {
+					closeConnections(thread);
+				}
 			}
-
-			ReflectionUtil.throwException(throwable);
-		}
-
-		try {
-			for (PreparedStatement preparedStatement :
-					preparedStatementHashMap.values()) {
-
-				preparedStatement.executeBatch();
-
-				preparedStatement.close();
-			}
-		}
-		catch (Exception exception) {
-			_log.error(exceptionMessage, exception);
-
-			throw exception;
 		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(BaseDBProcess.class);
 
-	private final Map<Long, Map<Thread, Connection>> _connectionsMaps =
+	private static final Map<Long, Map<Thread, Connection>> _connectionsMaps =
 		new ConcurrentHashMap<>();
+	private static final AtomicInteger _fixedThreadPoolSize = new AtomicInteger(
+		0);
 
 	private class ConnectionThreadProxyInvocationHandler
 		implements InvocationHandler {
@@ -747,12 +814,10 @@ public abstract class BaseDBProcess implements DBProcess {
 			String methodName = method.getName();
 
 			if (methodName.equals("close")) {
-				if (_getConnectionsCount() > 0) {
-					for (Map<Thread, Connection> connectionsMap :
-							_connectionsMaps.values()) {
+				for (Map<Thread, Connection> connectionsMap :
+						_connectionsMaps.values()) {
 
-						_closeConnections(connectionsMap);
-					}
+					_closeConnections(connectionsMap);
 				}
 
 				return null;

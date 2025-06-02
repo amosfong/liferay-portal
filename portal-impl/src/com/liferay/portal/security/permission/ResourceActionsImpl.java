@@ -50,6 +50,9 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.PropsValues;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.InputStream;
 
 import java.util.ArrayList;
@@ -67,9 +70,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author Brian Wing Shun Chan
@@ -420,11 +420,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 	@Override
 	public boolean isPortalModelResource(String modelResource) {
-		if (_portalModelResources.contains(modelResource)) {
-			return true;
-		}
-
-		return false;
+		return _portalModelResources.contains(modelResource);
 	}
 
 	@Override
@@ -432,11 +428,7 @@ public class ResourceActionsImpl implements ResourceActions {
 		Collection<String> rootModelResources =
 			_portletRootModelResources.values();
 
-		if (rootModelResources.contains(modelResource)) {
-			return true;
-		}
-
-		return false;
+		return rootModelResources.contains(modelResource);
 	}
 
 	@Override

@@ -6,82 +6,57 @@
 package com.liferay.object.web.internal.asset.display.page.portlet;
 
 import com.liferay.asset.display.page.portlet.BaseAssetDisplayPageFriendlyURLResolver;
-import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.CharPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.portlet.FriendlyURLResolver;
 import com.liferay.portal.kernel.portlet.constants.FriendlyURLResolverConstants;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 /**
  * @author Guilherme Camacho
  */
-@Component(service = FriendlyURLResolver.class)
+@Component(scope = ServiceScope.PROTOTYPE, service = FriendlyURLResolver.class)
 public class ObjectEntryDisplayPageFriendlyURLResolver
 	extends BaseAssetDisplayPageFriendlyURLResolver {
 
 	@Override
 	public String getDefaultURLSeparator() {
-		return FriendlyURLResolverConstants.URL_SEPARATOR_OBJECT_ENTRY;
+		if (_objectDefinition == null) {
+			return FriendlyURLResolverConstants.URL_SEPARATOR_OBJECT_ENTRY;
+		}
+
+		return StringUtil.quote(
+			_objectDefinition.getFriendlyURLSeparator(), CharPool.SLASH);
 	}
 
 	@Override
 	public String getKey() {
-		return ObjectEntry.class.getName();
+		if (_objectDefinition == null) {
+			return ObjectEntry.class.getName();
+		}
+
+		return StringUtil.replace(
+			_objectDefinition.getClassName(), CharPool.POUND, CharPool.PERIOD);
 	}
 
 	@Override
 	public boolean isURLSeparatorConfigurable() {
+		if (FeatureFlagManagerUtil.isEnabled("LPD-21926")) {
+			return false;
+		}
+
 		return true;
 	}
 
-	@Override
-	protected LayoutDisplayPageProvider<?> getLayoutDisplayPageProvider(
-			String friendlyURL)
-		throws PortalException {
-
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-21926")) {
-			return super.getLayoutDisplayPageProvider(friendlyURL);
-		}
-
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		if (serviceContext == null) {
-			return super.getLayoutDisplayPageProvider(friendlyURL);
-		}
-
-		String[] parts = StringUtil.split(
-			StringUtil.removeFirst(friendlyURL, getURLSeparator()),
-			CharPool.SLASH);
-
-		if (parts.length == 1) {
-			return super.getLayoutDisplayPageProvider(friendlyURL);
-		}
-
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.fetchObjectDefinition(
-				serviceContext.getCompanyId(), parts[0]);
-
-		if (objectDefinition == null) {
-			return super.getLayoutDisplayPageProvider(friendlyURL);
-		}
-
-		return layoutDisplayPageProviderRegistry.
-			getLayoutDisplayPageProviderByClassName(
-				objectDefinition.getClassName());
+	public void setObjectDefinition(ObjectDefinition objectDefinition) {
+		_objectDefinition = objectDefinition;
 	}
 
-	@Reference
-	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private ObjectDefinition _objectDefinition;
 
 }

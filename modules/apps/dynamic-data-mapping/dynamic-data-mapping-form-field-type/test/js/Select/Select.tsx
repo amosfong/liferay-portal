@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import {FormProvider, PageProvider} from 'data-engine-js-components-web';
 import React from 'react';
 
-import Select from '../../../src/main/resources/META-INF/resources/Select/Select';
+import Select from '../../../src/main/resources/META-INF/resources/js/Select/Select';
 
 interface Props {
 	multiple: boolean;
@@ -19,14 +19,19 @@ interface Props {
 const SelectWithProvider = (props: Props) => (
 	<FormProvider initialState={{viewMode: true}}>
 		<PageProvider value={{editingLanguageId: 'en_US'}}>
-			<Select
-				label=""
-				onChange={null}
-				readOnly={false}
-				selectedKey=""
-				showEmptyOption={false}
-				{...props}
-			/>
+			{
+
+				// @ts-ignore
+
+				<Select
+					label=""
+					onChange={null}
+					readOnly={false}
+					selectedKey=""
+					showEmptyOption={false}
+					{...props}
+				/>
+			}
 		</PageProvider>
 	</FormProvider>
 );

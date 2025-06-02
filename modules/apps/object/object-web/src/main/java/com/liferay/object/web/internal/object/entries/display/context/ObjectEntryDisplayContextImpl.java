@@ -79,6 +79,7 @@ import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelpe
 import com.liferay.object.web.internal.security.permission.resource.util.ObjectDefinitionResourcePermissionUtil;
 import com.liferay.object.web.internal.util.ObjectEntryUtil;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -119,6 +120,12 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.taglib.servlet.PipingServletResponseFactory;
 
+import jakarta.portlet.PortletRequest;
+import jakarta.portlet.WindowState;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.PageContext;
+
 import java.sql.Timestamp;
 
 import java.text.DecimalFormat;
@@ -131,12 +138,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.portlet.PortletRequest;
-import javax.portlet.WindowState;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.PageContext;
 
 /**
  * @author Marco Leo
@@ -575,7 +576,7 @@ public class ObjectEntryDisplayContextImpl
 
 	@Override
 	public String getURLSeparator() {
-		StringBundler sb = new StringBundler(6);
+		StringBundler sb = new StringBundler(4);
 
 		sb.append(_themeDisplay.getPortalURL());
 
@@ -586,23 +587,22 @@ public class ObjectEntryDisplayContextImpl
 			sb.append(group.getFriendlyURL());
 		}
 
+		ObjectDefinition objectDefinition = getObjectDefinition1();
+
+		String friendlyURLSeparator = StringUtil.quote(
+			objectDefinition.getFriendlyURLSeparator(), CharPool.SLASH);
+
 		FriendlyURLResolver friendlyURLResolver =
 			FriendlyURLResolverRegistryUtil.
 				getFriendlyURLResolverByDefaultURLSeparator(
-					FriendlyURLResolverConstants.URL_SEPARATOR_OBJECT_ENTRY);
+					friendlyURLSeparator);
 
 		if (friendlyURLResolver == null) {
 			sb.append(FriendlyURLResolverConstants.URL_SEPARATOR_OBJECT_ENTRY);
 		}
 		else {
-			sb.append(friendlyURLResolver.getURLSeparator());
+			sb.append(friendlyURLSeparator);
 		}
-
-		ObjectDefinition objectDefinition = getObjectDefinition1();
-
-		sb.append(objectDefinition.getName());
-
-		sb.append(StringPool.SLASH);
 
 		return sb.toString();
 	}

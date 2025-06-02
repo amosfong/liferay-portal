@@ -7,9 +7,8 @@ package com.liferay.friendly.url.web.internal.portlet.action;
 
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.friendly.url.configuration.manager.FriendlyURLSeparatorConfigurationManager;
-import com.liferay.petra.string.CharPool;
+import com.liferay.friendly.url.separator.util.FriendlyURLSeparatorUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.LayoutFriendlyURLException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -20,7 +19,6 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
@@ -30,13 +28,12 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.service.impl.LayoutLocalServiceHelper;
 
+import jakarta.portlet.ActionRequest;
+import jakarta.portlet.ActionResponse;
+import jakarta.portlet.PortletException;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"javax.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
+		"jakarta.portlet.name=" + ConfigurationAdminPortletKeys.INSTANCE_SETTINGS,
 		"mvc.command.name=/instance_settings/friendly_url_separator_save_company_configuration"
 	},
 	service = MVCActionCommand.class
@@ -140,25 +137,16 @@ public class FriendlyURLSeparatorSaveCompanyConfigurationMVCActionCommand
 						StringPool.SLASH + friendlyURLSeparator +
 							StringPool.SLASH;
 
-					if (friendlyURLSeparators.contains(friendlyURLSeparator)) {
+					String message = FriendlyURLSeparatorUtil.validate(
+						themeDisplay.getCompanyId(),
+						friendlyURLResolver.getKey(), friendlyURLSeparator,
+						friendlyURLSeparators, _layoutLocalServiceHelper,
+						themeDisplay.getLocale());
+
+					if (message != null) {
 						fieldsValidationErrorsJSONObject.put(
-							namespace + friendlyURLResolver.getKey(),
-							_language.get(
-								themeDisplay.getLocale(),
-								"friendly-url-separator-error-other-asset-" +
-									"type-may-use-this-prefix"));
+							namespace + friendlyURLResolver.getKey(), message);
 
-						return null;
-					}
-
-					friendlyURLSeparators.add(friendlyURLSeparator);
-
-					_validateURLSeparator(
-						fieldsValidationErrorsJSONObject,
-						friendlyURLResolver.getKey(), themeDisplay,
-						friendlyURLSeparator);
-
-					if (fieldsValidationErrorsJSONObject.length() > 0) {
 						return null;
 					}
 
@@ -227,115 +215,6 @@ public class FriendlyURLSeparatorSaveCompanyConfigurationMVCActionCommand
 		return redirect;
 	}
 
-	private void _validateURLSeparator(
-		JSONObject fieldsValidationErrorsJSONObject, String key,
-		ThemeDisplay themeDisplay, String urlSeparator) {
-
-		String namespace = _portal.getPortletNamespace(themeDisplay.getPpid());
-
-		if (urlSeparator.length() < 3) {
-			fieldsValidationErrorsJSONObject.put(
-				namespace + key,
-				_language.format(
-					themeDisplay.getLocale(),
-					"friendly-url-separator-error-should-have-at-least-x-" +
-						"characters",
-					3));
-
-			return;
-		}
-
-		if (urlSeparator.length() > 255) {
-			fieldsValidationErrorsJSONObject.put(
-				namespace + key,
-				_language.format(
-					themeDisplay.getLocale(),
-					"friendly-url-separator-error-should-have-at-most-x-" +
-						"characters",
-					255));
-
-			return;
-		}
-
-		if (urlSeparator.contains(Portal.FRIENDLY_URL_SEPARATOR)) {
-			fieldsValidationErrorsJSONObject.put(
-				namespace + key,
-				_language.get(
-					themeDisplay.getLocale(),
-					"friendly-url-separator-error-invalid-characters"));
-
-			return;
-		}
-
-		if (Validator.isNumber(
-				urlSeparator.substring(1, urlSeparator.length() - 1))) {
-
-			fieldsValidationErrorsJSONObject.put(
-				namespace + key,
-				_language.get(
-					themeDisplay.getLocale(),
-					"friendly-url-separator-error-can-not-be-a-number"));
-		}
-
-		String friendlyURL = urlSeparator.substring(
-			0, urlSeparator.length() - 1);
-
-		try {
-			_layoutLocalServiceHelper.validateFriendlyURLKeyword(friendlyURL);
-		}
-		catch (LayoutFriendlyURLException layoutFriendlyURLException) {
-			String keywordConflict =
-				layoutFriendlyURLException.getKeywordConflict();
-
-			if (!keywordConflict.endsWith(StringPool.SLASH)) {
-				keywordConflict = keywordConflict + StringPool.SLASH;
-			}
-
-			FriendlyURLResolver friendlyURLResolver1 =
-				FriendlyURLResolverRegistryUtil.
-					getFriendlyURLResolverByDefaultURLSeparator(
-						keywordConflict);
-
-			FriendlyURLResolver friendlyURLResolver2 =
-				FriendlyURLResolverRegistryUtil.getFriendlyURLResolver(
-					keywordConflict);
-
-			if (((friendlyURLResolver1 == null) &&
-				 (friendlyURLResolver2 == null)) ||
-				((friendlyURLResolver1 != null) &&
-				 Objects.equals(
-					 friendlyURLResolver1.getDefaultURLSeparator(),
-					 keywordConflict) &&
-				 !Objects.equals(friendlyURLResolver1.getKey(), key)) ||
-				((friendlyURLResolver2 != null) &&
-				 Objects.equals(
-					 friendlyURLResolver2.getURLSeparator(), keywordConflict) &&
-				 !Objects.equals(friendlyURLResolver2.getKey(), key))) {
-
-				fieldsValidationErrorsJSONObject.put(
-					namespace + key,
-					_language.get(
-						themeDisplay.getLocale(),
-						"friendly-url-separator-error-other-asset-type-may-" +
-							"use-this-prefix"));
-			}
-		}
-
-		int count1 = _layoutFriendlyURLLocalService.getLayoutFriendlyURLsCount(
-			themeDisplay.getCompanyId(), friendlyURL);
-		int count2 = _layoutFriendlyURLLocalService.getLayoutFriendlyURLsCount(
-			themeDisplay.getCompanyId(), urlSeparator + CharPool.PERCENT);
-
-		if ((count1 > 0) || (count2 > 0)) {
-			fieldsValidationErrorsJSONObject.put(
-				namespace + key,
-				_language.get(
-					themeDisplay.getLocale(),
-					"friendly-url-separator-error-other-asset-type-may-use-" +
-						"this-prefix"));
-		}
-	}
-
 	@Reference
 	private FriendlyURLNormalizer _friendlyURLNormalizer;
 
@@ -348,9 +227,6 @@ public class FriendlyURLSeparatorSaveCompanyConfigurationMVCActionCommand
 
 	@Reference
 	private Language _language;
-
-	@Reference
-	private LayoutFriendlyURLLocalService _layoutFriendlyURLLocalService;
 
 	@Reference
 	private LayoutLocalServiceHelper _layoutLocalServiceHelper;

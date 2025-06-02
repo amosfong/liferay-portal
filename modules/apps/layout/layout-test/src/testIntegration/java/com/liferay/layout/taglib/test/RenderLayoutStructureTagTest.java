@@ -184,6 +184,9 @@ import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.test.util.SegmentsTestUtil;
 
+import jakarta.portlet.ActionRequest;
+import jakarta.portlet.ActionResponse;
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -195,9 +198,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -253,7 +253,7 @@ public class RenderLayoutStructureTagTest {
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, true, true, true,
-				false, false, RandomTestUtil.randomLocaleStringMap(),
+				false, false, null, RandomTestUtil.randomLocaleStringMap(),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				RandomTestUtil.randomLocaleStringMap(), true,
 				ObjectDefinitionConstants.SCOPE_COMPANY,
@@ -274,7 +274,7 @@ public class RenderLayoutStructureTagTest {
 		ObjectDefinition relationshipObjectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, true, true, true,
-				false, false, RandomTestUtil.randomLocaleStringMap(),
+				false, false, null, RandomTestUtil.randomLocaleStringMap(),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				RandomTestUtil.randomLocaleStringMap(), true,
 				ObjectDefinitionConstants.SCOPE_COMPANY,

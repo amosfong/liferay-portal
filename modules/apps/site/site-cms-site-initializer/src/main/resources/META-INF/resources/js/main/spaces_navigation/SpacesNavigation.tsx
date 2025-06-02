@@ -7,14 +7,17 @@ import {ClayButtonWithIcon} from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
 import ClayPanel from '@clayui/panel';
-import {sub} from 'frontend-js-web';
+import {navigate, sub} from 'frontend-js-web';
 import React from 'react';
 
-import SpaceSticker from '../components/SpaceSticker';
+import SpaceSticker, {LogoColor} from '../components/SpaceSticker';
 
 export interface AssetLibrary {
 	id: number;
 	name: string;
+	settings?: {
+		logoColor: string;
+	};
 	url: string;
 }
 
@@ -22,6 +25,7 @@ interface SpacesNavigationProps {
 	allSpacesURL: string;
 	assetLibraries: AssetLibrary[];
 	assetLibrariesCount: number;
+	newSpaceURL: string;
 	showAddButton: boolean;
 }
 
@@ -29,10 +33,14 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 	allSpacesURL,
 	assetLibraries,
 	assetLibrariesCount,
+	newSpaceURL,
 	showAddButton,
 }) => {
 	const onAddButtonClick = (event: any) => {
 		event.preventDefault();
+
+		navigate(newSpaceURL.toString());
+
 		event.stopPropagation();
 	};
 
@@ -69,7 +77,13 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 								className="nav-link"
 								href={assetLibrary.url}
 							>
-								<SpaceSticker name={assetLibrary.name} />
+								<SpaceSticker
+									displayType={
+										assetLibrary.settings
+											?.logoColor as LogoColor
+									}
+									name={assetLibrary.name}
+								/>
 							</ClayLink>
 						</li>
 					))}

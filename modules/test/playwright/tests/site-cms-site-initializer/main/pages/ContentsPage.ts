@@ -14,19 +14,32 @@ export class ContentsPage {
 	readonly page: Page;
 
 	readonly newButton: Locator;
-	readonly submitButton: Locator;
+	readonly publishButton: Locator;
 
 	constructor(page: Page) {
 		this.page = page;
 
 		this.newButton = page.getByLabel('New');
-		this.submitButton = page.getByText('Submit');
+		this.publishButton = page.getByText('Publish');
 	}
 
 	async goto() {
 		await this.page.goto(PORTLET_URLS.cmsContents);
 
 		await this.newButton.waitFor();
+	}
+
+	async closeSidePanel() {
+		const trigger = this.page.locator(
+			'.content-editor__side-panel button[aria-selected="true"]'
+		);
+
+		if (trigger) {
+			await clickAndExpectToBeHidden({
+				target: trigger,
+				trigger,
+			});
+		}
 	}
 
 	async createContent(type: string) {
@@ -36,17 +49,9 @@ export class ContentsPage {
 			trigger: this.newButton,
 		});
 
-		await this.page.getByLabel('Select a language').waitFor();
+		await this.openSidePanel('General');
 
-		await clickAndExpectToBeVisible({
-			target: this.page.getByLabel('Default'),
-			trigger: this.page.getByLabel('Select a language'),
-		});
-
-		await clickAndExpectToBeHidden({
-			target: this.page.getByLabel('Default'),
-			trigger: this.page.getByLabel('Select a language'),
-		});
+		await this.closeSidePanel();
 	}
 
 	async deleteContent(title: string) {
@@ -74,16 +79,15 @@ export class ContentsPage {
 			trigger: card.getByLabel('More actions'),
 		});
 
-		await this.page.getByLabel('Select a language').waitFor();
+		await this.openSidePanel('General');
 
+		await this.closeSidePanel();
+	}
+
+	async openSidePanel(panelName: 'General') {
 		await clickAndExpectToBeVisible({
-			target: this.page.getByLabel('Default'),
-			trigger: this.page.getByLabel('Select a language'),
-		});
-
-		await clickAndExpectToBeHidden({
-			target: this.page.getByLabel('Default'),
-			trigger: this.page.getByLabel('Select a language'),
+			target: this.page.locator('.sidebar-header', {hasText: panelName}),
+			trigger: this.page.getByLabel(panelName),
 		});
 	}
 
@@ -91,7 +95,7 @@ export class ContentsPage {
 		await clickAndExpectToBeVisible({
 			target: this.newButton,
 			timeout: 5000,
-			trigger: this.submitButton,
+			trigger: this.publishButton,
 		});
 	}
 }

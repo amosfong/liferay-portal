@@ -51,9 +51,9 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
-import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -215,6 +215,7 @@ public class EditStructureDisplayPageStrutsActionTest {
 					(ThemeDisplay)httpServletRequest.getAttribute(
 						WebKeys.THEME_DISPLAY)),
 				"p_l_mode", Constants.EDIT, "backURL",
+				httpServletRequest.getParameter("backURL"), "p_l_back_url",
 				httpServletRequest.getParameter("backURL")),
 			mockHttpServletResponse.getRedirectedUrl());
 	}

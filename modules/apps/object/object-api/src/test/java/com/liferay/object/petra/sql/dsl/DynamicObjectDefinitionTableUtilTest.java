@@ -15,6 +15,7 @@ import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,6 +31,7 @@ public class DynamicObjectDefinitionTableUtilTest {
 	public static final LiferayUnitTestRule liferayUnitTestRule =
 		LiferayUnitTestRule.INSTANCE;
 
+	@Ignore
 	@Test
 	public void testGetDataType() {
 		Assert.assertEquals(

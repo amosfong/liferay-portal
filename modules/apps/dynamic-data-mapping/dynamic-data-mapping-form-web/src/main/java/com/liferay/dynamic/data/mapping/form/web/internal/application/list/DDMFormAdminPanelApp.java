@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=600",
+		"panel.app.order:Integer=650",
 		"panel.category.key=" + PanelCategoryKeys.SITE_ADMINISTRATION_CONTENT
 	},
 	service = PanelApp.class
@@ -37,7 +37,7 @@ public class DDMFormAdminPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN + ")"
+		target = "(jakarta.portlet.name=" + DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN + ")"
 	)
 	private Portlet _portlet;
 

@@ -5,7 +5,7 @@
  */
 --%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
@@ -16,8 +16,7 @@ taglib uri="http://liferay.com/tld/frontend-data-set" prefix="frontend-data-set"
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page import="com.liferay.commerce.inventory.model.CommerceInventoryWarehouse" %><%@
-page import="com.liferay.commerce.product.constants.CPMeasurementUnitConstants" %><%@
+<%@ page import="com.liferay.commerce.product.constants.CPMeasurementUnitConstants" %><%@
 page import="com.liferay.commerce.shipping.engine.fixed.exception.CommerceShippingFixedOptionAmountException" %><%@
 page import="com.liferay.commerce.shipping.engine.fixed.exception.CommerceShippingFixedOptionKeyException" %><%@
 page import="com.liferay.commerce.shipping.engine.fixed.exception.CommerceShippingFixedOptionRelPriceException" %><%@

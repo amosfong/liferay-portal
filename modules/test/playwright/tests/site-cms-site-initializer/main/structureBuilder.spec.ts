@@ -46,13 +46,6 @@ test(
 			name: label,
 		});
 
-		// Check we can't publish without adding a field
-
-		await clickAndExpectToBeVisible({
-			target: page.getByText('At least one field must be added'),
-			trigger: structureBuilderPage.saveButton,
-		});
-
 		// Add fields and check they are selected by default
 
 		await structureBuilderPage.addField('Text');
@@ -616,7 +609,10 @@ test.describe('Customize experience', () => {
 
 			// Go back to the structure builder
 
-			await page.getByRole('link', {name: 'Back'}).click();
+			await page
+				.locator('.management-bar')
+				.getByRole('link', {name: 'Back'})
+				.click();
 
 			// Delete the field and try to customize the experience again
 
@@ -702,10 +698,6 @@ test.describe('Customize experience', () => {
 
 			// Customize the experience
 
-			await page
-				.getByRole('button', {name: 'Customize Experience'})
-				.click();
-
 			await clickAndExpectToBeVisible({
 				target: page.getByText('Select a Page Element', {exact: true}),
 				trigger: page.getByRole('button', {
@@ -721,7 +713,9 @@ test.describe('Customize experience', () => {
 
 			await clickAndExpectToBeVisible({
 				target: page.getByText('Structure Fields'),
-				trigger: page.getByRole('link', {name: 'Back'}),
+				trigger: page
+					.locator('.management-bar')
+					.getByRole('link', {name: 'Back'}),
 			});
 
 			// Publish again and check edit experience link is show in toast
@@ -737,3 +731,44 @@ test.describe('Customize experience', () => {
 		}
 	);
 });
+
+test(
+	'Add correct initial fields depending on type',
+	{
+		tag: '@LPD-50371',
+	},
+	async ({page, structureBuilderPage}) => {
+
+		// Go to the Structure Builder with type content and check initial fields
+
+		await structureBuilderPage.goto({type: 'content'});
+
+		await structureBuilderPage.changeStructureSettings({
+			label: getRandomString(),
+		});
+
+		await expect(
+			page.locator('.treeview-link', {hasText: 'Title'})
+		).toBeVisible();
+
+		await expect(
+			page.locator('.treeview-link', {hasText: 'File'})
+		).not.toBeVisible();
+
+		// Check with type file
+
+		await structureBuilderPage.goto({type: 'file'});
+
+		await structureBuilderPage.changeStructureSettings({
+			label: getRandomString(),
+		});
+
+		await expect(
+			page.locator('.treeview-link', {hasText: 'Title'})
+		).toBeVisible();
+
+		await expect(
+			page.locator('.treeview-link', {hasText: 'File'})
+		).toBeVisible();
+	}
+);

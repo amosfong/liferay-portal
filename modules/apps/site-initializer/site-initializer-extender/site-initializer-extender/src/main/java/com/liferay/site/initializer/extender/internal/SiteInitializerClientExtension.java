@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -37,6 +38,8 @@ import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.vulcan.multipart.BinaryFile;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.site.initializer.extender.SiteInitializerUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +54,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -200,8 +201,14 @@ public class SiteInitializerClientExtension
 			}
 		}
 
-		Company company = _companyLocalService.getCompanyByWebId(
-			PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID));
+		String webId = GetterUtil.getString(
+			headers.get("Liferay-Virtual-Instance-Id"), "default");
+
+		if (Objects.equals(webId, "default")) {
+			webId = PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID);
+		}
+
+		Company company = _companyLocalService.getCompanyByWebId(webId);
 
 		long companyId = company.getCompanyId();
 

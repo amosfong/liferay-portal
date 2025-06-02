@@ -76,6 +76,8 @@ public interface DB {
 			Connection connection, String tableName, String columnName)
 		throws IOException, SQLException;
 
+	public String getCharacterSet(Connection connection) throws SQLException;
+
 	public DBType getDBType();
 
 	public String getDefaultValue(String columnDef);
@@ -124,6 +126,9 @@ public interface DB {
 	public boolean isSupportsAlterColumnName();
 
 	public boolean isSupportsAlterColumnType();
+
+	public boolean isSupportsCharacterSet(Connection connection)
+		throws SQLException;
 
 	public boolean isSupportsDBPartition();
 

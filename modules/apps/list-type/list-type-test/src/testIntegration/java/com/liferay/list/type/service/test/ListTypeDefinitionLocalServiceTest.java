@@ -21,6 +21,7 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -82,6 +83,40 @@ public class ListTypeDefinitionLocalServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-55656")
+	public void testAddOrUpdateListTypeEntries() throws Exception {
+		String key = RandomTestUtil.randomString();
+
+		ListTypeDefinition listTypeDefinition =
+			_listTypeDefinitionLocalService.addListTypeDefinition(
+				null, TestPropsValues.getUserId(),
+				Collections.singletonMap(
+					LocaleUtil.US, RandomTestUtil.randomString()),
+				false,
+				Collections.singletonList(
+					ListTypeEntryUtil.createListTypeEntry(key)));
+
+		Assert.assertEquals(
+			1,
+			_listTypeEntryLocalService.getListTypeEntriesCount(
+				listTypeDefinition.getListTypeDefinitionId()));
+
+		listTypeDefinition =
+			_listTypeDefinitionLocalService.updateListTypeDefinition(
+				null, listTypeDefinition.getListTypeDefinitionId(),
+				TestPropsValues.getUserId(),
+				Collections.singletonMap(
+					LocaleUtil.US, RandomTestUtil.randomString()),
+				Collections.singletonList(
+					ListTypeEntryUtil.createListTypeEntry(key)));
+
+		Assert.assertEquals(
+			1,
+			_listTypeEntryLocalService.getListTypeEntriesCount(
+				listTypeDefinition.getListTypeDefinitionId()));
+	}
+
+	@Test
 	public void testDeleteListTypeDefinition() throws Exception {
 		ListTypeDefinition systemListTypeDefinition =
 			_addSystemListTypeDefinition();
@@ -107,9 +142,9 @@ public class ListTypeDefinitionLocalServiceTest {
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, false, true, false,
-				false, false, LocalizedMapUtil.getLocalizedMap("Test"), "Test",
-				null, null, LocalizedMapUtil.getLocalizedMap("Tests"), true,
-				ObjectDefinitionConstants.SCOPE_COMPANY,
+				false, false, null, LocalizedMapUtil.getLocalizedMap("Test"),
+				"Test", null, null, LocalizedMapUtil.getLocalizedMap("Tests"),
+				true, ObjectDefinitionConstants.SCOPE_COMPANY,
 				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
 				Collections.emptyList(),
 				Collections.singletonList(objectField));

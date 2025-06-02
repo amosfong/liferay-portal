@@ -293,41 +293,42 @@ test(
 	{
 		tag: '@LPD-54659',
 	},
-	async ({apiHelpers, journalEditArticlePage, journalPage, page, site}) => {
+	async ({apiHelpers, journalPage, page, site}) => {
 		const basicWebContentStructureId =
 			await getBasicWebContentStructureId(apiHelpers);
 
-		const title = 'Web Content Title';
+		const webContent =
+			await apiHelpers.jsonWebServicesJournal.addWebContent({
+				ddmStructureId: basicWebContentStructureId,
+				groupId: site.id,
+				titleMap: {en_US: 'test'},
+			});
 
-		await apiHelpers.jsonWebServicesJournal.addWebContent({
-			ddmStructureId: basicWebContentStructureId,
-			groupId: site.id,
-			titleMap: {en_US: title},
-		});
-
-		await journalPage.goto(site.friendlyUrlPath);
-		await page.getByRole('link', {name: title}).click();
-		await journalEditArticlePage.fillTitle('Basic Web Content');
-
-		const productMenuToggleButton = page.locator(
-			'button[aria-label="Close Product Menu"]'
+		await apiHelpers.jsonWebServicesJournal.editWebContent(
+			{title: 'Basic Web Content'},
+			site.id,
+			webContent
 		);
 
-		if (await productMenuToggleButton.isVisible()) {
-			await productMenuToggleButton.click();
-		}
-
-		await journalEditArticlePage.publishArticle(true);
-		page.waitForTimeout(1000);
+		await journalPage.goto(site.friendlyUrlPath);
 
 		await page.getByRole('button', {name: 'Actions'}).click();
 		await page.getByRole('menuitem', {name: 'View History'}).click();
+
+		await page.getByRole('button', {name: 'Versions'}).waitFor();
+
+		await page.getByLabel('Select View, Currently').click();
+		await page.getByRole('menuitem', {name: 'Table'}).click();
 
 		const searchInput = page.locator('input[type="search"]');
 		await searchInput.waitFor({state: 'visible'});
 		await searchInput.fill('Basic');
 		await searchInput.press('Enter');
-		page.waitForTimeout(1000);
+
+		await page
+			.locator('div')
+			.filter({hasText: /^Clear$/})
+			.waitFor();
 
 		const resultRows = page.locator('tbody tr[data-selectable="true"]');
 		await resultRows.first().waitFor({state: 'visible'});
@@ -377,5 +378,62 @@ test(
 			.getAttribute('value');
 
 		expect(/[[{]/.test(inputValue || '')).toBeFalsy();
+	}
+);
+
+test(
+	'Folders come first when having multiple pages and filtering by Approved',
+	{
+		tag: '@LPD-55865',
+	},
+	async ({apiHelpers, journalPage, page, site}) => {
+		const basicWebContentStructureId =
+			await getBasicWebContentStructureId(apiHelpers);
+
+		for (let i = 1; i <= 6; i++) {
+			await apiHelpers.jsonWebServicesJournal.addFolder({
+				groupId: site.id,
+				name: `Folder ${i}`,
+			});
+		}
+
+		for (let i = 1; i <= 6; i++) {
+			await apiHelpers.jsonWebServicesJournal.addWebContent({
+				ddmStructureId: basicWebContentStructureId,
+				groupId: site.id,
+				titleMap: {en_US: `Web Content ${i}`},
+			});
+		}
+
+		for (let i = 7; i <= 12; i++) {
+			await apiHelpers.jsonWebServicesJournal.addFolder({
+				groupId: site.id,
+				name: `Folder ${i}`,
+			});
+		}
+
+		for (let i = 7; i <= 12; i++) {
+			await apiHelpers.jsonWebServicesJournal.addWebContent({
+				ddmStructureId: basicWebContentStructureId,
+				groupId: site.id,
+				titleMap: {en_US: `Web Content ${i}`},
+			});
+		}
+
+		await journalPage.goto(site.friendlyUrlPath);
+
+		await page.getByLabel('Filter', {exact: true}).click();
+
+		await page.getByRole('menuitem', {name: 'Approved'}).click();
+
+		await page.getByLabel('Filter', {exact: true}).click();
+
+		await page.getByRole('menuitem', {name: 'Web Content'}).click();
+
+		const foldersList = await page
+			.getByRole('link')
+			.filter({hasText: 'Folder'})
+			.all();
+		expect(foldersList.length).toBe(12);
 	}
 );

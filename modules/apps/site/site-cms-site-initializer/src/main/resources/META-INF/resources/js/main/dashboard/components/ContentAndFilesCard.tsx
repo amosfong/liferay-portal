@@ -9,11 +9,11 @@ import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {sub} from 'frontend-js-web';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 
+import ApiHelper from '../../../services/ApiHelper';
 import {ViewDashboardContext} from '../ViewDashboardContext';
-import ApiHelper from '../utils/ApiHelper';
 import {buildQueryString} from '../utils/buildQueryString';
 import {toThousands} from '../utils/number';
-import {RangeSelectors} from './RangeSelectorsDropdown';
+import {RangeSelector, getSafeRangeSelector} from './RangeSelectorsDropdown';
 
 export enum TrendClassification {
 	Negative = 'NEGATIVE',
@@ -34,7 +34,7 @@ export interface IMetricsProps {
 
 export interface IContentAndFilesCard {
 	endpointURL: string;
-	rangeSelector: RangeSelectors;
+	rangeSelector: RangeSelector;
 	title: (totalCount: number) => string;
 }
 
@@ -76,19 +76,25 @@ const ContentAndFilesCard: React.FC<IContentAndFilesCard> = ({
 
 	const queryParams = buildQueryString({
 		languageId: language.value,
-		rangeKey: rangeSelector,
 		spaceId: space.value,
+		...getSafeRangeSelector(rangeSelector),
 	});
 
 	useEffect(() => {
 		async function getMetrics() {
 			setLoading(true);
 
-			const metrics = await ApiHelper.get<IMetricsProps>(
+			const {data, error} = await ApiHelper.get<IMetricsProps>(
 				`${endpointURL}${queryParams}`
 			);
 
-			setMetrics(metrics);
+			if (data) {
+				setMetrics(data);
+			}
+
+			if (error) {
+				console.error(error);
+			}
 
 			setLoading(false);
 		}

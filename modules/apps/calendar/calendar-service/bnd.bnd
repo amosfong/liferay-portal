@@ -1,10 +1,14 @@
 Bundle-Name: Liferay Calendar Service
 Bundle-SymbolicName: com.liferay.calendar.service
-Bundle-Version: 6.0.85
+Bundle-Version: 6.0.86
 Import-Package:\
 	!edu.emory.*,\
 	\
 	!groovy.*,\
+	\
+	!javax.enterprise.util,\
+	\
+	!javax.mail.internet,\
 	\
 	!net.fortuna.*,\
 	\

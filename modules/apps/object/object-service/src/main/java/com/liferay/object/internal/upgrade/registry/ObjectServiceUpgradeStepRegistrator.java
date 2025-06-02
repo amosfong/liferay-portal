@@ -5,6 +5,7 @@
 
 package com.liferay.object.internal.upgrade.registry;
 
+import com.liferay.friendly.url.configuration.manager.FriendlyURLSeparatorConfigurationManager;
 import com.liferay.notification.service.NotificationTemplateLocalService;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
@@ -592,6 +593,17 @@ public class ObjectServiceUpgradeStepRegistrator
 			"10.13.0", "10.14.0",
 			UpgradeProcessFactory.addColumns(
 				"ObjectEntryFolder", "description STRING null"));
+
+		registry.register(
+			"10.14.0", "10.14.1",
+			UpgradeProcessFactory.alterColumnType(
+				"ObjectAction", "description", "STRING null"));
+
+		registry.register(
+			"10.14.1", "10.15.0",
+			new com.liferay.object.internal.upgrade.v10_15_0.
+				ObjectDefinitionUpgradeProcess(
+					_friendlyURLSeparatorConfigurationManager));
 	}
 
 	@Reference
@@ -599,6 +611,10 @@ public class ObjectServiceUpgradeStepRegistrator
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private FriendlyURLSeparatorConfigurationManager
+		_friendlyURLSeparatorConfigurationManager;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

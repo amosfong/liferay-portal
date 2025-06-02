@@ -83,6 +83,10 @@ import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.test.util.TreeTestUtil;
+import com.liferay.object.tree.Edge;
+import com.liferay.object.tree.Node;
+import com.liferay.object.tree.Tree;
 import com.liferay.object.validation.rule.setting.builder.ObjectValidationRuleSettingBuilder;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
@@ -151,6 +155,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -181,6 +186,10 @@ import com.liferay.portal.vulcan.fields.NestedFieldsContextThreadLocal;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portlet.documentlibrary.constants.DLConstants;
 
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Feature;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -206,10 +215,6 @@ import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.Feature;
 
 import org.hibernate.SessionFactory;
 
@@ -683,30 +688,8 @@ public class ObjectEntryResourceTest {
 			ObjectDefinitionConstants.SCOPE_COMPANY);
 
 		_objectDefinition4 = ObjectDefinitionTestUtil.publishObjectDefinition(
-			Arrays.asList(
-				ObjectFieldUtil.createObjectField(
-					ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-					ObjectFieldConstants.DB_TYPE_STRING, true, true, null,
-					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME_4, false),
-				ObjectFieldUtil.createObjectField(
-					_listTypeDefinition.getListTypeDefinitionId(),
-					ObjectFieldConstants.BUSINESS_TYPE_MULTISELECT_PICKLIST,
-					null, ObjectFieldConstants.DB_TYPE_STRING, true, false,
-					null, RandomTestUtil.randomString(),
-					_OBJECT_FIELD_NAME_MULTISELECT_PICKLIST, false, false)));
-
-		_objectDefinition5 = ObjectDefinitionTestUtil.publishObjectDefinition(
 			true, ObjectDefinitionTestUtil.getRandomName(),
 			Arrays.asList(
-				new TextObjectFieldBuilder(
-				).labelMap(
-					LocalizedMapUtil.getLocalizedMap(
-						RandomTestUtil.randomString())
-				).localized(
-					true
-				).name(
-					_OBJECT_FIELD_NAME_TEXT
-				).build(),
 				new LongTextObjectFieldBuilder(
 				).labelMap(
 					LocalizedMapUtil.getLocalizedMap(
@@ -714,7 +697,7 @@ public class ObjectEntryResourceTest {
 				).localized(
 					true
 				).name(
-					_OBJECT_FIELD_NAME_LONG_TEXT
+					_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT
 				).build(),
 				new RichTextObjectFieldBuilder(
 				).labelMap(
@@ -723,48 +706,65 @@ public class ObjectEntryResourceTest {
 				).localized(
 					true
 				).name(
-					_OBJECT_FIELD_NAME_RICH_TEXT
-				).build()),
+					_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT
+				).build(),
+				new TextObjectFieldBuilder(
+				).labelMap(
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString())
+				).localized(
+					true
+				).name(
+					_OBJECT_FIELD_NAME_LOCALIZED_TEXT
+				).build(),
+				ObjectFieldUtil.createObjectField(
+					ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT,
+					ObjectFieldConstants.DB_TYPE_CLOB, false, false, null,
+					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME_LONG_TEXT,
+					false),
+				ObjectFieldUtil.createObjectField(
+					ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT,
+					ObjectFieldConstants.DB_TYPE_STRING, true, true, null,
+					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME_RICH_TEXT,
+					false),
+				ObjectFieldUtil.createObjectField(
+					ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+					ObjectFieldConstants.DB_TYPE_STRING, true, true, null,
+					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME_TEXT,
+					false)),
 			ObjectDefinitionConstants.SCOPE_COMPANY,
 			TestPropsValues.getUserId());
 
 		_objectEntry5 = ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition5,
+			_objectDefinition4,
 			HashMapBuilder.<String, Serializable>put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, "name2_text_english"
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT, "name2_text_english"
 			).put(
-				_OBJECT_FIELD_NAME_LONG_TEXT + "_i18n",
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT + "_i18n",
 				HashMapBuilder.<String, Serializable>put(
 					"en_US", "longTextEng"
 				).put(
 					"es_ES", "longTextEsp"
 				).build()
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>c</p>\\n"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT, "<p>c</p>\\n"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "_i18n",
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT + "_i18n",
 				HashMapBuilder.<String, Serializable>put(
 					"en_US", "<p>richTextEng</p>"
 				).put(
 					"es_ES", "<p>richTextEsp</p>"
 				).build()
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, "name1_text_english"
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "name1_text_english"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT + "_i18n",
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT + "_i18n",
 				HashMapBuilder.<String, Serializable>put(
 					"en_US", "textEng"
 				).put(
 					"es_ES", "textEsp"
 				).build()
 			).build());
-
-		_objectDefinition6 = ObjectDefinitionTestUtil.publishObjectDefinition(
-			Collections.singletonList(
-				ObjectFieldUtil.createObjectField(
-					"Text", "String", true, true, null,
-					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME_TEXT,
-					false)));
 
 		objectDefinitionName = ObjectDefinitionTestUtil.getRandomName();
 
@@ -1026,10 +1026,6 @@ public class ObjectEntryResourceTest {
 			_objectDefinition3);
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			_objectDefinition4);
-		_objectDefinitionLocalService.deleteObjectDefinition(
-			_objectDefinition5);
-		_objectDefinitionLocalService.deleteObjectDefinition(
-			_objectDefinition6);
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			_siteScopedObjectDefinition1);
 		_objectDefinitionLocalService.deleteObjectDefinition(
@@ -1722,7 +1718,7 @@ public class ObjectEntryResourceTest {
 		_objectEntry3 = ObjectEntryTestUtil.addObjectEntry(
 			_objectDefinition3, _OBJECT_FIELD_NAME_3, _OBJECT_FIELD_VALUE_3);
 		_objectEntry4 = ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition4, _OBJECT_FIELD_NAME_4, _OBJECT_FIELD_VALUE_4);
+			_objectDefinition4, _OBJECT_FIELD_NAME_TEXT, _OBJECT_FIELD_VALUE_4);
 
 		_objectRelationship1 = _addObjectRelationshipAndRelateObjectEntries(
 			_objectDefinition1, _objectDefinition2,
@@ -2187,7 +2183,7 @@ public class ObjectEntryResourceTest {
 				String.format(
 					"%s/%s/%s/%s eq '%s'", _objectRelationship1.getName(),
 					_objectRelationship2.getName(),
-					_objectRelationship3.getName(), _OBJECT_FIELD_NAME_4,
+					_objectRelationship3.getName(), _OBJECT_FIELD_NAME_TEXT,
 					_OBJECT_FIELD_VALUE_4)),
 			_objectDefinition1);
 		_assertFilterString(
@@ -2196,7 +2192,7 @@ public class ObjectEntryResourceTest {
 				String.format(
 					"%s/%s/%s/%s eq '%s'", _objectRelationship1.getName(),
 					_objectRelationship4.getName(),
-					_objectRelationship3.getName(), _OBJECT_FIELD_NAME_4,
+					_objectRelationship3.getName(), _OBJECT_FIELD_NAME_TEXT,
 					_OBJECT_FIELD_VALUE_4)),
 			_objectDefinition1);
 	}
@@ -5149,7 +5145,7 @@ public class ObjectEntryResourceTest {
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, false, true, false,
-				false, false,
+				false, false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -5533,7 +5529,7 @@ public class ObjectEntryResourceTest {
 			new String[] {ActionKeys.UPDATE, ActionKeys.VIEW});
 
 		_objectEntry4 = ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition4, _OBJECT_FIELD_NAME_4, _OBJECT_FIELD_VALUE_4);
+			_objectDefinition4, _OBJECT_FIELD_NAME_TEXT, _OBJECT_FIELD_VALUE_4);
 
 		_userAccountJSONObject = UserAccountTestUtil.addUserAccountJSONObject(
 			_systemObjectDefinitionManager,
@@ -5580,7 +5576,7 @@ public class ObjectEntryResourceTest {
 			_objectRelationship1.getName(), ".", _objectRelationship2.getName(),
 			".", _objectRelationship3.getName(), ".",
 			_objectRelationship4.getName(), ".", _objectRelationship5.getName(),
-			".", _OBJECT_FIELD_NAME_4, "&nestedFields=",
+			".", _OBJECT_FIELD_NAME_TEXT, "&nestedFields=",
 			_objectRelationship1.getName(), ",", _objectRelationship2.getName(),
 			",", _objectRelationship3.getName(), ",",
 			_objectRelationship4.getName(), ",", _objectRelationship5.getName(),
@@ -5607,7 +5603,8 @@ public class ObjectEntryResourceTest {
 				{"", "", Boolean.TRUE.toString()},
 				{"", "", Boolean.TRUE.toString()},
 				{
-					_OBJECT_FIELD_NAME_4, String.valueOf(_OBJECT_FIELD_VALUE_4),
+					_OBJECT_FIELD_NAME_TEXT,
+					String.valueOf(_OBJECT_FIELD_VALUE_4),
 					Boolean.TRUE.toString()
 				}
 			},
@@ -5766,46 +5763,46 @@ public class ObjectEntryResourceTest {
 	@Test
 	public void testGetObjectEntriesWithPagination() throws Exception {
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 
-		_assertPagination(7, _objectDefinition6);
+		_assertPagination(7, _objectDefinition1);
 
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 
-		_assertPagination(9, _objectDefinition6);
+		_assertPagination(9, _objectDefinition1);
 
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 		ObjectEntryTestUtil.addObjectEntry(
-			_objectDefinition6, _OBJECT_FIELD_NAME_TEXT,
+			_objectDefinition1, _OBJECT_FIELD_NAME_TEXT,
 			_NEW_OBJECT_FIELD_VALUE_1);
 
-		_assertPagination(11, _objectDefinition6);
+		_assertPagination(11, _objectDefinition1);
 	}
 
 	@Test
@@ -6747,7 +6744,7 @@ public class ObjectEntryResourceTest {
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, false, true, false,
-				false, false,
+				false, false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -7134,17 +7131,18 @@ public class ObjectEntryResourceTest {
 
 		JSONAssert.assertEquals(
 			JSONUtil.put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, "longTextEsp"
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT, "longTextEsp"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>richTextEsp</p>"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT, "<p>richTextEsp</p>"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", "richTextEsp"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT + "RawText",
+				"richTextEsp"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, "textEsp"
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "textEsp"
 			).toString(),
 			HTTPTestUtil.invokeToJSONObject(
 				null,
-				_objectDefinition5.getRESTContextPath() + StringPool.SLASH +
+				_objectDefinition4.getRESTContextPath() + StringPool.SLASH +
 					_objectEntry5.getObjectEntryId(),
 				HashMapBuilder.put(
 					"Accept-Language", "es-ES"
@@ -7157,17 +7155,18 @@ public class ObjectEntryResourceTest {
 
 		JSONAssert.assertEquals(
 			JSONUtil.put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, "longTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT, "longTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>richTextEng</p>"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT, "<p>richTextEng</p>"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", "richTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT + "RawText",
+				"richTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, "textEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "textEng"
 			).toString(),
 			HTTPTestUtil.invokeToJSONObject(
 				null,
-				_objectDefinition5.getRESTContextPath() + StringPool.SLASH +
+				_objectDefinition4.getRESTContextPath() + StringPool.SLASH +
 					_objectEntry5.getObjectEntryId(),
 				HashMapBuilder.put(
 					"Accept-Language", ""
@@ -7180,17 +7179,18 @@ public class ObjectEntryResourceTest {
 
 		JSONAssert.assertEquals(
 			JSONUtil.put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, "longTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT, "longTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>richTextEng</p>"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT, "<p>richTextEng</p>"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", "richTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT + "RawText",
+				"richTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, "textEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "textEng"
 			).toString(),
 			HTTPTestUtil.invokeToJSONObject(
 				null,
-				_objectDefinition5.getRESTContextPath() + StringPool.SLASH +
+				_objectDefinition4.getRESTContextPath() + StringPool.SLASH +
 					_objectEntry5.getObjectEntryId(),
 				HashMapBuilder.put(
 					"Accept-Language", "de-DE"
@@ -7203,17 +7203,18 @@ public class ObjectEntryResourceTest {
 
 		JSONAssert.assertEquals(
 			JSONUtil.put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, "longTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT, "longTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>richTextEng</p>"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT, "<p>richTextEng</p>"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", "richTextEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT + "RawText",
+				"richTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, "textEng"
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "textEng"
 			).toString(),
 			HTTPTestUtil.invokeToJSONObject(
 				null,
-				_objectDefinition5.getRESTContextPath() + StringPool.SLASH +
+				_objectDefinition4.getRESTContextPath() + StringPool.SLASH +
 					_objectEntry5.getObjectEntryId(),
 				Http.Method.GET
 			).toString(),
@@ -7313,6 +7314,67 @@ public class ObjectEntryResourceTest {
 				_objectDefinition1.getRESTContextPath(), Http.Method.POST
 			).toString(),
 			JSONCompareMode.LENIENT);
+	}
+
+	@FeatureFlag("LPD-34594")
+	@Test
+	public void testGetObjectEntryWithRootModelHierarchy() throws Exception {
+		try {
+			Tree objectDefinitionTree = TreeTestUtil.createObjectDefinitionTree(
+				_objectDefinitionLocalService, _objectRelationshipLocalService,
+				true,
+				LinkedHashMapBuilder.put(
+					"A", new String[] {"AA", "AB"}
+				).put(
+					"AA", new String[] {"AAA", "AAB"}
+				).put(
+					"AB", new String[0]
+				).put(
+					"AAA", new String[0]
+				).put(
+					"AAB", new String[0]
+				).build());
+
+			Node objectDefinitionRootNode = objectDefinitionTree.getRootNode();
+
+			Tree objectEntryTree = TreeTestUtil.createObjectEntryTree(
+				"1", _objectDefinitionLocalService, _objectEntryLocalService,
+				_objectFieldLocalService, _objectRelationshipLocalService,
+				objectDefinitionRootNode.getPrimaryKey());
+
+			JSONObject objectEntryAJSONObject = _getObjectEntryJSONObject(
+				null, "rootModelHierarchy",
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectDefinitionRootNode.getPrimaryKey()));
+
+			_assertRelatedObjectEntryExternalReferenceCode(
+				_getChildNodeEdge(0, objectEntryTree.getRootNode()), "AA1",
+				objectEntryAJSONObject);
+			_assertRelatedObjectEntryExternalReferenceCode(
+				_getChildNodeEdge(1, objectEntryTree.getRootNode()), "AB1",
+				objectEntryAJSONObject);
+
+			JSONObject objectEntryAAJSONObject = _getRelatedJSONObject(
+				objectEntryAJSONObject,
+				_getObjectRelationshipName(
+					_getChildNodeEdge(0, objectEntryTree.getRootNode())),
+				Type.ONE_TO_MANY);
+
+			_assertRelatedObjectEntryExternalReferenceCode(
+				_getChildNodeEdge(
+					0, _getChildNode(0, objectEntryTree.getRootNode())),
+				"AAA1", objectEntryAAJSONObject);
+			_assertRelatedObjectEntryExternalReferenceCode(
+				_getChildNodeEdge(
+					1, _getChildNode(0, objectEntryTree.getRootNode())),
+				"AAB1", objectEntryAAJSONObject);
+		}
+		finally {
+			TreeTestUtil.deleteObjectDefinitionHierarchy(
+				_objectDefinitionLocalService,
+				new String[] {"C_A", "C_AA", "C_AB", "C_AAAA", "C_AAB"},
+				_objectEntryLocalService, _objectRelationshipLocalService);
+		}
 	}
 
 	@Test
@@ -14059,6 +14121,23 @@ public class ObjectEntryResourceTest {
 		Assert.assertEquals(expectedSize, jsonObject.getLong("totalCount"));
 	}
 
+	private void _assertRelatedObjectEntryExternalReferenceCode(
+			Edge edge, String expectedExternalReferenceCode,
+			JSONObject jsonObject)
+		throws Exception {
+
+		String objectRelationshipName = _getObjectRelationshipName(edge);
+
+		Assert.assertTrue(jsonObject.has(objectRelationshipName));
+
+		JSONObject relatedJSONObject = _getRelatedJSONObject(
+			jsonObject, objectRelationshipName, Type.ONE_TO_MANY);
+
+		Assert.assertEquals(
+			expectedExternalReferenceCode,
+			relatedJSONObject.getString("externalReferenceCode"));
+	}
+
 	private JSONObject _cloneJSONObject(
 			JSONObject jsonObject, String objectFieldName,
 			Object objectFieldValue)
@@ -14093,6 +14172,18 @@ public class ObjectEntryResourceTest {
 
 	private String _escape(String string) {
 		return URLCodec.encodeURL(string);
+	}
+
+	private Node _getChildNode(int index, Node node) {
+		List<Node> childNodes = node.getChildNodes();
+
+		return childNodes.get(index);
+	}
+
+	private Edge _getChildNodeEdge(int index, Node node) {
+		Node childNode = _getChildNode(index, node);
+
+		return childNode.getEdge();
 	}
 
 	private DLFolder _getDLFolder(
@@ -14364,6 +14455,14 @@ public class ObjectEntryResourceTest {
 
 			return objectEntryResource;
 		}
+	}
+
+	private String _getObjectRelationshipName(Edge edge) throws Exception {
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.getObjectRelationship(
+				edge.getObjectRelationshipId());
+
+		return objectRelationship.getName();
 	}
 
 	private JSONObject _getOwnerPermissionsJSONObject() {
@@ -18036,9 +18135,6 @@ public class ObjectEntryResourceTest {
 	private static final String _OBJECT_FIELD_NAME_3 =
 		"x" + RandomTestUtil.randomString();
 
-	private static final String _OBJECT_FIELD_NAME_4 =
-		"x" + RandomTestUtil.randomString();
-
 	private static final String
 		_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE =
 			"x" + RandomTestUtil.randomString();
@@ -18067,6 +18163,15 @@ public class ObjectEntryResourceTest {
 		"x" + RandomTestUtil.randomString();
 
 	private static final String _OBJECT_FIELD_NAME_INTEGER =
+		"x" + RandomTestUtil.randomString();
+
+	private static final String _OBJECT_FIELD_NAME_LOCALIZED_LONG_TEXT =
+		"x" + RandomTestUtil.randomString();
+
+	private static final String _OBJECT_FIELD_NAME_LOCALIZED_RICH_TEXT =
+		"x" + RandomTestUtil.randomString();
+
+	private static final String _OBJECT_FIELD_NAME_LOCALIZED_TEXT =
 		"x" + RandomTestUtil.randomString();
 
 	private static final String _OBJECT_FIELD_NAME_LONG_INTEGER =
@@ -18173,8 +18278,6 @@ public class ObjectEntryResourceTest {
 	private ObjectDefinition _objectDefinition2;
 	private ObjectDefinition _objectDefinition3;
 	private ObjectDefinition _objectDefinition4;
-	private ObjectDefinition _objectDefinition5;
-	private ObjectDefinition _objectDefinition6;
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;

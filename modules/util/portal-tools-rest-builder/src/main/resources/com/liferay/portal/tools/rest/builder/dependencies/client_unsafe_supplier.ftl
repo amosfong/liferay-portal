@@ -1,6 +1,6 @@
 package ${configYAML.apiPackagePath}.client.function;
 
-import javax.annotation.Generated;
+import ${configYAML.javaEEPackage}.annotation.Generated;
 
 /**
  * @author ${configYAML.author}

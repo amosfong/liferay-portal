@@ -23,11 +23,11 @@ import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.util.JaxRsLinkUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
+import jakarta.ws.rs.core.UriInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -107,9 +107,7 @@ public class AssetLibraryDTOConverter
 						nestedField ->
 							_userGroupLocalService.getGroupUserGroupsCount(
 								group.getGroupId())));
-				setSettings(
-					() -> NestedFieldsSupplier.supply(
-						"settings", nestedField -> _toSettings(group)));
+				setSettings(() -> _toSettings(group));
 			}
 		};
 	}
@@ -152,7 +150,7 @@ public class AssetLibraryDTOConverter
 				setDefaultLanguageId(group::getDefaultLanguageId);
 				setLogoColor(
 					() -> GetterUtil.get(
-						unicodeProperties.get("logoColor"), "color-0"));
+						unicodeProperties.get("logoColor"), "outline-0"));
 				setMimeTypeLimits(() -> _toMimeTypeLimits(unicodeProperties));
 				setSharingEnabled(
 					() -> GetterUtil.getBoolean(

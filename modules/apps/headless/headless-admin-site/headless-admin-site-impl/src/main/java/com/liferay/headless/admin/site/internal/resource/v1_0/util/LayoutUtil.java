@@ -58,11 +58,16 @@ public class LayoutUtil {
 			ServiceContext serviceContext)
 		throws Exception {
 
+		if (typeSettingsUnicodeProperties == null) {
+			typeSettingsUnicodeProperties = new UnicodeProperties();
+		}
+
 		if (pageSpecifications == null) {
 			Layout layout = LayoutLocalServiceUtil.addLayout(
 				null, serviceContext.getUserId(), groupId, privateLayout, 0, 0,
 				0, nameMap, titleMap, descriptionMap, null, robotsMap, type,
-				null, hidden, system, friendlyURLMap, 0L, serviceContext);
+				typeSettingsUnicodeProperties.toString(), hidden, system,
+				friendlyURLMap, 0L, serviceContext);
 
 			return LayoutLocalServiceUtil.updateStatus(
 				serviceContext.getUserId(), layout.getPlid(), status,
@@ -99,10 +104,6 @@ public class LayoutUtil {
 					getDraftContentPageSpecificationExternalReferenceCode())) {
 
 			throw new UnsupportedOperationException();
-		}
-
-		if (typeSettingsUnicodeProperties == null) {
-			typeSettingsUnicodeProperties = new UnicodeProperties();
 		}
 
 		Settings settings = publishedContentPageSpecification.getSettings();
@@ -346,6 +347,24 @@ public class LayoutUtil {
 		return updateLayout(
 			publishedContentPageSpecification, layout, nameMap, titleMap,
 			descriptionMap, robotsMap, friendlyURLMap, status, serviceContext);
+	}
+
+	public static Layout updateContentLayout(
+			Layout layout, UnicodeProperties typeSettingsUnicodeProperties,
+			Map<Locale, String> nameMap, Map<Locale, String> titleMap,
+			Map<Locale, String> descriptionMap, Map<Locale, String> robotsMap,
+			Map<Locale, String> friendlyURLMap,
+			PageSpecification[] pageSpecifications,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		layout = LayoutServiceUtil.updateLayout(
+			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
+			typeSettingsUnicodeProperties.toString());
+
+		return updateContentLayout(
+			layout, nameMap, titleMap, descriptionMap, robotsMap,
+			friendlyURLMap, pageSpecifications, serviceContext);
 	}
 
 	public static Layout updateLayout(

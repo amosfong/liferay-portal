@@ -13,6 +13,7 @@ ObjectEntryDisplayContext objectEntryDisplayContext = (ObjectEntryDisplayContext
 String backURL = objectEntryDisplayContext.getBackURL();
 ObjectDefinition objectDefinition = objectEntryDisplayContext.getObjectDefinition1();
 ObjectEntry objectEntry = objectEntryDisplayContext.getObjectEntry();
+String portletNamespace = portletDisplay.getNamespace();
 
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(backURL);
@@ -42,8 +43,9 @@ portletDisplay.setURLBack(backURL);
 			<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-21926") && objectDefinition.isEnableFriendlyURLCustomization() && (objectEntryDisplayContext.getObjectLayoutTab() == null) %>'>
 				<clay:panel-group>
 					<clay:panel
-						collapsable="<%= false %>"
+						collapsable="<%= true %>"
 						displayTitle='<%= LanguageUtil.get(request, "seo") %>'
+						displayType="secondary"
 						expanded="<%= true %>"
 					>
 						<div class="panel-body">
@@ -62,18 +64,50 @@ portletDisplay.setURLBack(backURL);
 					</clay:panel>
 				</clay:panel-group>
 			</c:if>
+
+			<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-17564") && (objectEntryDisplayContext.getObjectLayoutTab() == null) %>'>
+				<div>
+					<react:component
+						module="{ScheduleContainer} from object-web"
+						props='<%=
+							HashMapBuilder.<String, Object>put(
+								"portletNamespace", portletNamespace
+							).build()
+						%>'
+					/>
+				</div>
+			</c:if>
 		</clay:sheet-section>
 
 		<%@ include file="/object_entries/object_entry/categorization.jspf" %>
 	</liferay-frontend:edit-form-body>
 
 	<c:if test="<%= !objectEntryDisplayContext.isReadOnly() %>">
-		<liferay-frontend:edit-form-footer>
-			<liferay-frontend:edit-form-buttons
-				redirect="<%= backURL %>"
-				submitOnClick='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "submitObjectEntry();" %>'
-			/>
-		</liferay-frontend:edit-form-footer>
+		<c:choose>
+			<c:when test='<%= FeatureFlagManagerUtil.isEnabled("LPD-17564") %>'>
+				<div>
+					<react:component
+						module="{ObjectEntryFooter} from object-web"
+						props='<%=
+							HashMapBuilder.<String, Object>put(
+								"backURL", backURL
+							).put(
+								"submitRef", portletNamespace + "submitObjectEntry"
+							).build()
+						%>'
+					/>
+				</div>
+			</c:when>
+			<c:otherwise>
+				<liferay-frontend:edit-form-footer>
+					<liferay-frontend:edit-form-buttons
+						redirect="<%= backURL %>"
+						submitId="saveObjectEntryButton"
+						submitOnClick='<%= "event.preventDefault(); " + portletNamespace + "submitObjectEntry();" %>'
+					/>
+				</liferay-frontend:edit-form-footer>
+			</c:otherwise>
+		</c:choose>
 	</c:if>
 </liferay-frontend:edit-form>
 
@@ -139,6 +173,10 @@ portletDisplay.setURLBack(backURL);
 			}, {});
 		}
 
+		function hasEmptyString(object) {
+			return Object.values(object).some((value) => value === '');
+		}
+
 		Liferay.provide(window, '<portlet:namespace />submitObjectEntry', () => {
 			const form = document.getElementById('<portlet:namespace />fm');
 
@@ -182,6 +220,25 @@ portletDisplay.setURLBack(backURL);
 							return false;
 						}
 					});
+
+					const scheduleContainerInput = document.getElementById(
+						'<portlet:namespace />scheduleContainer'
+					);
+
+					const scheduleContainerInputValue = JSON.parse(
+						scheduleContainerInput
+					);
+
+					if (
+						scheduleContainerInput &&
+						hasEmptyString(scheduleContainerInputValue)
+					) {
+						shouldSubmitForm = false;
+
+						loadingElement.remove();
+
+						return false;
+					}
 
 					if (shouldSubmitForm) {
 						let values = <portlet:namespace />getValues(fields);
@@ -243,6 +300,13 @@ portletDisplay.setURLBack(backURL);
 								['friendlyUrlPath']: '',
 								['friendlyUrlPath_i18n']: friendlyURLValues,
 							});
+						}
+
+						if (scheduleContainerInput) {
+							values = {
+								...values,
+								...scheduleContainerInputValue,
+							};
 						}
 
 						Liferay.Util.fetch(path, {

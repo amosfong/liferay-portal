@@ -10,6 +10,7 @@ export namespace Analytics {
 		CustomEvent = 'CustomEvent',
 		Document = 'Document',
 		Form = 'Form',
+		ObjectEntry = 'ObjectEntry',
 		Page = 'Page',
 		WebContent = 'WebContent',
 	}
@@ -31,6 +32,9 @@ export namespace Analytics {
 		FieldFocused = 'fieldFocused',
 		FormSubmitted = 'formSubmitted',
 		FormViewed = 'formViewed',
+		ObjectEntryDownloaded = 'objectEntryDownloaded',
+		ObjectEntryImpressionMade = 'objectEntryImpressionMade',
+		ObjectEntryViewed = 'objectEntryViewed',
 		PageDepthReached = 'pageDepthReached',
 		PageLoaded = 'pageLoaded',
 		PageRead = 'pageRead',
@@ -69,6 +73,7 @@ export namespace Analytics {
 		Document = 'document',
 		FileEntry = 'com.liferay.portal.kernel.repository.model.FileEntry',
 		JournalArticle = 'com.liferay.journal.model.JournalArticle',
+		ObjectEntry = 'object-entry',
 		WebContent = 'web-content',
 	}
 
@@ -88,6 +93,17 @@ export namespace Analytics {
 		innerText: string;
 	}
 
+	export interface ObjectEntryHTMLElement extends Element {
+		dataset: {
+			[Analytics.DataSetList
+				.AnalyticsAssetAction]: Analytics.ElementAction;
+			[Analytics.DataSetList.AnalyticsAssetErc]: string;
+			[Analytics.DataSetList.AnalyticsAssetType]: Analytics.ElementType;
+			[Analytics.DataSetList.AnalyticsObjectType]: string;
+		};
+		innerText: string;
+	}
+
 	export enum DataSetList {
 		AnalyticsAssetAction = 'analyticsAssetAction',
 		AnalyticsAssetCategory = 'analyticsAssetCategory',
@@ -97,6 +113,7 @@ export namespace Analytics {
 		AnalyticsAssetTitle = 'analyticsAssetTitle',
 		AnalyticsAssetType = 'analyticsAssetType',
 		AnalyticsAssetVersion = 'analyticsAssetVersion',
+		AnalyticsObjectType = 'analyticsObjectType',
 		AnalyticsWebContentResourcePk = 'analyticsWebContentResourcePk',
 	}
 

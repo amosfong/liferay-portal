@@ -2,9 +2,9 @@ package ${configYAML.apiPackagePath}.client.problem;
 
 import ${configYAML.apiPackagePath}.client.json.BaseJSONParser;
 
-import java.util.Objects;
+import ${configYAML.javaEEPackage}.annotation.Generated;
 
-import javax.annotation.Generated;
+import java.util.Objects;
 
 /**
 * @author ${configYAML.author}

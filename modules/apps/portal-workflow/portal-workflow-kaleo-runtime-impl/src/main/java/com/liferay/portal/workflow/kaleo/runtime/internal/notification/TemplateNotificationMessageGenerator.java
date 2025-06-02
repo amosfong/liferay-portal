@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstanceToken;
@@ -53,23 +54,10 @@ public class TemplateNotificationMessageGenerator
 			ExecutionContext executionContext)
 		throws NotificationMessageGenerationException {
 
-		String templateManagerName = _templateManagerNames.get(
-			notificationTemplateLanguage);
-
-		if (Validator.isNull(templateManagerName)) {
-			throw new NotificationMessageGenerationException(
-				"Unsupported notification template language " +
-					notificationTemplateLanguage);
-		}
-
 		try {
-			String templateId =
-				notificationName + kaleoClassName + kaleoClassPK;
-
-			Template template = TemplateManagerUtil.getTemplate(
-				templateManagerName,
-				new StringTemplateResource(templateId, notificationTemplate),
-				false);
+			Template template = _getTemplate(
+				kaleoClassName, kaleoClassPK, notificationName,
+				notificationTemplate, notificationTemplateLanguage);
 
 			_populateContextVariables(template, executionContext);
 
@@ -104,6 +92,28 @@ public class TemplateNotificationMessageGenerator
 			"freemarker", TemplateConstants.LANG_TYPE_FTL);
 		_templateManagerNames.put("soy", TemplateConstants.LANG_TYPE_SOY);
 		_templateManagerNames.put("velocity", TemplateConstants.LANG_TYPE_VM);
+	}
+
+	private Template _getTemplate(
+			String kaleoClassName, long kaleoClassPK, String notificationName,
+			String notificationTemplate, String notificationTemplateLanguage)
+		throws Exception {
+
+		String templateManagerName = _templateManagerNames.get(
+			notificationTemplateLanguage);
+
+		if (Validator.isNull(templateManagerName)) {
+			throw new NotificationMessageGenerationException(
+				"Unsupported notification template language " +
+					notificationTemplateLanguage);
+		}
+
+		String templateId = notificationName + kaleoClassName + kaleoClassPK;
+
+		return TemplateManagerUtil.getTemplate(
+			templateManagerName,
+			new StringTemplateResource(templateId, notificationTemplate),
+			!PropsValues.NOTIFICATION_EMAIL_TEMPLATE_ENABLED);
 	}
 
 	private void _populateContextVariables(

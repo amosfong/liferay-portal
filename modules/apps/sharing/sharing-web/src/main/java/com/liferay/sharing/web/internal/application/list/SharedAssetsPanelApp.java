@@ -24,8 +24,8 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"javax.portlet.name=" + SharingPortletKeys.SHARED_ASSETS,
-		"panel.app.order:Integer=400",
+		"jakarta.portlet.name=" + SharingPortletKeys.SHARED_ASSETS,
+		"panel.app.order:Integer=450",
 		"panel.category.key=" + PanelCategoryKeys.USER_MY_ACCOUNT
 	},
 	service = PanelApp.class
@@ -57,7 +57,7 @@ public class SharedAssetsPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + SharingPortletKeys.SHARED_ASSETS + ")"
+		target = "(jakarta.portlet.name=" + SharingPortletKeys.SHARED_ASSETS + ")"
 	)
 	private Portlet _portlet;
 

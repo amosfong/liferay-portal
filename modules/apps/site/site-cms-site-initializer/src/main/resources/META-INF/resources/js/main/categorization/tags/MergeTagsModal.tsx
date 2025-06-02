@@ -12,10 +12,11 @@ import {FrontendDataSet} from '@liferay/frontend-data-set-web';
 import {useFormik} from 'formik';
 import {openModal} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
+import ApiHelper from '../../../services/ApiHelper';
 import {executeAsyncItemAction} from '../../FDSPropsTransformer/utils/executeAsyncItemAction';
-import SpaceSticker from '../../components/SpaceSticker';
+import SpaceSticker, {LogoColor} from '../../components/SpaceSticker';
 
 type Tag = {
 	label: string;
@@ -27,33 +28,43 @@ export default function MergeTagsModalContent({
 	loadData,
 	tagId,
 	tagName,
-	tagsList,
 }: {
 	closeModal: () => void;
 	loadData: () => {};
 	tagId: number;
 	tagName: string;
-	tagsList: any;
 }) {
 	const [tags, setTags] = useState<Tag[]>([]);
 	const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-	const allTags = useMemo(() => {
-		return tagsList.map((item: any) => ({
-			label: item.name,
-			value: item.tagId,
-		}));
-	}, [tagsList]);
-
 	useEffect(() => {
-		setTags(allTags);
+		const getTags = async () => {
+			const {data} = await ApiHelper.get<{items: any[]}>(
+				'/o/headless-admin-taxonomy/v1.0/keywords'
+			);
 
-		const selectedTag = allTags.filter(
-			(tag: {label: string}) => tag.label === tagName
-		);
+			if (data) {
+				const allTags = data.items.map(
+					({id, name}: {id: any; name: string}) => ({
+						label: name,
+						value: id,
+					})
+				);
 
-		setSelectedTags(selectedTag);
-	}, [allTags, tagName, setSelectedTags, setTags]);
+				setTags(allTags);
+
+				const selectedTag = allTags.find(
+					(tag: Tag) => tag.value === tagId && tag.label === tagName
+				);
+
+				if (selectedTag) {
+					setSelectedTags([selectedTag]);
+				}
+			}
+		};
+
+		getTags();
+	}, [tagId, tagName]);
 
 	const _handleTagChange = (items: Tag[]) => {
 		setSelectedTags(tags.filter((item) => items.includes(item)));
@@ -138,8 +149,6 @@ export default function MergeTagsModalContent({
 							processClose();
 
 							mergeTags(values);
-
-							window.location.reload();
 						},
 					},
 				],
@@ -159,9 +168,6 @@ export default function MergeTagsModalContent({
 			'ViewsSpaceTableCellRenderer';
 
 		const ViewsSpaceTableCell = ({itemData}: {itemData: any}) => {
-			const assetLibraryNames = itemData.assetLibraries.map(
-				(assetLibrary: any) => assetLibrary.name
-			);
 			const assetLibraryIds = itemData.assetLibraries.map(
 				(assetLibrary: any) => assetLibrary.id
 			);
@@ -173,22 +179,34 @@ export default function MergeTagsModalContent({
 					</span>
 				);
 			}
-			else {
-				return (
-					<>
-						{assetLibraryNames.map(
-							(name: string, index: number) => (
-								<span
-									className="align-items-center d-flex space-renderer-sticker"
-									key={index}
-								>
-									<SpaceSticker name={name} size="sm" />
-								</span>
-							)
-						)}
-					</>
-				);
-			}
+
+			return (
+				<>
+					{itemData.assetLibraries.map(
+						(
+							assetLibrary: {
+								name: string;
+								settings?: {logoColor: string};
+							},
+							index: number
+						) => (
+							<span
+								className="align-items-center d-flex space-renderer-sticker"
+								key={index}
+							>
+								<SpaceSticker
+									displayType={
+										assetLibrary.settings
+											?.logoColor as LogoColor
+									}
+									name={assetLibrary.name}
+									size="sm"
+								/>
+							</span>
+						)
+					)}
+				</>
+			);
 		};
 
 		return (
@@ -318,10 +336,11 @@ export default function MergeTagsModalContent({
 						<ClayMultiSelect
 							inputName="multiSelect"
 							items={selectedTags}
+							loadingState={3}
 							onItemsChange={(items: Tag[]) => {
 								_handleTagChange(items);
 							}}
-							sourceItems={allTags}
+							sourceItems={tags}
 						/>
 					</ClayInput.GroupItem>
 

@@ -16,12 +16,12 @@ import {
 	State,
 	Uuid,
 } from '../../../../src/main/resources/META-INF/resources/js/structure_builder/contexts/StateContext';
-import {Picklist} from '../../../../src/main/resources/META-INF/resources/js/structure_builder/types/Picklist';
 import {
 	Field,
 	getDefaultField,
 } from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/field';
 import getUuid from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/getUuid';
+import {Picklist} from '../../../../src/main/resources/META-INF/resources/js/types/Picklist';
 import {MockCacheProvider} from '../mocks/MockCacheProvider';
 import {MockStateProvider} from '../mocks/MockStateProvider';
 
@@ -51,12 +51,13 @@ const DEFAULT_STATE: State = {
 	history: {deletedFields: false},
 	id: null,
 	invalids: new Map(),
-	label: 'untitled-structure',
+	label: 'untitled-structure' as any,
 	name: 'UntitledStructure',
 	publishedFields: new Set(),
 	selection: [],
 	spaces: [],
 	status: 'new',
+	unsavedChanges: false,
 	uuid: getUuid(),
 };
 
@@ -217,7 +218,7 @@ describe('StructureFieldSettings', () => {
 					[
 						uuid,
 						{
-							...getDefaultField('datetime'),
+							...getDefaultField({type: 'datetime'}),
 							uuid,
 						},
 					],
@@ -252,7 +253,7 @@ describe('StructureFieldSettings', () => {
 					[
 						uuid,
 						{
-							...getDefaultField('long-text'),
+							...getDefaultField({type: 'long-text'}),
 							uuid,
 						},
 					],
@@ -297,7 +298,7 @@ describe('StructureFieldSettings', () => {
 					[
 						uuid,
 						{
-							...getDefaultField('integer'),
+							...getDefaultField({type: 'integer'}),
 							uuid,
 						},
 					],
@@ -372,7 +373,7 @@ describe('StructureFieldSettings', () => {
 					[
 						uuid,
 						{
-							...getDefaultField('upload'),
+							...getDefaultField({type: 'upload'}),
 							uuid,
 						},
 					],
@@ -447,7 +448,7 @@ describe('StructureFieldSettings', () => {
 			state: {
 				...DEFAULT_STATE,
 				fields: new Map([
-					[uuid, {...getDefaultField('single-select'), uuid}],
+					[uuid, {...getDefaultField({type: 'single-select'}), uuid}],
 				]),
 			},
 			uuid,
@@ -472,7 +473,7 @@ describe('StructureFieldSettings', () => {
 			state: {
 				...DEFAULT_STATE,
 				fields: new Map([
-					[uuid, {...getDefaultField('multiselect'), uuid}],
+					[uuid, {...getDefaultField({type: 'multiselect'}), uuid}],
 				]),
 			},
 			uuid,
@@ -498,7 +499,7 @@ describe('StructureFieldSettings', () => {
 			state: {
 				...DEFAULT_STATE,
 				fields: new Map([
-					[uuid, {...getDefaultField('single-select'), uuid}],
+					[uuid, {...getDefaultField({type: 'single-select'}), uuid}],
 				]),
 			},
 			uuid,

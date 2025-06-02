@@ -5,13 +5,17 @@
 
 package com.liferay.headless.admin.user.internal.resource.v1_0;
 
+import com.liferay.account.exception.DuplicateAccountEntryOrganizationRelException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryOrganizationRel;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.account.service.AccountEntryOrganizationRelService;
 import com.liferay.account.service.AccountEntryService;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.headless.admin.user.dto.v1_0.Account;
+import com.liferay.headless.admin.user.dto.v1_0.AccountBrief;
 import com.liferay.headless.admin.user.dto.v1_0.EmailAddress;
 import com.liferay.headless.admin.user.dto.v1_0.HoursAvailable;
 import com.liferay.headless.admin.user.dto.v1_0.Location;
@@ -19,7 +23,10 @@ import com.liferay.headless.admin.user.dto.v1_0.Organization;
 import com.liferay.headless.admin.user.dto.v1_0.OrganizationContactInformation;
 import com.liferay.headless.admin.user.dto.v1_0.Phone;
 import com.liferay.headless.admin.user.dto.v1_0.PostalAddress;
+import com.liferay.headless.admin.user.dto.v1_0.RoleBrief;
 import com.liferay.headless.admin.user.dto.v1_0.Service;
+import com.liferay.headless.admin.user.dto.v1_0.TaxonomyCategoryBrief;
+import com.liferay.headless.admin.user.dto.v1_0.TaxonomyCategoryReference;
 import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
 import com.liferay.headless.admin.user.dto.v1_0.WebUrl;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.constants.DTOConverterConstants;
@@ -43,6 +50,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.model.OrgLabor;
 import com.liferay.portal.kernel.model.OrganizationConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.Website;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -55,6 +63,7 @@ import com.liferay.portal.kernel.search.filter.QueryFilter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.search.generic.WildcardQueryImpl;
 import com.liferay.portal.kernel.service.EmailAddressService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ListTypeLocalService;
 import com.liferay.portal.kernel.service.OrgLaborLocalService;
 import com.liferay.portal.kernel.service.OrgLaborService;
@@ -68,6 +77,7 @@ import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.service.WebsiteService;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.File;
@@ -90,6 +100,8 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 
+import jakarta.ws.rs.core.MultivaluedMap;
+
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.ParseException;
@@ -99,8 +111,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -398,7 +408,7 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 				organization.getExternalReferenceCode(),
 				serviceBuilderOrganization.getExternalReferenceCode()),
 			serviceBuilderOrganization.getOrganizationId(),
-			_getDefaultParentOrganizationId(
+			_getParentOrganizationId(
 				serviceBuilderOrganization.getParentOrganizationId(),
 				organization),
 			GetterUtil.get(
@@ -469,7 +479,7 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 		com.liferay.portal.kernel.model.Organization
 			serviceBuilderOrganization = _organizationService.addOrganization(
 				organization.getExternalReferenceCode(),
-				_getDefaultParentOrganizationId(
+				_getParentOrganizationId(
 					OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID,
 					organization),
 				organization.getName(), OrganizationConstants.TYPE_ORGANIZATION,
@@ -612,7 +622,7 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 		serviceBuilderOrganization = _organizationService.updateOrganization(
 			organization.getExternalReferenceCode(),
 			serviceBuilderOrganization.getOrganizationId(),
-			_getDefaultParentOrganizationId(
+			_getParentOrganizationId(
 				OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID,
 				organization),
 			organization.getName(), serviceBuilderOrganization.getType(),
@@ -706,17 +716,76 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 		}
 	}
 
+	private com.liferay.portal.kernel.model.Organization
+			_addAccountEntryOrganizationRel(
+				AccountBrief accountBrief,
+				com.liferay.portal.kernel.model.Organization organization)
+		throws Exception {
+
+		String externalReferenceCode = accountBrief.getExternalReferenceCode();
+
+		if (Validator.isNull(externalReferenceCode)) {
+			return organization;
+		}
+
+		try {
+			AccountEntry accountEntry =
+				_accountEntryService.getOrAddIncompleteAccountEntry(
+					externalReferenceCode, accountBrief.getName(),
+					accountBrief.getType());
+
+			_accountEntryOrganizationRelService.addAccountEntryOrganizationRel(
+				accountEntry.getAccountEntryId(),
+				organization.getOrganizationId());
+		}
+		catch (DuplicateAccountEntryOrganizationRelException
+					duplicateAccountEntryOrganizationRelException) {
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(duplicateAccountEntryOrganizationRelException);
+			}
+		}
+
+		return organization;
+	}
+
+	private com.liferay.portal.kernel.model.Organization _addGroupRole(
+			com.liferay.portal.kernel.model.Organization organization,
+			RoleBrief roleBrief)
+		throws Exception {
+
+		String externalReferenceCode = roleBrief.getExternalReferenceCode();
+
+		if (Validator.isNull(externalReferenceCode)) {
+			return organization;
+		}
+
+		Role role = _roleLocalService.getOrAddIncompleteRole(
+			externalReferenceCode, organization.getCompanyId(),
+			contextUser.getUserId(), Role.class.getName(), 0,
+			roleBrief.getName(), roleBrief.getRoleType());
+
+		_roleLocalService.addGroupRole(
+			organization.getGroupId(), role.getRoleId());
+
+		return organization;
+	}
+
 	private ServiceContext _createServiceContext(Organization organization)
 		throws Exception {
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			contextHttpServletRequest);
 
+		serviceContext.setAssetCategoryIds(_getAssetCategoryIds(organization));
+		serviceContext.setAssetTagNames(organization.getKeywords());
+		serviceContext.setCompanyId(contextCompany.getCompanyId());
 		serviceContext.setExpandoBridgeAttributes(
 			CustomFieldsUtil.toMap(
 				com.liferay.portal.kernel.model.Organization.class.getName(),
 				contextCompany.getCompanyId(), organization.getCustomFields(),
 				contextAcceptLanguage.getPreferredLocale()));
+		serviceContext.setUserId(contextUser.getUserId());
 
 		return serviceContext;
 	}
@@ -754,6 +823,53 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 			Objects::nonNull);
 	}
 
+	private long[] _getAssetCategoryIds(Organization organization) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-47858")) {
+			return null;
+		}
+
+		TaxonomyCategoryBrief[] taxonomyCategoryBriefs =
+			organization.getTaxonomyCategoryBriefs();
+
+		if (ArrayUtil.isEmpty(taxonomyCategoryBriefs)) {
+			return null;
+		}
+
+		return ArrayUtil.toArray(
+			transform(
+				taxonomyCategoryBriefs,
+				taxonomyCategoryBrief -> {
+					TaxonomyCategoryReference taxonomyCategoryReference =
+						taxonomyCategoryBrief.getTaxonomyCategoryReference();
+
+					String externalReferenceCode =
+						taxonomyCategoryReference.getExternalReferenceCode();
+
+					if (Validator.isNull(externalReferenceCode) ||
+						Validator.isNull(
+							taxonomyCategoryReference.getSiteKey())) {
+
+						return null;
+					}
+
+					Group group = _groupLocalService.fetchGroup(
+						contextCompany.getCompanyId(),
+						taxonomyCategoryReference.getSiteKey());
+
+					if (group == null) {
+						return null;
+					}
+
+					AssetCategory assetCategory =
+						_assetCategoryLocalService.getOrAddIncompleteCategory(
+							externalReferenceCode, contextUser.getUserId(),
+							group.getGroupId());
+
+					return assetCategory.getCategoryId();
+				},
+				Long.class));
+	}
+
 	private long _getCountryId(long defaultValue, Organization organization) {
 		Location location = organization.getLocation();
 
@@ -763,33 +879,6 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 
 		return ServiceBuilderCountryUtil.toServiceBuilderCountryId(
 			contextCompany.getCompanyId(), location.getAddressCountry());
-	}
-
-	private long _getDefaultParentOrganizationId(
-			long defaultValue, Organization organization)
-		throws Exception {
-
-		Organization parentOrganization = organization.getParentOrganization();
-
-		if (parentOrganization == null) {
-			return defaultValue;
-		}
-
-		if (Validator.isBlank(parentOrganization.getExternalReferenceCode())) {
-			return Long.valueOf(parentOrganization.getId());
-		}
-
-		com.liferay.portal.kernel.model.Organization
-			parentOrganizationByExternalReferenceCode =
-				_organizationService.fetchOrganizationByExternalReferenceCode(
-					parentOrganization.getExternalReferenceCode(),
-					contextCompany.getCompanyId());
-
-		if (parentOrganizationByExternalReferenceCode == null) {
-			return defaultValue;
-		}
-
-		return parentOrganizationByExternalReferenceCode.getOrganizationId();
 	}
 
 	private DefaultDTOConverterContext _getDTOConverterContext(
@@ -877,6 +966,12 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 				serviceBuilderOrganization,
 			boolean useOrganizationDefault)
 		throws Exception {
+
+		String imageBase64 = organization.getImageBase64();
+
+		if (Validator.isNotNull(imageBase64)) {
+			return Base64.decode(imageBase64);
+		}
 
 		long imageId = GetterUtil.getLong(organization.getImageId());
 
@@ -976,6 +1071,47 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 
 		return ListUtil.filter(
 			transformToList(services, this::_toOrgLabor), Objects::nonNull);
+	}
+
+	private long _getParentOrganizationId(
+			long defaultValue, Organization organization)
+		throws Exception {
+
+		Organization parentOrganization = organization.getParentOrganization();
+
+		if (parentOrganization == null) {
+			return defaultValue;
+		}
+
+		String externalReferenceCode =
+			parentOrganization.getExternalReferenceCode();
+
+		if (Validator.isBlank(externalReferenceCode)) {
+			return Long.valueOf(parentOrganization.getId());
+		}
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-47858")) {
+			com.liferay.portal.kernel.model.Organization
+				serviceBuilderOrganization =
+					_organizationService.
+						fetchOrganizationByExternalReferenceCode(
+							parentOrganization.getExternalReferenceCode(),
+							contextCompany.getCompanyId());
+
+			if (serviceBuilderOrganization == null) {
+				return defaultValue;
+			}
+
+			return serviceBuilderOrganization.getOrganizationId();
+		}
+
+		com.liferay.portal.kernel.model.Organization
+			serviceBuilderOrganization =
+				_organizationLocalService.getOrAddIncompleteOrganization(
+					externalReferenceCode, contextUser.getCompanyId(),
+					contextUser.getUserId(), parentOrganization.getName());
+
+		return serviceBuilderOrganization.getOrganizationId();
 	}
 
 	private List<com.liferay.portal.kernel.model.Phone> _getPhones(
@@ -1249,6 +1385,24 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 			return serviceBuilderOrganization;
 		}
 
+		AccountBrief[] accountBriefs = organization.getAccountBriefs();
+
+		if (ArrayUtil.isNotEmpty(accountBriefs)) {
+			for (AccountBrief accountBrief : accountBriefs) {
+				serviceBuilderOrganization = _addAccountEntryOrganizationRel(
+					accountBrief, serviceBuilderOrganization);
+			}
+		}
+
+		RoleBrief[] roleBriefs = organization.getRoleBriefs();
+
+		if (ArrayUtil.isNotEmpty(roleBriefs)) {
+			for (RoleBrief roleBrief : roleBriefs) {
+				serviceBuilderOrganization = _addGroupRole(
+					serviceBuilderOrganization, roleBrief);
+			}
+		}
+
 		return ResourcePermissionUtil.setResourcePermissions(
 			serviceBuilderOrganization,
 			serviceBuilderOrganization.getCompanyId(),
@@ -1278,6 +1432,9 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 	private DTOConverter<AccountEntry, Account> _accountResourceDTOConverter;
 
 	@Reference
+	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Reference
 	private DLAppLocalService _dlAppLocalService;
 
 	@Reference
@@ -1288,6 +1445,9 @@ public class OrganizationResourceImpl extends BaseOrganizationResourceImpl {
 
 	@Reference
 	private File _file;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private ListTypeLocalService _listTypeLocalService;

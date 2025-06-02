@@ -81,6 +81,21 @@ public class PostgreSQLDB extends BaseDB {
 	}
 
 	@Override
+	public String getCharacterSet(Connection connection) throws SQLException {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				"show server_encoding")) {
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getString(1);
+				}
+			}
+		}
+
+		return StringPool.BLANK;
+	}
+
+	@Override
 	public List<Index> getIndexes(Connection connection) throws SQLException {
 		List<Index> indexes = new ArrayList<>();
 
@@ -128,6 +143,13 @@ public class PostgreSQLDB extends BaseDB {
 		return StringBundler.concat(
 			"drop database ", databaseName, ";\n", "create database ",
 			databaseName, " encoding = 'UNICODE';\n");
+	}
+
+	@Override
+	public boolean isSupportsCharacterSet(Connection connection)
+		throws SQLException {
+
+		return Objects.equals(getCharacterSet(connection), "UTF8");
 	}
 
 	@Override

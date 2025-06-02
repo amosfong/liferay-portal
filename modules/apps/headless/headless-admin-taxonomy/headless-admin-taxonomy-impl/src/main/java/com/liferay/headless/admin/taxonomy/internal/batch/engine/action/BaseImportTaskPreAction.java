@@ -5,6 +5,7 @@
 
 package com.liferay.headless.admin.taxonomy.internal.batch.engine.action;
 
+import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.action.ImportTaskPreAction;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.context.ImportTaskContext;
@@ -31,6 +32,7 @@ public abstract class BaseImportTaskPreAction<T>
 	@Override
 	public void run(
 			BatchEngineImportTask batchEngineImportTask,
+			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate,
 			ImportTaskContext importTaskContext, Object item)
 		throws Exception {
 
@@ -50,15 +52,17 @@ public abstract class BaseImportTaskPreAction<T>
 			return;
 		}
 
-		String name = PrincipalThreadLocal.getName();
+		long userId = GetterUtil.getLong(PrincipalThreadLocal.getName());
 
-		if (GetterUtil.getLong(name) == user.getUserId()) {
+		if (userId == user.getUserId()) {
 			return;
 		}
 
 		PrincipalThreadLocal.setName(user.getUserId());
 
-		importTaskContext.setOriginalUserId(name);
+		batchEngineTaskItemDelegate.setContextUser(user);
+
+		importTaskContext.setOriginalUser(userLocalService.getUser(userId));
 	}
 
 	protected abstract Creator getCreator(Object item);

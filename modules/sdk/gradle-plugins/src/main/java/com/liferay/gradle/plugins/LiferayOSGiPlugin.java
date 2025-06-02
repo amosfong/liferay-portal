@@ -21,7 +21,6 @@ import com.liferay.gradle.plugins.css.builder.CSSBuilderPlugin;
 import com.liferay.gradle.plugins.extensions.BundleExtension;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.extensions.LiferayOSGiExtension;
-import com.liferay.gradle.plugins.internal.AlloyTaglibDefaultsPlugin;
 import com.liferay.gradle.plugins.internal.DBSupportDefaultsPlugin;
 import com.liferay.gradle.plugins.internal.JavadocFormatterDefaultsPlugin;
 import com.liferay.gradle.plugins.internal.RESTBuilderDefaultsPlugin;
@@ -369,7 +368,6 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 		GradleUtil.applyPlugin(project, TLDFormatterPlugin.class);
 		GradleUtil.applyPlugin(project, TestIntegrationPlugin.class);
 
-		AlloyTaglibDefaultsPlugin.INSTANCE.apply(project);
 		CSSBuilderDefaultsPlugin.INSTANCE.apply(project);
 		DBSupportDefaultsPlugin.INSTANCE.apply(project);
 		EclipseDefaultsPlugin.INSTANCE.apply(project);
@@ -805,6 +803,7 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 									Map<String, String> properties =
 										_getBuilderProperties(
 											project, bundleExtension,
+											javaMainSourceSet,
 											liferayOSGiExtension,
 											buildWSDDTask);
 
@@ -1469,7 +1468,7 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 
 	private Map<String, String> _getBuilderProperties(
 		Project project, BundleExtension bundleExtension,
-		LiferayOSGiExtension liferayOSGiExtension,
+		SourceSet javaMainSourceSet, LiferayOSGiExtension liferayOSGiExtension,
 		BuildWSDDTask buildWSDDTask) {
 
 		Map<String, String> properties = GradleUtil.toStringMap(
@@ -1506,8 +1505,24 @@ public class LiferayOSGiPlugin implements Plugin<Project> {
 			Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName + ".wsdd");
 		properties.put(Constants.FRAGMENT_HOST, bundleSymbolicName);
 
-		properties.put(
-			Constants.IMPORT_PACKAGE, "javax.servlet,javax.servlet.http");
+		String importPackageValue = "jakarta.servlet,jakarta.servlet.http";
+
+		FileCollection compileClasspathFileCollection =
+			javaMainSourceSet.getCompileClasspath();
+
+		FileCollection javaxFileCollection =
+			compileClasspathFileCollection.filter(
+				file -> {
+					String name = file.getName();
+
+					return name.contains("javax");
+				});
+
+		if (!javaxFileCollection.isEmpty()) {
+			importPackageValue = "javax.servlet,javax.servlet.http";
+		}
+
+		properties.put(Constants.IMPORT_PACKAGE, importPackageValue);
 
 		StringBuilder sb = new StringBuilder();
 

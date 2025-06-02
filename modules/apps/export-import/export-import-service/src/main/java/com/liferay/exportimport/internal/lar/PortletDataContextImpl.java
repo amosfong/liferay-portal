@@ -1428,7 +1428,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 				continue;
 			}
 
-			if (isPrivateLayout() &&
+			if (isOriginalPrivateLayout() &&
 				resourceName.equals(Layout.class.getName()) &&
 				roleName.equals(RoleConstants.GUEST) &&
 				!_isGroupLayoutSetPrototype()) {
@@ -2584,7 +2584,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 				try {
 					WorkflowDefinitionLinkLocalServiceUtil.
 						addWorkflowDefinitionLink(
-							permissionChecker.getUserId(), getCompanyId(),
+							null, permissionChecker.getUserId(), getCompanyId(),
 							getScopeGroupId(), className, newPrimaryKey, typePK,
 							workflowDefinition.getName(),
 							workflowDefinition.getVersion());

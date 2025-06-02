@@ -7,10 +7,11 @@ import {expect, mergeTests} from '@playwright/test';
 import {createReadStream, readdirSync} from 'fs';
 import path from 'path';
 
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {pageViewModePagesTest} from '../../../fixtures/pageViewModePagesTest';
+import {webContentDisplayPageTest} from '../../../fixtures/webContentDisplayPageTest';
 import getRandomString from '../../../utils/getRandomString';
 import getBasicWebContentStructureId from '../../../utils/structured-content/getBasicWebContentStructureId';
 import {exportImportConfig} from './export_import.config';
@@ -19,18 +20,19 @@ import {stagingPageTest} from './fixtures/stagingPageTest';
 import {unzipAndCheckFolder} from './utils/stagingUtil';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
 		'LPD-35914': {enabled: true, system: true},
 	}),
 	loginTest(),
+	pageViewModePagesTest,
+	stagingConfigurationPageTest,
 	stagingPageTest,
-	stagingConfigurationPageTest
+	webContentDisplayPageTest
 );
 
 test(
-	'Non modified referred content cannot publish to live when enable include if modified option',
+	'non modified referred content cannot publish to live when enable include if modified option',
 	{tag: '@LPS-167777'},
 	async ({apiHelpers, stagingConfigurationPage, stagingPage}) => {
 		const site = await apiHelpers.headlessSite.createSite({
@@ -107,3 +109,73 @@ test(
 		expect(hasFolder).toEqual(false);
 	}
 );
+
+test('staging publish template with smoke', async ({
+	apiHelpers,
+	page,
+	stagingPage,
+	webContentDisplayPage,
+	widgetPagePage,
+}) => {
+	const site = await apiHelpers.headlessSite.createSite({
+		name: getRandomString(),
+	});
+
+	apiHelpers.data.push({id: site.id, type: 'site'});
+
+	const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
+		groupId: site.id,
+		options: {type: 'portlet'},
+		title: getRandomString(),
+	});
+
+	const webContentContent = getRandomString();
+	const webContent = await apiHelpers.jsonWebServicesJournal.addWebContent({
+		content: webContentContent,
+		ddmStructureId: await getBasicWebContentStructureId(apiHelpers),
+		groupId: site.id,
+		titleMap: {en_US: getRandomString()},
+	});
+
+	apiHelpers.data.push({
+		id: `${site.id}_${webContent.articleId}`,
+		type: 'webContent',
+	});
+
+	await stagingPage.goto(site.name);
+	await stagingPage.enableLocalStaging();
+
+	const stagingSite =
+		await apiHelpers.headlessAdminUser.getSiteByFriendlyUrlPath(
+			`${site.friendlyUrlPath}-staging`
+		);
+
+	await page.waitForTimeout(2000);
+	await widgetPagePage.goto(layout, stagingSite.friendlyUrlPath);
+	await page.waitForLoadState('domcontentloaded');
+
+	await widgetPagePage.addPortlet(
+		'Web Content Display',
+		'Content Management'
+	);
+
+	await webContentDisplayPage.addWebContentWithDisplay({
+		pageType: 'widget',
+		webContentName: webContent.title,
+	});
+
+	await page.waitForTimeout(2000);
+
+	await stagingPage.goto(site.name + '-staging');
+
+	const templateName = getRandomString();
+	await stagingPage.gotoTemplatePage();
+	await stagingPage.addTemplate(templateName);
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await stagingPage.publishTemplate(templateName);
+
+	await widgetPagePage.goto(layout, site.friendlyUrlPath);
+
+	expect(page.getByText(webContent.title, {exact: true})).toBeVisible();
+	expect(page.getByText(webContentContent, {exact: true})).toBeVisible();
+});

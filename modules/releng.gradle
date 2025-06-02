@@ -257,7 +257,6 @@ portalJavadoc {
 	destinationDir = new File(buildDir, "releng/portalJavadoc")
 	options.addStringOption("Xdoclint:none", "-quiet")
 	options.encoding = "ISO-8859-1"
-	options.stylesheetFile = file("../tools/styles/javadoc.css")
 	source {
 		zipTree(portalSourcesJar.archivePath).matching {
 			exclude "module-info.java"
@@ -1271,7 +1270,6 @@ private List<Dependency> _getPortalArtifactsDependencies(List<File> relengProjec
 			for (String artifact : enforceVersionArtifacts.split(",")) {
 				if (!artifact.startsWith("com.fasterxml") &&
 					!artifact.startsWith("com.liferay:biz.aQute.bnd.annotation:") &&
-					!artifact.startsWith("com.liferay.alloy-taglibs:alloy-taglib:") &&
 					!artifact.startsWith("io.swagger") &&
 					!artifact.startsWith("javax") &&
 					!artifact.startsWith("org.jsoup") &&

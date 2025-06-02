@@ -53,10 +53,17 @@ export class StructureBuilderPage {
 		this.spaceSelector = this.page.getByLabel('Space Selector');
 	}
 
-	async goto() {
+	async goto(
+		{type = 'content'}: {type?: 'content' | 'file'} = {type: 'content'}
+	) {
+		const folderERC =
+			type === 'content'
+				? 'L_CMS_CONTENT_STRUCTURES'
+				: 'L_CMS_FILE_TYPES';
+
 		await this.page.goto(
 			PORTLET_URLS.cmsStructureBuilder +
-				'?objectFolderExternalReferenceCode=L_CMS_CONTENT_STRUCTURES'
+				`?objectFolderExternalReferenceCode=${folderERC}`
 		);
 
 		await this.page.getByText('New Structure').waitFor();
@@ -312,6 +319,22 @@ export class StructureBuilderPage {
 			await expect(
 				this.page.getByText(`${fields.length} Items Selected`)
 			).toBeVisible();
+		}
+	}
+
+	async selectSpaces(spaces: string[]) {
+		for (const space of spaces) {
+			await expect(async () => {
+				await this.spaceSelector.click({timeout: 1000});
+
+				await this.page
+					.getByRole('option', {name: space})
+					.click({timeout: 1000});
+
+				await expect(
+					this.page.locator('.label-secondary', {hasText: space})
+				).toBeVisible();
+			}).toPass();
 		}
 	}
 }

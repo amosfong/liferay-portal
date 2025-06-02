@@ -7,6 +7,7 @@ package com.liferay.portal.dao.db;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.Index;
 import com.liferay.portal.kernel.dao.db.IndexMetadata;
@@ -109,6 +110,21 @@ public class MySQLDB extends BaseDB {
 	}
 
 	@Override
+	public String getCharacterSet(Connection connection) throws SQLException {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				"select @@character_set_database")) {
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getString(1);
+				}
+			}
+		}
+
+		return StringPool.BLANK;
+	}
+
+	@Override
 	public List<Index> getIndexes(Connection connection) throws SQLException {
 		List<Index> indexes = new ArrayList<>();
 
@@ -148,6 +164,15 @@ public class MySQLDB extends BaseDB {
 		return StringBundler.concat(
 			"drop database if exists ", databaseName, ";\n", "create database ",
 			databaseName, " character set utf8;\n");
+	}
+
+	@Override
+	public boolean isSupportsCharacterSet(Connection connection)
+		throws SQLException {
+
+		String characterSet = getCharacterSet(connection);
+
+		return characterSet.startsWith("utf8");
 	}
 
 	@Override

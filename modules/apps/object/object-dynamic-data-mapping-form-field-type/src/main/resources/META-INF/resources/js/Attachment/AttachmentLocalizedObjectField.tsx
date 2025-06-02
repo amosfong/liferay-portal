@@ -6,11 +6,6 @@
 import {ClayInput} from '@clayui/form';
 import {useFormState} from 'data-engine-js-components-web';
 import {LocalesDropdown} from 'dynamic-data-mapping-form-field-type';
-import {
-	FieldChangeEventHandler,
-	LocalizedValue,
-} from 'dynamic-data-mapping-form-field-type/src/main/resources/META-INF/resources/types';
-import {AvailableLocale} from 'dynamic-data-mapping-form-field-type/src/main/resources/META-INF/resources/util/localizable/LocalesDropdown';
 import React, {useEffect, useState} from 'react';
 
 import AttachmentBase, {
@@ -18,9 +13,13 @@ import AttachmentBase, {
 	AttachmentFile,
 } from './AttachmentBase';
 
+import type {
+	FieldChangeEventHandler,
+	LocalizedValue,
+} from 'dynamic-data-mapping-form-field-type';
+
 export interface AttachmentLocalizedObjectFieldProps
 	extends AttachmentBaseProps<string | LocalizedValue<string>> {
-	availableLocales: AvailableLocale[];
 	fieldName: string;
 	fileEntryProperties: LocalizedValue<AttachmentFile>;
 	onChange: FieldChangeEventHandler<LocalizedValue<string>>;
@@ -28,7 +27,6 @@ export interface AttachmentLocalizedObjectFieldProps
 }
 
 export default function AttachmentLocalizedObjectField({
-	availableLocales,
 	fieldName,
 	fileEntryProperties,
 	onChange,
@@ -38,7 +36,8 @@ export default function AttachmentLocalizedObjectField({
 	const [attachment, setAttachment] =
 		useState<LocalizedValue<AttachmentFile>>(fileEntryProperties);
 
-	const {defaultLanguageId, editingLanguageId} = useFormState();
+	const {availableLocales, defaultLanguageId, editingLanguageId} =
+		useFormState();
 
 	const getAttachment = () => {
 		if (!attachment[editingLanguageId]) {

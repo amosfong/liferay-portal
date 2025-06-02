@@ -7,8 +7,8 @@ package com.liferay.portal.servlet.filters;
 
 import com.liferay.portal.kernel.util.PortalUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author Raymond Augé
@@ -40,11 +40,7 @@ public abstract class IgnoreModuleRequestFilter extends BasePortalFilter {
 			resourcePath = resourcePath.substring(contextPath.length());
 		}
 
-		if (resourcePath.startsWith(_MODULE_REQUEST_PREFIX)) {
-			return true;
-		}
-
-		return false;
+		return resourcePath.startsWith(_MODULE_REQUEST_PREFIX);
 	}
 
 	private static final String _MODULE_REQUEST_PREFIX =

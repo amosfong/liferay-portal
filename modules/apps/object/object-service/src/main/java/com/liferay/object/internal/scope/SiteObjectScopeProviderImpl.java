@@ -17,9 +17,9 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.Locale;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -79,7 +79,9 @@ public class SiteObjectScopeProviderImpl implements ObjectScopeProvider {
 	public boolean isValidGroupId(long groupId) {
 		Group group = _groupLocalService.fetchGroup(groupId);
 
-		if ((group != null) && (group.isSite() || group.isUserGroup())) {
+		if ((group != null) &&
+			(group.isSite() || group.isStagingGroup() || group.isUserGroup())) {
+
 			return true;
 		}
 

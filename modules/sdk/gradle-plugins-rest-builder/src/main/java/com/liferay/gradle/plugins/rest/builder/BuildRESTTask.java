@@ -126,7 +126,19 @@ public class BuildRESTTask extends JavaExec {
 			args.add(forcePredictableOperationId);
 		}
 
+		if (_isJakartaEnabled()) {
+			args.add("--javaee-package");
+			args.add("jakarta");
+		}
+
 		return args;
+	}
+
+	private boolean _isJakartaEnabled() {
+
+		// TODO Return a value based on the branch or workspace
+
+		return false;
 	}
 
 	private Object _copyrightFile;

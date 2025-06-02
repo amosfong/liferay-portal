@@ -43,6 +43,11 @@ public class HypersonicDB extends BaseDB {
 	}
 
 	@Override
+	public String getCharacterSet(Connection connection) {
+		return "UTF-8";
+	}
+
+	@Override
 	public String getDefaultValue(String columnDef) {
 		String defaultValue = super.getDefaultValue(columnDef);
 
@@ -61,6 +66,11 @@ public class HypersonicDB extends BaseDB {
 	@Override
 	public String getRecreateSQL(String databaseName) {
 		return StringPool.BLANK;
+	}
+
+	@Override
+	public boolean isSupportsCharacterSet(Connection connection) {
+		return true;
 	}
 
 	@Override

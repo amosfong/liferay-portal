@@ -20,6 +20,7 @@ import {config as assetTagsAdminWebConfig} from './tests/asset-tags-admin-web/ma
 import {config as batchPlannerConfig} from './tests/batch-planner/main/config';
 import {config as blogsWebConfig} from './tests/blogs-web/main/config';
 import {config as calendarWebConfig} from './tests/calendar-web/main/config';
+import {config as captchaWebClientExtensionConfig} from './tests/captcha-web/client-extension/config';
 import {config as captchaWebConfig} from './tests/captcha-web/main/config';
 import {config as changeTrackingWebConfig} from './tests/change-tracking-web/main/config';
 import {config as clientExtensionWebClusterConfig} from './tests/client-extension-web/cluster/config';
@@ -58,11 +59,13 @@ import {config as friendlyURLConfig} from './tests/friendly-url-web/main/config'
 import {config as frontendDataSetAdminWebConfig} from './tests/frontend-data-set-admin-web/main/config';
 import {config as frontendDataSetWebConfig} from './tests/frontend-data-set-web/main/config';
 import {config as frontendEditorCKEditorWebConfig} from './tests/frontend-editor-ckeditor-web/main/config';
+import {config as frontendJsBootstrapSupportWebConfig} from './tests/frontend-js-bootstrap-support-web/main/config';
 import {config as frontendJsComponentsWebConfig} from './tests/frontend-js-components-web/main/config';
 import {config as frontendJsSpaWebConfig} from './tests/frontend-js-spa-web/main/config';
 import {config as frontendJsWebConfig} from './tests/frontend-js-web/main/config';
 import {config as frontendTaglibClayConfig} from './tests/frontend-taglib-clay/main/config';
 import {config as frontendTaglibConfig} from './tests/frontend-taglib/main/config';
+import {config as frontendTaglibSpaOffConfig} from './tests/frontend-taglib/spa-off/config';
 import {config as frontendTheme} from './tests/frontend-theme/main/config';
 import {config as headlessBuilderImplConfig} from './tests/headless-builder-impl/main/config';
 import {config as headlessBuilderWebConfig} from './tests/headless-builder-web/main/config';
@@ -102,6 +105,7 @@ import {config as portalToolsRestBuilderTestImpl} from './tests/portal-tools-res
 import {config as portalUserLocaleOptionsConfig} from './tests/portal-user-locale-options-web/main/config';
 import {config as portalWebConfig} from './tests/portal-web/main/config';
 import {config as portalWorkflowKaleoDesignerWebConfig} from './tests/portal-workflow-kaleo-designer-web/main/config';
+import {config as portalWorkflowKaleoFormsWebConfig} from './tests/portal-workflow-kaleo-forms-web/main/config';
 import {config as portalWorkflowTaskWebConfig} from './tests/portal-workflow-task-web/main/config';
 import {config as portletConfigurationCssWebConfig} from './tests/portlet-configuration-css-web/main/config';
 import {config as productNavigationProductMenuWeb} from './tests/product-navigation-product-menu-web/main/config';
@@ -165,6 +169,7 @@ export default defineConfig({
 		batchPlannerConfig,
 		blogsWebConfig,
 		calendarWebConfig,
+		captchaWebClientExtensionConfig,
 		captchaWebConfig,
 		changeTrackingWebConfig,
 		clientExtensionWebConfig,
@@ -205,11 +210,13 @@ export default defineConfig({
 		frontendDataSetAdminWebConfig,
 		frontendDataSetWebConfig,
 		frontendEditorCKEditorWebConfig,
+		frontendJsBootstrapSupportWebConfig,
 		frontendJsComponentsWebConfig,
 		frontendJsSpaWebConfig,
 		frontendJsWebConfig,
 		frontendTaglibClayConfig,
 		frontendTaglibConfig,
+		frontendTaglibSpaOffConfig,
 		frontendTheme,
 		headlessBuilderImplConfig,
 		headlessBuilderWebConfig,
@@ -251,6 +258,7 @@ export default defineConfig({
 		portalUserLocaleOptionsConfig,
 		portalWebConfig,
 		portalWorkflowKaleoDesignerWebConfig,
+		portalWorkflowKaleoFormsWebConfig,
 		portalWorkflowTaskWebConfig,
 		portletConfigurationCssWebConfig,
 		productNavigationProductMenuWeb,

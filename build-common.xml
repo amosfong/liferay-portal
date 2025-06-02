@@ -651,7 +651,7 @@ information.
 		<sequential>
 			<generate-backend-batch-junit-report
 				junit.failure.count="1"
-				junit.failure.message.element="&lt;failure message=&quot;@{test.task.name} failed to compile successfully&quot; /&gt;"
+				junit.failure.message.element="&lt;failure message=&quot;@{test.task.name} could not be executed. Please check the logs for details.&quot; /&gt;"
 				test.class.name="@{test.class.name}"
 				test.command.name="testRun"
 				test.results.dir="modules/test-results"
@@ -2075,6 +2075,7 @@ rerun your task.
 					<propertyref name="jacoco.agent.jar" />
 					<propertyref name="jira.project.keys" />
 					<propertyref name="jsp.precompile.from.source" />
+					<propertyref name="jsp.precompile.pooling.enabled.modules" />
 					<propertyref name="junit.code.coverage" />
 					<propertyref if:set="junit.java.add.opens" name="junit.java.add.opens" />
 					<propertyref if:set="junit.java.security.manager" name="junit.java.security.manager" />

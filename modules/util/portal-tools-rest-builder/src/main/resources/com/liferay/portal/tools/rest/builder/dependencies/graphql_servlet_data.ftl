@@ -15,11 +15,10 @@ import ${configYAML.apiPackagePath}.internal.graphql.query.${escapedVersion}.Que
 
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+import ${configYAML.javaEEPackage}.annotation.Generated;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Generated;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentServiceObjects;

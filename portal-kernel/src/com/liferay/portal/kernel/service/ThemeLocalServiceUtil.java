@@ -98,7 +98,7 @@ public class ThemeLocalServiceUtil {
 	}
 
 	public static List<com.liferay.portal.kernel.model.Theme> init(
-		javax.servlet.ServletContext servletContext, String themesPath,
+		jakarta.servlet.ServletContext servletContext, String themesPath,
 		boolean loadFromServletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
@@ -108,8 +108,9 @@ public class ThemeLocalServiceUtil {
 	}
 
 	public static List<com.liferay.portal.kernel.model.Theme> init(
-		String servletContextName, javax.servlet.ServletContext servletContext,
-		String themesPath, boolean loadFromServletContext, String[] xmls,
+		String servletContextName,
+		jakarta.servlet.ServletContext servletContext, String themesPath,
+		boolean loadFromServletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
 		return getService().init(

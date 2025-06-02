@@ -1,7 +1,12 @@
 Bundle-Name: Liferay Frontend CSS RTL Servlet
 Bundle-SymbolicName: com.liferay.frontend.css.rtl.servlet
-Bundle-Version: 5.0.16
+Bundle-Version: 5.0.17
 Import-Package:\
+	!javax.annotation.*,\
+	\
+	!javax.xml.bind.*,\
+	!javax.xml.ws.*,\
+	\
 	!org.junit,\
 	!org.junit.*,\
 	\

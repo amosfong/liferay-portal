@@ -31,14 +31,18 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
+import com.liferay.portal.kernel.service.UserNotificationDeliveryLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -84,6 +88,40 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 			user1.getUserId());
 		_userNotificationEventLocalService.deleteUserNotificationEvents(
 			user2.getUserId());
+	}
+
+	@Test
+	public void testIsDeliver() throws Exception {
+		NotificationTemplate notificationTemplate =
+			notificationTemplateLocalService.addNotificationTemplate(
+				_createNotificationContext(
+					Arrays.asList(
+						NotificationRecipientSettingUtil.
+							createNotificationRecipientSetting(
+								"userScreenName", user1.getScreenName()),
+						NotificationRecipientSettingUtil.
+							createNotificationRecipientSetting(
+								"userScreenName", user2.getScreenName())),
+					NotificationRecipientConstants.TYPE_USER));
+
+		_userNotificationDeliveryLocalService.addUserNotificationDelivery(
+			user1.getUserId(), childObjectDefinition.getPortletId(),
+			_classNameLocalService.getClassNameId(
+				childObjectDefinition.getClassName()),
+			UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY,
+			UserNotificationDeliveryConstants.TYPE_WEBSITE, false);
+		_userNotificationDeliveryLocalService.addUserNotificationDelivery(
+			user2.getUserId(), childObjectDefinition.getPortletId(),
+			_classNameLocalService.getClassNameId(
+				childObjectDefinition.getClassName()),
+			UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY,
+			UserNotificationDeliveryConstants.TYPE_WEBSITE, true);
+
+		_executeNotificationObjectAction(
+			notificationTemplate, childObjectDefinition, group.getGroupKey(),
+			user2);
+
+		_assertNotificationQueueEntry(user2.getFullName());
 	}
 
 	@Test
@@ -598,10 +636,17 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 	}
 
 	@Inject
+	private ClassNameLocalService _classNameLocalService;
+
+	@Inject
 	private RoleLocalService _roleLocalService;
 
 	@Inject
 	private UserGroupRoleLocalService _userGroupRoleLocalService;
+
+	@Inject
+	private UserNotificationDeliveryLocalService
+		_userNotificationDeliveryLocalService;
 
 	@Inject
 	private UserNotificationEventLocalService

@@ -9,6 +9,7 @@ import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTe
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {masterPagesPagesTest} from '../../../fixtures/masterPagesPagesTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {pageTemplatesPagesTest} from '../../../fixtures/pageTemplatesPagesTest';
 import {pageViewModePagesTest} from '../../../fixtures/pageViewModePagesTest';
@@ -19,18 +20,19 @@ import getRandomString from '../../../utils/getRandomString';
 import createSiteTemplate from './utils/createSiteTemplate';
 
 export const test = mergeTests(
-	dataApiHelpersTest,
 	applicationsMenuPageTest,
-	loginTest(),
+	dataApiHelpersTest,
 	featureFlagsTest({
 		'LPD-39304': {enabled: true},
 	}),
+	loginTest(),
+	masterPagesPagesTest,
 	pagesAdminPagesTest,
 	pageEditorPagesTest,
 	pageTemplatesPagesTest,
+	pageViewModePagesTest,
 	productMenuPageTest,
-	sitesPageTest,
-	pageViewModePagesTest
+	sitesPageTest
 );
 
 test('User is able to propagate pages separately on site templates', async ({
@@ -133,3 +135,130 @@ test('User is able to propagate pages separately on site templates', async ({
 			!homePageModificationDateAfter !== homePageModificationDateBefore
 	).toEqual(true);
 });
+
+test(
+	'Guest view permission is not lost when a change in a page generated from a Master Page is propagated from a Site Template to a Site',
+	{tag: ['@LPD-54068']},
+	async ({
+		apiHelpers,
+		applicationsMenuPage,
+		page,
+		pageEditorPage,
+		pagesAdminPage,
+		productMenuPage,
+		sitesPage,
+	}) => {
+		const siteTemplateName: string = 'template-' + getRandomString();
+
+		const layoutSetPrototype = await createSiteTemplate({
+			apiHelpers,
+			layoutsUpdateable: true,
+			page,
+			productMenuPage,
+			templateName: siteTemplateName,
+		});
+
+		await apiHelpers.data.push({
+			id: layoutSetPrototype.layoutSetPrototypeId,
+			type: 'layoutSetPrototype',
+		});
+
+		const layoutSetPrototypeGroup =
+			await apiHelpers.jsonWebServicesGroup.getGroupByKey(
+				layoutSetPrototype.companyId,
+				layoutSetPrototype.layoutSetPrototypeId
+			);
+
+		const masterPageName: string = 'masterPage-' + getRandomString();
+		await apiHelpers.jsonWebServicesLayoutPageTemplateEntry.addLayoutPageTemplateEntry(
+			{
+				groupId: layoutSetPrototypeGroup.groupId,
+				name: masterPageName,
+				type: 'master-layout',
+			}
+		);
+
+		await productMenuPage.goToPages();
+
+		const pageName: string = 'page-' + getRandomString();
+		await pagesAdminPage.createNewPage({
+			draft: false,
+			name: pageName,
+			template: masterPageName,
+		});
+
+		await applicationsMenuPage.goToSites();
+
+		const siteName: string = 'site-' + getRandomString();
+		const siteId = await sitesPage.createSite({
+			isCustom: true,
+			siteName,
+			templateName: siteTemplateName,
+		});
+
+		await apiHelpers.data.push({id: siteId, type: 'site'});
+
+		const newSiteURL = `/web/${siteName}`;
+
+		// Go to the site when it is available
+
+		await expect
+			.poll(
+				async () => {
+					await page.goto(newSiteURL);
+
+					return page.getByText('Page Not Found Go Back').isVisible();
+				},
+				{
+					timeout: 6000,
+				}
+			)
+			.toBe(false);
+
+		await productMenuPage.goToPages();
+
+		await page
+			.getByRole('menuitem', {
+				name: `Move ${pageName} Select ${pageName}`,
+			})
+			.getByLabel('Open Page Options Menu')
+			.click();
+		await page.getByRole('menuitem', {name: 'Permissions'}).click();
+
+		const permissionsFrameLocator = await page.frameLocator(
+			'iframe[title="Permissions"]'
+		);
+
+		const guestViewPermissionCheckbox =
+			permissionsFrameLocator.locator('#guest_ACTION_VIEW');
+
+		await expect(guestViewPermissionCheckbox).toBeChecked();
+
+		await page.goto(
+			`/group/template-${layoutSetPrototype.layoutSetPrototypeId}`
+		);
+
+		await productMenuPage.goToPages();
+		await page.getByText(pageName).click();
+		await pageEditorPage.addFragment('Basic Components', 'Button');
+		await pageEditorPage.publishPage();
+
+		// Force the propagation of the changes
+
+		await applicationsMenuPage.goto();
+
+		await page.goto(newSiteURL);
+
+		await productMenuPage.goToPages();
+
+		await page
+			.getByRole('menuitem', {
+				name: `Move ${pageName} Select ${pageName}`,
+			})
+			.getByLabel('Open Page Options Menu')
+			.click();
+		await page.getByRole('menuitem', {name: 'Permissions'}).click();
+
+		await expect(guestViewPermissionCheckbox).toBeChecked();
+	}
+);

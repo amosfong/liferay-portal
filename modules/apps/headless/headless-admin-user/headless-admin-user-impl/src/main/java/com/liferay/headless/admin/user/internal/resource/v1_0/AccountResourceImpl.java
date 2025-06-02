@@ -100,14 +100,14 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
 import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 
+import jakarta.ws.rs.core.MultivaluedMap;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -759,7 +759,20 @@ public class AccountResourceImpl extends BaseAccountResourceImpl {
 	}
 
 	private long _getDefaultBillingAddressId(
-		Account account, long defaultBillingAddressId) {
+			Account account, long accountEntryId, long defaultBillingAddressId)
+		throws Exception {
+
+		if (FeatureFlagManagerUtil.isEnabled("LPD-47858") &&
+			Validator.isNotNull(
+				account.getDefaultBillingAddressExternalReferenceCode())) {
+
+			Address address = _addressLocalService.getOrAddIncompleteAddress(
+				account.getDefaultBillingAddressExternalReferenceCode(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
+				AccountEntry.class.getName(), accountEntryId);
+
+			return address.getAddressId();
+		}
 
 		long billingAddressId = GetterUtil.getLong(
 			account.getDefaultBillingAddressId());
@@ -781,7 +794,20 @@ public class AccountResourceImpl extends BaseAccountResourceImpl {
 	}
 
 	private long _getDefaultShippingAddressId(
-		Account account, long defaultShippingAddressId) {
+			Account account, long accountEntryId, long defaultShippingAddressId)
+		throws Exception {
+
+		if (FeatureFlagManagerUtil.isEnabled("LPD-47858") &&
+			Validator.isNotNull(
+				account.getDefaultShippingAddressExternalReferenceCode())) {
+
+			Address address = _addressLocalService.getOrAddIncompleteAddress(
+				account.getDefaultShippingAddressExternalReferenceCode(),
+				contextCompany.getCompanyId(), contextUser.getUserId(),
+				AccountEntry.class.getName(), accountEntryId);
+
+			return address.getAddressId();
+		}
 
 		long shippingAddressId = GetterUtil.getLong(
 			account.getDefaultShippingAddressId());
@@ -1048,9 +1074,8 @@ public class AccountResourceImpl extends BaseAccountResourceImpl {
 				account.getParentAccountExternalReferenceCode())) {
 
 			AccountEntry accountEntry =
-				_accountEntryLocalService.getOrAddIncompleteAccountEntry(
+				_accountEntryService.getOrAddIncompleteAccountEntry(
 					account.getParentAccountExternalReferenceCode(),
-					contextCompany.getCompanyId(), contextUser.getUserId(),
 					account.getParentAccountExternalReferenceCode(),
 					AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS);
 
@@ -1209,12 +1234,14 @@ public class AccountResourceImpl extends BaseAccountResourceImpl {
 		accountEntry = _accountEntryLocalService.updateDefaultBillingAddressId(
 			accountId,
 			_getDefaultBillingAddressId(
-				account, accountEntry.getDefaultBillingAddressId()));
+				account, accountEntry.getAccountEntryId(),
+				accountEntry.getDefaultBillingAddressId()));
 
 		accountEntry = _accountEntryLocalService.updateDefaultShippingAddressId(
 			accountId,
 			_getDefaultShippingAddressId(
-				account, accountEntry.getDefaultShippingAddressId()));
+				account, accountEntry.getAccountEntryId(),
+				accountEntry.getDefaultShippingAddressId()));
 
 		long[] organizationIds = _getOrganizationIds(account);
 

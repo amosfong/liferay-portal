@@ -24,6 +24,12 @@ import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import ${configYAML.javaEEPackage}.annotation.Generated;
+
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletRequest;
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletResponse;
+
+import ${configYAML.javaEEPackage}.ws.rs.core.UriInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -34,13 +40,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-
-import javax.annotation.Generated;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Component;

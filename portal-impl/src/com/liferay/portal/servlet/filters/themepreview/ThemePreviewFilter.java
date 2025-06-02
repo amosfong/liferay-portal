@@ -13,12 +13,12 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
 import com.liferay.portal.servlet.filters.strip.StripFilter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Ganesh Ram
@@ -30,11 +30,7 @@ public class ThemePreviewFilter extends BasePortalFilter {
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) {
 
-		if (isThemePreview(httpServletRequest)) {
-			return true;
-		}
-
-		return false;
+		return isThemePreview(httpServletRequest);
 	}
 
 	protected String getContent(
@@ -59,11 +55,7 @@ public class ThemePreviewFilter extends BasePortalFilter {
 	}
 
 	protected boolean isThemePreview(HttpServletRequest httpServletRequest) {
-		if (ParamUtil.getBoolean(httpServletRequest, _THEME_PREVIEW)) {
-			return true;
-		}
-
-		return false;
+		return ParamUtil.getBoolean(httpServletRequest, _THEME_PREVIEW);
 	}
 
 	@Override

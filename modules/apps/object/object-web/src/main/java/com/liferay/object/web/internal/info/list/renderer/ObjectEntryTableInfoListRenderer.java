@@ -23,13 +23,14 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Guilherme Camacho
@@ -97,7 +98,11 @@ public class ObjectEntryTableInfoListRenderer
 			}
 
 			infoListBasicTableTag.setInfoListObjectColumnNames(
-				ListUtil.toList(objectFields, ObjectField::getLabel));
+				ListUtil.toList(
+					objectFields,
+					objectField -> objectField.getLabel(
+						PortalUtil.getLocale(
+							infoListRendererContext.getHttpServletRequest()))));
 		}
 
 		infoListBasicTableTag.setInfoListObjects(objectEntries);

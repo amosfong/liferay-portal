@@ -104,6 +104,11 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.webserver.WebServerServletTokenUtil;
 
+import jakarta.portlet.PortletRequest;
+import jakarta.portlet.PortletURL;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -118,11 +123,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletURL;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Alessio Antonio Rendina
@@ -308,16 +308,20 @@ public class CommerceOrderContentDisplayContext {
 	}
 
 	public CommerceOrder getCommerceOrder() throws PortalException {
-		long commerceOrderId = getCommerceOrderId();
-
-		if (commerceOrderId > 0) {
-			return _commerceOrderService.fetchCommerceOrder(
-				getCommerceOrderId());
+		if (_commerceOrder != null) {
+			return _commerceOrder;
 		}
 
-		return _commerceOrderService.fetchCommerceOrder(
-			ParamUtil.getString(_httpServletRequest, "commerceOrderUuid"),
-			_cpRequestHelper.getCommerceChannelGroupId());
+		_commerceOrder = _commerceOrderService.fetchCommerceOrder(
+			getCommerceOrderId());
+
+		if (_commerceOrder == null) {
+			_commerceOrder = _commerceOrderService.fetchCommerceOrder(
+				ParamUtil.getString(_httpServletRequest, "commerceOrderUuid"),
+				_cpRequestHelper.getCommerceChannelGroupId());
+		}
+
+		return _commerceOrder;
 	}
 
 	public String getCommerceOrderDate(CommerceOrder commerceOrder) {
@@ -331,6 +335,10 @@ public class CommerceOrderContentDisplayContext {
 	}
 
 	public long getCommerceOrderId() {
+		if (_commerceOrder != null) {
+			return _commerceOrder.getCommerceOrderId();
+		}
+
 		return ParamUtil.getLong(_httpServletRequest, "commerceOrderId");
 	}
 
@@ -1488,6 +1496,7 @@ public class CommerceOrderContentDisplayContext {
 	private final CommerceAddressService _commerceAddressService;
 	private final CommerceChannelLocalService _commerceChannelLocalService;
 	private final CommerceContext _commerceContext;
+	private CommerceOrder _commerceOrder;
 	private final Format _commerceOrderDateFormat;
 	private final CommerceOrderEngine _commerceOrderEngine;
 	private CommerceOrderFieldsConfiguration _commerceOrderFieldsConfiguration;

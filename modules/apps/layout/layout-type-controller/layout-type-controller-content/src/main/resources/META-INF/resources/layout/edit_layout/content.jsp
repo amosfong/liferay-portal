@@ -13,6 +13,8 @@
 
 <liferay-ui:success key="layoutPublished" message="the-page-was-published-successfully" />
 
+<liferay-ui:success key="masterLayoutAdded" message="the-master-page-was-created-successfully" />
+
 <%
 String portletResource = ParamUtil.getString(request, "portletResource");
 %>

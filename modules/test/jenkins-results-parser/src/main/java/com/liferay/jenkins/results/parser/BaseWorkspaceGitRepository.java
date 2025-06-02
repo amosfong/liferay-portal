@@ -433,7 +433,7 @@ public abstract class BaseWorkspaceGitRepository
 	@Override
 	public void tearDown() {
 		if (_snapshot) {
-			JenkinsResultsParserUtil.delete(getDirectory());
+			_deleteGitRepository();
 
 			return;
 		}
@@ -716,6 +716,24 @@ public abstract class BaseWorkspaceGitRepository
 			getBranchName(), true, getSenderBranchSHA());
 	}
 
+	private void _deleteGitRepository() {
+		if (!JenkinsResultsParserUtil.isCloudCINode()) {
+			return;
+		}
+
+		try {
+			Process process = JenkinsResultsParserUtil.executeBashCommands(
+				"rm -rf " + getDirectory());
+
+			JenkinsResultsParserUtil.readInputStream(process.getInputStream());
+
+			System.out.println("Deleting Git repository " + getDirectory());
+		}
+		catch (IOException | TimeoutException exception) {
+			exception.printStackTrace();
+		}
+	}
+
 	private void _downloadGitRepository() {
 		try {
 			File baseGitRepositoryDir =
@@ -733,7 +751,7 @@ public abstract class BaseWorkspaceGitRepository
 			File directory = getDirectory();
 
 			if (directory.exists()) {
-				JenkinsResultsParserUtil.delete(directory);
+				_deleteGitRepository();
 			}
 
 			Process process = JenkinsResultsParserUtil.executeBashCommands(
@@ -836,11 +854,10 @@ public abstract class BaseWorkspaceGitRepository
 			File directory = getDirectory();
 
 			if (directory.exists()) {
-				JenkinsResultsParserUtil.delete(directory);
+				_deleteGitRepository();
 			}
 
-			JenkinsResultsParserUtil.unzip(
-				new File(baseRepositoryDir, _getGitArchiveName()), directory);
+			JenkinsResultsParserUtil.unzip(gitArchiveFile, directory);
 
 			return;
 		}
@@ -861,10 +878,6 @@ public abstract class BaseWorkspaceGitRepository
 
 	private void _prepareGitWorkingDirectory() {
 		System.out.println(toString());
-
-		if (JenkinsResultsParserUtil.isCloudCINode()) {
-			JenkinsResultsParserUtil.delete(getDirectory());
-		}
 
 		File dotGitFolder = new File(getDirectory(), ".git");
 

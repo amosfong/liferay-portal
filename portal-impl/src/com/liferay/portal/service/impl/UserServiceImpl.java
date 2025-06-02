@@ -3528,6 +3528,14 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 
 		PermissionChecker permissionChecker = getPermissionChecker();
 
+		boolean strictAssignment = false;
+
+		if (PropsValues.ORGANIZATIONS_ASSIGNMENT_STRICT ||
+			!permissionChecker.isCompanyAdmin()) {
+
+			strictAssignment = true;
+		}
+
 		if (userId != CompanyConstants.SYSTEM) {
 
 			// Add back any mandatory organizations or organizations that the
@@ -3547,6 +3555,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 					(!OrganizationPermissionUtil.contains(
 						permissionChecker, organization,
 						ActionKeys.ASSIGN_MEMBERS) ||
+					 (strictAssignment &&
+					  !OrganizationPermissionUtil.contains(
+						  permissionChecker, organization,
+						  ActionKeys.MANAGE_USERS)) ||
 					 OrganizationMembershipPolicyUtil.isMembershipProtected(
 						 permissionChecker, userId,
 						 organization.getOrganizationId()) ||
@@ -3576,6 +3588,11 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 
 			OrganizationPermissionUtil.check(
 				permissionChecker, organization, ActionKeys.ASSIGN_MEMBERS);
+
+			if (strictAssignment) {
+				OrganizationPermissionUtil.check(
+					permissionChecker, organization, ActionKeys.MANAGE_USERS);
+			}
 		}
 
 		return organizationIds;

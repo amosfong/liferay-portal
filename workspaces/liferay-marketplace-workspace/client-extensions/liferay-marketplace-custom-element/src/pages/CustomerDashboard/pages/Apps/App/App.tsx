@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import Icon from '@clayui/icon';
 import {useOutletContext, useParams} from 'react-router-dom';
 
+import {DetailedCard} from '../../../../../components/DetailedCard/DetailedCard';
 import QATable from '../../../../../components/QATable';
 import i18n from '../../../../../i18n';
 import {formatDate} from '../../../../../utils/date';
@@ -19,96 +19,61 @@ import getProductPriceModel from '../../../../GetApp/utils/getProductPriceModel'
 
 import './App.scss';
 
-type HeaderProps = {
-	icon: string;
-	title: string;
-};
-
-const Header = ({icon, title}: HeaderProps) => {
-	return (
-		<div className="detailed-card-header">
-			<h2>{title}</h2>
-
-			<div className="detailed-card-header-icon-container">
-				<Icon
-					className="detailed-card-header-clay-icon"
-					symbol={icon}
-				/>
-			</div>
-		</div>
-	);
-};
-
 const getPriceList = (
 	isCloud: boolean,
 	isPaidApp: boolean,
 	placedOrder: PlacedOrder
 ) => {
-	if (isPaidApp) {
+	if (!isPaidApp) {
 		return {
-			title: 'License Price',
-			value: (
-				<table className="qa-table">
-					<thead>
-						<tr>
-							<th {...{width: '40%'}}>
-								{i18n.translate('type')}
-							</th>
-
-							<th {...{width: '30%'}}>{i18n.translate('qty')}</th>
-
-							<th>{i18n.translate('total')}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{placedOrder.placedOrderItems.map(
-							(order: PlacedOrderItems, index: number) => {
-								const optionName = safeJSONParse<any>(
-									order.options,
-									[]
-								);
-
-								const type = isCloud
-									? 'Standard'
-									: optionName[0]?.value || '';
-								{
-									return (
-										<tr key={index}>
-											<td className="text-capitalize">
-												{type}
-											</td>
-
-											<td>{order.quantity}</td>
-
-											<td>
-												{formatLocaleCurrency(
-													order.quantity *
-														order.price.price
-												)}
-											</td>
-										</tr>
-									);
-								}
-							}
-						)}
-					</tbody>
-				</table>
-			),
+			title: i18n.translate('license'),
+			value: placedOrder.placedOrderItems.map((order, index) => (
+				<p key={index}>
+					{formatLocaleCurrency(order.quantity * order.price.price)}
+				</p>
+			)),
 		};
 	}
 
 	return {
-		title: 'license',
-		value: placedOrder.placedOrderItems.map(
-			(order: PlacedOrderItems, index: number) => {
-				return (
-					<p key={index}>
-						{formatLocaleCurrency(
-							order.quantity * order.price.price
-						)}
-					</p>
-				);
-			}
+		title: 'License Price',
+		value: (
+			<table className="qa-table">
+				<thead>
+					<tr>
+						<th {...{width: '40%'}}>{i18n.translate('type')}</th>
+						<th {...{width: '30%'}}>{i18n.translate('qty')}</th>
+						<th>{i18n.translate('total')}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{placedOrder.placedOrderItems.map((order, index) => {
+						const optionName = safeJSONParse<any>(
+							order.options,
+							[]
+						);
+
+						const type = isCloud
+							? 'Standard'
+							: optionName[0]?.value || '';
+						{
+							return (
+								<tr key={index}>
+									<td className="text-capitalize">{type}</td>
+
+									<td>{order.quantity}</td>
+
+									<td>
+										{formatLocaleCurrency(
+											order.quantity * order.price.price
+										)}
+									</td>
+								</tr>
+							);
+						}
+					})}
+				</tbody>
+			</table>
 		),
 	};
 };
@@ -130,12 +95,11 @@ const App = () => {
 	return (
 		<div className="app-details-page-container mt-6">
 			<div className="app-details-body-container">
-				<div className="detailed-card-container">
-					<Header
-						icon="order-form-tag"
-						title={i18n.translate('details')}
-					/>
-
+				<DetailedCard
+					cardIconAltText="Profile Icon"
+					cardTitle={i18n.translate('details')}
+					clayIcon="order-form-tag"
+				>
 					<QATable
 						items={[
 							{
@@ -168,14 +132,13 @@ const App = () => {
 							},
 						]}
 					/>
-				</div>
+				</DetailedCard>
 
-				<div className="detailed-card-container">
-					<Header
-						icon="shopping-cart"
-						title={i18n.translate('summary')}
-					/>
-
+				<DetailedCard
+					cardIconAltText="Profile Icon"
+					cardTitle={i18n.translate('summary')}
+					clayIcon="shopping-cart"
+				>
 					<QATable
 						items={[
 							getPriceList(isCloud, isPaidApp, placedOrder),
@@ -213,15 +176,14 @@ const App = () => {
 							},
 						]}
 					/>
-				</div>
+				</DetailedCard>
 
 				{placedOrder.placedOrderBillingAddress && (
-					<div className="detailed-card-container">
-						<Header
-							icon="geolocation"
-							title={i18n.translate('address')}
-						/>
-
+					<DetailedCard
+						cardIconAltText="Profile Icon"
+						cardTitle={i18n.translate('address')}
+						clayIcon="geolocation"
+					>
 						<QATable
 							items={[
 								{
@@ -253,7 +215,7 @@ const App = () => {
 								},
 							]}
 						/>
-					</div>
+					</DetailedCard>
 				)}
 			</div>
 		</div>

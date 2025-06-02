@@ -12,6 +12,7 @@ import AdministrationSummary from './pages';
 import Apps from './pages/Apps';
 import Orders from './pages/Orders';
 import PublisherRequest from './pages/PublisherRequest';
+import {Publishers} from './pages/Publishers';
 import Solutions from './pages/Solutions';
 import Trial from './pages/Trial';
 
@@ -27,13 +28,24 @@ const AdministratorDashboardRouter = () => (
 					element={<PublisherRequest />}
 					path="publisher-request"
 				/>
-				<Route element={<Solutions />} path="solutions" />
+				<Route element={<Publishers />} path="publishers" />
 				<Route element={<Trial />} path="trial" />
+
+				<Route path="solutions">
+					<Route element={<Solutions />} index />
+
+					<Route path=":productId">
+						<Route
+							element={<App isAdministratorDashboard />}
+							index
+						/>
+					</Route>
+				</Route>
 
 				<Route path="apps">
 					<Route element={<Apps />} index />
 
-					<Route path=":appId">
+					<Route path=":productId">
 						<Route
 							element={<App isAdministratorDashboard />}
 							index

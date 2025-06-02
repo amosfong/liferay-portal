@@ -119,40 +119,19 @@
 									{
 										"definition": {
 											"fragment": {
-												"key": "INPUTS-submit-button"
+												"key": "INPUTS-video-previewer-input"
 											},
 											"fragmentConfig": {
-												"buttonSize": "nm",
-												"buttonType": "primary",
-												"submittedEntryStatus": "approved",
-												"type": "submit"
+												"inputFieldId": "ObjectField_videoURL"
 											},
 											"fragmentFields": [
-												{
-													"id": "next-button-text",
-													"value": {
-														"fragmentLink": {
-														}
-													}
-												},
-												{
-													"id": "previous-button-text",
-													"value": {
-														"fragmentLink": {
-														}
-													}
-												},
-												{
-													"id": "submit-button-text",
-													"value": {
-														"fragmentLink": {
-														}
-													}
-												}
 											],
+											"fragmentStyle": {
+												"marginBottom": "3"
+											},
 											"indexed": true
 										},
-										"id": "6859698b-efbc-b858-b60b-04136f20c227",
+										"id": "9f47b6c2-3f85-4e99-8c1a-9b6fcd2a4b7f",
 										"type": "Fragment"
 									}
 								],
@@ -166,6 +145,11 @@
 			}
 		],
 		"type": "Root"
+	},
+	"settings": {
+		"masterPage": {
+			"key": "content-editor-master"
+		}
 	},
 	"version": 1.1
 }

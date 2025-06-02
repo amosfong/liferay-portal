@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=150",
+		"panel.app.order:Integer=200",
 		"panel.category.key=" + CommercePanelCategoryKeys.COMMERCE_ORDER_MANAGEMENT
 	},
 	service = PanelApp.class
@@ -37,7 +37,7 @@ public class COREntryPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + COREntryPortletKeys.COR_ENTRY + ")"
+		target = "(jakarta.portlet.name=" + COREntryPortletKeys.COR_ENTRY + ")"
 	)
 	private Portlet _portlet;
 

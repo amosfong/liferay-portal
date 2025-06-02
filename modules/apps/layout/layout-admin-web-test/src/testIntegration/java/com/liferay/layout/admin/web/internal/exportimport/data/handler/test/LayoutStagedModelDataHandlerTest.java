@@ -60,6 +60,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServ
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalService;
 import com.liferay.layout.page.template.test.util.DisplayPageTemplateTestUtil;
+import com.liferay.layout.page.template.test.util.LayoutPageTemplateTestUtil;
 import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.model.LayoutSEOEntryCustomMetaTag;
@@ -139,6 +140,9 @@ import com.liferay.template.model.TemplateEntry;
 import com.liferay.template.service.TemplateEntryLocalService;
 import com.liferay.template.test.util.TemplateTestUtil;
 
+import jakarta.portlet.Portlet;
+import jakarta.portlet.PortletPreferences;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -146,9 +150,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.portlet.Portlet;
-import javax.portlet.PortletPreferences;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -696,6 +697,43 @@ public class LayoutStagedModelDataHandlerTest
 
 		StagedModelDataHandlerUtil.exportStagedModel(
 			portletDataContext, layout);
+	}
+
+	@Test
+	@TestInfo("LPD-56607")
+	public void testImportLayoutWithMasterLayoutShouldNotChangePortletDataContext()
+		throws Exception {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				stagingGroup.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT,
+				WorkflowConstants.STATUS_APPROVED);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			stagingGroup, false, false, layoutPageTemplateEntry.getPlid());
+
+		initExport();
+
+		StagedModelDataHandlerUtil.exportStagedModel(
+			portletDataContext, layout);
+
+		initImport();
+
+		Assert.assertFalse(portletDataContext.isPrivateLayout());
+
+		ExportImportLifecycleManagerUtil.fireExportImportLifecycleEvent(
+			ExportImportLifecycleConstants.EVENT_LAYOUT_IMPORT_STARTED,
+			ExportImportLifecycleConstants.
+				PROCESS_FLAG_LAYOUT_IMPORT_IN_PROCESS,
+			portletDataContext.getExportImportProcessId(),
+			PortletDataContextFactoryUtil.clonePortletDataContext(
+				portletDataContext));
+
+		StagedModelDataHandlerUtil.importStagedModel(
+			portletDataContext, readExportedStagedModel(layout));
+
+		Assert.assertFalse(portletDataContext.isPrivateLayout());
 	}
 
 	@Test
@@ -2105,9 +2143,9 @@ public class LayoutStagedModelDataHandlerTest
 			).put(
 				"com.liferay.portlet.preferences-owned-by-group", "true"
 			).put(
-				"javax.portlet.init-param.view-template", "/view.jsp"
+				"jakarta.portlet.init-param.view-template", "/view.jsp"
 			).put(
-				"javax.portlet.name", _TEST_PORTLET_NAME
+				"jakarta.portlet.name", _TEST_PORTLET_NAME
 			).build());
 	}
 

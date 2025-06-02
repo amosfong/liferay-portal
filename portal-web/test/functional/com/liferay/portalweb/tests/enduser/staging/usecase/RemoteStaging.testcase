@@ -19,6 +19,8 @@ definition {
 			AssetPublisherPortlet.enableDynamicAndManualSelection();
 		}
 
+		Staging.enableDeleteApplicationDataBeforeImport();
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		JSONLayout.addPublicLayout(
@@ -1111,6 +1113,8 @@ definition {
 				password = PropsUtil.get("default.admin.password"),
 				specificURL = "http://localhost:9080",
 				userEmailAddress = "test@liferay.com");
+
+			Staging.enableDeleteApplicationDataBeforeImport();
 		}
 
 		task ("Click Cancel in the confirmation dialog will return to the import tab") {

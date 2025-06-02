@@ -8,13 +8,13 @@ package com.liferay.headless.delivery.client.dto.v1_0;
 import com.liferay.headless.delivery.client.function.UnsafeSupplier;
 import com.liferay.headless.delivery.client.serdes.v1_0.NavigationMenuItemSerDes;
 
+import jakarta.annotation.Generated;
+
 import java.io.Serializable;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.annotation.Generated;
 
 /**
  * @author Javier Gamarra
@@ -367,6 +367,28 @@ public class NavigationMenuItem implements Cloneable, Serializable {
 	}
 
 	protected String type;
+
+	public Map<String, String> getTypeSettings() {
+		return typeSettings;
+	}
+
+	public void setTypeSettings(Map<String, String> typeSettings) {
+		this.typeSettings = typeSettings;
+	}
+
+	public void setTypeSettings(
+		UnsafeSupplier<Map<String, String>, Exception>
+			typeSettingsUnsafeSupplier) {
+
+		try {
+			typeSettings = typeSettingsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Map<String, String> typeSettings;
 
 	public String getUrl() {
 		return url;

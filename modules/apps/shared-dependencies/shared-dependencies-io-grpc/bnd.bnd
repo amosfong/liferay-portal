@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Shared Dependencies IO GRPC
 Bundle-SymbolicName: com.liferay.shared.dependencies.io.grpc
-Bundle-Version: 1.0.2
+Bundle-Version: 1.0.3
 Import-Package:\
 	!com.aayushatharva.brotli4j.*,\
 	\
@@ -16,6 +16,8 @@ Import-Package:\
 	!com.oracle.*,\
 	\
 	!io.opentelemetry.*,\
+	\
+	!javax.annotation,\
 	\
 	!lzma.sdk.*,\
 	\

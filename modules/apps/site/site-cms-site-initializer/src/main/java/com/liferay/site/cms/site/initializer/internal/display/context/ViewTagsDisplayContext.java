@@ -5,7 +5,6 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
-import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -28,13 +27,18 @@ public class ViewTagsDisplayContext {
 		return HashMapBuilder.<String, Object>put(
 			"dataSetId", CMSSiteInitializerFDSNames.CATEGORIZATION_TAGS
 		).put(
-			"tagsList", AssetTagLocalServiceUtil.getGroupTags(0)
-		).put(
 			"tagsURL",
 			PortalUtil.getLayoutFullURL(
 				LayoutLocalServiceUtil.getLayoutByFriendlyURL(
 					_themeDisplay.getScopeGroupId(), false,
 					"/categorization/view_tags"),
+				_themeDisplay)
+		).put(
+			"tagUsagesURL",
+			PortalUtil.getLayoutFullURL(
+				LayoutLocalServiceUtil.getLayoutByFriendlyURL(
+					_themeDisplay.getScopeGroupId(), false,
+					"/categorization/view_tag_usages"),
 				_themeDisplay)
 		).put(
 			"vocabulariesURL",

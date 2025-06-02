@@ -5,8 +5,8 @@
 
 import React, {useContext, useState} from 'react';
 
+import ApiHelper from '../../../services/ApiHelper';
 import {ViewDashboardContext, initialSpace} from '../ViewDashboardContext';
-import ApiHelper from '../utils/ApiHelper';
 import {buildQueryString} from '../utils/buildQueryString';
 import {FilterDropdown} from './FilterDropdown';
 
@@ -26,7 +26,6 @@ const SpacesDropdown: React.FC<React.HTMLAttributes<HTMLElement>> = ({
 	} = useContext(ViewDashboardContext);
 
 	const [spaces, setSpaces] = useState<Space[]>([initialSpace]);
-	const [searchValue, setSearchValue] = useState('');
 	const [loading, setLoading] = useState(false);
 
 	const fetchSpaces = async (keywords: string = '') => {
@@ -35,14 +34,22 @@ const SpacesDropdown: React.FC<React.HTMLAttributes<HTMLElement>> = ({
 		});
 		const endpoint = `${PATH}${queryParams}`;
 
-		const payload = await ApiHelper.get<{
+		const {data, error} = await ApiHelper.get<{
 			items: {id: string; name: string}[];
 		}>(endpoint);
 
-		return payload.items.map(({id, name}) => ({
-			label: name,
-			value: String(id),
-		}));
+		if (data) {
+			return data.items.map(({id, name}) => ({
+				label: name,
+				value: String(id),
+			}));
+		}
+
+		if (error) {
+			console.error(error);
+		}
+
+		return [];
 	};
 
 	return (
@@ -56,8 +63,6 @@ const SpacesDropdown: React.FC<React.HTMLAttributes<HTMLElement>> = ({
 			loading={loading}
 			onSearch={async (value) => {
 				setLoading(true);
-
-				setSearchValue(value);
 
 				const spaces = await fetchSpaces(value);
 
@@ -75,7 +80,6 @@ const SpacesDropdown: React.FC<React.HTMLAttributes<HTMLElement>> = ({
 
 				setLoading(false);
 			}}
-			searchValue={searchValue}
 			title={Liferay.Language.get('filter-by-spaces')}
 			triggerLabel={space.label}
 		/>

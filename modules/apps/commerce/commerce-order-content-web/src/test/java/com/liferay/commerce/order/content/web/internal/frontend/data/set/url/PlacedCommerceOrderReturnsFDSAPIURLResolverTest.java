@@ -11,7 +11,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import org.junit.Assert;
@@ -58,16 +57,16 @@ public class PlacedCommerceOrderReturnsFDSAPIURLResolverTest {
 
 	@Test
 	public void testResolve() throws PortalException {
-		String filterString = URLCodec.encodeURL(
+		Assert.assertEquals(
 			StringBundler.concat(
+				"/commerce/returns?filter=",
 				"'r_commerceOrderToCommerceReturns_commerceOrderId' eq '",
 				_commerceOrder.getCommerceOrderId(), StringPool.APOSTROPHE),
-			true);
-
-		Assert.assertEquals(
 			_placedCommerceOrderReturnsFDSAPIURLResolver.resolve(
-				"/commerce/returns", _mockHttpServletRequest),
-			"/commerce/returns?filter=" + filterString);
+				"/commerce/returns?filter=" +
+					"'r_commerceOrderToCommerceReturns_commerceOrderId' eq '" +
+						"{commerceOrderId}'",
+				_mockHttpServletRequest));
 	}
 
 	private static final MockedStatic<CommerceOrderInfoItemUtil>

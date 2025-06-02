@@ -40,15 +40,15 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+
 import java.io.Serializable;
 
 import java.util.Collection;
 import java.util.Map;
-
-import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 
 /**
  * @author Javier Gamarra
@@ -409,6 +409,21 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 	}
 
 	@Override
+	public ObjectEntry postByExternalReferenceCodeByVersionCopy(
+			String externalReferenceCode, Integer version)
+		throws Exception {
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.copyObjectEntryByVersion(
+			_getDTOConverterContext(null), externalReferenceCode,
+			_objectDefinition, version);
+	}
+
+	@Override
 	public ObjectEntry postByExternalReferenceCodeByVersionExpire(
 			String externalReferenceCode, Integer version)
 		throws Exception {
@@ -461,6 +476,21 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 			_objectDefinition.getName());
 
 		return super.postObjectEntryBatch(callbackURL, object);
+	}
+
+	@Override
+	public ObjectEntry postObjectEntryByVersionCopy(
+			Long objectEntryId, Integer version)
+		throws Exception {
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.copyObjectEntryByVersion(
+			_getDTOConverterContext(objectEntryId), _objectDefinition,
+			objectEntryId, version);
 	}
 
 	@Override

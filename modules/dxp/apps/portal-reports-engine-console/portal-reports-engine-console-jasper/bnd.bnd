@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Reports Engine Console Jasper
 Bundle-SymbolicName: com.liferay.portal.reports.engine.console.jasper
-Bundle-Version: 4.0.36
+Bundle-Version: 4.0.37
 DynamicImport-Package: *
 Import-Package:\
 	!antlr.*,\
@@ -26,13 +26,23 @@ Import-Package:\
 	\
 	!javax.accessibility.*,\
 	\
+	!javax.annotation,\
+	\
 	!javax.crypto.*,\
 	\
 	!javax.imageio.*,\
 	\
+	!javax.persistence,\
+	\
 	!javax.print.*,\
 	\
 	!javax.rmi.*,\
+	\
+	!javax.servlet.*,\
+	\
+	!javax.transaction.*,\
+	\
+	!javax.xml.soap,\
 	\
 	!mondrian.*,\
 	\

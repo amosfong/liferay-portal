@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.action.ImportTaskPreAction;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.context.ImportTaskContext;
@@ -41,6 +42,7 @@ public class ItemImportTaskPreAction implements ImportTaskPreAction {
 	@Override
 	public void run(
 			BatchEngineImportTask batchEngineImportTask,
+			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate,
 			ImportTaskContext importTaskContext, Object item)
 		throws Exception {
 
@@ -65,15 +67,17 @@ public class ItemImportTaskPreAction implements ImportTaskPreAction {
 			return;
 		}
 
-		String name = PrincipalThreadLocal.getName();
+		long userId = GetterUtil.getLong(PrincipalThreadLocal.getName());
 
-		if (GetterUtil.getLong(name) == user.getUserId()) {
+		if (userId == user.getUserId()) {
 			return;
 		}
 
 		PrincipalThreadLocal.setName(user.getUserId());
 
-		importTaskContext.setOriginalUserId(name);
+		batchEngineTaskItemDelegate.setContextUser(user);
+
+		importTaskContext.setOriginalUser(_userLocalService.getUser(userId));
 	}
 
 	private User _getCreatorUser(JSONObject jsonObject) {

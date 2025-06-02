@@ -4,24 +4,28 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-@generated
 --%>
 
-<%@ taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
+<%@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder" %><%@
-page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
+<%@ page import="com.liferay.dynamic.data.mapping.storage.DDMFormValues" %><%@
+page import="com.liferay.dynamic.data.mapping.storage.Field" %><%@
 page import="com.liferay.portal.kernel.json.JSONFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
+page import="com.liferay.portal.kernel.model.Group" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.portlet.PortletURLFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder" %><%@
 page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
 page import="com.liferay.portal.kernel.util.HashMapBuilder" %><%@
-page import="com.liferay.portal.kernel.util.JavaConstants" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %>
 
-<%@ page import="com.liferay.portal.kernel.model.Group" %>
+<%@ page import="jakarta.portlet.PortletRequest" %>
+
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.HashMap" %><%@
 page import="java.util.LinkedHashSet" %><%@
@@ -30,7 +34,7 @@ page import="java.util.Locale" %><%@
 page import="java.util.Map" %><%@
 page import="java.util.Set" %>
 
-<%@ page import="javax.portlet.PortletRequest" %>
+<liferay-frontend:defineObjects />
 
 <%@ include file="/init-ext.jspf" %>
 

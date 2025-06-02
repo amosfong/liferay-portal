@@ -350,6 +350,7 @@ public class StructuredContentResourceTest
 
 		_testGetContentStructureStructuredContentsPageLocalizedWithFilter();
 		_testGetContentStructureStructuredContentsPageUnlocalizedWithFilter();
+		_testGetContentStructureStructuredContentsPageWithSortDateTimeField();
 	}
 
 	@Override
@@ -736,6 +737,15 @@ public class StructuredContentResourceTest
 	}
 
 	@Override
+	@Test
+	public void testPutStructuredContent() throws Exception {
+		super.testPutStructuredContent();
+
+		_testPutStructuredContent(false);
+		_testPutStructuredContent(true);
+	}
+
+	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {
 			"contentStructureId", "description", "priority", "title"
@@ -1119,6 +1129,60 @@ public class StructuredContentResourceTest
 		return ddmFormDeserializerDeserializeResponse.getDDMForm();
 	}
 
+	private boolean _equals(
+		StructuredContent structuredContent1,
+		StructuredContent structuredContent2) {
+
+		assertEquals(structuredContent1, structuredContent2);
+
+		if (!Objects.deepEquals(
+				structuredContent1.getDescription(),
+				structuredContent2.getDescription()) ||
+			!equals(
+				(Map)structuredContent1.getDescription_i18n(),
+				(Map)structuredContent2.getDescription_i18n()) ||
+			!Objects.deepEquals(
+				structuredContent1.getFriendlyUrlPath(),
+				structuredContent2.getFriendlyUrlPath()) ||
+			!equals(
+				(Map)structuredContent1.getFriendlyUrlPath_i18n(),
+				(Map)structuredContent2.getFriendlyUrlPath_i18n()) ||
+			!Objects.deepEquals(
+				structuredContent1.getTitle(), structuredContent2.getTitle()) ||
+			!equals(
+				(Map)structuredContent1.getTitle_i18n(),
+				(Map)structuredContent2.getTitle_i18n())) {
+
+			return false;
+		}
+
+		ContentField[] contentFields1 = structuredContent1.getContentFields();
+		ContentField[] contentFields2 = structuredContent1.getContentFields();
+
+		if (contentFields1.length != contentFields2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < contentFields1.length; i++) {
+			ContentField contentField1 = contentFields1[i];
+			ContentField contentField2 = contentFields2[i];
+
+			if (!Objects.equals(
+					contentField1.getName(), contentField2.getName()) ||
+				!Objects.equals(
+					contentField1.getContentFieldValue(),
+					contentField2.getContentFieldValue()) ||
+				!equals(
+					(Map)contentField1.getContentFieldValue_i18n(),
+					(Map)contentField2.getContentFieldValue_i18n())) {
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	private CustomField _getCustomField(
 		CustomField[] customFields, String name) {
 
@@ -1481,9 +1545,9 @@ public class StructuredContentResourceTest
 		structuredContent.setDescription_i18n(description_i18n);
 
 		Map<String, String> friendlyUrlPath_i18n = HashMapBuilder.put(
-			"en-US", RandomTestUtil.randomString()
+			"en-US", StringUtil.toLowerCase(RandomTestUtil.randomString())
 		).put(
-			"es-ES", RandomTestUtil.randomString()
+			"es-ES", StringUtil.toLowerCase(RandomTestUtil.randomString())
 		).build();
 
 		structuredContent.setFriendlyUrlPath(
@@ -1658,6 +1722,44 @@ public class StructuredContentResourceTest
 		items = (List<StructuredContent>)page.getItems();
 
 		assertEquals(structuredContent1, items.get(0));
+	}
+
+	private void _testGetContentStructureStructuredContentsPageWithSortDateTimeField()
+		throws Exception {
+
+		DDMStructure ddmStructure = _addDDMStructure(
+			testGroup, "test-ddm-structure-datetime.json");
+
+		JournalArticle journalArticle =
+			JournalTestUtil.addArticleWithXMLContent(
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				JournalArticleConstants.CLASS_NAME_ID_DEFAULT, 0,
+				_read("test-journal-article-datetime.xml"),
+				ddmStructure.getStructureKey(), null, LocaleUtil.US, null,
+				ServiceContextTestUtil.getServiceContext(
+					testCompany.getCompanyId(), testGroup.getGroupId(),
+					TestPropsValues.getUserId()));
+
+		Page<StructuredContent> page =
+			structuredContentResource.getContentStructureStructuredContentsPage(
+				ddmStructure.getStructureId(), null, null, null,
+				Pagination.of(1, 10), "contentFields/DateTime90775749:asc'");
+
+		Assert.assertNotNull(page);
+
+		List<StructuredContent> items =
+			(List<StructuredContent>)page.getItems();
+
+		Assert.assertEquals(items.toString(), 1, items.size());
+
+		StructuredContent structuredContent = items.get(0);
+
+		Assert.assertEquals(
+			String.valueOf(journalArticle.getResourcePrimKey()),
+			String.valueOf(structuredContent.getId()));
+
+		structuredContentResource.deleteStructuredContent(
+			structuredContent.getId());
 	}
 
 	private void _testGetSiteStructuredContentsPageByDefaultPriority()
@@ -2585,6 +2687,81 @@ public class StructuredContentResourceTest
 			customFields, shortArrayCustomField.getName());
 
 		Assert.assertNotNull(customField);
+	}
+
+	private void _testPutStructuredContent(boolean containsI18nMap)
+		throws Exception {
+
+		StructuredContent structuredContent1 = _randomStructuredContent(
+			LocaleUtil.getDefault());
+
+		StructuredContent postStructuredContent =
+			structuredContentResource.postSiteStructuredContent(
+				testGetSiteStructuredContentsPage_getSiteId(),
+				structuredContent1);
+
+		StructuredContent structuredContent2 = _randomStructuredContent(
+			LocaleUtil.getDefault());
+
+		ContentFieldValue englishContentFieldValue = new ContentFieldValue() {
+			{
+				data = RandomTestUtil.randomString(10);
+			}
+		};
+
+		if (!containsI18nMap) {
+			structuredContent2.setContentFields(
+				new ContentField[] {
+					new ContentField() {
+						{
+							contentFieldValue = englishContentFieldValue;
+							name = "MyText";
+						}
+					}
+				});
+		}
+
+		StructuredContentResource structuredContentResource =
+			_buildStructureContentResource(LocaleUtil.getDefault());
+
+		StructuredContent putStructuredContent =
+			structuredContentResource.putStructuredContent(
+				postStructuredContent.getId(), structuredContent2);
+
+		if (!containsI18nMap) {
+			structuredContent2.setContentFields(
+				new ContentField[] {
+					new ContentField() {
+						{
+							contentFieldValue = englishContentFieldValue;
+							contentFieldValue_i18n = HashMapBuilder.put(
+								"en-US", () -> englishContentFieldValue
+							).put(
+								"es-ES",
+								() -> {
+									ContentField initialContentField =
+										structuredContent1.getContentFields()
+											[0];
+
+									return initialContentField.
+										getContentFieldValue_i18n(
+										).get(
+											"es-ES"
+										);
+								}
+							).build();
+							name = "MyText";
+						}
+					}
+				});
+		}
+
+		Assert.assertTrue(_equals(structuredContent2, putStructuredContent));
+
+		_assertLocalizedValues(
+			putStructuredContent,
+			LocaleUtil.toW3cLanguageId(LocaleUtil.getDefault()));
+		assertValid(putStructuredContent);
 	}
 
 	private JSONObject _waitForFinish(

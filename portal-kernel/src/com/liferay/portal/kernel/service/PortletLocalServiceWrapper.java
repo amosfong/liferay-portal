@@ -522,7 +522,7 @@ public class PortletLocalServiceWrapper
 
 	@Override
 	public void initEAR(
-		javax.servlet.ServletContext servletContext, String[] xmls,
+		jakarta.servlet.ServletContext servletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
 		_portletLocalService.initEAR(servletContext, xmls, pluginPackage);
@@ -530,8 +530,8 @@ public class PortletLocalServiceWrapper
 
 	@Override
 	public java.util.List<com.liferay.portal.kernel.model.Portlet> initWAR(
-		String servletContextName, javax.servlet.ServletContext servletContext,
-		String[] xmls,
+		String servletContextName,
+		jakarta.servlet.ServletContext servletContext, String[] xmls,
 		com.liferay.portal.kernel.plugin.PluginPackage pluginPackage) {
 
 		return _portletLocalService.initWAR(

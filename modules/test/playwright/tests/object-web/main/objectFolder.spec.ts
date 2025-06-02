@@ -140,9 +140,10 @@ test.describe('manage object definitions through model builder', () => {
 		apiHelpers,
 		modelBuilderDiagramPage,
 		modelBuilderLeftSidebarPage,
+		page,
 	}) => {
 		const objectFolders: ObjectFolder[] = await Promise.all(
-			Array.apply(null, Array(5)).map(async () => {
+			Array.apply(null, Array(3)).map(async () => {
 				const objectFolder =
 					await apiHelpers.objectAdmin.postRandomObjectFolder();
 
@@ -180,6 +181,8 @@ test.describe('manage object definitions through model builder', () => {
 					objectFolder.label['en_US']
 				)
 			).toBeVisible();
+
+			await page.waitForTimeout(1000);
 		}
 	});
 });

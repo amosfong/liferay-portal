@@ -71,13 +71,15 @@ public class ObjectEntrySharingTest extends BaseSharingTestCase<ObjectEntry> {
 		_permissionSQLContributorServiceTracker = ServiceTrackerFactory.open(
 			bundleContext,
 			StringBundler.concat(
-				"(&(objectClass=", PermissionSQLContributor.class.getName(),
-				")(model.class.name=", _objectDefinition.getClassName(), "))"));
+				"(&(model.class.name=", _objectDefinition.getClassName(),
+				")(objectClass=", PermissionSQLContributor.class.getName(),
+				"))"));
 		_sharingPermissionCheckerServiceTracker = ServiceTrackerFactory.open(
 			bundleContext,
 			StringBundler.concat(
-				"(&(objectClass=", SharingPermissionChecker.class.getName(),
-				")(model.class.name=", _objectDefinition.getClassName(), "))"));
+				"(&(model.class.name=", _objectDefinition.getClassName(),
+				")(objectClass=", SharingPermissionChecker.class.getName(),
+				"))"));
 	}
 
 	@After
@@ -172,7 +174,7 @@ public class ObjectEntrySharingTest extends BaseSharingTestCase<ObjectEntry> {
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, true, false, false, false,
-				true, false,
+				true, false, null,
 				LocalizedMapUtil.getLocalizedMap(StringUtil.randomString()),
 				"A" + StringUtil.randomString(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),

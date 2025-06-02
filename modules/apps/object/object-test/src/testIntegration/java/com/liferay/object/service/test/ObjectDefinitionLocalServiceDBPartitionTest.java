@@ -11,16 +11,16 @@ import com.liferay.object.field.builder.TextObjectFieldBuilder;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
-import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.db.partition.DBPartition;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.test.rule.Inject;
@@ -48,18 +48,15 @@ public class ObjectDefinitionLocalServiceDBPartitionTest {
 			new AssumeTestRule("assume"), new LiferayIntegrationTestRule());
 
 	public static void assume() {
-		DBType dbType = DBManagerUtil.getDBType();
-
-		Assume.assumeTrue(
-			(dbType == DBType.MYSQL) || (dbType == DBType.POSTGRESQL));
-
 		Assume.assumeTrue(DBPartition.isPartitionEnabled());
+
+		DB db = DBManagerUtil.getDB();
+
+		Assume.assumeTrue(db.isSupportsDBPartition());
 	}
 
 	@Test
 	public void testPublishObjectDefinition() throws Exception {
-		_company = CompanyTestUtil.addCompany();
-
 		_objectDefinition = null;
 
 		try (SafeCloseable safeCloseable =
@@ -82,7 +79,7 @@ public class ObjectDefinitionLocalServiceDBPartitionTest {
 		_assertResourceActionsCount(
 			TestPropsValues.getCompanyId(), _objectDefinition, 4);
 		_assertResourceActionsCount(
-			_company.getCompanyId(), _objectDefinition, 0);
+			PortalInstancePool.getDefaultCompanyId(), _objectDefinition, 0);
 	}
 
 	private void _assertResourceActionsCount(

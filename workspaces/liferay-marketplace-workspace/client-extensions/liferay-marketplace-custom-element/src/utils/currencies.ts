@@ -28,3 +28,14 @@ export const currenciesCode = [
 		symbol: '₹',
 	},
 ];
+
+export function formatCurrency(
+	amount: number,
+	currencyCode = 'USD',
+	locale = 'en-US'
+) {
+	return new Intl.NumberFormat(locale, {
+		currency: currencyCode,
+		style: 'currency',
+	}).format(amount);
+}

@@ -5,13 +5,14 @@
 
 package com.liferay.headless.admin.taxonomy.internal.batch.engine.action;
 
+import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.action.ImportTaskPostAction;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.context.ImportTaskContext;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public abstract class BaseImportTaskPostAction<T>
 	@Override
 	public void run(
 			BatchEngineImportTask batchEngineImportTask,
+			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate,
 			ImportTaskContext importTaskContext, Object item,
 			Object persistedItem)
 		throws Exception {
@@ -38,12 +40,12 @@ public abstract class BaseImportTaskPostAction<T>
 			return;
 		}
 
-		String originalUserId = importTaskContext.getOriginalUserId();
+		User originalUser = importTaskContext.getOriginalUser();
 
-		if (Validator.isNotNull(originalUserId)) {
-			PrincipalThreadLocal.setName(originalUserId);
+		if (originalUser != null) {
+			PrincipalThreadLocal.setName(originalUser.getUserId());
 
-			importTaskContext.setOriginalUserId(null);
+			importTaskContext.setOriginalUser(null);
 		}
 	}
 

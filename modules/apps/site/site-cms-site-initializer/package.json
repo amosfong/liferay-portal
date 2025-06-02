@@ -4,6 +4,7 @@
 		"@clayui/breadcrumb": "3.136.0",
 		"@clayui/button": "3.136.0",
 		"@clayui/core": "3.136.0",
+		"@clayui/date-picker": "3.136.0",
 		"@clayui/drop-down": "3.136.0",
 		"@clayui/empty-state": "3.128.0",
 		"@clayui/form": "3.136.0",
@@ -32,6 +33,7 @@
 		"frontend-js-components-web": "*",
 		"frontend-js-web": "*",
 		"react": "18.2.0",
+		"react-dropzone": "^14.3.8",
 		"uuid": "^9.0.1"
 	},
 	"jest": {
@@ -47,5 +49,5 @@
 		"format": "node-scripts format",
 		"test": "node-scripts test"
 	},
-	"version": "1.0.7"
+	"version": "1.0.8"
 }

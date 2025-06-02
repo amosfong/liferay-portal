@@ -15,14 +15,15 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.site.cms.site.initializer.internal.display.context.StructureBuilderDisplayContext;
 import com.liferay.taglib.servlet.PageContextFactoryUtil;
+import com.liferay.taglib.ui.SuccessTag;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
 
 import java.util.Locale;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,6 +52,13 @@ public class StructureBuilderFragmentRenderer
 		HttpServletResponse httpServletResponse) {
 
 		try {
+			SuccessTag successTag = new SuccessTag();
+
+			successTag.setKey("displayPagePublished");
+			successTag.setMessage("the-experience-was-updated-successfully");
+
+			successTag.doTagAsString(httpServletRequest, httpServletResponse);
+
 			PrintWriter printWriter = httpServletResponse.getWriter();
 
 			printWriter.write("<div><span aria-hidden=\"true\" class=\"");

@@ -82,11 +82,18 @@ const Apps = () => {
 					actions: isNewAppEnabled
 						? [
 								{
-									icon: 'pencil',
-									name: i18n.translate('edit'),
+									name: i18n.translate('edit-details'),
 									onClick: (row: Product) =>
 										navigate(
 											`newapp/${row.productId}/publisher/profile`
+										),
+								},
+								{
+									disabled: true,
+									name: i18n.translate('add-new-version'),
+									onClick: (row: Product) =>
+										navigate(
+											`newapp/${row.productId}/publisher/build`
 										),
 								},
 							]

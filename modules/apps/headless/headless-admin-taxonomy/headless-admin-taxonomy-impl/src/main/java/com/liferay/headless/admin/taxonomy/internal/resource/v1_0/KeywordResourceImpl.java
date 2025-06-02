@@ -9,11 +9,9 @@ import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.kernel.service.AssetTagService;
-import com.liferay.depot.model.DepotEntry;
-import com.liferay.depot.service.DepotEntryLocalService;
-import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0.KeywordEntityModel;
+import com.liferay.headless.admin.taxonomy.internal.util.TaxonomyGroupUtil;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -23,7 +21,6 @@ import com.liferay.portal.kernel.dao.orm.ProjectionList;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.search.BooleanClause;
 import com.liferay.portal.kernel.search.BooleanClauseFactoryUtil;
@@ -35,7 +32,6 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -53,14 +49,12 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portlet.asset.model.impl.AssetTagImpl;
 import com.liferay.portlet.asset.service.permission.AssetTagsPermission;
 
+import jakarta.ws.rs.core.MultivaluedMap;
+
 import java.sql.Timestamp;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -184,7 +178,9 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 				BooleanFilter booleanFilter = new BooleanFilter();
 
 				booleanFilter.addRequiredTerm(
-					Field.GROUP_ID, GroupConstants.DEFAULT_LIVE_GROUP_ID);
+					Field.GROUP_ID,
+					TaxonomyGroupUtil.getCMSGroupId(
+						contextCompany.getCompanyId()));
 
 				searchContext.setBooleanClauses(
 					new BooleanClause[] {
@@ -303,15 +299,16 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 			throw new UnsupportedOperationException();
 		}
 
-		AssetTag assetTag = _assetTagService.addTag(
-			keyword.getExternalReferenceCode(),
-			GroupConstants.DEFAULT_LIVE_GROUP_ID, keyword.getName(),
-			new ServiceContext());
+		Keyword postKeyword = postSiteKeyword(
+			TaxonomyGroupUtil.getCMSGroupId(contextCompany.getCompanyId()),
+			keyword);
 
 		_assetTagGroupRelLocalService.setAssetTagGroupRels(
-			assetTag.getTagId(), _getAssetLibraryGroupIds(keyword));
+			postKeyword.getId(),
+			TaxonomyGroupUtil.getAssetLibraryGroupIds(
+				keyword.getAssetLibraries()));
 
-		return _toKeyword(assetTag);
+		return keyword;
 	}
 
 	@Override
@@ -358,7 +355,9 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 			ArrayUtil.isNotEmpty(keyword.getAssetLibraries())) {
 
 			_assetTagGroupRelLocalService.setAssetTagGroupRels(
-				assetTag.getTagId(), _getAssetLibraryGroupIds(keyword));
+				assetTag.getTagId(),
+				TaxonomyGroupUtil.getAssetLibraryGroupIds(
+					keyword.getAssetLibraries()));
 		}
 
 		return _toKeyword(assetTag);
@@ -433,37 +432,6 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 	@Override
 	protected String getPermissionCheckerResourceName(Object id) {
 		return AssetTagsPermission.RESOURCE_NAME;
-	}
-
-	private long[] _getAssetLibraryGroupIds(Keyword keyword) throws Exception {
-		List<Long> groupIds = new ArrayList<>();
-
-		for (AssetLibrary assetLibrary : keyword.getAssetLibraries()) {
-			if (assetLibrary.getId() == -1) {
-				groupIds.add(assetLibrary.getId());
-
-				break;
-			}
-
-			Group group = _groupLocalService.fetchGroup(assetLibrary.getId());
-
-			if (group != null) {
-				groupIds.add(group.getGroupId());
-			}
-			else {
-				DepotEntry depotEntry = _depotEntryLocalService.fetchDepotEntry(
-					assetLibrary.getId());
-
-				if (depotEntry != null) {
-					groupIds.add(depotEntry.getGroupId());
-				}
-				else {
-					throw new Exception();
-				}
-			}
-		}
-
-		return ArrayUtil.toLongArray(groupIds);
 	}
 
 	private Page<Keyword> _getKeywordsPage(
@@ -612,13 +580,7 @@ public class KeywordResourceImpl extends BaseKeywordResourceImpl {
 	private AssetTagService _assetTagService;
 
 	@Reference
-	private DepotEntryLocalService _depotEntryLocalService;
-
-	@Reference
 	private DTOConverterRegistry _dtoConverterRegistry;
-
-	@Reference
-	private GroupLocalService _groupLocalService;
 
 	@Reference(
 		target = "(component.name=com.liferay.headless.admin.taxonomy.internal.dto.v1_0.converter.KeywordDTOConverter)"

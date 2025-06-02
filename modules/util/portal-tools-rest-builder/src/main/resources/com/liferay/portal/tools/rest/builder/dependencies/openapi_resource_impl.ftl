@@ -5,24 +5,23 @@ import com.liferay.portal.vulcan.resource.OpenAPIResource;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import ${configYAML.javaEEPackage}.annotation.Generated;
+
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletRequest;
+
+import ${configYAML.javaEEPackage}.ws.rs.GET;
+import ${configYAML.javaEEPackage}.ws.rs.Path;
+import ${configYAML.javaEEPackage}.ws.rs.PathParam;
+import ${configYAML.javaEEPackage}.ws.rs.Produces;
+import ${configYAML.javaEEPackage}.ws.rs.core.Context;
+import ${configYAML.javaEEPackage}.ws.rs.core.MediaType;
+import ${configYAML.javaEEPackage}.ws.rs.core.Response;
+import ${configYAML.javaEEPackage}.ws.rs.core.UriInfo;
 
 import java.lang.reflect.Method;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.annotation.Generated;
-
-import javax.servlet.http.HttpServletRequest;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

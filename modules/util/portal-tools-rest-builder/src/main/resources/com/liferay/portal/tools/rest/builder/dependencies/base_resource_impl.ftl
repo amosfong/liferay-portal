@@ -69,6 +69,17 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.LocalDateTimeUtil;
 import com.liferay.portal.vulcan.util.UriInfoUtil;
+import ${configYAML.javaEEPackage}.annotation.Generated;
+
+import ${configYAML.javaEEPackage}.servlet.ServletContext;
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletRequest;
+import ${configYAML.javaEEPackage}.servlet.http.HttpServletResponse;
+
+import ${configYAML.javaEEPackage}.ws.rs.NotSupportedException;
+import ${configYAML.javaEEPackage}.ws.rs.core.MultivaluedHashMap;
+import ${configYAML.javaEEPackage}.ws.rs.core.MultivaluedMap;
+import ${configYAML.javaEEPackage}.ws.rs.core.Response;
+import ${configYAML.javaEEPackage}.ws.rs.core.UriInfo;
 
 import java.io.Serializable;
 
@@ -85,25 +96,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Generated;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 /**
  * @author ${configYAML.author}
  * @generated
  */
 @Generated("")
 <#if configYAML.application??>
-	@javax.ws.rs.Path("/${openAPIYAML.info.version}")
+	@${configYAML.javaEEPackage}.ws.rs.Path("/${openAPIYAML.info.version}")
 </#if>
 public abstract class Base${schemaName}ResourceImpl
 	implements ${schemaName}Resource
@@ -196,7 +195,7 @@ public abstract class Base${schemaName}ResourceImpl
 				 */
 			</#if>
 			@Override
-			${freeMarkerTool.getResourceMethodAnnotations(javaMethodSignature)}
+			${freeMarkerTool.getResourceMethodAnnotations(configYAML, javaMethodSignature)}
 			public final ${javaMethodSignature.returnType} ${javaMethodSignature.methodName}(${freeMarkerTool.getResourceParameters(configYAML, javaMethodSignature.javaMethodParameters, javaMethodSignature.operation, allSchemas, true)}) throws Exception {
 				<#if stringUtil.equals(httpMethod, "get")>
 					<#if javaMethodSignature.returnType?contains("Page<")>
@@ -310,7 +309,7 @@ public abstract class Base${schemaName}ResourceImpl
 			 */
 		</#if>
 		@Override
-		${freeMarkerTool.getResourceMethodAnnotations(javaMethodSignature)}
+		${freeMarkerTool.getResourceMethodAnnotations(configYAML, javaMethodSignature)}
 		public <#if generatePermissions>final</#if> ${javaMethodSignature.returnType} ${javaMethodSignature.methodName}(${freeMarkerTool.getResourceParameters(configYAML, javaMethodSignature.javaMethodParameters, javaMethodSignature.operation, allSchemas, true)}) throws Exception {
 			<#if stringUtil.equals(javaMethodSignature.returnType, "boolean")>
 				return false;
@@ -321,7 +320,7 @@ public abstract class Base${schemaName}ResourceImpl
 				vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
 				vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
 
-				javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.accepted();
+				${configYAML.javaEEPackage}.ws.rs.core.Response.ResponseBuilder responseBuilder = ${configYAML.javaEEPackage}.ws.rs.core.Response.accepted();
 
 				return responseBuilder.entity(
 					vulcanBatchEngineImportTaskResource.deleteImportTask(${javaDataType}.class.getName(), callbackURL, object)
@@ -334,7 +333,7 @@ public abstract class Base${schemaName}ResourceImpl
 				vulcanBatchEngineExportTaskResource.setContextUser(contextUser);
 				vulcanBatchEngineExportTaskResource.setGroupLocalService(groupLocalService);
 
-				javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.accepted();
+				${configYAML.javaEEPackage}.ws.rs.core.Response.ResponseBuilder responseBuilder = ${configYAML.javaEEPackage}.ws.rs.core.Response.accepted();
 
 				return responseBuilder.entity(
 					vulcanBatchEngineExportTaskResource.postExportTask(${javaDataType}.class.getName(), callbackURL, contentType, fieldNames)
@@ -346,7 +345,7 @@ public abstract class Base${schemaName}ResourceImpl
 				vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
 				vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
 
-				javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.accepted();
+				${configYAML.javaEEPackage}.ws.rs.core.Response.ResponseBuilder responseBuilder = ${configYAML.javaEEPackage}.ws.rs.core.Response.accepted();
 
 				return responseBuilder.entity(
 					vulcanBatchEngineImportTaskResource.postImportTask(${javaDataType}.class.getName(), callbackURL, null, object)
@@ -358,7 +357,7 @@ public abstract class Base${schemaName}ResourceImpl
 				vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
 				vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
 
-				javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.accepted();
+				${configYAML.javaEEPackage}.ws.rs.core.Response.ResponseBuilder responseBuilder = ${configYAML.javaEEPackage}.ws.rs.core.Response.accepted();
 
 				return responseBuilder.entity(
 					vulcanBatchEngineImportTaskResource.putImportTask(${javaDataType}.class.getName(), callbackURL, object)
@@ -491,8 +490,8 @@ public abstract class Base${schemaName}ResourceImpl
 				return java.math.BigDecimal.ZERO;
 			<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.util.Date")>
 				return new java.util.Date();
-			<#elseif stringUtil.equals(javaMethodSignature.returnType, "javax.ws.rs.core.Response")>
-				javax.ws.rs.core.Response.ResponseBuilder responseBuilder = javax.ws.rs.core.Response.ok();
+			<#elseif stringUtil.equals(javaMethodSignature.returnType, configYAML.javaEEPackage + ".ws.rs.core.Response")>
+				${configYAML.javaEEPackage}.ws.rs.core.Response.ResponseBuilder responseBuilder = ${configYAML.javaEEPackage}.ws.rs.core.Response.ok();
 
 				return responseBuilder.build();
 			<#elseif stringUtil.equals(javaMethodSignature.returnType, "void")>

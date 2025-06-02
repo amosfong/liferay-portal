@@ -5,6 +5,9 @@
 
 package com.liferay.object.service.test;
 
+import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
@@ -33,6 +36,7 @@ import com.liferay.list.type.entry.util.ListTypeEntryUtil;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeDefinitionLocalService;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.constants.ObjectActionConstants;
 import com.liferay.object.constants.ObjectActionExecutorConstants;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
@@ -52,6 +56,7 @@ import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectEntryStatusException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.exception.ObjectValidationRuleEngineException;
+import com.liferay.object.field.builder.AggregationObjectFieldBuilder;
 import com.liferay.object.field.builder.AttachmentObjectFieldBuilder;
 import com.liferay.object.field.builder.AutoIncrementObjectFieldBuilder;
 import com.liferay.object.field.builder.BooleanObjectFieldBuilder;
@@ -107,6 +112,7 @@ import com.liferay.object.validation.rule.ObjectValidationRuleEngine;
 import com.liferay.object.validation.rule.ObjectValidationRuleResult;
 import com.liferay.object.validation.rule.setting.builder.ObjectValidationRuleSettingBuilder;
 import com.liferay.petra.function.UnsafeRunnable;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
@@ -125,6 +131,8 @@ import com.liferay.portal.kernel.exception.NoSuchResourceActionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
+import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -144,6 +152,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
+import com.liferay.portal.kernel.service.AddressLocalService;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -1166,6 +1175,43 @@ public class ObjectEntryLocalServiceTest {
 		}
 		finally {
 			serviceContext.setWorkflowAction(originalWorkflowAction);
+		}
+	}
+
+	@Test
+	public void testAddObjectEntryToStagingGroup() throws Exception {
+		Group liveGroup = null;
+
+		try {
+			liveGroup = GroupTestUtil.addGroup();
+
+			GroupTestUtil.enableLocalStaging(
+				liveGroup, TestPropsValues.getUserId());
+
+			Group stagingGroup = liveGroup.getStagingGroup();
+
+			_objectDefinition.setScope(ObjectDefinitionConstants.SCOPE_SITE);
+
+			_objectDefinition =
+				_objectDefinitionLocalService.updateObjectDefinition(
+					_objectDefinition);
+
+			ObjectEntry objectEntry = _addObjectEntry(
+				stagingGroup.getGroupId(),
+				_objectDefinition.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					"emailAddressRequired", "athanasius@liferay.com"
+				).put(
+					"listTypeEntryKeyRequired", "listTypeEntryKey1"
+				).build());
+
+			Assert.assertEquals(
+				stagingGroup.getGroupId(), objectEntry.getGroupId());
+		}
+		finally {
+			if (liveGroup != null) {
+				GroupTestUtil.deleteGroup(liveGroup);
+			}
 		}
 	}
 
@@ -2264,6 +2310,40 @@ public class ObjectEntryLocalServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-55656")
+	public void testAddObjectEntryWithMissingListTypeEntryReference()
+		throws Exception {
+
+		String listTypeEntryKey = RandomTestUtil.randomString();
+
+		ListTypeEntry listTypeEntry =
+			_listTypeEntryLocalService.fetchListTypeEntry(
+				_listTypeDefinition.getListTypeDefinitionId(),
+				listTypeEntryKey);
+
+		Assert.assertNull(listTypeEntry);
+
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			_addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"emailAddressRequired", "bob@liferay.com"
+				).put(
+					"listTypeEntryKeyRequired", listTypeEntryKey
+				).build());
+
+			listTypeEntry = _listTypeEntryLocalService.fetchListTypeEntry(
+				_listTypeDefinition.getListTypeDefinitionId(),
+				listTypeEntryKey);
+
+			Assert.assertNotNull(listTypeEntry);
+			Assert.assertEquals(
+				WorkflowConstants.STATUS_INCOMPLETE, listTypeEntry.getStatus());
+		}
+	}
+
+	@Test
 	public void testAddObjectEntryWithMultiselectPicklistObjectField()
 		throws Exception {
 
@@ -3099,6 +3179,12 @@ public class ObjectEntryLocalServiceTest {
 			ObjectDefinitionTestUtil.publishObjectDefinition(
 				true, Collections.emptyList());
 
+		companyObjectDefinition.setFriendlyURLSeparator("test1");
+
+		companyObjectDefinition =
+			_objectDefinitionLocalService.updateObjectDefinition(
+				companyObjectDefinition);
+
 		ObjectEntry companyObjectEntry1 = _addObjectEntry(
 			0, companyObjectDefinition.getObjectDefinitionId(),
 			Collections.emptyMap());
@@ -3193,6 +3279,7 @@ public class ObjectEntryLocalServiceTest {
 		ObjectDefinition siteObjectDefinition =
 			ObjectDefinitionTestUtil.publishObjectDefinition();
 
+		siteObjectDefinition.setFriendlyURLSeparator("test2");
 		siteObjectDefinition.setScope(ObjectDefinitionConstants.SCOPE_SITE);
 
 		siteObjectDefinition =
@@ -3686,6 +3773,7 @@ public class ObjectEntryLocalServiceTest {
 			_objectDefinition.isEnableObjectEntryDraft(),
 			_objectDefinition.isEnableObjectEntryHistory(),
 			_objectDefinition.isEnableObjectEntryVersioning(),
+			_objectDefinition.getFriendlyURLSeparator(),
 			_objectDefinition.getLabelMap(), _objectDefinition.getName(),
 			_objectDefinition.getPanelAppOrder(),
 			_objectDefinition.getPanelCategoryKey(),
@@ -3934,6 +4022,127 @@ public class ObjectEntryLocalServiceTest {
 			objectField1.getObjectFieldId());
 		_objectFieldLocalService.deleteObjectField(
 			objectField2.getObjectFieldId());
+	}
+
+	@Test
+	public void testGetExtensionDynamicObjectDefinitionTableValuesWithAggregationObjectField()
+		throws Exception {
+
+		AccountEntry accountEntry = _accountEntryLocalService.addAccountEntry(
+			StringPool.BLANK, TestPropsValues.getUserId(),
+			AccountConstants.PARENT_ACCOUNT_ENTRY_ID_DEFAULT, "account", null,
+			null, null, null, null,
+			AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			WorkflowConstants.STATUS_APPROVED,
+			ServiceContextTestUtil.getServiceContext());
+
+		Address address1 = _addAddress(accountEntry);
+		Address address2 = _addAddress(accountEntry);
+
+		ObjectDefinition addressObjectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				TestPropsValues.getCompanyId(), Address.class.getSimpleName());
+
+		ObjectRelationship objectRelationship1 =
+			ObjectRelationshipTestUtil.addObjectRelationship(
+				_objectRelationshipLocalService,
+				_objectDefinitionLocalService.fetchObjectDefinition(
+					TestPropsValues.getCompanyId(),
+					AccountEntry.class.getSimpleName()),
+				_objectDefinition);
+
+		ObjectField relationshipObjectField1 =
+			_objectFieldLocalService.fetchObjectField(
+				objectRelationship1.getObjectFieldId2());
+
+		ObjectRelationship objectRelationship2 =
+			ObjectRelationshipTestUtil.addObjectRelationship(
+				_objectRelationshipLocalService, addressObjectDefinition,
+				_objectDefinition, TestPropsValues.getUserId(),
+				relationshipObjectField1.getObjectFieldId());
+
+		ObjectField relationshipObjectField2 =
+			_objectFieldLocalService.fetchObjectField(
+				objectRelationship2.getObjectFieldId2());
+
+		_addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddressRequired", "athanasius@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).put(
+				relationshipObjectField1.getName(),
+				accountEntry.getAccountEntryId()
+			).put(
+				relationshipObjectField2.getName(), address1.getAddressId()
+			).build());
+		_addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddressRequired", "athanasius@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).put(
+				relationshipObjectField1.getName(),
+				accountEntry.getAccountEntryId()
+			).put(
+				relationshipObjectField2.getName(), address1.getAddressId()
+			).build());
+		_addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddressRequired", "athanasius@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).put(
+				relationshipObjectField1.getName(),
+				accountEntry.getAccountEntryId()
+			).put(
+				relationshipObjectField2.getName(), address2.getAddressId()
+			).build());
+
+		ObjectField aggregationObjectField = _addCustomObjectField(
+			new AggregationObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"a" + RandomTestUtil.randomString()
+			).objectDefinitionId(
+				addressObjectDefinition.getObjectDefinitionId()
+			).objectFieldSettings(
+				Arrays.asList(
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_FUNCTION
+					).value(
+						ObjectFieldSettingConstants.VALUE_COUNT
+					).build(),
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.
+							NAME_OBJECT_RELATIONSHIP_NAME
+					).value(
+						objectRelationship2.getName()
+					).build())
+			).build());
+
+		Assert.assertEquals(
+			2,
+			MapUtil.getInteger(
+				_objectEntryLocalService.
+					getExtensionDynamicObjectDefinitionTableValues(
+						addressObjectDefinition, address1.getPrimaryKey()),
+				aggregationObjectField.getName()));
+		Assert.assertEquals(
+			1,
+			MapUtil.getInteger(
+				_objectEntryLocalService.
+					getExtensionDynamicObjectDefinitionTableValues(
+						addressObjectDefinition, address2.getPrimaryKey()),
+				aggregationObjectField.getName()));
+
+		_objectFieldLocalService.deleteObjectField(aggregationObjectField);
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship1);
 	}
 
 	@Test
@@ -5990,6 +6199,18 @@ public class ObjectEntryLocalServiceTest {
 	@Rule
 	public TestName testName = new TestName();
 
+	private Address _addAddress(AccountEntry accountEntry) throws Exception {
+		return _addressLocalService.addAddress(
+			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+			AccountEntry.class.getName(), accountEntry.getAccountEntryId(), 0,
+			0, 0, RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			false, RandomTestUtil.randomString(), false,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), null, RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext());
+	}
+
 	private ObjectField _addCustomObjectField(ObjectField objectField)
 		throws Exception {
 
@@ -7704,6 +7925,12 @@ public class ObjectEntryLocalServiceTest {
 			RandomTestUtil.randomString();
 
 	@Inject
+	private AccountEntryLocalService _accountEntryLocalService;
+
+	@Inject
+	private AddressLocalService _addressLocalService;
+
+	@Inject
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Inject
@@ -7738,6 +7965,9 @@ public class ObjectEntryLocalServiceTest {
 
 	@Inject
 	private ListTypeDefinitionLocalService _listTypeDefinitionLocalService;
+
+	@Inject
+	private ListTypeEntryLocalService _listTypeEntryLocalService;
 
 	@Inject
 	private Localization _localization;

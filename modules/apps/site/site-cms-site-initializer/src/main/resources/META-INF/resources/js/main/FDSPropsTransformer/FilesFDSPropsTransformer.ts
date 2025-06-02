@@ -7,6 +7,7 @@ import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 
 import createAssetAction from './actions/createAssetAction';
 import createFolderAction from './actions/createFolderAction';
+import multipleFilesUploadAction from './actions/multipleFilesUploadAction';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import NameRenderer from './cell_renderers/NameRenderer';
 import SpaceRenderer from './cell_renderers/SpaceRenderer';
@@ -16,6 +17,7 @@ import addOnClickToCreationMenuItems from './utils/addOnClickToCreationMenuItems
 const ACTIONS = {
 	createAsset: createAssetAction,
 	createFolder: createFolderAction,
+	uploadMultipleFiles: multipleFilesUploadAction,
 };
 
 const OBJECT_ENTRY_FOLDER_CLASSNAME =
@@ -80,16 +82,6 @@ export default function FilesFDSPropsTransformer({
 					isVisible: (item: any) =>
 						Boolean(
 							item?.entryClassName !==
-								OBJECT_ENTRY_FOLDER_CLASSNAME
-						),
-				};
-			}
-			else if (action?.data?.id === 'editFolder') {
-				return {
-					...action,
-					isVisible: (item: any) =>
-						Boolean(
-							item?.entryClassName ===
 								OBJECT_ENTRY_FOLDER_CLASSNAME
 						),
 				};

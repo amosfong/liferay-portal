@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=300",
+		"panel.app.order:Integer=550",
 		"panel.category.key=" + PanelCategoryKeys.USER_MY_ACCOUNT
 	},
 	service = PanelApp.class
@@ -37,7 +37,7 @@ public class MyWorkflowTaskPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + PortletKeys.MY_WORKFLOW_TASK + ")"
+		target = "(jakarta.portlet.name=" + PortletKeys.MY_WORKFLOW_TASK + ")"
 	)
 	private Portlet _portlet;
 

@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	enabled = false,
 	property = {
-		"panel.app.order:Integer=600",
+		"panel.app.order:Integer=1050",
 		"panel.category.key=" + PanelCategoryKeys.USER_MY_ACCOUNT
 	},
 	service = PanelApp.class
@@ -38,7 +38,7 @@ public class MySubscriptionPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + MySubscriptionsPortletKeys.MY_SUBSCRIPTIONS + ")"
+		target = "(jakarta.portlet.name=" + MySubscriptionsPortletKeys.MY_SUBSCRIPTIONS + ")"
 	)
 	private Portlet _portlet;
 

@@ -1,0 +1,322 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+package com.liferay.portal.verify.test;
+
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.util.SystemProperties;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.verify.PreupgradeVerifyProperties;
+import com.liferay.portal.verify.VerifyProcess;
+import com.liferay.portal.verify.test.util.BaseVerifyProcessTestCase;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+/**
+ * @author Manuel de la Peña
+ */
+@RunWith(Arquillian.class)
+public class PreupgradeVerifyPropertiesTest extends BaseVerifyProcessTestCase {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new LiferayIntegrationTestRule();
+
+	@Test
+	public void testMigratedPortalKeys() throws Exception {
+		String migratedPortalKey = _getFirstPortalPropertyKey();
+
+		String[][] originalMigratedPortalKeys = _setPropertyKeys(
+			"_MIGRATED_PORTAL_KEYS",
+			new String[][] {{migratedPortalKey, migratedPortalKey}});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			List<String> keys = ReflectionTestUtil.invoke(
+				PreupgradeVerifyProperties.class, "verifyPortalProperties",
+				null);
+
+			Assert.assertEquals(keys.toString(), 1, keys.size());
+
+			Assert.assertEquals(migratedPortalKey, keys.get(0));
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Portal property \"", migratedPortalKey,
+					"\" was migrated to the system property \"",
+					migratedPortalKey, "\""),
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys(
+				"_MIGRATED_PORTAL_KEYS", originalMigratedPortalKeys);
+		}
+	}
+
+	@Test
+	public void testMigratedSystemKeys() throws Exception {
+		String migratedSystemKey = _getFirstSystemPropertyKey();
+
+		String[][] originalMigratedSystemKeys = _setPropertyKeys(
+			"_MIGRATED_SYSTEM_KEYS",
+			new String[][] {{migratedSystemKey, migratedSystemKey}});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"System property \"", migratedSystemKey,
+					"\" was migrated to the portal property \"",
+					migratedSystemKey, "\""),
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys(
+				"_MIGRATED_SYSTEM_KEYS", originalMigratedSystemKeys);
+		}
+	}
+
+	@Test
+	public void testModularizedPortalKeys() throws Exception {
+		String modularizedPortalKey = _getFirstPortalPropertyKey();
+
+		String[][] originalModularizedPortalKeys = _setPropertyKeys(
+			"_MODULARIZED_PORTAL_KEYS",
+			new String[][] {
+				{
+					modularizedPortalKey, modularizedPortalKey,
+					modularizedPortalKey
+				}
+			});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Portal property \"", modularizedPortalKey,
+					"\" was modularized to ", modularizedPortalKey, " as \"",
+					modularizedPortalKey, "\""),
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys(
+				"_MODULARIZED_PORTAL_KEYS", originalModularizedPortalKeys);
+		}
+	}
+
+	@Test
+	public void testObsoletePortalKeys() throws Exception {
+		String obsoletePortalKey = _getFirstPortalPropertyKey();
+
+		String[] originalObsoletePortalKeys = _setPropertyKeys(
+			"_OBSOLETE_PORTAL_KEYS", new String[] {obsoletePortalKey});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				"Portal property \"" + obsoletePortalKey + "\" is obsolete",
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys(
+				"_OBSOLETE_PORTAL_KEYS", originalObsoletePortalKeys);
+		}
+	}
+
+	@Test
+	public void testObsoleteSystemKeys() throws Exception {
+		String obsoleteSystemKey = _getFirstSystemPropertyKey();
+
+		String[] originalObsoleteSystemKeys = _setPropertyKeys(
+			"_OBSOLETE_SYSTEM_KEYS", new String[] {obsoleteSystemKey});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				"System property \"" + obsoleteSystemKey + "\" is obsolete",
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys(
+				"_OBSOLETE_SYSTEM_KEYS", originalObsoleteSystemKeys);
+		}
+	}
+
+	@Test
+	public void testRenamedPortalKeys() throws Exception {
+		String renamedPortalKey = _getFirstPortalPropertyKey();
+
+		String[][] originalRenamedPortalKeys = _setPropertyKeys(
+			"_RENAMED_PORTAL_KEYS",
+			new String[][] {new String[] {renamedPortalKey, renamedPortalKey}});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Portal property \"", renamedPortalKey,
+					"\" was renamed to \"", renamedPortalKey, "\""),
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys("_RENAMED_PORTAL_KEYS", originalRenamedPortalKeys);
+		}
+	}
+
+	@Test
+	public void testRenamedSystemKeys() throws Exception {
+		String renamedSystemKey = _getFirstSystemPropertyKey();
+
+		String[][] originalRenamedSystemKeys = _setPropertyKeys(
+			"_RENAMED_SYSTEM_KEYS",
+			new String[][] {new String[] {renamedSystemKey, renamedSystemKey}});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"System property \"", renamedSystemKey,
+					"\" was renamed to \"", renamedSystemKey, "\""),
+				logEntry.getMessage());
+		}
+		finally {
+			_setPropertyKeys("_RENAMED_SYSTEM_KEYS", originalRenamedSystemKeys);
+		}
+	}
+
+	@Test
+	public void testVerify() throws Exception {
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				PreupgradeVerifyProperties.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			super.testVerify();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertTrue(logEntries.toString(), logEntries.isEmpty());
+		}
+	}
+
+	@Override
+	protected VerifyProcess getVerifyProcess() {
+		return new PreupgradeVerifyProperties();
+	}
+
+	private String _getFirstPortalPropertyKey() {
+		Properties portalProperties = ReflectionTestUtil.invoke(
+			PreupgradeVerifyProperties.class, "loadPortalProperties",
+			new Class<?>[0]);
+
+		Set<String> propertyNames = portalProperties.stringPropertyNames();
+
+		Iterator<String> iterator = propertyNames.iterator();
+
+		return iterator.next();
+	}
+
+	private String _getFirstSystemPropertyKey() {
+		Set<String> propertyNames = SystemProperties.getPropertyNames();
+
+		Iterator<String> iterator = propertyNames.iterator();
+
+		return iterator.next();
+	}
+
+	private <T> T _setPropertyKeys(String fieldName, T value) {
+		T orignalValue = ReflectionTestUtil.getFieldValue(
+			PreupgradeVerifyProperties.class, fieldName);
+
+		ReflectionTestUtil.setFieldValue(
+			PreupgradeVerifyProperties.class, fieldName, value);
+
+		return orignalValue;
+	}
+
+}

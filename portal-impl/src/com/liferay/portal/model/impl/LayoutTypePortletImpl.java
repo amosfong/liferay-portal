@@ -59,6 +59,8 @@ import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.util.JS;
 
+import jakarta.portlet.PortletPreferences;
+
 import java.text.DateFormat;
 import java.text.Format;
 
@@ -71,8 +73,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.portlet.PortletPreferences;
 
 /**
  * @author Brian Wing Shun Chan
@@ -839,11 +839,7 @@ public class LayoutTypePortletImpl
 
 	@Override
 	public boolean hasStateMaxPortletId(String portletId) {
-		if (StringUtil.contains(getStateMax(), portletId)) {
-			return true;
-		}
-
-		return false;
+		return StringUtil.contains(getStateMax(), portletId);
 	}
 
 	@Override
@@ -859,11 +855,7 @@ public class LayoutTypePortletImpl
 
 	@Override
 	public boolean hasStateMinPortletId(String portletId) {
-		if (StringUtil.contains(getStateMin(), portletId)) {
-			return true;
-		}
-
-		return false;
+		return StringUtil.contains(getStateMin(), portletId);
 	}
 
 	@Override
@@ -932,11 +924,7 @@ public class LayoutTypePortletImpl
 		boolean customizable = GetterUtil.getBoolean(customizableString);
 
 		if (customizable) {
-			if (isLayoutSetPrototype()) {
-				return false;
-			}
-
-			return true;
+			return !isLayoutSetPrototype();
 		}
 
 		if (hasUserPreferences()) {

@@ -90,7 +90,7 @@ public class ObjectEntryVersionLocalServiceTest {
 		_objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), 0, null, false, false, true, false,
-				true, true, RandomTestUtil.randomLocaleStringMap(),
+				true, true, null, RandomTestUtil.randomLocaleStringMap(),
 				"A" + StringUtil.randomString(), null, null,
 				RandomTestUtil.randomLocaleStringMap(), true,
 				ObjectDefinitionConstants.SCOPE_COMPANY,
@@ -277,7 +277,8 @@ public class ObjectEntryVersionLocalServiceTest {
 
 		WorkflowDefinitionLink workflowDefinitionLink =
 			_workflowDefinitionLinkService.addWorkflowDefinitionLink(
-				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(), 0,
+				null, TestPropsValues.getUserId(),
+				TestPropsValues.getCompanyId(), 0,
 				_objectDefinition.getClassName(), 0, 0,
 				_workflowDefinition.getName(),
 				_workflowDefinition.getVersion());

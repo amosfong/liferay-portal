@@ -10,9 +10,14 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.GitUtil;
+import com.liferay.source.formatter.SourceFormatterArgs;
 import com.liferay.source.formatter.check.util.SourceUtil;
 
 import java.io.IOException;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Alan Huang
@@ -104,6 +109,54 @@ public abstract class BaseBreakingChangesCheck extends BaseFileCheck {
 		}
 	}
 
+	protected void checkCommitMessages(
+			String fileName, String absolutePath,
+			SourceFormatterArgs sourceFormatterArgs, String additionalMessage)
+		throws Exception {
+
+		List<String> commitMessages = GitUtil.getCurrentBranchCommitMessages(
+			sourceFormatterArgs.getBaseDirName(),
+			sourceFormatterArgs.getGitWorkingBranchName());
+
+		Iterator<String> iterator = commitMessages.iterator();
+
+		while (iterator.hasNext()) {
+			String commitMessage = iterator.next();
+
+			String[] parts = commitMessage.split(":", 2);
+
+			if (!parts[1].contains("# breaking")) {
+				iterator.remove();
+			}
+		}
+
+		if (commitMessages.isEmpty()) {
+			addMessage(
+				fileName,
+				"Incorrect commit message: Missing breaking change in commit " +
+					"messages when " + additionalMessage);
+
+			return;
+		}
+
+		for (String commitMessage : commitMessages) {
+			String[] parts = commitMessage.split(":", 2);
+
+			if (!parts[1].contains("# breaking")) {
+				continue;
+			}
+
+			String message =
+				"Incorrect commit message in SHA " + parts[0] + ": ";
+
+			checkMissingEmptyLinesAroundHeaders(fileName, parts[1], message);
+
+			checkBreakingChanges(
+				fileName, absolutePath, parts[1].split("\n----"), message,
+				true);
+		}
+	}
+
 	protected void checkMissingEmptyLinesAroundHeaders(
 		String fileName, String breakingChanges, String message) {
 
@@ -154,6 +207,21 @@ public abstract class BaseBreakingChangesCheck extends BaseFileCheck {
 		}
 	}
 
+	protected synchronized List<String> getCurrentBranchFileNames(
+			SourceFormatterArgs sourceFormatterArgs)
+		throws Exception {
+
+		if (_currentBranchFileNames != null) {
+			return _currentBranchFileNames;
+		}
+
+		_currentBranchFileNames = GitUtil.getCurrentBranchFileNames(
+			sourceFormatterArgs.getBaseDirName(),
+			sourceFormatterArgs.getGitWorkingBranchName());
+
+		return _currentBranchFileNames;
+	}
+
 	private void _checkMissingExplanation(
 		String fileName, String breakingChange, String message,
 		int... headerPositions) {
@@ -190,5 +258,7 @@ public abstract class BaseBreakingChangesCheck extends BaseFileCheck {
 
 	private static final String _LIFERAY_PORTAL_MASTER_URL =
 		"https://github.com/liferay/liferay-portal/blob/master/";
+
+	private static List<String> _currentBranchFileNames;
 
 }

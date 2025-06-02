@@ -12,10 +12,11 @@ import {ManagementToolbar} from 'frontend-js-components-web';
 import {navigate, sub} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
+import CategorizationPermissionService from '../../../services/CategorizationPermissionService';
+import VocabularyService from '../../../services/VocabularyService';
+import {IVocabulary} from '../../../types/IVocabulary';
 import {IPermissionItem} from '../../components/forms/PermissionsTable';
-import CategorizationPermissionService from '../services/CategorizationPermissionService';
-import VocabularyService from '../services/VocabularyService';
-import {IVocabulary} from '../types/IVocabulary';
+import {displaySystemErrorToast} from '../../util/ToastUtil';
 import {DEFAULT_PERMISSIONS} from '../utils/CategorizationPermissionsUtil';
 import ConfirmChangesModal from './ConfirmChangesModal';
 import EditAssociatedAssetTypes from './EditAssociatedAssetTypes';
@@ -27,7 +28,7 @@ const NAVIGATION_TABS = {
 };
 
 export default function EditVocabulary({
-	assetTypes,
+	availableAssetTypes,
 	backURL,
 	defaultLanguageId,
 	locales,
@@ -35,7 +36,7 @@ export default function EditVocabulary({
 	vocabularyId,
 	vocabularyPermissionsAPIURL,
 }: {
-	assetTypes: AssetType[];
+	availableAssetTypes: AssetType[];
 	backURL: string;
 	defaultLanguageId: string;
 	locales: any[];
@@ -49,7 +50,9 @@ export default function EditVocabulary({
 	const [assetLibraries, setAssetLibraries] = useState<AssetLibraryType[]>(
 		[]
 	);
-	const assetTypeChange = false;
+	const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
+	const [assetTypeChange, setAssetTypeChange] = useState(false);
+	const [assetTypeInputError, setAssetTypeInputError] = useState<string>('');
 	const [nameInputError, setNameInputError] = useState<string>('');
 	const {observer, onOpenChange, open} = useModal();
 	const [spaceChange, setSpaceChange] = useState(false);
@@ -65,9 +68,8 @@ export default function EditVocabulary({
 		assetTypes: [
 			{
 				required: false,
-				subtype: '-1',
 				type: 'AllAssetTypes',
-				typeId: '0',
+				typeId: 0,
 			},
 		],
 		description: '',
@@ -92,15 +94,16 @@ export default function EditVocabulary({
 				return;
 			}
 			else {
-				try {
-					const fetchedData =
-						await VocabularyService.fetchVocabulary(vocabularyId);
+				const {data, error} =
+					await VocabularyService.fetchVocabulary(vocabularyId);
 
-					setAssetLibraries(fetchedData.assetLibraries);
-					setTitle(fetchedData.name);
-					setVocabulary(fetchedData);
+				if (data) {
+					setAssetLibraries(data.assetLibraries);
+					setAssetTypes(data.assetTypes);
+					setTitle(data.name);
+					setVocabulary(data);
 				}
-				catch (error) {
+				else if (error) {
 					console.error(error);
 					navigate(backURL);
 				}
@@ -130,58 +133,78 @@ export default function EditVocabulary({
 			return false;
 		}
 
+		if (assetTypeInputError) {
+			setActiveVerticalNavKey('assetTypes');
+
+			return false;
+		}
+
 		return true;
 	};
 
 	const _handleSave = async () => {
-		try {
-			if (!_handleValidateInputs()) {
-				return;
+		if (!_handleValidateInputs()) {
+			return;
+		}
+
+		if (isNew) {
+			const {data, error} =
+				await VocabularyService.createVocabulary(vocabulary);
+
+			if (error) {
+				displaySystemErrorToast();
+
+				throw new Error(error);
 			}
 
-			if (isNew) {
-				const response =
-					await VocabularyService.createVocabulary(vocabulary);
+			const vocabularyId: number = data?.id || 0;
 
+			const {error: putPermissionsError} =
 				await CategorizationPermissionService.putPermissions(
 					vocabularyPermissionsAPIURL.replace(
 						'{taxonomyVocabularyId}',
-						response.id
+						String(vocabularyId)
 					),
 					vocabularyPermissions
 				);
-			}
-			else {
-				await VocabularyService.updateVocabulary(vocabulary);
-			}
 
-			await navigate(backURL);
+			if (putPermissionsError) {
+				displaySystemErrorToast();
 
-			if (isNew) {
-				Liferay.Util.openToast({
-					message: Liferay.Util.sub(
-						Liferay.Language.get('x-was-published-successfully'),
-						vocabulary.name
-					),
-					type: 'success',
-				});
-			}
-			else {
-				Liferay.Util.openToast({
-					message: Liferay.Util.sub(
-						Liferay.Language.get('x-was-updated-successfully'),
-						vocabulary.name
-					),
-					type: 'success',
-				});
+				throw new Error(
+					`PUT request failed to update permissions at ${vocabularyPermissionsAPIURL} using the following provided data: ${JSON.stringify(vocabularyPermissions)}`
+				);
 			}
 		}
-		catch (error) {
+		else {
+			const {error} =
+				await VocabularyService.updateVocabulary(vocabulary);
+
+			if (error) {
+				displaySystemErrorToast();
+
+				throw new Error(error);
+			}
+		}
+
+		await navigate(backURL);
+
+		if (isNew) {
 			Liferay.Util.openToast({
-				message: Liferay.Language.get(
-					'an-unexpected-system-error-occurred'
+				message: Liferay.Util.sub(
+					Liferay.Language.get('x-was-published-successfully'),
+					vocabulary.name
 				),
-				type: 'danger',
+				type: 'success',
+			});
+		}
+		else {
+			Liferay.Util.openToast({
+				message: Liferay.Util.sub(
+					Liferay.Language.get('x-was-updated-successfully'),
+					vocabulary.name
+				),
+				type: 'success',
 			});
 		}
 	};
@@ -307,7 +330,15 @@ export default function EditVocabulary({
 
 							{activeVerticalNavKey === 'assetTypes' && (
 								<EditAssociatedAssetTypes
-									assetTypes={assetTypes}
+									assetTypeInputError={assetTypeInputError}
+									availableAssetTypes={availableAssetTypes}
+									initialAssetTypes={assetTypes}
+									onChangeVocabulary={setVocabulary}
+									setAssetTypeChange={setAssetTypeChange}
+									setAssetTypeInputError={
+										setAssetTypeInputError
+									}
+									vocabulary={vocabulary}
 								/>
 							)}
 						</ClayLayout.Col>

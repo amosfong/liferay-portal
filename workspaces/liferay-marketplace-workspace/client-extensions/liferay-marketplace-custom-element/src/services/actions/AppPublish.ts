@@ -28,6 +28,16 @@ type ProductConfig = {
 	isDraft: boolean;
 };
 
+function normalizeCategory(category: {
+	label: string;
+	value: number;
+}): Partial<Categories> {
+	return {
+		id: String(category.value),
+		name: category.label,
+	};
+}
+
 function isTierPriceChanged(
 	currentTierPrices: TierPrice[],
 	newTierPrices: TierPrice[]
@@ -164,10 +174,7 @@ export default class AppPublish extends BaseAppPublish {
 			...productTypeCategories,
 			...tags,
 			categories,
-		].map((category) => ({
-			id: category.value,
-			name: category.label,
-		}));
+		].map(normalizeCategory);
 
 		const productStatus = config.isDraft
 			? ProductWorkflowStatusCode.DRAFT
@@ -216,7 +223,17 @@ export default class AppPublish extends BaseAppPublish {
 				workflowStatusInfo: productStatus,
 			});
 
-		product.productSpecifications = [];
+		product.productSpecifications = [
+			{
+				key: ProductSpecificationKey.APP_DEVELOPER_NAME,
+				value: catalog?.name,
+			},
+		];
+
+		await BaseAppPublish.updateSpecifications(
+			product,
+			product.productSpecifications
+		);
 
 		if (file.file) {
 			await HeadlessCommerceAdminCatalogImpl.createProductImageByExternalReferenceCodeAxios(
@@ -267,8 +284,6 @@ export default class AppPublish extends BaseAppPublish {
 			specifications.push(...(resourceRequirementSpecifications as any));
 		}
 
-		await BaseAppPublish.updateSpecifications(product, specifications);
-
 		const {
 			[ProductVocabulary.LIFERAY_PLATFORM_OFFERING]:
 				compatibleOfferingVocabulary,
@@ -279,10 +294,11 @@ export default class AppPublish extends BaseAppPublish {
 		const compatibleOfferingCategories =
 			compatibleOfferingVocabulary.categories ?? [];
 
-		const compatibleOfferings = compatibleOfferingCategories.filter(
-			({label}: {label: string}) =>
+		const compatibleOfferings = compatibleOfferingCategories
+			.filter(({label}: {label: string}) =>
 				platformOfferingLabels.includes(label as ProductOfferingTypes)
-		);
+			)
+			.map(normalizeCategory);
 
 		await HeadlessCommerceAdminCatalogImpl.updateProduct(
 			product.productId,
@@ -313,6 +329,18 @@ export default class AppPublish extends BaseAppPublish {
 				});
 			}
 		}
+
+		const liferayVersions = [
+			...new Set(liferayPackages.map(({version}) => version)),
+		].map((specification) => ({
+			key: ProductSpecificationKey.LIFERAY_VERSION,
+			value: specification,
+		}));
+
+		await BaseAppPublish.updateSpecifications(product, [
+			...specifications,
+			...liferayVersions,
+		]);
 	}
 
 	async syncLicensing(product: Product) {
@@ -392,18 +420,24 @@ export default class AppPublish extends BaseAppPublish {
 
 	async syncStorefront(product: Product) {
 		const {
-			storefront: {images},
+			storefront: {images, video},
 		} = this.context;
 
 		// Process Upload Images, priority starts in 1 to not conflict with
 		// the app icon defined as priority 0
 
-		await AppPublish.addOrUpdateImages(
-			images,
-			ProductTags.APP_ICON,
-			product,
-			1
-		);
+		await AppPublish.addOrUpdateImages(images, null, product, 1);
+
+		await BaseAppPublish.updateSpecifications(product, [
+			{
+				key: ProductSpecificationKey.APP_STOREFRONT_VIDEO_DESCRIPTION,
+				value: video.description as string,
+			},
+			{
+				key: ProductSpecificationKey.APP_STOREFRONT_VIDEO_URL,
+				value: video.videoURL as string,
+			},
+		]);
 	}
 
 	async syncVersion(product: Product) {

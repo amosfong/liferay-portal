@@ -33,6 +33,10 @@ import com.liferay.portlet.PortalPreferencesImpl;
 import com.liferay.portlet.PortalPreferencesWrapper;
 import com.liferay.portlet.PortletPreferencesImpl;
 
+import jakarta.portlet.PortletPreferences;
+import jakarta.portlet.ReadOnlyException;
+import jakarta.portlet.ValidatorException;
+
 import java.io.IOException;
 
 import java.util.Enumeration;
@@ -40,10 +44,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-
-import javax.portlet.PortletPreferences;
-import javax.portlet.ReadOnlyException;
-import javax.portlet.ValidatorException;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -489,7 +489,7 @@ public class PrefsPropsImpl implements PrefsProps {
 	}
 
 	private PortletPreferences _fetchPreferences(long companyId) {
-		if (_skipCacheThreadLocal.get()) {
+		if (_skipCache.get()) {
 			return _getPortletPreferences(companyId);
 		}
 
@@ -521,7 +521,7 @@ public class PrefsPropsImpl implements PrefsProps {
 	private static final MethodKey _removePortletPreferenceMethodKey =
 		new MethodKey(
 			PrefsPropsImpl.class, "_removePortletPreference", long.class);
-	private static final ThreadLocal<Boolean> _skipCacheThreadLocal =
+	private static final ThreadLocal<Boolean> _skipCache =
 		ThreadLocal.withInitial(() -> false);
 
 	private final PortletPreferences _emptyPortletPreferences =
@@ -651,7 +651,7 @@ public class PrefsPropsImpl implements PrefsProps {
 		private void _clearPortletPreferencce(
 			PortalPreferenceValue portalPreferenceValue) {
 
-			if (_skipCacheThreadLocal.get()) {
+			if (_skipCache.get()) {
 				return;
 			}
 
@@ -663,14 +663,14 @@ public class PrefsPropsImpl implements PrefsProps {
 				if (portalPreferences.getOwnerType() ==
 						PortletKeys.PREFS_OWNER_TYPE_COMPANY) {
 
-					_skipCacheThreadLocal.set(true);
+					_skipCache.set(true);
 
 					TransactionCommitCallbackUtil.registerCallback(
 						() -> {
 							_removePortletPreference(
 								portalPreferenceValue.getCompanyId());
 
-							_skipCacheThreadLocal.set(false);
+							_skipCache.set(false);
 
 							return null;
 						});

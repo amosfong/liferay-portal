@@ -35,6 +35,7 @@ import com.liferay.commerce.service.CommerceOrderTypeLocalService;
 import com.liferay.commerce.util.CommerceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -51,15 +52,15 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.util.IncludeTag;
 
+import jakarta.portlet.PortletRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+
 import java.math.BigDecimal;
 
 import java.util.List;
-
-import javax.portlet.PortletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 
 /**
  * @author Fabio Diego Mastrorilli
@@ -182,6 +183,9 @@ public class AddToCartTag extends IncludeTag {
 			AccountEntry accountEntry = commerceContext.getAccountEntry();
 
 			if (accountEntry != null) {
+				_guestOrderEnabled = _isGuestOrderEnabled(
+					accountEntry, _commerceChannelGroupId);
+
 				if (accountEntry.isBusinessAccount()) {
 					ThemeDisplay themeDisplay =
 						(ThemeDisplay)httpServletRequest.getAttribute(
@@ -332,6 +336,9 @@ public class AddToCartTag extends IncludeTag {
 		httpServletRequest.setAttribute(
 			"liferay-commerce:add-to-cart:disabled", _disabled);
 		httpServletRequest.setAttribute(
+			"liferay-commerce:add-to-cart:guestOrderEnabled",
+			_guestOrderEnabled);
+		httpServletRequest.setAttribute(
 			"liferay-commerce:add-to-cart:iconOnly", _iconOnly);
 		httpServletRequest.setAttribute(
 			"liferay-commerce:add-to-cart:inCart", _inCart);
@@ -462,6 +469,7 @@ public class AddToCartTag extends IncludeTag {
 		_cpInstanceUnitOfMeasure = null;
 		_cpInstanceUnitOfMeasureLocalService = null;
 		_disabled = false;
+		_guestOrderEnabled = false;
 		_iconOnly = false;
 		_inCart = false;
 		_inline = false;
@@ -506,6 +514,24 @@ public class AddToCartTag extends IncludeTag {
 		).buildString();
 	}
 
+	private boolean _isGuestOrderEnabled(
+			AccountEntry accountEntry, long commerceChannelGroupId)
+		throws PortalException {
+
+		if (!accountEntry.isGuestAccount()) {
+			return false;
+		}
+
+		CommerceOrderCheckoutConfiguration commerceOrderCheckoutConfiguration =
+			_configurationProvider.getConfiguration(
+				CommerceOrderCheckoutConfiguration.class,
+				new GroupServiceSettingsLocator(
+					commerceChannelGroupId,
+					CommerceConstants.SERVICE_NAME_COMMERCE_ORDER));
+
+		return commerceOrderCheckoutConfiguration.guestCheckoutEnabled();
+	}
+
 	private static final String _PAGE = "/add_to_cart/page.jsp";
 
 	private static final Log _log = LogFactoryUtil.getLog(AddToCartTag.class);
@@ -532,6 +558,7 @@ public class AddToCartTag extends IncludeTag {
 	private CPInstanceUnitOfMeasureLocalService
 		_cpInstanceUnitOfMeasureLocalService;
 	private boolean _disabled;
+	private boolean _guestOrderEnabled;
 	private boolean _iconOnly;
 	private boolean _inCart;
 	private boolean _inline;

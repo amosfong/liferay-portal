@@ -663,7 +663,7 @@ public class FinderCacheImpl
 		}
 
 		boolean ctAware = false;
-		boolean sharded = false;
+		boolean sharded = DBPartition.isPartitionEnabled();
 
 		ArgumentsResolverHolder argumentsResolverHolder =
 			_serviceTrackerMap.getService(modelImplClassName);
@@ -728,6 +728,11 @@ public class FinderCacheImpl
 						argumentsResolver.getClassName());
 
 					ctAware = CTModel.class.isAssignableFrom(modelImplClass);
+
+					if (DBPartition.isPartitionEnabled()) {
+						sharded = DBPartition.isPartitionedModel(
+							modelImplClass);
+					}
 
 					if (ctAware) {
 						break;

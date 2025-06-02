@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=210",
+		"panel.app.order:Integer=250",
 		"panel.category.key=" + PanelCategoryKeys.SITE_ADMINISTRATION_CONFIGURATION
 	},
 	service = PanelApp.class
@@ -51,7 +51,7 @@ public class DepotSettingsPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + DepotPortletKeys.DEPOT_SETTINGS + ")"
+		target = "(jakarta.portlet.name=" + DepotPortletKeys.DEPOT_SETTINGS + ")"
 	)
 	private Portlet _portlet;
 

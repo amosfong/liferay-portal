@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=100",
+		"panel.app.order:Integer=150",
 		"panel.category.key=" + PanelCategoryKeys.SITE_ADMINISTRATION_CONFIGURATION
 	},
 	service = PanelApp.class
@@ -37,7 +37,7 @@ public class SiteTemplateSettingsPanelApp extends BasePanelApp {
 	}
 
 	@Reference(
-		target = "(javax.portlet.name=" + LayoutSetPrototypePortletKeys.SITE_TEMPLATE_SETTINGS + ")"
+		target = "(jakarta.portlet.name=" + LayoutSetPrototypePortletKeys.SITE_TEMPLATE_SETTINGS + ")"
 	)
 	private Portlet _portlet;
 

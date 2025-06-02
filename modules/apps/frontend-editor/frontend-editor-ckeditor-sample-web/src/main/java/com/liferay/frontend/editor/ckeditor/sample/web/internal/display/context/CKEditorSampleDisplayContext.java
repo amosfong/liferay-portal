@@ -20,10 +20,10 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import jakarta.portlet.RenderRequest;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.portlet.RenderRequest;
 
 /**
  * @author Marko Cikos
@@ -65,7 +65,10 @@ public class CKEditorSampleDisplayContext {
 
 				if (StringUtil.matches(
 						editorConfigContributorCET.getEditorConfigKeys(),
-						"sampleReactClassicEditor")) {
+						"sampleReactClassicEditor") ||
+					StringUtil.matches(
+						editorConfigContributorCET.getEditorConfigKeys(),
+						"sampleReactCKEditor5ClassicEditor")) {
 
 					return editorConfigContributorCET.getURL();
 				}

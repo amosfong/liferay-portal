@@ -19,6 +19,8 @@ import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 import com.liferay.portal.vulcan.util.GroupUtil;
 
+import jakarta.ws.rs.core.UriInfo;
+
 import java.io.Serializable;
 
 import java.lang.reflect.ParameterizedType;
@@ -29,8 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.ws.rs.core.UriInfo;
 
 /**
  * @author Preston Crary
@@ -145,7 +145,8 @@ public class VulcanBatchEngineTaskItemDelegateAdaptor<T>
 		BatchEngineImportStrategy batchEngineImportStrategy) {
 
 		_vulcanBatchEngineTaskItemDelegate.setContextBatchUnsafeBiConsumer(
-			batchEngineImportStrategy::apply);
+			(collection, unsafeFunction) -> batchEngineImportStrategy.apply(
+				this, collection, unsafeFunction));
 	}
 
 	@Override

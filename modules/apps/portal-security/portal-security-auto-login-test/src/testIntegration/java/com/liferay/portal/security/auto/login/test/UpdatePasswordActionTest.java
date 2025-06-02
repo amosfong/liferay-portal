@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
@@ -37,11 +38,11 @@ import com.liferay.portal.struts.Action;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import jakarta.servlet.http.HttpSession;
+
 import java.net.URL;
 
 import java.util.Date;
-
-import javax.servlet.http.HttpSession;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -124,7 +125,8 @@ public class UpdatePasswordActionTest {
 
 		themeDisplay.setCompany(company);
 
-		Layout layout = _layoutLocalService.getLayout(1);
+		Layout layout = _layoutLocalService.getLayout(
+			TestPropsValues.getPlid());
 
 		themeDisplay.setLayout(layout);
 		themeDisplay.setLayoutSet(layout.getLayoutSet());

@@ -72,11 +72,12 @@ class DynamicInlineScroll extends PortletBase {
 	addListItem_(listElement, pageIndex) {
 		const listItem = document.createElement('li');
 
-		listItem.innerHTML = `<a class="dropdown-item" href="${this.getHREF_(
+		listItem.innerHTML = `<a aria-label="${Liferay.Util.sub(
+			Liferay.Language.get('page-x'),
+			[pageIndex]
+		)}" class="dropdown-item" href="${this.getHREF_(
 			pageIndex
-		)}"><span class="sr-only">${Liferay.Language.get(
-			'page'
-		)}&nbsp;</span>${pageIndex}</a>`;
+		)}">${pageIndex}</a>`;
 
 		pageIndex++;
 
@@ -94,12 +95,12 @@ class DynamicInlineScroll extends PortletBase {
 	 * @return {string} The <code>href</code> value as a string.
 	 */
 	getHREF_(pageIndex) {
-		const {curParam, formName, jsCall, namespace, url, urlAnchor} = this;
+		const {curParam, formName, jsCall, url, urlAnchor} = this;
 
-		let href = `javascript:document.${formName}.${namespace}${curParam}.value = "${pageIndex}; ${jsCall}`;
+		let href = `javascript:document.${formName}.${curParam}.value = "${pageIndex}; ${jsCall}`;
 
 		if (this.url !== null) {
-			href = `${url}&${namespace}${curParam}=${pageIndex}${urlAnchor}`;
+			href = `${url}&${curParam}=${pageIndex}${urlAnchor}`;
 		}
 
 		return href;

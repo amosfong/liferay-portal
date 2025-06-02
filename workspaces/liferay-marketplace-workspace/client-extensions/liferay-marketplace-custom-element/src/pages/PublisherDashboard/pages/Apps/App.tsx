@@ -119,7 +119,7 @@ const AdministratorButtons: React.FC<AdministratorButtons> = ({
 };
 
 const App: React.FC<AppProps> = ({isAdministratorDashboard}) => {
-	const {appId: productId} = useParams();
+	const {productId} = useParams();
 	const {myUserAccount} = useMarketplaceContext();
 	const navigate = useNavigate();
 
@@ -160,9 +160,7 @@ const App: React.FC<AppProps> = ({isAdministratorDashboard}) => {
 			<ClayButton
 				className="align-items-center d-flex"
 				displayType="unstyled"
-				onClick={() =>
-					navigate(isAdministratorDashboard ? '/apps' : '..')
-				}
+				onClick={() => navigate('..')}
 			>
 				<ClayIcon className="mr-2" symbol="order-arrow-left" />
 				<span className="h5 mt-1">

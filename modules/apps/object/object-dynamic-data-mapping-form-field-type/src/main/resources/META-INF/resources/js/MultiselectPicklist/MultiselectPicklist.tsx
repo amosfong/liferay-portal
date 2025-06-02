@@ -4,11 +4,10 @@
  */
 
 import {
-	AvailableLocale,
 	LocalizedValue,
 	MultipleSelection,
-	ReactFieldBase as FieldBase,
 } from 'dynamic-data-mapping-form-field-type';
+import {ReactFieldBase as FieldBase} from 'dynamic-data-mapping-form-field-type/api';
 import React, {useEffect, useRef, useState} from 'react';
 
 interface MultiselectOption {
@@ -20,7 +19,6 @@ interface MultiselectOption {
 type Values = string[] | LocalizedValue<string[]>;
 
 interface MultiselectPicklistProps {
-	availableLocales: AvailableLocale[];
 	defaultLanguageId: Liferay.Language.Locale;
 	errorMessage: string;
 	fieldName: string;

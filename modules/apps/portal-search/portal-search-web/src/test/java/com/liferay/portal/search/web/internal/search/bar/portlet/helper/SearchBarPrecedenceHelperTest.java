@@ -10,6 +10,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -20,10 +22,10 @@ import com.liferay.portal.search.web.internal.portlet.preferences.PortletPrefere
 import com.liferay.portal.search.web.internal.search.bar.portlet.SearchBarPortletPreferences;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
+import jakarta.portlet.PortletPreferences;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.portlet.PortletPreferences;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,6 +84,17 @@ public class SearchBarPrecedenceHelperTest {
 	}
 
 	@Test
+	public void testIsDisplayWarningIgnoredConfiguration() {
+		_addPortlet("", "", true, SearchBarPortletKeys.SEARCH_BAR + "_test");
+
+		_createPermissionChecker();
+
+		_setThemeDisplayLayoutFriendlyURL("");
+
+		Assert.assertFalse(isDisplayWarningIgnoredConfiguration());
+	}
+
+	@Test
 	public void testOverlappingDestinationDifferentFederatedKey() {
 		_setThemeDisplayLayoutFriendlyURL(
 			_DESTINATION + RandomTestUtil.randomString());
@@ -137,6 +150,11 @@ public class SearchBarPrecedenceHelperTest {
 			isSearchBarInBodyWithHeaderSearchBarAlreadyPresent(portlet));
 	}
 
+	protected boolean isDisplayWarningIgnoredConfiguration() {
+		return _searchBarPrecedenceHelper.isDisplayWarningIgnoredConfiguration(
+			_themeDisplay, true);
+	}
+
 	protected boolean isSearchBarInBodyWithHeaderSearchBarAlreadyPresent(
 		Portlet portlet) {
 
@@ -146,15 +164,15 @@ public class SearchBarPrecedenceHelperTest {
 	}
 
 	private Portlet _addPortlet(
-		String portletName, String portletId, String federatedSearchKey,
-		boolean isStatic) {
+		String destination, String federatedSearchKey, boolean isStatic,
+		String portletId) {
 
-		Portlet portlet = _createPortlet(portletName, portletId, isStatic);
+		Portlet portlet = _createPortlet(isStatic, portletId);
 
 		_portlets.add(portlet);
 
 		Mockito.doReturn(
-			_createPortletPreferences(federatedSearchKey, _DESTINATION)
+			_createPortletPreferences(federatedSearchKey, destination)
 		).when(
 			_portletPreferencesLookup
 		).fetchPreferences(
@@ -172,13 +190,12 @@ public class SearchBarPrecedenceHelperTest {
 
 	private void _addSearchBarPortletToHeader(String federatedSearchKey) {
 		_addPortlet(
-			SearchBarPortletKeys.SEARCH_BAR, "headerSearchBarPortletId",
-			federatedSearchKey, true);
+			_DESTINATION, federatedSearchKey, true, "headerSearchBarPortletId");
 	}
 
 	private Portlet _addSearchBarPortletToPage(String federatedSearchKey) {
 		return _addPortlet(
-			"searchBar", "searchBarPortletId", federatedSearchKey, false);
+			_DESTINATION, federatedSearchKey, false, "searchBarPortletId");
 	}
 
 	private Layout _createLayout(List<Portlet> portlets) {
@@ -202,9 +219,27 @@ public class SearchBarPrecedenceHelperTest {
 		return layout;
 	}
 
-	private Portlet _createPortlet(
-		String portletName, String portletId, boolean isStatic) {
+	private void _createPermissionChecker() {
+		PermissionChecker permissionChecker = Mockito.mock(
+			PermissionChecker.class);
 
+		Mockito.when(
+			_themeDisplay.getPermissionChecker()
+		).thenReturn(
+			permissionChecker
+		);
+
+		Mockito.when(
+			permissionChecker.hasPermission(
+				_themeDisplay.getScopeGroupId(),
+				SearchBarPortletKeys.SEARCH_BAR,
+				SearchBarPortletKeys.SEARCH_BAR, ActionKeys.CONFIGURATION)
+		).thenReturn(
+			true
+		);
+	}
+
+	private Portlet _createPortlet(boolean isStatic, String portletId) {
 		Portlet portlet = Mockito.mock(Portlet.class);
 
 		Mockito.when(
@@ -216,7 +251,7 @@ public class SearchBarPrecedenceHelperTest {
 		Mockito.when(
 			portlet.getPortletName()
 		).thenReturn(
-			portletName
+			SearchBarPortletKeys.SEARCH_BAR
 		);
 
 		Mockito.when(
@@ -234,7 +269,13 @@ public class SearchBarPrecedenceHelperTest {
 		Mockito.when(
 			portletDisplay.getPortletResource()
 		).thenReturn(
-			"test"
+			SearchBarPortletKeys.SEARCH_BAR + "_test"
+		);
+
+		Mockito.when(
+			portletDisplay.getId()
+		).thenReturn(
+			RandomTestUtil.randomString()
 		);
 
 		return portletDisplay;

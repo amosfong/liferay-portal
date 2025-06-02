@@ -20,15 +20,15 @@ import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.pagination.Page;
 
+import jakarta.annotation.Generated;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+
 import java.util.function.BiFunction;
-
-import javax.annotation.Generated;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
 
@@ -53,6 +53,49 @@ public class Mutation {
 
 		_objectEntryFolderResourceComponentServiceObjects =
 			objectEntryFolderResourceComponentServiceObjects;
+	}
+
+	@GraphQLField(
+		description = "Deletes the collaborator for an object entry folder and returns a 204 if the operation succeeds."
+	)
+	public boolean deleteObjectEntryFolderCollaboratorByTypeCollaborator(
+			@GraphQLName("objectEntryFolderId") Long objectEntryFolderId,
+			@GraphQLName("type") String type,
+			@GraphQLName("collaboratorId") Long collaboratorId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_collaboratorResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			collaboratorResource ->
+				collaboratorResource.
+					deleteObjectEntryFolderCollaboratorByTypeCollaborator(
+						objectEntryFolderId, type, collaboratorId));
+
+		return true;
+	}
+
+	@GraphQLField(
+		description = "Deletes the collaborator for an object entry folder and returns a 204 if the operation succeeds."
+	)
+	public boolean
+			deleteScopeScopeKeyObjectEntryFolderByExternalReferenceCodeCollaboratorByTypeCollaborator(
+				@GraphQLName("scopeKey") String scopeKey,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("type") String type,
+				@GraphQLName("collaboratorId") Long collaboratorId)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_collaboratorResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			collaboratorResource ->
+				collaboratorResource.
+					deleteScopeScopeKeyObjectEntryFolderByExternalReferenceCodeCollaboratorByTypeCollaborator(
+						scopeKey, externalReferenceCode, type, collaboratorId));
+
+		return true;
 	}
 
 	@GraphQLField(
@@ -116,6 +159,49 @@ public class Mutation {
 
 				return paginationPage.getItems();
 			});
+	}
+
+	@GraphQLField(
+		description = "Add or update a collaborator received in the request."
+	)
+	public Collaborator updateObjectEntryFolderCollaboratorByTypeCollaborator(
+			@GraphQLName("objectEntryFolderId") Long objectEntryFolderId,
+			@GraphQLName("type") String type,
+			@GraphQLName("collaboratorId") Long collaboratorId,
+			@GraphQLName("collaborator") Collaborator collaborator)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_collaboratorResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			collaboratorResource ->
+				collaboratorResource.
+					putObjectEntryFolderCollaboratorByTypeCollaborator(
+						objectEntryFolderId, type, collaboratorId,
+						collaborator));
+	}
+
+	@GraphQLField(
+		description = "Add or update a collaborator received in the request."
+	)
+	public Collaborator
+			updateScopeScopeKeyObjectEntryFolderByExternalReferenceCodeCollaboratorByTypeCollaborator(
+				@GraphQLName("scopeKey") String scopeKey,
+				@GraphQLName("externalReferenceCode") String
+					externalReferenceCode,
+				@GraphQLName("type") String type,
+				@GraphQLName("collaboratorId") Long collaboratorId,
+				@GraphQLName("collaborator") Collaborator collaborator)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_collaboratorResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			collaboratorResource ->
+				collaboratorResource.
+					putScopeScopeKeyObjectEntryFolderByExternalReferenceCodeCollaboratorByTypeCollaborator(
+						scopeKey, externalReferenceCode, type, collaboratorId,
+						collaborator));
 	}
 
 	@GraphQLField(

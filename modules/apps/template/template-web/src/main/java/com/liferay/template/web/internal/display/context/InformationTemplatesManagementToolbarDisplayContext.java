@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -38,12 +39,12 @@ import com.liferay.template.info.item.capability.TemplateInfoItemCapability;
 import com.liferay.template.model.TemplateEntry;
 import com.liferay.template.web.internal.security.permissions.resource.TemplateEntryPermission;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Eudaldo Alonso
@@ -218,8 +219,9 @@ public class InformationTemplatesManagementToolbarDisplayContext
 				infoItemFormVariations = ListUtil.sort(
 					infoItemFormVariations,
 					Comparator.comparing(
-						infoItemFormVariation -> infoItemFormVariation.getLabel(
-							_themeDisplay.getLocale())));
+						infoItemFormVariation -> GetterUtil.getString(
+							infoItemFormVariation.getLabel(
+								_themeDisplay.getLocale()))));
 
 				for (InfoItemFormVariation infoItemFormVariation :
 						infoItemFormVariations) {

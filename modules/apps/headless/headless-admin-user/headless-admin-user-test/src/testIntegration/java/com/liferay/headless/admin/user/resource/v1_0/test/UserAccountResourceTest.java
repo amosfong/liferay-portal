@@ -137,6 +137,12 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
+import jakarta.portlet.PortletPreferences;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import jakarta.ws.rs.core.Response;
+
 import java.io.InputStream;
 
 import java.text.DateFormat;
@@ -150,12 +156,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import javax.portlet.PortletPreferences;
-
-import javax.servlet.http.HttpServletRequest;
-
-import javax.ws.rs.core.Response;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -2514,7 +2514,8 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 
 		WorkflowDefinitionLink workflowDefinitionLink =
 			_workflowDefinitionLinkLocalService.addWorkflowDefinitionLink(
-				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+				null, TestPropsValues.getUserId(),
+				TestPropsValues.getCompanyId(),
 				GroupConstants.DEFAULT_LIVE_GROUP_ID, User.class.getName(), 0,
 				0, "Single Approver", 1);
 

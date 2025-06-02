@@ -78,6 +78,7 @@ import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.friendly.url.model.FriendlyURLEntry;
 import com.liferay.friendly.url.model.FriendlyURLEntryLocalization;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
+import com.liferay.object.action.util.ObjectActionThreadLocal;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -136,6 +137,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.Serializable;
 
 import java.math.BigDecimal;
@@ -151,8 +154,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -3109,12 +3110,25 @@ public class CPDefinitionLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		Map<String, Serializable> workflowContext = new HashMap<>();
+		boolean skipObjectActionExecution =
+			ObjectActionThreadLocal.isSkipObjectActionExecution();
 
-		return WorkflowHandlerRegistryUtil.startWorkflowInstance(
-			cpDefinition.getCompanyId(), cpDefinition.getGroupId(), userId,
-			CPDefinition.class.getName(), cpDefinition.getCPDefinitionId(),
-			cpDefinition, serviceContext, workflowContext);
+		try {
+			ObjectActionThreadLocal.setSkipObjectActionExecution(true);
+
+			Map<String, Serializable> workflowContext = new HashMap<>();
+
+			cpDefinition = WorkflowHandlerRegistryUtil.startWorkflowInstance(
+				cpDefinition.getCompanyId(), cpDefinition.getGroupId(), userId,
+				CPDefinition.class.getName(), cpDefinition.getCPDefinitionId(),
+				cpDefinition, serviceContext, workflowContext);
+		}
+		finally {
+			ObjectActionThreadLocal.setSkipObjectActionExecution(
+				skipObjectActionExecution);
+		}
+
+		return cpDefinition;
 	}
 
 	private Map<String, String> _toLanguageIdMap(Map<Locale, String> map) {

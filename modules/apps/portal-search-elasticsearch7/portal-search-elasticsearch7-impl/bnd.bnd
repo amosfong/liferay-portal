@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Search Elasticsearch 7 Implementation
 Bundle-SymbolicName: com.liferay.portal.search.elasticsearch7.impl
-Bundle-Version: 6.0.131
+Bundle-Version: 6.0.132
 Import-Package:\
 	!com.barchart.udt.*,\
 	\
@@ -47,7 +47,15 @@ Import-Package:\
 	\
 	!javassist.*,\
 	\
+	!javax.activation,\
+	\
+	!javax.annotation,\
+	\
 	!javax.jms.*,\
+	\
+	!javax.mail.*,\
+	\
+	!javax.servlet,\
 	\
 	!jline.*,\
 	\

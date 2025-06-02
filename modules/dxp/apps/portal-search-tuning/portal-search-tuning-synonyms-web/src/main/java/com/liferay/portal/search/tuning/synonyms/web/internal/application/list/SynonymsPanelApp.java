@@ -25,7 +25,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"panel.app.order:Integer=400",
+		"panel.app.order:Integer=100",
 		"panel.category.key=" + SearchTuningPanelCategoryKeys.CONTROL_PANEL_SEARCH_TUNING
 	},
 	service = PanelApp.class
@@ -57,7 +57,7 @@ public class SynonymsPanelApp extends BasePanelApp {
 	protected SearchEngineInformation searchEngineInformation;
 
 	@Reference(
-		target = "(javax.portlet.name=" + SynonymsPortletKeys.SYNONYMS + ")"
+		target = "(jakarta.portlet.name=" + SynonymsPortletKeys.SYNONYMS + ")"
 	)
 	private Portlet _portlet;
 

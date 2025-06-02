@@ -15,6 +15,7 @@ import com.liferay.headless.asset.library.dto.v1_0.AssetLibrary;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -28,14 +29,14 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.site.cms.site.initializer.internal.display.context.SpacesSectionDisplayContext;
 import com.liferay.taglib.servlet.PageContextFactoryUtil;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import java.util.Locale;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -108,6 +109,11 @@ public class SpacesSectionFragmentRenderer extends BaseSectionFragmentRenderer {
 						).put(
 							"name", assetLibrary.getName()
 						).put(
+							"settings",
+							_jsonFactory.createJSONObject(
+								_jsonFactory.looseSerialize(
+									assetLibrary.getSettings()))
+						).put(
 							"url",
 							StringBundler.concat(
 								themeDisplay.getPathFriendlyURLPublic(),
@@ -117,6 +123,11 @@ public class SpacesSectionFragmentRenderer extends BaseSectionFragmentRenderer {
 						))
 				).put(
 					"assetLibrariesCount", page.getTotalCount()
+				).put(
+					"newSpaceURL",
+					StringBundler.concat(
+						themeDisplay.getPathFriendlyURLPublic(),
+						GroupConstants.CMS_FRIENDLY_URL, "/new-space")
 				).put(
 					"showAddButton",
 					_portletResourcePermission.contains(
@@ -140,6 +151,9 @@ public class SpacesSectionFragmentRenderer extends BaseSectionFragmentRenderer {
 
 	@Reference
 	private AssetLibraryResource.Factory _assetLibraryResourceFactory;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

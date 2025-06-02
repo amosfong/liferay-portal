@@ -39,6 +39,34 @@ export class StagingPage {
 		}
 	}
 
+	async addTemplate(templateName: string) {
+		await this.page.waitForLoadState('domcontentloaded');
+		await this.page.getByRole('link', {exact: true, name: 'New'}).click();
+		await this.page.getByLabel('Title Required').fill(templateName);
+		await this.page.getByRole('button', {name: 'Save'}).click();
+		await this.page.getByText(templateName).waitFor({state: 'visible'});
+	}
+
+	async publishTemplate(templateName: string) {
+		await this.page
+			.locator(`tr`)
+			.filter({hasText: templateName})
+			.getByRole('button')
+			.click();
+
+		await this.page.getByRole('menuitem', {name: 'Publish'}).click();
+		await this.page.getByRole('button', {name: 'Publish to Live'}).click();
+		await expect(
+			await this.page
+				.locator('.list-group-item div')
+				.filter({hasText: templateName})
+				.getByTestId('processResult')
+				.getByText('Successful')
+		).toBeVisible({
+			timeout: 60 * 1000,
+		});
+	}
+
 	async publish(includeIfModified?: string[], title?: string) {
 		if (!title) {
 			title = getRandomString();
@@ -59,8 +87,8 @@ export class StagingPage {
 				.click();
 
 			await this.page
-				.getByRole('radio', {exact: true, name: 'Include If Modified'})
-				.click();
+				.locator('input[type="radio"][value="include-if-modified"]')
+				.check();
 		}
 
 		await this.page
@@ -80,7 +108,18 @@ export class StagingPage {
 
 	async goto(siteKey: string) {
 		await this.page.goto(
-			`/group/${siteKey}/~/control_panel/manage?p_p_id=com_liferay_staging_processes_web_portlet_StagingProcessesPortlet`
+			`/group/${siteKey}/~/control_panel/manage?p_p_id=com_liferay_staging_processes_web_portlet_StagingProcessesPortlet`,
+			{waitUntil: 'domcontentloaded'}
 		);
+	}
+
+	async gotoTemplatePage() {
+		await this.page
+			.getByText('Staging Open Applications')
+			.getByLabel('Options')
+			.click();
+		await this.page
+			.getByRole('menuitem', {name: 'Publish Templates'})
+			.click();
 	}
 }

@@ -23,6 +23,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
 import com.liferay.dynamic.data.mapping.storage.Fields;
+import com.liferay.dynamic.data.mapping.storage.constants.FieldConstants;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesToFieldsConverter;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
@@ -34,6 +35,7 @@ import com.liferay.headless.common.spi.odata.entity.EntityFieldsUtil;
 import com.liferay.headless.common.spi.resource.SPIRatingResource;
 import com.liferay.headless.common.spi.service.context.ServiceContextBuilder;
 import com.liferay.headless.delivery.dto.v1_0.ContentField;
+import com.liferay.headless.delivery.dto.v1_0.ContentFieldValue;
 import com.liferay.headless.delivery.dto.v1_0.Rating;
 import com.liferay.headless.delivery.dto.v1_0.RelatedContent;
 import com.liferay.headless.delivery.dto.v1_0.StructuredContent;
@@ -93,6 +95,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Time;
@@ -120,6 +123,11 @@ import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.MultivaluedMap;
+
+import java.io.Serializable;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -133,9 +141,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -862,6 +867,22 @@ public class StructuredContentResourceImpl
 					structuredContent)));
 	}
 
+	private boolean _containsI18nMap(ContentField[] contentFields) {
+		if (ArrayUtil.isEmpty(contentFields)) {
+			return false;
+		}
+
+		for (ContentField contentField : contentFields) {
+			if (MapUtil.isNotEmpty(contentField.getContentFieldValue_i18n()) ||
+				_containsI18nMap(contentField.getNestedContentFields())) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private ServiceContext _createServiceContext(
 			Long[] assetCategoryIds, long[] assetLinkEntryIds,
 			double assetPriority, String[] assetTagNames, long groupId,
@@ -1147,6 +1168,33 @@ public class StructuredContentResourceImpl
 			sorts, this::_toStructuredContent);
 	}
 
+	private void _populateContentFieldValuesMap(
+		ContentField[] contentFields,
+		Map<String, List<ContentFieldValue>> contentFieldValuesMap) {
+
+		if (ArrayUtil.isEmpty(contentFields)) {
+			return;
+		}
+
+		for (ContentField contentField : contentFields) {
+			ContentFieldValue contentFieldValue =
+				contentField.getContentFieldValue();
+
+			if ((contentFieldValue != null) &&
+				(contentFieldValue.getData() != null)) {
+
+				List<ContentFieldValue> contentFieldValues =
+					contentFieldValuesMap.computeIfAbsent(
+						contentField.getName(), key -> new ArrayList<>());
+
+				contentFieldValues.add(contentFieldValue);
+			}
+
+			_populateContentFieldValuesMap(
+				contentField.getNestedContentFields(), contentFieldValuesMap);
+		}
+	}
+
 	private Fields _toFields(
 			Set<Locale> availableLocales, ContentField[] contentFields,
 			JournalArticle journalArticle)
@@ -1154,21 +1202,67 @@ public class StructuredContentResourceImpl
 
 		DDMStructure ddmStructure = journalArticle.getDDMStructure();
 
-		ServiceContext serviceContext = new ServiceContext();
+		if (_containsI18nMap(contentFields)) {
+			ServiceContext serviceContext = new ServiceContext();
 
-		DDMFormValues ddmFormValues = DDMFormValuesUtil.toDDMFormValues(
-			availableLocales, contentFields, ddmStructure.getDDMForm(),
-			_dlAppService, journalArticle.getGroupId(), _journalArticleService,
-			_layoutLocalService, contextAcceptLanguage.getPreferredLocale(),
-			_getRootDDMFormFields(ddmStructure));
+			DDMFormValues ddmFormValues = DDMFormValuesUtil.toDDMFormValues(
+				availableLocales, contentFields, ddmStructure.getDDMForm(),
+				_dlAppService, journalArticle.getGroupId(),
+				_journalArticleService, _layoutLocalService,
+				contextAcceptLanguage.getPreferredLocale(),
+				_getRootDDMFormFields(ddmStructure));
 
-		serviceContext.setAttribute(
-			"ddmFormValues",
-			DDMFormValuesUtil.getContent(
-				_jsonDDMFormValuesSerializer, ddmStructure.getDDMForm(),
-				ddmFormValues.getDDMFormFieldValues()));
+			serviceContext.setAttribute(
+				"ddmFormValues",
+				DDMFormValuesUtil.getContent(
+					_jsonDDMFormValuesSerializer, ddmStructure.getDDMForm(),
+					ddmFormValues.getDDMFormFieldValues()));
 
-		return _ddm.getFields(ddmStructure.getStructureId(), serviceContext);
+			return _ddm.getFields(
+				ddmStructure.getStructureId(), serviceContext);
+		}
+
+		Fields fields = _ddmFormValuesToFieldsConverter.convert(
+			ddmStructure, journalArticle.getDDMFormValues());
+
+		if (ArrayUtil.isEmpty(contentFields)) {
+			return fields;
+		}
+
+		Map<String, List<ContentFieldValue>> contentFieldValuesMap =
+			new HashMap<>();
+
+		_populateContentFieldValuesMap(contentFields, contentFieldValuesMap);
+
+		for (Map.Entry<String, List<ContentFieldValue>> entry :
+				contentFieldValuesMap.entrySet()) {
+
+			Field field = fields.get(entry.getKey());
+
+			if (field == null) {
+				continue;
+			}
+
+			List<Serializable> fieldValues = new ArrayList<>();
+
+			for (ContentFieldValue contentFieldValue : entry.getValue()) {
+				fieldValues.add(
+					FieldConstants.getSerializable(
+						contextAcceptLanguage.getPreferredLocale(),
+						LocaleUtil.ROOT, field.getDataType(),
+						contentFieldValue.getData()));
+			}
+
+			if (ListUtil.isNotEmpty(fieldValues)) {
+				field.setValues(
+					contextAcceptLanguage.getPreferredLocale(), fieldValues);
+			}
+		}
+
+		_ddmFormValuesValidator.validate(
+			_fieldsToDDMFormValuesConverter.convert(ddmStructure, fields));
+
+		return fields;
 	}
 
 	private Fields _toPatchedFields(

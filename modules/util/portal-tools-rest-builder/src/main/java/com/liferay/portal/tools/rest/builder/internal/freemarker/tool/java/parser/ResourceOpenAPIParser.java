@@ -75,7 +75,7 @@ public class ResourceOpenAPIParser {
 				pathItem,
 				operation -> {
 					String returnType = _getReturnType(
-						javaDataTypeMap, operation, path);
+						configYAML, javaDataTypeMap, operation, path);
 
 					if (!_isSchemaMethod(
 							javaDataTypeMap, returnType, schemaName,
@@ -129,7 +129,7 @@ public class ResourceOpenAPIParser {
 	}
 
 	public static String getMethodAnnotations(
-		JavaMethodSignature javaMethodSignature) {
+		ConfigYAML configYAML, JavaMethodSignature javaMethodSignature) {
 
 		String path = javaMethodSignature.getPath();
 		Operation operation = javaMethodSignature.getOperation();
@@ -236,21 +236,27 @@ public class ResourceOpenAPIParser {
 			}
 		}
 
-		methodAnnotations.add("@javax.ws.rs.Path(\"" + path + "\")");
+		methodAnnotations.add(
+			StringBundler.concat(
+				"@", configYAML.getJavaEEPackage(), ".ws.rs.Path(\"", path,
+				"\")"));
 
 		String annotationString = StringUtil.toUpperCase(
 			OpenAPIParserUtil.getHTTPMethod(operation));
 
-		methodAnnotations.add("@javax.ws.rs." + annotationString);
+		methodAnnotations.add(
+			StringBundler.concat(
+				"@", configYAML.getJavaEEPackage(), ".ws.rs.",
+				annotationString));
 
 		String methodAnnotation = _getMethodAnnotationConsumes(
-			javaMethodSignature.getRequestBodyMediaTypes());
+			configYAML, javaMethodSignature.getRequestBodyMediaTypes());
 
 		if (Validator.isNotNull(methodAnnotation)) {
 			methodAnnotations.add(methodAnnotation);
 		}
 
-		methodAnnotation = _getMethodAnnotationProduces(operation);
+		methodAnnotation = _getMethodAnnotationProduces(configYAML, operation);
 
 		if (Validator.isNotNull(methodAnnotation)) {
 			methodAnnotations.add(methodAnnotation);
@@ -564,7 +570,8 @@ public class ResourceOpenAPIParser {
 				Collections.singleton(ContentTypes.APPLICATION_JSON),
 				schemaName, javaMethodParameters,
 				_getBatchMethodName(batchOperationType, methodName),
-				"javax.ws.rs.core.Response", parentSchemaName));
+				configYAML.getJavaEEPackage() + ".ws.rs.core.Response",
+				parentSchemaName));
 	}
 
 	private static String _addParameter(Parameter parameter) {
@@ -887,7 +894,7 @@ public class ResourceOpenAPIParser {
 	}
 
 	private static String _getMethodAnnotationConsumes(
-		Set<String> requestBodyMediaTypes) {
+		ConfigYAML configYAML, Set<String> requestBodyMediaTypes) {
 
 		if (requestBodyMediaTypes.isEmpty()) {
 			return null;
@@ -905,13 +912,18 @@ public class ResourceOpenAPIParser {
 		}
 
 		if (requestBodyMediaTypes.size() > 1) {
-			return "@javax.ws.rs.Consumes({" + sb.toString() + "})";
+			return StringBundler.concat(
+				"@", configYAML.getJavaEEPackage(), ".ws.rs.Consumes({", sb,
+				"})");
 		}
 
-		return "@javax.ws.rs.Consumes(" + sb.toString() + ")";
+		return StringBundler.concat(
+			"@", configYAML.getJavaEEPackage(), ".ws.rs.Consumes(", sb, ")");
 	}
 
-	private static String _getMethodAnnotationProduces(Operation operation) {
+	private static String _getMethodAnnotationProduces(
+		ConfigYAML configYAML, Operation operation) {
+
 		Map<ResponseCode, Response> responses = operation.getResponses();
 
 		if ((responses == null) || responses.isEmpty()) {
@@ -949,10 +961,13 @@ public class ResourceOpenAPIParser {
 		sb.setLength(sb.length() - 2);
 
 		if (mediaTypes.size() > 1) {
-			return "@javax.ws.rs.Produces({" + sb.toString() + "})";
+			return StringBundler.concat(
+				"@", configYAML.getJavaEEPackage(), ".ws.rs.Produces({", sb,
+				"})");
 		}
 
-		return "@javax.ws.rs.Produces(" + sb.toString() + ")";
+		return StringBundler.concat(
+			"@", configYAML.getJavaEEPackage(), ".ws.rs.Produces(", sb, ")");
 	}
 
 	private static String _getMethodName(
@@ -1157,13 +1172,13 @@ public class ResourceOpenAPIParser {
 				"com.liferay.portal.vulcan.aggregation.Aggregation") &&
 			parameterNames.contains("aggregationTerms")) {
 
-			return "@javax.ws.rs.core.Context";
+			return "@" + configYAML.getJavaEEPackage() + ".ws.rs.core.Context";
 		}
 
 		if (Objects.equals(parameterType, Filter.class.getName()) &&
 			parameterNames.contains("filter")) {
 
-			return "@javax.ws.rs.core.Context";
+			return "@" + configYAML.getJavaEEPackage() + ".ws.rs.core.Context";
 		}
 
 		if (Objects.equals(
@@ -1172,13 +1187,13 @@ public class ResourceOpenAPIParser {
 			parameterNames.contains("page") &&
 			parameterNames.contains("pageSize")) {
 
-			return "@javax.ws.rs.core.Context";
+			return "@" + configYAML.getJavaEEPackage() + ".ws.rs.core.Context";
 		}
 
 		if (Objects.equals(parameterType, Sort[].class.getName()) &&
 			parameterNames.contains("sort")) {
 
-			return "@javax.ws.rs.core.Context";
+			return "@" + configYAML.getJavaEEPackage() + ".ws.rs.core.Context";
 		}
 
 		for (Parameter parameter : operation.getParameters()) {
@@ -1191,13 +1206,20 @@ public class ResourceOpenAPIParser {
 				continue;
 			}
 
-			StringBundler sb = new StringBundler(11);
+			StringBundler sb = new StringBundler(10);
 
 			String defaultValue = _getDefaultValue(
 				configYAML, parameter.getSchema(), schemas);
 
 			if (defaultValue != null) {
-				sb.append("@javax.ws.rs.DefaultValue(\"");
+				sb.append(
+					"@"
+				).append(
+					configYAML.getJavaEEPackage()
+				).append(
+					".ws.rs.DefaultValue(\""
+				);
+
 				sb.append(defaultValue);
 				sb.append("\")");
 			}
@@ -1207,11 +1229,25 @@ public class ResourceOpenAPIParser {
 			}
 
 			if (parameter.isRequired()) {
-				sb.append("@javax.validation.constraints.NotNull");
+				sb.append(
+					"@"
+				).append(
+					configYAML.getJavaEEPackage()
+				).append(
+					".validation.constraints.NotNull"
+				);
 			}
 
-			sb.append("@io.swagger.v3.oas.annotations.Parameter(hidden=true)");
-			sb.append("@javax.ws.rs.");
+			sb.append(
+				"@io.swagger.v3.oas.annotations.Parameter(hidden=true)"
+			).append(
+				"@"
+			).append(
+				configYAML.getJavaEEPackage()
+			).append(
+				".ws.rs."
+			);
+
 			sb.append(StringUtil.upperCaseFirstLetter(parameter.getIn()));
 			sb.append("Param(\"");
 			sb.append(parameter.getName());
@@ -1346,7 +1382,8 @@ public class ResourceOpenAPIParser {
 	}
 
 	private static String _getReturnType(
-		Map<String, String> javaDataTypeMap, Operation operation, String path) {
+		ConfigYAML configYAML, Map<String, String> javaDataTypeMap,
+		Operation operation, String path) {
 
 		Map<ResponseCode, Response> responses = operation.getResponses();
 
@@ -1380,9 +1417,7 @@ public class ResourceOpenAPIParser {
 			Integer curHttpStatusCode = responseCode.getHttpCode();
 
 			if (responseCode.isDefaultResponse() ||
-				(_FAMILY_SUCCESSFUL !=
-					javax.ws.rs.core.Response.Status.Family.familyOf(
-						curHttpStatusCode))) {
+				((curHttpStatusCode / 100) != 2)) {
 
 				continue;
 			}
@@ -1424,7 +1459,8 @@ public class ResourceOpenAPIParser {
 				String format = schema.getFormat();
 
 				if ((format != null) && format.equals("binary")) {
-					return javax.ws.rs.core.Response.class.getName();
+					return configYAML.getJavaEEPackage() +
+						".ws.rs.core.Response";
 				}
 
 				returnType = OpenAPIParserUtil.getJavaDataType(
@@ -1450,7 +1486,7 @@ public class ResourceOpenAPIParser {
 			return returnType;
 		}
 
-		return javax.ws.rs.core.Response.class.getName();
+		return configYAML.getJavaEEPackage() + ".ws.rs.core.Response";
 	}
 
 	private static boolean _isSchemaMethod(
@@ -1578,9 +1614,6 @@ public class ResourceOpenAPIParser {
 			consumer.accept(Collections.emptySet());
 		}
 	}
-
-	private static final javax.ws.rs.core.Response.Status.Family
-		_FAMILY_SUCCESSFUL = javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 	private enum BatchOperationType {
 

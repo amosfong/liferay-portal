@@ -24,9 +24,12 @@ import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {objectPagesTest} from '../../../fixtures/objectPagesTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
+import {usersAndOrganizationsPagesTest} from '../../../fixtures/usersAndOrganizationsPagesTest';
 import {workflowPagesTest} from '../../../fixtures/workflowPagesTest';
+import createUserWithPermissions from '../../../utils/createUserWithPermissions';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
+import {performUserSwitch} from '../../../utils/performLogin';
 import {waitForAlert} from '../../../utils/waitForAlert';
 import {journalPagesTest} from '../../journal-web/main/fixtures/journalPagesTest';
 import getPageDefinition from '../../layout-content-page-editor-web/main/utils/getPageDefinition';
@@ -52,7 +55,8 @@ export const test = mergeTests(
 	loginTest(),
 	objectPagesTest,
 	pageEditorPagesTest,
-	workflowPagesTest
+	workflowPagesTest,
+	usersAndOrganizationsPagesTest
 );
 
 let siteLanguage = 'en';
@@ -108,7 +112,8 @@ test.describe('Manage object entries through Friendly URL', () => {
 			type: 'objectDefinition',
 		});
 
-		_objectEntryFriendlyURLPath = '/l/C_' + _objectDefinition.name + '/';
+		_objectEntryFriendlyURLPath =
+			'/c_' + _objectDefinition.name.toLowerCase() + '/';
 
 		await viewObjectEntriesPage.goto(
 			_objectDefinition.className,
@@ -130,7 +135,7 @@ test.describe('Manage object entries through Friendly URL', () => {
 
 		// Create object entry with friendly URL
 
-		const friendlyUrl = page.getByLabel('Friendly URL');
+		const friendlyUrl = page.getByLabel('Friendly URL').nth(1);
 
 		await friendlyUrl.fill('Test URL');
 
@@ -246,7 +251,7 @@ test.describe('Manage object entries through Friendly URL', () => {
 
 		await page.getByRole('link', {name: String(objectEntry.id)}).click();
 
-		const friendlyUrl = page.getByLabel('Friendly URL');
+		const friendlyUrl = page.getByLabel('Friendly URL').nth(1);
 
 		await expect(friendlyUrl).toHaveValue('second-url');
 
@@ -255,15 +260,13 @@ test.describe('Manage object entries through Friendly URL', () => {
 		await page.getByRole('button', {name: 'History'}).click();
 
 		await expect(page.getByText('Active URL')).toBeVisible();
-		await expect(
-			page.getByText('C_' + _objectDefinition.name + '/second-url')
-		).toBeVisible();
+		await expect(page.getByText('second-url')).toBeVisible();
 
 		// Restore the friendly URL to its first value
 
 		await page.getByText('first-url').hover();
 
-		await page.locator("button[data-title='Restore URL']").nth(1).click();
+		await page.locator("button[data-title='Restore URL']").click();
 
 		await page.getByRole('button', {name: 'Close'}).click();
 
@@ -278,7 +281,7 @@ test.describe('Manage object entries through Friendly URL', () => {
 		apiHelpers,
 		page,
 	}) => {
-		await expect(page.getByLabel('Friendly URL')).toBeVisible();
+		await expect(page.getByLabel('Friendly URL').nth(1)).toBeVisible();
 		await expect(
 			page.getByText(
 				'The friendly URL is automatically generated based on the entry title field.'
@@ -300,7 +303,7 @@ test.describe('Manage object entries through Friendly URL', () => {
 
 		await page.reload();
 
-		await expect(page.getByLabel('Friendly URL')).not.toBeVisible();
+		await expect(page.getByLabel('Friendly URL').nth(1)).not.toBeVisible();
 		await expect(
 			page.getByText(
 				'The friendly URL is automatically generated based on the entry title field.'
@@ -1445,6 +1448,115 @@ test.describe('Manage object entries through View Object Entries', () => {
 		);
 	});
 
+	test('can edit object entry relationship', async ({
+		apiHelpers,
+		page,
+		viewObjectEntriesPage,
+	}) => {
+		let objectDefinition;
+		let objectEntryB;
+
+		await test.step('Setup', async () => {
+			const objectFields = createObjectFields('text', [
+				{
+					label: 'Custom Field',
+					name: 'customField',
+				},
+			]);
+
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					objectFolderExternalReferenceCode: 'default',
+					panelCategoryKey: 'control_panel.object',
+					status: {code: 0},
+					titleObjectFieldName: 'customField',
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
+
+			const objectRelationshipAPIClient =
+				await apiHelpers.buildRestClient(ObjectRelationshipAPI);
+
+			const objectRelationship =
+				await objectRelationshipAPIClient.postObjectDefinitionByExternalReferenceCodeObjectRelationship(
+					objectDefinition.externalReferenceCode,
+					{
+						label: {
+							en_US: 'Relationship',
+						},
+						name: 'relationship',
+						objectDefinitionExternalReferenceCode1:
+							objectDefinition.externalReferenceCode,
+						objectDefinitionExternalReferenceCode2:
+							objectDefinition.externalReferenceCode,
+						objectDefinitionId1: objectDefinition.id,
+						objectDefinitionId2: objectDefinition.id,
+						type: 'oneToMany',
+					}
+				);
+
+			const applicationName =
+				'c/' + objectDefinition.name.toLowerCase() + 's';
+
+			const objectEntryA = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					customField: 'Entry A',
+				},
+				applicationName
+			);
+
+			objectEntryB = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					customField: 'Entry B',
+					[objectRelationship.body.objectField.name]:
+						objectEntryA.id.toString(),
+				},
+				applicationName
+			);
+
+			await apiHelpers.objectEntry.postObjectEntry(
+				{
+					customField: 'Entry C',
+				},
+				applicationName
+			);
+		});
+
+		await test.step('Assert that the object entry relationship can be updated', async () => {
+			await viewObjectEntriesPage.goto(objectDefinition.className);
+
+			await page
+				.getByRole('link', {name: objectEntryB.id.toString()})
+				.click();
+
+			await expect(page.getByPlaceholder('Search')).toHaveValue(
+				'Entry A'
+			);
+
+			await page.getByPlaceholder('Search').click();
+
+			await page.getByRole('menuitem', {name: 'Entry C'}).click();
+
+			await viewObjectEntriesPage.saveObjectEntryButton.click();
+
+			await waitForAlert(page);
+
+			await viewObjectEntriesPage.goto(objectDefinition.className);
+
+			await page
+				.getByRole('link', {name: objectEntryB.id.toString()})
+				.click();
+
+			await expect(page.getByPlaceholder('Search')).toHaveValue(
+				'Entry C'
+			);
+		});
+	});
+
 	test('Verify that temporary files are deleted from the database if the object creation is not completed', async ({
 		apiHelpers,
 		page,
@@ -1693,4 +1805,146 @@ test.describe('Manage object entries through Workflow', () => {
 
 		await expect(page.getByText(objectEntry.textField)).toBeVisible();
 	});
+
+	test(
+		"Date and time are adjusted to the user's time zone",
+		{tag: '@LPD-54895'},
+		async ({
+			apiHelpers,
+			page,
+			usersAndOrganizationsPage,
+			viewObjectEntriesPage,
+		}) => {
+
+			// Create object definition with date time
+
+			const objectDefinitionLabel =
+				'ObjectDefinitionLabel' + getRandomInt();
+			const objectDefinitionName =
+				'ObjectDefinitionName' + getRandomInt();
+
+			const {objectFields, titleObjectFieldName} = await mockObjectFields(
+				{
+					apiHelpers,
+					objectFieldBusinessTypes: ['dateTime'],
+				}
+			);
+
+			const objectDefinitionAPIClient =
+				await apiHelpers.buildRestClient(ObjectDefinitionAPI);
+
+			const {body: objectDefinition} =
+				await objectDefinitionAPIClient.postObjectDefinition({
+					active: true,
+					enableLocalization: true,
+					label: {
+						en_US: objectDefinitionLabel,
+					},
+					name: objectDefinitionName,
+					objectFields,
+					pluralLabel: {
+						en_US: objectDefinitionLabel,
+					},
+					portlet: true,
+					scope: 'company',
+					status: {
+						code: 0,
+					},
+					titleObjectFieldName,
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
+
+			await viewObjectEntriesPage.goto(objectDefinition.className);
+
+			// Create object entry date time
+
+			await viewObjectEntriesPage.addObjectEntryButton.click();
+
+			await viewObjectEntriesPage.dateTimeInput.fill(
+				'10/05/2025 12:00 PM'
+			);
+
+			await viewObjectEntriesPage.saveObjectEntryButton.click();
+
+			await expect(viewObjectEntriesPage.successMessage).toBeVisible();
+
+			// Create user with permissions
+
+			const company =
+				await apiHelpers.jsonWebServicesCompany.getCompanyByWebId(
+					'liferay.com'
+				);
+
+			const user = await createUserWithPermissions({
+				apiHelpers,
+				rolePermissions: [
+					{
+						actionIds: ['VIEW_CONTROL_PANEL'],
+						primaryKey: company.companyId,
+						resourceName: '90',
+						scope: 1,
+					},
+					{
+						actionIds: ['ACCESS_IN_CONTROL_PANEL'],
+						primaryKey: company.companyId,
+						resourceName:
+							'com_liferay_users_admin_web_portlet_UsersAdminPortlet',
+						scope: 1,
+					},
+					{
+						actionIds: ['ACCESS_IN_CONTROL_PANEL'],
+						primaryKey: company.companyId,
+						resourceName: `com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_${objectDefinition.className.split('#')[1]}`,
+						scope: 1,
+					},
+					{
+						actionIds: ['VIEW'],
+						primaryKey: company.companyId,
+						resourceName: `${objectDefinition.className}`,
+						scope: 1,
+					},
+				],
+			});
+
+			// Switch to created user
+
+			await performUserSwitch(page, user.alternateName);
+
+			// Change user timezone
+
+			await usersAndOrganizationsPage.goToUsersWithLimitedAccess();
+
+			await (
+				await usersAndOrganizationsPage.usersTableRowLink(
+					user.alternateName
+				)
+			).click();
+
+			await usersAndOrganizationsPage.userPreferencesButton.click();
+
+			await usersAndOrganizationsPage.displaySettingsButton.click();
+
+			await usersAndOrganizationsPage.timeZoneSelect.selectOption(
+				'America/Sao_Paulo'
+			);
+
+			await usersAndOrganizationsPage.saveTimeZoneButton.click();
+
+			// Check if the time has changed
+
+			await viewObjectEntriesPage.goToObjectDefinitionEntry(
+				objectDefinition.className
+			);
+
+			await expect(
+				page.locator(
+					'input[placeholder="__/__/____ __:__ _"][value="10/05/2025 09:00 AM"]'
+				)
+			).toHaveValue('10/05/2025 09:00 AM');
+		}
+	);
 });

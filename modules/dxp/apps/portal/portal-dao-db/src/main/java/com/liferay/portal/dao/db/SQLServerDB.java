@@ -104,6 +104,21 @@ public class SQLServerDB extends BaseDB {
 	}
 
 	@Override
+	public String getCharacterSet(Connection connection) throws SQLException {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				"select serverproperty('collation')")) {
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getString(1);
+				}
+			}
+		}
+
+		return StringPool.BLANK;
+	}
+
+	@Override
 	public String getDefaultValue(String columnDef) {
 		Matcher matcher = _defaultValuePattern.matcher(columnDef);
 
@@ -164,6 +179,11 @@ public class SQLServerDB extends BaseDB {
 		return StringBundler.concat(
 			"drop database ", databaseName, ";\n", "create database ",
 			databaseName, ";\n\n", "go\n\n");
+	}
+
+	@Override
+	public boolean isSupportsCharacterSet(Connection connection) {
+		return true;
 	}
 
 	@Override

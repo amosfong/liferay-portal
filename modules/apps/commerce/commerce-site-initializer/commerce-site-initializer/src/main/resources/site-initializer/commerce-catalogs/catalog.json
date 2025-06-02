@@ -1,6 +1,6 @@
 {
-	"assetVocabularyName": "Commerce Classic",
+	"assetVocabularyName": "[$GROUP_KEY$]",
 	"currencyCode": "USD",
 	"defaultLanguageId": "en_US",
-	"name": "Commerce Classic"
+	"name": "[$GROUP_KEY$]"
 }

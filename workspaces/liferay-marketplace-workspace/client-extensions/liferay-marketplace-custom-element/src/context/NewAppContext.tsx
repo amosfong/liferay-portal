@@ -117,6 +117,7 @@ export type NewAppInitialState = {
 	};
 	storefront: {
 		images: UploadedFile[];
+		video: {description?: string; videoURL?: string};
 	};
 	support: {
 		appUsageTermsURL: string;
@@ -172,12 +173,7 @@ type NewAppPayload = {
 
 const newAppInitialState: NewAppInitialState = {
 	build: {
-
-		// appType: null as unknown as ProductType,
-
-		// Remove this
-
-		appType: ProductType.DXP,
+		appType: null as unknown as ProductType,
 		liferayPackages: [],
 		resourceRequirements: {
 			cpu: '',
@@ -198,7 +194,7 @@ const newAppInitialState: NewAppInitialState = {
 	},
 	loading: false,
 	pricing: {
-		priceModel: '' as ProductPriceModel.FREE,
+		priceModel: ProductPriceModel.FREE,
 	},
 	productId: 0,
 	profile: {
@@ -210,7 +206,7 @@ const newAppInitialState: NewAppInitialState = {
 		tags: [],
 	},
 	references: {imagesToDelete: [], vocabulariesAndCategories: {}},
-	storefront: {images: []},
+	storefront: {images: [], video: {}},
 	support: {
 		appUsageTermsURL: '',
 		documentationURL: '',
@@ -223,7 +219,7 @@ const newAppInitialState: NewAppInitialState = {
 	termsAndConditions: false,
 	version: {
 		notes: '',
-		version: '',
+		version: '1.0',
 	},
 };
 
@@ -306,6 +302,35 @@ const reducer = (state: NewAppInitialState, action: AppActions) => {
 				tags?.includes(ProductTags.SOLUTION_PROFILE_APP_ICON)
 			);
 
+			const liferayPackages = Object.entries(
+				_product.productVirtualSettings.productVirtualSettingsFileEntries.reduce(
+					(acc, fileEntry) => {
+						const {version} = fileEntry;
+
+						if (!acc[version]) {
+							acc[version] = [];
+						}
+
+						acc[version].push(fileEntry);
+
+						return acc;
+					},
+					{} as {[key: string]: {src: string; version: string}[]}
+				)
+			).map(([version, uploadedFiles = []]) => {
+				return {
+					files: uploadedFiles?.map((uploadedFile) => {
+						return {
+							error: false,
+							fileName: uploadedFile.src,
+							readableSize: '',
+							src: uploadedFile.src,
+						};
+					}),
+					version,
+				};
+			});
+
 			return {
 				...state,
 				...newState,
@@ -316,7 +341,7 @@ const reducer = (state: NewAppInitialState, action: AppActions) => {
 						ProductSpecificationKey.APP_TYPE
 					),
 					compatibleOffering: [],
-					liferayPackages: [],
+					liferayPackages,
 					resourceRequirements: {
 						cpu: specificationsMap.get(
 							ProductSpecificationKey.APP_BUILD_NUMBER_OF_CPUS
@@ -376,6 +401,14 @@ const reducer = (state: NewAppInitialState, action: AppActions) => {
 							uploaded: true,
 						})
 					),
+					video: {
+						description: specificationsMap.get(
+							ProductSpecificationKey.APP_STOREFRONT_VIDEO_DESCRIPTION
+						),
+						videoURL: specificationsMap.get(
+							ProductSpecificationKey.APP_STOREFRONT_VIDEO_URL
+						),
+					},
 				} as NewAppInitialState['storefront'],
 				support: {
 					...newState.support,

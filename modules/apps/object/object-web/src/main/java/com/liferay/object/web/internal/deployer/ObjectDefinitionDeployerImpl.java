@@ -57,6 +57,7 @@ import com.liferay.object.configuration.ObjectConfiguration;
 import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.definition.security.permission.resource.ObjectDefinitionPortletResourcePermissionRegistryUtil;
+import com.liferay.object.definition.util.ObjectDefinitionUtil;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.display.context.ObjectEntryDisplayContextFactory;
 import com.liferay.object.field.attachment.AttachmentManager;
@@ -81,6 +82,7 @@ import com.liferay.object.service.ObjectRelationshipService;
 import com.liferay.object.service.ObjectStateFlowLocalService;
 import com.liferay.object.service.ObjectStateLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
+import com.liferay.object.web.internal.asset.display.page.portlet.ObjectEntryDisplayPageFriendlyURLResolver;
 import com.liferay.object.web.internal.asset.model.ObjectEntryAssetRendererFactory;
 import com.liferay.object.web.internal.info.collection.provider.ObjectEntrySingleFormVariationInfoCollectionProvider;
 import com.liferay.object.web.internal.info.item.action.ObjectEntryInfoItemActionExecutor;
@@ -131,6 +133,7 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.notifications.UserNotificationHandler;
 import com.liferay.portal.kernel.portlet.ControlPanelEntry;
+import com.liferay.portal.kernel.portlet.FriendlyURLResolver;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -152,6 +155,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.template.info.item.capability.TemplateInfoItemCapability;
 import com.liferay.template.info.item.provider.TemplateInfoItemFieldSetProvider;
@@ -159,6 +163,11 @@ import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
 import com.liferay.upload.UploadFileEntryHandler;
 import com.liferay.upload.UploadHandler;
 import com.liferay.upload.UploadResponseHandler;
+
+import jakarta.portlet.Portlet;
+import jakarta.portlet.PortletRequest;
+
+import jakarta.servlet.ServletContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,18 +178,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.portlet.Portlet;
-import javax.portlet.PortletRequest;
-
-import javax.servlet.ServletContext;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceScope;
 
 /**
  * @author Brian Wing Shun Chan
@@ -241,14 +247,14 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				HashMapDictionaryBuilder.<String, Object>put(
 					"company.id", objectDefinition.getCompanyId()
 				).put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).build()),
 			_bundleContext.registerService(
 				ControlPanelEntry.class,
 				new ObjectDefinitionsControlPanelEntry(
 					objectDefinition, _objectDefinitionLocalService),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).build()),
 			_bundleContext.registerService(
 				FDSView.class,
@@ -517,15 +523,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"com.liferay.portlet.preferences-unique-per-layout",
 					!enabled
 				).put(
-					"javax.portlet.display-name",
+					"jakarta.portlet.display-name",
 					objectDefinition.getPluralLabel(LocaleUtil.getSiteDefault())
 				).put(
-					"javax.portlet.init-param.view-template",
+					"jakarta.portlet.init-param.view-template",
 					"/object_entries/view_object_entries.jsp"
 				).put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
-					"javax.portlet.security-role-ref",
+					"jakarta.portlet.security-role-ref",
 					() -> {
 						if (objectDefinition.isRootDescendantNode()) {
 							return StringPool.BLANK;
@@ -534,14 +540,14 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						return null;
 					}
 				).put(
-					"javax.portlet.version", "3.0"
+					"jakarta.portlet.version", "3.0"
 				).build()),
 			_bundleContext.registerService(
 				MVCActionCommand.class,
 				new DeleteAttachmentMVCActionCommand(
 					_dlFileEntryLocalService, objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"mvc.command.name", "/object_entries/delete_attachment"
 				).build()),
@@ -553,7 +559,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectRelationshipLocalService,
 					_objectScopeProviderRegistry, _portal),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"mvc.command.name", "/object_entries/edit_object_entry"
 				).build()),
@@ -564,7 +570,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectRelationshipLocalService,
 					_objectRelationshipService),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"mvc.command.name",
 					"/object_entries/edit_object_entry_related_model"
@@ -575,7 +581,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_attachmentUploadFileEntryHandler,
 					_attachmentUploadResponseHandler, _uploadHandler),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"mvc.command.name", "/object_entries/upload_attachment"
 				).build()),
@@ -584,7 +590,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new EditObjectEntryMVCRenderCommand(
 					_objectEntryDisplayContextFactory, _portal),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).put(
 					"mvc.command.name", "/object_entries/edit_object_entry"
 				).build()),
@@ -605,17 +611,42 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_portal.getClassNameId(objectDefinition.getClassName()),
 					UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).build()),
 			_bundleContext.registerService(
 				UserNotificationHandler.class,
 				new ObjectUserNotificationsHandler(
 					_assetDisplayPageFriendlyURLProvider, objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"javax.portlet.name", objectDefinition.getPortletId()
+					"jakarta.portlet.name", objectDefinition.getPortletId()
 				).build()));
 
 		if (FeatureFlagManagerUtil.isEnabled("LPD-21926")) {
+			if (Validator.isNotNull(
+					objectDefinition.getFriendlyURLSeparator()) &&
+				!ObjectDefinitionUtil.isDefaultFriendlyURLSeparator(
+					objectDefinition.getFriendlyURLSeparator())) {
+
+				ObjectEntryDisplayPageFriendlyURLResolver
+					objectEntryDisplayPageFriendlyURLResolver =
+						(ObjectEntryDisplayPageFriendlyURLResolver)
+							_friendlyURLResolverComponentServiceObjects.
+								getService();
+
+				objectEntryDisplayPageFriendlyURLResolver.setObjectDefinition(
+					objectDefinition);
+
+				serviceRegistrations.add(
+					_bundleContext.registerService(
+						FriendlyURLResolver.class,
+						objectEntryDisplayPageFriendlyURLResolver,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"company.id", objectDefinition.getCompanyId()
+						).put(
+							"item.class.name", objectDefinition.getClassName()
+						).build()));
+			}
+
 			Collections.addAll(
 				serviceRegistrations,
 				_bundleContext.registerService(
@@ -760,6 +791,10 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	@Reference
 	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<FriendlyURLResolver>
+		_friendlyURLResolverComponentServiceObjects;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

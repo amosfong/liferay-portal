@@ -8,6 +8,7 @@ package com.liferay.object.rest.internal.dto.v1_0.converter;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
+import com.liferay.batch.engine.attachment.BatchEngineAttachmentManager;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
@@ -99,11 +100,15 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.extension.EntityExtensionHandler;
 import com.liferay.portal.vulcan.extension.ExtensionProviderRegistry;
 import com.liferay.portal.vulcan.extension.util.ExtensionUtil;
+import com.liferay.portal.vulcan.fields.NestedFieldsContext;
+import com.liferay.portal.vulcan.fields.NestedFieldsContextThreadLocal;
 import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.jaxrs.extension.ExtendedEntity;
 import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+
+import jakarta.ws.rs.core.UriInfo;
 
 import java.io.Serializable;
 
@@ -120,8 +125,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-
-import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -642,6 +645,19 @@ public class ObjectEntryDTOConverter
 				objectFieldName + ".fileBase64",
 				fieldName -> Base64.encode(
 					_file.getBytes(dlFileEntry.getContentStream()))));
+		fileEntry.setFileURL(
+			() -> {
+				if (!Objects.equals(
+						ObjectFieldSettingConstants.VALUE_USER_COMPUTER,
+						ObjectFieldSettingUtil.getValue(
+							ObjectFieldSettingConstants.NAME_FILE_SOURCE,
+							objectField))) {
+
+					return null;
+				}
+
+				return _batchEngineAttachmentManager.getFileURL(dlFileEntry);
+			});
 		fileEntry.setFolder(
 			() -> (Folder)NestedFieldsSupplier.supply(
 				objectFieldName + ".folder",
@@ -1012,6 +1028,22 @@ public class ObjectEntryDTOConverter
 		return serializable;
 	}
 
+	private boolean _hasRootModelHierarchyNestedField() {
+		NestedFieldsContext nestedFieldsContext =
+			NestedFieldsContextThreadLocal.getNestedFieldsContext();
+
+		if ((nestedFieldsContext != null) &&
+			ListUtil.exists(
+				nestedFieldsContext.getNestedFields(),
+				nestedFieldName -> StringUtil.equals(
+					nestedFieldName, "rootModelHierarchy"))) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private AuditEvent[] _toAuditEvents(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition,
@@ -1231,7 +1263,10 @@ public class ObjectEntryDTOConverter
 						fetchObjectRelationshipByObjectFieldId2(
 							objectField.getObjectFieldId());
 
-				if (primaryKey > 0) {
+				if ((primaryKey > 0) &&
+					(!_hasRootModelHierarchyNestedField() ||
+					 !objectRelationship.isEdge())) {
+
 					_addManyToOneRelatedObjectEntries(
 						dtoConverterContext, objectFieldName,
 						objectRelationship, primaryKey, unsafeSuppliers);
@@ -1309,6 +1344,9 @@ public class ObjectEntryDTOConverter
 
 	@Reference
 	private AuditEventLocalService _auditEventLocalService;
+
+	@Reference
+	private BatchEngineAttachmentManager _batchEngineAttachmentManager;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;

@@ -6,44 +6,49 @@
 import ClaySticker from '@clayui/sticker';
 import React from 'react';
 
-function getDisplayType(
-	char: string
-): React.ComponentProps<typeof ClaySticker>['displayType'] {
-	const validDisplayTypes: React.ComponentProps<
-		typeof ClaySticker
-	>['displayType'][] = [
-		'outline-0',
-		'outline-1',
-		'outline-2',
-		'outline-3',
-		'outline-4',
-		'outline-5',
-		'outline-6',
-		'outline-7',
-		'outline-8',
-		'outline-9',
-	];
+export type LogoColor = React.ComponentProps<typeof ClaySticker>['displayType'];
 
-	return validDisplayTypes[char.charCodeAt(0) % validDisplayTypes.length];
+export const logoColors: LogoColor[] = [
+	'outline-0',
+	'outline-1',
+	'outline-2',
+	'outline-3',
+	'outline-4',
+	'outline-5',
+	'outline-6',
+	'outline-7',
+	'outline-8',
+	'outline-9',
+];
+
+function getDisplayType(char: string): LogoColor {
+	return logoColors[char.charCodeAt(0) % logoColors.length];
 }
 
 export default function SpaceSticker({
 	displayType,
+	hideName,
 	name,
 	size,
+	...otherProps
 }: {
+	hideName?: boolean;
 	name: string;
-} & Pick<React.ComponentProps<typeof ClaySticker>, 'displayType' | 'size'>) {
+} & Pick<
+	React.ComponentProps<typeof ClaySticker>,
+	'className' | 'displayType' | 'id' | 'size'
+>) {
 	return (
 		<>
 			<ClaySticker
-				displayType={displayType ?? getDisplayType(name)}
+				displayType={displayType || getDisplayType(name)}
 				size={size}
+				{...otherProps}
 			>
 				{name.charAt(0).toUpperCase()}
 			</ClaySticker>
 
-			<span className="ml-2">{name}</span>
+			{!hideName && <span className="ml-2">{name}</span>}
 		</>
 	);
 }

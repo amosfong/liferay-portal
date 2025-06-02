@@ -10,7 +10,7 @@ import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import classNames from 'classnames';
 import {debounce} from 'frontend-js-web';
-import React from 'react';
+import React, {useState} from 'react';
 
 export type Item = {
 	description?: string;
@@ -44,10 +44,11 @@ const FilterDropdown: React.FC<IFilterDropdown> = ({
 	onSearch,
 	onSelectItem,
 	onTrigger,
-	searchValue,
 	title,
 	triggerLabel,
 }) => {
+	const [value, setValue] = useState('');
+
 	return (
 		<ClayDropdown
 			className={classNames('filter-dropdown', className)}
@@ -59,7 +60,11 @@ const FilterDropdown: React.FC<IFilterDropdown> = ({
 					borderless={borderless}
 					data-testid={filterByValue}
 					displayType="secondary"
-					onClick={() => onTrigger?.()}
+					onClick={() => {
+						setValue('');
+
+						onTrigger?.();
+					}}
 					size="sm"
 				>
 					{icon && <ClayIcon symbol={icon} />}
@@ -72,17 +77,23 @@ const FilterDropdown: React.FC<IFilterDropdown> = ({
 				</ClayButton>
 			}
 		>
-			<div className="dropdown-subheader pl-3">{title}</div>
-
 			{onSearch && (
-				<ClayDropdown.Search
-					className="my-2"
-					onChange={(value: string) =>
-						debounce(() => onSearch(value), 100)()
-					}
-					placeholder={Liferay.Language.get('search')}
-					value={searchValue}
-				/>
+				<>
+					<div className="dropdown-subheader pl-3">{title}</div>
+
+					<ClayDropdown.Search
+						className="my-2"
+						onChange={(value: string) => {
+							setValue(value);
+
+							debounce(() => onSearch(value), 200)();
+						}}
+						placeholder={Liferay.Language.get('search')}
+						value={value}
+					/>
+
+					<ClayDropdown.Divider />
+				</>
 			)}
 
 			{loading && <ClayLoadingIndicator data-testid="loading" />}

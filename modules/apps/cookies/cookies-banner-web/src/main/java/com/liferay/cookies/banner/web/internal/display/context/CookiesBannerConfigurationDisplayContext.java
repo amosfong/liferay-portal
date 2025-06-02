@@ -20,13 +20,13 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import jakarta.portlet.RenderRequest;
+import jakarta.portlet.RenderResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Locale;
 import java.util.Map;
-
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Eduardo García
@@ -65,12 +65,14 @@ public class CookiesBannerConfigurationDisplayContext
 			return cookiePolicyLink;
 		}
 
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-10588")) {
-			return StringPool.POUND;
-		}
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				themeDisplay.getCompanyId(), "LPD-10588")) {
+
+			return StringPool.POUND;
+		}
 
 		Layout layout =
 			layoutUtilityPageEntryLayoutProvider.

@@ -24,10 +24,10 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Sam Ziemer
@@ -47,7 +47,6 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 			language, objectDefinitionService,
 			objectDefinitionSettingLocalService);
 
-		_depotEntryLocalService = depotEntryLocalService;
 		_portal = portal;
 	}
 
@@ -68,7 +67,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 						dropdownItem.putData(
 							"assetLibraries",
 							getDepotEntriesJSONArray(
-								_depotEntryLocalService.getDepotEntries(
+								depotEntryLocalService.getDepotEntries(
 									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
 						dropdownItem.putData(
 							"baseAssetLibraryViewURL",
@@ -88,6 +87,19 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 						dropdownItem.setIcon("folder");
 						dropdownItem.setLabel(
 							language.get(httpServletRequest, "folder"));
+					});
+
+				addPrimaryDropdownItem(
+					dropdownItem -> {
+						dropdownItem.putData("action", "uploadMultipleFiles");
+						dropdownItem.putData(
+							"assetLibraries",
+							getDepotEntriesJSONArray(
+								depotEntryLocalService.getDepotEntries(
+									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
+						dropdownItem.setIcon("upload-multiple");
+						dropdownItem.setLabel(
+							language.get(httpServletRequest, "multiple-files"));
 					});
 
 				addStructureContentDropdownItems(this);
@@ -123,13 +135,29 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 					"/{embedded.id}?redirect=", themeDisplay.getURLCurrent()),
 				"pencil", "editFolder",
 				LanguageUtil.get(httpServletRequest, "edit"), "get", "update",
-				null));
+				null,
+				HashMapBuilder.<String, Object>put(
+					"entryClassName", ObjectEntryFolder.class.getName()
+				).build()));
 		fdsActionDropdownItems.add(
 			2,
 			new FDSActionDropdownItem(
 				"{embedded.file.link.href}", "download", "download",
 				LanguageUtil.get(httpServletRequest, "download"), "get", null,
 				"link"));
+		fdsActionDropdownItems.add(
+			3,
+			new FDSActionDropdownItem(
+				StringBundler.concat(
+					"/o", GroupConstants.CMS_FRIENDLY_URL, "/download-folder/",
+					_portal.getClassNameId(ObjectEntryFolder.class),
+					"/{embedded.id}"),
+				"download", "download-folder",
+				LanguageUtil.get(httpServletRequest, "download"), "get", null,
+				"link",
+				HashMapBuilder.<String, Object>put(
+					"entryClassName", ObjectEntryFolder.class.getName()
+				).build()));
 
 		return fdsActionDropdownItems;
 	}
@@ -146,7 +174,6 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 		return "cmsSection eq 'files'";
 	}
 
-	private final DepotEntryLocalService _depotEntryLocalService;
 	private final Portal _portal;
 
 }

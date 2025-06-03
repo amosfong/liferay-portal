@@ -37,12 +37,18 @@ public class ObjectActionCourseRestController extends BaseRestController {
 		JSONObject responseJSONObject = new JSONObject(
 			get(
 				"Bearer " + jwt.getTokenValue(),
-				createURI(
-					"/o/c/courses/scopes/", _siteGroupId,
-					"?fields=id,module.lessonDurationMinutes,",
-					"module.lessons,module.quizDurationMinutes,",
-					"module.quizzes&filter=module/id eq '", _getModuleId(json),
-					"'&nestedFields=module")));
+				createURIBuilder(
+				).path(
+					"/o/c/courses/scopes/" + _siteGroupId
+				).queryParam(
+					"fields",
+					"id,module.lessonDurationMinutes,module.lessons," +
+						"module.quizDurationMinutes,module.quizzes"
+				).queryParam(
+					"filter", "module/id eq '" + _getModuleId(json) + "'"
+				).queryParam(
+					"nestedFields", "module"
+				).build()));
 
 		JSONArray itemsJSONArray = responseJSONObject.getJSONArray("items");
 

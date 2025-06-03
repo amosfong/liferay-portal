@@ -25,7 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 
 /**
@@ -292,8 +291,7 @@ public abstract class BaseEntityDALO<T extends Entity>
 						String responseJSON;
 
 						try {
-							UriBuilder uriBuilder =
-								_defaultUriBuilderFactory.builder();
+							UriBuilder uriBuilder = createURIBuilder();
 
 							uriBuilder.path(
 								_getEntityURLPath()
@@ -465,8 +463,5 @@ public abstract class BaseEntityDALO<T extends Entity>
 	}
 
 	private static final Log _log = LogFactory.getLog(BaseDALO.class);
-
-	private final DefaultUriBuilderFactory _defaultUriBuilderFactory =
-		new DefaultUriBuilderFactory();
 
 }

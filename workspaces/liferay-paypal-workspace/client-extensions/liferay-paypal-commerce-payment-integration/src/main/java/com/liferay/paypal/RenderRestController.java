@@ -54,7 +54,6 @@ public class RenderRestController extends BaseRestController {
 					HttpHeaders.AUTHORIZATION, "Bearer " + jwt.getTokenValue()
 				).build(),
 				createURI(
-					getLiferayURL(),
 					"/o/headless-commerce-delivery-cart/v1.0/carts/", orderId,
 					"/payment-url")));
 
@@ -69,7 +68,6 @@ public class RenderRestController extends BaseRestController {
 			delete(
 				"Bearer " + jwt.getTokenValue(), StringPool.BLANK,
 				createURI(
-					getLiferayURL(),
 					"/o/c/b9k3paypalwebhooks/by-external-reference-code/",
 					jsonObject.getString("transactionCode")));
 		}
@@ -105,10 +103,12 @@ public class RenderRestController extends BaseRestController {
 		JSONObject paymentsJSONObject = new JSONObject(
 			get(
 				"Bearer " + jwt.getTokenValue(),
-				createURI(
-					getLiferayURL(),
-					"/o/headless-commerce-admin-payment/v1.0/payments/?",
-					"filter=relatedItemId eq ", orderId)));
+				createURIBuilder(
+				).path(
+					"/o/headless-commerce-admin-payment/v1.0/payments/"
+				).queryParam(
+					"filter", "relatedItemId eq " + orderId
+				).build()));
 
 		JSONArray itemsJSONArray = paymentsJSONObject.getJSONArray("items");
 

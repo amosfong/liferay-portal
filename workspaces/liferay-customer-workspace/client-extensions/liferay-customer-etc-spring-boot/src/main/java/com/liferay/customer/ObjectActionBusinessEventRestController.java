@@ -10,6 +10,7 @@ import com.liferay.client.extension.util.spring.boot3.client.LiferayOAuth2Access
 import com.liferay.customer.constants.NotificationTemplateConstants;
 import com.liferay.customer.model.BusinessEvent;
 import com.liferay.customer.permission.BusinessEventPermission;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -310,11 +311,16 @@ public class ObjectActionBusinessEventRestController
 		JSONObject accountSubscriptionsJSONObject = new JSONObject(
 			get(
 				_getAuthorization(),
-				createURI(
-					"/o/c/accountsubscriptions?filter=accountKey eq '",
-					accountExternalReferenceCode,
-					"' and contains(name, 'Technical Account Management ",
-					"Services')")));
+				createURIBuilder(
+				).path(
+					"/o/c/accountsubscriptions"
+				).queryParam(
+					"filter",
+					StringBundler.concat(
+						"accountKey eq '", accountExternalReferenceCode,
+						"' and contains(name, 'Technical Account Management ",
+						"Services')")
+				).build()));
 
 		JSONArray accountSubscriptionsJSONArray =
 			accountSubscriptionsJSONObject.getJSONArray("items");

@@ -28,8 +28,12 @@ public class SettingsService extends BaseService {
 		JSONObject jsonObject = new JSONObject(
 			get(
 				"Bearer " + jwt.getTokenValue(),
-				createURI(
-					"/o/c/k9l6aicontentwizardsettings?filter=active eq true")));
+				createURIBuilder(
+				).path(
+					"/o/c/k9l6aicontentwizardsettings"
+				).queryParam(
+					"filter", "active eq true"
+				).build()));
 
 		int totalCount = jsonObject.getInt("totalCount");
 

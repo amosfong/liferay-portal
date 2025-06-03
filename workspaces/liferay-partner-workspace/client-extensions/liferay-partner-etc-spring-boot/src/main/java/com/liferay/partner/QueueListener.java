@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 /**
  * @author Jair Medeiros
@@ -311,7 +310,7 @@ public class QueueListener extends BaseRestController {
 		JSONObject accountRolesResponseJSONObject = new JSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
+				createURIBuilder(
 				).path(
 					StringBundler.concat(
 						"/o/headless-admin-user/v1.0/accounts",
@@ -387,16 +386,14 @@ public class QueueListener extends BaseRestController {
 		JSONObject globalOrganizationJSONObject = _getJSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
-				).path(
+				createURI(
 					"/o/headless-admin-user/v1.0/organizations" +
-						"/by-external-reference-code/PRM-ORG-GLOBAL"
-				).build()));
+						"/by-external-reference-code/PRM-ORG-GLOBAL")));
 
 		JSONObject organizationsJSONObject = _getJSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
+				createURIBuilder(
 				).path(
 					"/o/headless-admin-user/v1.0/organizations/" +
 						globalOrganizationJSONObject.getLong("id") +
@@ -424,7 +421,7 @@ public class QueueListener extends BaseRestController {
 		JSONObject regularRolesResponseJSONObject = _getJSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
+				createURIBuilder(
 				).path(
 					"/o/headless-admin-user/v1.0/roles"
 				).queryParam(
@@ -620,11 +617,9 @@ public class QueueListener extends BaseRestController {
 		JSONObject userAccountJSONObject = _getJSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
-				).path(
+				createURI(
 					"/o/headless-admin-user/v1.0/user-accounts" +
-						"/by-email-address/" + emailAddress
-				).build()));
+						"/by-email-address/" + emailAddress)));
 
 		Long userAccountId = userAccountJSONObject.getLong("id");
 
@@ -783,9 +778,6 @@ public class QueueListener extends BaseRestController {
 		"Partner Technical User (PTU)";
 
 	private static final Log _log = LogFactory.getLog(QueueListener.class);
-
-	private final DefaultUriBuilderFactory _defaultUriBuilderFactory =
-		new DefaultUriBuilderFactory();
 
 	@Autowired
 	private LiferayOAuth2AccessTokenManager _liferayOAuth2AccessTokenManager;

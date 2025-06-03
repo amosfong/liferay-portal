@@ -39,10 +39,18 @@ public class OverdueBusinessEventService extends BaseService {
 			JSONObject jsonObject = new JSONObject(
 				get(
 					_getAuthorization(),
-					createURI(
-						"/o/c/businessevents?page=", page,
-						"&pageSize=500&filter=eventStatus eq 'open' and ",
-						"targetGoLiveDateTime lt ", dateFormat.format(date))));
+					createURIBuilder(
+					).path(
+						"/o/c/businessevents"
+					).queryParam(
+						"filter",
+						"eventStatus eq 'open' and targetGoLiveDateTime lt " +
+							dateFormat.format(date)
+					).queryParam(
+						"page", page
+					).queryParam(
+						"pageSize", 500
+					).build()));
 
 			JSONArray jsonArray = jsonObject.getJSONArray("items");
 

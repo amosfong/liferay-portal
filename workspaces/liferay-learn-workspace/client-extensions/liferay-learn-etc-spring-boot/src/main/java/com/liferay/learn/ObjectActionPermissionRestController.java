@@ -7,6 +7,7 @@ package com.liferay.learn;
 
 import com.liferay.client.extension.util.spring.boot3.BaseRestController;
 import com.liferay.client.extension.util.spring.boot3.client.LiferayOAuth2AccessTokenManager;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.util.ArrayList;
@@ -130,10 +131,16 @@ public class ObjectActionPermissionRestController extends BaseRestController {
 			JSONObject jsonObject2 = new JSONObject(
 				get(
 					_getAuthorization(),
-					createURI(
-						restContextPath, "/", objectEntryId, "/",
-						jsonObject1.getString("name"),
-						"?fields=id&pageSize=500")));
+					createURIBuilder(
+					).path(
+						StringBundler.concat(
+							restContextPath, "/", objectEntryId, "/",
+							jsonObject1.getString("name"))
+					).queryParam(
+						"fields", "id"
+					).queryParam(
+						"pageSize", 500
+					).build()));
 
 			map.put(
 				jsonObject1.getLong("objectDefinitionId2"),

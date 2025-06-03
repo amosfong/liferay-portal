@@ -197,25 +197,21 @@ public class AccountsSyncBusinessEventsRestController
 			String filterString, int page, int pageSize, String sortString)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(8);
-
-		sb.append("/o/c/businessevents?filter=");
-
-		if (Validator.isNotNull(filterString)) {
-			sb.append(filterString);
-		}
-
-		sb.append("&page=");
-		sb.append(page);
-		sb.append("&pageSize=");
-		sb.append(pageSize);
-
-		if (Validator.isNotNull(sortString)) {
-			sb.append("&sort=");
-			sb.append(sortString);
-		}
-
-		return new JSONObject(get(_getAuthorization(), createURI(sb)));
+		return new JSONObject(
+			get(
+				_getAuthorization(),
+				createURIBuilder(
+				).path(
+					"/o/c/businessevents"
+				).queryParam(
+					"filter", filterString
+				).queryParam(
+					"page", page
+				).queryParam(
+					"pageSize", pageSize
+				).queryParam(
+					"sort", sortString
+				).build()));
 	}
 
 	private String _getBusinessEventsSummary(JSONArray jsonArray) {

@@ -110,9 +110,14 @@ public class SettingsRestController extends BaseRestController {
 		JSONArray jsonArray = new JSONObject(
 			get(
 				"Bearer " + jwt.getTokenValue(),
-				createURI(
-					"/o/c/k9l6aicontentwizardsettings?filter=active eq ",
-					"true and id ne '", settingsJSONObject.getLong("id"), "'"))
+				createURIBuilder(
+				).path(
+					"/o/c/k9l6aicontentwizardsettings"
+				).queryParam(
+					"filter",
+					"active eq true and id ne '" +
+						settingsJSONObject.getLong("id") + "'"
+				).build())
 		).getJSONArray(
 			"items"
 		);

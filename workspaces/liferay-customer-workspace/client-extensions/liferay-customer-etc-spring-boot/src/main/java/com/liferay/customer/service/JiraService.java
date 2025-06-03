@@ -13,6 +13,8 @@ import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.net.URI;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -101,12 +103,21 @@ public class JiraService extends BaseService {
 	@Cacheable("issue")
 	public JSONObject getIssueJSONObject(String issueKey) throws Exception {
 		try {
+			URI uri = createURI(_jiraURL);
+
 			JSONObject jsonObject = new JSONObject(
 				get(
 					_getCredentials(),
-					createURI(
-						_jiraURL, _URL_REST_API_2, "/issue/", issueKey,
-						"?expand=renderedFields")));
+					createURIBuilder(
+					).host(
+						uri.getHost()
+					).path(
+						_URL_REST_API_2 + "/issue/" + issueKey
+					).queryParam(
+						"expand", "renderedFields"
+					).scheme(
+						uri.getScheme()
+					).build()));
 
 			return _transformIssue(jsonObject);
 		}
@@ -332,14 +343,29 @@ public class JiraService extends BaseService {
 		throws Exception {
 
 		try {
+			URI uri = createURI(_jiraURL);
+
 			return new JSONObject(
 				get(
 					_getCredentials(),
-					createURI(
-						_jiraURL, _URL_REST_API_2,
-						"/search?expand=renderedFields&fields=",
-						StringUtil.merge(returnFields), "&jql=", jql,
-						"&maxResults=", maxResults, "&startAt=", startAt)));
+					createURIBuilder(
+					).host(
+						uri.getHost()
+					).path(
+						_URL_REST_API_2 + "/search"
+					).queryParam(
+						"expand", "renderedFields"
+					).queryParam(
+						"fields", StringUtil.merge(returnFields)
+					).queryParam(
+						"jql", jql
+					).queryParam(
+						"maxResults", maxResults
+					).queryParam(
+						"startAt", startAt
+					).scheme(
+						uri.getScheme()
+					).build()));
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {

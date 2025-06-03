@@ -95,12 +95,19 @@ public class ObjectActionExamResultsSynchronizationRestController
 		JSONObject jsonObject = new JSONObject(
 			get(
 				_getAuthorization(),
-				createURI(
-					lxcDXPServerProtocol, "://", lxcDXPMainDomain,
-					"/o/c/p2s3examresultssynchronizations/scopes/",
-					_siteGroupId,
-					"?fields=dateCreated&filter=synchronizationStatus eq ",
-					"'Successful'&pageSize=1&sort=dateCreated:desc")));
+				createURIBuilder(
+				).path(
+					"/o/c/p2s3examresultssynchronizations/scopes/" +
+						_siteGroupId
+				).queryParam(
+					"fields", "dateCreated"
+				).queryParam(
+					"filter", "synchronizationStatus eq 'Successful'"
+				).queryParam(
+					"pageSize", 1
+				).queryParam(
+					"sort", "dateCreated:desc"
+				).build()));
 
 		JSONArray itemsJSONArray = jsonObject.getJSONArray("items");
 
@@ -210,7 +217,6 @@ public class ObjectActionExamResultsSynchronizationRestController
 				put(
 					_getAuthorization(), _getPayload(jsonObject1),
 					createURI(
-						lxcDXPServerProtocol, "://", lxcDXPMainDomain,
 						"/o/c/p2s3examresults/scopes/", _siteGroupId,
 						"/by-external-reference-code/",
 						jsonObject1.getLong("id"))));
@@ -231,7 +237,6 @@ public class ObjectActionExamResultsSynchronizationRestController
 					)
 				).toString(),
 				createURI(
-					lxcDXPServerProtocol, "://", lxcDXPMainDomain,
 					"/o/c/p2s3examresults/", jsonObject2.getLong("id"),
 					"/permissions"));
 		}
@@ -253,9 +258,7 @@ public class ObjectActionExamResultsSynchronizationRestController
 			).put(
 				"synchronizationStatus", synchronizationStatus
 			).toString(),
-			createURI(
-				lxcDXPServerProtocol, "://", lxcDXPMainDomain,
-				"/o/c/p2s3examresultssynchronizations/", classPK));
+			createURI("/o/c/p2s3examresultssynchronizations/", classPK));
 	}
 
 	private static final Log _log = LogFactory.getLog(

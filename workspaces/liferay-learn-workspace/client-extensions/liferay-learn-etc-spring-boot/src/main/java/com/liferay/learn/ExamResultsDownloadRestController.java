@@ -76,7 +76,7 @@ public class ExamResultsDownloadRestController extends BaseRestController {
 					"Date of Test Taken", "Test Score", "Test Result"
 				).build())) {
 
-			String filterString = "&filter=";
+			String filterString = "";
 
 			if (Validator.isNotNull(endDate)) {
 				filterString += "date le " + endDate;
@@ -96,9 +96,16 @@ public class ExamResultsDownloadRestController extends BaseRestController {
 				JSONObject jsonObject1 = new JSONObject(
 					get(
 						"Bearer " + jwt.getTokenValue(),
-						createURI(
-							"/o/c/p2s3examresults/scopes/", _siteGroupId,
-							"?pageSize=500&page=", i, filterString)));
+						createURIBuilder(
+						).path(
+							"/o/c/p2s3examresults/scopes/" + _siteGroupId
+						).queryParam(
+							"filter", filterString
+						).queryParam(
+							"page", i
+						).queryParam(
+							"pageSize", 500
+						).build()));
 
 				JSONArray jsonArray = jsonObject1.getJSONArray("items");
 

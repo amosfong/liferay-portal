@@ -89,7 +89,7 @@ public class CustomerCommandLineRunner
 				).path(
 					"/o/c/ticketattachments"
 				).queryParam(
-					"filter=zendeskTicketId eq " + zendeskTicketId
+					"filter", "zendeskTicketId eq " + zendeskTicketId
 				).build()));
 
 		JSONArray jsonArray = jsonObject.getJSONArray("items");

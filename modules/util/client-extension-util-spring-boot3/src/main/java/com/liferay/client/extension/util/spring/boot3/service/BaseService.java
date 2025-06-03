@@ -33,6 +33,8 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
@@ -168,6 +170,10 @@ public abstract class BaseService {
 		}
 
 		return URI.create(stringBuilder.toString());
+	}
+
+	protected UriBuilder createURIBuilder() {
+		return _defaultUriBuilderFactory.builder();
 	}
 
 	protected String delete(
@@ -421,5 +427,8 @@ public abstract class BaseService {
 			getWebClientExchangeFilterFunction()
 		).build();
 	}
+
+	private final DefaultUriBuilderFactory _defaultUriBuilderFactory =
+		new DefaultUriBuilderFactory();
 
 }

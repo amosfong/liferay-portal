@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 /**
  * @author Nilton Vieira
@@ -35,7 +34,7 @@ public class TestrayCommandLineRunner
 		JSONArray jsonArray = new JSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
+				createURIBuilder(
 				).path(
 					"/o/c/builds"
 				).queryParam(
@@ -73,7 +72,7 @@ public class TestrayCommandLineRunner
 		JSONArray jsonArray = new JSONObject(
 			get(
 				_getAuthorization(),
-				_defaultUriBuilderFactory.builder(
+				createURIBuilder(
 				).path(
 					"/o/c/builds"
 				).queryParam(
@@ -118,8 +117,6 @@ public class TestrayCommandLineRunner
 	).truncatedTo(
 		ChronoUnit.SECONDS
 	);
-	private final DefaultUriBuilderFactory _defaultUriBuilderFactory =
-		new DefaultUriBuilderFactory();
 
 	@Autowired
 	private LiferayOAuth2AccessTokenManager _liferayOAuth2AccessTokenManager;

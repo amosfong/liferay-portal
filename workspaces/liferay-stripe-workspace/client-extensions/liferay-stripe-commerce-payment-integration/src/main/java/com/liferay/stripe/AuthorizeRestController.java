@@ -109,10 +109,13 @@ public class AuthorizeRestController extends BaseRestController {
 				Objects.requireNonNull(
 					get(
 						"Bearer " + jwt.getTokenValue(),
-						createURI(
-							"/o/headless-commerce-admin-order/v1.0/orders/",
-							jsonObject.getLong("classPK"),
-							"?nestedFields=orderItems"))));
+						createURIBuilder(
+						).path(
+							"/o/headless-commerce-admin-order/v1.0/orders/" +
+								jsonObject.getLong("classPK")
+						).queryParam(
+							"nestedFields", "orderItems"
+						).build())));
 
 			SessionCreateParams.Builder builder = SessionCreateParams.builder(
 			).addAllLineItem(

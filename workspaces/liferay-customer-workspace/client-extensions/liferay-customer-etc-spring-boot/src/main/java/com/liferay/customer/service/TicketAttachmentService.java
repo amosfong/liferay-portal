@@ -133,7 +133,7 @@ public class TicketAttachmentService extends BaseService {
 
 		StringBundler sb = new StringBundler(6);
 
-		sb.append("/o/c/ticketattachments?filter=fileName eq '");
+		sb.append("fileName eq '");
 		sb.append(fileName);
 
 		if (!md5Checksum.equals("")) {
@@ -145,7 +145,14 @@ public class TicketAttachmentService extends BaseService {
 		sb.append(zendeskTicketId);
 
 		JSONObject jsonObject = new JSONObject(
-			get(authorization, createURI(sb)));
+			get(
+				authorization,
+				createURIBuilder(
+				).path(
+					"/o/c/ticketattachments"
+				).queryParam(
+					"filter", sb.toString()
+				).build()));
 
 		JSONArray jsonArray = jsonObject.getJSONArray("items");
 
@@ -165,7 +172,12 @@ public class TicketAttachmentService extends BaseService {
 		JSONObject jsonObject = new JSONObject(
 			get(
 				authorization,
-				createURI("/o/c/ticketattachments?filter=", filter)));
+				createURIBuilder(
+				).path(
+					"/o/c/ticketattachments"
+				).queryParam(
+					"filter", filter
+				).build()));
 
 		JSONArray jsonArray = jsonObject.getJSONArray("items");
 

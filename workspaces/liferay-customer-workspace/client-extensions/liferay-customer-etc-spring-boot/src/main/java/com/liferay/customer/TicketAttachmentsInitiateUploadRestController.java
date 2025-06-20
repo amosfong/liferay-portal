@@ -8,10 +8,8 @@ package com.liferay.customer;
 import com.liferay.client.extension.util.spring.boot3.BaseRestController;
 import com.liferay.customer.model.TicketAttachment;
 import com.liferay.customer.service.GoogleCloudStorageService;
+import com.liferay.customer.service.JiraService;
 import com.liferay.customer.service.TicketAttachmentService;
-import com.liferay.osb.spring.boot.client.zendesk.model.ZendeskOrganization;
-import com.liferay.osb.spring.boot.client.zendesk.model.ZendeskTicket;
-import com.liferay.osb.spring.boot.client.zendesk.service.ZendeskService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,14 +52,14 @@ public class TicketAttachmentsInitiateUploadRestController
 			String gcsSessionURL = jsonObject.optString("gcsSessionURL");
 			String md5Checksum = jsonObject.optString("md5Checksum");
 
-			long zendeskTicketId = jsonObject.getLong("zendeskTicketId");
+			String ticketId = jsonObject.getString("ticketId");
 
-			String accountKey = _getAccountKey(zendeskTicketId);
+			String accountKey = _getAccountKey(ticketId);
 
 			TicketAttachment ticketAttachment =
 				_ticketAttachmentService.fetchTicketAttachment(
-					"Bearer " + jwt.getTokenValue(), fileName, md5Checksum,
-					zendeskTicketId);
+					"Bearer " + jwt.getTokenValue(), fileName, ticketId,
+					md5Checksum);
 
 			if (ticketAttachment != null) {
 				if (ticketAttachment.isApproved()) {
@@ -79,8 +77,8 @@ public class TicketAttachmentsInitiateUploadRestController
 
 				ticketAttachment = _ticketAttachmentService.addTicketAttachment(
 					"Bearer " + jwt.getTokenValue(), accountKey,
-					externalReferenceCode, fileName, fileSize, md5Checksum,
-					TicketAttachment.STATUS_DRAFT, type, zendeskTicketId);
+					externalReferenceCode, fileName, fileSize, ticketId,
+					md5Checksum, TicketAttachment.STATUS_DRAFT, type);
 			}
 
 			JSONObject responseJSONObject = new JSONObject();
@@ -113,20 +111,23 @@ public class TicketAttachmentsInitiateUploadRestController
 		}
 	}
 
-	private String _getAccountKey(long zendeskTicketId) throws Exception {
-		ZendeskTicket zendeskTicket = _zendeskService.getZendeskTicket(
-			zendeskTicketId);
+	private String _getAccountKey(String jiraIssueKey) throws Exception {
+		JSONObject jsonObject = _jiraService.getIssueJSONObject(jiraIssueKey);
 
-		if (zendeskTicket.isClosed()) {
-			throw new Exception(
-				"Zendesk ticket " + zendeskTicketId + " is closed");
+		JSONObject fieldsJSONObject = jsonObject.getJSONObject("fields");
+
+		JSONObject statusJSONObject = fieldsJSONObject.getJSONObject("status");
+
+		String name = statusJSONObject.getString("name");
+
+		if (name.equals("Closed")) {
+			throw new Exception("Jira ticket " + jiraIssueKey + " is closed");
 		}
 
-		ZendeskOrganization zendeskOrganization =
-			_zendeskService.getZendeskOrganization(
-				zendeskTicket.getZendeskOrganizationId());
+		JSONObject projectJSONObject = fieldsJSONObject.getJSONObject(
+			"project");
 
-		return zendeskOrganization.getAccountKey();
+		return projectJSONObject.getString("CUSTOM_FIELD_ASDASFASFSFASFASFASF");
 	}
 
 	private static final Log _log = LogFactory.getLog(
@@ -136,9 +137,9 @@ public class TicketAttachmentsInitiateUploadRestController
 	private GoogleCloudStorageService _googleCloudStorageService;
 
 	@Autowired
-	private TicketAttachmentService _ticketAttachmentService;
+	private JiraService _jiraService;
 
 	@Autowired
-	private ZendeskService _zendeskService;
+	private TicketAttachmentService _ticketAttachmentService;
 
 }

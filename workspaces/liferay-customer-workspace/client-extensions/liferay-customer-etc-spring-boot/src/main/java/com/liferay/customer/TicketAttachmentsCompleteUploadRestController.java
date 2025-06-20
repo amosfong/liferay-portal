@@ -8,10 +8,9 @@ package com.liferay.customer;
 import com.liferay.client.extension.util.spring.boot3.BaseRestController;
 import com.liferay.client.extension.util.spring.boot3.client.LiferayOAuth2AccessTokenManager;
 import com.liferay.customer.model.TicketAttachment;
+import com.liferay.customer.service.JiraService;
 import com.liferay.customer.service.NotificationQueueEntryService;
 import com.liferay.customer.service.TicketAttachmentService;
-import com.liferay.osb.spring.boot.client.zendesk.model.ZendeskUser;
-import com.liferay.osb.spring.boot.client.zendesk.service.ZendeskService;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.StackTraceUtil;
@@ -61,22 +60,19 @@ public class TicketAttachmentsCompleteUploadRestController
 					"Bearer " + jwt.getTokenValue(), ticketAttachmentId);
 			JSONObject jsonObject = new JSONObject(json);
 
-			String zendeskTicketCommentBody = _buildZendeskTicketCommentBody(
-				ticketAttachment,
-				jsonObject.optString("zendeskTicketCommentBody"));
+			String jiraIssueCommentBody = _buildJiraIssueCommentBody(
+				ticketAttachment, jsonObject.optString("commentBody"));
 
 			try {
-				_postZendeskComment(
-					jwt.getClaimAsString("username"),
-					ticketAttachment.getZendeskTicketId(),
-					zendeskTicketCommentBody);
+				_postJiraComment(
+					ticketAttachment.getJiraIssueKey(), jiraIssueCommentBody);
 			}
 			catch (Exception exception) {
 				_log.error(exception, exception);
 
 				_ticketAttachmentService.updateTicketAttachmentDraftCommentBody(
 					"Bearer " + jwt.getTokenValue(), ticketAttachmentId,
-					zendeskTicketCommentBody);
+					jiraIssueCommentBody);
 
 				return new ResponseEntity<>(HttpStatus.ACCEPTED);
 			}
@@ -96,32 +92,20 @@ public class TicketAttachmentsCompleteUploadRestController
 		throws Exception {
 
 		List<TicketAttachment> ticketAttachments =
-			_ticketAttachmentService.searchTicketAttachments(
-				_liferayOAuth2AccessTokenManager.getAuthorization(
-					"liferay-customer-etc-spring-boot-oahs"),
+			_ticketAttachmentService.search(
+				_getAuthorization(),
 				"draftCommentBody ne null and draftCommentBody ne '' and " +
-					"(state eq 0 or state eq null) and status/any(s:s eq 0)");
+					"(state eq 0 or state eq null) and status/any(s:s eq 0)",
+				1, 500);
 
 		for (TicketAttachment ticketAttachment : ticketAttachments) {
 			try {
-				JSONObject jsonObject = new JSONObject(
-					get(
-						_liferayOAuth2AccessTokenManager.getAuthorization(
-							"liferay-customer-etc-spring-boot-oahs"),
-						UriComponentsBuilder.fromPath(
-							"/o/headless-admin-user/v1.0/user-accounts/" +
-								ticketAttachment.getUserId()
-						).build(
-						).toUri()));
-
-				_postZendeskComment(
-					jsonObject.getString("emailAddress"),
-					ticketAttachment.getZendeskTicketId(),
+				_postJiraComment(
+					ticketAttachment.getJiraIssueKey(),
 					ticketAttachment.getDraftCommentBody());
 
 				_ticketAttachmentService.updateTicketAttachmentDraftCommentBody(
-					_liferayOAuth2AccessTokenManager.getAuthorization(
-						"liferay-customer-etc-spring-boot-oahs"),
+					_getAuthorization(),
 					ticketAttachment.getTicketAttachmentId(), "");
 			}
 			catch (Exception exception) {
@@ -139,59 +123,90 @@ public class TicketAttachmentsCompleteUploadRestController
 		}
 	}
 
-	private String _buildZendeskTicketCommentBody(
-			TicketAttachment ticketAttachment, String zendeskTicketCommentBody)
+	private String _buildJiraIssueCommentBody(
+			TicketAttachment ticketAttachment, String commentBody)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(11);
+		StringBundler sb = new StringBundler(13);
 
-		if (Validator.isNotNull(zendeskTicketCommentBody)) {
+		sb.append(_getCommentAuthorInfo(ticketAttachment.getUserId()));
+
+		if (Validator.isNotNull(commentBody)) {
+			sb.append("{quote}");
 			sb.append(
-				StringUtil.replace(
-					zendeskTicketCommentBody, CharPool.NEW_LINE, "<br />"));
-			sb.append("<br /><br />");
+				StringUtil.replace(commentBody, CharPool.NEW_LINE, "<br />"));
+			sb.append("{quote}");
+		}
+		else {
+			sb.append("(empty line)");
 		}
 
-		sb.append("<a href=\"");
+		sb.append("[");
+		sb.append(ticketAttachment.getFileName());
+		sb.append("|");
 		sb.append(lxcDXPServerProtocol);
 		sb.append("://");
 		sb.append(lxcDXPMainDomain);
 		sb.append("/placeholder/");
 		sb.append(ticketAttachment.getTicketAttachmentId());
-		sb.append("\">");
-		sb.append(ticketAttachment.getFileName());
-		sb.append("</a>");
+		sb.append("]");
 
 		return sb.toString();
 	}
 
-	private void _postZendeskComment(
-			String emailAddress, long zendeskTicketId,
-			String zendeskTicketCommentBody)
-		throws Exception {
+	private String _getAuthorization() {
+		return _liferayOAuth2AccessTokenManager.getAuthorization(
+			"liferay-customer-etc-spring-boot-oahs");
+	}
 
-		ZendeskUser zendeskUser = _zendeskService.fetchZendeskUser(
-			emailAddress);
+	private String _getCommentAuthorInfo(long userId) {
+		StringBundler sb = new StringBundler(6);
 
-		if (zendeskUser == null) {
-			throw new Exception(
-				"Zendesk user " + emailAddress + " does not exist");
+		JSONObject jsonObject = new JSONObject(
+			get(
+				_getAuthorization(),
+				UriComponentsBuilder.fromPath(
+					"/o/headless-admin-user/v1.0/user-accounts/" + userId
+				).build(
+				).toUri()));
+
+		sb.append(jsonObject.getString("name"));
+
+		sb.append(" (");
+		sb.append(jsonObject.getString("emailAddress"));
+		sb.append(") ");
+
+		String languageId = jsonObject.optString("languageId");
+
+		if (languageId.equals("ja_JP")) {
 		}
-
-		if (zendeskUser.isEndUser()) {
-			_zendeskService.addEndUserZendeskTicketComment(
-				zendeskUser.getEmailAddress(), zendeskTicketCommentBody,
-				zendeskTicketId);
+		else if (languageId.equals("zh_CN")) {
+		}
+		else if (languageId.equals("zh_CN")) {
 		}
 		else {
-			_zendeskService.addAgentZendeskTicketComment(
-				zendeskTicketCommentBody, zendeskTicketId,
-				zendeskUser.getZendeskUserId());
+			sb.append("wrote");
 		}
+
+		sb.append(":");
+
+		return sb.toString();
+	}
+
+	private void _postJiraComment(
+		String jiraIssueKey, String draftCommentBody) {
+
+		_jiraService.addComment(jiraIssueKey, draftCommentBody);
 	}
 
 	private static final Log _log = LogFactory.getLog(
 		TicketAttachmentsCompleteUploadRestController.class);
+
+	@Value("${liferay.customer.jira.api.email.address}")
+	private String _jiraAPIEmailAddress;
+
+	@Autowired
+	private JiraService _jiraService;
 
 	@Autowired
 	private LiferayOAuth2AccessTokenManager _liferayOAuth2AccessTokenManager;
@@ -201,11 +216,5 @@ public class TicketAttachmentsCompleteUploadRestController
 
 	@Autowired
 	private TicketAttachmentService _ticketAttachmentService;
-
-	@Value("${liferay.osb.spring.boot.client.zendesk.api.email.address}")
-	private String _zendeskAPIEmailAddress;
-
-	@Autowired
-	private ZendeskService _zendeskService;
 
 }

@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Base64;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -28,6 +29,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -37,6 +40,50 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Component
 public class JiraService extends BaseService {
+
+	public void addComment(String issueKey, String body) {
+		post(
+			new JSONObject(
+			).put(
+				"body",
+				new JSONObject(
+				).put(
+					"content",
+					new JSONArray(
+					).put(
+						new JSONObject(
+						).put(
+							"content",
+							new JSONArray(
+							).put(
+								new JSONObject(
+								).put(
+									"text", body
+								).put(
+									"type", "text"
+								)
+							)
+						).put(
+							"type", "paragraph"
+						)
+					)
+				)
+			).put(
+				"type", "doc"
+			).put(
+				"version", 1
+			).toString(),
+			HashMapBuilder.put(
+				HttpHeaders.AUTHORIZATION, _getCredentials()
+			).put(
+				HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE
+			).build(),
+			UriComponentsBuilder.fromUriString(
+				StringBundler.concat(
+					_jiraURL, "/rest/api/3/issue/", issueKey, "/comment")
+			).build(
+			).toUri());
+	}
 
 	@Cacheable("affectedVersions")
 	public JSONArray getAffectedVersionsJSONArray() throws Exception {
@@ -130,6 +177,16 @@ public class JiraService extends BaseService {
 	)
 	@Scheduled(cron = "0 0 0 * * *")
 	public void scheduledCacheEviction() throws Exception {
+	}
+
+	public JSONObject search(
+			String jql, int page, int pageSize, String[] returnFields)
+		throws Exception {
+
+		JSONObject jsonObject = _search(
+			jql, pageSize, returnFields, _calculateStartAt(page, pageSize));
+
+		return _transformSearchResults(jsonObject);
 	}
 
 	@Cacheable("issues")
@@ -389,7 +446,7 @@ public class JiraService extends BaseService {
 		).put(
 			"affectedVersions",
 			_flattenJSONArray(
-				issueFieldsJSONObject.getJSONArray(_FIELD_VERSIONS))
+				issueFieldsJSONObject.optJSONArray(_FIELD_VERSIONS))
 		).put(
 			"affects",
 			issueFieldsJSONObject.optString(
@@ -402,7 +459,7 @@ public class JiraService extends BaseService {
 		).put(
 			"components",
 			_flattenJSONArray(
-				issueFieldsJSONObject.getJSONArray(_FIELD_COMPONENTS))
+				issueFieldsJSONObject.optJSONArray(_FIELD_COMPONENTS))
 		).put(
 			"customerPortalDescription",
 			issueRenderedFieldsJSONObject.optString(

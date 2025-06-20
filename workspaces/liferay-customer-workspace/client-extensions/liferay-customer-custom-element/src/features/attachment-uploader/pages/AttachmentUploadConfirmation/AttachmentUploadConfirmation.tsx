@@ -52,7 +52,7 @@ const AttachmentUploadConfirmation = () => {
 
 						<a
 							className="btn btn-primary uploader-ticket-button"
-							href={`${helpCenterURL}/hc/requests/${state?.ticketId}`}
+							href={`${helpCenterURL}/issues/${state?.ticketId}`}
 						>
 							{i18n.translate('return-to-ticket')}
 						</a>

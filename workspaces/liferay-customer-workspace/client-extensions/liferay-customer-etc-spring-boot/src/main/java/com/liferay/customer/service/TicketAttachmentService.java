@@ -31,8 +31,8 @@ public class TicketAttachmentService extends BaseService {
 	public TicketAttachment addTicketAttachment(
 			String authorization, String accountKey,
 			String externalReferenceCode, String fileName, String fileSize,
-			String md5Checksum, int statusCode, String type,
-			long zendeskTicketId)
+			String jiraIssueKey, String md5Checksum, int statusCode,
+			String type)
 		throws Exception {
 
 		JSONObject requestJSONObject = new JSONObject();
@@ -48,13 +48,13 @@ public class TicketAttachmentService extends BaseService {
 		).put(
 			"gcsBucketName", _gcsBucketName
 		).put(
+			"jiraIssueKey", jiraIssueKey
+		).put(
 			"r_accountEntryToTicketAttachment_accountEntryERC", accountKey
 		).put(
 			"storageProvider", TicketAttachment.STORAGE_PROVIDER_GCS
 		).put(
 			"type", type
-		).put(
-			"zendeskTicketId", zendeskTicketId
 		);
 
 		if (!md5Checksum.equals("")) {
@@ -75,7 +75,7 @@ public class TicketAttachmentService extends BaseService {
 				).build(
 				).toUri()));
 
-		return new TicketAttachment(jsonObject);
+		return new TicketAttachment(_jiraURL, jsonObject);
 	}
 
 	public TicketAttachment approveTicketAttachment(
@@ -98,7 +98,7 @@ public class TicketAttachmentService extends BaseService {
 				).build(
 				).toUri()));
 
-		return new TicketAttachment(jsonObject);
+		return new TicketAttachment(_jiraURL, jsonObject);
 	}
 
 	public void deleteTicketAttachment(
@@ -125,7 +125,7 @@ public class TicketAttachmentService extends BaseService {
 					).build(
 					).toUri()));
 
-			return new TicketAttachment(jsonObject);
+			return new TicketAttachment(_jiraURL, jsonObject);
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -140,11 +140,11 @@ public class TicketAttachmentService extends BaseService {
 	}
 
 	public TicketAttachment fetchTicketAttachment(
-			String authorization, String fileName, String md5Checksum,
-			long zendeskTicketId)
+			String authorization, String fileName, String jiraIssueKey,
+			String md5Checksum)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(6);
+		StringBundler sb = new StringBundler(7);
 
 		sb.append("fileName eq '");
 		sb.append(fileName);
@@ -154,8 +154,9 @@ public class TicketAttachmentService extends BaseService {
 			sb.append(md5Checksum);
 		}
 
-		sb.append("' and zendeskTicketId eq ");
-		sb.append(zendeskTicketId);
+		sb.append("' and jiraIssueKey eq '");
+		sb.append(jiraIssueKey);
+		sb.append("'");
 
 		JSONObject jsonObject = new JSONObject(
 			get(
@@ -170,14 +171,14 @@ public class TicketAttachmentService extends BaseService {
 		JSONArray jsonArray = jsonObject.getJSONArray("items");
 
 		if (jsonArray.length() > 0) {
-			return new TicketAttachment(jsonArray.getJSONObject(0));
+			return new TicketAttachment(_jiraURL, jsonArray.getJSONObject(0));
 		}
 
 		return null;
 	}
 
-	public List<TicketAttachment> searchTicketAttachments(
-			String authorization, String filter)
+	public List<TicketAttachment> search(
+			String authorization, String filter, int page, int pageSize)
 		throws Exception {
 
 		List<TicketAttachment> ticketAttachments = new ArrayList<>();
@@ -189,6 +190,10 @@ public class TicketAttachmentService extends BaseService {
 					"/o/c/ticketattachments"
 				).queryParam(
 					"filter", filter
+				).queryParam(
+					"page", page
+				).queryParam(
+					"pageSize", pageSize
 				).build(
 				).toUri()));
 
@@ -196,7 +201,7 @@ public class TicketAttachmentService extends BaseService {
 
 		for (int i = 0; i < jsonArray.length(); i++) {
 			ticketAttachments.add(
-				new TicketAttachment(jsonArray.getJSONObject(i)));
+				new TicketAttachment(_jiraURL, jsonArray.getJSONObject(i)));
 		}
 
 		return ticketAttachments;
@@ -219,7 +224,7 @@ public class TicketAttachmentService extends BaseService {
 				).build(
 				).toUri()));
 
-		return new TicketAttachment(jsonObject);
+		return new TicketAttachment(_jiraURL, jsonObject);
 	}
 
 	public TicketAttachment updateTicketAttachmentState(
@@ -238,7 +243,7 @@ public class TicketAttachmentService extends BaseService {
 				).build(
 				).toUri()));
 
-		return new TicketAttachment(jsonObject);
+		return new TicketAttachment(_jiraURL, jsonObject);
 	}
 
 	private static final Log _log = LogFactory.getLog(
@@ -246,5 +251,8 @@ public class TicketAttachmentService extends BaseService {
 
 	@Value("${liferay.customer.gcs.bucket.name}")
 	private String _gcsBucketName;
+
+	@Value("${liferay.customer.jira.url}")
+	private String _jiraURL;
 
 }

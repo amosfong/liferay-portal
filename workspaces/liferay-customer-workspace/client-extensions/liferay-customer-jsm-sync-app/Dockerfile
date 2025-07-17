@@ -1,0 +1,1 @@
+FROM liferay/meta-inf:1.0.0

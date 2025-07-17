@@ -1,0 +1,27 @@
+{
+	"cpu": 1.0,
+	"id": "__PROJECT_ID__",
+	"kind": "Deployment",
+	"livenessProbe": {
+		"httpGet": {
+			"path": "/health",
+			"port": 3000
+		}
+	},
+	"memory": 1024,
+	"ports": [
+		{
+			"external": true,
+			"port": 3000,
+			"protocol": "TCP",
+			"targetPort": 3000
+		}
+	],
+	"readinessProbe": {
+		"httpGet": {
+			"path": "/health",
+			"port": 3000
+		}
+	},
+	"scale": 1
+}

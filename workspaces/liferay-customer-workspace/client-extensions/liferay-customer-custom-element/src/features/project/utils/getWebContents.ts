@@ -36,7 +36,8 @@ export function getWebContents(
 					const currentProductIndex = allProductsNames.findIndex(
 						(productName) =>
 							productName === subscriptionGroup?.name ||
-							subscriptionGroup.activationProductName.split(',')
+							subscriptionGroup.activationProductName
+								.split(',')
 								.includes(productName)
 					);
 
@@ -72,7 +73,8 @@ export function getWebContents(
 		(subscriptionGroup) =>
 			subscriptionGroup.name === PRODUCT_TYPES.dxp ||
 			(subscriptionGroup.name === PRODUCT_TYPES.liferayCloud &&
-				subscriptionGroup.activationProductName.split(',')
+				subscriptionGroup.activationProductName
+					.split(',')
 					.includes(PRODUCT_TYPES.dxpCloud) &&
 				subscriptionGroup.activationStatus === 'Active')
 	);

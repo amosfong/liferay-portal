@@ -62,7 +62,8 @@ const OnboardingPages: React.FC = () => {
 	const subscriptionDXPCloud = subscriptionGroups?.find(
 		(subscriptionGroup: IAccountSubscriptionGroup) =>
 			subscriptionGroup.name === PRODUCT_TYPES.liferayCloud &&
-			subscriptionGroup.activationProductName.split(',')
+			subscriptionGroup.activationProductName
+				.split(',')
 				.includes(PRODUCT_TYPES.dxpCloud)
 	);
 
@@ -74,7 +75,8 @@ const OnboardingPages: React.FC = () => {
 	const subscriptionLiferayExperienceCloud = subscriptionGroups?.find(
 		(subscriptionGroup: IAccountSubscriptionGroup) =>
 			subscriptionGroup.name === PRODUCT_TYPES.liferayCloud &&
-			subscriptionGroup.activationProductName.split(',')
+			subscriptionGroup.activationProductName
+				.split(',')
 				.includes(PRODUCT_TYPES.liferayExperienceCloud)
 	);
 

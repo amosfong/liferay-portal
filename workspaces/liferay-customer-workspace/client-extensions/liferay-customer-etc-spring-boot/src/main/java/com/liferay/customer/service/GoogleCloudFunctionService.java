@@ -17,8 +17,6 @@ import com.google.common.io.CharStreams;
 
 import com.liferay.petra.string.StringBundler;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.nio.charset.StandardCharsets;
@@ -44,8 +42,7 @@ public class GoogleCloudFunctionService {
 		throws Exception {
 
 		return _handleRequest(
-			accountKey, _gcfCustomerServiceAccountKey,
-			_FUNCTION_PATH_CUSTOMER_USAGE_API,
+			accountKey, _FUNCTION_PATH_CUSTOMER_USAGE_API,
 			StringBundler.concat(
 				_gcfBaseURL, _FUNCTION_PATH_CUSTOMER_USAGE_API,
 				"/api/v1/customer/usage/accounts/", accountKey));
@@ -56,8 +53,7 @@ public class GoogleCloudFunctionService {
 		throws Exception {
 
 		return _handleRequest(
-			accountKey, _gcfComposableServiceAccountKey,
-			_FUNCTION_PATH_COMPOSABLE_USAGE_API,
+			accountKey, _FUNCTION_PATH_COMPOSABLE_USAGE_API,
 			StringBundler.concat(
 				_gcfBaseURL, _FUNCTION_PATH_COMPOSABLE_USAGE_API,
 				"/api/v1/accounts/", accountKey, "/usage/month/", month));
@@ -69,59 +65,51 @@ public class GoogleCloudFunctionService {
 	}
 
 	private JSONObject _handleRequest(
-			String accountKey, String serviceAccountKey, String targetAudience,
-			String url)
+			String accountKey, String targetAudience, String url)
 		throws Exception {
 
-		try (InputStream inputStream = new ByteArrayInputStream(
-				serviceAccountKey.getBytes())) {
+		IdTokenCredentials idTokenCredential = IdTokenCredentials.newBuilder(
+		).setIdTokenProvider(
+			(IdTokenProvider)GoogleCredentials.getApplicationDefault()
+		).setTargetAudience(
+			_gcfBaseURL + targetAudience
+		).build();
 
-			IdTokenCredentials idTokenCredential =
-				IdTokenCredentials.newBuilder(
-				).setIdTokenProvider(
-					(IdTokenProvider)GoogleCredentials.fromStream(inputStream)
-				).setTargetAudience(
-					_gcfBaseURL + targetAudience
-				).build();
+		HttpRequest httpRequest = new NetHttpTransport(
+		).createRequestFactory(
+			new HttpCredentialsAdapter(idTokenCredential)
+		).buildGetRequest(
+			new GenericUrl(url)
+		).setThrowExceptionOnExecuteError(
+			false
+		);
 
-			HttpRequest httpRequest = new NetHttpTransport(
-			).createRequestFactory(
-				new HttpCredentialsAdapter(idTokenCredential)
-			).buildGetRequest(
-				new GenericUrl(url)
-			).setThrowExceptionOnExecuteError(
-				false
-			);
+		HttpResponse httpResponse = null;
 
-			HttpResponse httpResponse = null;
+		try {
+			httpResponse = httpRequest.execute();
 
-			try {
-				httpResponse = httpRequest.execute();
+			if (httpResponse.isSuccessStatusCode()) {
+				String result = CharStreams.toString(
+					new InputStreamReader(
+						httpResponse.getContent(), StandardCharsets.UTF_8));
 
-				if (httpResponse.isSuccessStatusCode()) {
-					String result = CharStreams.toString(
-						new InputStreamReader(
-							httpResponse.getContent(), StandardCharsets.UTF_8));
-
-					return new JSONObject(result);
-				}
-
-				if (httpResponse.getStatusCode() ==
-						HttpStatus.NOT_FOUND.value()) {
-
-					return null;
-				}
-
-				throw new Exception(
-					StringBundler.concat(
-						httpResponse.getStatusCode(), " ",
-						httpResponse.getStatusMessage(), " for account ",
-						accountKey));
+				return new JSONObject(result);
 			}
-			finally {
-				if (httpResponse != null) {
-					httpResponse.disconnect();
-				}
+
+			if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+				return null;
+			}
+
+			throw new Exception(
+				StringBundler.concat(
+					httpResponse.getStatusCode(), " ",
+					httpResponse.getStatusMessage(), " for account ",
+					accountKey));
+		}
+		finally {
+			if (httpResponse != null) {
+				httpResponse.disconnect();
 			}
 		}
 	}
@@ -134,11 +122,5 @@ public class GoogleCloudFunctionService {
 
 	@Value("${liferay.customer.gcf.base.url}")
 	private String _gcfBaseURL;
-
-	@Value("${liferay.customer.gcf.composable.service.account.key}")
-	private String _gcfComposableServiceAccountKey;
-
-	@Value("${liferay.customer.gcf.customer.service.account.key}")
-	private String _gcfCustomerServiceAccountKey;
 
 }

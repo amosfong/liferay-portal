@@ -7,7 +7,6 @@ package com.liferay.customer.service;
 
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -17,14 +16,10 @@ import com.google.cloud.storage.StorageOptions;
 import com.liferay.client.extension.util.spring.boot3.service.BaseService;
 import com.liferay.customer.exception.FileServerUnavailableException;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import java.net.URI;
 import java.net.URL;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
@@ -68,17 +63,12 @@ public class GoogleCloudStorageService extends BaseService {
 	public String getDownloadURL(String bucketName, String objectName)
 		throws Exception {
 
-		try (InputStream inputStream = new ByteArrayInputStream(
-				_gcsServiceAccountKey.getBytes())) {
-
-			ServiceAccountCredentials serviceAccountCredentials =
-				ServiceAccountCredentials.fromStream(inputStream);
-
+		try {
 			StorageOptions storageOptions = StorageOptions.newBuilder(
 			).setCredentials(
-				serviceAccountCredentials
+				GoogleCredentials.getApplicationDefault()
 			).setProjectId(
-				serviceAccountCredentials.getProjectId()
+				_gcsProjectId
 			).build();
 
 			Storage storage = storageOptions.getService();
@@ -168,29 +158,21 @@ public class GoogleCloudStorageService extends BaseService {
 	}
 
 	private String _getAccessToken() throws Exception {
-		try (InputStream inputStream = new ByteArrayInputStream(
-				_gcsServiceAccountKey.getBytes())) {
+		GoogleCredentials googleCredentials =
+			GoogleCredentials.getApplicationDefault(
+			).createScoped(
+				Arrays.asList("https://www.googleapis.com/auth/cloud-platform")
+			);
 
-			ServiceAccountCredentials serviceAccountCredentials =
-				ServiceAccountCredentials.fromStream(inputStream);
+		AccessToken accessToken = googleCredentials.refreshAccessToken();
 
-			Set<String> scopes = new HashSet<>();
-
-			scopes.add("https://www.googleapis.com/auth/cloud-platform");
-
-			GoogleCredentials googleCredentials =
-				serviceAccountCredentials.createScoped(scopes);
-
-			AccessToken accessToken = googleCredentials.refreshAccessToken();
-
-			return accessToken.getTokenValue();
-		}
+		return accessToken.getTokenValue();
 	}
 
 	private static final Log _log = LogFactory.getLog(
 		GoogleCloudStorageService.class);
 
-	@Value("${liferay.customer.gcs.service.account.key}")
-	private String _gcsServiceAccountKey;
+	@Value("${liferay.customer.gcs.project.id}")
+	private String _gcsProjectId;
 
 }

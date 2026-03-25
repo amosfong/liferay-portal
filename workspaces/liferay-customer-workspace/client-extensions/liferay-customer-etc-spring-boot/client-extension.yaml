@@ -13,7 +13,7 @@ liferay-customer-etc-spring-boot-oahs:
         -   c_accountsubscription.everything.read
         -   c_businessevent.everything
         -   c_businesseventversion.everything
-        -   c_koroneikiaccount.everything.read
+        -   c_koroneikiaccount.everything
         -   c_notificationsubscription.everything
         -   c_notificationtarget.everything
         -   c_ticketattachment.everything

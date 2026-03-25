@@ -17,6 +17,7 @@ import com.liferay.customer.model.UsageStrategy;
 import com.liferay.customer.permission.BusinessEventPermission;
 import com.liferay.customer.service.GoogleCloudFunctionService;
 import com.liferay.customer.service.JiraService;
+import com.liferay.customer.service.KoroneikiAccountService;
 import com.liferay.customer.service.KoroneikiService;
 import com.liferay.headless.admin.user.client.dto.v1_0.Account;
 import com.liferay.headless.admin.user.client.resource.v1_0.AccountResource;
@@ -206,6 +207,9 @@ public class AccountsRestController extends BaseRestController {
 			}
 
 			_updateAccount(jwt, koroneikiAccount);
+
+			_koroneikiAccountService.updateKoroneikiAccount(
+				jwt, koroneikiAccount);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
@@ -660,6 +664,9 @@ public class AccountsRestController extends BaseRestController {
 
 	@Value("${liferay.customer.jira.support.hc.field.request.type}")
 	private String _jiraSupportHCFieldRequestType;
+
+	@Autowired
+	private KoroneikiAccountService _koroneikiAccountService;
 
 	@Autowired
 	private KoroneikiService _koroneikiService;

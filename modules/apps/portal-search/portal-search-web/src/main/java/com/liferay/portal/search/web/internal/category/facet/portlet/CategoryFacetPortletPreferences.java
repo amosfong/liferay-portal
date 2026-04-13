@@ -29,6 +29,8 @@ public interface CategoryFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public String getDisplayStyle();
 
 	public int getFrequencyThreshold();
@@ -44,5 +46,7 @@ public interface CategoryFacetPortletPreferences {
 	public String[] getVocabularyIds();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

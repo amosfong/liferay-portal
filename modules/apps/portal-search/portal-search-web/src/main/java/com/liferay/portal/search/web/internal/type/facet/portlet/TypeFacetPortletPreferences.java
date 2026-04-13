@@ -27,6 +27,8 @@ public interface TypeFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public String getAssetTypes();
 
 	public List<KeyValuePair> getAvailableAssetTypes(
@@ -44,5 +46,7 @@ public interface TypeFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

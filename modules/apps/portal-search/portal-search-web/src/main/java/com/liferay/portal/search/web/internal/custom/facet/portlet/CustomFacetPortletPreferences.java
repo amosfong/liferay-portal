@@ -40,6 +40,8 @@ public interface CustomFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_SHOW_INPUT_RANGE =
 		"showInputRange";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public String getAggregationField();
 
 	public String getAggregationType();
@@ -63,5 +65,7 @@ public interface CustomFacetPortletPreferences {
 	public boolean isFrequenciesVisible();
 
 	public boolean isShowInputRange();
+
+	public boolean isIndexingEnabled();
 
 }

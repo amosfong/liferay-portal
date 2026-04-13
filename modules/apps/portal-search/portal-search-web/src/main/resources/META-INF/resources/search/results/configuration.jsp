@@ -20,10 +20,17 @@ page import="com.liferay.portal.search.web.internal.search.results.portlet.Searc
 page import="com.liferay.portal.search.web.internal.search.results.portlet.SearchResultsPortletPreferencesImpl" %><%@
 page import="com.liferay.portal.search.web.internal.util.PortletPreferencesJspUtil" %>
 
+<%@ page import="com.liferay.portal.kernel.util.WebKeys" %><%@
+page import="java.util.Map" %>
+
 <portlet:defineObjects />
 
 <%
-SearchResultsPortletDisplayContext searchResultsPortletDisplayContext = new SearchResultsPortletDisplayContext(request);
+Map<String, Boolean> facetIndexingEnabledMap =
+	(Map<String, Boolean>)request.getAttribute(
+		WebKeys.FACET_INDEXING_ENABLED_MAP);
+
+SearchResultsPortletDisplayContext searchResultsPortletDisplayContext = new SearchResultsPortletDisplayContext(renderRequest, facetIndexingEnabledMap);
 
 SearchResultsPortletInstanceConfiguration searchResultsPortletInstanceConfiguration = searchResultsPortletDisplayContext.getSearchResultsPortletInstanceConfiguration();
 

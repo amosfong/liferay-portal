@@ -16,7 +16,7 @@ import com.liferay.portal.search.web.internal.type.facet.portlet.TypeFacetPortle
 import com.liferay.portal.search.web.internal.type.facet.portlet.TypeFacetPortletPreferencesImpl;
 import com.liferay.portal.search.web.portlet.shared.search.PortletSharedSearchContributor;
 import com.liferay.portal.search.web.portlet.shared.search.PortletSharedSearchSettings;
-
+import com.liferay.portal.kernel.util.WebKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -67,6 +67,18 @@ public class TypeFacetPortletSharedSearchContributor
 				searchContext.setEntryClassNames(
 					ArrayUtil.unique(entryClassNames));
 			});
+
+System.out.println("####" + typeFacetPortletPreferences.isIndexingEnabled());
+System.out.println("####"+ typeFacetPortletPreferences.getParameterName());
+System.out.println("####" + portletSharedSearchSettings.getParameter(typeFacetPortletPreferences.getParameterName(), renderRequest));
+
+				if (portletSharedSearchSettings.getParameter(typeFacetPortletPreferences.getParameterName(), renderRequest) != null &&
+					!typeFacetPortletPreferences.isIndexingEnabled()) {
+System.out.println("#####robots");
+					renderRequest.setAttribute(
+						WebKeys.PAGE_ROBOTS, "noindex,nofollow");
+				}
+				
 	}
 
 	@Reference

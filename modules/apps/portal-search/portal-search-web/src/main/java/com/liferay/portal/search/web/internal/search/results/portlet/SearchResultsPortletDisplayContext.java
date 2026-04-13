@@ -12,15 +12,18 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.search.web.facet.SearchFacet;
+import com.liferay.portal.search.web.internal.facet.util.SearchFacetRegistryUtil;
 import com.liferay.portal.search.web.internal.result.display.context.SearchResultSummaryDisplayContext;
 import com.liferay.portal.search.web.internal.search.results.configuration.SearchResultsPortletInstanceConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.Serializable;
-
+import jakarta.portlet.RenderRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,16 +32,37 @@ import java.util.Objects;
 public class SearchResultsPortletDisplayContext implements Serializable {
 
 	public SearchResultsPortletDisplayContext(
-			HttpServletRequest httpServletRequest)
+			RenderRequest renderRequest,
+			Map<String, Boolean> facetIndexingEnabledMap)
 		throws ConfigurationException {
 
-		_httpServletRequest = httpServletRequest;
+		_renderRequest = renderRequest;
+		_facetIndexingEnabledMap = facetIndexingEnabledMap;
 
 		_searchResultsPortletInstanceConfiguration =
 			ConfigurationProviderUtil.getPortletInstanceConfiguration(
 				SearchResultsPortletInstanceConfiguration.class,
-				(ThemeDisplay)httpServletRequest.getAttribute(
+				(ThemeDisplay)renderRequest.getAttribute(
 					WebKeys.THEME_DISPLAY));
+
+		if (facetIndexingEnabledMap != null) {
+	//System.out.println("####" + facetIndexingEnabledMap.entrySet());
+			for (Map.Entry<String, Boolean> entry : facetIndexingEnabledMap.entrySet()) {
+	//		System.out.println("####" + entry.getKey());
+				String parameterName = entry.getKey();
+				Boolean indexingEnabled = entry.getValue();
+	//System.out.println("####" + indexingEnabled);
+	//System.out.println("####" + renderRequest.getParameter(parameterName));
+				if (//httpServletRequest.getParameter(parameterName) != null &&
+					!indexingEnabled) {
+
+					_renderRequest.setAttribute(
+						WebKeys.PAGE_ROBOTS, "noindex,nofollow");
+
+					break;
+				}
+			}
+		}
 	}
 
 	public long getDisplayStyleGroupId() {
@@ -51,7 +75,7 @@ public class SearchResultsPortletDisplayContext implements Serializable {
 
 		if (_displayStyleGroupId <= 0) {
 			ThemeDisplay themeDisplay =
-				(ThemeDisplay)_httpServletRequest.getAttribute(
+				(ThemeDisplay)_renderRequest.getAttribute(
 					WebKeys.THEME_DISPLAY);
 
 			_displayStyleGroupId = themeDisplay.getScopeGroupId();
@@ -163,7 +187,8 @@ public class SearchResultsPortletDisplayContext implements Serializable {
 
 	private long _displayStyleGroupId;
 	private List<Document> _documents;
-	private final HttpServletRequest _httpServletRequest;
+	private final RenderRequest _renderRequest;
+	private final Map<String, Boolean> _facetIndexingEnabledMap;
 	private String _keywords;
 	private boolean _renderNothing;
 	private SearchContainer<Document> _searchContainer;

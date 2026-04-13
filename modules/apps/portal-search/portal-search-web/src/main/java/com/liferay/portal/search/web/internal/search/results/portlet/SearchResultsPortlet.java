@@ -6,6 +6,7 @@
 package com.liferay.portal.search.web.internal.search.results.portlet;
 
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.util.AssetRendererFactoryLookup;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.portal.kernel.dao.search.DisplayTerms;
@@ -27,22 +28,41 @@ import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.search.asset.SearchableAssetClassNamesProvider;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchResponse;
 import com.liferay.portal.search.summary.SummaryBuilderFactory;
 import com.liferay.portal.search.web.constants.SearchResultsPortletKeys;
+import com.liferay.portal.search.web.facet.SearchFacet;
+import com.liferay.portal.search.web.internal.category.facet.portlet.CategoryFacetPortletPreferencesImpl;
+import com.liferay.portal.search.web.internal.custom.facet.portlet.CustomFacetPortletPreferencesImpl;
 import com.liferay.portal.search.web.internal.display.context.PortletURLFactory;
 import com.liferay.portal.search.web.internal.display.context.PortletURLFactoryImpl;
 import com.liferay.portal.search.web.internal.display.context.SearchResultPreferences;
 import com.liferay.portal.search.web.internal.document.DocumentFormPermissionCheckerImpl;
+import com.liferay.portal.search.web.internal.facet.util.SearchFacetRegistryUtil;
+import com.liferay.portal.search.web.internal.folder.facet.portlet.FolderFacetPortletPreferencesImpl;
+import com.liferay.portal.search.web.internal.modified.facet.portlet.ModifiedFacetPortletPreferencesImpl;
 import com.liferay.portal.search.web.internal.portlet.shared.search.NullPortletURL;
 import com.liferay.portal.search.web.internal.result.display.context.SearchResultSummaryDisplayContext;
 import com.liferay.portal.search.web.internal.result.display.context.builder.SearchResultSummaryDisplayContextBuilder;
+import com.liferay.portal.search.web.internal.site.facet.portlet.SiteFacetPortletPreferencesImpl;
+import com.liferay.portal.search.web.internal.tag.facet.portlet.TagFacetPortletPreferencesImpl;
+import com.liferay.portal.search.web.internal.type.facet.portlet.TypeFacetPortletPreferencesImpl;
+import com.liferay.portal.search.web.internal.user.facet.portlet.UserFacetPortletPreferencesImpl;
 import com.liferay.portal.search.web.portlet.shared.search.PortletSharedSearchRequest;
 import com.liferay.portal.search.web.portlet.shared.search.PortletSharedSearchResponse;
+import com.liferay.portal.search.web.internal.facet.AssetTagsSearchFacet;
+import com.liferay.portal.search.web.internal.facet.AssetCategoriesSearchFacet;
+import com.liferay.portal.search.web.internal.facet.AssetEntriesSearchFacet;
+import com.liferay.portal.search.web.internal.facet.FolderSearchFacet;
+import com.liferay.portal.search.web.internal.facet.ModifiedSearchFacet;
+import com.liferay.portal.search.web.internal.facet.ScopeSearchSearchFacet;
+import com.liferay.portal.search.web.internal.facet.UserSearchFacet;
 
 import jakarta.portlet.Portlet;
 import jakarta.portlet.PortletException;
+import jakarta.portlet.PortletPreferences;
 import jakarta.portlet.PortletRequest;
 import jakarta.portlet.PortletURL;
 import jakarta.portlet.RenderRequest;
@@ -53,7 +73,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -167,6 +190,9 @@ public class SearchResultsPortlet extends MVCPortlet {
 	@Reference
 	protected AssetEntryLocalService assetEntryLocalService;
 
+	@Reference
+	protected AssetVocabularyLocalService assetVocabularyLocalService;
+
 	protected AssetRendererFactoryLookup assetRendererFactoryLookup;
 
 	@Reference
@@ -191,6 +217,9 @@ public class SearchResultsPortlet extends MVCPortlet {
 	protected ResourceActions resourceActions;
 
 	@Reference
+	protected SearchableAssetClassNamesProvider searchableAssetClassNamesProvider;
+
+	@Reference
 	protected SummaryBuilderFactory summaryBuilderFactory;
 
 	@Reference
@@ -201,8 +230,127 @@ public class SearchResultsPortlet extends MVCPortlet {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {
 
+		PortletPreferences portletPreferences =
+			portletSharedSearchResponse.getPortletPreferences(renderRequest);
+
+		Map<String, Boolean> facetIndexingEnabledMap = new HashMap<>();
+
+		for (SearchFacet searchFacet : SearchFacetRegistryUtil.getSearchFacets()) {
+System.out.println("###"+searchFacet);
+System.out.println("###"+searchFacet.getClassName());
+
+			String className = searchFacet.getClassName();
+
+			if (Objects.equals(
+					className,
+					"com.liferay.portal.kernel.search.facet.AssetCategoriesFacet")) {
+
+				CategoryFacetPortletPreferencesImpl
+					categoryFacetPortletPreferences =
+						new CategoryFacetPortletPreferencesImpl(
+							assetVocabularyLocalService, groupLocalService,
+							portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					categoryFacetPortletPreferences.getParameterName(),
+					categoryFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.CustomFacet")) {
+
+				CustomFacetPortletPreferencesImpl customFacetPortletPreferences =
+					new CustomFacetPortletPreferencesImpl(portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					customFacetPortletPreferences.getParameterName(),
+					customFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.FolderFacet")) {
+
+				FolderFacetPortletPreferencesImpl folderFacetPortletPreferences =
+					new FolderFacetPortletPreferencesImpl(portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					folderFacetPortletPreferences.getParameterName(),
+					folderFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.ModifiedFacet")) {
+
+				ModifiedFacetPortletPreferencesImpl
+					modifiedFacetPortletPreferences =
+						new ModifiedFacetPortletPreferencesImpl(
+							portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					modifiedFacetPortletPreferences.getParameterName(),
+					modifiedFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.SiteFacet")) {
+
+				SiteFacetPortletPreferencesImpl siteFacetPortletPreferences =
+					new SiteFacetPortletPreferencesImpl(portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					siteFacetPortletPreferences.getParameterName(),
+					siteFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.TagFacet")) {
+
+				TagFacetPortletPreferencesImpl tagFacetPortletPreferences =
+					new TagFacetPortletPreferencesImpl(portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					tagFacetPortletPreferences.getParameterName(),
+					tagFacetPortletPreferences.isIndexingEnabled());
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.search.web.internal.facet.AssetEntriesSearchFacet")) {
+
+				TypeFacetPortletPreferencesImpl typeFacetPortletPreferences =
+					new TypeFacetPortletPreferencesImpl(
+						objectDefinitionLocalService, portletPreferences,
+						searchableAssetClassNamesProvider);
+
+System.out.println("####" + typeFacetPortletPreferences.isIndexingEnabled());
+System.out.println("####"+ typeFacetPortletPreferences.getParameterName());
+System.out.println("####" + portletSharedSearchResponse.getParameter(typeFacetPortletPreferences.getParameterName(), renderRequest));
+
+				if (portletSharedSearchResponse.getParameter(typeFacetPortletPreferences.getParameterName(), renderRequest) != null &&
+					!typeFacetPortletPreferences.isIndexingEnabled()) {
+System.out.println("#####robots");
+					renderRequest.setAttribute(
+						WebKeys.PAGE_ROBOTS, "noindex,nofollow");
+				}
+			}
+			else if (Objects.equals(
+						className,
+						"com.liferay.portal.kernel.search.facet.UserFacet")) {
+
+				UserFacetPortletPreferencesImpl userFacetPortletPreferences =
+					new UserFacetPortletPreferencesImpl(portletPreferences);
+
+				facetIndexingEnabledMap.put(
+					userFacetPortletPreferences.getParameterName(),
+					userFacetPortletPreferences.isIndexingEnabled());
+			}
+		}
+
+		renderRequest.setAttribute(
+			WebKeys.FACET_INDEXING_ENABLED_MAP, facetIndexingEnabledMap);
+
 		SearchResultsPortletDisplayContext searchResultsPortletDisplayContext =
-			_createSearchResultsPortletDisplayContext(renderRequest);
+			_createSearchResultsPortletDisplayContext(
+				renderRequest, portletPreferences, facetIndexingEnabledMap);
 
 		SearchResultsSummariesHolder searchResultsSummariesHolder =
 			_buildSummaries(
@@ -373,11 +521,13 @@ public class SearchResultsPortlet extends MVCPortlet {
 	}
 
 	private SearchResultsPortletDisplayContext
-		_createSearchResultsPortletDisplayContext(RenderRequest renderRequest) {
+		_createSearchResultsPortletDisplayContext(
+			RenderRequest renderRequest, PortletPreferences portletPreferences,
+			Map<String, Boolean> facetIndexingEnabledMap) {
 
 		try {
 			return new SearchResultsPortletDisplayContext(
-				getHttpServletRequest(renderRequest));
+				renderRequest, facetIndexingEnabledMap);
 		}
 		catch (ConfigurationException configurationException) {
 			throw new RuntimeException(configurationException);

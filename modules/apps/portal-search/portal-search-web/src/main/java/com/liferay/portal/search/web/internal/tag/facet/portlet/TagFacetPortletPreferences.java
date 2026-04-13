@@ -25,6 +25,8 @@ public interface TagFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public String getDisplayStyle();
 
 	public int getFrequencyThreshold();
@@ -36,5 +38,7 @@ public interface TagFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

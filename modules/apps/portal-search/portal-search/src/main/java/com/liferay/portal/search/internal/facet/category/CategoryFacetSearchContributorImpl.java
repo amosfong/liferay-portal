@@ -129,6 +129,7 @@ public class CategoryFacetSearchContributorImpl
 			facetConfiguration.setOrder("OrderHitsDesc");
 			facetConfiguration.setStatic(false);
 			facetConfiguration.setWeight(1.6);
+			facetConfiguration.setIndexingEnabled(false);
 
 			JSONObject jsonObject = facetConfiguration.getData();
 

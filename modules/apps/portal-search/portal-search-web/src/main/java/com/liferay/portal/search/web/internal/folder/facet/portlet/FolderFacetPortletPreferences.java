@@ -22,6 +22,8 @@ public interface FolderFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public int getFrequencyThreshold();
 
 	public int getMaxTerms();
@@ -31,5 +33,7 @@ public interface FolderFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

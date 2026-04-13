@@ -318,6 +318,9 @@ public interface WebKeys {
 	public static final String LINKED_ASSET_ENTRY_IDS =
 		"LIFERAY_SHARED_LINKED_ASSET_ENTRY_IDS";
 
+	public static final String FACET_INDEXING_ENABLED_MAP =
+		"LIFERAY_SHARED_FACET_INDEXING_ENABLED_MAP";
+
 	public static final String LOCALE = "LOCALE";
 
 	public static final String LOGIN_REQUEST = "LOGIN_REQUEST";

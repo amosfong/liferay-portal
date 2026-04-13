@@ -24,6 +24,8 @@ public interface ModifiedFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_RANGES = "ranges";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED = "indexingEnabled";
+
 	public int getFrequencyThreshold();
 
 	public String getOrder();
@@ -35,5 +37,7 @@ public interface ModifiedFacetPortletPreferences {
 	public String getRangesString();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

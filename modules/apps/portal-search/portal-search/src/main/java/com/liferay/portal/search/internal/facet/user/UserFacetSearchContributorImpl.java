@@ -104,6 +104,7 @@ public class UserFacetSearchContributorImpl
 			facetConfiguration.setOrder("OrderHitsDesc");
 			facetConfiguration.setStatic(false);
 			facetConfiguration.setWeight(1.1);
+			facetConfiguration.setIndexingEnabled(false);
 
 			JSONObject jsonObject = facetConfiguration.getData();
 

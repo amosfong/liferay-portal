@@ -54,4 +54,11 @@ public class FolderFacetPortletPreferencesImpl
 			true);
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
+			false);
+	}
+
 }

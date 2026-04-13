@@ -134,6 +134,7 @@ public class RangeFacetSearchContributorImpl
 			facetConfiguration.setOrder(_order);
 			facetConfiguration.setStatic(false);
 			facetConfiguration.setWeight(1.0);
+			facetConfiguration.setIndexingEnabled(false);
 
 			JSONObject jsonObject = facetConfiguration.getData();
 

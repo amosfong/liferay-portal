@@ -126,6 +126,13 @@ public class CustomFacetPortletPreferencesImpl
 			true);
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
+			false);
+	}
+
 	private JSONArray _getDefaultDateRangesJSONArray() {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 

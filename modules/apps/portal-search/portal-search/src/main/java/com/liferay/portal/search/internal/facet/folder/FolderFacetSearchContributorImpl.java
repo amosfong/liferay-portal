@@ -103,6 +103,7 @@ public class FolderFacetSearchContributorImpl
 			facetConfiguration.setLabel("any-folder");
 			facetConfiguration.setStatic(false);
 			facetConfiguration.setWeight(1.4);
+			facetConfiguration.setIndexingEnabled(false);
 
 			JSONObject jsonObject = facetConfiguration.getData();
 

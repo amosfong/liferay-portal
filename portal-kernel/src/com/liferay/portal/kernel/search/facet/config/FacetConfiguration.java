@@ -33,6 +33,10 @@ public class FacetConfiguration {
 		return _label;
 	}
 
+	public boolean isIndexingEnabled() {
+		return _indexingEnabled;
+	}
+
 	public String getOrder() {
 		if (_order == null) {
 			return "OrderHitsDesc";
@@ -61,6 +65,10 @@ public class FacetConfiguration {
 		_fieldName = fieldName;
 	}
 
+	public void setIndexingEnabled(boolean indexingEnabled) {
+		_indexingEnabled = indexingEnabled;
+	}
+
 	public void setLabel(String label) {
 		_label = label;
 	}
@@ -80,6 +88,7 @@ public class FacetConfiguration {
 	private String _className;
 	private JSONObject _dataJSONObject;
 	private String _fieldName;
+	private boolean _indexingEnabled;
 	private String _label;
 	private String _order;
 	private boolean _static;

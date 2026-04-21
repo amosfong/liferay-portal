@@ -5,6 +5,9 @@
 
 package com.liferay.layout.internal.struts;
 
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -12,6 +15,7 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.VirtualHost;
+import com.liferay.portal.kernel.robots.RobotsContributor;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.VirtualHostLocalService;
@@ -27,7 +31,10 @@ import com.liferay.portal.util.RobotsUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -69,12 +76,29 @@ public class RobotsStrutsAction implements StrutsAction {
 				}
 			}
 
-			String robots = RobotsUtil.getRobots(
-				layoutSet, httpServletRequest.isSecure());
+			StringBundler sb = new StringBundler();
+
+			sb.append(
+				RobotsUtil.getRobots(
+					layoutSet, httpServletRequest.isSecure()));
+
+			if (layoutSet != null) {
+				for (RobotsContributor robotsContributor :
+						_serviceTrackerList.toList()) {
+
+					String contribution = robotsContributor.contribute(
+						layoutSet);
+
+					if (Validator.isNotNull(contribution)) {
+						sb.append(contribution);
+					}
+				}
+			}
 
 			ServletResponseUtil.sendFile(
 				httpServletRequest, httpServletResponse, null,
-				robots.getBytes(StringPool.UTF8), ContentTypes.TEXT_PLAIN_UTF8);
+				sb.toString().getBytes(StringPool.UTF8),
+				ContentTypes.TEXT_PLAIN_UTF8);
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -89,6 +113,17 @@ public class RobotsStrutsAction implements StrutsAction {
 		return null;
 	}
 
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_serviceTrackerList = ServiceTrackerListFactory.open(
+			bundleContext, RobotsContributor.class);
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_serviceTrackerList.close();
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		RobotsStrutsAction.class);
 
@@ -100,6 +135,8 @@ public class RobotsStrutsAction implements StrutsAction {
 
 	@Reference
 	private Portal _portal;
+
+	private ServiceTrackerList<RobotsContributor> _serviceTrackerList;
 
 	@Reference
 	private VirtualHostLocalService _virtualHostLocalService;

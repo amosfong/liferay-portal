@@ -58,6 +58,12 @@ public class SortPortletPreferencesImpl
 		return "sort";
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			SortPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+	}
+
 	private JSONArray _getDefaultFieldsJSONArray() {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 

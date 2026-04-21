@@ -23,6 +23,9 @@ public interface TypeFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_FREQUENCY_THRESHOLD =
 		"frequencyThreshold";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED =
+		"indexingEnabled";
+
 	public static final String PREFERENCE_KEY_ORDER = "order";
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
@@ -44,5 +47,7 @@ public interface TypeFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

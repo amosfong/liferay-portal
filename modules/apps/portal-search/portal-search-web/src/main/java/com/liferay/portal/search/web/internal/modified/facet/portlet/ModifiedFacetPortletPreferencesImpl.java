@@ -14,7 +14,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.web.internal.portlet.preferences.BasePortletPreferences;
-import com.liferay.portal.search.web.internal.user.facet.portlet.UserFacetPortletPreferences;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -81,8 +80,15 @@ public class ModifiedFacetPortletPreferencesImpl
 	@Override
 	public boolean isFrequenciesVisible() {
 		return getBoolean(
-			UserFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE,
+			ModifiedFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE,
 			true);
+	}
+
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
+			false);
 	}
 
 	private JSONArray _getDefaultRangesJSONArray() {

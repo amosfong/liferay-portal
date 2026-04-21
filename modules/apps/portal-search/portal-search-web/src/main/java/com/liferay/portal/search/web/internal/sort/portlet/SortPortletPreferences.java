@@ -14,10 +14,15 @@ public interface SortPortletPreferences {
 
 	public static final String PREFERENCE_KEY_FIELDS = "fields";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED =
+		"indexingEnabled";
+
 	public JSONArray getFieldsJSONArray();
 
 	public String getFieldsString();
 
 	public String getParameterName();
+
+	public boolean isIndexingEnabled();
 
 }

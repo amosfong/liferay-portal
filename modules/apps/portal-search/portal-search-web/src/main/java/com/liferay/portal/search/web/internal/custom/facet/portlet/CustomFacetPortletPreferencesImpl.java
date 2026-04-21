@@ -120,6 +120,13 @@ public class CustomFacetPortletPreferencesImpl
 	}
 
 	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
+			false);
+	}
+
+	@Override
 	public boolean isShowInputRange() {
 		return getBoolean(
 			CustomFacetPortletPreferences.PREFERENCE_KEY_SHOW_INPUT_RANGE,

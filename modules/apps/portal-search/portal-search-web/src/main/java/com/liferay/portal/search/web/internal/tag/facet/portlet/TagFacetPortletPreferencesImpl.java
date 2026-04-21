@@ -58,4 +58,10 @@ public class TagFacetPortletPreferencesImpl
 			true);
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+	}
+
 }

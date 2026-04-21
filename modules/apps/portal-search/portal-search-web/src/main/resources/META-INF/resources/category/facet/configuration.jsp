@@ -86,6 +86,8 @@ CategoryFacetPortletPreferences categoryFacetPortletPreferences = new CategoryFa
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isFrequenciesVisible() %>" />
 
+			<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isIndexingEnabled() %>" />
+
 			<div id="<portlet:namespace />selectVocabularies">
 				<react:component
 					module="{SelectVocabularies} from portal-search-web"

@@ -94,6 +94,8 @@ JSONArray fieldsJSONArray = sortPortletPreferences.getFieldsJSONArray();
 					%>'
 				/>
 			</div>
+
+			<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(SortPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= sortPortletPreferences.isIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

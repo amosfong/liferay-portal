@@ -113,6 +113,8 @@ JSONArray rangesJSONArray = modifiedFacetPortletPreferences.getRangesJSONArray()
 				</aui:fieldset>
 
 				<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(ModifiedFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= modifiedFacetPortletPreferences.isFrequenciesVisible() %>" />
+
+				<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= modifiedFacetPortletPreferences.isIndexingEnabled() %>" />
 			</liferay-frontend:fieldset>
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>

@@ -71,6 +71,8 @@ FolderFacetPortletPreferences folderFacetPortletPreferences = new FolderFacetPor
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= folderFacetPortletPreferences.isFrequenciesVisible() %>" />
 
+			<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= folderFacetPortletPreferences.isIndexingEnabled() %>" />
+
 			<aui:select label="order-terms-by" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_ORDER) %>" value="<%= folderFacetPortletPreferences.getOrder() %>">
 				<aui:option label="term-frequency-descending" value="count:desc" />
 				<aui:option label="term-frequency-ascending" value="count:asc" />

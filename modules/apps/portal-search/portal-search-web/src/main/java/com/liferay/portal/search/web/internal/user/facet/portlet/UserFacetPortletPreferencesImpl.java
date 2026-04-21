@@ -52,4 +52,10 @@ public class UserFacetPortletPreferencesImpl
 			true);
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			UserFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+	}
+
 }

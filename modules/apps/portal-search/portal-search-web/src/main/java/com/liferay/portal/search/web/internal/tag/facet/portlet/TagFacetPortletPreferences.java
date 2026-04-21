@@ -19,6 +19,9 @@ public interface TagFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_FREQUENCY_THRESHOLD =
 		"frequencyThreshold";
 
+	public static final String PREFERENCE_KEY_INDEXING_ENABLED =
+		"indexingEnabled";
+
 	public static final String PREFERENCE_KEY_MAX_TERMS = "maxTerms";
 
 	public static final String PREFERENCE_KEY_ORDER = "order";
@@ -36,5 +39,7 @@ public interface TagFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
+
+	public boolean isIndexingEnabled();
 
 }

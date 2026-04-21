@@ -109,6 +109,12 @@ public class TypeFacetPortletPreferencesImpl
 			true);
 	}
 
+	@Override
+	public boolean isIndexingEnabled() {
+		return getBoolean(
+			TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+	}
+
 	protected String[] getAllAssetTypes(long companyId) {
 		return _searchableAssetClassNamesProvider.getClassNames(companyId);
 	}

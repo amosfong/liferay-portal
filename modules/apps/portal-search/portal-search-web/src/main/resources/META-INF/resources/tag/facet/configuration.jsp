@@ -78,7 +78,7 @@ TagFacetPortletPreferences tagFacetPortletPreferences = new TagFacetPortletPrefe
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(TagFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= tagFacetPortletPreferences.isFrequenciesVisible() %>" />
 
-			<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= tagFacetPortletPreferences.isIndexingEnabled() %>" />
+			<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= tagFacetPortletPreferences.isIndexingDisabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

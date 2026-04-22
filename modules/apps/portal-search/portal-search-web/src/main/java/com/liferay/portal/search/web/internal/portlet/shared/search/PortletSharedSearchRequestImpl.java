@@ -378,7 +378,7 @@ public class PortletSharedSearchRequestImpl
 			portletPreferencesLookup.fetchPreferences(portlet, themeDisplay);
 
 		String parameterName;
-		boolean indexingEnabled;
+		boolean indexingDisabled;
 
 		if (portletName.equals(CategoryFacetPortletKeys.CATEGORY_FACET)) {
 			CategoryFacetPortletPreferences prefs =
@@ -387,7 +387,7 @@ public class PortletSharedSearchRequestImpl
 					portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(CustomFacetPortletKeys.CUSTOM_FACET)) {
 			CustomFacetPortletPreferences prefs =
@@ -399,7 +399,7 @@ public class PortletSharedSearchRequestImpl
 				parameterName = prefs.getAggregationField();
 			}
 
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(
 					ModifiedFacetPortletKeys.MODIFIED_FACET)) {
@@ -408,28 +408,28 @@ public class PortletSharedSearchRequestImpl
 				new ModifiedFacetPortletPreferencesImpl(portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(SiteFacetPortletKeys.SITE_FACET)) {
 			SiteFacetPortletPreferences prefs =
 				new SiteFacetPortletPreferencesImpl(portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(SortPortletKeys.SORT)) {
 			SortPortletPreferences prefs =
 				new SortPortletPreferencesImpl(portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(TagFacetPortletKeys.TAG_FACET)) {
 			TagFacetPortletPreferences prefs =
 				new TagFacetPortletPreferencesImpl(portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(TypeFacetPortletKeys.TYPE_FACET)) {
 			TypeFacetPortletPreferences prefs =
@@ -438,20 +438,20 @@ public class PortletSharedSearchRequestImpl
 					_searchableAssetClassNamesProvider);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else if (portletName.equals(UserFacetPortletKeys.USER_FACET)) {
 			UserFacetPortletPreferences prefs =
 				new UserFacetPortletPreferencesImpl(portletPreferences);
 
 			parameterName = prefs.getParameterName();
-			indexingEnabled = prefs.isIndexingEnabled();
+			indexingDisabled = prefs.isIndexingDisabled();
 		}
 		else {
 			return false;
 		}
 
-		if (indexingEnabled) {
+		if (!indexingDisabled) {
 			return false;
 		}
 

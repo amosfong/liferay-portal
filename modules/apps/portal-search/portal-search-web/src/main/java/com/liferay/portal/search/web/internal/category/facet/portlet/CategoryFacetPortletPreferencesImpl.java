@@ -124,10 +124,10 @@ public class CategoryFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
-			false);
+			CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			true);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

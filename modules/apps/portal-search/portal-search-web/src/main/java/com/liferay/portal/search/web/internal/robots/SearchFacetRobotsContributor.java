@@ -68,8 +68,8 @@ public class SearchFacetRobotsContributor implements RobotsContributor {
 						portletPreferences.getPlid(),
 						portletPreferences.getPortletId());
 
-				if (GetterUtil.getBoolean(
-						preferences.getValue("indexingEnabled", "false"))) {
+				if (!GetterUtil.getBoolean(
+						preferences.getValue("indexingDisabled", "true"))) {
 
 					continue;
 				}

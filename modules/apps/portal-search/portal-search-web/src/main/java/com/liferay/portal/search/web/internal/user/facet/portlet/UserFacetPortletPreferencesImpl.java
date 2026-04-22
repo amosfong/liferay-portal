@@ -53,9 +53,9 @@ public class UserFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			UserFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+			UserFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
 	}
 
 }

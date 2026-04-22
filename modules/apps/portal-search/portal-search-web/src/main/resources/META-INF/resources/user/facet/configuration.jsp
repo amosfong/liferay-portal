@@ -83,7 +83,7 @@ UserFacetPortletPreferences userFacetPortletPreferences = new UserFacetPortletPr
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(UserFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= userFacetPortletPreferences.isFrequenciesVisible() %>" />
 
-			<aui:input label="indexing-enabled" name="<%= PortletPreferencesJspUtil.getInputName(UserFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= userFacetPortletPreferences.isIndexingEnabled() %>" />
+			<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(UserFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= userFacetPortletPreferences.isIndexingDisabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

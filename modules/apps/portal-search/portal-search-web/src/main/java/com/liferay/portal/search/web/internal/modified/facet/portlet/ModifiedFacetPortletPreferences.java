@@ -18,8 +18,8 @@ public interface ModifiedFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_FREQUENCY_THRESHOLD =
 		"frequencyThreshold";
 
-	public static final String PREFERENCE_KEY_INDEXING_ENABLED =
-		"indexingEnabled";
+	public static final String PREFERENCE_KEY_INDEXING_DISABLED =
+		"indexingDisabled";
 
 	public static final String PREFERENCE_KEY_ORDER = "order";
 
@@ -39,6 +39,6 @@ public interface ModifiedFacetPortletPreferences {
 
 	public boolean isFrequenciesVisible();
 
-	public boolean isIndexingEnabled();
+	public boolean isIndexingDisabled();
 
 }

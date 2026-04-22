@@ -120,10 +120,10 @@ public class CustomFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
-			false);
+			CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			true);
 	}
 
 	@Override

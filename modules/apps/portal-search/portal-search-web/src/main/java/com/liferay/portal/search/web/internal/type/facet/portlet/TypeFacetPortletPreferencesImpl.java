@@ -110,9 +110,9 @@ public class TypeFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+			TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
 	}
 
 	protected String[] getAllAssetTypes(long companyId) {

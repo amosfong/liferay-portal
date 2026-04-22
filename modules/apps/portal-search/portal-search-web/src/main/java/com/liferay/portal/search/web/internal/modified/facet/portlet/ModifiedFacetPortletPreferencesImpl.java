@@ -85,10 +85,10 @@ public class ModifiedFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
-			false);
+			ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			true);
 	}
 
 	private JSONArray _getDefaultRangesJSONArray() {

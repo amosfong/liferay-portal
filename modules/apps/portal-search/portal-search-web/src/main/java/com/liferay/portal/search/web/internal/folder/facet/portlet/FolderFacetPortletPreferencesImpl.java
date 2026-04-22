@@ -55,10 +55,10 @@ public class FolderFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED,
-			false);
+			FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			true);
 	}
 
 }

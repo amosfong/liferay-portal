@@ -59,9 +59,9 @@ public class TagFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+			TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
 	}
 
 }

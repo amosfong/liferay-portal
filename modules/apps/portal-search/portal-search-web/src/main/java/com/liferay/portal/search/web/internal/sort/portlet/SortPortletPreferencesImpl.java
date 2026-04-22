@@ -59,9 +59,9 @@ public class SortPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingEnabled() {
+	public boolean isIndexingDisabled() {
 		return getBoolean(
-			SortPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED, false);
+			SortPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
 	}
 
 	private JSONArray _getDefaultFieldsJSONArray() {

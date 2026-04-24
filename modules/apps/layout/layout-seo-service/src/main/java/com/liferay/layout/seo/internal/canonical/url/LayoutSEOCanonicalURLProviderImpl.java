@@ -6,11 +6,14 @@
 package com.liferay.layout.seo.internal.canonical.url;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
+import com.liferay.layout.seo.canonical.url.CanonicalURLParameterContributor;
 import com.liferay.layout.seo.canonical.url.LayoutSEOCanonicalURLProvider;
 import com.liferay.layout.seo.internal.configuration.LayoutSEOCompanyConfiguration;
 import com.liferay.layout.seo.internal.util.AlternateURLMapperProvider;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -21,17 +24,22 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -53,11 +61,13 @@ public class LayoutSEOCanonicalURLProviderImpl
 		String layoutCanonicalURL = _getLayoutCanonicalURL(locale, layout);
 
 		if (Validator.isNotNull(layoutCanonicalURL)) {
-			return layoutCanonicalURL;
+			return _appendContributedParameters(layoutCanonicalURL, layout);
 		}
 
-		return _getDefaultCanonicalURL(
-			layout, locale, canonicalURL, themeDisplay);
+		return _appendContributedParameters(
+			_getDefaultCanonicalURL(
+				layout, locale, canonicalURL, themeDisplay),
+			layout);
 	}
 
 	@Override
@@ -108,15 +118,75 @@ public class LayoutSEOCanonicalURLProviderImpl
 	}
 
 	@Activate
-	protected void activate() {
+	protected void activate(BundleContext bundleContext) {
 		_alternateURLMapperProvider = new AlternateURLMapperProvider(
 			_assetDisplayPageFriendlyURLProvider, _classNameLocalService,
 			_portal);
+
+		_canonicalURLParameterContributorServiceTrackerList =
+			ServiceTrackerListFactory.open(
+				bundleContext, CanonicalURLParameterContributor.class);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_alternateURLMapperProvider = null;
+
+		_canonicalURLParameterContributorServiceTrackerList.close();
+	}
+
+	private String _appendContributedParameters(
+		String canonicalURL, Layout layout) {
+
+		HttpServletRequest httpServletRequest = _getHttpServletRequest();
+
+		if (httpServletRequest == null) {
+			return canonicalURL;
+		}
+
+		Set<String> parameterNames = new TreeSet<>();
+
+		for (CanonicalURLParameterContributor contributor :
+				_canonicalURLParameterContributorServiceTrackerList) {
+
+			Set<String> contributedNames = contributor.getParameterNames(
+				httpServletRequest, layout);
+
+			if (contributedNames != null) {
+				parameterNames.addAll(contributedNames);
+			}
+		}
+
+		if (parameterNames.isEmpty()) {
+			return canonicalURL;
+		}
+
+		List<String> params = new ArrayList<>(parameterNames.size() * 2);
+
+		for (String parameterName : parameterNames) {
+			String[] values = httpServletRequest.getParameterValues(
+				parameterName);
+
+			if (values == null) {
+				continue;
+			}
+
+			for (String value : values) {
+				if (Validator.isNull(value)) {
+					continue;
+				}
+
+				params.add(parameterName);
+				params.add(value);
+			}
+		}
+
+		if (params.isEmpty()) {
+			return canonicalURL;
+		}
+
+		return HttpComponentsUtil.addParameters(
+			canonicalURL, params.toArray(new Object[0]));
 	}
 
 	private String _getDefaultCanonicalURL(
@@ -179,6 +249,8 @@ public class LayoutSEOCanonicalURLProviderImpl
 	}
 
 	private AlternateURLMapperProvider _alternateURLMapperProvider;
+	private ServiceTrackerList<CanonicalURLParameterContributor>
+		_canonicalURLParameterContributorServiceTrackerList;
 
 	@Reference
 	private AssetDisplayPageFriendlyURLProvider

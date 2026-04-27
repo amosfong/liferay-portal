@@ -32,8 +32,6 @@ import com.liferay.portal.search.web.internal.display.context.PortletRequestThem
 import com.liferay.portal.search.web.internal.display.context.ThemeDisplaySupplier;
 import com.liferay.portal.search.web.internal.portlet.preferences.PortletPreferencesLookup;
 import com.liferay.portal.search.web.internal.portlet.shared.task.helper.PortletSharedRequestHelper;
-import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
-import com.liferay.portal.search.web.internal.seo.SearchSEOSettingsUtil;
 import com.liferay.portal.search.web.internal.search.request.SearchContainerBuilder;
 import com.liferay.portal.search.web.internal.search.request.SearchContextBuilder;
 import com.liferay.portal.search.web.internal.search.request.SearchRequestImpl;
@@ -74,32 +72,6 @@ public class PortletSharedSearchRequestImpl
 		return portletSharedTaskExecutor.executeOnlyOnce(
 			() -> _search(renderRequest),
 			PortletSharedSearchResponse.class.getSimpleName(), renderRequest);
-	}
-
-	public String getMetaRobots(RenderRequest renderRequest) {
-		ThemeDisplay themeDisplay = getThemeDisplay(renderRequest);
-
-		Layout layout = themeDisplay.getLayout();
-
-		if (layout == null) {
-			return null;
-		}
-
-		SegmentsExperienceManager segmentsExperienceManager =
-			new SegmentsExperienceManager(
-				_layoutPermission, _segmentsExperienceLocalService);
-
-		long segmentsExperienceId =
-			segmentsExperienceManager.getSegmentsExperienceId(
-				_portal.getHttpServletRequest(renderRequest));
-
-		for (Portlet portlet : _getPortlets(layout, segmentsExperienceId)) {
-			if (_isNoIndexPortlet(portlet, themeDisplay, renderRequest)) {
-				return "noindex,nofollow";
-			}
-		}
-
-		return "";
 	}
 
 	@Activate
@@ -331,26 +303,7 @@ public class PortletSharedSearchRequestImpl
 		return segmentExperiencePortletIds;
 	}
 
-	private boolean _isNoIndexPortlet(
-		Portlet portlet, ThemeDisplay themeDisplay,
-		RenderRequest renderRequest) {
-
-		SEOPortletPreferences seoPortletPreferences =
-			_searchSEOSettingsUtil.resolve(portlet, themeDisplay);
-
-		if ((seoPortletPreferences == null) ||
-			seoPortletPreferences.isSEOIndexingEnabled()) {
-
-			return false;
-		}
-
-		return portletSharedRequestHelper.getParameter(
-			seoPortletPreferences.getSEOParameterName(), renderRequest) != null;
-	}
-
 	private PortletSharedSearchResponse _search(RenderRequest renderRequest) {
-		renderRequest.setAttribute(WebKeys.PAGE_ROBOTS, getMetaRobots(renderRequest));
-
 		ThemeDisplay themeDisplay = getThemeDisplay(renderRequest);
 
 		SearchRequestImpl searchRequestImpl = _createSearchRequestImpl(
@@ -386,9 +339,6 @@ public class PortletSharedSearchRequestImpl
 
 	@Reference
 	private PortletRegistry _portletRegistry;
-
-	@Reference
-	private SearchSEOSettingsUtil _searchSEOSettingsUtil;
 
 	@Reference
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;

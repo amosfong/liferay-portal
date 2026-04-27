@@ -5,6 +5,7 @@
 
 package com.liferay.portal.search.web.internal.category.facet.portlet;
 
+import com.liferay.layout.seo.contributor.PortletSEOContributor;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.portal.kernel.model.Group;
@@ -82,6 +83,9 @@ public class CategoryFacetPortlet extends MVCPortlet {
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
+
+		renderRequest.setAttribute(WebKeys.PAGE_ROBOTS,
+		_portletSEOContributor.getPageMetaRobots(renderRequest));
 
 		super.render(renderRequest, renderResponse);
 	}
@@ -193,5 +197,11 @@ public class CategoryFacetPortlet extends MVCPortlet {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference(
+		target = "(jakarta.portlet.name=" + CategoryFacetPortletKeys.CATEGORY_FACET + ")",
+		unbind = "-"
+	)
+	private PortletSEOContributor _portletSEOContributor;
 
 }

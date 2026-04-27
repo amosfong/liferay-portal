@@ -19,6 +19,7 @@ page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.search.asset.SearchableAssetClassNamesProvider" %><%@
 page import="com.liferay.portal.search.web.internal.facet.display.context.AssetEntriesSearchFacetDisplayContext" %><%@
+page import="com.liferay.portal.search.web.internal.seo.SEOPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.type.facet.configuration.TypeFacetPortletInstanceConfiguration" %><%@
 page import="com.liferay.portal.search.web.internal.type.facet.portlet.TypeFacetPortlet" %><%@
 page import="com.liferay.portal.search.web.internal.type.facet.portlet.TypeFacetPortletPreferences" %><%@
@@ -88,8 +89,6 @@ TypeFacetPortletPreferences typeFacetPortletPreferences = new com.liferay.portal
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= typeFacetPortletPreferences.isFrequenciesVisible() %>" />
 
-			<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= typeFacetPortletPreferences.isIndexingDisabled() %>" />
-
 			<aui:input name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_ASSET_TYPES) %>" type="hidden" value="<%= typeFacetPortletPreferences.getAssetTypes() %>" />
 
 			<liferay-ui:input-move-boxes
@@ -100,6 +99,13 @@ TypeFacetPortletPreferences typeFacetPortletPreferences = new com.liferay.portal
 				rightList="<%= typeFacetPortletPreferences.getCurrentAssetTypes(themeDisplay.getCompanyId(), themeDisplay.getLocale()) %>"
 				rightTitle="in-use"
 			/>
+		</liferay-frontend:fieldset>
+
+		<liferay-frontend:fieldset
+			collapsible="<%= true %>"
+			label="seo-configuration"
+		>
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= typeFacetPortletPreferences.isIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

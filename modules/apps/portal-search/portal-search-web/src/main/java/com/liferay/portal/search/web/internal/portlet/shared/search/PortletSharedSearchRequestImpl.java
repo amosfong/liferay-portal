@@ -31,8 +31,9 @@ import com.liferay.portal.search.searcher.Searcher;
 import com.liferay.portal.search.web.internal.display.context.PortletRequestThemeDisplaySupplier;
 import com.liferay.portal.search.web.internal.display.context.ThemeDisplaySupplier;
 import com.liferay.portal.search.web.internal.portlet.preferences.PortletPreferencesLookup;
-import com.liferay.portal.search.web.internal.seo.SearchSEOSettingsUtil;
 import com.liferay.portal.search.web.internal.portlet.shared.task.helper.PortletSharedRequestHelper;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
+import com.liferay.portal.search.web.internal.seo.SearchSEOSettingsUtil;
 import com.liferay.portal.search.web.internal.search.request.SearchContainerBuilder;
 import com.liferay.portal.search.web.internal.search.request.SearchContextBuilder;
 import com.liferay.portal.search.web.internal.search.request.SearchRequestImpl;
@@ -334,15 +335,17 @@ public class PortletSharedSearchRequestImpl
 		Portlet portlet, ThemeDisplay themeDisplay,
 		RenderRequest renderRequest) {
 
-		SearchSEOSettingsUtil.Info info = _searchSEOSettingsUtil.resolve(
-			portlet, themeDisplay);
+		SEOPortletPreferences seoPortletPreferences =
+			_searchSEOSettingsUtil.resolve(portlet, themeDisplay);
 
-		if ((info == null) || !info.indexingDisabled) {
+		if ((seoPortletPreferences == null) ||
+			seoPortletPreferences.isSEOIndexingEnabled()) {
+
 			return false;
 		}
 
 		return portletSharedRequestHelper.getParameter(
-			info.parameterName, renderRequest) != null;
+			seoPortletPreferences.getSEOParameterName(), renderRequest) != null;
 	}
 
 	private PortletSharedSearchResponse _search(RenderRequest renderRequest) {

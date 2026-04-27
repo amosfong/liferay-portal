@@ -24,6 +24,7 @@ page import="com.liferay.portal.search.web.internal.modified.facet.display.conte
 page import="com.liferay.portal.search.web.internal.modified.facet.portlet.ModifiedFacetPortlet" %><%@
 page import="com.liferay.portal.search.web.internal.modified.facet.portlet.ModifiedFacetPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.modified.facet.portlet.ModifiedFacetPortletPreferencesImpl" %><%@
+page import="com.liferay.portal.search.web.internal.seo.SEOPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.util.PortletPreferencesJspUtil" %>
 
 <portlet:defineObjects />
@@ -113,9 +114,14 @@ JSONArray rangesJSONArray = modifiedFacetPortletPreferences.getRangesJSONArray()
 				</aui:fieldset>
 
 				<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(ModifiedFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= modifiedFacetPortletPreferences.isFrequenciesVisible() %>" />
-
-				<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= modifiedFacetPortletPreferences.isIndexingDisabled() %>" />
 			</liferay-frontend:fieldset>
+		</liferay-frontend:fieldset>
+
+		<liferay-frontend:fieldset
+			collapsible="<%= true %>"
+			label="seo-configuration"
+		>
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(ModifiedFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= modifiedFacetPortletPreferences.isIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

@@ -24,6 +24,7 @@ page import="com.liferay.portal.search.web.internal.category.facet.portlet.Categ
 page import="com.liferay.portal.search.web.internal.category.facet.portlet.CategoryFacetPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.category.facet.portlet.CategoryFacetPortletPreferencesImpl" %><%@
 page import="com.liferay.portal.search.web.internal.facet.display.context.AssetCategoriesSearchFacetDisplayContext" %><%@
+page import="com.liferay.portal.search.web.internal.seo.SEOPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.util.PortletPreferencesJspUtil" %>
 
 <portlet:defineObjects />
@@ -86,8 +87,6 @@ CategoryFacetPortletPreferences categoryFacetPortletPreferences = new CategoryFa
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isFrequenciesVisible() %>" />
 
-			<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isIndexingDisabled() %>" />
-
 			<div id="<portlet:namespace />selectVocabularies">
 				<react:component
 					module="{SelectVocabularies} from portal-search-web"
@@ -104,6 +103,13 @@ CategoryFacetPortletPreferences categoryFacetPortletPreferences = new CategoryFa
 					%>'
 				/>
 			</div>
+		</liferay-frontend:fieldset>
+
+		<liferay-frontend:fieldset
+			collapsible="<%= true %>"
+			label="seo-configuration"
+		>
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isIndexingDisabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

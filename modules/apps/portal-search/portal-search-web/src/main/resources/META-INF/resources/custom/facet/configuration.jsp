@@ -29,6 +29,7 @@ page import="com.liferay.portal.search.web.internal.custom.facet.display.context
 page import="com.liferay.portal.search.web.internal.custom.facet.portlet.CustomFacetPortlet" %><%@
 page import="com.liferay.portal.search.web.internal.custom.facet.portlet.CustomFacetPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.custom.facet.portlet.CustomFacetPortletPreferencesImpl" %><%@
+page import="com.liferay.portal.search.web.internal.seo.SEOPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.util.PortletPreferencesJspUtil" %>
 
 <%@ page import="java.util.Objects" %>
@@ -126,8 +127,6 @@ JSONArray rangesJSONArray = customFacetPortletPreferences.getRangesJSONArray();
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(CustomFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= customFacetPortletPreferences.isFrequenciesVisible() %>" />
 		</liferay-frontend:fieldset>
 
-		<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= customFacetPortletPreferences.isIndexingDisabled() %>" />
-
 		<liferay-frontend:fieldset
 			collapsible="<%= true %>"
 			cssClass='<%= StringUtil.equals(customFacetPortletPreferences.getAggregationType(), "terms") ? "hide" : StringPool.BLANK %>'
@@ -171,6 +170,13 @@ JSONArray rangesJSONArray = customFacetPortletPreferences.getRangesJSONArray();
 			label="advanced-configuration"
 		>
 			<aui:input helpMessage="enter-the-key-of-an-alternate-search-this-widget-is-participating-on-if-not-set-widget-participates-on-default-search" label="federated-search-key" name="<%= PortletPreferencesJspUtil.getInputName(CustomFacetPortletPreferences.PREFERENCE_KEY_FEDERATED_SEARCH_KEY) %>" type="text" value="<%= customFacetPortletPreferences.getFederatedSearchKey() %>" />
+		</liferay-frontend:fieldset>
+
+		<liferay-frontend:fieldset
+			collapsible="<%= true %>"
+			label="seo-configuration"
+		>
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= customFacetPortletPreferences.isIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

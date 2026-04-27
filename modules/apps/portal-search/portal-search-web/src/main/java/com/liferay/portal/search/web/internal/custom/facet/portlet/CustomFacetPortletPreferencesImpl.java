@@ -112,6 +112,16 @@ public class CustomFacetPortletPreferencesImpl
 			StringPool.BLANK);
 	}
 
+	public String getSEOParameterName() {
+		String parameterName = getParameterName();
+
+		if (Validator.isNull(parameterName)) {
+			return getAggregationField();
+		}
+
+		return parameterName;
+	}
+
 	@Override
 	public boolean isFrequenciesVisible() {
 		return getBoolean(

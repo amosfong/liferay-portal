@@ -19,6 +19,7 @@ page import="com.liferay.portal.search.web.internal.folder.facet.configuration.F
 page import="com.liferay.portal.search.web.internal.folder.facet.portlet.FolderFacetPortlet" %><%@
 page import="com.liferay.portal.search.web.internal.folder.facet.portlet.FolderFacetPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.folder.facet.portlet.FolderFacetPortletPreferencesImpl" %><%@
+page import="com.liferay.portal.search.web.internal.seo.SEOPortletPreferences" %><%@
 page import="com.liferay.portal.search.web.internal.util.PortletPreferencesJspUtil" %>
 
 <portlet:defineObjects />
@@ -71,14 +72,19 @@ FolderFacetPortletPreferences folderFacetPortletPreferences = new FolderFacetPor
 
 			<aui:input label="display-frequencies" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE) %>" type="checkbox" value="<%= folderFacetPortletPreferences.isFrequenciesVisible() %>" />
 
-			<aui:input helpMessage="indexing-disabled-help" label="indexing-disabled" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= folderFacetPortletPreferences.isIndexingDisabled() %>" />
-
 			<aui:select label="order-terms-by" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_ORDER) %>" value="<%= folderFacetPortletPreferences.getOrder() %>">
 				<aui:option label="term-frequency-descending" value="count:desc" />
 				<aui:option label="term-frequency-ascending" value="count:asc" />
 				<aui:option label="term-value-ascending" value="key:asc" />
 				<aui:option label="term-value-descending" value="key:desc" />
 			</aui:select>
+		</liferay-frontend:fieldset>
+
+		<liferay-frontend:fieldset
+			collapsible="<%= true %>"
+			label="seo-configuration"
+		>
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_ENABLED) %>" type="checkbox" value="<%= folderFacetPortletPreferences.isIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

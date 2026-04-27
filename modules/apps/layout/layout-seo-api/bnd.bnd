@@ -3,6 +3,7 @@ Bundle-SymbolicName: com.liferay.layout.seo.api
 Bundle-Version: 11.0.1
 Export-Package:\
 	com.liferay.layout.seo.canonical.url,\
+	com.liferay.layout.seo.contributor,\
 	com.liferay.layout.seo.exception,\
 	com.liferay.layout.seo.model,\
 	com.liferay.layout.seo.open.graph,\

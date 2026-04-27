@@ -123,16 +123,15 @@ public class LayoutSEOCanonicalURLProviderImpl
 			_assetDisplayPageFriendlyURLProvider, _classNameLocalService,
 			_portal);
 
-		_canonicalURLParameterContributorServiceTrackerList =
-			ServiceTrackerListFactory.open(
-				bundleContext, CanonicalURLParameterContributor.class);
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+			bundleContext, PortletSEOContributor.class, "jakarta.portlet.name");
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_alternateURLMapperProvider = null;
 
-		_canonicalURLParameterContributorServiceTrackerList.close();
+		_serviceTrackerMap.close();
 	}
 
 	private String _appendContributedParameters(
@@ -146,11 +145,15 @@ public class LayoutSEOCanonicalURLProviderImpl
 
 		Set<String> parameterNames = new TreeSet<>();
 
-		for (CanonicalURLParameterContributor contributor :
-				_canonicalURLParameterContributorServiceTrackerList) {
+		LayoutTypePortlet layoutTypePortlet =
+			(LayoutTypePortlet)layout.getLayoutType();
 
-			Set<String> contributedNames = contributor.getParameterNames(
-				httpServletRequest, layout);
+		for (Portlet portlet : layoutTypePortlet.getAllPortlets(false)) {
+			PortletSEOContributor portletSEOContributor =
+				_serviceTrackerMap.getService(portlet.getRootPortletId());
+
+			Set<String> contributedNames = portletSEOContributor.getParameterNames(
+				portlet, layout);
 
 			if (contributedNames != null) {
 				parameterNames.addAll(contributedNames);

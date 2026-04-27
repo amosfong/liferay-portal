@@ -110,9 +110,11 @@ public class TypeFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
+			TypeFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			true);
 	}
 
 	protected String[] getAllAssetTypes(long companyId) {

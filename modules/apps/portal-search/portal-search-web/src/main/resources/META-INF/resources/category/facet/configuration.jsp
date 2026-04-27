@@ -108,7 +108,7 @@ CategoryFacetPortletPreferences categoryFacetPortletPreferences = new CategoryFa
 			collapsible="<%= true %>"
 			label="seo-configuration"
 		>
-			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isIndexingDisabled() %>" />
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(CategoryFacetPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED) %>" type="checkbox" value="<%= categoryFacetPortletPreferences.isWebCrawlerIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

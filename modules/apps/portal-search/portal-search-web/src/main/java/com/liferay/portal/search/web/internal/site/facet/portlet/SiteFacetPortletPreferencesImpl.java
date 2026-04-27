@@ -53,9 +53,11 @@ public class SiteFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			SiteFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
+			SiteFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			true);
 	}
 
 }

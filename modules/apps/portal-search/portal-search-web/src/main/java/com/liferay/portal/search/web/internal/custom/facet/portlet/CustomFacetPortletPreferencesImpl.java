@@ -130,16 +130,17 @@ public class CustomFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isShowInputRange() {
 		return getBoolean(
-			CustomFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			CustomFacetPortletPreferences.PREFERENCE_KEY_SHOW_INPUT_RANGE,
 			true);
 	}
 
 	@Override
-	public boolean isShowInputRange() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			CustomFacetPortletPreferences.PREFERENCE_KEY_SHOW_INPUT_RANGE,
+			CustomFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

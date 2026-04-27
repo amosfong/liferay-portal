@@ -29,9 +29,6 @@ public interface CustomFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_FREQUENCY_THRESHOLD =
 		"frequencyThreshold";
 
-	public static final String PREFERENCE_KEY_INDEXING_DISABLED =
-		"indexingDisabled";
-
 	public static final String PREFERENCE_KEY_MAX_TERMS = "maxTerms";
 
 	public static final String PREFERENCE_KEY_ORDER = "order";
@@ -42,6 +39,9 @@ public interface CustomFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_SHOW_INPUT_RANGE =
 		"showInputRange";
+
+	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
+		"webCrawlerIndexingEnabled";
 
 	public String getAggregationField();
 
@@ -65,8 +65,8 @@ public interface CustomFacetPortletPreferences {
 
 	public boolean isFrequenciesVisible();
 
-	public boolean isIndexingDisabled();
-
 	public boolean isShowInputRange();
+
+	public boolean isWebCrawlerIndexingEnabled();
 
 }

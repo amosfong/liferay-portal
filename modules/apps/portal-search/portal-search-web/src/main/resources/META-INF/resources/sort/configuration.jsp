@@ -100,7 +100,7 @@ JSONArray fieldsJSONArray = sortPortletPreferences.getFieldsJSONArray();
 			collapsible="<%= true %>"
 			label="seo-configuration"
 		>
-			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(SortPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= sortPortletPreferences.isIndexingDisabled() %>" />
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(SortPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED) %>" type="checkbox" value="<%= sortPortletPreferences.isWebCrawlerIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

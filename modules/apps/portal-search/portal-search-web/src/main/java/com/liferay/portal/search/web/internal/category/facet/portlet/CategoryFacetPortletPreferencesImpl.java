@@ -124,9 +124,10 @@ public class CategoryFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			CategoryFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			CategoryFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

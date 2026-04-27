@@ -55,9 +55,10 @@ public class FolderFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			FolderFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED,
+			FolderFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

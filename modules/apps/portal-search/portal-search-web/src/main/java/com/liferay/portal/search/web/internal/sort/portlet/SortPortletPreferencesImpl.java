@@ -59,9 +59,10 @@ public class SortPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			SortPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
+			SortPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			true);
 	}
 
 	private JSONArray _getDefaultFieldsJSONArray() {

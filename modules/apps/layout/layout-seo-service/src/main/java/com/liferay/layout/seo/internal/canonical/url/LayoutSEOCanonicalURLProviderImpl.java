@@ -6,19 +6,21 @@
 package com.liferay.layout.seo.internal.canonical.url;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
-import com.liferay.layout.seo.canonical.url.CanonicalURLParameterContributor;
 import com.liferay.layout.seo.canonical.url.LayoutSEOCanonicalURLProvider;
+import com.liferay.layout.seo.contributor.PortletSEOContributor;
 import com.liferay.layout.seo.internal.configuration.LayoutSEOCompanyConfiguration;
 import com.liferay.layout.seo.internal.util.AlternateURLMapperProvider;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
-import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
-import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -65,8 +67,7 @@ public class LayoutSEOCanonicalURLProviderImpl
 		}
 
 		return _appendContributedParameters(
-			_getDefaultCanonicalURL(
-				layout, locale, canonicalURL, themeDisplay),
+			_getDefaultCanonicalURL(layout, locale, canonicalURL, themeDisplay),
 			layout);
 	}
 
@@ -152,8 +153,9 @@ public class LayoutSEOCanonicalURLProviderImpl
 			PortletSEOContributor portletSEOContributor =
 				_serviceTrackerMap.getService(portlet.getRootPortletId());
 
-			Set<String> contributedNames = portletSEOContributor.getParameterNames(
-				portlet, layout);
+			Set<String> contributedNames =
+				portletSEOContributor.getCanonicalURLParameterNames(
+					httpServletRequest, layout, portlet.getPortletId());
 
 			if (contributedNames != null) {
 				parameterNames.addAll(contributedNames);
@@ -252,8 +254,6 @@ public class LayoutSEOCanonicalURLProviderImpl
 	}
 
 	private AlternateURLMapperProvider _alternateURLMapperProvider;
-	private ServiceTrackerList<CanonicalURLParameterContributor>
-		_canonicalURLParameterContributorServiceTrackerList;
 
 	@Reference
 	private AssetDisplayPageFriendlyURLProvider
@@ -273,5 +273,7 @@ public class LayoutSEOCanonicalURLProviderImpl
 
 	@Reference
 	private Portal _portal;
+
+	private ServiceTrackerMap<String, PortletSEOContributor> _serviceTrackerMap;
 
 }

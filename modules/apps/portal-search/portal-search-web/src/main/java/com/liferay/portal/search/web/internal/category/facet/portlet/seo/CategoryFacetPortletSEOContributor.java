@@ -7,6 +7,7 @@ package com.liferay.portal.search.web.internal.category.facet.portlet.seo;
 
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.PortletPreferences;
@@ -70,7 +71,8 @@ public class CategoryFacetPortletSEOContributor
 					preferences);
 
 			if ((categoryFacetPortletPreferences == null) ||
-				categoryFacetPortletPreferences.isIndexingDisabled()) {
+				!categoryFacetPortletPreferences.
+					isWebCrawlerIndexingEnabled()) {
 
 				continue;
 			}
@@ -90,9 +92,11 @@ public class CategoryFacetPortletSEOContributor
 			}
 
 			robotDisallowEntries.add(
-				layout.getFriendlyURL() + "*?" + parameterName + "=");
+				StringBundler.concat(
+					layout.getFriendlyURL(), "*?", parameterName, "="));
 			robotDisallowEntries.add(
-				layout.getFriendlyURL() + "*&" + parameterName + "=");
+				StringBundler.concat(
+					layout.getFriendlyURL(), "*&", parameterName, "="));
 		}
 
 		return robotDisallowEntries;
@@ -116,7 +120,7 @@ public class CategoryFacetPortletSEOContributor
 					portletId));
 
 		if ((categoryFacetPortletPreferences == null) ||
-			categoryFacetPortletPreferences.isIndexingDisabled()) {
+			!categoryFacetPortletPreferences.isWebCrawlerIndexingEnabled()) {
 
 			return Collections.emptySet();
 		}
@@ -138,32 +142,26 @@ public class CategoryFacetPortletSEOContributor
 	}
 
 	public String getPageMetaRobots(RenderRequest renderRequest) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		CategoryFacetPortletPreferences categoryFacetPortletPreferences =
 			new CategoryFacetPortletPreferencesImpl(
 				_assetVocabularyLocalService, _groupLocalService,
 				renderRequest.getPreferences());
 
 		if ((categoryFacetPortletPreferences == null) ||
-			categoryFacetPortletPreferences.isIndexingDisabled()) {
+			!categoryFacetPortletPreferences.isWebCrawlerIndexingEnabled()) {
 
 			return "";
 		}
 
-		if (_portletSharedRequestHelper.getParameter(
-				categoryFacetPortletPreferences.getParameterName(),
-				renderRequest) != null) {
+		String parameter = _portletSharedRequestHelper.getParameter(
+			categoryFacetPortletPreferences.getParameterName(), renderRequest);
 
+		if (parameter != null) {
 			return "noindex,nofollow";
 		}
 
 		return "";
 	}
-
-	@Reference
-	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
@@ -172,9 +170,12 @@ public class CategoryFacetPortletSEOContributor
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private PortletSharedRequestHelper _portletSharedRequestHelper;
+	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Reference
+	private PortletSharedRequestHelper _portletSharedRequestHelper;
 
 }

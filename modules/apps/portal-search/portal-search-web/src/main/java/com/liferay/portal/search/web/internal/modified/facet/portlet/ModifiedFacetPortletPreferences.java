@@ -18,14 +18,14 @@ public interface ModifiedFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_FREQUENCY_THRESHOLD =
 		"frequencyThreshold";
 
-	public static final String PREFERENCE_KEY_INDEXING_DISABLED =
-		"indexingDisabled";
-
 	public static final String PREFERENCE_KEY_ORDER = "order";
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
 	public static final String PREFERENCE_KEY_RANGES = "ranges";
+
+	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
+		"webCrawlerIndexingEnabled";
 
 	public int getFrequencyThreshold();
 
@@ -39,6 +39,6 @@ public interface ModifiedFacetPortletPreferences {
 
 	public boolean isFrequenciesVisible();
 
-	public boolean isIndexingDisabled();
+	public boolean isWebCrawlerIndexingEnabled();
 
 }

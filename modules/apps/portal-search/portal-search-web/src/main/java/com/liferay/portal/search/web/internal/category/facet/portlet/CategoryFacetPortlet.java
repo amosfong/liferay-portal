@@ -5,9 +5,9 @@
 
 package com.liferay.portal.search.web.internal.category.facet.portlet;
 
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.layout.seo.contributor.PortletSEOContributor;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -84,8 +84,9 @@ public class CategoryFacetPortlet extends MVCPortlet {
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
 
-		renderRequest.setAttribute(WebKeys.PAGE_ROBOTS,
-		_portletSEOContributor.getPageMetaRobots(renderRequest));
+		renderRequest.setAttribute(
+			WebKeys.PAGE_ROBOTS,
+			_portletSEOContributor.getPageMetaRobots(renderRequest));
 
 		super.render(renderRequest, renderResponse);
 	}

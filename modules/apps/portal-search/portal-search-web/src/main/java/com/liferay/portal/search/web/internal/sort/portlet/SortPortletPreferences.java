@@ -14,8 +14,8 @@ public interface SortPortletPreferences {
 
 	public static final String PREFERENCE_KEY_FIELDS = "fields";
 
-	public static final String PREFERENCE_KEY_INDEXING_DISABLED =
-		"indexingDisabled";
+	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
+		"webCrawlerIndexingEnabled";
 
 	public JSONArray getFieldsJSONArray();
 
@@ -23,6 +23,6 @@ public interface SortPortletPreferences {
 
 	public String getParameterName();
 
-	public boolean isIndexingDisabled();
+	public boolean isWebCrawlerIndexingEnabled();
 
 }

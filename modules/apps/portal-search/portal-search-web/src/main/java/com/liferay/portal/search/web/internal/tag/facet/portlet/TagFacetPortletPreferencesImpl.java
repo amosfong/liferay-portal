@@ -59,9 +59,11 @@ public class TagFacetPortletPreferencesImpl
 	}
 
 	@Override
-	public boolean isIndexingDisabled() {
+	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			TagFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED, true);
+			TagFacetPortletPreferences.
+				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			true);
 	}
 
 }

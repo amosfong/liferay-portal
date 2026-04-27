@@ -104,7 +104,7 @@ TypeFacetPortletPreferences typeFacetPortletPreferences = new com.liferay.portal
 			collapsible="<%= true %>"
 			label="seo-configuration"
 		>
-			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_INDEXING_DISABLED) %>" type="checkbox" value="<%= typeFacetPortletPreferences.isIndexingDisabled() %>" />
+			<aui:input helpMessage="enable-web-crawler-indexing-help" label="enable-web-crawler-indexing" name="<%= PortletPreferencesJspUtil.getInputName(TypeFacetPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED) %>" type="checkbox" value="<%= typeFacetPortletPreferences.isWebCrawlerIndexingEnabled() %>" />
 		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 

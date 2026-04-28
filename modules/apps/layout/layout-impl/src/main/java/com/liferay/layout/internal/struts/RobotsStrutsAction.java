@@ -5,6 +5,7 @@
 
 package com.liferay.layout.internal.struts;
 
+import com.liferay.layout.seo.contributor.PortletSEOContributor;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.petra.string.StringBundler;
@@ -15,7 +16,6 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.VirtualHost;
-import com.liferay.portal.kernel.robots.RobotsContributor;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.VirtualHostLocalService;
@@ -30,6 +30,9 @@ import com.liferay.portal.util.RobotsUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -79,25 +82,40 @@ public class RobotsStrutsAction implements StrutsAction {
 			StringBundler sb = new StringBundler();
 
 			sb.append(
-				RobotsUtil.getRobots(
-					layoutSet, httpServletRequest.isSecure()));
+				RobotsUtil.getRobots(layoutSet, httpServletRequest.isSecure()));
 
 			if (layoutSet != null) {
-				for (RobotsContributor robotsContributor :
+				Set<String> disallowURLEntries = new TreeSet<>();
+
+				for (PortletSEOContributor portletSEOContributor :
 						_serviceTrackerList.toList()) {
 
-					String contribution = robotsContributor.contribute(
-						layoutSet);
+					Set<String> contributedDisallowURLEntries =
+						portletSEOContributor.contributeRobotsDisallowURLEntries(
+							layoutSet);
 
-					if (Validator.isNotNull(contribution)) {
-						sb.append(contribution);
+					if (contributedDisallowURLEntries != null) {
+						disallowURLEntries.addAll(contributedDisallowURLEntries);
+					}
+				}
+
+				if (!disallowURLEntries.isEmpty()) {
+					sb.append("\n\nUser-Agent: *\n");
+
+					for (String disallowURLEntry : disallowURLEntries) {
+						sb.append("Disallow: ");
+						sb.append(disallowURLEntry);
+						sb.append(StringPool.NEW_LINE);
 					}
 				}
 			}
 
 			ServletResponseUtil.sendFile(
 				httpServletRequest, httpServletResponse, null,
-				sb.toString().getBytes(StringPool.UTF8),
+				sb.toString(
+				).getBytes(
+					StringPool.UTF8
+				),
 				ContentTypes.TEXT_PLAIN_UTF8);
 		}
 		catch (Exception exception) {
@@ -116,7 +134,7 @@ public class RobotsStrutsAction implements StrutsAction {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerList = ServiceTrackerListFactory.open(
-			bundleContext, RobotsContributor.class);
+			bundleContext, PortletSEOContributor.class);
 	}
 
 	@Deactivate
@@ -136,7 +154,7 @@ public class RobotsStrutsAction implements StrutsAction {
 	@Reference
 	private Portal _portal;
 
-	private ServiceTrackerList<RobotsContributor> _serviceTrackerList;
+	private ServiceTrackerList<PortletSEOContributor> _serviceTrackerList;
 
 	@Reference
 	private VirtualHostLocalService _virtualHostLocalService;

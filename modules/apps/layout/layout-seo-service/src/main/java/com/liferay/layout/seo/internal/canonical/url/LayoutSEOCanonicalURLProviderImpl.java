@@ -153,6 +153,10 @@ public class LayoutSEOCanonicalURLProviderImpl
 			PortletSEOContributor portletSEOContributor =
 				_serviceTrackerMap.getService(portlet.getRootPortletId());
 
+			if (portletSEOContributor == null) {
+				continue;
+			}
+			
 			Set<String> contributedNames =
 				portletSEOContributor.getCanonicalURLParameterNames(
 					httpServletRequest, layout, portlet.getPortletId());

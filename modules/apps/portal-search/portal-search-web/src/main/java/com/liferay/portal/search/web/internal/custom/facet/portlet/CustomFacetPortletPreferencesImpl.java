@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.web.internal.portlet.preferences.BasePortletPreferences;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -112,6 +113,7 @@ public class CustomFacetPortletPreferencesImpl
 			StringPool.BLANK);
 	}
 
+	@Override
 	public String getSEOParameterName() {
 		String parameterName = getParameterName();
 
@@ -139,8 +141,7 @@ public class CustomFacetPortletPreferencesImpl
 	@Override
 	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			CustomFacetPortletPreferences.
-				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			SEOPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

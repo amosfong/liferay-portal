@@ -5,10 +5,12 @@
 
 package com.liferay.portal.search.web.internal.tag.facet.portlet;
 
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
+
 /**
  * @author Lino Alves
  */
-public interface TagFacetPortletPreferences {
+public interface TagFacetPortletPreferences extends SEOPortletPreferences {
 
 	public static final String PREFERENCE_KEY_DISPLAY_STYLE =
 		"tagFacetDisplayStyle";
@@ -25,9 +27,6 @@ public interface TagFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
-	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
-		"webCrawlerIndexingEnabled";
-
 	public String getDisplayStyle();
 
 	public int getFrequencyThreshold();
@@ -39,7 +38,5 @@ public interface TagFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
-
-	public boolean isWebCrawlerIndexingEnabled();
 
 }

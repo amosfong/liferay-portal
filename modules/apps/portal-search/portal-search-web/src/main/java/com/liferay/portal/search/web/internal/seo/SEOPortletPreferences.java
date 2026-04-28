@@ -10,11 +10,11 @@ package com.liferay.portal.search.web.internal.seo;
  */
 public interface SEOPortletPreferences {
 
-	public static final String PREFERENCE_KEY_SEO_INDEXING_ENABLED =
-		"seoIndexingEnabled";
+	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
+		"webCrawlerIndexingEnabled";
 
 	public String getSEOParameterName();
 
-	public boolean isSEOIndexingEnabled();
+	public boolean isWebCrawlerIndexingEnabled();
 
 }

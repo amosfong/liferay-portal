@@ -6,6 +6,7 @@
 package com.liferay.portal.search.web.internal.tag.facet.portlet;
 
 import com.liferay.portal.search.web.internal.portlet.preferences.BasePortletPreferences;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -52,6 +53,11 @@ public class TagFacetPortletPreferencesImpl
 	}
 
 	@Override
+	public String getSEOParameterName() {
+		return getParameterName();
+	}
+
+	@Override
 	public boolean isFrequenciesVisible() {
 		return getBoolean(
 			TagFacetPortletPreferences.PREFERENCE_KEY_FREQUENCIES_VISIBLE,
@@ -61,8 +67,7 @@ public class TagFacetPortletPreferencesImpl
 	@Override
 	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			TagFacetPortletPreferences.
-				PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			SEOPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

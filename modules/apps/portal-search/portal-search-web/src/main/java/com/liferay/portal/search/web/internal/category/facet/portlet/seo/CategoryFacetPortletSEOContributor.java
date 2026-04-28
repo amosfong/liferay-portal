@@ -7,30 +7,13 @@ package com.liferay.portal.search.web.internal.category.facet.portlet.seo;
 
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.layout.seo.contributor.PortletSEOContributor;
-import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutSet;
-import com.liferay.portal.kernel.model.PortletPreferences;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.web.internal.category.facet.constants.CategoryFacetPortletKeys;
-import com.liferay.portal.search.web.internal.category.facet.portlet.CategoryFacetPortletPreferences;
 import com.liferay.portal.search.web.internal.category.facet.portlet.CategoryFacetPortletPreferencesImpl;
-import com.liferay.portal.search.web.internal.portlet.shared.task.helper.PortletSharedRequestHelper;
+import com.liferay.portal.search.web.internal.seo.BasePortletSEOContributor;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
-import jakarta.portlet.RenderRequest;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import jakarta.portlet.PortletPreferences;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -43,124 +26,20 @@ import org.osgi.service.component.annotations.Reference;
 	service = PortletSEOContributor.class
 )
 public class CategoryFacetPortletSEOContributor
-	implements PortletSEOContributor {
+	extends BasePortletSEOContributor {
 
-	public Set<String> contributeRobotsDisallowEntries(LayoutSet layoutSet) {
-		Set<String> robotDisallowEntries = new HashSet<>();
-
-		List<PortletPreferences> portletPreferencesList =
-			_portletPreferencesLocalService.getPortletPreferences(
-				layoutSet.getCompanyId(), layoutSet.getGroupId(),
-				PortletKeys.PREFS_OWNER_ID_DEFAULT,
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
-				CategoryFacetPortletKeys.CATEGORY_FACET,
-				layoutSet.isPrivateLayout());
-
-		for (PortletPreferences portletPreferences : portletPreferencesList) {
-			jakarta.portlet.PortletPreferences preferences =
-				_portletPreferencesLocalService.getPreferences(
-					portletPreferences.getCompanyId(),
-					portletPreferences.getOwnerId(),
-					portletPreferences.getOwnerType(),
-					portletPreferences.getPlid(),
-					portletPreferences.getPortletId());
-
-			CategoryFacetPortletPreferences categoryFacetPortletPreferences =
-				new CategoryFacetPortletPreferencesImpl(
-					_assetVocabularyLocalService, _groupLocalService,
-					preferences);
-
-			if ((categoryFacetPortletPreferences == null) ||
-				!categoryFacetPortletPreferences.
-					isWebCrawlerIndexingEnabled()) {
-
-				continue;
-			}
-
-			String parameterName =
-				categoryFacetPortletPreferences.getParameterName();
-
-			if (Validator.isNull(parameterName)) {
-				continue;
-			}
-
-			Layout layout = _layoutLocalService.fetchLayout(
-				portletPreferences.getPlid());
-
-			if (layout == null) {
-				continue;
-			}
-
-			robotDisallowEntries.add(
-				StringBundler.concat(
-					layout.getFriendlyURL(), "*?", parameterName, "="));
-			robotDisallowEntries.add(
-				StringBundler.concat(
-					layout.getFriendlyURL(), "*&", parameterName, "="));
-		}
-
-		return robotDisallowEntries;
+	@Override
+	protected String getPortletId() {
+		return CategoryFacetPortletKeys.CATEGORY_FACET;
 	}
 
-	public Set<String> getCanonicalURLParameterNames(
-		HttpServletRequest httpServletRequest, Layout layout,
-		String portletId) {
+	@Override
+	protected SEOPortletPreferences getSEOPortletPreferences(
+		PortletPreferences portletPreferences) {
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		CategoryFacetPortletPreferences categoryFacetPortletPreferences =
-			new CategoryFacetPortletPreferencesImpl(
-				_assetVocabularyLocalService, _groupLocalService,
-				_portletPreferencesLocalService.fetchPreferences(
-					themeDisplay.getCompanyId(),
-					PortletKeys.PREFS_OWNER_ID_DEFAULT,
-					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
-					portletId));
-
-		if ((categoryFacetPortletPreferences == null) ||
-			!categoryFacetPortletPreferences.isWebCrawlerIndexingEnabled()) {
-
-			return Collections.emptySet();
-		}
-
-		String parameterName =
-			categoryFacetPortletPreferences.getParameterName();
-
-		if (Validator.isNull(parameterName) ||
-			(httpServletRequest.getParameter(parameterName) == null)) {
-
-			return Collections.emptySet();
-		}
-
-		Set<String> parameterNames = new HashSet<>();
-
-		parameterNames.add(parameterName);
-
-		return parameterNames;
-	}
-
-	public String getPageMetaRobots(RenderRequest renderRequest) {
-		CategoryFacetPortletPreferences categoryFacetPortletPreferences =
-			new CategoryFacetPortletPreferencesImpl(
-				_assetVocabularyLocalService, _groupLocalService,
-				renderRequest.getPreferences());
-
-		if ((categoryFacetPortletPreferences == null) ||
-			!categoryFacetPortletPreferences.isWebCrawlerIndexingEnabled()) {
-
-			return "";
-		}
-
-		String parameter = _portletSharedRequestHelper.getParameter(
-			categoryFacetPortletPreferences.getParameterName(), renderRequest);
-
-		if (parameter != null) {
-			return "noindex,nofollow";
-		}
-
-		return "";
+		return new CategoryFacetPortletPreferencesImpl(
+			_assetVocabularyLocalService, _groupLocalService,
+			portletPreferences);
 	}
 
 	@Reference
@@ -168,14 +47,5 @@ public class CategoryFacetPortletSEOContributor
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private LayoutLocalService _layoutLocalService;
-
-	@Reference
-	private PortletPreferencesLocalService _portletPreferencesLocalService;
-
-	@Reference
-	private PortletSharedRequestHelper _portletSharedRequestHelper;
 
 }

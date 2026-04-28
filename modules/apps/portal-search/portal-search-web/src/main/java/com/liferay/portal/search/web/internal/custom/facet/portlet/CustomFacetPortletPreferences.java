@@ -6,11 +6,12 @@
 package com.liferay.portal.search.web.internal.custom.facet.portlet;
 
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
 /**
  * @author Wade Cao
  */
-public interface CustomFacetPortletPreferences {
+public interface CustomFacetPortletPreferences extends SEOPortletPreferences {
 
 	public static final String PREFERENCE_KEY_AGGREGATION_FIELD =
 		"aggregationField";
@@ -40,9 +41,6 @@ public interface CustomFacetPortletPreferences {
 	public static final String PREFERENCE_KEY_SHOW_INPUT_RANGE =
 		"showInputRange";
 
-	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
-		"webCrawlerIndexingEnabled";
-
 	public String getAggregationField();
 
 	public String getAggregationType();
@@ -66,7 +64,5 @@ public interface CustomFacetPortletPreferences {
 	public boolean isFrequenciesVisible();
 
 	public boolean isShowInputRange();
-
-	public boolean isWebCrawlerIndexingEnabled();
 
 }

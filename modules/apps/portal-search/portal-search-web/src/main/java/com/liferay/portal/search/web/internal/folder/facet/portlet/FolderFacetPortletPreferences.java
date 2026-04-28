@@ -5,10 +5,12 @@
 
 package com.liferay.portal.search.web.internal.folder.facet.portlet;
 
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
+
 /**
  * @author Lino Alves
  */
-public interface FolderFacetPortletPreferences {
+public interface FolderFacetPortletPreferences extends SEOPortletPreferences {
 
 	public static final String PREFERENCE_KEY_FREQUENCIES_VISIBLE =
 		"frequenciesVisible";
@@ -22,9 +24,6 @@ public interface FolderFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_PARAMETER_NAME = "parameterName";
 
-	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
-		"webCrawlerIndexingEnabled";
-
 	public int getFrequencyThreshold();
 
 	public int getMaxTerms();
@@ -34,7 +33,5 @@ public interface FolderFacetPortletPreferences {
 	public String getParameterName();
 
 	public boolean isFrequenciesVisible();
-
-	public boolean isWebCrawlerIndexingEnabled();
 
 }

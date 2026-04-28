@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public interface PortletSEOContributor {
 
-	public Set<String> contributeRobotsDisallowEntries(LayoutSet layoutSet);
+	public Set<String> contributeRobotsDisallowURLEntries(LayoutSet layoutSet);
 
 	public Set<String> getCanonicalURLParameterNames(
 		HttpServletRequest httpServletRequest, Layout layout, String portletId);

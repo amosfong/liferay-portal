@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.web.internal.portlet.preferences.BasePortletPreferences;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -59,9 +60,14 @@ public class SortPortletPreferencesImpl
 	}
 
 	@Override
+	public String getSEOParameterName() {
+		return getParameterName();
+	}
+
+	@Override
 	public boolean isWebCrawlerIndexingEnabled() {
 		return getBoolean(
-			SortPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
+			SEOPortletPreferences.PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED,
 			true);
 	}
 

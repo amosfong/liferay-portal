@@ -6,11 +6,12 @@
 package com.liferay.portal.search.web.internal.modified.facet.portlet;
 
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.search.web.internal.seo.SEOPortletPreferences;
 
 /**
  * @author Lino Alves
  */
-public interface ModifiedFacetPortletPreferences {
+public interface ModifiedFacetPortletPreferences extends SEOPortletPreferences {
 
 	public static final String PREFERENCE_KEY_FREQUENCIES_VISIBLE =
 		"frequenciesVisible";
@@ -24,9 +25,6 @@ public interface ModifiedFacetPortletPreferences {
 
 	public static final String PREFERENCE_KEY_RANGES = "ranges";
 
-	public static final String PREFERENCE_KEY_WEB_CRAWLER_INDEXING_ENABLED =
-		"webCrawlerIndexingEnabled";
-
 	public int getFrequencyThreshold();
 
 	public String getOrder();
@@ -38,7 +36,5 @@ public interface ModifiedFacetPortletPreferences {
 	public String getRangesString();
 
 	public boolean isFrequenciesVisible();
-
-	public boolean isWebCrawlerIndexingEnabled();
 
 }

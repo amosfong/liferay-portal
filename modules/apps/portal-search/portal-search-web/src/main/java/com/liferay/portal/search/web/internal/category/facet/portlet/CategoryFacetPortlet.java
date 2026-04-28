@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -84,9 +85,11 @@ public class CategoryFacetPortlet extends MVCPortlet {
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
 
-		renderRequest.setAttribute(
-			WebKeys.PAGE_ROBOTS,
-			_portletSEOContributor.getPageMetaRobots(renderRequest));
+		String robots = _portletSEOContributor.getPageMetaRobots(renderRequest);
+
+		if (Validator.isNotNull(robots)) {
+			renderRequest.setAttribute(WebKeys.PAGE_ROBOTS, robots);
+		}
 
 		super.render(renderRequest, renderResponse);
 	}

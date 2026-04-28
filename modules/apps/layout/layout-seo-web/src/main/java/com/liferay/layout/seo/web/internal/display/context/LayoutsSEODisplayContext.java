@@ -32,6 +32,7 @@ import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.model.LayoutSEOSite;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalServiceUtil;
 import com.liferay.layout.seo.service.LayoutSEOSiteLocalService;
+import com.liferay.layout.seo.web.internal.helper.LayoutSEORobotsHelper;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -90,6 +91,7 @@ public class LayoutsSEODisplayContext {
 		LayoutPageTemplateEntryLocalService layoutPageTemplateEntryLocalService,
 		LayoutSEOCanonicalURLProvider layoutSEOCanonicalURLProvider,
 		LayoutSEOLinkManager layoutSEOLinkManager,
+		LayoutSEORobotsHelper layoutSEORobotsHelper,
 		LayoutSEOSiteLocalService layoutSEOSiteLocalService,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
@@ -103,6 +105,7 @@ public class LayoutsSEODisplayContext {
 			layoutPageTemplateEntryLocalService;
 		_layoutSEOCanonicalURLProvider = layoutSEOCanonicalURLProvider;
 		_layoutSEOLinkManager = layoutSEOLinkManager;
+		_layoutSEORobotsHelper = layoutSEORobotsHelper;
 		_layoutSEOSiteLocalService = layoutSEOSiteLocalService;
 		_liferayPortletRequest = liferayPortletRequest;
 		_liferayPortletResponse = liferayPortletResponse;
@@ -135,6 +138,17 @@ public class LayoutsSEODisplayContext {
 		_backURL = backURL;
 
 		return _backURL;
+	}
+
+	public Map<String, String> getCrawlerDisabledPortletTitles() {
+		Layout selLayout = getSelLayout();
+
+		if (selLayout == null) {
+			return Collections.emptyMap();
+		}
+
+		return _layoutSEORobotsHelper.getCrawlerDisabledPortletTitles(
+			selLayout, _themeDisplay.getLocale());
 	}
 
 	public String getDefaultCanonicalURL() throws PortalException {
@@ -778,6 +792,7 @@ public class LayoutsSEODisplayContext {
 		_layoutPageTemplateEntryLocalService;
 	private final LayoutSEOCanonicalURLProvider _layoutSEOCanonicalURLProvider;
 	private final LayoutSEOLinkManager _layoutSEOLinkManager;
+	private final LayoutSEORobotsHelper _layoutSEORobotsHelper;
 	private final LayoutSEOSiteLocalService _layoutSEOSiteLocalService;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;

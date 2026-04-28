@@ -41,6 +41,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryServiceUtil;
+import com.liferay.layout.seo.robots.LayoutSetSEORobotsTxtProvider;
 import com.liferay.layout.set.prototype.helper.LayoutSetPrototypeHelper;
 import com.liferay.layout.theme.item.selector.LayoutThemeItemSelectorCriterion;
 import com.liferay.layout.util.comparator.LayoutCreateDateComparator;
@@ -140,6 +141,7 @@ public class LayoutsAdminDisplayContext {
 
 	public LayoutsAdminDisplayContext(
 		ItemSelector itemSelector, LayoutActionsHelper layoutActionsHelper,
+		LayoutSetSEORobotsTxtProvider layoutSEORobotsTxtProvider,
 		LayoutService layoutService,
 		LayoutSetPrototypeHelper layoutSetPrototypeHelper,
 		LiferayPortletRequest liferayPortletRequest,
@@ -147,6 +149,7 @@ public class LayoutsAdminDisplayContext {
 
 		_itemSelector = itemSelector;
 		_layoutActionsHelper = layoutActionsHelper;
+		_layoutSetSEORobotsTxtProvider = layoutSEORobotsTxtProvider;
 		_layoutService = layoutService;
 		_layoutSetPrototypeHelper = layoutSetPrototypeHelper;
 		_liferayPortletRequest = liferayPortletRequest;
@@ -1201,6 +1204,17 @@ public class LayoutsAdminDisplayContext {
 	public String getRobots() {
 		return ParamUtil.getString(
 			httpServletRequest, "robots", _getStrictRobots());
+	}
+
+	public String getRobotsTxtContribution() {
+		LayoutSet selLayoutSet = getSelLayoutSet();
+
+		if (selLayoutSet == null) {
+			return StringPool.BLANK;
+		}
+
+		return _layoutSetSEORobotsTxtProvider.getRobotsTxtContribution(
+			selLayoutSet);
 	}
 
 	public String getSelectFaviconEventName() {
@@ -2578,6 +2592,7 @@ public class LayoutsAdminDisplayContext {
 	private final ItemSelector _itemSelector;
 	private String _keywords;
 	private final LayoutActionsHelper _layoutActionsHelper;
+	private final LayoutSetSEORobotsTxtProvider _layoutSetSEORobotsTxtProvider;
 	private final LayoutService _layoutService;
 	private final LayoutSetPrototypeHelper _layoutSetPrototypeHelper;
 	private SearchContainer<Layout> _layoutsSearchContainer;

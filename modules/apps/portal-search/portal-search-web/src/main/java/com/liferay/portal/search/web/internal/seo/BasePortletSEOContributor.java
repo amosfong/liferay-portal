@@ -146,6 +146,20 @@ public abstract class BasePortletSEOContributor
 		return StringPool.BLANK;
 	}
 
+	@Override
+	public boolean isWebCrawlerIndexingEnabled(
+		jakarta.portlet.PortletPreferences portletPreferences) {
+
+		SEOPortletPreferences seoPortletPreferences = getSEOPortletPreferences(
+			portletPreferences);
+
+		if (seoPortletPreferences == null) {
+			return true;
+		}
+
+		return seoPortletPreferences.isWebCrawlerIndexingEnabled();
+	}
+
 	protected abstract String getPortletId();
 
 	protected abstract SEOPortletPreferences getSEOPortletPreferences(

@@ -11,6 +11,8 @@
 LayoutSet layoutSet = layoutsAdminDisplayContext.getSelLayoutSet();
 
 String virtualHostname = layoutsAdminDisplayContext.getVirtualHostname();
+
+String robotsTxtContribution = layoutsAdminDisplayContext.getRobotsTxtContribution();
 %>
 
 <liferay-ui:error-marker
@@ -23,6 +25,17 @@ String virtualHostname = layoutsAdminDisplayContext.getVirtualHostname();
 		<p class="text-secondary" id="<portlet:namespace />robotsDescription"><liferay-ui:message key="robots-txt-help" /></p>
 
 		<aui:input aria-describedby="<portlet:namespace />robotsDescription" label="robots" name='<%= "TypeSettingsProperties--" + layoutSet.isPrivateLayout() + "-robots.txt--" %>' placeholder="robots" type="textarea" value="<%= layoutsAdminDisplayContext.getRobots() %>" />
+
+		<c:if test="<%= Validator.isNotNull(robotsTxtContribution) %>">
+			<clay:alert
+				cssClass="mt-2"
+				displayType="info"
+			>
+				<liferay-ui:message key="widgets-on-these-pages-are-contributing-the-following-entries-to-robots-txt-you-can-manage-these-from-the-widget-configurations-on-those-pages" />
+
+				<pre class="mb-0 mt-2"><%= HtmlUtil.escape(robotsTxtContribution) %></pre>
+			</clay:alert>
+		</c:if>
 	</c:when>
 	<c:otherwise>
 		<clay:alert

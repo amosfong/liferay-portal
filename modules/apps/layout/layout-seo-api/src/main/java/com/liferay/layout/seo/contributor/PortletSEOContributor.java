@@ -8,6 +8,7 @@ package com.liferay.layout.seo.contributor;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 
+import jakarta.portlet.PortletPreferences;
 import jakarta.portlet.RenderRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,5 +26,8 @@ public interface PortletSEOContributor {
 		HttpServletRequest httpServletRequest, Layout layout, String portletId);
 
 	public String getPageMetaRobots(RenderRequest renderRequest);
+
+	public boolean isWebCrawlerIndexingEnabled(
+		PortletPreferences portletPreferences);
 
 }

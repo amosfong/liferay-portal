@@ -165,6 +165,33 @@ UnicodeProperties layoutTypeSettingsUnicodeProperties = selLayout.getTypeSetting
 
 					<c:if test="<%= !layoutsSEODisplayContext.isLayoutUtilityPageEntry() %>">
 						<aui:input name="robots" placeholder="robots" />
+
+						<%
+						Map<String, String> crawlerDisabledPortletTitles = layoutsSEODisplayContext.getCrawlerDisabledPortletTitles();
+						%>
+
+						<c:if test="<%= !crawlerDisabledPortletTitles.isEmpty() %>">
+							<clay:alert
+								cssClass="mt-2"
+								displayType="info"
+							>
+								<liferay-ui:message key="the-following-widgets-on-this-page-can-affect-this-page-s-robots-configuration-when-in-use" />
+
+								<ul class="mb-0 mt-2">
+
+									<%
+									for (String portletTitle : crawlerDisabledPortletTitles.values()) {
+									%>
+
+										<li><%= HtmlUtil.escape(portletTitle) %></li>
+
+									<%
+									}
+									%>
+
+								</ul>
+							</clay:alert>
+						</c:if>
 					</c:if>
 				</div>
 			</clay:sheet-section>

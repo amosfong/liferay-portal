@@ -18,9 +18,9 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.configuration.kernel.util.PortletConfigurationUtil;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -34,10 +34,10 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = LayoutSEORobotsHelper.class)
 public class LayoutSEORobotsHelper {
 
-	public Map<String, String> getCrawlerDisabledPortletTitles(
+	public List<String> getCrawlerDisabledPortletTitles(
 		Layout layout, Locale locale) {
 
-		Map<String, String> portletTitles = new LinkedHashMap<>();
+		List<String> portletTitles = new ArrayList<>();
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
@@ -71,7 +71,7 @@ public class LayoutSEORobotsHelper {
 				portletTitle = _portal.getPortletTitle(portlet, locale);
 			}
 
-			portletTitles.put(portlet.getPortletId(), portletTitle);
+			portletTitles.add(portletTitle);
 		}
 
 		return portletTitles;

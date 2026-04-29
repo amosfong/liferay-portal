@@ -140,11 +140,11 @@ public class LayoutsSEODisplayContext {
 		return _backURL;
 	}
 
-	public Map<String, String> getCrawlerDisabledPortletTitles() {
+	public List<String> getCrawlerDisabledPortletTitles() {
 		Layout selLayout = getSelLayout();
 
 		if (selLayout == null) {
-			return Collections.emptyMap();
+			return Collections.emptyList();
 		}
 
 		return _layoutSEORobotsHelper.getCrawlerDisabledPortletTitles(

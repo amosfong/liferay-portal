@@ -167,7 +167,7 @@ UnicodeProperties layoutTypeSettingsUnicodeProperties = selLayout.getTypeSetting
 						<aui:input name="robots" placeholder="robots" />
 
 						<%
-						Map<String, String> crawlerDisabledPortletTitles = layoutsSEODisplayContext.getCrawlerDisabledPortletTitles();
+						List<String> crawlerDisabledPortletTitles = layoutsSEODisplayContext.getCrawlerDisabledPortletTitles();
 						%>
 
 						<c:if test="<%= !crawlerDisabledPortletTitles.isEmpty() %>">
@@ -180,7 +180,7 @@ UnicodeProperties layoutTypeSettingsUnicodeProperties = selLayout.getTypeSetting
 								<ul class="mb-0 mt-2">
 
 									<%
-									for (String portletTitle : crawlerDisabledPortletTitles.values()) {
+									for (String portletTitle : crawlerDisabledPortletTitles) {
 									%>
 
 										<li><%= HtmlUtil.escape(portletTitle) %></li>

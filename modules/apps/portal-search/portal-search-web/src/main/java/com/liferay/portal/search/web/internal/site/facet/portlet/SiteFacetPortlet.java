@@ -5,6 +5,7 @@
 
 package com.liferay.portal.search.web.internal.site.facet.portlet;
 
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -13,6 +14,7 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -84,6 +86,14 @@ public class SiteFacetPortlet extends MVCPortlet {
 		if (siteFacetPortletDisplayContext.isRenderNothing()) {
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
+		}
+
+		String metaRobotsContent =
+			_layoutMetaRobotsProvider.getPageMetaRobotsContent(renderRequest);
+
+		if (Validator.isNotNull(metaRobotsContent)) {
+			renderRequest.setAttribute(
+				WebKeys.PAGE_ROBOTS, metaRobotsContent);
 		}
 
 		super.render(renderRequest, renderResponse);
@@ -213,5 +223,11 @@ public class SiteFacetPortlet extends MVCPortlet {
 
 		return searchRequest.getPaginationStartParameterName();
 	}
+
+	@Reference(
+		target = "(jakarta.portlet.name=" + SiteFacetPortletKeys.SITE_FACET + ")",
+		unbind = "-"
+	)
+	private LayoutMetaRobotsProvider _layoutMetaRobotsProvider;
 
 }

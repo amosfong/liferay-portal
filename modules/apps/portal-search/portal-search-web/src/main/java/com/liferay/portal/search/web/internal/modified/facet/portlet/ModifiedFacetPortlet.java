@@ -5,11 +5,13 @@
 
 package com.liferay.portal.search.web.internal.modified.facet.portlet;
 
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.facet.modified.ModifiedFacetFactory;
 import com.liferay.portal.search.searcher.SearchRequest;
@@ -82,6 +84,14 @@ public class ModifiedFacetPortlet extends MVCPortlet {
 
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, modifiedFacetDisplayContext);
+
+		String metaRobotsContent =
+			_layoutMetaRobotsProvider.getPageMetaRobotsContent(renderRequest);
+
+		if (Validator.isNotNull(metaRobotsContent)) {
+			renderRequest.setAttribute(
+				WebKeys.PAGE_ROBOTS, metaRobotsContent);
+		}
 
 		super.render(renderRequest, renderResponse);
 	}
@@ -176,6 +186,12 @@ public class ModifiedFacetPortlet extends MVCPortlet {
 
 		return themeDisplaySupplier.getThemeDisplay();
 	}
+
+	@Reference(
+		target = "(jakarta.portlet.name=" + ModifiedFacetPortletKeys.MODIFIED_FACET + ")",
+		unbind = "-"
+	)
+	private LayoutMetaRobotsProvider _layoutMetaRobotsProvider;
 
 	@Reference
 	private ModifiedFacetFactory _modifiedFacetFactory;

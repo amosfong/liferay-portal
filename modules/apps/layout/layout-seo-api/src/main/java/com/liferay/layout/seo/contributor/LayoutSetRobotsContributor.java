@@ -7,8 +7,6 @@ package com.liferay.layout.seo.contributor;
 
 import com.liferay.portal.kernel.model.LayoutSet;
 
-import jakarta.portlet.PortletPreferences;
-
 import java.util.Set;
 
 /**
@@ -17,8 +15,5 @@ import java.util.Set;
 public interface LayoutSetRobotsContributor {
 
 	public Set<String> contributeDisallowURLEntries(LayoutSet layoutSet);
-
-	public boolean isWebCrawlerIndexingEnabled(
-		PortletPreferences portletPreferences);
 
 }

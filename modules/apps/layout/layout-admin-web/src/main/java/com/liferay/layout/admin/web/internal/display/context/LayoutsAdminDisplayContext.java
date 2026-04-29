@@ -41,7 +41,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryServiceUtil;
-import com.liferay.layout.seo.robots.LayoutSetSEORobotsTxtProvider;
+import com.liferay.layout.seo.robots.LayoutSetRobotsProvider;
 import com.liferay.layout.set.prototype.helper.LayoutSetPrototypeHelper;
 import com.liferay.layout.theme.item.selector.LayoutThemeItemSelectorCriterion;
 import com.liferay.layout.util.comparator.LayoutCreateDateComparator;
@@ -99,6 +99,7 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -109,7 +110,6 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.util.RobotsUtil;
 import com.liferay.site.display.context.GroupDisplayContextHelper;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalServiceUtil;
@@ -141,7 +141,7 @@ public class LayoutsAdminDisplayContext {
 
 	public LayoutsAdminDisplayContext(
 		ItemSelector itemSelector, LayoutActionsHelper layoutActionsHelper,
-		LayoutSetSEORobotsTxtProvider layoutSEORobotsTxtProvider,
+		LayoutSetRobotsProvider layoutSetRobotsProvider,
 		LayoutService layoutService,
 		LayoutSetPrototypeHelper layoutSetPrototypeHelper,
 		LiferayPortletRequest liferayPortletRequest,
@@ -149,7 +149,7 @@ public class LayoutsAdminDisplayContext {
 
 		_itemSelector = itemSelector;
 		_layoutActionsHelper = layoutActionsHelper;
-		_layoutSetSEORobotsTxtProvider = layoutSEORobotsTxtProvider;
+		_layoutSetRobotsProvider = layoutSetRobotsProvider;
 		_layoutService = layoutService;
 		_layoutSetPrototypeHelper = layoutSetPrototypeHelper;
 		_liferayPortletRequest = liferayPortletRequest;
@@ -1206,15 +1206,14 @@ public class LayoutsAdminDisplayContext {
 			httpServletRequest, "robots", _getStrictRobots());
 	}
 
-	public String getRobotsTxtContribution() {
+	public String getRobotsContribution() {
 		LayoutSet selLayoutSet = getSelLayoutSet();
 
 		if (selLayoutSet == null) {
 			return StringPool.BLANK;
 		}
 
-		return _layoutSetSEORobotsTxtProvider.getRobotsTxtContribution(
-			selLayoutSet);
+		return _layoutSetRobotsProvider.getRobotsContribution(selLayoutSet);
 	}
 
 	public String getSelectFaviconEventName() {
@@ -2463,7 +2462,7 @@ public class LayoutsAdminDisplayContext {
 					layoutSet.getSettingsProperty(
 						layoutSet.isPrivateLayout() + "-robots.txt"),
 					StringUtil.read(
-						RobotsUtil.class.getClassLoader(),
+						PortalClassLoaderUtil.getClassLoader(),
 						PropsValues.ROBOTS_TXT_WITH_SITEMAP));
 			}
 			catch (IOException ioException) {
@@ -2476,7 +2475,7 @@ public class LayoutsAdminDisplayContext {
 
 		try {
 			return StringUtil.read(
-				RobotsUtil.class.getClassLoader(),
+				PortalClassLoaderUtil.getClassLoader(),
 				PropsValues.ROBOTS_TXT_WITHOUT_SITEMAP);
 		}
 		catch (IOException ioException) {
@@ -2592,7 +2591,7 @@ public class LayoutsAdminDisplayContext {
 	private final ItemSelector _itemSelector;
 	private String _keywords;
 	private final LayoutActionsHelper _layoutActionsHelper;
-	private final LayoutSetSEORobotsTxtProvider _layoutSetSEORobotsTxtProvider;
+	private final LayoutSetRobotsProvider _layoutSetRobotsProvider;
 	private final LayoutService _layoutService;
 	private final LayoutSetPrototypeHelper _layoutSetPrototypeHelper;
 	private SearchContainer<Layout> _layoutsSearchContainer;

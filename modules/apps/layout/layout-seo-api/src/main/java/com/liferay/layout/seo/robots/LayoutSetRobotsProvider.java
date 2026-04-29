@@ -5,13 +5,17 @@
 
 package com.liferay.layout.seo.robots;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutSet;
 
 /**
  * @author Amos Fong
  */
-public interface LayoutSetSEORobotsTxtProvider {
+public interface LayoutSetRobotsProvider {
 
-	public String getRobotsTxtContribution(LayoutSet layoutSet);
+	public String getRobots(LayoutSet layoutSet, boolean secure)
+		throws PortalException;
+
+	public String getRobotsContribution(LayoutSet layoutSet);
 
 }

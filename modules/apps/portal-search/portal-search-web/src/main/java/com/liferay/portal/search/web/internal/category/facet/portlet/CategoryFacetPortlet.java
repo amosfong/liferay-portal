@@ -85,11 +85,12 @@ public class CategoryFacetPortlet extends MVCPortlet {
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
 
-		String robots = _layoutMetaRobotsProvider.getPageMetaRobots(
-			renderRequest);
+		String metaRobotsContent =
+			_layoutMetaRobotsProvider.getPageMetaRobotsContent(renderRequest);
 
-		if (Validator.isNotNull(robots)) {
-			renderRequest.setAttribute(WebKeys.PAGE_ROBOTS, robots);
+		if (Validator.isNotNull(metaRobotsContent)) {
+			renderRequest.setAttribute(
+				WebKeys.PAGE_ROBOTS, metaRobotsContent);
 		}
 
 		super.render(renderRequest, renderResponse);

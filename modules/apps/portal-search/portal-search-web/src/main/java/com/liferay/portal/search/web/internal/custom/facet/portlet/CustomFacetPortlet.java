@@ -5,10 +5,12 @@
 
 package com.liferay.portal.search.web.internal.custom.facet.portlet;
 
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -77,6 +79,14 @@ public class CustomFacetPortlet extends MVCPortlet {
 		if (customFacetDisplayContext.isRenderNothing()) {
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
+		}
+
+		String metaRobotsContent =
+			_layoutMetaRobotsProvider.getPageMetaRobotsContent(renderRequest);
+
+		if (Validator.isNotNull(metaRobotsContent)) {
+			renderRequest.setAttribute(
+				WebKeys.PAGE_ROBOTS, metaRobotsContent);
 		}
 
 		super.render(renderRequest, renderResponse);
@@ -176,6 +186,12 @@ public class CustomFacetPortlet extends MVCPortlet {
 	private String _getPortletId(RenderRequest renderRequest) {
 		return _portal.getPortletId(renderRequest);
 	}
+
+	@Reference(
+		target = "(jakarta.portlet.name=" + CustomFacetPortletKeys.CUSTOM_FACET + ")",
+		unbind = "-"
+	)
+	private LayoutMetaRobotsProvider _layoutMetaRobotsProvider;
 
 	@Reference
 	private Portal _portal;

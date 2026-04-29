@@ -5,8 +5,7 @@
 
 package com.liferay.layout.internal.struts;
 
-import com.liferay.layout.seo.robots.LayoutSetSEORobotsTxtProvider;
-import com.liferay.petra.string.StringBundler;
+import com.liferay.layout.seo.robots.LayoutSetRobotsProvider;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,7 +23,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.RobotsUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -71,28 +69,12 @@ public class RobotsStrutsAction implements StrutsAction {
 				}
 			}
 
-			StringBundler sb = new StringBundler();
-
-			sb.append(
-				RobotsUtil.getRobots(layoutSet, httpServletRequest.isSecure()));
-
-			if (layoutSet != null) {
-				String robotsTxtContribution =
-					_layoutSetSEORobotsTxtProvider.getRobotsTxtContribution(
-						layoutSet);
-
-				if (Validator.isNotNull(robotsTxtContribution)) {
-					sb.append("\n\n");
-					sb.append(robotsTxtContribution);
-				}
-			}
+			String robots = _layoutSetRobotsProvider.getRobots(
+				layoutSet, httpServletRequest.isSecure());
 
 			ServletResponseUtil.sendFile(
 				httpServletRequest, httpServletResponse, null,
-				sb.toString(
-				).getBytes(
-					StringPool.UTF8
-				),
+				robots.getBytes(StringPool.UTF8),
 				ContentTypes.TEXT_PLAIN_UTF8);
 		}
 		catch (Exception exception) {
@@ -115,7 +97,7 @@ public class RobotsStrutsAction implements StrutsAction {
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private LayoutSetSEORobotsTxtProvider _layoutSetSEORobotsTxtProvider;
+	private LayoutSetRobotsProvider _layoutSetRobotsProvider;
 
 	@Reference
 	private LayoutSetLocalService _layoutSetLocalService;

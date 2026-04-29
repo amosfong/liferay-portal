@@ -5,6 +5,9 @@
 
 package com.liferay.layout.seo.contributor;
 
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Portlet;
+
 import jakarta.portlet.RenderRequest;
 
 /**
@@ -12,6 +15,8 @@ import jakarta.portlet.RenderRequest;
  */
 public interface LayoutMetaRobotsProvider {
 
-	public String getPageMetaRobots(RenderRequest renderRequest);
+	public boolean affectsPageMetaRobots(Layout layout, Portlet portlet);
+
+	public String getPageMetaRobotsContent(RenderRequest renderRequest);
 
 }

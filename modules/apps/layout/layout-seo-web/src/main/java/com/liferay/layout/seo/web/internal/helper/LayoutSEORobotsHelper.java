@@ -5,7 +5,7 @@
 
 package com.liferay.layout.seo.web.internal.helper;
 
-import com.liferay.layout.seo.contributor.LayoutSetRobotsContributor;
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.model.Layout;
@@ -43,10 +43,13 @@ public class LayoutSEORobotsHelper {
 			(LayoutTypePortlet)layout.getLayoutType();
 
 		for (Portlet portlet : layoutTypePortlet.getAllPortlets(false)) {
-			LayoutSetRobotsContributor layoutSetRobotsContributor =
+			LayoutMetaRobotsProvider layoutMetaRobotsProvider =
 				_serviceTrackerMap.getService(portlet.getRootPortletId());
 
-			if (layoutSetRobotsContributor == null) {
+			if ((layoutMetaRobotsProvider == null) ||
+				!layoutMetaRobotsProvider.affectsPageMetaRobots(
+					layout, portlet)) {
+
 				continue;
 			}
 
@@ -57,12 +60,6 @@ public class LayoutSEORobotsHelper {
 					portlet.getPortletId());
 
 			if (portletPreferences == null) {
-				continue;
-			}
-
-			if (layoutSetRobotsContributor.isWebCrawlerIndexingEnabled(
-					portletPreferences)) {
-
 				continue;
 			}
 
@@ -83,7 +80,7 @@ public class LayoutSEORobotsHelper {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
-			bundleContext, LayoutSetRobotsContributor.class,
+			bundleContext, LayoutMetaRobotsProvider.class,
 			"jakarta.portlet.name");
 	}
 
@@ -98,6 +95,7 @@ public class LayoutSEORobotsHelper {
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
-	private ServiceTrackerMap<String, LayoutSetRobotsContributor> _serviceTrackerMap;
+	private ServiceTrackerMap<String, LayoutMetaRobotsProvider>
+		_serviceTrackerMap;
 
 }

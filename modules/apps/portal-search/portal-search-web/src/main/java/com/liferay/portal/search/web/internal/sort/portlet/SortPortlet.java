@@ -5,10 +5,12 @@
 
 package com.liferay.portal.search.web.internal.sort.portlet;
 
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -77,6 +79,14 @@ public class SortPortlet extends MVCPortlet {
 				WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 		}
 
+		String metaRobotsContent =
+			_layoutMetaRobotsProvider.getPageMetaRobotsContent(renderRequest);
+
+		if (Validator.isNotNull(metaRobotsContent)) {
+			renderRequest.setAttribute(
+				WebKeys.PAGE_ROBOTS, metaRobotsContent);
+		}
+
 		super.render(renderRequest, renderResponse);
 	}
 
@@ -138,6 +148,12 @@ public class SortPortlet extends MVCPortlet {
 
 		return !searchRequest.isEmptySearchEnabled();
 	}
+
+	@Reference(
+		target = "(jakarta.portlet.name=" + SortPortletKeys.SORT + ")",
+		unbind = "-"
+	)
+	private LayoutMetaRobotsProvider _layoutMetaRobotsProvider;
 
 	@Reference
 	private PortletSharedSearchRequest _portletSharedSearchRequest;

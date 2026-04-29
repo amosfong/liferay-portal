@@ -12,6 +12,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletPreferences;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
@@ -129,7 +130,7 @@ public abstract class BasePortletSEOContributor
 	}
 
 	@Override
-	public String getPageMetaRobots(RenderRequest renderRequest) {
+	public String getPageMetaRobotsContent(RenderRequest renderRequest) {
 		SEOPortletPreferences seoPortletPreferences = getSEOPortletPreferences(
 			renderRequest.getPreferences());
 
@@ -150,17 +151,25 @@ public abstract class BasePortletSEOContributor
 	}
 
 	@Override
-	public boolean isWebCrawlerIndexingEnabled(
-		jakarta.portlet.PortletPreferences portletPreferences) {
+	public boolean affectsPageMetaRobots(Layout layout, Portlet portlet) {
+		jakarta.portlet.PortletPreferences portletPreferences =
+			portletPreferencesLocalService.fetchPreferences(
+				layout.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
+				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+				portlet.getPortletId());
+
+		if (portletPreferences == null) {
+			return false;
+		}
 
 		SEOPortletPreferences seoPortletPreferences = getSEOPortletPreferences(
 			portletPreferences);
 
 		if (seoPortletPreferences == null) {
-			return true;
+			return false;
 		}
 
-		return seoPortletPreferences.isWebCrawlerIndexingEnabled();
+		return !seoPortletPreferences.isWebCrawlerIndexingEnabled();
 	}
 
 	protected abstract String getPortletId();

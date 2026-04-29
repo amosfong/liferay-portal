@@ -24,7 +24,7 @@ import com.liferay.layout.page.template.exception.DuplicateLayoutPageTemplateCol
 import com.liferay.layout.page.template.exception.LayoutPageTemplateCollectionNameException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
-import com.liferay.layout.seo.robots.LayoutSetSEORobotsTxtProvider;
+import com.liferay.layout.seo.robots.LayoutSetRobotsProvider;
 import com.liferay.layout.set.prototype.helper.LayoutSetPrototypeHelper;
 import com.liferay.layout.util.template.LayoutConverterRegistry;
 import com.liferay.petra.lang.SafeCloseable;
@@ -212,7 +212,7 @@ public class GroupPagesPortlet extends MVCPortlet {
 			LayoutsAdminDisplayContext layoutsAdminDisplayContext =
 				new LayoutsAdminDisplayContext(
 					_itemSelector, layoutActionsHelper,
-					_layoutSetSEORobotsTxtProvider, _layoutService,
+					_layoutSetRobotsProvider, _layoutService,
 					_layoutSetPrototypeHelper,
 					_portal.getLiferayPortletRequest(renderRequest),
 					_portal.getLiferayPortletResponse(renderResponse));
@@ -312,7 +312,7 @@ public class GroupPagesPortlet extends MVCPortlet {
 	private LayoutPrototypeLocalService _layoutPrototypeLocalService;
 
 	@Reference
-	private LayoutSetSEORobotsTxtProvider _layoutSetSEORobotsTxtProvider;
+	private LayoutSetRobotsProvider _layoutSetRobotsProvider;
 
 	@Reference
 	private LayoutService _layoutService;

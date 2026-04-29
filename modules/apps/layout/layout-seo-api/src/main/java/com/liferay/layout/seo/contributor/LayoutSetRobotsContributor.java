@@ -5,27 +5,18 @@
 
 package com.liferay.layout.seo.contributor;
 
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 
 import jakarta.portlet.PortletPreferences;
-import jakarta.portlet.RenderRequest;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Set;
 
 /**
  * @author Amos Fong
  */
-public interface PortletSEOContributor {
+public interface LayoutSetRobotsContributor {
 
-	public Set<String> contributeRobotsDisallowURLEntries(LayoutSet layoutSet);
-
-	public Set<String> getCanonicalURLParameterNames(
-		HttpServletRequest httpServletRequest, Layout layout, String portletId);
-
-	public String getPageMetaRobots(RenderRequest renderRequest);
+	public Set<String> contributeDisallowURLEntries(LayoutSet layoutSet);
 
 	public boolean isWebCrawlerIndexingEnabled(
 		PortletPreferences portletPreferences);

@@ -5,7 +5,7 @@
 
 package com.liferay.layout.seo.internal.robots;
 
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.layout.seo.contributor.LayoutSetRobotsContributor;
 import com.liferay.layout.seo.robots.LayoutSetSEORobotsTxtProvider;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
@@ -32,11 +32,11 @@ public class LayoutSetSEORobotsTxtProviderImpl
 	public String getRobotsTxtContribution(LayoutSet layoutSet) {
 		Set<String> disallowURLEntries = new TreeSet<>();
 
-		for (PortletSEOContributor portletSEOContributor :
+		for (LayoutSetRobotsContributor layoutSetRobotsContributor :
 				_serviceTrackerList.toList()) {
 
 			Set<String> contributedDisallowURLEntries =
-				portletSEOContributor.contributeRobotsDisallowURLEntries(
+				layoutSetRobotsContributor.contributeDisallowURLEntries(
 					layoutSet);
 
 			if (contributedDisallowURLEntries != null) {
@@ -65,7 +65,7 @@ public class LayoutSetSEORobotsTxtProviderImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerList = ServiceTrackerListFactory.open(
-			bundleContext, PortletSEOContributor.class);
+			bundleContext, LayoutSetRobotsContributor.class);
 	}
 
 	@Deactivate
@@ -73,6 +73,6 @@ public class LayoutSetSEORobotsTxtProviderImpl
 		_serviceTrackerList.close();
 	}
 
-	private ServiceTrackerList<PortletSEOContributor> _serviceTrackerList;
+	private ServiceTrackerList<LayoutSetRobotsContributor> _serviceTrackerList;
 
 }

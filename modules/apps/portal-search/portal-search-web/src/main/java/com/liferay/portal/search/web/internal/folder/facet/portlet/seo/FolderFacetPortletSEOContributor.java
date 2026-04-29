@@ -5,7 +5,9 @@
 
 package com.liferay.portal.search.web.internal.folder.facet.portlet.seo;
 
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.layout.seo.contributor.LayoutCanonicalURLContributor;
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
+import com.liferay.layout.seo.contributor.LayoutSetRobotsContributor;
 import com.liferay.portal.search.web.internal.folder.facet.constants.FolderFacetPortletKeys;
 import com.liferay.portal.search.web.internal.folder.facet.portlet.FolderFacetPortletPreferencesImpl;
 import com.liferay.portal.search.web.internal.seo.BasePortletSEOContributor;
@@ -20,7 +22,10 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(
 	property = "jakarta.portlet.name=" + FolderFacetPortletKeys.FOLDER_FACET,
-	service = PortletSEOContributor.class
+	service = {
+		LayoutCanonicalURLContributor.class, LayoutMetaRobotsProvider.class,
+		LayoutSetRobotsContributor.class
+	}
 )
 public class FolderFacetPortletSEOContributor
 	extends BasePortletSEOContributor {

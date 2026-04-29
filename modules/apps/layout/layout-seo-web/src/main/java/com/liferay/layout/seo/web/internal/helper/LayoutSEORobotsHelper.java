@@ -5,7 +5,7 @@
 
 package com.liferay.layout.seo.web.internal.helper;
 
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.layout.seo.contributor.LayoutSetRobotsContributor;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.model.Layout;
@@ -43,10 +43,10 @@ public class LayoutSEORobotsHelper {
 			(LayoutTypePortlet)layout.getLayoutType();
 
 		for (Portlet portlet : layoutTypePortlet.getAllPortlets(false)) {
-			PortletSEOContributor portletSEOContributor =
+			LayoutSetRobotsContributor layoutSetRobotsContributor =
 				_serviceTrackerMap.getService(portlet.getRootPortletId());
 
-			if (portletSEOContributor == null) {
+			if (layoutSetRobotsContributor == null) {
 				continue;
 			}
 
@@ -60,7 +60,7 @@ public class LayoutSEORobotsHelper {
 				continue;
 			}
 
-			if (portletSEOContributor.isWebCrawlerIndexingEnabled(
+			if (layoutSetRobotsContributor.isWebCrawlerIndexingEnabled(
 					portletPreferences)) {
 
 				continue;
@@ -83,7 +83,8 @@ public class LayoutSEORobotsHelper {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
-			bundleContext, PortletSEOContributor.class, "jakarta.portlet.name");
+			bundleContext, LayoutSetRobotsContributor.class,
+			"jakarta.portlet.name");
 	}
 
 	@Deactivate
@@ -97,6 +98,6 @@ public class LayoutSEORobotsHelper {
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
-	private ServiceTrackerMap<String, PortletSEOContributor> _serviceTrackerMap;
+	private ServiceTrackerMap<String, LayoutSetRobotsContributor> _serviceTrackerMap;
 
 }

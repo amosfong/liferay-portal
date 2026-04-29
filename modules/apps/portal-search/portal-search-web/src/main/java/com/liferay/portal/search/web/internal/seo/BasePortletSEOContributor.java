@@ -5,7 +5,9 @@
 
 package com.liferay.portal.search.web.internal.seo;
 
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.layout.seo.contributor.LayoutCanonicalURLContributor;
+import com.liferay.layout.seo.contributor.LayoutMetaRobotsProvider;
+import com.liferay.layout.seo.contributor.LayoutSetRobotsContributor;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Layout;
@@ -34,11 +36,48 @@ import org.osgi.service.component.annotations.Reference;
  * @author Amos Fong
  */
 public abstract class BasePortletSEOContributor
-	implements PortletSEOContributor {
+	implements LayoutCanonicalURLContributor, LayoutMetaRobotsProvider,
+			   LayoutSetRobotsContributor {
 
 	@Override
-	public Set<String> contributeRobotsDisallowURLEntries(LayoutSet layoutSet) {
-		Set<String> robotDisallowEntries = new HashSet<>();
+	public Set<String> contributeCanonicalURLParameters(
+		HttpServletRequest httpServletRequest, Layout layout,
+		String portletId) {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		SEOPortletPreferences seoPortletPreferences = getSEOPortletPreferences(
+			portletPreferencesLocalService.fetchPreferences(
+				themeDisplay.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
+				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+				portletId));
+
+		if ((seoPortletPreferences == null) ||
+			!seoPortletPreferences.isWebCrawlerIndexingEnabled()) {
+
+			return Collections.emptySet();
+		}
+
+		String parameterName = seoPortletPreferences.getSEOParameterName();
+
+		if (Validator.isNull(parameterName) ||
+			(httpServletRequest.getParameter(parameterName) == null)) {
+
+			return Collections.emptySet();
+		}
+
+		Set<String> parameterNames = new HashSet<>();
+
+		parameterNames.add(parameterName);
+
+		return parameterNames;
+	}
+
+	@Override
+	public Set<String> contributeDisallowURLEntries(LayoutSet layoutSet) {
+		Set<String> disallowURLEntries = new HashSet<>();
 
 		List<PortletPreferences> portletPreferencesList =
 			portletPreferencesLocalService.getPortletPreferences(
@@ -76,53 +115,17 @@ public abstract class BasePortletSEOContributor
 				continue;
 			}
 
-			robotDisallowEntries.add(
+			disallowURLEntries.add(
 				StringBundler.concat(
 					layout.getFriendlyURL(), "*?", parameterName,
 					StringPool.EQUAL));
-			robotDisallowEntries.add(
+			disallowURLEntries.add(
 				StringBundler.concat(
 					layout.getFriendlyURL(), "*&", parameterName,
 					StringPool.EQUAL));
 		}
 
-		return robotDisallowEntries;
-	}
-
-	@Override
-	public Set<String> getCanonicalURLParameterNames(
-		HttpServletRequest httpServletRequest, Layout layout,
-		String portletId) {
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		SEOPortletPreferences seoPortletPreferences = getSEOPortletPreferences(
-			portletPreferencesLocalService.fetchPreferences(
-				themeDisplay.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
-				portletId));
-
-		if ((seoPortletPreferences == null) ||
-			!seoPortletPreferences.isWebCrawlerIndexingEnabled()) {
-
-			return Collections.emptySet();
-		}
-
-		String parameterName = seoPortletPreferences.getSEOParameterName();
-
-		if (Validator.isNull(parameterName) ||
-			(httpServletRequest.getParameter(parameterName) == null)) {
-
-			return Collections.emptySet();
-		}
-
-		Set<String> parameterNames = new HashSet<>();
-
-		parameterNames.add(parameterName);
-
-		return parameterNames;
+		return disallowURLEntries;
 	}
 
 	@Override

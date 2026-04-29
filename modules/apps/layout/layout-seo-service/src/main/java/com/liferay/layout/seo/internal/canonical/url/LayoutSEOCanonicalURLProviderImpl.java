@@ -7,7 +7,7 @@ package com.liferay.layout.seo.internal.canonical.url;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.layout.seo.canonical.url.LayoutSEOCanonicalURLProvider;
-import com.liferay.layout.seo.contributor.PortletSEOContributor;
+import com.liferay.layout.seo.contributor.LayoutCanonicalURLContributor;
 import com.liferay.layout.seo.internal.configuration.LayoutSEOCompanyConfiguration;
 import com.liferay.layout.seo.internal.util.AlternateURLMapperProvider;
 import com.liferay.layout.seo.model.LayoutSEOEntry;
@@ -125,7 +125,8 @@ public class LayoutSEOCanonicalURLProviderImpl
 			_portal);
 
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
-			bundleContext, PortletSEOContributor.class, "jakarta.portlet.name");
+			bundleContext, LayoutCanonicalURLContributor.class,
+			"jakarta.portlet.name");
 	}
 
 	@Deactivate
@@ -150,15 +151,15 @@ public class LayoutSEOCanonicalURLProviderImpl
 			(LayoutTypePortlet)layout.getLayoutType();
 
 		for (Portlet portlet : layoutTypePortlet.getAllPortlets(false)) {
-			PortletSEOContributor portletSEOContributor =
+			LayoutCanonicalURLContributor layoutCanonicalURLContributor =
 				_serviceTrackerMap.getService(portlet.getRootPortletId());
 
-			if (portletSEOContributor == null) {
+			if (layoutCanonicalURLContributor == null) {
 				continue;
 			}
-			
+
 			Set<String> contributedNames =
-				portletSEOContributor.getCanonicalURLParameterNames(
+				layoutCanonicalURLContributor.contributeCanonicalURLParameters(
 					httpServletRequest, layout, portlet.getPortletId());
 
 			if (contributedNames != null) {
@@ -278,6 +279,7 @@ public class LayoutSEOCanonicalURLProviderImpl
 	@Reference
 	private Portal _portal;
 
-	private ServiceTrackerMap<String, PortletSEOContributor> _serviceTrackerMap;
+	private ServiceTrackerMap<String, LayoutCanonicalURLContributor>
+		_serviceTrackerMap;
 
 }

@@ -16,10 +16,10 @@ liferay-one-etc-spring-boot-oaua:
     name: Liferay One Etc Spring Boot OAuth Application User Agent
     scopes: []
     type: oAuthApplicationUserAgent
-liferay-one-etc-spring-boot-object-action-entitlement-generation:
-    name: Liferay One Etc Spring Boot Object Action Entitlement Generation
+liferay-one-etc-spring-boot-object-action-commerce-order-item-entitlement-generation:
+    name: Liferay One Etc Spring Boot Object Action Commerce Order Item Entitlement Generation
     oAuth2ApplicationExternalReferenceCode: liferay-one-etc-spring-boot-oaua
-    resourcePath: /object/action/entitlement/generation
+    resourcePath: /object/action/commerce/order/item/entitlement/generation
     type: objectAction
 liferay-one-etc-spring-boot-object-action-user-delete:
     name: Liferay One Etc Spring Boot Object Action User Delete

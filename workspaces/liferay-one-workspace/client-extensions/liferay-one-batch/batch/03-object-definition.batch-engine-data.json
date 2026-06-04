@@ -1554,7 +1554,7 @@
 					"label": {
 						"en_US": "Active"
 					},
-					"name": "entitlementDefinitionActive",
+					"name": "active",
 					"objectFieldSettings": [
 					],
 					"required": false,
@@ -1619,24 +1619,6 @@
 				{
 					"DBType": "String",
 					"businessType": "Text",
-					"externalReferenceCode": "C_ENTITLEMENT_DEFINITION_MACHINE_TYPE",
-					"indexed": true,
-					"indexedAsKeyword": true,
-					"indexedLanguageId": "",
-					"label": {
-						"en_US": "Machine Type"
-					},
-					"name": "machineType",
-					"objectFieldSettings": [
-					],
-					"required": false,
-					"state": false,
-					"system": false,
-					"type": "String"
-				},
-				{
-					"DBType": "String",
-					"businessType": "Text",
 					"externalReferenceCode": "C_ENTITLEMENT_DEFINITION_NAME",
 					"indexed": true,
 					"indexedAsKeyword": true,
@@ -1651,6 +1633,24 @@
 					"state": false,
 					"system": false,
 					"type": "String"
+				},
+				{
+					"DBType": "Clob",
+					"businessType": "LongText",
+					"externalReferenceCode": "C_ENTITLEMENT_DEFINITION_OPTIONS",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Options"
+					},
+					"name": "options",
+					"objectFieldSettings": [
+					],
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Clob"
 				},
 				{
 					"DBType": "String",

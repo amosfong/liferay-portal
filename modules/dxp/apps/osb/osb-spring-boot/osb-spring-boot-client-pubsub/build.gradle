@@ -12,4 +12,5 @@ dependencies {
 	api group: "org.springframework.boot", name: "spring-boot-autoconfigure", version: "2.7.18"
 	testImplementation group: "junit", name: "junit", version: "4.13.1"
 	testImplementation group: "org.apache.commons", name: "commons-lang3", version: "3.18.0"
+	testImplementation group: "org.mockito", name: "mockito-core", version: "5.14.2"
 }

@@ -52,14 +52,12 @@ public class LicenseKeyExporter {
 	}
 
 	public String getFileName(
-		String productName, String productVersion, String licenseKeyName) {
+		String licenseKeyName, String productName, String productVersion) {
 
 		StringBundler sb = new StringBundler(6);
 
-		productName = StringUtil.extractChars(productName);
-
 		sb.append("activation-key-");
-		sb.append(productName);
+		sb.append(StringUtil.extractChars(productName));
 		sb.append(StringPool.DASH);
 		sb.append(productVersion);
 		sb.append(StringPool.DASH);
@@ -68,9 +66,9 @@ public class LicenseKeyExporter {
 		return _formatFileName(sb.toString());
 	}
 
-	public String getFileName(String[] productNames, String[] licenseKeyNames) {
+	public String getFileName(String[] licenseKeyNames, String[] productNames) {
 		StringBundler sb = new StringBundler(
-			1 + (2 * productNames.length) + (2 * licenseKeyNames.length));
+			1 + (2 * licenseKeyNames.length) + (2 * productNames.length));
 
 		sb.append("activation-key");
 
@@ -88,52 +86,53 @@ public class LicenseKeyExporter {
 	}
 
 	public String toXML(
-			String accountName, String licenseEntryName, String licenseType,
-			int licenseVersion, String productName, String productId,
-			String productVersion, String owner, int maxClusterNodes,
-			int maxServers, int maxHttpSessions, long maxConcurrentUsers,
-			long maxUsers, String sizing, String description, String domains,
-			String hostNames, String ipAddresses, String macAddresses,
-			String serverIds, Date startDate, Date expirationDate,
-			Date createDate, String key)
+			String accountName, Date createDate, String description,
+			String domains, Date expirationDate, String hostNames,
+			String ipAddresses, String key, String licenseEntryName,
+			String licenseType, int licenseVersion, String macAddresses,
+			int maxClusterNodes, long maxConcurrentUsers, int maxHttpSessions,
+			int maxServers, long maxUsers, String owner, String productId,
+			String productName, String productVersion, String serverIds,
+			String sizing, Date startDate)
 		throws Exception {
 
 		Document document = null;
 
 		Map<String, String> properties = _getProperties(
-			accountName, licenseEntryName, licenseType, licenseVersion,
-			productName, productId, productVersion, owner, maxClusterNodes,
-			maxServers, maxHttpSessions, maxConcurrentUsers, maxUsers, sizing,
-			description, domains, hostNames, ipAddresses, macAddresses,
-			serverIds, startDate, expirationDate, createDate);
+			accountName, createDate, description, domains, expirationDate,
+			hostNames, ipAddresses, licenseEntryName, licenseType,
+			licenseVersion, macAddresses, maxClusterNodes, maxConcurrentUsers,
+			maxHttpSessions, maxServers, maxUsers, owner, productId,
+			productName, productVersion, serverIds, sizing, startDate);
 
 		if (licenseVersion >= 3) {
-			document = _toXMLVersion3_4(properties, false, key);
+			document = _toXMLVersion3_4(false, key, properties);
 		}
 		else {
-			document = _toXMLVersion2(properties, key);
+			document = _toXMLVersion2(key, properties);
 		}
 
 		return document.formattedString();
 	}
 
 	public String toXML(
-			String accountName, String licenseEntryName, String licenseType,
-			int licenseVersion, String productName, String productId,
-			String productVersion, String owner, int maxClusterNodes,
-			int maxServers, int maxHttpSessions, long maxConcurrentUsers,
-			long maxUsers, String sizing, String description, String domains,
-			String[] hostNames, String[] ipAddresses, String[] macAddresses,
-			String[] serverIds, Date startDate, Date expirationDate,
-			Date createDate)
+			String accountName, Date createDate, String description,
+			String domains, Date expirationDate, String[] hostNames,
+			String[] ipAddresses, String licenseEntryName, String licenseType,
+			int licenseVersion, String[] macAddresses, int maxClusterNodes,
+			long maxConcurrentUsers, int maxHttpSessions, int maxServers,
+			long maxUsers, String owner, String productId, String productName,
+			String productVersion, String[] serverIds, String sizing,
+			Date startDate)
 		throws Exception {
 
 		Map<String, String> properties = _getProperties(
-			accountName, licenseEntryName, licenseType, licenseVersion,
-			productName, productId, productVersion, owner, maxClusterNodes,
-			maxServers, maxHttpSessions, maxConcurrentUsers, maxUsers, sizing,
-			description, domains, hostNames[0], ipAddresses[0], macAddresses[0],
-			serverIds[0], startDate, expirationDate, createDate);
+			accountName, createDate, description, domains, expirationDate,
+			hostNames[0], ipAddresses[0], licenseEntryName, licenseType,
+			licenseVersion, macAddresses[0], maxClusterNodes,
+			maxConcurrentUsers, maxHttpSessions, maxServers, maxUsers, owner,
+			productId, productName, productVersion, serverIds[0], sizing,
+			startDate);
 
 		if ((licenseVersion >= 4) &&
 			licenseType.equals(LicenseConstants.TYPE_PRODUCTION)) {
@@ -142,7 +141,7 @@ public class LicenseKeyExporter {
 		}
 
 		Document document = _toXMLVersion3_4(
-			properties, true, StringPool.BLANK);
+			true, StringPool.BLANK, properties);
 
 		Element rootElement = document.getRootElement();
 
@@ -154,12 +153,12 @@ public class LicenseKeyExporter {
 
 		for (int i = 0; i < serverIds.length; i++) {
 			Map<String, String> curProperties = _getProperties(
-				accountName, licenseEntryName, licenseType, licenseVersion,
-				productName, productId, productVersion, owner, maxClusterNodes,
-				maxServers, maxHttpSessions, maxConcurrentUsers, maxUsers,
-				sizing, description, domains, hostNames[i], ipAddresses[i],
-				macAddresses[i], serverIds[i], startDate, expirationDate,
-				createDate);
+				accountName, createDate, description, domains, expirationDate,
+				hostNames[i], ipAddresses[i], licenseEntryName, licenseType,
+				licenseVersion, macAddresses[i], maxClusterNodes,
+				maxConcurrentUsers, maxHttpSessions, maxServers, maxUsers,
+				owner, productId, productName, productVersion, serverIds[i],
+				sizing, startDate);
 
 			Element serverElement = serversElement.addElement("server");
 
@@ -186,12 +185,12 @@ public class LicenseKeyExporter {
 		properties.put("ipAddresses", StringUtil.merge(allIpAddresses));
 		properties.put("macAddresses", StringUtil.merge(allMacAddresses));
 
-		_addElement(rootElement, "key", KeyGenerator.encrypt(properties));
+		_addElement("key", rootElement, KeyGenerator.encrypt(properties));
 
 		return document.formattedString();
 	}
 
-	private void _addElement(Element parentElement, String name, String value) {
+	private void _addElement(String name, Element parentElement, String value) {
 		Element childElement = parentElement.addElement(name);
 
 		if (value != null) {
@@ -207,7 +206,7 @@ public class LicenseKeyExporter {
 		String[] hostNames = StringUtil.split(properties.get("hostNames"));
 
 		for (String hostName : hostNames) {
-			_addElement(hostNamesElement, "host-name", hostName);
+			_addElement("host-name", hostNamesElement, hostName);
 		}
 
 		Element ipAddressesElement = element.addElement("ip-addresses");
@@ -215,7 +214,7 @@ public class LicenseKeyExporter {
 		String[] ipAddresses = StringUtil.split(properties.get("ipAddresses"));
 
 		for (String ipAddress : ipAddresses) {
-			_addElement(ipAddressesElement, "ip-address", ipAddress);
+			_addElement("ip-address", ipAddressesElement, ipAddress);
 		}
 
 		Element macAddressesElement = element.addElement("mac-addresses");
@@ -224,16 +223,16 @@ public class LicenseKeyExporter {
 			properties.get("macAddresses"));
 
 		for (String macAddress : macAddresses) {
-			_addElement(macAddressesElement, "mac-address", macAddress);
+			_addElement("mac-address", macAddressesElement, macAddress);
 		}
 
 		String[] serverIds = StringUtil.split(properties.get("serverIds"));
 
 		if (serverIds.length > 0) {
-			Element serverIdElement = element.addElement("server-ids");
+			Element serverIdsElement = element.addElement("server-ids");
 
 			for (String serverId : serverIds) {
-				_addElement(serverIdElement, "server-id", serverId);
+				_addElement("server-id", serverIdsElement, serverId);
 			}
 		}
 	}
@@ -248,14 +247,13 @@ public class LicenseKeyExporter {
 	}
 
 	private Map<String, String> _getProperties(
-		String accountName, String licenseEntryName, String licenseType,
-		int licenseVersion, String productName, String productId,
-		String productVersion, String owner, int maxClusterNodes,
-		int maxServers, int maxHttpSessions, long maxConcurrentUsers,
-		long maxUsers, String sizing, String description, String domains,
-		String hostNames, String ipAddresses, String macAddresses,
-		String serverIds, Date startDate, Date expirationDate,
-		Date createDate) {
+		String accountName, Date createDate, String description, String domains,
+		Date expirationDate, String hostNames, String ipAddresses,
+		String licenseEntryName, String licenseType, int licenseVersion,
+		String macAddresses, int maxClusterNodes, long maxConcurrentUsers,
+		int maxHttpSessions, int maxServers, long maxUsers, String owner,
+		String productId, String productName, String productVersion,
+		String serverIds, String sizing, Date startDate) {
 
 		Map<String, String> properties = KeyGenerator.getProperties(
 			accountName, description, StringUtil.split(domains), expirationDate,
@@ -284,86 +282,83 @@ public class LicenseKeyExporter {
 		return properties;
 	}
 
-	private Document _toXMLVersion2(Map<String, String> properties, String key)
+	private Document _toXMLVersion2(String key, Map<String, String> properties)
 		throws Exception {
 
 		Document document = SAXReaderUtil.createDocument();
 
 		Element rootElement = document.addElement("license");
 
+		_addElement(
+			"account-name", rootElement, properties.get("accountEntryName"));
+
+		_addElement("owner", rootElement, properties.get("owner"));
+
+		_addElement("description", rootElement, properties.get("description"));
+
+		_addElement(
+			"product-name", rootElement, properties.get("productEntryName"));
+
+		_addElement(
+			"product-version", rootElement, properties.get("productVersion"));
+
+		_addElement(
+			"license-name", rootElement, properties.get("licenseEntryName"));
+
 		String licenseEntryType = properties.get("type");
 
-		_addElement(
-			rootElement, "account-name", properties.get("accountEntryName"));
+		_addElement("license-type", rootElement, licenseEntryType);
 
-		_addElement(rootElement, "owner", properties.get("owner"));
+		_addElement("license-version", rootElement, properties.get("version"));
 
-		_addElement(rootElement, "description", properties.get("description"));
-
-		_addElement(
-			rootElement, "product-name", properties.get("productEntryName"));
-
-		_addElement(
-			rootElement, "product-version", properties.get("productVersion"));
-
-		_addElement(
-			rootElement, "license-name", properties.get("licenseEntryName"));
-
-		_addElement(rootElement, "license-type", licenseEntryType);
-
-		_addElement(rootElement, "license-version", properties.get("version"));
-
-		DateFormat longDateFormatDateTime = DateFormat.getDateTimeInstance(
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(
 			DateFormat.FULL, DateFormat.FULL, LocaleUtil.US);
 
-		longDateFormatDateTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		Date startDate = new Date(
 			GetterUtil.getLong(properties.get("startDate")));
 
-		_addElement(
-			rootElement, "start-date",
-			longDateFormatDateTime.format(startDate));
+		_addElement("start-date", rootElement, dateFormat.format(startDate));
 
 		Date expirationDate = new Date(
 			GetterUtil.getLong(properties.get("expirationDate")));
 
 		_addElement(
-			rootElement, "expiration-date",
-			longDateFormatDateTime.format(expirationDate));
+			"expiration-date", rootElement, dateFormat.format(expirationDate));
 
 		if (licenseEntryType.equals(LicenseConstants.TYPE_CLUSTER) ||
 			licenseEntryType.equals(LicenseConstants.TYPE_DEVELOPER_CLUSTER)) {
 
 			_addElement(
-				rootElement, "max-servers", properties.get("maxServers"));
+				"max-servers", rootElement, properties.get("maxServers"));
 		}
 
 		if (licenseEntryType.equals(LicenseConstants.TYPE_DEVELOPER) ||
 			licenseEntryType.equals(LicenseConstants.TYPE_DEVELOPER_CLUSTER)) {
 
 			_addElement(
-				rootElement, "max-http-sessions",
+				"max-http-sessions", rootElement,
 				properties.get("maxHttpSessions"));
 		}
 
 		if (licenseEntryType.equals(LicenseConstants.TYPE_PRODUCTION)) {
-			Element serverIdElement = rootElement.addElement("server-ids");
+			Element serverIdsElement = rootElement.addElement("server-ids");
 
 			String[] serverIds = StringUtil.split(properties.get("serverIds"));
 
 			for (String serverId : serverIds) {
-				_addElement(serverIdElement, "server-id", serverId);
+				_addElement("server-id", serverIdsElement, serverId);
 			}
 		}
 
-		_addElement(rootElement, "key", key);
+		_addElement("key", rootElement, key);
 
 		return document;
 	}
 
 	private Document _toXMLVersion3_4(
-			Map<String, String> properties, boolean aggregate, String key)
+			boolean aggregate, String key, Map<String, String> properties)
 		throws Exception {
 
 		Document document = SAXReaderUtil.createDocument();
@@ -371,64 +366,63 @@ public class LicenseKeyExporter {
 		Element rootElement = document.addElement("license");
 
 		String productId = properties.get("productId");
-		String licenseEntryType = properties.get("type");
-		long licenseVersion = GetterUtil.getLong(properties.get("version"));
 
 		if (Validator.isNull(productId)) {
 			_addElement(
-				rootElement, "account-name",
+				"account-name", rootElement,
 				properties.get("accountEntryName"));
 		}
 
-		_addElement(rootElement, "owner", properties.get("owner"));
+		_addElement("owner", rootElement, properties.get("owner"));
 
-		_addElement(rootElement, "description", properties.get("description"));
+		_addElement("description", rootElement, properties.get("description"));
 
 		_addElement(
-			rootElement, "product-name", properties.get("productEntryName"));
+			"product-name", rootElement, properties.get("productEntryName"));
 
 		if (Validator.isNotNull(productId)) {
-			_addElement(rootElement, "product-id", productId);
+			_addElement("product-id", rootElement, productId);
 		}
 
 		_addElement(
-			rootElement, "product-version", properties.get("productVersion"));
+			"product-version", rootElement, properties.get("productVersion"));
 
 		if (Validator.isNull(productId)) {
 			_addElement(
-				rootElement, "license-name",
+				"license-name", rootElement,
 				properties.get("licenseEntryName"));
 		}
 
-		_addElement(rootElement, "license-type", licenseEntryType);
+		String licenseEntryType = properties.get("type");
+
+		_addElement("license-type", rootElement, licenseEntryType);
+
+		long licenseVersion = GetterUtil.getLong(properties.get("version"));
 
 		_addElement(
-			rootElement, "license-version", String.valueOf(licenseVersion));
+			"license-version", rootElement, String.valueOf(licenseVersion));
 
-		DateFormat longDateFormatDateTime = DateFormat.getDateTimeInstance(
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(
 			DateFormat.FULL, DateFormat.FULL, LocaleUtil.US);
 
-		longDateFormatDateTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		Date startDate = new Date(
 			GetterUtil.getLong(properties.get("startDate")));
 
-		_addElement(
-			rootElement, "start-date",
-			longDateFormatDateTime.format(startDate));
+		_addElement("start-date", rootElement, dateFormat.format(startDate));
 
 		Date expirationDate = new Date(
 			GetterUtil.getLong(properties.get("expirationDate")));
 
 		_addElement(
-			rootElement, "expiration-date",
-			longDateFormatDateTime.format(expirationDate));
+			"expiration-date", rootElement, dateFormat.format(expirationDate));
 
 		if (licenseEntryType.equals(LicenseConstants.TYPE_FREE) ||
 			licenseEntryType.equals(LicenseConstants.TYPE_VIRTUAL_CLUSTER)) {
 
 			_addElement(
-				rootElement, "max-cluster-nodes",
+				"max-cluster-nodes", rootElement,
 				properties.get("max-cluster-nodes"));
 		}
 
@@ -438,14 +432,14 @@ public class LicenseKeyExporter {
 			  licenseEntryType.equals(LicenseConstants.TYPE_PRODUCTION)))) {
 
 			_addElement(
-				rootElement, "max-servers", properties.get("maxServers"));
+				"max-servers", rootElement, properties.get("maxServers"));
 		}
 
 		if (licenseEntryType.equals(LicenseConstants.TYPE_DEVELOPER) ||
 			licenseEntryType.equals(LicenseConstants.TYPE_DEVELOPER_CLUSTER)) {
 
 			_addElement(
-				rootElement, "max-http-sessions",
+				"max-http-sessions", rootElement,
 				properties.get("maxHttpSessions"));
 		}
 
@@ -455,7 +449,7 @@ public class LicenseKeyExporter {
 			String[] domains = StringUtil.split(properties.get("domains"));
 
 			for (String domain : domains) {
-				_addElement(domainsElement, "domain", domain);
+				_addElement("domain", domainsElement, domain);
 			}
 		}
 
@@ -464,22 +458,20 @@ public class LicenseKeyExporter {
 
 			if (Validator.isNotNull(maxConcurrentUsers)) {
 				_addElement(
-					rootElement, "max-concurrent-users",
-					properties.get("maxConcurrentUsers"));
+					"max-concurrent-users", rootElement, maxConcurrentUsers);
 			}
 
 			String maxUsers = properties.get("maxUsers");
 
 			if (Validator.isNotNull(maxUsers)) {
-				_addElement(
-					rootElement, "max-users", properties.get("maxUsers"));
+				_addElement("max-users", rootElement, maxUsers);
 			}
 		}
 
 		String instanceSize = properties.get("instanceSize");
 
 		if (Validator.isNotNull(instanceSize)) {
-			_addElement(rootElement, "instance-size", instanceSize);
+			_addElement("instance-size", rootElement, instanceSize);
 		}
 
 		if (!aggregate) {
@@ -491,7 +483,7 @@ public class LicenseKeyExporter {
 				_exportServerToXML(rootElement, properties);
 			}
 
-			_addElement(rootElement, "key", key);
+			_addElement("key", rootElement, key);
 		}
 
 		return document;

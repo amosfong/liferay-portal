@@ -40,4 +40,18 @@ public class UserAccountService extends OneBaseService {
 		return userAccountResource.getUserAccount(userId);
 	}
 
+	public UserAccount getUserAccount(String externalReferenceCode)
+		throws Exception {
+
+		UserAccountResource userAccountResource = UserAccountResource.builder(
+		).endpoint(
+			lxcDXPMainDomain, lxcDXPServerProtocol
+		).header(
+			HttpHeaders.AUTHORIZATION, getAuthorization()
+		).build();
+
+		return userAccountResource.getUserAccountByExternalReferenceCode(
+			externalReferenceCode);
+	}
+
 }

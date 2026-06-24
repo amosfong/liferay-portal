@@ -6,8 +6,14 @@
 package com.liferay.one.service;
 
 import com.liferay.headless.admin.user.client.dto.v1_0.Account;
+import com.liferay.headless.admin.user.client.dto.v1_0.AccountRole;
+import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.problem.Problem;
 import com.liferay.headless.admin.user.client.resource.v1_0.AccountResource;
+import com.liferay.headless.admin.user.client.resource.v1_0.AccountRoleResource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -18,6 +24,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AccountService extends OneBaseService {
+
+	public void assignUserAccountRole(
+			String externalReferenceCode, long accountRoleId,
+			String emailAddress, Jwt jwt)
+		throws Exception {
+
+		AccountRoleResource accountRoleResource = AccountRoleResource.builder(
+		).endpoint(
+			lxcDXPMainDomain, lxcDXPServerProtocol
+		).header(
+			HttpHeaders.AUTHORIZATION, getAuthorization(jwt)
+		).build();
+
+		accountRoleResource.
+			postAccountByExternalReferenceCodeAccountRoleUserAccountByEmailAddress(
+				externalReferenceCode, accountRoleId, emailAddress);
+	}
 
 	public Account fetchAccount(long accountId) throws Exception {
 		AccountResource accountResource = AccountResource.builder(
@@ -41,6 +64,17 @@ public class AccountService extends OneBaseService {
 		}
 	}
 
+	public Account getAccount(long accountEntryId, Jwt jwt) throws Exception {
+		AccountResource accountResource = AccountResource.builder(
+		).endpoint(
+			lxcDXPMainDomain, lxcDXPServerProtocol
+		).header(
+			HttpHeaders.AUTHORIZATION, getAuthorization(jwt)
+		).build();
+
+		return accountResource.getAccount(accountEntryId);
+	}
+
 	public Account getAccount(String externalReferenceCode, Jwt jwt)
 		throws Exception {
 
@@ -53,6 +87,42 @@ public class AccountService extends OneBaseService {
 
 		return accountResource.getAccountByExternalReferenceCode(
 			externalReferenceCode);
+	}
+
+	public List<AccountRole> getUserAccountRoles(
+			String externalReferenceCode, String emailAddress, Jwt jwt)
+		throws Exception {
+
+		AccountRoleResource accountRoleResource = AccountRoleResource.builder(
+		).endpoint(
+			lxcDXPMainDomain, lxcDXPServerProtocol
+		).header(
+			HttpHeaders.AUTHORIZATION, getAuthorization(jwt)
+		).build();
+
+		Page<AccountRole> accountRolePage =
+			accountRoleResource.
+				getAccountByExternalReferenceCodeUserAccountByEmailAddressAccountRolesPage(
+					externalReferenceCode, emailAddress);
+
+		return new ArrayList<>(accountRolePage.getItems());
+	}
+
+	public void unassignUserAccountRole(
+			String externalReferenceCode, long accountRoleId,
+			String emailAddress, Jwt jwt)
+		throws Exception {
+
+		AccountRoleResource accountRoleResource = AccountRoleResource.builder(
+		).endpoint(
+			lxcDXPMainDomain, lxcDXPServerProtocol
+		).header(
+			HttpHeaders.AUTHORIZATION, getAuthorization(jwt)
+		).build();
+
+		accountRoleResource.
+			deleteAccountByExternalReferenceCodeAccountRoleUserAccountByEmailAddress(
+				externalReferenceCode, accountRoleId, emailAddress);
 	}
 
 }

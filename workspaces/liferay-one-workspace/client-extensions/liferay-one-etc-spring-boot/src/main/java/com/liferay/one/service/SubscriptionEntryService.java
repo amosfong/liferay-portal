@@ -76,9 +76,19 @@ public class SubscriptionEntryService extends OneBaseService {
 			"(customUserId eq " + userId + ")");
 
 		for (SubscriptionEntry subscriptionEntry : subscriptionEntries) {
-			_deleteSubscriptionEntry(
-				subscriptionEntry.getSubscriptionEntryId());
+			deleteSubscriptionEntry(subscriptionEntry.getSubscriptionEntryId());
 		}
+	}
+
+	public void deleteSubscriptionEntry(long subscriptionEntryId)
+		throws Exception {
+
+		delete(
+			getAuthorization(), StringPool.BLANK,
+			UriComponentsBuilder.fromPath(
+				"/o/c/subscriptionentries/" + subscriptionEntryId
+			).build(
+			).toUri());
 	}
 
 	public void deleteSubscriptionEntry(
@@ -92,7 +102,7 @@ public class SubscriptionEntryService extends OneBaseService {
 			return;
 		}
 
-		_deleteSubscriptionEntry(subscriptionEntry.getSubscriptionEntryId());
+		deleteSubscriptionEntry(subscriptionEntry.getSubscriptionEntryId());
 	}
 
 	public SubscriptionEntry fetchSubscriptionEntry(
@@ -123,17 +133,6 @@ public class SubscriptionEntryService extends OneBaseService {
 		_sendExpiringLicenseKeyEmails(30);
 		_sendExpiringLicenseKeyEmails(14);
 		_sendExpiringLicenseKeyEmails(0);
-	}
-
-	private void _deleteSubscriptionEntry(long subscriptionEntryId)
-		throws Exception {
-
-		delete(
-			getAuthorization(), StringPool.BLANK,
-			UriComponentsBuilder.fromPath(
-				"/o/c/subscriptionentries/" + subscriptionEntryId
-			).build(
-			).toUri());
 	}
 
 	private String _getExpirationMessage(

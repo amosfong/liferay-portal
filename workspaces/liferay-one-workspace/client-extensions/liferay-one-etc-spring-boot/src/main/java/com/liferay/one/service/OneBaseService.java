@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -76,6 +77,10 @@ public abstract class OneBaseService extends BaseService {
 	protected String getAuthorization() {
 		return _liferayOAuth2AccessTokenManager.getAuthorization(
 			"liferay-one-etc-spring-boot-oahs");
+	}
+
+	protected String getAuthorization(Jwt jwt) {
+		return "Bearer " + jwt.getTokenValue();
 	}
 
 	protected boolean isNotFound(String status) {

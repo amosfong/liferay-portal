@@ -13,6 +13,7 @@ liferay-one-etc-spring-boot-oahs:
         -   c_entitlement.everything
         -   c_entitlementdefinition.everything.read
         -   c_licensekey.everything.read
+        -   c_property.everything.read
         -   c_subscriptionentry.everything
         -   c_ticketattachment.everything
     type: oAuthApplicationHeadlessServer

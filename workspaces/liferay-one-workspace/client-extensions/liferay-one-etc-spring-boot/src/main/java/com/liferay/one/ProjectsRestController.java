@@ -5,8 +5,6 @@
 
 package com.liferay.one;
 
-import com.liferay.one.jira.service.JiraService;
-import com.liferay.one.permission.BusinessEventPermission;
 import com.liferay.osb.koroneiki.phloem.rest.client.constants.ExternalLinkDomain;
 import com.liferay.osb.koroneiki.phloem.rest.client.constants.ExternalLinkEntityName;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Account;
@@ -27,64 +25,30 @@ import com.liferay.osb.provisioning.subscription.model.SubscriptionEntry;
 import com.liferay.osb.provisioning.subscription.service.SubscriptionEntryLocalService;
 import com.liferay.osb.provisioning.util.CustomerPortalRelease;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.osgi.service.component.annotations.Reference;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author Jenny Chen
  * @author Felipe Veloso
  * @author Kyle Bischof
  */
-@RequestMapping("/accounts")
+@RequestMapping("/projects")
 @RestController
-public class AccountsRestController extends OneBaseRestController {
+public class ProjectsRestController extends OneBaseRestController {
 
-	@GetMapping("/{externalReferenceCode}/jira/object-key")
-	public ResponseEntity<String> getJiraObjectKey(
-			@AuthenticationPrincipal Jwt jwt,
-			@PathVariable("externalReferenceCode") String externalReferenceCode)
+	@PostMapping("/membership/create")
+	public void postMembershipCreate(@RequestBody String json)
 		throws Exception {
 
-		try {
-			_businessEventPermission.check(
-				externalReferenceCode, ActionKeys.VIEW, jwt);
-
-			return new ResponseEntity<>(
-				_jiraService.getAccountObjectKey(externalReferenceCode),
-				HttpStatus.OK);
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to get Jira object key for " + externalReferenceCode,
-				exception);
-
-			return new ResponseEntity<>(
-				exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PostMapping("/user/assigned")
-	public void postUserAssigned(@RequestBody String json) throws Exception {
 		JSONObject jsonObject = new JSONObject(json);
 
 		Account account = AccountSerDes.toDTO(jsonObject.getString("account"));
@@ -126,8 +90,10 @@ public class AccountsRestController extends OneBaseRestController {
 		}
 	}
 
-	@PostMapping("/user/unassigned")
-	public void postUserUnassigned(@RequestBody String json) throws Exception {
+	@PostMapping("/membership/delete")
+	public void postMembershipDelete(@RequestBody String json)
+		throws Exception {
+
 		JSONObject jsonObject = new JSONObject(json);
 
 		Account account = AccountSerDes.toDTO(jsonObject.getString("account"));
@@ -196,12 +162,6 @@ public class AccountsRestController extends OneBaseRestController {
 		}
 	}
 
-	private static final Log _log = LogFactory.getLog(
-		AccountsRestController.class);
-
-	@Autowired
-	private BusinessEventPermission _businessEventPermission;
-
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
 
@@ -216,9 +176,6 @@ public class AccountsRestController extends OneBaseRestController {
 
 	@Reference
 	private ExternalLinkWebService _externalLinkWebService;
-
-	@Autowired
-	private JiraService _jiraService;
 
 	@Reference
 	private LicenseKeyLocalService _licenseKeyLocalService;

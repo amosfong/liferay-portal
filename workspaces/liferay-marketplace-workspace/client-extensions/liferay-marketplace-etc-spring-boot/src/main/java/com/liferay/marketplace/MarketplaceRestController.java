@@ -16,6 +16,7 @@ import com.liferay.headless.admin.user.client.resource.v1_0.PostalAddressResourc
 import com.liferay.headless.admin.user.client.resource.v1_0.UserAccountResource;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Currency;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Product;
+import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.ProductVirtualSettingsFileEntry;
 import com.liferay.headless.commerce.admin.catalog.client.resource.v1_0.CurrencyResource;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.BillingAddress;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
@@ -32,6 +33,8 @@ import com.liferay.marketplace.util.MarketplaceUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,6 +50,7 @@ import java.nio.file.Path;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,6 +65,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -152,6 +157,62 @@ public class MarketplaceRestController extends BaseRestController {
 		).body(
 			streamingResponseBody
 		);
+	}
+
+	@GetMapping("/products")
+	public ResponseEntity<Map<String, Object>> getProduct(
+			@RequestParam(name = "dxpVersion") String dxpVersion,
+			@RequestParam(name = "productERC") String productERC)
+		throws Exception {
+
+		Product product = _marketplaceService.getProductByExternalReferenceCode(
+			productERC);
+
+		if (!_productKeys.contains(productERC)) {
+			throw new ResponseStatusException(
+				HttpStatus.FORBIDDEN, "Product ERC is not allowed");
+		}
+
+		String version = null;
+		Long virtualEntryId = null;
+
+		try {
+			Collection<ProductVirtualSettingsFileEntry> fileEntries =
+				_marketplaceService.getProductVirtualSettingsFileEntries(
+					product.getProductId());
+
+			if ((fileEntries != null) && !fileEntries.isEmpty()) {
+				ProductVirtualSettingsFileEntry firstFileEntry =
+					fileEntries.iterator(
+					).next();
+
+				version = firstFileEntry.getVersion();
+				virtualEntryId = firstFileEntry.getId();
+
+				for (ProductVirtualSettingsFileEntry fileEntry : fileEntries) {
+					if (_isCompatible(dxpVersion, fileEntry.getVersion())) {
+						version = fileEntry.getVersion();
+						virtualEntryId = fileEntry.getId();
+
+						break;
+					}
+				}
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to get product virtual settings for product " +
+					product.getProductId(),
+				exception);
+		}
+
+		Map<String, Object> response = HashMapBuilder.<String, Object>put(
+			"version", version
+		).put(
+			"virtualEntryId", virtualEntryId
+		).build();
+
+		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("/account")
@@ -464,6 +525,47 @@ public class MarketplaceRestController extends BaseRestController {
 		return publisherAssetLinks;
 	}
 
+	private boolean _isCompatible(String dxpVersion, String fileVersion) {
+		if (Validator.isNull(dxpVersion) || Validator.isNull(fileVersion)) {
+			return false;
+		}
+
+		String normalizedDxpVersion = StringUtil.toLowerCase(dxpVersion.trim());
+		String normalizedFileVersion = StringUtil.toLowerCase(
+			fileVersion.trim());
+
+		if (normalizedFileVersion.contains(normalizedDxpVersion) ||
+			normalizedDxpVersion.contains(normalizedFileVersion)) {
+
+			return true;
+		}
+
+		String spaceDxpVersion = StringUtil.replace(
+			normalizedDxpVersion, '.', ' ');
+		String spaceFileVersion = StringUtil.replace(
+			normalizedFileVersion, '.', ' ');
+
+		if (spaceFileVersion.contains(spaceDxpVersion) ||
+			spaceDxpVersion.contains(spaceFileVersion)) {
+
+			return true;
+		}
+
+		String[] parts = normalizedDxpVersion.split("\\.");
+
+		if ((parts.length >= 2) && parts[0].matches("\\d{4}") &&
+			parts[1].matches("q[1-4]")) {
+
+			String yearQuarter = parts[0] + " " + parts[1];
+
+			if (spaceFileVersion.contains(yearQuarter)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	@PostMapping("request-product-feedback/{orderId}")
 	private void _postRequestProductFeedback(
 			@AuthenticationPrincipal Jwt jwt, @PathVariable long orderId)
@@ -619,6 +721,9 @@ public class MarketplaceRestController extends BaseRestController {
 
 	@Autowired
 	private MarketplaceService _marketplaceService;
+
+	@Value("${liferay.marketplace.product.keys}")
+	private List<String> _productKeys;
 
 	@Autowired
 	private ProvisioningService _provisioningService;

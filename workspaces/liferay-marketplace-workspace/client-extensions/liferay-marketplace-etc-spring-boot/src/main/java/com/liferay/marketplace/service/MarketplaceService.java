@@ -67,6 +67,7 @@ import java.nio.file.Files;
 
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -368,6 +369,16 @@ public class MarketplaceService extends BaseService {
 		return productResource.getProduct(id);
 	}
 
+	public Product getProductByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		ProductResource productResource = getProductResource();
+
+		return productResource.getProductByExternalReferenceCode(
+			externalReferenceCode);
+	}
+
 	public Product getProductBySkuId(long skuId) throws Exception {
 		Sku sku = getSku(skuId);
 
@@ -457,6 +468,27 @@ public class MarketplaceService extends BaseService {
 
 		return productVirtualSettingsResource.
 			getProductIdProductVirtualSettings(productId);
+	}
+
+	public Collection<ProductVirtualSettingsFileEntry>
+			getProductVirtualSettingsFileEntries(long productId)
+		throws Exception {
+
+		ProductVirtualSettings productVirtualSettings =
+			getProductVirtualSettings(productId);
+
+		if (productVirtualSettings == null) {
+			return Collections.emptyList();
+		}
+
+		ProductVirtualSettingsFileEntryResource
+			productVirtualSettingsFileEntryResource =
+				_getProductVirtualSettingsFileEntryResource();
+
+		return productVirtualSettingsFileEntryResource.
+			getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage(
+				productVirtualSettings.getId(), Pagination.of(1, 20)
+			).getItems();
 	}
 
 	public InputStream getPublisherAssetInputStream(String publisherAssetURL)

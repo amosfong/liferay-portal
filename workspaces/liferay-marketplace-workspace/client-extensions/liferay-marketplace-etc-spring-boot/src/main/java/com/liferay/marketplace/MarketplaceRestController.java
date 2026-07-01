@@ -45,12 +45,15 @@ import java.io.OutputStreamWriter;
 
 import java.math.BigDecimal;
 
+import java.net.http.HttpResponse;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -206,13 +209,73 @@ public class MarketplaceRestController extends BaseRestController {
 				exception);
 		}
 
-		Map<String, Object> response = HashMapBuilder.<String, Object>put(
-			"version", version
-		).put(
-			"virtualEntryId", virtualEntryId
-		).build();
+		return ResponseEntity.ok(
+			HashMapBuilder.<String, Object>put(
+				"version", version
+			).put(
+				"virtualEntryId", virtualEntryId
+			).build());
+	}
 
-		return ResponseEntity.ok(response);
+	@GetMapping("/virtual-entry/{virtualEntryId}/download")
+	public ResponseEntity<StreamingResponseBody> getVirtualEntryDownload(
+			@PathVariable long virtualEntryId)
+		throws Exception {
+
+		ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry =
+			_marketplaceService.getProductVirtualSettingsFileEntry(
+				virtualEntryId);
+
+		if (productVirtualSettingsFileEntry == null) {
+			throw new ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"Product virtual settings file entry not found");
+		}
+
+		HttpResponse<InputStream> httpResponse =
+			_marketplaceService.getPublisherAssetHttpResponse(
+				productVirtualSettingsFileEntry.getSrc());
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+
+		httpHeaders.setAccessControlExposeHeaders(
+			Collections.singletonList(HttpHeaders.CONTENT_DISPOSITION));
+
+		List<String> contentTypes = httpResponse.headers(
+		).allValues(
+			HttpHeaders.CONTENT_TYPE
+		);
+
+		if (!contentTypes.isEmpty()) {
+			httpHeaders.setContentType(
+				MediaType.parseMediaType(contentTypes.get(0)));
+		}
+		else {
+			httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		}
+
+		List<String> contentDispositions = httpResponse.headers(
+		).allValues(
+			HttpHeaders.CONTENT_DISPOSITION
+		);
+
+		if (!contentDispositions.isEmpty()) {
+			httpHeaders.set(
+				HttpHeaders.CONTENT_DISPOSITION, contentDispositions.get(0));
+		}
+		else {
+			httpHeaders.setContentDispositionFormData(
+				"attachment", "product-virtual-entry-" + virtualEntryId);
+		}
+
+		StreamingResponseBody streamingResponseBody = outputStream -> {
+			try (InputStream inputStream = httpResponse.body()) {
+				inputStream.transferTo(outputStream);
+			}
+		};
+
+		return new ResponseEntity<>(
+			streamingResponseBody, httpHeaders, HttpStatus.OK);
 	}
 
 	@PostMapping("/account")

@@ -491,7 +491,21 @@ public class MarketplaceService extends BaseService {
 			).getItems();
 	}
 
-	public InputStream getPublisherAssetInputStream(String publisherAssetURL)
+	public ProductVirtualSettingsFileEntry getProductVirtualSettingsFileEntry(
+			long productVirtualSettingsFileEntryId)
+		throws Exception {
+
+		ProductVirtualSettingsFileEntryResource
+			productVirtualSettingsFileEntryResource =
+				_getProductVirtualSettingsFileEntryResource();
+
+		return productVirtualSettingsFileEntryResource.
+			getProductVirtualSettingsFileEntry(
+				productVirtualSettingsFileEntryId);
+	}
+
+	public HttpResponse<InputStream> getPublisherAssetHttpResponse(
+			String publisherAssetURL)
 		throws Exception {
 
 		HttpClient httpClient = HttpClient.newHttpClient();
@@ -518,6 +532,15 @@ public class MarketplaceService extends BaseService {
 					"Unable to download ", publisherAssetURL, ": ",
 					httpResponse.statusCode()));
 		}
+
+		return httpResponse;
+	}
+
+	public InputStream getPublisherAssetInputStream(String publisherAssetURL)
+		throws Exception {
+
+		HttpResponse<InputStream> httpResponse = getPublisherAssetHttpResponse(
+			publisherAssetURL);
 
 		return httpResponse.body();
 	}

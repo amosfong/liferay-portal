@@ -71,11 +71,18 @@ public class MarketplaceTopicSubscriber {
 		CredentialsProvider credentialsProvider =
 			FixedCredentialsProvider.create(googleCredentials);
 
-		_subscriptionAdminClient = SubscriptionAdminClient.create(
-			SubscriptionAdminSettings.newBuilder(
-			).setCredentialsProvider(
-				credentialsProvider
-			).build());
+		try {
+			_subscriptionAdminClient = SubscriptionAdminClient.create(
+				SubscriptionAdminSettings.newBuilder(
+				).setCredentialsProvider(
+					credentialsProvider
+				).build());
+		}
+		catch (Exception exception) {
+			_log.error("Unable to create SubscriptionAdminClient", exception);
+
+			return;
+		}
 
 		_subscribe(
 			credentialsProvider,

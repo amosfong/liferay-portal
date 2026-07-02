@@ -162,58 +162,36 @@ public class MarketplaceRestController extends BaseRestController {
 		);
 	}
 
-	@GetMapping("/products")
+	@GetMapping("/product/{productERC}/version")
 	public ResponseEntity<Map<String, Object>> getProduct(
-			@RequestParam(name = "dxpVersion") String dxpVersion,
-			@RequestParam(name = "productERC") String productERC)
+			@RequestParam String dxpVersion, @PathVariable String productERC)
 		throws Exception {
+
+		if (!_productKeys.contains(productERC)) {
+			throw new ResponseStatusException(
+				HttpStatus.FORBIDDEN, "Product ERC is not available");
+		}
 
 		Product product = _marketplaceService.getProductByExternalReferenceCode(
 			productERC);
 
-		if (!_productKeys.contains(productERC)) {
+		Collection<ProductVirtualSettingsFileEntry> fileEntries =
+			_marketplaceService.getProductVirtualSettingsFileEntries(
+				product.getProductId());
+
+		ProductVirtualSettingsFileEntry fileEntry = _getFileEntry(
+			fileEntries, dxpVersion);
+
+		if (fileEntry == null) {
 			throw new ResponseStatusException(
-				HttpStatus.FORBIDDEN, "Product ERC is not allowed");
-		}
-
-		String version = null;
-		Long virtualEntryId = null;
-
-		try {
-			Collection<ProductVirtualSettingsFileEntry> fileEntries =
-				_marketplaceService.getProductVirtualSettingsFileEntries(
-					product.getProductId());
-
-			if ((fileEntries != null) && !fileEntries.isEmpty()) {
-				ProductVirtualSettingsFileEntry firstFileEntry =
-					fileEntries.iterator(
-					).next();
-
-				version = firstFileEntry.getVersion();
-				virtualEntryId = firstFileEntry.getId();
-
-				for (ProductVirtualSettingsFileEntry fileEntry : fileEntries) {
-					if (_isCompatible(dxpVersion, fileEntry.getVersion())) {
-						version = fileEntry.getVersion();
-						virtualEntryId = fileEntry.getId();
-
-						break;
-					}
-				}
-			}
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to get product virtual settings for product " +
-					product.getProductId(),
-				exception);
+				HttpStatus.NOT_FOUND, "No FileEntries available");
 		}
 
 		return ResponseEntity.ok(
 			HashMapBuilder.<String, Object>put(
-				"version", version
+				"version", fileEntry.getVersion()
 			).put(
-				"virtualEntryId", virtualEntryId
+				"virtualEntryId", fileEntry.getId()
 			).build());
 	}
 
@@ -246,12 +224,12 @@ public class MarketplaceRestController extends BaseRestController {
 			HttpHeaders.CONTENT_TYPE
 		);
 
-		if (!contentTypes.isEmpty()) {
-			httpHeaders.setContentType(
-				MediaType.parseMediaType(contentTypes.get(0)));
+		if (contentTypes.isEmpty()) {
+			httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		}
 		else {
-			httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			httpHeaders.setContentType(
+				MediaType.parseMediaType(contentTypes.get(0)));
 		}
 
 		List<String> contentDispositions = httpResponse.headers(
@@ -259,13 +237,13 @@ public class MarketplaceRestController extends BaseRestController {
 			HttpHeaders.CONTENT_DISPOSITION
 		);
 
-		if (!contentDispositions.isEmpty()) {
-			httpHeaders.set(
-				HttpHeaders.CONTENT_DISPOSITION, contentDispositions.get(0));
-		}
-		else {
+		if (contentDispositions.isEmpty()) {
 			httpHeaders.setContentDispositionFormData(
 				"attachment", "product-virtual-entry-" + virtualEntryId);
+		}
+		else {
+			httpHeaders.set(
+				HttpHeaders.CONTENT_DISPOSITION, contentDispositions.get(0));
 		}
 
 		StreamingResponseBody streamingResponseBody = outputStream -> {
@@ -515,6 +493,24 @@ public class MarketplaceRestController extends BaseRestController {
 		return accountRole.getId();
 	}
 
+	private ProductVirtualSettingsFileEntry _getFileEntry(
+		Collection<ProductVirtualSettingsFileEntry> fileEntries,
+		String dxpVersion) {
+
+		if ((fileEntries == null) || fileEntries.isEmpty()) {
+			return null;
+		}
+
+		for (ProductVirtualSettingsFileEntry fileEntry : fileEntries) {
+			if (_isCompatible(dxpVersion, fileEntry.getVersion())) {
+				return fileEntry;
+			}
+		}
+
+		return fileEntries.iterator(
+		).next();
+	}
+
 	private String _getOrderTypeName(Order order) {
 		if (Objects.equals(
 				order.getOrderTypeExternalReferenceCode(), "AI_HUB")) {
@@ -593,37 +589,23 @@ public class MarketplaceRestController extends BaseRestController {
 			return false;
 		}
 
-		String normalizedDxpVersion = StringUtil.toLowerCase(dxpVersion.trim());
-		String normalizedFileVersion = StringUtil.toLowerCase(
-			fileVersion.trim());
+		dxpVersion = StringUtil.replace(
+			StringUtil.toLowerCase(dxpVersion.trim()), '.', ' ');
+		fileVersion = StringUtil.replace(
+			StringUtil.toLowerCase(fileVersion.trim()), '.', ' ');
 
-		if (normalizedFileVersion.contains(normalizedDxpVersion) ||
-			normalizedDxpVersion.contains(normalizedFileVersion)) {
-
-			return true;
-		}
-
-		String spaceDxpVersion = StringUtil.replace(
-			normalizedDxpVersion, '.', ' ');
-		String spaceFileVersion = StringUtil.replace(
-			normalizedFileVersion, '.', ' ');
-
-		if (spaceFileVersion.contains(spaceDxpVersion) ||
-			spaceDxpVersion.contains(spaceFileVersion)) {
+		if (fileVersion.contains(dxpVersion) ||
+			dxpVersion.contains(fileVersion)) {
 
 			return true;
 		}
 
-		String[] parts = normalizedDxpVersion.split("\\.");
+		String[] parts = dxpVersion.split(" ");
 
 		if ((parts.length >= 2) && parts[0].matches("\\d{4}") &&
 			parts[1].matches("q[1-4]")) {
 
-			String yearQuarter = parts[0] + " " + parts[1];
-
-			if (spaceFileVersion.contains(yearQuarter)) {
-				return true;
-			}
+			return fileVersion.contains(parts[0] + " " + parts[1]);
 		}
 
 		return false;

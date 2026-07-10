@@ -79,7 +79,7 @@ public class MarketplaceTopicSubscriber {
 				).build());
 		}
 		catch (Exception exception) {
-			_log.error("Unable to create SubscriptionAdminClient", exception);
+			_log.error("Unable to create Subscription Admin Client", exception);
 
 			return;
 		}

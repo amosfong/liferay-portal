@@ -183,7 +183,7 @@ public class MarketplaceRestController extends BaseRestController {
 		if (productVirtualSettingsFileEntry == null) {
 			throw new ResponseStatusException(
 				HttpStatus.NOT_FOUND,
-				"No ProductVirtualSettingsFileEntry available");
+				"Product virtual settings file entry was not found");
 		}
 
 		return ResponseEntity.ok(
@@ -206,7 +206,7 @@ public class MarketplaceRestController extends BaseRestController {
 		if (productVirtualSettingsFileEntry == null) {
 			throw new ResponseStatusException(
 				HttpStatus.NOT_FOUND,
-				"Product virtual settings file entry not found");
+				"Product virtual settings file entry was not found");
 		}
 
 		HttpResponse<InputStream> httpResponse =
@@ -336,7 +336,7 @@ public class MarketplaceRestController extends BaseRestController {
 		if (_log.isInfoEnabled()) {
 			_log.info(
 				StringBundler.concat(
-					"User ", emailAddress, " associated with account ",
+					"User ", emailAddress, " was associated with account ",
 					account.getName()));
 		}
 
@@ -449,8 +449,8 @@ public class MarketplaceRestController extends BaseRestController {
 			if (publisherAssetLinks.isEmpty()) {
 				if (_log.isInfoEnabled()) {
 					_log.info(
-						"No publisher asset links to process for product " +
-							productId);
+						"No publisher asset links were found to process for " +
+							"product " + productId);
 				}
 
 				return;

@@ -27,6 +27,13 @@ liferay-marketplace-etc-spring-boot-oaua:
     scopes:
         -   Liferay.Headless.Admin.User.everything
     type: oAuthApplicationUserAgent
+liferay-marketplace-etc-spring-boot-provisioning:
+    .serviceAddress: localhost:58081
+    .serviceScheme: http
+    name: Liferay Marketplace Etc Spring Boot OAuth Application Provisioning
+    scopes:
+        -   Liferay.Headless.Commerce.Admin.Catalog.everything
+    type: oAuthApplicationHeadlessServer
 liferay-marketplace-etc-spring-boot-object-action-ai-hub-tokens:
     name: Liferay Marketplace Etc Spring Boot Object Action AI Hub Tokens
     oAuth2ApplicationExternalReferenceCode: liferay-marketplace-etc-spring-boot-oaua

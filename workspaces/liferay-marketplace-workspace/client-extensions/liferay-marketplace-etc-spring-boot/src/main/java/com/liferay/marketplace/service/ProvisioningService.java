@@ -12,8 +12,19 @@ import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.ProductPurchase;
 import com.liferay.osb.provisioning.marketplace.rest.client.dto.v1_0.AppLicenseKey;
 import com.liferay.osb.provisioning.marketplace.rest.client.resource.v1_0.AppLicenseKeyResource;
 import com.liferay.osb.provisioning.rest.client.resource.v1_0.LicenseKeyResource;
+import com.liferay.petra.string.StringBundler;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+
+import java.io.IOException;
+
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import java.time.ZonedDateTime;
 
@@ -22,6 +33,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +56,41 @@ public class ProvisioningService extends BaseService {
 		).endpoint(
 			_externalProvisioningHomePageURL
 		).build();
+	}
+
+	public JSONObject getEnvironmentAddOns(String jwt) throws Exception {
+		JWTClaimsSet jwtClaimsSet = JWTParser.parse(
+			jwt
+		).getJWTClaimsSet();
+
+		String environmentId = jwtClaimsSet.getStringClaim("environmentId");
+
+		HttpRequest httpRequest = HttpRequest.newBuilder(
+		).uri(
+			URI.create(
+				StringBundler.concat(
+					_externalProvisioningHomePageURL,
+					"/o/provisioning-rest/v1.0/cloud/environments/",
+					environmentId, "/manifest/add-ons"))
+		).header(
+			"Content-Type", "text/plain"
+		).POST(
+			HttpRequest.BodyPublishers.ofString(jwt)
+		).build();
+
+		HttpClient httpClient = HttpClient.newHttpClient();
+
+		HttpResponse<String> httpResponse = httpClient.send(
+			httpRequest, HttpResponse.BodyHandlers.ofString());
+
+		if (httpResponse.statusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+			throw new IOException(
+				StringBundler.concat(
+					"Unable to get add-ons for environment ", environmentId,
+					": ", httpResponse.statusCode()));
+		}
+
+		return new JSONObject(httpResponse.body());
 	}
 
 	public LicenseKeyResource getLicenseKeyResource() throws Exception {

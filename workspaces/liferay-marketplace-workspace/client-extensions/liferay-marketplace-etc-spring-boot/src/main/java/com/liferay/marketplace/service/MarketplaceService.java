@@ -408,6 +408,23 @@ public class MarketplaceService extends BaseService {
 			externalReferenceCode);
 	}
 
+	public Product getProductByExternalReferenceCode(
+			String externalReferenceCode, Jwt jwt)
+		throws Exception {
+
+		ProductResource productResource = ProductResource.builder(
+		).header(
+			HttpHeaders.AUTHORIZATION, "Bearer " + jwt.getTokenValue()
+		).endpoint(
+			new URL(lxcDXPServerProtocol + "://" + lxcDXPMainDomain)
+		).parameters(
+			"nestedFields", "catalog"
+		).build();
+
+		return productResource.getProductByExternalReferenceCode(
+			externalReferenceCode);
+	}
+
 	public Product getProductBySkuId(long skuId) throws Exception {
 		Sku sku = getSku(skuId);
 
@@ -499,6 +516,17 @@ public class MarketplaceService extends BaseService {
 			getProductIdProductVirtualSettings(productId);
 	}
 
+	public ProductVirtualSettings getProductVirtualSettings(
+			long productId, Jwt jwt)
+		throws Exception {
+
+		ProductVirtualSettingsResource productVirtualSettingsResource =
+			_getProductVirtualSettingsResource(jwt);
+
+		return productVirtualSettingsResource.
+			getProductIdProductVirtualSettings(productId);
+	}
+
 	public ProductVirtualSettingsFileEntry[]
 			getProductVirtualSettingsFileEntries(long productId)
 		throws Exception {
@@ -514,15 +542,37 @@ public class MarketplaceService extends BaseService {
 			productVirtualSettingsFileEntryResource =
 				_getProductVirtualSettingsFileEntryResource();
 
-		Collection<ProductVirtualSettingsFileEntry>
-			productVirtualSettingsFileEntries =
-				productVirtualSettingsFileEntryResource.
-					getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage(
-						productVirtualSettings.getId(), Pagination.of(1, 20)
-					).getItems();
+		return productVirtualSettingsFileEntryResource.
+			getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage(
+				productVirtualSettings.getId(), Pagination.of(1, 100)
+			).getItems(
+			).toArray(
+				new ProductVirtualSettingsFileEntry[0]
+			);
+	}
 
-		return productVirtualSettingsFileEntries.toArray(
-			new ProductVirtualSettingsFileEntry[0]);
+	public ProductVirtualSettingsFileEntry[]
+			getProductVirtualSettingsFileEntries(long productId, Jwt jwt)
+		throws Exception {
+
+		ProductVirtualSettings productVirtualSettings =
+			getProductVirtualSettings(productId, jwt);
+
+		if (productVirtualSettings == null) {
+			return null;
+		}
+
+		ProductVirtualSettingsFileEntryResource
+			productVirtualSettingsFileEntryResource =
+				_getProductVirtualSettingsFileEntryResource(jwt);
+
+		return productVirtualSettingsFileEntryResource.
+			getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage(
+				productVirtualSettings.getId(), Pagination.of(1, 100)
+			).getItems(
+			).toArray(
+				new ProductVirtualSettingsFileEntry[0]
+			);
 	}
 
 	public ProductVirtualSettingsFileEntry getProductVirtualSettingsFileEntry(
@@ -793,7 +843,7 @@ public class MarketplaceService extends BaseService {
 	public void postUserAccount(UserAccount userAccount) throws Exception {
 		UserAccountResource userAccountResource = getUserAccountResource();
 
-		userAccountResource.postUserAccount(userAccount);
+		userAccountResource.postUserAccount(null, null, userAccount);
 	}
 
 	public HttpInvoker.HttpResponse postUserAccountHttpResponse(
@@ -802,7 +852,8 @@ public class MarketplaceService extends BaseService {
 
 		UserAccountResource userAccountResource = getUserAccountResource();
 
-		return userAccountResource.postUserAccountHttpResponse(userAccount);
+		return userAccountResource.postUserAccountHttpResponse(
+			null, null, userAccount);
 	}
 
 	public void postVirtualFileEntry(File file, long productId, String version)
@@ -970,6 +1021,18 @@ public class MarketplaceService extends BaseService {
 		).build();
 	}
 
+	private ProductVirtualSettingsFileEntryResource
+			_getProductVirtualSettingsFileEntryResource(Jwt jwt)
+		throws Exception {
+
+		return ProductVirtualSettingsFileEntryResource.builder(
+		).header(
+			HttpHeaders.AUTHORIZATION, "Bearer " + jwt.getTokenValue()
+		).endpoint(
+			new URL(lxcDXPServerProtocol + "://" + lxcDXPMainDomain)
+		).build();
+	}
+
 	private ProductVirtualSettingsResource _getProductVirtualSettingsResource()
 		throws Exception {
 
@@ -978,6 +1041,18 @@ public class MarketplaceService extends BaseService {
 			HttpHeaders.AUTHORIZATION,
 			_liferayOAuth2AccessTokenManager.getAuthorization(
 				"liferay-marketplace-etc-spring-boot-oahs")
+		).endpoint(
+			new URL(lxcDXPServerProtocol + "://" + lxcDXPMainDomain)
+		).build();
+	}
+
+	private ProductVirtualSettingsResource _getProductVirtualSettingsResource(
+			Jwt jwt)
+		throws Exception {
+
+		return ProductVirtualSettingsResource.builder(
+		).header(
+			HttpHeaders.AUTHORIZATION, "Bearer " + jwt.getTokenValue()
 		).endpoint(
 			new URL(lxcDXPServerProtocol + "://" + lxcDXPMainDomain)
 		).build();

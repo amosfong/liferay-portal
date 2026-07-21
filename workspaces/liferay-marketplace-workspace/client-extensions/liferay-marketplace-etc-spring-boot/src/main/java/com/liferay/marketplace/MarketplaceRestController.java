@@ -50,13 +50,17 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.security.MessageDigest;
+
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -67,7 +71,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -77,6 +80,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -85,6 +89,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * @author Keven Leone
@@ -161,22 +166,72 @@ public class MarketplaceRestController extends BaseRestController {
 		);
 	}
 
-	@GetMapping("/product/{productERC}/version")
+	@GetMapping("/product/{productExternalReferenceCode}/version")
 	public ResponseEntity<Map<String, Object>> getProductVersion(
-			@RequestParam String dxpVersion, @PathVariable String productERC)
+			@RequestParam String dxpVersion,
+			@PathVariable String productExternalReferenceCode,
+			@AuthenticationPrincipal Jwt jwt)
 		throws Exception {
 
-		if (!_productKeys.contains(productERC)) {
-			throw new ResponseStatusException(
-				HttpStatus.FORBIDDEN, "Product ERC is not available");
-		}
-
 		Product product = _marketplaceService.getProductByExternalReferenceCode(
-			productERC);
+			productExternalReferenceCode, jwt);
 
 		ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry =
 			_getProductVirtualSettingsFileEntry(
 				dxpVersion,
+				_marketplaceService.getProductVirtualSettingsFileEntries(
+					product.getProductId(), jwt));
+
+		if (productVirtualSettingsFileEntry == null) {
+			throw new ResponseStatusException(
+				HttpStatus.NOT_FOUND,
+				"Product virtual settings file entry was not found");
+		}
+
+		String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath(
+		).path(
+			"/marketplace/products/{productExternalReferenceCode}" +
+				"/virtual-entry/{virtualEntryId}/download"
+		).buildAndExpand(
+			productExternalReferenceCode,
+			productVirtualSettingsFileEntry.getId()
+		).toUriString();
+
+		return ResponseEntity.ok(
+			HashMapBuilder.<String, Object>put(
+				"downloadURL", downloadURL
+			).put(
+				"productId", _getProductId(product)
+			).put(
+				"productName",
+				product.getName(
+				).get(
+					"en_US"
+				)
+			).put(
+				"sha256Checksum",
+				_getSHA256Checksum(productVirtualSettingsFileEntry)
+			).put(
+				"version", productVirtualSettingsFileEntry.getVersion()
+			).put(
+				"virtualEntryId", productVirtualSettingsFileEntry.getId()
+			).build());
+	}
+
+	@PostMapping(
+		"/products/{productExternalReferenceCode}/virtual-entry/{virtualEntryId}/download"
+	)
+	public ResponseEntity<StreamingResponseBody> getVirtualEntryDownload(
+			@PathVariable String productExternalReferenceCode,
+			@PathVariable long virtualEntryId, @RequestBody String jwt)
+		throws Exception {
+
+		Product product = _marketplaceService.getProductByExternalReferenceCode(
+			productExternalReferenceCode);
+
+		ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry =
+			_getProductVirtualSettingsFileEntry(
+				virtualEntryId,
 				_marketplaceService.getProductVirtualSettingsFileEntries(
 					product.getProductId()));
 
@@ -186,27 +241,13 @@ public class MarketplaceRestController extends BaseRestController {
 				"Product virtual settings file entry was not found");
 		}
 
-		return ResponseEntity.ok(
-			HashMapBuilder.<String, Object>put(
-				"version", productVirtualSettingsFileEntry.getVersion()
-			).put(
-				"virtualEntryId", productVirtualSettingsFileEntry.getId()
-			).build());
-	}
+		if (!_hasAddOn(
+				_getProductId(product),
+				_provisioningService.getEnvironmentAddOns(jwt))) {
 
-	@GetMapping("/virtual-entry/{virtualEntryId}/download")
-	public ResponseEntity<StreamingResponseBody> getVirtualEntryDownload(
-			@PathVariable long virtualEntryId)
-		throws Exception {
-
-		ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry =
-			_marketplaceService.getProductVirtualSettingsFileEntry(
-				virtualEntryId);
-
-		if (productVirtualSettingsFileEntry == null) {
 			throw new ResponseStatusException(
-				HttpStatus.NOT_FOUND,
-				"Product virtual settings file entry was not found");
+				HttpStatus.FORBIDDEN,
+				"Environment is not entitled to the product");
 		}
 
 		HttpResponse<InputStream> httpResponse =
@@ -538,6 +579,41 @@ public class MarketplaceRestController extends BaseRestController {
 		return null;
 	}
 
+	private String _getProductId(Product product) throws Exception {
+		Map<String, String> productSpecificationsMap =
+			_marketplaceService.getProductSpecificationsMap(
+				product.getProductId());
+
+		String productId = productSpecificationsMap.get("app-entry-uuid");
+
+		if (Validator.isNull(productId)) {
+			productId = product.getExternalReferenceCode();
+		}
+
+		return productId;
+	}
+
+	private ProductVirtualSettingsFileEntry _getProductVirtualSettingsFileEntry(
+		long virtualEntryId,
+		ProductVirtualSettingsFileEntry[] productVirtualSettingsFileEntries) {
+
+		if (productVirtualSettingsFileEntries == null) {
+			return null;
+		}
+
+		for (ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry :
+				productVirtualSettingsFileEntries) {
+
+			if (Objects.equals(
+					productVirtualSettingsFileEntry.getId(), virtualEntryId)) {
+
+				return productVirtualSettingsFileEntry;
+			}
+		}
+
+		return null;
+	}
+
 	private ProductVirtualSettingsFileEntry _getProductVirtualSettingsFileEntry(
 		String dxpVersion,
 		ProductVirtualSettingsFileEntry[] productVirtualSettingsFileEntries) {
@@ -614,6 +690,64 @@ public class MarketplaceRestController extends BaseRestController {
 		}
 
 		return publisherAssetLinks;
+	}
+
+	private String _getSHA256Checksum(
+			ProductVirtualSettingsFileEntry productVirtualSettingsFileEntry)
+		throws Exception {
+
+		String key =
+			productVirtualSettingsFileEntry.getId() + "@" +
+				productVirtualSettingsFileEntry.getVersion();
+
+		String sha256Checksum = _sha256Checksums.get(key);
+
+		if (sha256Checksum != null) {
+			return sha256Checksum;
+		}
+
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+		HttpResponse<InputStream> httpResponse =
+			_marketplaceService.getAssetHttpResponse(
+				productVirtualSettingsFileEntry.getSrc());
+
+		try (InputStream inputStream = httpResponse.body()) {
+			byte[] bytes = new byte[8192];
+			int bytesRead = -1;
+
+			while ((bytesRead = inputStream.read(bytes)) != -1) {
+				messageDigest.update(bytes, 0, bytesRead);
+			}
+		}
+
+		HexFormat hexFormat = HexFormat.of();
+
+		sha256Checksum = hexFormat.formatHex(messageDigest.digest());
+
+		_sha256Checksums.put(key, sha256Checksum);
+
+		return sha256Checksum;
+	}
+
+	private boolean _hasAddOn(String productId, JSONObject addOnsJSONObject) {
+		JSONArray addOnsJSONArray = addOnsJSONObject.optJSONArray("add-ons");
+
+		if (addOnsJSONArray == null) {
+			return false;
+		}
+
+		for (int i = 0; i < addOnsJSONArray.length(); i++) {
+			JSONObject addOnJSONObject = addOnsJSONArray.getJSONObject(i);
+
+			if (Objects.equals(
+					addOnJSONObject.optString("productId"), productId)) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@PostMapping("request-product-feedback/{orderId}")
@@ -772,10 +906,10 @@ public class MarketplaceRestController extends BaseRestController {
 	@Autowired
 	private MarketplaceService _marketplaceService;
 
-	@Value("${liferay.marketplace.product.keys}")
-	private List<String> _productKeys;
-
 	@Autowired
 	private ProvisioningService _provisioningService;
+
+	private final Map<String, String> _sha256Checksums =
+		new ConcurrentHashMap<>();
 
 }

@@ -72,6 +72,8 @@ const CustomerDashboardRouter = () => {
 						path="buy-liferay-tokens"
 					/>
 
+					<Route element={<Download />} path="download" />
+
 					<Route element={<DSRWorkspace />} path="workspace" />
 				</Route>
 

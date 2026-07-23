@@ -168,7 +168,8 @@ const main = async () => {
 
 	const isContactSalesProduct = product.productSpecifications.some(
 		({specificationKey, value}) =>
-			specificationKey === 'solution-type' && value === 'cmp'
+			specificationKey === 'solution-type' &&
+			['cmp', 'dsr'].includes(value)
 	);
 
 	if (isContactSalesProduct) {

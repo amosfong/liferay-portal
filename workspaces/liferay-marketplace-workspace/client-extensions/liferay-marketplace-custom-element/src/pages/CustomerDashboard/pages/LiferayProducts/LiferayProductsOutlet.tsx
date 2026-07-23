@@ -27,7 +27,9 @@ type ProductAndOrderPayload = NonNullable<
 >;
 
 const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
-	const {orderTypeExternalReferenceCode} = data?.placedOrder ?? {};
+	const placedOrder = data?.placedOrder;
+
+	const {orderTypeExternalReferenceCode} = placedOrder ?? {};
 
 	if (orderTypeExternalReferenceCode === OrderTypes.AI_HUB) {
 		return [];
@@ -39,6 +41,13 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 	const isDSR = orderTypeExternalReferenceCode === OrderTypes.DSR;
 	const isDXP = orderTypeExternalReferenceCode === OrderTypes.DXP;
 
+	const hasDownloadableItems =
+		placedOrder?.orderStatusInfo?.code ===
+			OrderWorkflowStatusCode.COMPLETED &&
+		placedOrder?.placedOrderItems?.some(
+			(item: PlacedOrderItems) => item.virtualItems?.length
+		);
+
 	return [
 		{
 			name: i18n.translate('activation-keys'),
@@ -49,6 +58,11 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 			name: i18n.translate('bundles'),
 			path: 'bundles',
 			visible: isDXP,
+		},
+		{
+			name: i18n.translate('download'),
+			path: 'download',
+			visible: isCMP && hasDownloadableItems,
 		},
 		{
 			name: i18n.translate('workspace'),

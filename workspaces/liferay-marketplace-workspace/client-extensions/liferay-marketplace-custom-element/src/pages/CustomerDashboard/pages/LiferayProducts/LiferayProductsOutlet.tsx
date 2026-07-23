@@ -13,6 +13,7 @@ import {
 	OrderCustomFields,
 	OrderTypes,
 	OrderWorkflowStatusCode,
+	isBetaOrder,
 	orderTypeDocumentationURL,
 } from '../../../../enums/Order';
 import useGetProductByOrderId from '../../../../hooks/useGetProductByOrderId';
@@ -62,7 +63,7 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 		{
 			name: i18n.translate('download'),
 			path: 'download',
-			visible: isCMP && hasDownloadableItems,
+			visible: (isCMP || isDSR) && hasDownloadableItems,
 		},
 		{
 			name: i18n.translate('workspace'),
@@ -167,7 +168,9 @@ const LiferayProductsOutlet = () => {
 								</ClayButton>
 							)}
 
-							{orderType === OrderTypes.CMP &&
+							{(orderType === OrderTypes.CMP ||
+								(orderType === OrderTypes.DSR &&
+									!isBetaOrder(props?.placedOrder))) &&
 								orderStatus ===
 									OrderWorkflowStatusCode.COMPLETED && (
 									<ClayButton

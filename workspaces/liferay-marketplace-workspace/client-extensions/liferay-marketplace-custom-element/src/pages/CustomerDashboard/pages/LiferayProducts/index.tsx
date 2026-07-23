@@ -12,6 +12,7 @@ import SearchBuilder from '../../../../core/SearchBuilder';
 import {
 	OrderTypes,
 	OrderWorkflowStatusCode,
+	isBetaOrder,
 	orderTypeDocumentationURL,
 } from '../../../../enums/Order';
 import i18n from '../../../../i18n';
@@ -103,21 +104,31 @@ const LiferayProductsListView = () => {
 							},
 							{
 								hidden: (row: PlacedOrder) =>
-									row.orderTypeExternalReferenceCode !==
-									OrderTypes.CMP,
+									!(
+										row.orderTypeExternalReferenceCode ===
+											OrderTypes.CMP ||
+										(row.orderTypeExternalReferenceCode ===
+											OrderTypes.DSR &&
+											!isBetaOrder(row))
+									),
 								name: i18n.translate('create-license-key'),
 								onClick: (placedOrder: PlacedOrder) =>
 									navigate(getViewDetailsPath(placedOrder)),
 							},
 							{
-								hidden: (row: PlacedOrder) =>
-									![
+								hidden: (row: PlacedOrder) => {
+									const orderType =
+										row.orderTypeExternalReferenceCode as OrderTypes;
+
+									if (orderType === OrderTypes.DSR) {
+										return !isBetaOrder(row);
+									}
+
+									return ![
 										OrderTypes.AI_HUB,
 										OrderTypes.CMP_BETA,
-										OrderTypes.DSR,
-									].includes(
-										row.orderTypeExternalReferenceCode as OrderTypes
-									),
+									].includes(orderType);
+								},
 								name: i18n.translate('share-your-feedback'),
 								onClick: (row: PlacedOrder) =>
 									Liferay.Util.navigate(

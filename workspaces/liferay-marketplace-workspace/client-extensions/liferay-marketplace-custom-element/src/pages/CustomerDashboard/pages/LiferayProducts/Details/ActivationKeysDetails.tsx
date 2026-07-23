@@ -14,7 +14,7 @@ import useSWR from 'swr';
 import EmptyState from '../../../../../components/EmptyState';
 import StatusCell from '../../../../../components/Table/StatusCell';
 import Table from '../../../../../components/Table/Table';
-import {OrderTypes} from '../../../../../enums/Order';
+import {OrderTypes, isBetaOrder} from '../../../../../enums/Order';
 import useGetProductByOrderId from '../../../../../hooks/useGetProductByOrderId';
 import i18n from '../../../../../i18n';
 import provisioningOAuth2 from '../../../../../services/oauth/Provisioning';
@@ -240,7 +240,11 @@ export default function ActivationKeys() {
 			return ActivationKeysDXP;
 		}
 
-		if (orderTypeExternalReferenceCode === OrderTypes.CMP) {
+		if (
+			orderTypeExternalReferenceCode === OrderTypes.CMP ||
+			(orderTypeExternalReferenceCode === OrderTypes.DSR &&
+				!isBetaOrder(outletContext?.placedOrder))
+		) {
 			return () => <Licenses />;
 		}
 

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {safeJSONParse} from '../utils/util';
+
 export enum OrderCustomFields {
 	ANALYTICS_GROUP_ID = 'analytics-group-id',
 	CLOUD_PROVISIONING = 'cloud-provisioning',
@@ -82,6 +84,7 @@ export const LIFERAY_PRODUCT_ORDER_TYPES: readonly OrderTypes[] = [
 	OrderTypes.AI_HUB,
 	OrderTypes.CMP,
 	OrderTypes.CMP_BETA,
+	OrderTypes.DSR,
 	OrderTypes.DXP,
 ];
 
@@ -169,4 +172,17 @@ export function getOrderStatusLabel(order: PlacedOrder) {
 	}
 
 	return order.orderStatusInfo.label;
+}
+
+export function isBetaOrder(placedOrder?: PlacedOrder) {
+	const [placedOrderItem] = placedOrder?.placedOrderItems ?? [];
+
+	const options = safeJSONParse<{skuOptionValueKey: string}[]>(
+		placedOrderItem?.options || '',
+		[]
+	);
+
+	return options.some((option) =>
+		['beta', 'private-beta'].includes(option.skuOptionValueKey)
+	);
 }

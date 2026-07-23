@@ -279,6 +279,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 			return "CMP";
 		}
 
+		if (productName.contains("Digital Sales Room")) {
+			return "DSR";
+		}
+
 		if (productName.contains("LR Tokens")) {
 			return "AI_HUB_TOKEN";
 		}

@@ -8,6 +8,7 @@ package com.liferay.marketplace.service;
 import com.liferay.client.extension.util.spring.boot3.client.LiferayOAuth2AccessTokenManager;
 import com.liferay.client.extension.util.spring.boot3.service.BaseService;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
+import com.liferay.marketplace.constants.MarketplaceConstants;
 import com.liferay.marketplace.util.MarketplaceUtil;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Account;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Contact;
@@ -45,8 +46,17 @@ public class ProvisioningHubService extends BaseService {
 			ProductPurchase productPurchase)
 		throws Exception {
 
-		if (Objects.equals(order.getOrderTypeExternalReferenceCode(), "CMP")) {
+		String orderTypeExternalReferenceCode =
+			order.getOrderTypeExternalReferenceCode();
+
+		if (Objects.equals(orderTypeExternalReferenceCode, "CMP")) {
 			_provisionCMP(order, productPurchase);
+
+			return;
+		}
+
+		if (Objects.equals(orderTypeExternalReferenceCode, "DSR")) {
+			_provisionDSR(koroneikiAccount, order, productPurchase);
 
 			return;
 		}
@@ -76,6 +86,8 @@ public class ProvisioningHubService extends BaseService {
 			for (ContactRole contactRole : contact.getContactRoles()) {
 				if (Objects.equals(
 						contactRole.getName(), "AI Hub Administrator") ||
+					Objects.equals(
+						contactRole.getName(), "DSR Administrator") ||
 					Objects.equals(
 						contactRole.getName(), "LDP Administrator")) {
 
@@ -209,6 +221,85 @@ public class ProvisioningHubService extends BaseService {
 			order.getId(), productPurchase.getKey());
 
 		_marketplaceService.completeOrder(
+			order.getId(), order.getPaymentStatus());
+	}
+
+	private void _provisionDSR(
+			Account koroneikiAccount, Order order,
+			ProductPurchase productPurchase)
+		throws Exception {
+
+		_koroneikiService.linkProductPurchaseToOrder(
+			order.getId(), productPurchase.getKey());
+
+		if (_koroneikiService.hasEntitlement(
+				koroneikiAccount,
+				MarketplaceConstants.KORONEIKI_AC_ENTITLEMENTS)) {
+
+			_marketplaceService.completeOrder(
+				order.getId(), order.getPaymentStatus());
+
+			return;
+		}
+
+		Map<String, String> properties = koroneikiAccount.getProperties();
+
+		if (Validator.isNull(properties.get("dataCenterLocation")) ||
+			Validator.isNull(properties.get("dsrWorkspaceName"))) {
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					StringBundler.concat(
+						"Missing properties to provision the DSR workspace ",
+						"for account ", koroneikiAccount.getKey(), ": ",
+						properties));
+			}
+
+			_marketplaceService.completeOrder(
+				order.getId(), order.getPaymentStatus());
+
+			return;
+		}
+
+		String securityContactEmailAddress = properties.get(
+			"securityContactEmailAddress");
+
+		JSONArray incidentReportEmailAddressesJSONArray = new JSONArray();
+
+		if (Validator.isNotNull(securityContactEmailAddress)) {
+			incidentReportEmailAddressesJSONArray = new JSONArray(
+				securityContactEmailAddress.split(","));
+		}
+
+		String analyticsProject = _analyticsService.provision(
+			new JSONObject(
+			).put(
+				"corpProjectName", koroneikiAccount.getName()
+			).put(
+				"corpProjectUuid", koroneikiAccount.getKey()
+			).put(
+				"incidentReportEmailAddresses",
+				incidentReportEmailAddressesJSONArray
+			).put(
+				"name", properties.get("dsrWorkspaceName")
+			).put(
+				"ownerEmailAddress",
+				_getContactEmailAddress(
+					koroneikiAccount.getKey(), securityContactEmailAddress)
+			).put(
+				"serverLocation",
+				_getServerLocation(properties.get("dataCenterLocation"))
+			));
+
+		_marketplaceService.completeOrder(
+			HashMapBuilder.put(
+				"order-metadata",
+				MarketplaceUtil.getOrderMetadataJSONObject(
+					order
+				).put(
+					"analyticsProject", new JSONObject(analyticsProject)
+				).toString()
+			).build(),
 			order.getId(), order.getPaymentStatus());
 	}
 

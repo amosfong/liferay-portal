@@ -3,6 +3,9 @@
 		{
 			"accountEntryToCloudNativeEnvironmentERC": "ERC-001",
 			"accountKey": "ERC-001",
+			"environmentId": "cne-prod-001",
+			"environmentName": "Production 001",
+			"environmentType": "production",
 			"externalReferenceCode": "ERC-001_cloud-native-environment",
 			"maxClusterNodes": 2,
 			"nonProductionSubscriptionUuid": "testNonProdSubId",
@@ -10,8 +13,28 @@
 			"r_accountEntryToCloudNativeEnvironment_accountEntryERC": "ERC-001"
 		},
 		{
+			"accountEntryToCloudNativeEnvironmentERC": "ERC-001",
+			"accountKey": "ERC-001",
+			"activationCode": "3f8b21c94d7e4a6fb05c8e2d71a94b6c",
+			"environmentType": "uat",
+			"externalReferenceCode": "ERC-001_cloud-native-environment_uat",
+			"maxClusterNodes": 2,
+			"r_accountEntryToCloudNativeEnvironment_accountEntryERC": "ERC-001"
+		},
+		{
+			"accountEntryToCloudNativeEnvironmentERC": "ERC-001",
+			"accountKey": "ERC-001",
+			"activationCode": "a7d4e01b6c2f4938ae5107d3c8b62f45",
+			"environmentType": "non-production",
+			"externalReferenceCode": "ERC-001_cloud-native-environment_non-production",
+			"maxClusterNodes": 1,
+			"r_accountEntryToCloudNativeEnvironment_accountEntryERC": "ERC-001"
+		},
+		{
 			"accountEntryToCloudNativeEnvironmentERC": "ERC-004",
 			"accountKey": "ERC-004",
+			"activationCode": "c15a9e3782b04d1cbf6e2a0d94537e18",
+			"environmentType": "production",
 			"externalReferenceCode": "ERC-004_cloud-native-environment",
 			"maxClusterNodes": 2,
 			"nonProductionSubscriptionUuid": "testNonProdSubId4",

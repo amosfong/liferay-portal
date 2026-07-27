@@ -32,7 +32,11 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 
 	const {orderTypeExternalReferenceCode} = placedOrder ?? {};
 
-	if (orderTypeExternalReferenceCode === OrderTypes.AI_HUB) {
+	if (
+		[OrderTypes.AI_HUB, OrderTypes.SEO_STUDIO].includes(
+			orderTypeExternalReferenceCode as OrderTypes
+		)
+	) {
 		return [];
 	}
 
@@ -114,6 +118,7 @@ const LiferayProductsOutlet = () => {
 						OrderTypes.CMP_BETA,
 						OrderTypes.DSR,
 						OrderTypes.DXP,
+						OrderTypes.SEO_STUDIO,
 					].includes(orderType)
 				) {
 					return (

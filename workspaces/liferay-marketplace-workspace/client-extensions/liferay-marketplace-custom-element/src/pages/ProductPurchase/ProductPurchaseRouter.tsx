@@ -41,6 +41,7 @@ import DSRLicenseKeyForm from './pages/LiferayProduct/DSRLicenseKeyForm';
 import LDPAccountSelection from './pages/LiferayProduct/LDP/LDPAccountSelection';
 import LDPProvisioning from './pages/LiferayProduct/LDP/LDPProvisioningForm';
 import ProjectSelection from './pages/LiferayProduct/Project';
+import SEOStudioForm from './pages/LiferayProduct/SEOStudio/SEOStudioForm';
 import NextSteps from './pages/NextSteps';
 import SolutionProvisioningForm from './pages/Solution';
 
@@ -193,6 +194,26 @@ export const productTypeRoutes = {
 						element: DSRLicenseKeyForm,
 						path: 'activation-key-form',
 						title: i18n.translate('activation-key'),
+					},
+				];
+			}
+
+			if (solutionType === SolutionTypes.SEO_STUDIO) {
+				return [
+					{
+						element: ProductPurchaseAccountSelection,
+						index: true,
+						title: i18n.translate('account'),
+					},
+					{
+						element: ProjectSelection,
+						path: 'project',
+						title: i18n.translate('project-selection'),
+					},
+					{
+						element: SEOStudioForm,
+						path: 'seo-studio-form',
+						title: i18n.translate('request-access'),
 					},
 				];
 			}

@@ -168,6 +168,7 @@ export enum SolutionTypes {
 	DXP = 'dxp',
 	LIFERAY_DATA_PLATFORM = 'liferay-data-platform',
 	PRE_BUILT_TRIAL = 'pre-built-trial',
+	SEO_STUDIO = 'seo-studio',
 }
 
 const ALL_OFFERINGS = [

@@ -42,6 +42,7 @@ export enum OrderTypes {
 	DXP_APP = 'DXP_APP',
 	LOW_CODE_CONFIGURATION = 'LOW_CODE_CONFIGURATION',
 	OTHER = 'OTHER',
+	SEO_STUDIO = 'SEO_STUDIO',
 	SOLUTIONS30 = 'SOLUTIONS30',
 	SOLUTIONS7 = 'SOLUTIONS7',
 	SSA_SAAS = 'SSA_SAAS',
@@ -111,6 +112,7 @@ export const orderTypeLabel = {
 	[OrderTypes.DXP]: 'DXP Free',
 	[OrderTypes.LOW_CODE_CONFIGURATION]: 'Low-Code Configuration',
 	[OrderTypes.OTHER]: 'Other',
+	[OrderTypes.SEO_STUDIO]: 'SEO Studio',
 	[OrderTypes.SOLUTIONS7]: 'Solutions 7',
 	[OrderTypes.SOLUTIONS30]: 'Solutions 30',
 	[OrderTypes.SSA_SAAS]: 'SSA SaaS',
@@ -163,7 +165,11 @@ export function getOrderStatusLabel(order: PlacedOrder) {
 		);
 	}
 
-	if (order.orderTypeExternalReferenceCode === OrderTypes.AI_HUB) {
+	if (
+		[OrderTypes.AI_HUB, OrderTypes.SEO_STUDIO].includes(
+			order.orderTypeExternalReferenceCode as OrderTypes
+		)
+	) {
 		if (order.orderStatusInfo.code !== OrderWorkflowStatusCode.COMPLETED) {
 			return 'Pending';
 		}

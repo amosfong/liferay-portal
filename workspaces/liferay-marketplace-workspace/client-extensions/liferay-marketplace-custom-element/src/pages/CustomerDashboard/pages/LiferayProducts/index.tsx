@@ -31,6 +31,7 @@ const searchParams = new URLSearchParams({
 		OrderTypes.CMP_BETA,
 		OrderTypes.DSR,
 		OrderTypes.DXP,
+		OrderTypes.SEO_STUDIO,
 	]),
 	nestedFields: 'placedOrderItems',
 	sort: 'createDate:desc',

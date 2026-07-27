@@ -102,6 +102,10 @@ const ProductPurchaseOutlet: React.FC<ProductPurchaseOutletProps> = ({
 			return OrderTypes.AI_HUB;
 		}
 
+		if (solutionTypeSpecificationValue === SolutionTypes.SEO_STUDIO) {
+			return OrderTypes.SEO_STUDIO;
+		}
+
 		return ProductPurchaseApp.getOrderTypeExternalReferenceCode(product);
 	}, [searchParams, solutionTypeSpecificationValue, product]);
 

@@ -678,8 +678,10 @@ export default {
 		'Renewal will be available 3 months before your activation key expires.',
 	'request-a-marketplace-publisher-account':
 		'Request a Marketplace Publisher Account',
+	'request-access': 'Request Access',
 	'request-access-to-ai-hub-private-beta':
 		'Request Access to AI Hub Private Beta',
+	'request-access-to-seo-studio-beta': 'Request Access to SEO Studio Beta',
 	'request-account': 'Request Account',
 	'request-description': 'Request Description',
 	'request-details': 'Request Details',
@@ -728,6 +730,13 @@ export default {
 	'selected-project': 'Selected Project',
 	'self-managed': 'Self-Managed',
 	'send-request': 'Send Request',
+	'seo-studio': 'SEO Studio',
+	'seo-studio-account-details': 'SEO Studio Account Details',
+	'seo-studio-account-name': 'SEO Studio Account Name',
+	'seo-studio-information': 'SEO Studio Information',
+	'seo-studio-is-available-only-for-ai-hub-customers':
+		'SEO Studio is available only for AI Hub customers.',
+	'seo-studio-url': 'SEO Studio URL',
 	'set-the-users-role-ssa-users-can-create-trials-while-ssa-admins-can-manage-users-roles-and-trials':
 		'Set the user’s role: SSA Users can create trials, while SSA Admins can manage users, roles, and trials.',
 	'setting-up-your-free-version-ldp': 'Setting up your Free Version LDP 🚀',

@@ -27,6 +27,10 @@ export const productAgreements = {
 		},
 		eula: `https://www.liferay.com/documents/d/guest/Liferay-EULA-2102602_GL`,
 		privacyPolicy: 'https://www.liferay.com/privacy-policy',
+		seoStudio: {
+			agreement:
+				'https://marketplace.liferay.com/documents/d/marketplace/evaluation-agreement-cloud-services-1202603_gl',
+		},
 		userAgreement:
 			'https://www.liferay.com/documents/d/guest/Liferay-EULA-2102602_GL',
 	},

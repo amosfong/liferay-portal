@@ -1,0 +1,24 @@
+@use '../index.scss';
+
+.liferay-seo-studio-form {
+	&-aggreements-text {
+		font-size: 11px;
+		text-align: justify;
+	}
+
+	&-container {
+		max-width: 610px;
+	}
+
+	&-fail {
+		border: solid 1px red !important;
+	}
+
+	&-select-input {
+		height: 40px;
+	}
+
+	.loading-animation {
+		margin: 0px !important;
+	}
+}

@@ -35,6 +35,7 @@ import {getAccountImage} from '../../utils/util';
 import AIHubNextSteps from '../ProductPurchase/pages/LiferayProduct/AIHub/AIHubNextSteps';
 import AIHubOpenBetaNextSteps from '../ProductPurchase/pages/LiferayProduct/AIHub/AIHubOpenBetaNextSteps';
 import LDPNextSteps from '../ProductPurchase/pages/LiferayProduct/LDP/LDPNextSteps';
+import SEOStudioNextSteps from '../ProductPurchase/pages/LiferayProduct/SEOStudio/SEOStudioNextSteps';
 import ProductPurchaseNextSteps from '../ProductPurchase/pages/NextSteps';
 
 import './NextSteps.scss';
@@ -305,6 +306,15 @@ export function NextSteps() {
 				error={error}
 				isLoading={isLoading}
 			/>
+		);
+	}
+
+	if (
+		productTypeCategory === ProductTypeVocabulary.LIFERAY_PRODUCT &&
+		solutionTypeSpecificationValue === SolutionTypes.SEO_STUDIO
+	) {
+		return (
+			<SEOStudioNextSteps data={data} error={error} isLoading={isLoading} />
 		);
 	}
 

@@ -7,7 +7,6 @@ import {z} from 'zod';
 
 import {OrderCustomFields, OrderTypes} from '../../../enums/Order';
 import zodSchema from '../../../schema/zod';
-import {getSiteURL} from '../../../utils/site';
 import ProductPurchase from './ProductPurchase';
 
 type SEOStudioForm = z.infer<typeof zodSchema.seoStudioForm> & {
@@ -48,7 +47,7 @@ export class ProductPurchaseSEOStudio extends ProductPurchase {
 		);
 	}
 
-	public async getNextStepsLink() {
-		return `${window.location.origin}${getSiteURL()}/customer-dashboard/#/products`;
+	public async getNextStepsLink(cart: Cart) {
+		return super.getPaymentNextStepsLink(cart);
 	}
 }

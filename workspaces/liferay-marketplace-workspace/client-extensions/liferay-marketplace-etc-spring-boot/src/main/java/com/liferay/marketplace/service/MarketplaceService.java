@@ -843,7 +843,7 @@ public class MarketplaceService extends BaseService {
 	public void postUserAccount(UserAccount userAccount) throws Exception {
 		UserAccountResource userAccountResource = getUserAccountResource();
 
-		userAccountResource.postUserAccount(null, null, userAccount);
+		userAccountResource.postUserAccount(userAccount);
 	}
 
 	public HttpInvoker.HttpResponse postUserAccountHttpResponse(
@@ -852,8 +852,7 @@ public class MarketplaceService extends BaseService {
 
 		UserAccountResource userAccountResource = getUserAccountResource();
 
-		return userAccountResource.postUserAccountHttpResponse(
-			null, null, userAccount);
+		return userAccountResource.postUserAccountHttpResponse(userAccount);
 	}
 
 	public void postVirtualFileEntry(File file, long productId, String version)

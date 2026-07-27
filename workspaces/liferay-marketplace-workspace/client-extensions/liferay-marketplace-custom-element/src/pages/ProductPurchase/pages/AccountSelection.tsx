@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {ComponentProps, ReactNode} from 'react';
+import {ComponentProps, ReactNode, useEffect} from 'react';
 import {Navigate} from 'react-router-dom';
 
 import AccountSelection from '../../../components/Checkout/AccountSelection';
@@ -36,12 +36,31 @@ const ProductPurchaseAccountSelection: React.FC<
 
 	const productTypeMetadata = productTypeRoute?.metadata;
 
-	if (
-		productTypeMetadata?.skipSingleAccountSelection &&
-		nextRoute &&
-		accounts.length === 1
-	) {
-		return <Navigate to={nextRoute.path} />;
+	const isSelectedAccountListed = accounts.some(
+		({id}) => id === selectedAccount?.id
+	);
+
+	const skipAccountSelection = Boolean(
+		productTypeMetadata?.skipSingleAccountSelection && accounts.length === 1
+	);
+
+	useEffect(() => {
+		if (skipAccountSelection && !isSelectedAccountListed) {
+			setSelectedAccount(accounts[0]);
+		}
+	}, [
+		accounts,
+		isSelectedAccountListed,
+		setSelectedAccount,
+		skipAccountSelection,
+	]);
+
+	if (skipAccountSelection && nextRoute) {
+		if (isSelectedAccountListed) {
+			return <Navigate to={nextRoute.path} />;
+		}
+
+		return null;
 	}
 
 	return (
@@ -49,7 +68,7 @@ const ProductPurchaseAccountSelection: React.FC<
 			footerProps={{
 				backButtonProps: {className: 'd-none'},
 				continueButtonProps: {
-					disabled: !selectedAccount,
+					disabled: !isSelectedAccountListed,
 					onClick: nextStep,
 				},
 				...footerProps,

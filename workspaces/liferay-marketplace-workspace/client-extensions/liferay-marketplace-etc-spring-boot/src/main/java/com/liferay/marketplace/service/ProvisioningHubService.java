@@ -61,6 +61,12 @@ public class ProvisioningHubService extends BaseService {
 			return;
 		}
 
+		if (Objects.equals(orderTypeExternalReferenceCode, "SEO_STUDIO")) {
+			_provisionSEOStudio(koroneikiAccount, order);
+
+			return;
+		}
+
 		Product product = productPurchase.getProduct();
 
 		String productName = product.getName();
@@ -358,6 +364,67 @@ public class ProvisioningHubService extends BaseService {
 					order
 				).put(
 					"analyticsProject", new JSONObject(analyticsProject)
+				).toString()
+			).build(),
+			order.getId(), order.getPaymentStatus());
+	}
+
+	private void _provisionSEOStudio(Account koroneikiAccount, Order order)
+		throws Exception {
+
+		Contact contact = _getContact(koroneikiAccount.getKey());
+
+		if (contact == null) {
+			if (_log.isInfoEnabled()) {
+				_log.info("Missing AI Hub Contact " + koroneikiAccount);
+			}
+
+			return;
+		}
+
+		Map<String, String> properties = koroneikiAccount.getProperties();
+
+		JSONObject aiHubJSONObject = _aiHubService.provision(
+			new JSONObject(
+			).put(
+				"accountEntryExternalReferenceCode",
+				order.getAccountExternalReferenceCode()
+			).put(
+				"accountEntryName", properties.get("aiHubAccountName")
+			).put(
+				"addOns",
+				new JSONArray(
+				).put(
+					"SEOStudio"
+				)
+			).put(
+				"tier", properties.get("aiHubTier")
+			).put(
+				"userAccounts",
+				new JSONArray(
+				).put(
+					new JSONObject(
+					).put(
+						"emailAddress", contact.getEmailAddress()
+					).put(
+						"firstName", contact.getFirstName()
+					).put(
+						"lastName", contact.getLastName()
+					)
+				)
+			));
+
+		if (aiHubJSONObject == null) {
+			return;
+		}
+
+		_marketplaceService.completeOrder(
+			HashMapBuilder.put(
+				"order-metadata",
+				MarketplaceUtil.getOrderMetadataJSONObject(
+					order
+				).put(
+					"seoStudio", aiHubJSONObject
 				).toString()
 			).build(),
 			order.getId(), order.getPaymentStatus());

@@ -180,7 +180,7 @@ async function loadDropdownAccounts() {
 		const response = await getAccounts(
 			new URLSearchParams({
 				fields: 'id,logoURL,name,type',
-				page: 2,
+				page: 1,
 				pageSize: PAGE_SIZE.toString(),
 				sort: 'name:asc',
 			})

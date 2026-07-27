@@ -175,14 +175,16 @@ export function getOrderStatusLabel(order: PlacedOrder) {
 }
 
 export function isBetaOrder(placedOrder?: PlacedOrder) {
-	const [placedOrderItem] = placedOrder?.placedOrderItems ?? [];
+	const placedOrderItems = placedOrder?.placedOrderItems ?? [];
 
-	const options = safeJSONParse<{skuOptionValueKey: string}[]>(
-		placedOrderItem?.options || '',
-		[]
-	);
+	return placedOrderItems.some((placedOrderItem) => {
+		const options = safeJSONParse<{skuOptionValueKey: string}[]>(
+			placedOrderItem?.options || '',
+			[]
+		);
 
-	return options.some((option) =>
-		['beta', 'private-beta'].includes(option.skuOptionValueKey)
-	);
+		return options.some((option) =>
+			['beta', 'private-beta'].includes(option.skuOptionValueKey)
+		);
+	});
 }

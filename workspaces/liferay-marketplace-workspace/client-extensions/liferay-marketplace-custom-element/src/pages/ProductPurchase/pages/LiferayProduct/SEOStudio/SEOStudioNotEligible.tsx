@@ -5,8 +5,8 @@
 
 import ProductPurchase from '../../../../../components/ProductPurchase';
 import i18n from '../../../../../i18n';
-import KnockoutEmptyState from '../../../components/KnockoutEmptyState';
 import {useProductPurchaseOutletContext} from '../../../ProductPurchaseOutlet';
+import KnockoutEmptyState from '../../../components/KnockoutEmptyState';
 
 const SEOStudioNotEligible = () => {
 	const {

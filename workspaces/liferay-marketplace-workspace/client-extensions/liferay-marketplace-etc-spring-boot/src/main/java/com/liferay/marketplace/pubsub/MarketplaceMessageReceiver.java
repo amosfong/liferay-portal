@@ -276,6 +276,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 		}
 
 		if (productName.contains("Content Marketing Platform")) {
+			if (productName.contains("Beta")) {
+				return "CMP_BETA";
+			}
+
 			return "CMP";
 		}
 

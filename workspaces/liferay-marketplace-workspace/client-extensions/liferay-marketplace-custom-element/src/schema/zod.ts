@@ -438,6 +438,18 @@ const zodSchema = {
 		suggestionSatisfaction: z.string().optional(),
 	}),
 
+	seoStudioForm: z.object({
+		...personalInformationSchema,
+		administratorEmailAddress: z
+			.string()
+			.email('Please fill in valid email'),
+		purpose: z.string().min(3, 'Purpose is required'),
+		seoStudioAccountName: z
+			.string()
+			.min(3, 'SEO Studio Account Name is required'),
+		termsAndConditions: z.boolean().refine((value) => value === true),
+		userAgreement: z.boolean().refine((value) => value === true),
+	}),
 	solutionPublishing: {
 		company: z
 			.object({
@@ -486,18 +498,6 @@ const zodSchema = {
 		}),
 		termsAndConditions: z.boolean().refine((data) => data === true),
 	},
-	seoStudioForm: z.object({
-		...personalInformationSchema,
-		administratorEmailAddress: z
-			.string()
-			.email('Please fill in valid email'),
-		purpose: z.string().min(3, 'Purpose is required'),
-		seoStudioAccountName: z
-			.string()
-			.min(3, 'SEO Studio Account Name is required'),
-		termsAndConditions: z.boolean().refine((value) => value === true),
-		userAgreement: z.boolean().refine((value) => value === true),
-	}),
 	ssaInviteUsers: z.object({
 		emailAddress: z
 			.string()

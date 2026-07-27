@@ -314,7 +314,11 @@ export function NextSteps() {
 		solutionTypeSpecificationValue === SolutionTypes.SEO_STUDIO
 	) {
 		return (
-			<SEOStudioNextSteps data={data} error={error} isLoading={isLoading} />
+			<SEOStudioNextSteps
+				data={data}
+				error={error}
+				isLoading={isLoading}
+			/>
 		);
 	}
 

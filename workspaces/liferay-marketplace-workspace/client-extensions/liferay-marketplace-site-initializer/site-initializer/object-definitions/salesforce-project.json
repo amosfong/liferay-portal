@@ -1,0 +1,42 @@
+{
+	"accountEntryRestricted": true,
+	"accountEntryRestrictedObjectFieldName": "r_salesforceProjectToAccounts_accountEntryId",
+	"externalReferenceCode": "SALESFORCE_PROJECT",
+	"label": {
+		"en_US": "Salesforce Project"
+	},
+	"name": "SalesforceProject",
+	"objectFields": [
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Koroneiki Account Key"
+			},
+			"name": "koroneikiAccountKey",
+			"required": true,
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Name"
+			},
+			"name": "name",
+			"required": true,
+			"type": "String"
+		}
+	],
+	"objectFolderExternalReferenceCode": "MARKETPLACE",
+	"panelCategoryKey": "control_panel.account_entries_admin",
+	"pluralLabel": {
+		"en_US": "Salesforce Projects"
+	},
+	"scope": "company",
+	"titleObjectFieldName": "externalReferenceCode"
+}

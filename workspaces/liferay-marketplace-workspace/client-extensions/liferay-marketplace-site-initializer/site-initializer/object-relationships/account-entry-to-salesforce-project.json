@@ -1,0 +1,11 @@
+{
+	"deletionType": "cascade",
+	"label": {
+		"en_US": "Salesforce Project to Accounts"
+	},
+	"name": "salesforceProjectToAccounts",
+	"objectDefinitionId1": "[$OBJECT_DEFINITION_ID:AccountEntry$]",
+	"objectDefinitionId2": "[$OBJECT_DEFINITION_ID:SalesforceProject$]",
+	"objectDefinitionName2": "SalesforceProject",
+	"type": "oneToMany"
+}

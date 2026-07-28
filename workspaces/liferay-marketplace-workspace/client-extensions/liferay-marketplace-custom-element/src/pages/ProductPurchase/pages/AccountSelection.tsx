@@ -4,7 +4,7 @@
  */
 
 import {ComponentProps, ReactNode, useEffect} from 'react';
-import {Navigate} from 'react-router-dom';
+import {Navigate, useLocation} from 'react-router-dom';
 
 import AccountSelection from '../../../components/Checkout/AccountSelection';
 import ProductPurchase from '../../../components/ProductPurchase';
@@ -22,6 +22,7 @@ type ProductPurchaseAccountSelectionProps = {
 const ProductPurchaseAccountSelection: React.FC<
 	ProductPurchaseAccountSelectionProps
 > = ({children, footerProps}) => {
+	const location = useLocation();
 	const {myUserAccount} = useMarketplaceContext();
 
 	const {
@@ -41,7 +42,9 @@ const ProductPurchaseAccountSelection: React.FC<
 	);
 
 	const skipAccountSelection = Boolean(
-		productTypeMetadata?.skipSingleAccountSelection && accounts.length === 1
+		!location.state?.stepBack &&
+			productTypeMetadata?.skipSingleAccountSelection &&
+			accounts.length === 1
 	);
 
 	useEffect(() => {

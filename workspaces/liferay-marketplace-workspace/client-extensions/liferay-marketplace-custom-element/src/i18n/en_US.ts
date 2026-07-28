@@ -687,6 +687,7 @@ export default {
 	'request-details': 'Request Details',
 	'request-sent-successfully': 'Request Sent Successfully',
 	'requester': 'Requester',
+	'requirements': 'Requirements',
 	'resource-requirements': 'Resource Requirements',
 	'resources': 'Resources',
 	'return-to-marketplace': 'Return to Marketplace',
@@ -852,6 +853,8 @@ export default {
 		'This order must be completed before downloading this app.',
 	'this-product-is-no-longer-available':
 		'This product is no longer available.',
+	'this-product-is-only-available-for-ai-hub-customers':
+		'This product is only available for AI Hub customers.',
 	'this-purchase-will-be-billed-under-your-existing-payment-agreement-the-payment-method-cannot-be-changed-and-no-online-payment-is-required':
 		'This purchase will be billed under your existing payment agreement. The payment method cannot be changed, and no online payment is required.',
 	'this-submission-is-currently-under-review-by-liferay-once-the-process-is-complete-it-will-be-published-on-the-marketplace-in-the-meantime-no-information-or-data-from-this-app-submission-can-be-updated':

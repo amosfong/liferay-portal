@@ -41,6 +41,7 @@ import DSRLicenseKeyForm from './pages/LiferayProduct/DSRLicenseKeyForm';
 import LDPAccountSelection from './pages/LiferayProduct/LDP/LDPAccountSelection';
 import LDPProvisioning from './pages/LiferayProduct/LDP/LDPProvisioningForm';
 import ProjectSelection from './pages/LiferayProduct/Project';
+import SEOStudioAccountSelection from './pages/LiferayProduct/SEOStudio/SEOStudioAccountSelection';
 import SEOStudioForm from './pages/LiferayProduct/SEOStudio/SEOStudioForm';
 import NextSteps from './pages/NextSteps';
 import SolutionProvisioningForm from './pages/Solution';
@@ -201,7 +202,7 @@ export const productTypeRoutes = {
 			if (solutionType === SolutionTypes.SEO_STUDIO) {
 				return [
 					{
-						element: ProductPurchaseAccountSelection,
+						element: SEOStudioAccountSelection,
 						index: true,
 						title: i18n.translate('account'),
 					},

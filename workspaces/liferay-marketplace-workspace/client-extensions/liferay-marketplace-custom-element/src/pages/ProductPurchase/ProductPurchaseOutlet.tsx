@@ -138,7 +138,7 @@ const ProductPurchaseOutlet: React.FC<ProductPurchaseOutletProps> = ({
 		const step = steps[activeStepIndex + stepNumber];
 
 		if (step) {
-			navigate(step.path || '');
+			navigate(step.path || '', {state: {stepBack: stepNumber < 0}});
 
 			scrollToMiddleOfPage();
 		}

@@ -3,41 +3,32 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {ButtonWithIcon} from '@clayui/core';
+import ClayIcon from '@clayui/icon';
 import ClayTable from '@clayui/table';
-import {useCallback, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useOutletContext} from 'react-router-dom';
-import {useAppPropertiesContext} from '~/contexts/AppPropertiesContext';
-import DownloadAlert from '~/features/project/containers/ActivationKeysTable/components/DownloadAlert';
-import {ALERT_CLOUD_LICENSE_KEY_DOWNLOAD_TEXT} from '~/features/project/containers/ActivationKeysTable/utils/constants/alertCloudLicenseKeyDownloadText';
-import {getCloudLicenseKeyDownload} from '~/features/project/containers/ActivationKeysTable/utils/getCloudLicenseKeyDownload';
 import PopoverIcon from '~/features/project/containers/ActivationStatus/DXPCloud/components/PopoverIcon';
 import {useAppContext} from '~/features/project/context';
 import DeveloperKeysLayouts from '~/features/project/layouts/DeveloperKeysLayout';
-import {
-	ALERT_DOWNLOAD_TYPE,
-	LIST_TYPES,
-} from '~/features/project/utils/constants';
+import {LIST_TYPES} from '~/features/project/utils/constants';
 import {useGetCloudNativeEnvironments} from '~/services/liferay/graphql/cloud-native-environments';
 import {getOrRequestToken} from '~/services/liferay/security/auth/getOrRequestToken';
 import i18n from '~/utils/I18n';
 
-const CloudNative = () => {
-	const [{hasExperienceSubscription, project, subscriptionGroups}, dispatch] =
-		useAppContext();
+import './CloudNative.css';
 
+const ENVIRONMENT_TYPE_ORDER = ['production', 'uat', 'non-production'];
+
+const sortByEnvironmentType = (a, b) =>
+	ENVIRONMENT_TYPE_ORDER.indexOf(a.environmentType) -
+	ENVIRONMENT_TYPE_ORDER.indexOf(b.environmentType);
+
+const CloudNative = () => {
+	const [{project, subscriptionGroups}] = useAppContext();
+
+	const [copiedActivationCode, setCopiedActivationCode] = useState('');
 	const [oAuthToken, setOAuthToken] = useState();
 	const {setHasSideMenu} = useOutletContext();
-	const {provisioningServerAPI} = useAppPropertiesContext();
-	const [downloadStatus, setDownloadStatus] = useState('');
-
-	const handleAlertStatus = useCallback((hasSuccessfullyDownloadedKeys) => {
-		setDownloadStatus(
-			hasSuccessfullyDownloadedKeys
-				? ALERT_DOWNLOAD_TYPE.success
-				: ALERT_DOWNLOAD_TYPE.danger
-		);
-	}, []);
 
 	useEffect(() => {
 		setHasSideMenu(true);
@@ -57,76 +48,123 @@ const CloudNative = () => {
 		filter: `accountKey eq '${project?.accountKey}'`,
 	});
 
-	const cloudNativeEnvironments = data?.c?.cloudNativeEnvironments?.items;
-
 	if (!project || !subscriptionGroups) {
 		return <span> {i18n.translate('loading')}...</span>;
 	}
 
-	const headerClass = 'bg-neutral-1 font-weight-bold text-neutral-10';
+	const cloudNativeEnvironments =
+		data?.c?.cloudNativeEnvironments?.items || [];
 
-	const EnvironmentRow = ({
-		handleAlertStatus,
-		label,
-		nodes,
-		oAuthToken,
-		projectName,
-		provisioningServerAPI,
-		uuid,
-	}) => (
-		<ClayTable.Row>
-			<ClayTable.Cell>{i18n.translate(label)}</ClayTable.Cell>
+	const environments = [...cloudNativeEnvironments]
+		.filter(({environmentId}) => !!environmentId)
+		.sort(sortByEnvironmentType);
 
-			<ClayTable.Cell>{uuid}</ClayTable.Cell>
+	const activationCodes = [...cloudNativeEnvironments]
+		.filter(
+			({activationCode, environmentId}) =>
+				activationCode && !environmentId
+		)
+		.sort(sortByEnvironmentType);
 
-			<ClayTable.Cell>{nodes}</ClayTable.Cell>
+	const handleCopyToClipboard = async (activationCode) => {
+		await navigator.clipboard.writeText(activationCode);
 
-			<ClayTable.Cell className="text-center">
-				<ButtonWithIcon
-					aria-label={i18n.translate('download-key')}
-					className="text-dark"
-					displayType="unstyled"
-					onClick={() =>
-						getCloudLicenseKeyDownload(
-							oAuthToken,
-							provisioningServerAPI,
-							handleAlertStatus,
-							uuid,
-							projectName
-						)
-					}
-					small
-					spritemap={Liferay.Icons.spritemap}
-					symbol="download"
-				/>
-			</ClayTable.Cell>
-		</ClayTable.Row>
-	);
+		setCopiedActivationCode(activationCode);
+	};
 
 	return (
 		<>
 			<h1>{i18n.translate('cloud-native-environments')}</h1>
 
 			<div className="mt-4">
-				{cloudNativeEnvironments?.map(
-					(cloudNativeEnvironment, index) => (
-						<ClayTable key={index} striped={false}>
-							<ClayTable.Head>
-								<ClayTable.Row>
-									<ClayTable.Cell className={headerClass}>
-										{i18n.translate('environment')}
+				<ClayTable striped={false}>
+					<ClayTable.Head>
+						<ClayTable.Row>
+							<ClayTable.Cell headingCell>
+								{i18n.translate('type')}
+							</ClayTable.Cell>
+
+							<ClayTable.Cell headingCell>
+								{i18n.translate('environment-id')}
+							</ClayTable.Cell>
+
+							<ClayTable.Cell headingCell>
+								{i18n.translate('environment-name')}
+							</ClayTable.Cell>
+
+							<ClayTable.Cell headingCell>
+								{i18n.translate('maximum-cluster-nodes')}
+
+								<PopoverIcon
+									symbol="question-circle-full"
+									title="maximum-number-of-active-nodes-available-for-this-environment-this-does-not-include-expired-or-future-nodes"
+								/>
+							</ClayTable.Cell>
+						</ClayTable.Row>
+					</ClayTable.Head>
+
+					<ClayTable.Body>
+						{environments.length ? (
+							environments.map((cloudNativeEnvironment) => (
+								<ClayTable.Row
+									key={
+										cloudNativeEnvironment.cloudNativeEnvironmentId
+									}
+								>
+									<ClayTable.Cell>
+										{i18n.translate(
+											cloudNativeEnvironment.environmentType
+										)}
 									</ClayTable.Cell>
 
-									<ClayTable.Cell className={headerClass}>
-										{i18n.translate('subscription-id')}
+									<ClayTable.Cell>
+										{cloudNativeEnvironment.environmentId}
+									</ClayTable.Cell>
+
+									<ClayTable.Cell>
+										{cloudNativeEnvironment.environmentName}
+									</ClayTable.Cell>
+
+									<ClayTable.Cell>
+										{cloudNativeEnvironment.maxClusterNodes}
+									</ClayTable.Cell>
+								</ClayTable.Row>
+							))
+						) : (
+							<ClayTable.Row>
+								<ClayTable.Cell colSpan={4}>
+									{i18n.translate(
+										'no-cloud-native-environments-were-found'
+									)}
+								</ClayTable.Cell>
+							</ClayTable.Row>
+						)}
+					</ClayTable.Body>
+				</ClayTable>
+			</div>
+
+			{!!activationCodes.length && (
+				<div className="mt-5">
+					<h2>{i18n.translate('activation-codes')}</h2>
+
+					<div className="mt-4">
+						<ClayTable striped={false}>
+							<ClayTable.Head>
+								<ClayTable.Row>
+									<ClayTable.Cell headingCell>
+										{i18n.translate('type')}
+									</ClayTable.Cell>
+
+									<ClayTable.Cell headingCell>
+										{i18n.translate('activation-code')}
 
 										<PopoverIcon
 											symbol="question-circle-full"
-											title="please-copy-and-paste-this-subscription-id-to-your-cloud-native-instance"
+											title="please-copy-and-paste-this-activation-code-to-your-cloud-native-instance"
 										/>
 									</ClayTable.Cell>
 
-									<ClayTable.Cell className={headerClass}>
+									<ClayTable.Cell headingCell>
 										{i18n.translate(
 											'maximum-cluster-nodes'
 										)}
@@ -136,88 +174,64 @@ const CloudNative = () => {
 											title="maximum-number-of-active-nodes-available-for-this-environment-this-does-not-include-expired-or-future-nodes"
 										/>
 									</ClayTable.Cell>
-
-									<ClayTable.Cell
-										className={`${headerClass} text-center`}
-									>
-										{i18n.translate('download')}
-									</ClayTable.Cell>
 								</ClayTable.Row>
 							</ClayTable.Head>
 
 							<ClayTable.Body>
-								<EnvironmentRow
-									handleAlertStatus={handleAlertStatus}
-									label="production"
-									nodes={
-										cloudNativeEnvironment.maxClusterNodes
-									}
-									oAuthToken={oAuthToken}
-									projectName={project.name}
-									provisioningServerAPI={
-										provisioningServerAPI
-									}
-									uuid={
-										cloudNativeEnvironment.productionSubscriptionUuid
-									}
-								/>
+								{activationCodes.map(
+									(cloudNativeEnvironment) => (
+										<ClayTable.Row
+											key={
+												cloudNativeEnvironment.cloudNativeEnvironmentId
+											}
+										>
+											<ClayTable.Cell>
+												{i18n.translate(
+													cloudNativeEnvironment.environmentType
+												)}
+											</ClayTable.Cell>
 
-								{!hasExperienceSubscription && (
-									<EnvironmentRow
-										handleAlertStatus={handleAlertStatus}
-										label="uat"
-										nodes={
-											cloudNativeEnvironment.maxClusterNodes
-										}
-										oAuthToken={oAuthToken}
-										projectName={project.name}
-										provisioningServerAPI={
-											provisioningServerAPI
-										}
-										uuid={
-											cloudNativeEnvironment.productionSubscriptionUuid
-										}
-									/>
+											<ClayTable.Cell>
+												{
+													cloudNativeEnvironment.activationCode
+												}
+
+												<ClayIcon
+													className="cp-copy-clipboard-icon ml-3 text-neutral-5"
+													onClick={() =>
+														handleCopyToClipboard(
+															cloudNativeEnvironment.activationCode
+														)
+													}
+													symbol="copy"
+													title={i18n.translate(
+														'copy-to-clipboard'
+													)}
+												/>
+
+												{copiedActivationCode ===
+													cloudNativeEnvironment.activationCode && (
+													<span className="ml-2 text-neutral-7">
+														{i18n.translate(
+															'copied-to-clipboard'
+														)}
+													</span>
+												)}
+											</ClayTable.Cell>
+
+											<ClayTable.Cell>
+												{
+													cloudNativeEnvironment.maxClusterNodes
+												}
+											</ClayTable.Cell>
+										</ClayTable.Row>
+									)
 								)}
-
-								<EnvironmentRow
-									handleAlertStatus={handleAlertStatus}
-									label="non-production"
-									nodes={1}
-									oAuthToken={oAuthToken}
-									projectName={project.name}
-									provisioningServerAPI={
-										provisioningServerAPI
-									}
-									uuid={
-										cloudNativeEnvironment.nonProductionSubscriptionUuid
-									}
-								/>
 							</ClayTable.Body>
 						</ClayTable>
-					)
-				)}
-
-				{!cloudNativeEnvironments?.length && (
-					<div className="p-3">
-						{i18n.translate(
-							'no-cloud-native-environments-were-found'
-						)}
 					</div>
-				)}
-
-				{!!downloadStatus && (
-					<DownloadAlert
-						downloadStatus={downloadStatus}
-						message={
-							ALERT_CLOUD_LICENSE_KEY_DOWNLOAD_TEXT[
-								downloadStatus
-							]
-						}
-						setDownloadStatus={setDownloadStatus}
-					/>
-				)}
-			</div>
+				</div>
+			)}
 
 			<DeveloperKeysLayouts>
 				<DeveloperKeysLayouts.Inputs

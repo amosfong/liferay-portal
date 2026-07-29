@@ -20,6 +20,50 @@
 			"required": false
 		},
 		{
+			"DBType": "String",
+			"externalReferenceCode": "C_CN_ENVIRONMENT_activationCode",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Activation Code"
+			},
+			"name": "activationCode",
+			"required": false
+		},
+		{
+			"DBType": "String",
+			"externalReferenceCode": "C_CN_ENVIRONMENT_environmentId",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Environment ID"
+			},
+			"name": "environmentId",
+			"required": false
+		},
+		{
+			"DBType": "String",
+			"externalReferenceCode": "C_CN_ENVIRONMENT_environmentName",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Environment Name"
+			},
+			"name": "environmentName",
+			"required": false
+		},
+		{
+			"DBType": "String",
+			"externalReferenceCode": "C_CN_ENVIRONMENT_environmentType",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Environment Type"
+			},
+			"name": "environmentType",
+			"required": false
+		},
+		{
 			"DBType": "Integer",
 			"externalReferenceCode": "C_CN_ENVIRONMENT_maxClusterNodes",
 			"indexed": true,

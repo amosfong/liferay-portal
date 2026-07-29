@@ -32,6 +32,7 @@ type BaseOutletProps = {
 	backTitle: string;
 	backURL?: string;
 	description?: ReactNode | ((data: ProductAndOrderPayload) => ReactNode);
+	restrictOrderItemPrice?: boolean;
 	routes:
 		| NavbarProps['routes']
 		| ((data: ProductAndOrderPayload) => NavbarProps['routes']);
@@ -43,12 +44,17 @@ const BaseOutlet: React.FC<BaseOutletProps> = ({
 	backTitle,
 	backURL = '..',
 	description,
+	restrictOrderItemPrice = false,
 	routes,
 	showActions = true,
 }) => {
 	const {orderId} = useParams();
 	const outletContext = useOutletContext();
-	const {data, error, isLoading} = useGetProductByOrderId(orderId as string);
+	const {data, error, isLoading} = useGetProductByOrderId(
+		orderId as string,
+		undefined,
+		restrictOrderItemPrice ? 'placedOrderItems.price' : undefined
+	);
 
 	const beta =
 		data?.marketplaceDeliveryProduct?.specificationValues?.APP_BETA;

@@ -46,16 +46,15 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 	const isDSR = orderTypeExternalReferenceCode === OrderTypes.DSR;
 	const isDXP = orderTypeExternalReferenceCode === OrderTypes.DXP;
 
-	const hasDownloadableItems =
+	const isCompleted =
 		placedOrder?.orderStatusInfo?.code ===
-			OrderWorkflowStatusCode.COMPLETED &&
-		placedOrder?.placedOrderItems?.some(
-			(item: PlacedOrderItems) => item.virtualItems?.length
-		);
+		OrderWorkflowStatusCode.COMPLETED;
 
 	return [
 		{
-			name: i18n.translate('activation-keys'),
+			name: isDXP
+				? i18n.translate('activation-keys')
+				: i18n.translate('activation'),
 			path: '',
 			visible: isCMP || isDSR || isDXP,
 		},
@@ -67,10 +66,10 @@ const getTabs = (data: ProductAndOrderPayload): NavbarProps['routes'] => {
 		{
 			name: i18n.translate('download'),
 			path: 'download',
-			visible: (isCMP || isDSR) && hasDownloadableItems,
+			visible: (isCMP || isDSR) && isCompleted,
 		},
 		{
-			name: i18n.translate('workspace'),
+			name: i18n.translate('environment'),
 			path: 'workspace',
 			visible: isDSR,
 		},
@@ -273,6 +272,7 @@ const LiferayProductsOutlet = () => {
 					</>
 				);
 			}}
+			restrictOrderItemPrice
 			routes={getTabs}
 			showActions={false}
 		/>

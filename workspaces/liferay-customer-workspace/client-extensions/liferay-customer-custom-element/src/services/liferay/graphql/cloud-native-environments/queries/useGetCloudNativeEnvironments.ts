@@ -18,7 +18,11 @@ export const GET_CLOUD_NATIVE_ENVIRONMENTS = gql`
 				pageSize: $pageSize
 			) {
 				items {
+					activationCode
 					cloudNativeEnvironmentId
+					environmentId
+					environmentName
+					environmentType
 					maxClusterNodes
 					nonProductionSubscriptionUuid
 					productionSubscriptionUuid

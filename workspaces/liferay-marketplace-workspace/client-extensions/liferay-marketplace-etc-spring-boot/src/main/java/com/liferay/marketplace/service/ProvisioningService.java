@@ -63,7 +63,7 @@ public class ProvisioningService extends BaseService {
 			jwt
 		).getJWTClaimsSet();
 
-		String environmentId = jwtClaimsSet.getStringClaim("environmentId");
+		String environmentId = jwtClaimsSet.getStringClaim("environmentID");
 
 		HttpRequest httpRequest = HttpRequest.newBuilder(
 		).uri(

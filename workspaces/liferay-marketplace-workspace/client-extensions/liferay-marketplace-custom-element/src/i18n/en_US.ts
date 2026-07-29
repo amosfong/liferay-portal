@@ -20,6 +20,7 @@ export default {
 	'account-selection': 'Account Selection',
 	'account-type': 'Account Type',
 	'accounts': 'Accounts',
+	'activation': 'Activation',
 	'activation-key': 'Activation Key',
 	'activation-key-creation': 'Activation Key Creation',
 	'activation-key-server-details': 'Activation Key Server Details',

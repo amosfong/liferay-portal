@@ -110,30 +110,37 @@ const Download = ({showSearchBar = true, title}: DownloadProps) => {
 	);
 
 	const virtualItems = useMemo(() => {
-		const versionSKUCustomField = (skus as any)[0]?.customFields.find(
-			(customField: CustomField) =>
-				customField.name === 'Version' && customField.customValue.data
+		const virtualItemsWithVersion = virtualProducts.flatMap(
+			(orderItem: PlacedOrderItems, index: number) => {
+				const versionSKUCustomField = (skus as any)[
+					index
+				]?.customFields?.find(
+					(customField: CustomField) =>
+						customField.name === 'Version' &&
+						customField.customValue.data
+				);
+
+				return (orderItem.virtualItems || []).map(
+					(virtualItem: VirtualItem) => ({
+						...virtualItem,
+						productVersion: latestVersionSpecification
+							? latestVersionSpecification.value
+							: versionSKUCustomField?.customValue.data,
+						version:
+							virtualItem.version ||
+							'Liferay Portal ' +
+								getProductCategoriesByVocabularyName(
+									outletContext?.product?.categories || [],
+									MarketplaceCategories.MARKETPLACE_LIFERAY_VERSION
+								)
+									.map((versionName) => versionName)
+									.join(', '),
+					})
+				);
+			}
 		);
 
-		const virtualItemsWithVersion = virtualProducts[0].virtualItems?.map(
-			(virtualItem: VirtualItem) => ({
-				...virtualItem,
-				productVersion: latestVersionSpecification
-					? latestVersionSpecification.value
-					: versionSKUCustomField?.customValue.data,
-				version:
-					virtualItem.version ||
-					'Liferay Portal ' +
-						getProductCategoriesByVocabularyName(
-							outletContext?.product?.categories || [],
-							MarketplaceCategories.MARKETPLACE_LIFERAY_VERSION
-						)
-							.map((versionName) => versionName)
-							.join(', '),
-			})
-		);
-
-		return virtualItemsWithVersion?.filter(
+		return virtualItemsWithVersion.filter(
 			(virtualItem: VirtualItem) =>
 				virtualItem.version
 					?.toLowerCase()

@@ -18,13 +18,17 @@ import {
 
 const useGetProductByOrderId = (
 	orderId: string,
-	swrOptions?: SWRConfiguration
+	swrOptions?: SWRConfiguration,
+	restrictFields?: string
 ) => {
 	return useSWR(
-		`/placed-order/${orderId}/product`,
+		`/placed-order/${orderId}/product${restrictFields ? `?restrictFields=${restrictFields}` : ''}`,
 		async () => {
 			const placedOrder =
-				await HeadlessCommerceDeliveryOrder.getPlacedOrder(orderId);
+				await HeadlessCommerceDeliveryOrder.getPlacedOrder(
+					orderId,
+					restrictFields
+				);
 
 			if (placedOrder.placedOrderBillingAddressId > 0) {
 				placedOrder.placedOrderBillingAddress =

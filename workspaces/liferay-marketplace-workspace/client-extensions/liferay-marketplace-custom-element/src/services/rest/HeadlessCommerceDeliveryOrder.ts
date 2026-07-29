@@ -16,9 +16,17 @@ export default class HeadlessCommerceDeliveryOrder {
 		);
 	}
 
-	static async getPlacedOrder(orderId: number | string) {
+	static async getPlacedOrder(
+		orderId: number | string,
+		restrictFields?: string
+	) {
+		const params = new URLSearchParams({
+			nestedFields: 'placedOrderItems',
+			...(restrictFields ? {restrictFields} : {}),
+		});
+
 		return fetcher<PlacedOrder>(
-			`o/headless-commerce-delivery-order/v1.0/placed-orders/${orderId}?nestedFields=placedOrderItems`
+			`o/headless-commerce-delivery-order/v1.0/placed-orders/${orderId}?${params}`
 		);
 	}
 

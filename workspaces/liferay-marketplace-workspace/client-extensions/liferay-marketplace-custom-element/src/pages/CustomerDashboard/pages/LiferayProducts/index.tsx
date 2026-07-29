@@ -34,6 +34,7 @@ const searchParams = new URLSearchParams({
 		OrderTypes.SEO_STUDIO,
 	]),
 	nestedFields: 'placedOrderItems',
+	restrictFields: 'placedOrderItems.price',
 	sort: 'createDate:desc',
 });
 
@@ -112,9 +113,28 @@ const LiferayProductsListView = () => {
 											OrderTypes.DSR &&
 											!isBetaOrder(row))
 									),
-								name: i18n.translate('create-license-key'),
+								name: i18n.translate('manage-license-keys'),
 								onClick: (placedOrder: PlacedOrder) =>
 									navigate(getViewDetailsPath(placedOrder)),
+							},
+							{
+								hidden: (row: PlacedOrder) =>
+									!(
+										[
+											OrderTypes.CMP,
+											OrderTypes.CMP_BETA,
+											OrderTypes.DSR,
+										].includes(
+											row.orderTypeExternalReferenceCode as OrderTypes
+										) &&
+										row.orderStatusInfo?.code ===
+											OrderWorkflowStatusCode.COMPLETED
+									),
+								name: i18n.translate('download-app'),
+								onClick: (placedOrder: PlacedOrder) =>
+									navigate(
+										`${getViewDetailsPath(placedOrder)}/download`
+									),
 							},
 							{
 								hidden: (row: PlacedOrder) => {

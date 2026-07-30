@@ -182,20 +182,26 @@ public class MarketplaceRestController extends BaseRestController {
 				_marketplaceService.getProductVirtualSettingsFileEntries(
 					product.getProductId(), jwt));
 
-		if (productVirtualSettingsFileEntry == null) {
-			throw new ResponseStatusException(
-				HttpStatus.NOT_FOUND,
-				"Product virtual settings file entry was not found");
-		}
+		String downloadURL = null;
+		String sha256Checksum = null;
+		String version = null;
+		Long virtualEntryId = null;
 
-		String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath(
-		).path(
-			"/marketplace/products/{productExternalReferenceCode}" +
-				"/virtual-entry/{virtualEntryId}/download"
-		).buildAndExpand(
-			productExternalReferenceCode,
-			productVirtualSettingsFileEntry.getId()
-		).toUriString();
+		if (productVirtualSettingsFileEntry != null) {
+			downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath(
+			).path(
+				"/marketplace/products/{productExternalReferenceCode}" +
+					"/virtual-entry/{virtualEntryId}/download"
+			).buildAndExpand(
+				productExternalReferenceCode,
+				productVirtualSettingsFileEntry.getId()
+			).toUriString();
+
+			sha256Checksum = _getSHA256Checksum(
+				productVirtualSettingsFileEntry);
+			version = productVirtualSettingsFileEntry.getVersion();
+			virtualEntryId = productVirtualSettingsFileEntry.getId();
+		}
 
 		return ResponseEntity.ok(
 			HashMapBuilder.<String, Object>put(
@@ -209,12 +215,11 @@ public class MarketplaceRestController extends BaseRestController {
 					"en_US"
 				)
 			).put(
-				"sha256Checksum",
-				_getSHA256Checksum(productVirtualSettingsFileEntry)
+				"sha256Checksum", sha256Checksum
 			).put(
-				"version", productVirtualSettingsFileEntry.getVersion()
+				"version", version
 			).put(
-				"virtualEntryId", productVirtualSettingsFileEntry.getId()
+				"virtualEntryId", virtualEntryId
 			).build());
 	}
 
@@ -522,20 +527,14 @@ public class MarketplaceRestController extends BaseRestController {
 		fileVersion = StringUtil.replace(
 			StringUtil.toLowerCase(fileVersion.trim()), '.', ' ');
 
-		if (dxpVersion.contains(fileVersion) ||
-			fileVersion.contains(dxpVersion)) {
-
-			return true;
+		if (!dxpVersion.matches("\\d{4} q[1-4] \\d{1,2}")) {
+			return false;
 		}
 
-		String[] dxpVersionParts = dxpVersion.split(" ");
-
-		if ((dxpVersionParts.length >= 2) &&
-			dxpVersionParts[0].matches("\\d{4}") &&
-			dxpVersionParts[1].matches("q[1-4]")) {
-
-			return fileVersion.contains(
-				dxpVersionParts[0] + " " + dxpVersionParts[1]);
+		for (String fileVersionPart : StringUtil.split(fileVersion, ',')) {
+			if (Objects.equals(fileVersionPart.trim(), dxpVersion)) {
+				return true;
+			}
 		}
 
 		return false;
@@ -632,7 +631,7 @@ public class MarketplaceRestController extends BaseRestController {
 			}
 		}
 
-		return productVirtualSettingsFileEntries[0];
+		return null;
 	}
 
 	private File _getPublisherAssetFile(String publisherAssetURL)

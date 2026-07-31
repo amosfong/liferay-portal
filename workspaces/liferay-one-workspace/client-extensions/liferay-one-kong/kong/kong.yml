@@ -1,0 +1,25 @@
+_format_version: "3.0"
+services:
+    -   name: provisioning-uat
+        routes:
+            -   methods:
+                    -   POST
+                name: cloud-environment-activate
+                paths:
+                    -   ~/cloud/v1/environments/(?<environment_id>[^/]+)/activate$
+                plugins:
+                    -   config:
+                            replace:
+                                uri: /o/provisioning-rest/v1.0/cloud/environments/$(uri_captures["environment_id"])/activation
+                        name: request-transformer
+            -   methods:
+                    -   POST
+                name: cloud-environment-manifest
+                paths:
+                    -   ~/cloud/v1/environments/(?<environment_id>[^/]+)/manifest$
+                plugins:
+                    -   config:
+                            replace:
+                                uri: /o/provisioning-rest/v1.0/cloud/environments/$(uri_captures["environment_id"])/manifest
+                        name: request-transformer
+        url: https://webserver-lrprovisioning-uat.lfr.cloud

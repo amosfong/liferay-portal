@@ -1,0 +1,29 @@
+{
+	"cpu": 0.5,
+	"environments": {
+		"infra": {
+			"deploy": false
+		}
+	},
+	"id": "__PROJECT_ID__",
+	"kind": "Deployment",
+	"livenessProbe": {
+		"httpGet": {
+			"path": "/status",
+			"port": 8100
+		},
+		"initialDelaySeconds": 60
+	},
+	"loadBalancer": {
+		"targetPort": 8000
+	},
+	"memory": 256,
+	"readinessProbe": {
+		"httpGet": {
+			"path": "/status/ready",
+			"port": 8100
+		},
+		"initialDelaySeconds": 15
+	},
+	"scale": 1
+}

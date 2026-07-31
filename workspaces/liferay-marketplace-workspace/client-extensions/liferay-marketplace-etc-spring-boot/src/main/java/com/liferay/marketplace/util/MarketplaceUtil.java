@@ -5,7 +5,10 @@
 
 package com.liferay.marketplace.util;
 
+import com.liferay.headless.commerce.admin.catalog.client.custom.field.CustomField;
+import com.liferay.headless.commerce.admin.catalog.client.custom.field.CustomValue;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Product;
+import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Sku;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.SkuOption;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.OrderItem;
@@ -332,6 +335,32 @@ public class MarketplaceUtil {
 			zonedDateTime.plusYears(
 				1
 			).toInstant());
+	}
+
+	public static String getSalesforceProductId(Sku sku) {
+		if ((sku == null) || (sku.getCustomFields() == null)) {
+			return null;
+		}
+
+		for (CustomField customField : sku.getCustomFields()) {
+			if (Objects.equals(
+					customField.getName(), "salesforce-product-id")) {
+
+				CustomValue customValue = customField.getCustomValue();
+
+				if (customValue != null) {
+					Object data = customValue.getData();
+
+					if (data != null) {
+						return data.toString();
+					}
+				}
+
+				break;
+			}
+		}
+
+		return null;
 	}
 
 	public static String getSkuOptionValue(String key, SkuOption[] skuOptions) {

@@ -72,7 +72,7 @@ public class ProvisioningHubService extends BaseService {
 		String productName = product.getName();
 
 		if (productName.startsWith("AI Hub")) {
-			_provisionAiHUB(koroneikiAccount, order);
+			_provisionAiHUB(koroneikiAccount, order, productPurchase);
 
 			return;
 		}
@@ -142,7 +142,23 @@ public class ProvisioningHubService extends BaseService {
 		return "us-west1-s2-c1";
 	}
 
-	private void _provisionAiHUB(Account koroneikiAccount, Order order)
+	private String _getTier(Product product) {
+		if (product != null) {
+			String productName = product.getName();
+
+			if (Validator.isNotNull(productName) &&
+				productName.contains("Studio")) {
+
+				return "Studio";
+			}
+		}
+
+		return "Activate";
+	}
+
+	private void _provisionAiHUB(
+			Account koroneikiAccount, Order order,
+			ProductPurchase productPurchase)
 		throws Exception {
 
 		Contact contact = _getContact(koroneikiAccount.getKey());
@@ -164,6 +180,8 @@ public class ProvisioningHubService extends BaseService {
 				order.getAccountExternalReferenceCode()
 			).put(
 				"accountEntryName", properties.get("aiHubAccountName")
+			).put(
+				"tier", _getTier(productPurchase.getProduct())
 			).put(
 				"userAccounts",
 				new JSONArray(

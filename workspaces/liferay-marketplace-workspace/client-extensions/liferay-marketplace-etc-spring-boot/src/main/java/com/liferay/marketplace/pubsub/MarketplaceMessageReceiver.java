@@ -39,6 +39,7 @@ import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Product;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.ProductPurchase;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.math.BigDecimal;
 
@@ -156,12 +157,19 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 	private OrderItem _createOrderItem(
 		ProductPurchase productPurchase, Sku catalogSku) {
 
+		String salesforceProductId = MarketplaceUtil.getSalesforceProductId(
+			catalogSku);
+
+		String productKey =
+			Validator.isNotNull(salesforceProductId) ? salesforceProductId :
+				productPurchase.getProductKey();
+
 		return new OrderItem() {
 			{
 				setOptions(() -> _getOptions(catalogSku));
 				setQuantity(
 					() -> new BigDecimal(productPurchase.getQuantity()));
-				setSkuExternalReferenceCode(productPurchase::getProductKey);
+				setSkuExternalReferenceCode(() -> productKey);
 			}
 		};
 	}

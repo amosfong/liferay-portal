@@ -8,8 +8,6 @@ package com.liferay.marketplace.model;
 import com.liferay.headless.admin.address.client.dto.v1_0.Country;
 import com.liferay.headless.admin.address.client.dto.v1_0.Region;
 import com.liferay.headless.admin.user.client.dto.v1_0.UserAccount;
-import com.liferay.headless.commerce.admin.catalog.client.custom.field.CustomField;
-import com.liferay.headless.commerce.admin.catalog.client.custom.field.CustomValue;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Sku;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Account;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.BillingAddress;
@@ -127,23 +125,7 @@ public class SalesforceOpportunity {
 	}
 
 	private JSONArray _getLineItemsJSONArray() {
-		String productId = null;
-
-		for (CustomField customField : _sku.getCustomFields()) {
-			if (Objects.equals(
-					customField.getName(), "salesforce-product-id")) {
-
-				CustomValue customValue = customField.getCustomValue();
-
-				Object data = customValue.getData();
-
-				if (data != null) {
-					productId = data.toString();
-				}
-
-				break;
-			}
-		}
+		String productId = MarketplaceUtil.getSalesforceProductId(_sku);
 
 		JSONArray jsonArray = new JSONArray();
 

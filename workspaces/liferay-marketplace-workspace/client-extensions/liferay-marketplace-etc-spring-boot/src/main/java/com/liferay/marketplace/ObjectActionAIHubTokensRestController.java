@@ -17,6 +17,7 @@ import com.liferay.marketplace.service.KoroneikiService;
 import com.liferay.marketplace.service.MarketplaceService;
 import com.liferay.marketplace.service.SalesforceService;
 import com.liferay.marketplace.util.MarketplaceUtil;
+import com.liferay.marketplace.util.SkuUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -93,7 +94,7 @@ public class ObjectActionAIHubTokensRestController extends BaseRestController {
 
 		OrderItem orderItem = orderItems[0];
 
-		String skuOptionValue = MarketplaceUtil.getSkuOptionValue(
+		String skuOptionValue = SkuUtil.getSkuOptionValue(
 			"license-usage-type", orderItem.getOptions());
 
 		if (skuOptionValue == null) {

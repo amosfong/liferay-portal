@@ -9,6 +9,7 @@ import com.liferay.headless.admin.user.client.custom.field.CustomField;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.OrderItem;
 import com.liferay.marketplace.util.MarketplaceUtil;
+import com.liferay.marketplace.util.SkuUtil;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Account;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Contact;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Entitlement;
@@ -285,7 +286,7 @@ public class KoroneikiService {
 					postAccountAccountKeyProductPurchase(
 						order.getAccountExternalReferenceCode(), jwt,
 						licenseType,
-						MarketplaceUtil.getSkuOptionValue(
+						SkuUtil.getSkuOptionValue(
 							"license-usage-type", orderItem.getOptions()),
 						orderItem);
 

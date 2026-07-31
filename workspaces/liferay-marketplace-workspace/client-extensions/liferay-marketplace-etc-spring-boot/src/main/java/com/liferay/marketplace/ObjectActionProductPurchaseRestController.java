@@ -21,6 +21,7 @@ import com.liferay.marketplace.service.KoroneikiService;
 import com.liferay.marketplace.service.MarketplaceService;
 import com.liferay.marketplace.service.SalesforceService;
 import com.liferay.marketplace.util.MarketplaceUtil;
+import com.liferay.marketplace.util.SkuUtil;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.ProductPurchase;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -238,7 +239,7 @@ public class ObjectActionProductPurchaseRestController
 				return MarketplaceUtil.format(
 					MarketplaceUtil.getOrderPurchaseEndDate(
 						productSpecificationsMap.get("license-type"),
-						MarketplaceUtil.getSkuOptionValue(
+						SkuUtil.getSkuOptionValue(
 							"license-usage-type", orderItem.getOptions())));
 			}
 		).put(
@@ -501,7 +502,7 @@ public class ObjectActionProductPurchaseRestController
 
 			_koroneikiService.postAccountAccountKeyProductPurchase(
 				order.getAccountExternalReferenceCode(), jwt, "Subscription",
-				MarketplaceUtil.getSkuOptionValue(
+				SkuUtil.getSkuOptionValue(
 					"license-usage-type", orderItem.getOptions()),
 				orderItem);
 		}

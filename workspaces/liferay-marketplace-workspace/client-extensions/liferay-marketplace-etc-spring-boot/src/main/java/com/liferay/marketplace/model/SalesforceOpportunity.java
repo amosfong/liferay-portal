@@ -14,6 +14,7 @@ import com.liferay.headless.commerce.admin.order.client.dto.v1_0.BillingAddress;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.OrderItem;
 import com.liferay.marketplace.util.MarketplaceUtil;
+import com.liferay.marketplace.util.SkuUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.time.ZoneOffset;
@@ -125,7 +126,7 @@ public class SalesforceOpportunity {
 	}
 
 	private JSONArray _getLineItemsJSONArray() {
-		String productId = MarketplaceUtil.getSalesforceProductId(_sku);
+		String productId = SkuUtil.getSalesforceProductId(_sku);
 
 		JSONArray jsonArray = new JSONArray();
 
@@ -141,7 +142,7 @@ public class SalesforceOpportunity {
 					_format(
 						MarketplaceUtil.getOrderPurchaseEndDate(
 							_licenseType,
-							MarketplaceUtil.getSkuOptionValue(
+							SkuUtil.getSkuOptionValue(
 								"license-usage-type", orderItem.getOptions())))
 				).put(
 					"startDate", _format(_order.getCreateDate())

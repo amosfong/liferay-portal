@@ -18,6 +18,7 @@ import com.liferay.marketplace.permission.DefaultServiceAccountPermission;
 import com.liferay.marketplace.service.KoroneikiService;
 import com.liferay.marketplace.service.MarketplaceService;
 import com.liferay.marketplace.util.MarketplaceUtil;
+import com.liferay.marketplace.util.SkuUtil;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Account;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Contact;
 import com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.ExternalLink;
@@ -167,13 +168,13 @@ public class KoroneikiRestController extends BaseRestController {
 				);
 			}
 
-			String name = MarketplaceUtil.getSkuOptionValue(
+			String name = SkuUtil.getSkuOptionValue(
 				"license-usage-type", orderItem.getOptions());
 
 			if (name == null) {
 				Sku sku = _marketplaceService.getSku(orderItem.getSkuId());
 
-				name = MarketplaceUtil.getSkuOptionValue(
+				name = SkuUtil.getSkuOptionValue(
 					"license-usage-type", sku.getSkuOptions());
 			}
 
@@ -249,7 +250,7 @@ public class KoroneikiRestController extends BaseRestController {
 					product.getProductId(), Pagination.of(1, 10)
 				).getItems()) {
 
-			String licenseUsageType = MarketplaceUtil.getSkuOptionValue(
+			String licenseUsageType = SkuUtil.getSkuOptionValue(
 				"license-usage-type", sku.getSkuOptions());
 
 			String skuExternalReferenceCode = sku.getExternalReferenceCode();

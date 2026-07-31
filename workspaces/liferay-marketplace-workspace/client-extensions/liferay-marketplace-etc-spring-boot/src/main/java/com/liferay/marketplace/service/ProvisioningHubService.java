@@ -227,7 +227,8 @@ public class ProvisioningHubService extends BaseService {
 			order.getId(), productPurchase.getKey());
 
 		_marketplaceService.completeOrder(
-			order.getId(), order.getPaymentStatus());
+			order.getId(),
+			MarketplaceConstants.ORDER_PAYMENT_STATUS_NOT_REQUIRED);
 	}
 
 	private void _provisionDSR(
@@ -243,7 +244,8 @@ public class ProvisioningHubService extends BaseService {
 				MarketplaceConstants.KORONEIKI_AC_ENTITLEMENTS)) {
 
 			_marketplaceService.completeOrder(
-				order.getId(), order.getPaymentStatus());
+				order.getId(),
+				MarketplaceConstants.ORDER_PAYMENT_STATUS_NOT_REQUIRED);
 
 			return;
 		}
@@ -262,7 +264,8 @@ public class ProvisioningHubService extends BaseService {
 			}
 
 			_marketplaceService.completeOrder(
-				order.getId(), order.getPaymentStatus());
+				order.getId(),
+				MarketplaceConstants.ORDER_PAYMENT_STATUS_NOT_REQUIRED);
 
 			return;
 		}
@@ -306,7 +309,8 @@ public class ProvisioningHubService extends BaseService {
 					"analyticsProject", new JSONObject(analyticsProject)
 				).toString()
 			).build(),
-			order.getId(), order.getPaymentStatus());
+			order.getId(),
+			MarketplaceConstants.ORDER_PAYMENT_STATUS_NOT_REQUIRED);
 	}
 
 	private void _provisionLDP(Account koroneikiAccount, Order order)

@@ -294,6 +294,14 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 		return "ADDONS";
 	}
 
+	private int _getPaymentStatus(String orderTypeExternalReferenceCode) {
+		if (_virtualItemOrderTypes.contains(orderTypeExternalReferenceCode)) {
+			return MarketplaceConstants.ORDER_PAYMENT_STATUS_PENDING;
+		}
+
+		return MarketplaceConstants.ORDER_PAYMENT_STATUS_NOT_REQUIRED;
+	}
+
 	private PostalAddress _getPostalAddress(
 		Account account, String streetAddressLine1) {
 
@@ -470,6 +478,9 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 
 			Product product = productPurchase.getProduct();
 
+			String orderTypeExternalReferenceCode =
+				_getOrderTypeExternalReferenceCode(product.getName());
+
 			order = orderResource.postOrder(
 				new Order() {
 					{
@@ -483,12 +494,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 								_createOrderItem(productPurchase, sku)
 							});
 						setOrderTypeExternalReferenceCode(
-							() -> _getOrderTypeExternalReferenceCode(
-								product.getName()));
+							() -> orderTypeExternalReferenceCode);
 						setPaymentStatus(
-							() ->
-								MarketplaceConstants.
-									ORDER_PAYMENT_STATUS_NOT_REQUIRED);
+							() -> _getPaymentStatus(
+								orderTypeExternalReferenceCode));
 					}
 				});
 		}
@@ -629,6 +638,9 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 
 	private static final Log _log = LogFactory.getLog(
 		MarketplaceMessageReceiver.class);
+
+	private static final List<String> _virtualItemOrderTypes = List.of(
+		"CMP", "DSR");
 
 	private volatile Long _channelId;
 	private final KoroneikiService _koroneikiService;

@@ -79,7 +79,7 @@ const ProductCard = ({
 					alt="App Icon"
 					className="object-fit-cover rounded"
 					height="64px"
-					src={normalizeURLProtocol(product.urlImage)}
+					src={normalizeURLProtocol(product?.urlImage)}
 					width="64px"
 				/>
 

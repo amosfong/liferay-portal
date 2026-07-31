@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
@@ -83,7 +84,11 @@ const CreateLicense = () => {
 	const [step, setStep] = useState(StepCreateLicense.SUBSCRIPTION);
 	const {orderId} = useParams();
 	const {myUserAccount} = useMarketplaceContext();
-	const {data} = useGetProductByOrderId(orderId as string);
+	const {data, isLoading} = useGetProductByOrderId(
+		orderId as string,
+		undefined,
+		'placedOrderItems.price'
+	);
 
 	const navigate = useNavigate();
 	const product = data?.product;
@@ -254,6 +259,10 @@ const CreateLicense = () => {
 			subscription,
 		]
 	);
+
+	if (isLoading) {
+		return <ClayLoadingIndicator />;
+	}
 
 	return (
 		<div className="align-items-center d-flex flex-column mb-6 mkt-create-license mt-6">

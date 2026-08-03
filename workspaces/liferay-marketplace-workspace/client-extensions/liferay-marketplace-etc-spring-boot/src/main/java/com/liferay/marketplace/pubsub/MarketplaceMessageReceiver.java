@@ -298,8 +298,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 		return "ADDONS";
 	}
 
-	private int _getPaymentStatus(String orderTypeExternalReferenceCode) {
-		if (_virtualItemOrderTypes.contains(orderTypeExternalReferenceCode)) {
+	private int _getPaymentStatus(String productName) {
+		if (_virtualItemOrderTypes.contains(
+				_getOrderTypeExternalReferenceCode(productName))) {
+
 			return MarketplaceConstants.ORDER_PAYMENT_STATUS_PENDING;
 		}
 
@@ -494,9 +496,6 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 
 			Product product = productPurchase.getProduct();
 
-			String orderTypeExternalReferenceCode =
-				_getOrderTypeExternalReferenceCode(product.getName());
-
 			order = orderResource.postOrder(
 				new Order() {
 					{
@@ -510,10 +509,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 								_createOrderItem(productPurchase, sku)
 							});
 						setOrderTypeExternalReferenceCode(
-							() -> orderTypeExternalReferenceCode);
+							() -> _getOrderTypeExternalReferenceCode(
+								product.getName()));
 						setPaymentStatus(
-							() -> _getPaymentStatus(
-								orderTypeExternalReferenceCode));
+							() -> _getPaymentStatus(product.getName()));
 					}
 				});
 		}

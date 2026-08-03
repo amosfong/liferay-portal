@@ -185,6 +185,25 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 		return null;
 	}
 
+	private String _getAccountKey(
+		com.liferay.osb.koroneiki.phloem.rest.client.dto.v1_0.Account
+			koroneikiAccount,
+		String productName) {
+
+		if (!_licenseManagedOrderTypes.contains(
+				_getOrderTypeExternalReferenceCode(productName)) ||
+			((koroneikiAccount.getExternalLinks() != null) &&
+			 Validator.isNotNull(
+				 MarketplaceUtil.getEntityId(
+					 koroneikiAccount.getExternalLinks(), "salesforce",
+					 "project")))) {
+
+			return koroneikiAccount.getParentAccountKey();
+		}
+
+		return koroneikiAccount.getKey();
+	}
+
 	private Long _getChannelId() throws Exception {
 		if (_channelId != null) {
 			return _channelId;
@@ -299,7 +318,7 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 	}
 
 	private int _getPaymentStatus(String productName) {
-		if (_virtualItemOrderTypes.contains(
+		if (_licenseManagedOrderTypes.contains(
 				_getOrderTypeExternalReferenceCode(productName))) {
 
 			return MarketplaceConstants.ORDER_PAYMENT_STATUS_PENDING;
@@ -482,11 +501,16 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 		Order order = _getOrder(opportunityId);
 
 		if (order == null) {
-			if (_getAccount(koroneikiAccount.getParentAccountKey()) == null) {
+			Product product = productPurchase.getProduct();
+
+			String accountKey = _getAccountKey(
+				koroneikiAccount, product.getName());
+
+			if (_getAccount(accountKey) == null) {
 				throw new Exception(
 					StringBundler.concat(
 						"Unable to process product purchase, account ",
-						koroneikiAccount.getParentAccountKey(), " not found"));
+						accountKey, " not found"));
 			}
 
 			Sku sku = _getSku(productPurchase.getProductKey());
@@ -494,13 +518,10 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 			OrderResource orderResource =
 				_marketplaceService.getOrderResource();
 
-			Product product = productPurchase.getProduct();
-
 			order = orderResource.postOrder(
 				new Order() {
 					{
-						setAccountExternalReferenceCode(
-							koroneikiAccount::getParentAccountKey);
+						setAccountExternalReferenceCode(() -> accountKey);
 						setChannelId(() -> _getChannelId());
 						setCurrencyCode(() -> "USD");
 						setExternalReferenceCode(() -> opportunityId);
@@ -654,7 +675,7 @@ public class MarketplaceMessageReceiver implements MessageReceiver {
 	private static final Log _log = LogFactory.getLog(
 		MarketplaceMessageReceiver.class);
 
-	private static final List<String> _virtualItemOrderTypes = List.of(
+	private static final List<String> _licenseManagedOrderTypes = List.of(
 		"CMP", "DSR");
 
 	private volatile Long _channelId;

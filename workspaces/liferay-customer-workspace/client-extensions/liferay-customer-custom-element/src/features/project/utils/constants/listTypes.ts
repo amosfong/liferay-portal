@@ -7,6 +7,7 @@ export const LIST_TYPES = {
 	developerKeyDXPVersion: 'Developer Key DXP Version',
 	developerKeyPortalVersion: 'Developer Key Portal Version',
 	dxpMajorVersion: 'DXP Major Version',
+	dxpMinorVersion: 'DXP Minor Version',
 	lxcPrimaryRegion: 'LXC Primary Region',
 	versionOfLiferaySoftware: 'Version of Liferay Software',
 };

@@ -19,6 +19,7 @@ export const GET_CLOUD_NATIVE_ENVIRONMENTS = gql`
 			) {
 				items {
 					activationCode
+					activationMethod
 					cloudNativeEnvironmentId
 					environmentId
 					environmentName

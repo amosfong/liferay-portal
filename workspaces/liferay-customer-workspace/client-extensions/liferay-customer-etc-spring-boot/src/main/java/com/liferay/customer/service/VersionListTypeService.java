@@ -8,12 +8,15 @@ package com.liferay.customer.service;
 import com.liferay.client.extension.util.spring.boot3.client.LiferayOAuth2AccessTokenManager;
 import com.liferay.client.extension.util.spring.boot3.service.BaseService;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +53,37 @@ public class VersionListTypeService extends BaseService {
 		_updateListTypeDefinition(
 			_liferayCustomerVersionListTypeDXPMajorERC, "DXP Major Version",
 			_getDXPMajorVersions(releasesJSONArray));
+
+		_updateListTypeDefinition(
+			_liferayCustomerVersionListTypeDXPMinorERC, "DXP Minor Version",
+			_getDXPMinorVersions(releasesJSONArray));
+	}
+
+	private int _compareProductVersions(
+		String productVersion1, String productVersion2) {
+
+		int[] quarterlyVersion1 = _getQuarterlyVersion(productVersion1);
+		int[] quarterlyVersion2 = _getQuarterlyVersion(productVersion2);
+
+		if (quarterlyVersion1 == null) {
+			if (quarterlyVersion2 != null) {
+				return 1;
+			}
+
+			return productVersion2.compareTo(productVersion1);
+		}
+
+		if (quarterlyVersion2 == null) {
+			return -1;
+		}
+
+		for (int i = 0; i < quarterlyVersion1.length; i++) {
+			if (quarterlyVersion1[i] != quarterlyVersion2[i]) {
+				return quarterlyVersion2[i] - quarterlyVersion1[i];
+			}
+		}
+
+		return productVersion1.compareTo(productVersion2);
 	}
 
 	private String _getAuthorization() {
@@ -88,6 +122,42 @@ public class VersionListTypeService extends BaseService {
 		}
 
 		return new ArrayList<>(versions);
+	}
+
+	private List<String> _getDXPMinorVersions(JSONArray releasesJSONArray) {
+		TreeSet<String> versions = new TreeSet<>(this::_compareProductVersions);
+
+		for (int i = 0; i < releasesJSONArray.length(); i++) {
+			JSONObject releaseJSONObject = releasesJSONArray.getJSONObject(i);
+
+			String product = releaseJSONObject.optString("product");
+			String productVersion = releaseJSONObject.optString(
+				"productVersion");
+
+			if (Validator.isNull(product) || Validator.isNull(productVersion) ||
+				!product.equals("dxp")) {
+
+				continue;
+			}
+
+			versions.add(productVersion);
+		}
+
+		return new ArrayList<>(versions);
+	}
+
+	private int[] _getQuarterlyVersion(String productVersion) {
+		Matcher matcher = _quarterlyVersionPattern.matcher(productVersion);
+
+		if (!matcher.find()) {
+			return null;
+		}
+
+		return new int[] {
+			GetterUtil.getInteger(matcher.group(1)),
+			GetterUtil.getInteger(matcher.group(2)),
+			GetterUtil.getInteger(matcher.group(3))
+		};
 	}
 
 	private boolean _isSupported(JSONArray tagsJSONArray) {
@@ -179,8 +249,14 @@ public class VersionListTypeService extends BaseService {
 	private static final Log _log = LogFactory.getLog(
 		VersionListTypeService.class);
 
+	private static final Pattern _quarterlyVersionPattern = Pattern.compile(
+		"^DXP (\\d{4})\\.Q([1-4])\\.(\\d+)");
+
 	@Value("${liferay.customer.version.list.type.dxp.major.erc}")
 	private String _liferayCustomerVersionListTypeDXPMajorERC;
+
+	@Value("${liferay.customer.version.list.type.dxp.minor.erc}")
+	private String _liferayCustomerVersionListTypeDXPMinorERC;
 
 	@Value("${liferay.customer.version.list.type.releases.url}")
 	private String _liferayCustomerVersionListTypeReleasesURL;

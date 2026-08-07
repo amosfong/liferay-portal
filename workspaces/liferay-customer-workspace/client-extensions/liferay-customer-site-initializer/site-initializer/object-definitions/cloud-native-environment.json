@@ -32,6 +32,17 @@
 		},
 		{
 			"DBType": "String",
+			"externalReferenceCode": "C_CN_ENVIRONMENT_activationMethod",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Activation Method"
+			},
+			"name": "activationMethod",
+			"required": false
+		},
+		{
+			"DBType": "String",
 			"externalReferenceCode": "C_CN_ENVIRONMENT_environmentId",
 			"indexed": true,
 			"indexedAsKeyword": true,

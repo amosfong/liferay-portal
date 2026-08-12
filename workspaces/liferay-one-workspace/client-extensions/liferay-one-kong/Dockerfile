@@ -1,6 +1,7 @@
 FROM kong:3.9
 
 COPY kong/kong.yml /kong/declarative/kong.yml
+COPY kong/loggable.conf /kong/loggable.conf
 
 ENV KONG_DATABASE="off"
 ENV KONG_DECLARATIVE_CONFIG="/kong/declarative/kong.yml"
@@ -21,3 +22,15 @@ ENV KONG_NGINX_WORKER_PROCESSES="1"
 # LCP.json probes to reach /status/ready.
 
 ENV KONG_STATUS_LISTEN="0.0.0.0:8100"
+
+# Drop the load balancer health check probes from the access log. The map that
+# defines $loggable lives in loggable.conf, which nginx_http_include pulls into the
+# http block; the proxy access log then applies it as an "if=" condition. Kong has
+# no per route logging switch, so this is the supported way to filter.
+#
+# The backslash matters. Dockerfile ENV values are expanded at build time, and
+# $loggable has no build time value, so an unescaped reference silently resolves to
+# an empty string and leaves a dangling "if=" that nginx rejects on boot.
+
+ENV KONG_NGINX_HTTP_INCLUDE="/kong/loggable.conf"
+ENV KONG_PROXY_ACCESS_LOG="/dev/stdout combined if=\$loggable"

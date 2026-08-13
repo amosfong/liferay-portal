@@ -1,18 +1,5 @@
 _format_version: "3.0"
 services:
-
-    # The load balancer health checks the port published by LCP.json's
-    # loadBalancer.targetPort, and accepts only a 200. It does not reuse the
-    # readinessProbe because that probe listens on the status port rather than the
-    # published one. Without a route for "GET /", Kong answers the health check with
-    # its own 404, the backend never becomes healthy, and every external request gets
-    # a 502 even though the pod is running and ready.
-    #
-    # request-termination answers from the gateway itself, so url is required but
-    # never dialed. Proxying to the status listener instead would add a round trip
-    # through the proxy path on every health check. The path is anchored to match
-    # only "/", leaving the provisioning routes below untouched.
-
     -   name: health
         routes:
             -   methods:

@@ -1,6 +1,28 @@
 {
 	"cpu": 0.5,
 	"environments": {
+		"extprd": {
+			"loadBalancer": {
+				"certs": [
+					{
+						"customDomains": [
+							"api.one.liferay.com"
+						]
+					}
+				]
+			}
+		},
+		"extuat": {
+			"loadBalancer": {
+				"certs": [
+					{
+						"customDomains": [
+							"api.one-uat.liferay.com"
+						]
+					}
+				]
+			}
+		},
 		"infra": {
 			"deploy": false
 		}

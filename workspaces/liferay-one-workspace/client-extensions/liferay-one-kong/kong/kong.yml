@@ -18,7 +18,7 @@ services:
                     -   POST
                 name: cloud-environment-activate
                 paths:
-                    -   ~/cloud/v1/environments/(?<environment_id>[^/]+)/activate$
+                    -   ~/cloud/v1/environments/(?<environment_id>[^/]+)/activation$
                 plugins:
                     -   config:
                             replace:

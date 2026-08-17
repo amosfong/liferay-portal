@@ -58,7 +58,11 @@ public class CloudNativeEnvironmentsRestController extends BaseRestController {
 			JSONObject jsonObject = new JSONObject(json);
 
 			String activationCode = jsonObject.optString("activationCode");
-			String jwtToken = jsonObject.optString("token");
+			String jwtToken = jsonObject.optString(
+				"token"
+			).replaceAll(
+				"\\s", ""
+			);
 
 			if (Validator.isNull(activationCode) ||
 				Validator.isNull(jwtToken)) {
@@ -84,8 +88,11 @@ public class CloudNativeEnvironmentsRestController extends BaseRestController {
 				).getJWTClaimsSet();
 			}
 			catch (Exception exception) {
-				_log.error(
-					"Unable to parse the offline activation token", exception);
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to parse the offline activation token",
+						exception);
+				}
 
 				return new ResponseEntity<>(
 					"INVALID_TOKEN", HttpStatus.BAD_REQUEST);

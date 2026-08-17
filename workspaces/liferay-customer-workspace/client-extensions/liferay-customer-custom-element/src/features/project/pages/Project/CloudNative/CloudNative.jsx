@@ -24,6 +24,11 @@ import OfflineActivationModal from './components/OfflineActivationModal';
 
 import './CloudNative.css';
 
+const ACTIVATION_ERROR_MESSAGE_KEYS = {
+	INVALID_TOKEN:
+		'the-activation-token-is-not-valid-please-generate-a-new-token-in-your-cloud-native-environment-and-try-again',
+};
+
 const BUNDLE_ERROR_MESSAGE_KEYS = {
 	ADD_ONS_UNAVAILABLE:
 		'no-add-ons-are-available-for-the-selected-dxp-version-please-select-a-different-version',
@@ -31,24 +36,28 @@ const BUNDLE_ERROR_MESSAGE_KEYS = {
 
 const ENVIRONMENT_TYPE_ORDER = ['production', 'uat', 'non-production'];
 
+const UNEXPECTED_ACTIVATION_ERROR_MESSAGE_KEY =
+	'there-was-an-unexpected-error-while-attempting-to-activate-your-environment-please-try-again-in-a-few-moments';
+
 const UNEXPECTED_BUNDLE_ERROR_MESSAGE_KEY =
 	'there-was-an-unexpected-error-while-attempting-to-download-your-offline-activation-bundle-please-try-again-in-a-few-moments';
 
-const getBundleErrorMessageKey = async (error) => {
+const getErrorMessageKey = async (
+	error,
+	errorMessageKeys,
+	unexpectedErrorMessageKey
+) => {
 	if (typeof error?.text !== 'function') {
-		return UNEXPECTED_BUNDLE_ERROR_MESSAGE_KEY;
+		return unexpectedErrorMessageKey;
 	}
 
 	try {
 		const code = (await error.text()).trim();
 
-		return (
-			BUNDLE_ERROR_MESSAGE_KEYS[code] ??
-			UNEXPECTED_BUNDLE_ERROR_MESSAGE_KEY
-		);
+		return errorMessageKeys[code] ?? unexpectedErrorMessageKey;
 	}
 	catch (readError) {
-		return UNEXPECTED_BUNDLE_ERROR_MESSAGE_KEY;
+		return unexpectedErrorMessageKey;
 	}
 };
 
@@ -59,10 +68,11 @@ const sortByEnvironmentType = (a, b) =>
 const CloudNative = () => {
 	const [{project, subscriptionGroups}] = useAppContext();
 
+	const [activationErrorMessageKey, setActivationErrorMessageKey] =
+		useState('');
 	const [bundleEnvironmentId, setBundleEnvironmentId] = useState('');
 	const [bundleErrorMessageKey, setBundleErrorMessageKey] = useState('');
 	const [copiedActivationCode, setCopiedActivationCode] = useState('');
-	const [hasActivationError, setHasActivationError] = useState(false);
 	const [isActivating, setIsActivating] = useState(false);
 	const [isDownloadingBundle, setIsDownloadingBundle] = useState(false);
 	const [oAuthToken, setOAuthToken] = useState();
@@ -75,7 +85,7 @@ const CloudNative = () => {
 
 	const {observer, onClose} = useModal({
 		onClose: () => {
-			setHasActivationError(false);
+			setActivationErrorMessageKey('');
 			setOfflineActivationCode('');
 			setOfflineActivationEnvironmentType('');
 		},
@@ -107,7 +117,7 @@ const CloudNative = () => {
 	});
 
 	const handleOfflineActivate = async (token) => {
-		setHasActivationError(false);
+		setActivationErrorMessageKey('');
 		setIsActivating(true);
 
 		try {
@@ -132,7 +142,13 @@ const CloudNative = () => {
 			await refetch();
 		}
 		catch (error) {
-			setHasActivationError(true);
+			setActivationErrorMessageKey(
+				await getErrorMessageKey(
+					error,
+					ACTIVATION_ERROR_MESSAGE_KEYS,
+					UNEXPECTED_ACTIVATION_ERROR_MESSAGE_KEY
+				)
+			);
 		}
 		finally {
 			setIsActivating(false);
@@ -167,7 +183,13 @@ const CloudNative = () => {
 			setBundleEnvironmentId('');
 		}
 		catch (error) {
-			setBundleErrorMessageKey(await getBundleErrorMessageKey(error));
+			setBundleErrorMessageKey(
+				await getErrorMessageKey(
+					error,
+					BUNDLE_ERROR_MESSAGE_KEYS,
+					UNEXPECTED_BUNDLE_ERROR_MESSAGE_KEY
+				)
+			);
 		}
 		finally {
 			setIsDownloadingBundle(false);
@@ -217,7 +239,7 @@ const CloudNative = () => {
 			{!!offlineActivationCode && (
 				<OfflineActivationModal
 					environmentType={offlineActivationEnvironmentType}
-					hasError={hasActivationError}
+					errorMessageKey={activationErrorMessageKey}
 					isActivating={isActivating}
 					observer={observer}
 					onActivate={handleOfflineActivate}

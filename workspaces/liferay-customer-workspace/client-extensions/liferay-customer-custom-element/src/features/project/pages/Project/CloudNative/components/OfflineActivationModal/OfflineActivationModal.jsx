@@ -15,7 +15,7 @@ const ACTIVATION_CLI_COMMAND = '[activation CLI command]';
 
 const OfflineActivationModal = ({
 	environmentType,
-	hasError,
+	errorMessageKey,
 	isActivating,
 	observer,
 	onActivate,
@@ -87,7 +87,7 @@ const OfflineActivationModal = ({
 				</div>
 			</div>
 
-			{!isActivating && hasError && (
+			{!isActivating && !!errorMessageKey && (
 				<div className="allign cp-error-alert d-flex px-4 py-3">
 					<ClayIcon
 						className="mr-2 mt-1 text-danger"
@@ -95,9 +95,7 @@ const OfflineActivationModal = ({
 					/>
 
 					<p className="m-0 text-danger text-paragraph">
-						{i18n.translate(
-							'there-was-an-unexpected-error-while-attempting-to-activate-your-environment-please-try-again-in-a-few-moments'
-						)}
+						{i18n.translate(errorMessageKey)}
 					</p>
 				</div>
 			)}
